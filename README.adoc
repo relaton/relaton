@@ -1,0 +1,17 @@
+= relaton
+
+gem for importing and caching bibliographic references to technical standards
+
+```ruby
+x = Relaton.fetch("ISO19011")
+=> Relaton::Error "No such fetcher"
+
+require 'relaton-iso'
+x = Relaton.fetch("ISO19011")
+=> <# Relaton::Iso @docidentifier: "ISO 19011:2011" ... >
+
+x.to_xml
+=> <bib-item ...>
+```
+
+
