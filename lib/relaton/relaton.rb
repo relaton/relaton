@@ -61,9 +61,9 @@ module Relaton
       bib = case stdclass
             when :isobib then Isobib::IsoBibliography.get(code, year, opts)
             else
-              nil
+              :error
             end
-      return nil if bib.nil?
+      return nil if bib == :error
       { "fetched" => Date.today, "bib" => bib }
     end
 
