@@ -75,7 +75,7 @@ module Relaton
 
     def open_cache_biblio(filename)
       biblio = {}
-      if !file.nil? && Pathname.new(filename).file?
+      if !filename.nil? && Pathname.new(filename).file?
         File.open(filename, "r") do |f|
           biblio = JSON.parse(f.read)
         end
