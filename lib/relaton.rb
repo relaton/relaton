@@ -1,4 +1,5 @@
 require "isobib"
 require "rfcbib"
 require "gbbib"
-require "iso-bib-item"
+require_relative "relaton/relaton"
+require_relative "relaton/version"

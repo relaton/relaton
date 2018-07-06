@@ -1,13 +1,13 @@
 # frozen_string_literal: true
   
-require 'simplecov'
+require "simplecov"
 SimpleCov.start do
-  add_filter '/spec/'
+  add_filter "/spec/"
 end
 
-require 'bundler/setup'
-require 'isobib'
-require 'relaton'
+require "bundler/setup"
+require "isobib"
+require "relaton"
 require "rspec/matchers"
 require "equivalent-xml"
 

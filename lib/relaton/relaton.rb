@@ -38,7 +38,7 @@ module Relaton
       %r{^IETF }.match? code and return :rfcbib
       %r{^(ISO|IEC)[ /]|IEV($| )}.match? code and return :isobib
       raise(RelatonError,
-            "#{code} does not have a recognised prefix: #{PREFIXES.join(', ')}"
+            "#{code} does not have a recognised prefix: #{PREFIXES.join(', ')}")
       nil
     end
 
