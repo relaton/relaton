@@ -84,7 +84,7 @@ module Relaton
     end
 
     def save_cache_biblio(biblio, filename)
-      return if biblio.nil?
+      return if biblio.nil? || filename.nil?
       File.open(filename, "w") do |b|
         b << biblio.to_json
       end
