@@ -6,8 +6,8 @@ SimpleCov.start do
 end
 
 require "bundler/setup"
-require "isobib"
 require "relaton"
+require "isobib"
 require "rspec/matchers"
 require "equivalent-xml"
 

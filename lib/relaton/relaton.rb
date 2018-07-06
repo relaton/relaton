@@ -1,14 +1,30 @@
+require_relative "registry"
+
 module Relaton
   class RelatonError < StandardError; end
 
   class Db
-    PREFIXES = ["GB Standard", "IETF", "ISO", "IEC", "IEV"]
+    #PREFIXES = ["GB Standard", "IETF", "ISO", "IEC", "IEV"]
+
+    SUPPORTED_GEMS = %w[ isobib rfcbib gbbib ].freeze
 
     def initialize(global_cache, local_cache)
       @bibdb = open_cache_biblio(global_cache)
       @local_bibdb = open_cache_biblio(local_cache)
       @bibdb_name = global_cache
       @local_bibdb_name = local_cache
+      register_gems
+    @registry = Relaton::Registry.instance
+    end
+
+    def register_gems
+      puts "[relaton] detecting backends:"
+      SUPPORTED_GEMS.each do |b|
+        puts b
+        require b
+      rescue LoadError
+        puts "[relaton] backend #{b} not present"
+      end
     end
 
     # The class of reference requested is determined by the prefix of the code:
@@ -17,7 +33,7 @@ module Relaton
     # @param year [String] the year the standard was published (optional)
     # @param opts [Hash] options; restricted to :all_parts if all-parts reference is required
     # @return [String] Relaton XML serialisation of reference
-    def get(code, year, opts)
+    def fetch(code, year = nil, opts = {})
       stdclass = standard_class(code)
       check_bibliocache(code, year, opts, stdclass)
     end
@@ -30,11 +46,17 @@ module Relaton
     private
 
     def standard_class(code)
+=begin
       %r{^GB Standard }.match? code and return :gbbib
       %r{^IETF }.match? code and return :rfcbib
       %r{^(ISO|IEC)[ /]|IEV($| )}.match? code and return :isobib
+=end
+      @registry.processors.each do |name, processor|
+        processor.prefix.match? code and return name
+      end
       raise(RelatonError, 
-            "#{code} does not have a recognised prefix: #{PREFIXES.join(', ')}")
+            "#{code} does not have a recognised prefix: "\
+            "#{@registry.supported_processors.join(', ')}")
       nil
     end
 
@@ -58,12 +80,8 @@ module Relaton
 
     # hash uses => , because the hash is imported from JSON
     def new_bibcache_entry(code, year, opts, stdclass)
-      bib = case stdclass
-            when :isobib then Isobib::IsoBibliography.get(code, year, opts)
-            else
-              :error
-            end
-      return nil if bib == :error
+      bib = @registry.processors[stdclass].get(code, year, opts)
+      return nil if bib.nil?
       { "fetched" => Date.today, "bib" => bib }
     end
 
@@ -80,11 +98,22 @@ module Relaton
           biblio = JSON.parse(f.read)
         end
       end
+      biblio.each do |k, v|
+        biblio[k]["bib"] = from_xml(biblio[k]["bib"])
+      end
       biblio
+    end
+
+    def from_xml(entry)
+      entry # will be unmarshaller
     end
 
     def save_cache_biblio(biblio, filename)
       return if biblio.nil? || filename.nil?
+      biblio.each do |k, v|
+        biblio[k]["bib"].respond_to? :to_xml and
+          biblio[k]["bib"] = biblio[k]["bib"].to_xml
+      end
       File.open(filename, "w") do |b|
         b << biblio.to_json
       end

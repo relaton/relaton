@@ -4,7 +4,7 @@ RSpec.describe Relaton::Db do
   it "rejects an illegal reference prefix" do
     system "rm testcache.json testcache2.json"
     db = Relaton::Db.new("testcache.json", "testcache2.json")
-    expect{db.get("XYZ XYZ", nil, {})}.to raise_error(Relaton::RelatonError)
+    expect{db.fetch("XYZ XYZ", nil, {})}.to raise_error(Relaton::RelatonError)
     db.save()
     expect(File.exist?("testcache.json")).to be true
     expect(File.exist?("testcache2.json")).to be true
@@ -19,7 +19,7 @@ RSpec.describe Relaton::Db do
     mock_http_net 2
     system "rm testcache.json testcache2.json"
     db = Relaton::Db.new("testcache.json", "testcache2.json")
-    bib = db.get("ISO 19115-1", nil, {})
+    bib = db.fetch("ISO 19115-1", nil, {})
     expect(bib).to include "<bibitem type=\"international-standard\" id=\"ISO19115-1\">"
     db.save()
     expect(File.exist?("testcache.json")).to be true
