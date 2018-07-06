@@ -74,6 +74,7 @@ module Relaton
     end
 
     def open_cache_biblio(filename)
+      return nil if filename.nil?
       biblio = {}
       if Pathname.new(filename).file?
         File.open(filename, "r") do |f|
