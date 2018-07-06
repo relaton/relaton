@@ -7,6 +7,8 @@ module Relaton
     def initialize(global_cache, local_cache)
       @bibdb = open_cache_biblio(global_cache)
       @local_bibdb = open_cache_biblio(local_cache)
+      @bibdb_name = global_cache
+      @local_bibdb_name = local_cache
     end
 
     # The class of reference requested is determined by the prefix of the code:
@@ -24,6 +26,11 @@ module Relaton
       end
     end
 
+    def save()
+      save_cache_biblio(@bibdb, @bibdb_name)
+      save_cache_biblio(@local_bibdb, @local_bibdb_name)
+    end
+
     private
 
     def standard_class(code)
@@ -35,15 +42,21 @@ module Relaton
       nil
     end
 
-      def open_cache_biblio(filename)
-        biblio = {}
-        if Pathname.new(filename).file?
-          File.open(filename, "r") do |f|
-            biblio = JSON.parse(f.read)
-          end
+    def open_cache_biblio(filename)
+      biblio = {}
+      if Pathname.new(filename).file?
+        File.open(filename, "r") do |f|
+          biblio = JSON.parse(f.read)
         end
-        biblio
       end
+      biblio
+    end
 
+    def save_cache_biblio(biblio, filename)
+      return if biblio.nil?
+      File.open(filename, "w") do |b|
+        b << biblio.to_json
+      end
+    end
   end
 end
