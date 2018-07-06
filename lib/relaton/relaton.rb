@@ -19,11 +19,7 @@ module Relaton
     # @return [String] Relaton XML serialisation of reference
     def get(code, year, opts)
       stdclass = standard_class(code)
-      case stdclass
-      when :isobib then Isobib::IsoBibliography.get(code, year, opts)
-      else
-        nil
-      end
+      check_bibliocache(code, year, opts, stdclass)
     end
 
     def save()
@@ -37,9 +33,44 @@ module Relaton
       %r{^GB Standard }.match? code and return :gbbib
       %r{^IETF }.match? code and return :rfcbib
       %r{^(ISO|IEC)[ /]|IEV($| )}.match? code and return :isobib
-      raise(RelatonError,
+      raise(RelatonError, 
             "#{code} does not have a recognised prefix: #{PREFIXES.join(', ')}")
       nil
+    end
+
+    def std_id(code, year, opts, _stdclass)
+      ret = code
+      ret += ":#{year}" if year
+      ret += " (all parts)" if opts[:all_parts]
+      ret
+    end
+
+    def check_bibliocache(code, year, opts, stdclass)
+      id = std_id(code, year, opts, stdclass)
+      return nil if @bibdb.nil? # signals we will not be using isobib
+      @bibdb[id] = nil unless is_valid_bibcache_entry?(@bibdb[id], year)
+      @bibdb[id] ||= new_bibcache_entry(code, year, opts, stdclass)
+      @local_bibdb[id] = @bibdb[id] if !@local_bibdb.nil? &&
+        !is_valid_bibcache_entry?(@local_bibdb[id], year)
+      return @local_bibdb[id]["bib"] unless @local_bibdb.nil?
+      @bibdb[id]["bib"]
+    end
+
+    # hash uses => , because the hash is imported from JSON
+    def new_bibcache_entry(code, year, opts, stdclass)
+      bib = case stdclass
+            when :isobib then Isobib::IsoBibliography.get(code, year, opts)
+            else
+              nil
+            end
+      return nil if bib.nil?
+      { "fetched" => Date.today, "bib" => bib }
+    end
+
+    # if cached reference is undated, expire it after 60 days
+    def is_valid_bibcache_entry?(x, year)
+      x && x.is_a?(Hash) && x&.has_key?("bib") && x&.has_key?("fetched") &&
+        (year || Date.today - Date.iso8601(x["fetched"]) < 60)
     end
 
     def open_cache_biblio(filename)
