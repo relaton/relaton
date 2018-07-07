@@ -14,7 +14,7 @@ module Relaton
       @bibdb_name = global_cache
       @local_bibdb_name = local_cache
       register_gems
-    @registry = Relaton::Registry.instance
+      @registry = Relaton::Registry.instance
     end
 
     def register_gems
@@ -92,8 +92,7 @@ module Relaton
     end
 
     def open_cache_biblio(filename)
-      biblio = {}
-      return biblio unless if !filename.nil? && Pathname.new(filename).file?
+      return {} unless !filename.nil? && Pathname.new(filename).file?
       File.open(filename, "r") do |f|
         biblio = JSON.parse(f.read)
       end
