@@ -93,13 +93,13 @@ module Relaton
 
     def open_cache_biblio(filename)
       biblio = {}
-      if !filename.nil? && Pathname.new(filename).file?
-        File.open(filename, "r") do |f|
-          biblio = JSON.parse(f.read)
-        end
+      return biblio unless if !filename.nil? && Pathname.new(filename).file?
+      File.open(filename, "r") do |f|
+        biblio = JSON.parse(f.read)
       end
       biblio.each do |k, v|
-        biblio[k]["bib"] = from_xml(biblio[k]["bib"])
+        biblio[k]&.fetch("bib") and
+          biblio[k]["bib"] = from_xml(biblio[k]["bib"])
       end
       biblio
     end
@@ -111,7 +111,7 @@ module Relaton
     def save_cache_biblio(biblio, filename)
       return if biblio.nil? || filename.nil?
       biblio.each do |k, v|
-        biblio[k]["bib"].respond_to? :to_xml and
+        biblio[k]&.fetch("bib")&.respond_to? :to_xml and
           biblio[k]["bib"] = biblio[k]["bib"].to_xml
       end
       File.open(filename, "w") do |b|
