@@ -92,10 +92,9 @@ module Relaton
     end
 
     def open_cache_biblio(filename)
+      biblio = {}
       return {} unless !filename.nil? && Pathname.new(filename).file?
-      File.open(filename, "r") do |f|
-        biblio = JSON.parse(f.read)
-      end
+      File.open(filename, "r") { |f| biblio = JSON.parse(f.read) }
       biblio.each do |k, v|
         biblio[k]&.fetch("bib") and
           biblio[k]["bib"] = from_xml(biblio[k]["bib"])
