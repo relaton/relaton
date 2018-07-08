@@ -21,9 +21,11 @@ module Relaton
       puts "[relaton] detecting backends:"
       SUPPORTED_GEMS.each do |b|
         puts b
-        require b
-      rescue LoadError
-        puts "[relaton] backend #{b} not present"
+        begin
+          require b
+        rescue LoadError
+          puts "[relaton] backend #{b} not present"
+        end
       end
     end
 
@@ -38,7 +40,7 @@ module Relaton
       check_bibliocache(code, year, opts, stdclass)
     end
 
-    def save()
+    def save
       save_cache_biblio(@bibdb, @bibdb_name)
       save_cache_biblio(@local_bibdb, @local_bibdb_name)
     end
@@ -54,12 +56,13 @@ module Relaton
       @registry.processors.each do |name, processor|
         processor.prefix.match? code and return name
       end
-      raise(RelatonError, 
+      raise(RelatonError,
             "#{code} does not have a recognised prefix: "\
             "#{@registry.supported_processors.join(', ')}")
       nil
     end
 
+    # TODO: i18n
     def std_id(code, year, opts, _stdclass)
       ret = code
       ret += ":#{year}" if year
