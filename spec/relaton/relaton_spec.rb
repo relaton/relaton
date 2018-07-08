@@ -30,6 +30,22 @@ RSpec.describe Relaton::Db do
     expect(testcache).to include "<bibitem type=\\\"international-standard\\\" id=\\\"ISO19115-1\\\">"
   end
 
+  it "deals with a non-existant ISO reference" do
+    mock_algolia 2
+    system "rm testcache.json testcache2.json"
+    db = Relaton::Db.new("testcache.json", "testcache2.json")
+    bib = db.fetch("ISO 111111119115-1", nil, {})
+    expect(bib).to be_nil
+    db.save()
+    expect(File.exist?("testcache.json")).to be true
+    expect(File.exist?("testcache2.json")).to be true
+    testcache = File.read "testcache.json"
+    expect(testcache).to include %("ISO 111111119115-1":null)
+    testcache = File.read "testcache2.json"
+    expect(testcache).to include %("ISO 111111119115-1":null)
+  end
+
+
   private
 
   # rubocop:disable Naming/UncommunicativeBlockParamName, Naming/VariableName
