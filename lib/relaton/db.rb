@@ -74,6 +74,7 @@ module Relaton
       @bibdb[id] ||= new_bibcache_entry(code, year, opts, stdclass)
       @local_bibdb[id] = @bibdb[id] if !@local_bibdb.nil? &&
         !is_valid_bibcache_entry?(@local_bibdb[id], year)
+      return nil if @bibdb[id].nil?
       return @local_bibdb[id]["bib"] unless @local_bibdb.nil?
       @bibdb[id]["bib"]
     end
