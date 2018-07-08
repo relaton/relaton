@@ -1,8 +1,13 @@
 = relaton
 
+image:https://img.shields.io/gem/v/relaton.svg["Gem Version", link="https://rubygems.org/gems/relaton"]
+image:https://img.shields.io/travis/riboseinc/relaton/master.svg["Build Status", link="https://travis-ci.org/riboseinc/relaton"]
+image:https://codeclimate.com/github/riboseinc/relaton/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/riboseinc/relaton"]
+
 gem for importing and caching bibliographic references to technical standards
 
-```ruby
+[source,ruby]
+----
 x = Relaton.fetch("ISO19011")
 => Relaton::Error "No such fetcher"
 
@@ -12,6 +17,4 @@ x = Relaton.fetch("ISO19011")
 
 x.to_xml
 => <bib-item ...>
-```
-
-
+----
