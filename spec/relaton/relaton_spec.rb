@@ -4,7 +4,7 @@ RSpec.describe Relaton::Db do
   it "rejects an illegal reference prefix" do
     system "rm testcache.json testcache2.json"
     db = Relaton::Db.new("testcache.json", "testcache2.json")
-    expect{db.fetch("XYZ XYZ", nil, {})}.to raise_error(Relaton::RelatonError)
+    expect{db.fetch("XYZ XYZ", nil, {})}.to output(/does not have a recognised prefix/).to_stderr
     db.save()
     expect(File.exist?("testcache.json")).to be true
     expect(File.exist?("testcache2.json")).to be true

@@ -4,8 +4,6 @@ module Relaton
   class RelatonError < StandardError; end
 
   class Db
-    #PREFIXES = ["GB Standard", "IETF", "ISO", "IEC", "IEV"]
-
     SUPPORTED_GEMS = %w[ isobib rfcbib gbbib ].freeze
 
     def initialize(global_cache, local_cache)
@@ -36,7 +34,7 @@ module Relaton
     # @param opts [Hash] options; restricted to :all_parts if all-parts reference is required
     # @return [String] Relaton XML serialisation of reference
     def fetch(code, year = nil, opts = {})
-      stdclass = standard_class(code)
+      stdclass = standard_class(code) or return nil
       check_bibliocache(code, year, opts, stdclass)
     end
 
@@ -56,9 +54,8 @@ module Relaton
       @registry.processors.each do |name, processor|
         processor.prefix.match? code and return name
       end
-      raise(RelatonError,
-            "#{code} does not have a recognised prefix: "\
-            "#{@registry.supported_processors.join(', ')}")
+      warn "#{code} does not have a recognised prefix: "\
+        "#{@registry.processors.inject([]) { |m, (k, v)| m << v.prefix.inspect }.join(', ')}"
       nil
     end
 
