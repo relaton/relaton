@@ -73,7 +73,7 @@ module Relaton
       id = std_id(code, year, opts, stdclass)
       return nil if @db.nil? # signals we will not be using isobib
       @db[id] = nil unless is_valid_bib_entry?(@db[id], year)
-      @db[id] ||= new_bibcache_entry(code, year, opts, stdclass)
+      @db[id] ||= new_bib_entry(code, year, opts, stdclass)
       if !@local_db.nil?
         @local_db[id] = @db[id] if !is_valid_bib_entry?(@local_db[id], year)
         return nil if @local_db[id]["bib"] == :not_found
@@ -90,7 +90,7 @@ module Relaton
     end
 
     # if cached reference is undated, expire it after 60 days
-    def is_valid_bibcache_entry?(x, year)
+    def is_valid_bib_entry?(x, year)
       x && x.is_a?(Hash) && x&.has_key?("bib") && x&.has_key?("fetched") &&
         (year || Date.today - Date.iso8601(x["fetched"]) < 60)
     end
