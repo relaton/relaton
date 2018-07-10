@@ -52,6 +52,7 @@ RSpec.describe Relaton::Db do
   # rubocop:disable Metrics/AbcSize
   # Mock xhr rquests to Algolia.
   def mock_algolia(num)
+    warn "mock request"
     index = double 'index'
     expect(index).to receive(:search) do |text, facetFilters:, page: 0|
       expect(text).to be_instance_of String
