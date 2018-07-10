@@ -7,10 +7,10 @@ module Relaton
     SUPPORTED_GEMS = %w[ isobib rfcbib gbbib ].freeze
 
     def initialize(global_cache, local_cache)
-      @bibdb = open_cache_biblio(global_cache)
-      @local_bibdb = open_cache_biblio(local_cache)
-      @bibdb_name = global_cache
-      @local_bibdb_name = local_cache
+      @db = open_cache_biblio(global_cache)
+      @local_db = open_cache_biblio(local_cache)
+      @db_name = global_cache
+      @local_db_name = local_cache
       register_gems
       @registry = Relaton::Registry.instance
     end
@@ -39,8 +39,8 @@ module Relaton
     end
 
     def save
-      save_cache_biblio(@bibdb, @bibdb_name)
-      save_cache_biblio(@local_bibdb, @local_bibdb_name)
+      save_cache_biblio(@db, @db_name)
+      save_cache_biblio(@local_db, @local_db_name)
     end
 
     private
@@ -54,8 +54,10 @@ module Relaton
       @registry.processors.each do |name, processor|
         processor.prefix.match? code and return name
       end
-      warn "#{code} does not have a recognised prefix: "\
-        "#{@registry.processors.inject([]) { |m, (k, v)| m << v.prefix.inspect }.join(', ')}"
+      allowed = @registry.processors.inject([]) do |m, (k, v)|
+        m << v.prefix.inspect
+      end
+      warn "#{code} does not have a recognised prefix: #{allowed.join(', ')}"
       nil
     end
 
@@ -69,20 +71,21 @@ module Relaton
 
     def check_bibliocache(code, year, opts, stdclass)
       id = std_id(code, year, opts, stdclass)
-      return nil if @bibdb.nil? # signals we will not be using isobib
-      @bibdb[id] = nil unless is_valid_bibcache_entry?(@bibdb[id], year)
-      @bibdb[id] ||= new_bibcache_entry(code, year, opts, stdclass)
-      @local_bibdb[id] = @bibdb[id] if !@local_bibdb.nil? &&
-        !is_valid_bibcache_entry?(@local_bibdb[id], year)
-      return nil if @bibdb[id].nil?
-      return @local_bibdb[id]["bib"] unless @local_bibdb.nil?
-      @bibdb[id]["bib"]
+      return nil if @db.nil? # signals we will not be using isobib
+      @db[id] = nil unless is_valid_bib_entry?(@db[id], year)
+      @db[id] ||= new_bibcache_entry(code, year, opts, stdclass)
+      if !@local_db.nil?
+        @local_db[id] = @db[id] if !is_valid_bib_entry?(@local_db[id], year)
+        return nil if @local_db[id]["bib"] == :not_found
+        return @local_db[id]["bib"]
+      end
+      @db[id]["bib"] == :not_found ? nil : @db[id]["bib"]
     end
 
     # hash uses => , because the hash is imported from JSON
-    def new_bibcache_entry(code, year, opts, stdclass)
+    def new_bib_entry(code, year, opts, stdclass)
       bib = @registry.processors[stdclass].get(code, year, opts)
-      return nil if bib.nil?
+      bib = :not_found if bib.nil?
       { "fetched" => Date.today, "bib" => bib }
     end
 
