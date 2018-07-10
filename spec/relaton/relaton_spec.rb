@@ -40,9 +40,9 @@ RSpec.describe Relaton::Db do
     expect(File.exist?("testcache.json")).to be true
     expect(File.exist?("testcache2.json")).to be true
     testcache = File.read "testcache.json"
-    expect(testcache).to include %("ISO 111111119115-1":null)
+    expect(testcache).to include %("ISO 111111119115-1":{"fetched":"#{Date.today}","bib":"not_found"})
     testcache = File.read "testcache2.json"
-    expect(testcache).to include %("ISO 111111119115-1":null)
+    expect(testcache).to include %("ISO 111111119115-1":{"fetched":"#{Date.today}","bib":"not_found"})
   end
 
 

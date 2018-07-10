@@ -76,16 +76,16 @@ module Relaton
       @db[id] ||= new_bib_entry(code, year, opts, stdclass)
       if !@local_db.nil?
         @local_db[id] = @db[id] if !is_valid_bib_entry?(@local_db[id], year)
-        return nil if @local_db[id]["bib"] == :not_found
+        return nil if @local_db[id]["bib"] == "not_found"
         return @local_db[id]["bib"]
       end
-      @db[id]["bib"] == :not_found ? nil : @db[id]["bib"]
+      @db[id]["bib"] == "not_found" ? nil : @db[id]["bib"]
     end
 
     # hash uses => , because the hash is imported from JSON
     def new_bib_entry(code, year, opts, stdclass)
       bib = @registry.processors[stdclass].get(code, year, opts)
-      bib = :not_found if bib.nil?
+      bib = "not_found" if bib.nil?
       { "fetched" => Date.today, "bib" => bib }
     end
 
