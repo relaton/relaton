@@ -18,7 +18,7 @@ Gem::Specification.new do |spec|
   This gem is in active development.
   DESCRIPTION
 
-  spec.homepage      = "https://github.com/riboseinc/asciidoctor-iso"
+  spec.homepage      = "https://github.com/riboseinc/relaton"
   spec.license       = "BSD-2-Clause"
 
   spec.bindir        = "bin"
@@ -27,7 +27,6 @@ Gem::Specification.new do |spec|
   spec.test_files    = `git ls-files -- {spec}/*`.split("\n")
   spec.required_ruby_version = Gem::Requirement.new(">= 2.4.0")
 
-  spec.add_dependency "asciidoctor", "~> 1.5.7"
   spec.add_dependency "isobib", "~> 0.1.9"
   spec.add_dependency "rfcbib", "~> 0.1.0"
   spec.add_dependency "gbbib", "~> 0.1.0"
@@ -43,4 +42,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rubocop", "~> 0.50"
   spec.add_development_dependency "simplecov", "~> 0.15"
   spec.add_development_dependency "timecop", "~> 0.9"
+  spec.add_development_dependency 'algoliasearch'
 end

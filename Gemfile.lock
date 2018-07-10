@@ -2,7 +2,6 @@ PATH
   remote: .
   specs:
     relaton (0.0.2)
-      asciidoctor (~> 1.5.7)
       gbbib (~> 0.1.0)
       iev (~> 0.1.0)
       isobib (~> 0.1.9)
@@ -14,7 +13,6 @@ GEM
     algoliasearch (1.23.2)
       httpclient (~> 2.8, >= 2.8.3)
       json (>= 1.5.1)
-    asciidoctor (1.5.7.1)
     ast (2.4.0)
     byebug (9.1.0)
     cnccs (0.1.1)
@@ -69,7 +67,7 @@ GEM
       nenv (~> 0.1)
       shellany (~> 0.0)
     parallel (1.12.1)
-    parser (2.5.1.0)
+    parser (2.5.1.2)
       ast (~> 2.4.0)
     powerpack (0.1.2)
     pry (0.11.3)
@@ -120,6 +118,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  algoliasearch
   bundler (~> 1.15)
   byebug (~> 9.1)
   equivalent-xml (~> 0.6)
