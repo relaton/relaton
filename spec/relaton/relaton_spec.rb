@@ -15,8 +15,9 @@ RSpec.describe Relaton::Db do
   end
 
   it "gets an ISO reference and caches it" do
-    mock_algolia 1
-    mock_http_net 2
+    #mock_algolia 1
+    #mock_http_net 2
+    mock_isobib_get_iso19115_1
     system "rm testcache.json testcache2.json"
     db = Relaton::Db.new("testcache.json", "testcache2.json")
     bib = db.fetch("ISO 19115-1", nil, {})
@@ -31,7 +32,8 @@ RSpec.describe Relaton::Db do
   end
 
   it "deals with a non-existant ISO reference" do
-    mock_algolia 2
+    #mock_algolia 2
+    mock_isobib_get_iso111111119115_1
     system "rm testcache.json testcache2.json"
     db = Relaton::Db.new("testcache.json", "testcache2.json")
     bib = db.fetch("ISO 111111119115-1", nil, {})
@@ -50,9 +52,24 @@ RSpec.describe Relaton::Db do
 
   # rubocop:disable Naming/UncommunicativeBlockParamName, Naming/VariableName
   # rubocop:disable Metrics/AbcSize
+
+  def mock_isobib_get_iso19115_1()
+    expect(Isobib::IsoBibliography).to receive(:get) do |code, date, opts|
+      <<~"END"
+<bibitem type="international-standard" id="ISO19115-1">
+</bibitem>
+      END
+    end
+  end  
+
+  def mock_isobib_get_iso111111119115_1()
+        expect(Isobib::IsoBibliography).to receive(:get) do |code, date, opts|
+          nil
+        end
+  end
+
   # Mock xhr rquests to Algolia.
   def mock_algolia(num)
-    warn "mock request"
     index = double 'index'
     expect(index).to receive(:search) do |text, facetFilters:, page: 0|
       expect(text).to be_instance_of String
