@@ -1,3 +1,4 @@
+require "pstore"
 require_relative "registry"
 
 module Relaton
@@ -6,6 +7,8 @@ module Relaton
   class Db
     SUPPORTED_GEMS = %w[ isobib rfcbib gbbib ].freeze
 
+    # @param global_cache [String] filename of global DB
+    # @param local_cache [String] filename of local DB
     def initialize(global_cache, local_cache)
       @db = open_cache_biblio(global_cache)
       @local_db = open_cache_biblio(local_cache)
@@ -38,10 +41,38 @@ module Relaton
       check_bibliocache(code, year, opts, stdclass)
     end
 
-    def save
-      save_cache_biblio(@db, @db_name)
-      save_cache_biblio(@local_db, @local_db_name)
+    # @param key [String]
+    # @return [Hash]
+    def load_entry(key)
+      entry = @local_db.transaction { @local_db[key] }
+      return entry if entry
+      @db.transaction { @db[key] }
     end
+
+    # @param key [String]
+    # @param value [Hash]
+    # @option value [Date] "fetched"
+    # @option value [IsoBibItem::IsoBibliographicItem] "bib"
+    def save_entry(key, value)
+      @db.transaction { @db[key] = value }
+      @local_db.transaction { @local_db[key] = value }
+    end
+
+    # list all entris as a serialization
+    def to_xml
+      @db.transaction do
+        Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
+          xml.documents do
+            @db.roots.each { |key| @db[key]["bib"].to_xml(xml, {}) }
+          end
+        end.to_xml
+      end
+    end
+
+    # def save
+    #   save_cache_biblio(@db, @db_name)
+    #   save_cache_biblio(@local_db, @local_db_name)
+    # end
 
     private
 
@@ -52,9 +83,9 @@ module Relaton
       %r{^(ISO|IEC)[ /]|IEV($| )}.match? code and return :isobib
 =end
       @registry.processors.each do |name, processor|
-        processor.prefix.match? code and return name
+        processor.prefix.match?(code) and return name
       end
-      allowed = @registry.processors.inject([]) do |m, (k, v)|
+      allowed = @registry.processors.reduce([]) do |m, (_k, v)|
         m << v.prefix.inspect
       end
       warn "#{code} does not have a recognised prefix: #{allowed.join(', ')}"
@@ -69,20 +100,29 @@ module Relaton
       ret
     end
 
+    # @param code [String]
+    # @param year [String]
+    # @param opts [Hash]
+    # @param stdclass [Symbol]
     def check_bibliocache(code, year, opts, stdclass)
       id = std_id(code, year, opts, stdclass)
       return nil if @db.nil? # signals we will not be using isobib
-      @db[id] = nil unless is_valid_bib_entry?(@db[id], year)
-      @db[id] ||= new_bib_entry(code, year, opts, stdclass)
-      if !@local_db.nil?
-        @local_db[id] = @db[id] if !is_valid_bib_entry?(@local_db[id], year)
-        return nil if @local_db[id]["bib"] == "not_found"
-        return @local_db[id]["bib"]
+      @db.transaction do
+        @db.delete(id) unless valid_bib_entry?(@db[id], year)
+        @db[id] ||= new_bib_entry(code, year, opts, stdclass)
+        @local_db.transaction do
+          @local_db[id] = @db[id] if !valid_bib_entry?(@local_db[id], year)
+          @local_db[id]["bib"] == "not_found" ? nil : @local_db[id]["bib"]
+        end
       end
-      @db[id]["bib"] == "not_found" ? nil : @db[id]["bib"]
     end
 
-    # hash uses => , because the hash is imported from JSON
+    # hash uses => , because the hash is imported from JSONo
+    # @param code [String]
+    # @param year [String]
+    # @param opts [Hash]
+    # @param stdclass [Symbol]
+    # @return [Hash]
     def new_bib_entry(code, year, opts, stdclass)
       bib = @registry.processors[stdclass].get(code, year, opts)
       bib = "not_found" if bib.nil?
@@ -90,35 +130,39 @@ module Relaton
     end
 
     # if cached reference is undated, expire it after 60 days
-    def is_valid_bib_entry?(x, year)
-      x && x.is_a?(Hash) && x&.has_key?("bib") && x&.has_key?("fetched") &&
-        (year || Date.today - Date.iso8601(x["fetched"]) < 60)
+    # @param bib [Hash]
+    # @param year [String]
+    def valid_bib_entry?(bib, year)
+      bib&.is_a?(Hash) && bib&.has_key?("bib") && bib&.has_key?("fetched") &&
+        (year || Date.today - bib["fetched"] < 60)
     end
 
+    # @param filename [String] DB filename
+    # @return [Hash]
     def open_cache_biblio(filename)
-      biblio = {}
-      return {} unless !filename.nil? && Pathname.new(filename).file?
-      File.open(filename, "r") { |f| biblio = JSON.parse(f.read) }
-      biblio.each do |k, v|
-        biblio[k]&.fetch("bib") and
-          biblio[k]["bib"] = from_xml(biblio[k]["bib"])
-      end
-      biblio
+      PStore.new filename
+      # biblio = {}
+      # return {} unless !filename.nil? && Pathname.new(filename).file?
+      # File.open(filename, "r") { |f| biblio = JSON.parse(f.read) }
+      # biblio.each { |_k, v| v["bib"] && (v["bib"] = from_xml(v["bib"])) }
+      # biblio
     end
 
-    def from_xml(entry)
-      entry # will be unmarshaller
-    end
+    # @param enstry [String] entry in XML format
+    # @return [IsoBibItem::IsoBibliographicItem]
+    # def from_xml(entry)
+    #   IsoBibItem.from_xml entry # will be unmarshaller
+    # end
 
-    def save_cache_biblio(biblio, filename)
-      return if biblio.nil? || filename.nil?
-      biblio.each do |k, v|
-        biblio[k]&.fetch("bib")&.respond_to? :to_xml and
-          biblio[k]["bib"] = biblio[k]["bib"].to_xml
-      end
-      File.open(filename, "w") do |b|
-        b << biblio.to_json
-      end
-    end
+    # @param [Hash{String=>Hash{String=>String}}] biblio
+    # def save_cache_biblio(biblio, filename)
+    #   return if biblio.nil? || filename.nil?
+    #   File.open(filename, "w") do |b|
+    #     b << biblio.reduce({}) do |s, (k, v)|
+    #       bib = v["bib"].respond_to?(:to_xml) ? v["bib"].to_xml : v["bib"]
+    #       s.merge(k => { "fetched" => v["fetched"], "bib" => bib })
+    #     end.to_json
+    #   end
+    # end
   end
 end

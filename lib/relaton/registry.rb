@@ -1,4 +1,4 @@
-require 'singleton'
+require "singleton"
 
 class Error < StandardError
 end
@@ -13,7 +13,7 @@ module Relaton
       @processors = {}
     end
 
-    def register processor
+    def register(processor)
       raise Error unless processor < :: Relaton::Processor
       p = processor.new
       puts "[relaton] processor \"#{p.short}\" registered"
@@ -27,10 +27,5 @@ module Relaton
     def supported_processors
       @processors.keys
     end
-
-    def processors
-      @processors
-    end
   end
 end
-

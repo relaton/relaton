@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     relaton (0.0.2)
+      algoliasearch
       gbbib (~> 0.1.0)
       iev (~> 0.1.0)
       isobib (~> 0.1.9)
@@ -73,6 +74,9 @@ GEM
     pry (0.11.3)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
+    pry-byebug (3.5.1)
+      byebug (~> 9.1)
+      pry (~> 0.10)
     rainbow (3.0.0)
     rake (12.3.1)
     rb-fsevent (0.10.3)
@@ -118,12 +122,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  algoliasearch
   bundler (~> 1.15)
   byebug (~> 9.1)
   equivalent-xml (~> 0.6)
   guard (~> 2.14)
   guard-rspec (~> 4.7)
+  pry-byebug
   rake (~> 12.0)
   relaton!
   rspec (~> 3.6)
