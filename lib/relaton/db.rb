@@ -113,7 +113,7 @@ module Relaton
     # @param stdclass [Symbol]
     def check_bibliocache(code, year, opts, stdclass)
       id = std_id(code, year, opts, stdclass)
-      return nil if @db.nil? # signals we will not be using isobib
+      return bib_retval(new_bib_entry(code, year, opts, stdclass)) if @db.nil?
       @db.transaction do
         @db.delete(id) unless valid_bib_entry?(@db[id], year)
         @db[id] ||= new_bib_entry(code, year, opts, stdclass)
