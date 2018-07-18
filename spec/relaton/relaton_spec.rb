@@ -22,7 +22,7 @@ RSpec.describe Relaton::Db do
     system "rm testcache testcache2"
     db = Relaton::Db.new("testcache", "testcache2")
     bib = db.fetch("ISO 19115-1", nil, {})
-    db.fetch("ISO 19115-1", nil, {})
+    #db.fetch("ISO 19115-1", nil, {})
     expect(bib).to be_instance_of IsoBibItem::IsoBibliographicItem
     expect(bib.to_xml).to include "<bibitem type=\"international-standard\" id=\"ISO19115-1\">"
     expect(File.exist?("testcache")).to be true

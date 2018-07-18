@@ -144,7 +144,7 @@ module Relaton
     # @param year [String]
     def valid_bib_entry?(bib, year)
       bib&.is_a?(Hash) && bib&.has_key?("bib") && bib&.has_key?("fetched") &&
-        (year || Date.today - bib["fetched"] < 60)
+        (year || Date.today - Date.iso8601(bib["fetched"]) < 60)
     end
 
     # @param filename [String] DB filename
