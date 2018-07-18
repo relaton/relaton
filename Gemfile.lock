@@ -5,7 +5,7 @@ PATH
       algoliasearch
       gbbib (~> 0.1.0)
       iev (~> 0.1.0)
-      isobib (~> 0.1.9)
+      isobib (~> 0.2.0)
       rfcbib (~> 0.1.0)
 
 GEM
@@ -24,9 +24,9 @@ GEM
       nokogiri (>= 1.4.3)
     ffi (1.9.25)
     formatador (0.2.5)
-    gbbib (0.1.5)
-      cnccs (~> 0.1.1)
-      iso-bib-item (~> 0.1.10)
+    gbbib (0.1.4)
+      cnccs
+      iso-bib-item
     guard (2.14.2)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
@@ -44,13 +44,13 @@ GEM
     httpclient (2.8.3)
     iev (0.1.0)
       nokogiri
-    iso-bib-item (0.1.11)
+    iso-bib-item (0.2.0)
       isoics (~> 0.1.6)
       nokogiri (~> 1.8.4)
       ruby_deep_clone (~> 0.8.0)
-    isobib (0.1.10)
+    isobib (0.2.0)
       algoliasearch
-      iso-bib-item (~> 0.1.10)
+      iso-bib-item (~> 0.2.0)
     isoics (0.1.6)
     jaro_winkler (1.5.1)
     json (2.1.0)
@@ -83,7 +83,7 @@ GEM
     rb-inotify (0.9.10)
       ffi (>= 0.5.0, < 2)
     rfcbib (0.1.1)
-      iso-bib-item (~> 0.1.10)
+      iso-bib-item (~> 0.2.0)
     rspec (3.7.0)
       rspec-core (~> 3.7.0)
       rspec-expectations (~> 3.7.0)
