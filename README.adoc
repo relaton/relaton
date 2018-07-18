@@ -4,17 +4,89 @@ image:https://img.shields.io/gem/v/relaton.svg["Gem Version", link="https://ruby
 image:https://img.shields.io/travis/riboseinc/relaton/master.svg["Build Status", link="https://travis-ci.org/riboseinc/relaton"]
 image:https://codeclimate.com/github/riboseinc/relaton/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/riboseinc/relaton"]
 
-gem for importing and caching bibliographic references to technical standards
+Gem for importing and caching bibliographic references to technical standards. 
+
+== Scope
+
+The Relaton gem obtains authoritative bibliographic entries for technical standards from online sources, and expresses them in a consistent format, which can be used in document authoring. (It is the underlying bibliographic tool for the https://github.com/riboseinc/metanorma[Metanorma] toolset.)
+
+The gem also caches entries it has retrieved, so that subsequent iterations do not need to go back online to retrieve the same entries. The gem uses two caches: a global cache (for all bibliographic entries retrieved by the user), and a local cache (intended to store references specific to the current document being processed.)
+
+Entries are retrieved and stored in the https://github.com/riboseinc/bib-models[Relaton bibliographic model], which is an expression of ISO 690. The subset of the model used and serialised for Relaton is defined in the https://github.com/riboseinc/iso-bib-item[iso-bib-item] gem.
+
+Entries are serialised to and from an internal data model, and multiple formats are intended to be supported. Currently only https://github.com/riboseinc/bib-models/blob/master/grammars/biblio.rnc[Relaton XML] is supported.
+
+Relaton imports bibliographic entries from:
+
+* ISO and IEC through the iso.org website, via the https://github.com/riboseinc/isobib[isobib] gem
+* GB (Chinese national standards) through the GB websites, via the https://github.com/riboseinc/gbbib[gbbib] gem [in progress]
+* IETF standards (Internet Drafts, RFC) through the http://xml2rfc.tools.ietf.org website, via the https://github.com/riboseinc/rfcbib[rfcbib] gem [in progress]
+
+The gem can be extended to use other standards-specific gems. Standards-specific gems like isobib register themselves against Relaton using `Relaton::Registry.instance.register`, which takes as an argument a subclass of `Relaton::Processor` defined in the gem; see isobib/lib/relaton for an example. The processor within the standards-specific gem needs to define
+
+* `@short`, the name of the gem
+* `@prefix`, the regex constraining the standards code to be processed
+* `get(code, date, opts)`, which takes a standards code, a year, and a hash of options, and returns an iso-bib-item bibliographic entry
+
+== Behaviours
+
+* Bibliographic entries are identified for retrieval and caching by a prefix specific to the standards class, followed by the conventional code of the standard.
+** ISO standards are identified by `ISO` followed by space or slash. For example, `ISO/IEC DIR 2:2018`
+** IEC standards are identified by `IEC` followed by space or slash
+** GB standards are identified by `GB Standard`. For example, `GB Standard GM/T 0009-2012`
+** IETF stadnards are identified by `IETF`. Foe example, `IETF RFC 7991`
+* If an entry is defined in both the local and the global cache, the local cache entry is used.
+* If an ISO entry has no date, the latest version available for the entry is retrieved.
+* If a cached ISO entry has no date, and was last retrieved more than 60 days ago, the gem fetches it again, in case there is a newer edition of the standard available.
+* Note that the gem does not currently support the totality of the Relaton model; it will only support the information available in the source websites. We do not expect to support cartographic information, for example.
+
+== Usage
 
 [source,ruby]
 ----
-x = Relaton.fetch("ISO19011")
-=> Relaton::Error "No such fetcher"
+require "relaton"
+=> true
 
-require 'relaton-iso'
-x = Relaton.fetch("ISO19011")
-=> <# Relaton::Iso @docidentifier: "ISO 19011:2011" ... >
+# Do not cache any entries retrieved
+db = Relaton.new(nil, nil)
+# Use only the global cache for any entries retrieved
+db = Relaton.new("global cache filename", nil)
+# Use both a local and a global cache
+db = Relaton::Db.new("global cache filename", "local cache filename")
+[relaton] detecting backends:
+isobib
+[relaton] processor "isobib" registered
+=> #<Relaton::Db:...>
+
+x = db.fetch("IEEE 19011")
+"IEEE 19011 does not have a recognised prefix: /^(ISO|IEC)[ \/]|^IEV($| )/"
+=> nil
+
+x = db.fetch("ISO 19011")
+fetching ISO 19011...
+=> #<IsoBibItem::IsoBibliographicItem:...>
+
+x = db.fetch("ISO 19011", "2011")
+fetching ISO 19011...
+=> #<IsoBibItem::IsoBibliographicItem:...>
+
+x = db.fetch("ISO 19011", "2011", allparts: true)
+fetching ISO 19011...
+=> #<IsoBibItem::IsoBibliographicItem:...>
 
 x.to_xml
-=> <bib-item ...>
+=> "<bib-item type=\"international-standard\" id=\"ISO19011\">...."
+
+db.to_xml
+=> "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<documents>\n <bibitem type=\"international-standard\"...."
+
+db.load_entry("ISO 19011")
+=> #<IsoBibItem::IsoBibliographicItem:...>
+
+db.save_entry("ISO 19011", nil)
+=> nil
+
+db.load_entry("ISO 19011")
+=> nil
+
 ----
