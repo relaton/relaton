@@ -45,8 +45,8 @@ module Relaton
     # @return [Hash]
     def load_entry(key)
       unless @local_db.nil?
-      entry = @local_db.transaction { @local_db[key] }
-      return entry if entry
+        entry = @local_db.transaction { @local_db[key] }
+        return entry if entry
       end
       @db.transaction { @db[key] }
     end
@@ -113,7 +113,7 @@ module Relaton
       @db.transaction do
         @db.delete(id) unless valid_bib_entry?(@db[id], year)
         @db[id] ||= new_bib_entry(code, year, opts, stdclass)
-        @local_db.transaction do
+        @local_db.nil? or @local_db.transaction do
           @local_db[id] = @db[id] if !valid_bib_entry?(@local_db[id], year)
           @local_db[id]["bib"] == "not_found" ? nil : @local_db[id]["bib"]
         end
