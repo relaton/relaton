@@ -103,6 +103,10 @@ module Relaton
       ret
     end
 
+    def bib_retval(entry)
+      entry["bib"] == "not_found" ? nil : entry["bib"]
+    end
+
     # @param code [String]
     # @param year [String]
     # @param opts [Hash]
@@ -113,9 +117,12 @@ module Relaton
       @db.transaction do
         @db.delete(id) unless valid_bib_entry?(@db[id], year)
         @db[id] ||= new_bib_entry(code, year, opts, stdclass)
-        @local_db.nil? or @local_db.transaction do
-          @local_db[id] = @db[id] if !valid_bib_entry?(@local_db[id], year)
-          @local_db[id]["bib"] == "not_found" ? nil : @local_db[id]["bib"]
+        if @local_db.nil? then bib_retval(@db[id])
+        else
+          @local_db.transaction do
+            @local_db[id] = @db[id] if !valid_bib_entry?(@local_db[id], year)
+            bib_retval(@local_db[id])
+          end
         end
       end
     end
