@@ -66,7 +66,7 @@ module Relaton
       @db.transaction do
         Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
           xml.documents do
-            @db.roots.each { |key| @db[key]["bib"].to_xml(xml, {}) }
+            @db.roots.each { |key| @db[key]&.fetch("bib")&.to_xml(xml, {}) }
           end
         end.to_xml
       end
