@@ -44,8 +44,10 @@ module Relaton
     # @param key [String]
     # @return [Hash]
     def load_entry(key)
+      unless @local_db.nil?
       entry = @local_db.transaction { @local_db[key] }
       return entry if entry
+      end
       @db.transaction { @db[key] }
     end
 
@@ -54,12 +56,13 @@ module Relaton
     # @option value [Date] "fetched"
     # @option value [IsoBibItem::IsoBibliographicItem] "bib"
     def save_entry(key, value)
-      @db.transaction { @db[key] = value }
-      @local_db.transaction { @local_db[key] = value }
+      @db.nil? or @db.transaction { @db[key] = value }
+      @local_db.nil? or @local_db.transaction { @local_db[key] = value }
     end
 
     # list all entris as a serialization
     def to_xml
+      return nil if @db.nil?
       @db.transaction do
         Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
           xml.documents do
@@ -140,6 +143,7 @@ module Relaton
     # @param filename [String] DB filename
     # @return [Hash]
     def open_cache_biblio(filename)
+      return nil if filename.nil?
       PStore.new filename
       # biblio = {}
       # return {} unless !filename.nil? && Pathname.new(filename).file?
