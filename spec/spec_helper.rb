@@ -8,6 +8,7 @@ end
 require "bundler/setup"
 require "relaton"
 require "isobib"
+require "gbbib"
 require "rspec/matchers"
 require "equivalent-xml"
 

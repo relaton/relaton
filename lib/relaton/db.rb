@@ -5,7 +5,7 @@ module Relaton
   class RelatonError < StandardError; end
 
   class Db
-    SUPPORTED_GEMS = %w[ isobib rfcbib gbbib ].freeze
+    SUPPORTED_GEMS = %w[isobib rfcbib gbbib].freeze
 
     # @param global_cache [String] filename of global DB
     # @param local_cache [String] filename of local DB
