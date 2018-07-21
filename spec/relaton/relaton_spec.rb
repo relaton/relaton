@@ -20,7 +20,7 @@ RSpec.describe Relaton::Db do
   end
 
   it "gets an ISO reference and caches it" do
-    stub_isobib
+    stub_bib Isobib::IsoBibliography
     bib = db.fetch("ISO 19115-1", nil, {})
     expect(bib).to be_instance_of IsoBibItem::IsoBibliographicItem
     expect(bib.to_xml).to include "<bibitem type=\"international-standard\" id=\"ISO19115-1\">"
@@ -37,7 +37,7 @@ RSpec.describe Relaton::Db do
   end
 
   it "deals with a non-existant ISO reference" do
-    stub_isobib
+    stub_bib Isobib::IsoBibliography
     bib = db.fetch("ISO 111111119115-1", nil, {})
     expect(bib).to be_nil
     expect(File.exist?("testcache")).to be true
@@ -55,7 +55,7 @@ RSpec.describe Relaton::Db do
   end
 
   it "list all elements as a serialization" do
-    stub_isobib 2
+    stub_bib Isobib::IsoBibliography, 2
     db.fetch "ISO 19115-1", nil, {}
     db.fetch "ISO 19115-2", nil, {}
     file = "spec/support/list_entries.xml"
@@ -70,22 +70,22 @@ RSpec.describe Relaton::Db do
   end
 
   it "get GB reference and cache it" do
-    stub_gbbib
+    stub_bib Gbbib::GbBibliography
     bib = db.fetch "GB/T 20223", "2006", {}
     expect(bib).to be_instance_of Gbbib::GbBibliographicItem
+  end
+
+  it "get RFC reference and cache it" do
+    stub_bib RfcBib::RfcBibliography
+    bib = db.fetch "RFC 8341", nil, {}
+    expect(bib).to be_instance_of IsoBibItem::BibliographicItem
   end
 
   private
 
   # @param count [Integer] number of stubbing
-  def stub_isobib(count = 1)
-    expect(Isobib::IsoBibliography).to receive(:get).and_wrap_original do |m, *args|
-      get_resp m, *args
-    end.exactly(count).times
-  end
-
-  def stub_gbbib(count = 1)
-    expect(Gbbib::GbBibliography).to receive(:get).and_wrap_original do |m, *args|
+  def stub_bib(bib_type, count = 1)
+    expect(bib_type).to receive(:get).and_wrap_original do |m, *args|
       get_resp m, *args
     end.exactly(count).times
   end
