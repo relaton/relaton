@@ -80,11 +80,6 @@ module Relaton
     private
 
     def standard_class(code)
-=begin
-      %r{^GB Standard }.match? code and return :gbbib
-      %r{^IETF }.match? code and return :rfcbib
-      %r{^(ISO|IEC)[ /]|IEV($| )}.match? code and return :isobib
-=end
       @registry.processors.each do |name, processor|
         processor.prefix.match?(code) and return name
       end
@@ -100,7 +95,7 @@ module Relaton
       ret = code
       ret += ":#{year}" if year
       ret += " (all parts)" if opts[:all_parts]
-      code = code.sub(/^(GB Standard|IETF) /, "")
+      code = code.sub(/^(GB Standard|IETF( Standard)?) /, "")
       [ret, code]
     end
 
