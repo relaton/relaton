@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "gbbib", "~> 0.2.1"
   spec.add_dependency "iev", "~> 0.1.0"
   spec.add_dependency "isobib", "~> 0.2.0"
-  spec.add_dependency "rfcbib", "~> 0.2.1"
+  spec.add_dependency "rfcbib", "~> 0.2.2"
 
   spec.add_development_dependency "bundler", "~> 1.15"
   spec.add_development_dependency "byebug", "~> 9.1"
