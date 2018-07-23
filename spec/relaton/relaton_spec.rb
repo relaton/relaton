@@ -71,14 +71,36 @@ RSpec.describe Relaton::Db do
 
   it "get GB reference and cache it" do
     stub_bib Gbbib::GbBibliography
-    bib = db.fetch "GB/T 20223", "2006", {}
+    bib = db.fetch "GB Standard GB/T 20223", "2006", {}
     expect(bib).to be_instance_of Gbbib::GbBibliographicItem
+    expect(bib.to_xml).to include "<bibitem type=\"standard\" id=\"GB/T20223\">"
+    expect(File.exist?("testcache")).to be true
+    expect(File.exist?("testcache2")).to be true
+    testcache = PStore.new "testcache"
+    testcache.transaction true do
+      expect(testcache["GB Standard GB/T 20223:2006"]["bib"].to_xml).to include "<bibitem type=\"standard\" id=\"GB/T20223\">"
+    end
+    testcache = PStore.new "testcache2"
+    testcache.transaction do
+      expect(testcache["GB Standard GB/T 20223:2006"]["bib"].to_xml).to include "<bibitem type=\"standard\" id=\"GB/T20223\">"
+    end
   end
-
+  
   it "get RFC reference and cache it" do
     stub_bib RfcBib::RfcBibliography
     bib = db.fetch "RFC 8341", nil, {}
     expect(bib).to be_instance_of IsoBibItem::BibliographicItem
+    expect(bib.to_xml).to include "<bibitem id=\"RFC8341\">"
+    expect(File.exist?("testcache")).to be true
+    expect(File.exist?("testcache2")).to be true
+    testcache = PStore.new "testcache"
+    testcache.transaction true do
+      expect(testcache["RFC 8341"]["bib"].to_xml).to include "<bibitem id=\"RFC8341\">"
+    end
+    testcache = PStore.new "testcache2"
+    testcache.transaction do
+      expect(testcache["RFC 8341"]["bib"].to_xml).to include "<bibitem id=\"RFC8341\">"
+    end
   end
 
   private

@@ -100,7 +100,8 @@ module Relaton
       ret = code
       ret += ":#{year}" if year
       ret += " (all parts)" if opts[:all_parts]
-      ret
+      code = code.sub(/^(GB Standard|IETF) /, "")
+      [ret, code]
     end
 
     def bib_retval(entry)
@@ -112,11 +113,11 @@ module Relaton
     # @param opts [Hash]
     # @param stdclass [Symbol]
     def check_bibliocache(code, year, opts, stdclass)
-      id = std_id(code, year, opts, stdclass)
-      return bib_retval(new_bib_entry(code, year, opts, stdclass)) if @db.nil?
+      id, searchcode = std_id(code, year, opts, stdclass)
+      return bib_retval(new_bib_entry(searchcode, year, opts, stdclass)) if @db.nil?
       @db.transaction do
         @db.delete(id) unless valid_bib_entry?(@db[id], year)
-        @db[id] ||= new_bib_entry(code, year, opts, stdclass)
+        @db[id] ||= new_bib_entry(searchcode, year, opts, stdclass)
         if @local_db.nil? then bib_retval(@db[id])
         else
           @local_db.transaction do
