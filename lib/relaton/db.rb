@@ -11,7 +11,7 @@ module Relaton
     # @param local_cache [String] filename of local DB
     def initialize(global_cache, local_cache)
       @db = open_cache_biblio(global_cache)
-      @local_db = open_cache_biblio(local_cache)
+      @local_db = open_cache_biblio(local_cache, global: false)
       @db_name = global_cache
       @local_db_name = local_cache
       register_gems
@@ -66,16 +66,12 @@ module Relaton
       @db.transaction do
         Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
           xml.documents do
-            @db.roots.each { |key| @db[key]&.fetch("bib")&.to_xml(xml, {}) }
+            @db.roots.reject { |key| key == :version }.
+              each { |key| @db[key]&.fetch("bib")&.to_xml(xml, {}) }
           end
         end.to_xml
       end
     end
-
-    # def save
-    #   save_cache_biblio(@db, @db_name)
-    #   save_cache_biblio(@local_db, @local_db_name)
-    # end
 
     private
 
@@ -144,15 +140,37 @@ module Relaton
     end
 
     # @param filename [String] DB filename
-    # @return [Hash]
-    def open_cache_biblio(filename)
+    # @param global [TrueClass, FalseClass]
+    # @return [PStore]
+    def open_cache_biblio(filename, global: true)
       return nil if filename.nil?
-      PStore.new filename
-      # biblio = {}
-      # return {} unless !filename.nil? && Pathname.new(filename).file?
-      # File.open(filename, "r") { |f| biblio = JSON.parse(f.read) }
-      # biblio.each { |_k, v| v["bib"] && (v["bib"] = from_xml(v["bib"])) }
-      # biblio
+      db = PStore.new filename
+      if File.exist? filename
+        if global
+          unless check_cache_version(db)
+            File.delete filename
+            warn "Global cache version is obsolete and cleared."
+          end
+          set_cache_version db
+        elsif check_cache_version(db) then db
+        else
+          warn "Local cache version is obsolete."
+          nil
+        end
+      else
+        set_cache_version db
+      end
+    end
+
+    def check_cache_version(cache_db)
+      cache_db.transaction { cache_db[:version] == VERSION }
+    end
+
+    def set_cache_version(cache_db)
+      unless File.exist? cache_db.path
+        cache_db.transaction { cache_db[:version] = VERSION }
+      end
+      cache_db
     end
 
     # @param enstry [String] entry in XML format
