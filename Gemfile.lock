@@ -24,8 +24,10 @@ GEM
       nokogiri (>= 1.4.3)
     ffi (1.9.25)
     formatador (0.2.5)
-    gbbib (0.2.1)
+    gb-agencies (0.0.3)
+    gbbib (0.2.2)
       cnccs (~> 0.1.1)
+      gb-agencies (~> 0.0.1)
       iso-bib-item (~> 0.2)
     guard (2.14.2)
       formatador (>= 0.2.4)
@@ -44,13 +46,13 @@ GEM
     httpclient (2.8.3)
     iev (0.1.0)
       nokogiri
-    iso-bib-item (0.2.2)
+    iso-bib-item (0.2.3)
       isoics (~> 0.1.6)
       nokogiri (~> 1.8.4)
       ruby_deep_clone (~> 0.8.0)
-    isobib (0.2.0)
+    isobib (0.2.1)
       algoliasearch
-      iso-bib-item (~> 0.2.0)
+      iso-bib-item (~> 0.2.3)
     isoics (0.1.6)
     jaro_winkler (1.5.1)
     json (2.1.0)
@@ -136,4 +138,4 @@ DEPENDENCIES
   timecop (~> 0.9)
 
 BUNDLED WITH
-   1.16.1
+   1.16.2
