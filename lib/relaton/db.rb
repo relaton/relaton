@@ -1,4 +1,5 @@
 require "pstore"
+require "iso_bib_item"
 require_relative "registry"
 
 module Relaton
