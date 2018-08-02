@@ -1,5 +1,5 @@
 require "pstore"
-require "iso_bib_item"
+# require "iso_bib_item"
 require_relative "registry"
 
 module Relaton
@@ -11,11 +11,11 @@ module Relaton
     # @param global_cache [String] filename of global DB
     # @param local_cache [String] filename of local DB
     def initialize(global_cache, local_cache)
+      register_gems
       @db = open_cache_biblio(global_cache)
       @local_db = open_cache_biblio(local_cache, global: false)
       @db_name = global_cache
       @local_db_name = local_cache
-      register_gems
       @registry = Relaton::Registry.instance
     end
 
