@@ -78,7 +78,7 @@ module Relaton
 
     def standard_class(code)
       @registry.processors.each do |name, processor|
-        processor.prefix.match?(code) and return name
+        return name if processor.prefix.match(code)
       end
       allowed = @registry.processors.reduce([]) do |m, (_k, v)|
         m << v.prefix.inspect
