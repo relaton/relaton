@@ -120,7 +120,7 @@ module Relaton
       end
     end
 
-    # hash uses => , because the hash is imported from JSONo
+    # hash uses => , because the hash is imported from JSON
     # @param code [String]
     # @param year [String]
     # @param opts [Hash]

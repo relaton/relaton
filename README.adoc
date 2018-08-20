@@ -27,6 +27,15 @@ The gem can be extended to use other standards-specific gems. Standards-specific
 * `@short`, the name of the gem
 * `@prefix`, the regex constraining the standards code to be processed
 * `get(code, date, opts)`, which takes a standards code, a year, and a hash of options, and returns an iso-bib-item bibliographic entry
+** `date == nil`: an ISO reference is treated as a generic reference to the latest available version of the reference. The latest
+version retrieved has its date of publicatipn stripped. The dated reference is retained as an `instanceOf` relation to the reference.
+e.g. `get("ISO 19115-1", nil)` is transformed from a reference to `ISO 19115-1:2014` (the latest available online) to an undated reference 
+to `ISO 19115-1`.
+** `opts[:keep_date] == true`: undoes the behaviour of `date == nil`: the most recent dated instance of the reference is retrieved.
+e.g.  `get("ISO 19115-1", nil, keep_date: true)` returns a reference to `ISO 19115-1:2014`
+** `opts[:all_parts] == true`: an ISO reference for a specific document part is transformed into a reference to all parts of the document
+(which does not have a distinct web page). The reference to the specific document part is retained as a `partOf` relation to the reference.
+e.g. `get("ISO 19115-1", "2014", all_parts: true)` is transformed into a reference to `ISO 19115 (all parts)`.
 
 == Behaviours
 
