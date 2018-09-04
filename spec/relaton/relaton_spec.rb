@@ -29,11 +29,11 @@ RSpec.describe Relaton::Db do
     expect(File.exist?("testcache2")).to be true
     testcache = PStore.new "testcache"
     testcache.transaction true do
-      expect(testcache["ISO 19115-1"]["bib"].to_xml).to include "<bibitem type=\"international-standard\" id=\"ISO19115-1\">"
+      expect(testcache["ISO(ISO 19115-1)"]["bib"].to_xml).to include "<bibitem type=\"international-standard\" id=\"ISO19115-1\">"
     end
     testcache = PStore.new "testcache2"
     testcache.transaction do
-      expect(testcache["ISO 19115-1"]["bib"].to_xml).to include "<bibitem type=\"international-standard\" id=\"ISO19115-1\">"
+      expect(testcache["ISO(ISO 19115-1)"]["bib"].to_xml).to include "<bibitem type=\"international-standard\" id=\"ISO19115-1\">"
     end
   end
 
@@ -45,13 +45,13 @@ RSpec.describe Relaton::Db do
     expect(File.exist?("testcache2")).to be true
     testcache = PStore.new "testcache"
     testcache.transaction do
-      expect(testcache["ISO 111111119115-1"]["fetched"].to_s).to eq Date.today.to_s
-      expect(testcache["ISO 111111119115-1"]["bib"]).to eq "not_found"
+      expect(testcache["ISO(ISO 111111119115-1)"]["fetched"].to_s).to eq Date.today.to_s
+      expect(testcache["ISO(ISO 111111119115-1)"]["bib"]).to eq "not_found"
     end
     testcache = PStore.new "testcache2"
     testcache.transaction do
-      expect(testcache["ISO 111111119115-1"]["fetched"].to_s).to eq Date.today.to_s
-      expect(testcache["ISO 111111119115-1"]["bib"]).to eq "not_found"
+      expect(testcache["ISO(ISO 111111119115-1)"]["fetched"].to_s).to eq Date.today.to_s
+      expect(testcache["ISO(ISO 111111119115-1)"]["bib"]).to eq "not_found"
     end
   end
 
@@ -72,18 +72,18 @@ RSpec.describe Relaton::Db do
 
   it "get GB reference and cache it" do
     stub_bib Gbbib::GbBibliography
-    bib = @db.fetch "GB Standard GB/T 20223", "2006", {}
+    bib = @db.fetch "CN(GB/T 20223)", "2006", {}
     expect(bib).to be_instance_of Gbbib::GbBibliographicItem
     expect(bib.to_xml).to include "<bibitem type=\"standard\" id=\"GB/T20223\">"
     expect(File.exist?("testcache")).to be true
     expect(File.exist?("testcache2")).to be true
     testcache = PStore.new "testcache"
     testcache.transaction true do
-      expect(testcache["GB Standard GB/T 20223:2006"]["bib"].to_xml).to include "<bibitem type=\"standard\" id=\"GB/T20223\">"
+      expect(testcache["CN(GB/T 20223:2006)"]["bib"].to_xml).to include "<bibitem type=\"standard\" id=\"GB/T20223\">"
     end
     testcache = PStore.new "testcache2"
     testcache.transaction do
-      expect(testcache["GB Standard GB/T 20223:2006"]["bib"].to_xml).to include "<bibitem type=\"standard\" id=\"GB/T20223\">"
+      expect(testcache["CN(GB/T 20223:2006)"]["bib"].to_xml).to include "<bibitem type=\"standard\" id=\"GB/T20223\">"
     end
   end
 
@@ -96,11 +96,11 @@ RSpec.describe Relaton::Db do
     expect(File.exist?("testcache2")).to be true
     testcache = PStore.new "testcache"
     testcache.transaction true do
-      expect(testcache["RFC 8341"]["bib"].to_xml).to include "<bibitem id=\"RFC8341\">"
+      expect(testcache["IETF(RFC 8341)"]["bib"].to_xml).to include "<bibitem id=\"RFC8341\">"
     end
     testcache = PStore.new "testcache2"
     testcache.transaction do
-      expect(testcache["RFC 8341"]["bib"].to_xml).to include "<bibitem id=\"RFC8341\">"
+      expect(testcache["IETF(RFC 8341)"]["bib"].to_xml).to include "<bibitem id=\"RFC8341\">"
     end
   end
 

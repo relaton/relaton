@@ -18,14 +18,20 @@ Entries are serialised to and from an internal data model, and multiple formats 
 
 Relaton imports bibliographic entries from:
 
-* ISO and IEC through the iso.org website, via the https://github.com/riboseinc/isobib[isobib] gem
-* GB (Chinese national standards) through the GB websites, via the https://github.com/riboseinc/gbbib[gbbib] gem [in progress]
-* IETF standards (Internet Drafts, RFC) through the http://xml2rfc.tools.ietf.org website, via the https://github.com/riboseinc/rfcbib[rfcbib] gem [in progress]
+* ISO through the iso.org website, via the https://github.com/riboseinc/isobib[isobib] gem
+* GB (Chinese national standards) through the GB websites, via the https://github.com/riboseinc/gbbib[gbbib] gem 
+* IETF standards (Internet Drafts, RFC) through the http://xml2rfc.tools.ietf.org website, via the https://github.com/riboseinc/rfcbib[rfcbib] gem 
+
+The identifiers for which bibliographic entries are to be retrieved need to indicate which standards body they belong to. To do so, this gem adopts the convention of bracketing identifiers, and preceding them with a code that indicates the standards body:
+* If the standards body is national, the wrapper uses the ISO country code. So `CN(GM/T 0009-2012)` is Chinese sector standard GM/T 0009-2012.
+* If the standards body is international, the wrappers uses the agreed abbreviation of the standards body. So `IETF(I-D.ribose-asciirfc-08)` identifiers `I-D.ribose-asciirfc` as an Internet Engineering Task Force identifier.
+* Some prefixes to identifiers indicate the standards body they belong to unambiguously; e.g. `ISO` followed by slash or space. The scope wrapper is not required for those prefixes: `ISO(ISO 639-1)` can be recognised as just `ISO 639-1`.
 
 The gem can be extended to use other standards-specific gems. Standards-specific gems like isobib register themselves against Relaton using `Relaton::Registry.instance.register`, which takes as an argument a subclass of `Relaton::Processor` defined in the gem; see isobib/lib/relaton for an example. The processor within the standards-specific gem needs to define
 
 * `@short`, the name of the gem
-* `@prefix`, the regex constraining the standards code to be processed
+* `@prefix`, the regex which scopes the identifier, and constrains it to belong to a particular standards class. 
+* `@defaultprefix`, the identifier prefixes which can be recognised without a scope wrapper.
 * `get(code, date, opts)`, which takes a standards code, a year, and a hash of options, and returns an iso-bib-item bibliographic entry
 ** `date == nil`: an ISO reference is treated as a generic reference to the latest available version of the reference. The latest
 version retrieved has its date of publicatipn stripped. The dated reference is retained as an `instanceOf` relation to the reference.
@@ -39,15 +45,12 @@ e.g. `get("ISO 19115-1", "2014", all_parts: true)` is transformed into a referen
 
 == Behaviours
 
-* Bibliographic entries are identified for retrieval and caching by a prefix specific to the standards class, followed by the conventional code of the standard.
-** ISO standards are identified by `ISO` followed by space or slash. For example, `ISO/IEC DIR 2:2018`
-** IEC standards are identified by `IEC` followed by space or slash
-** GB standards are identified by `GB Standard`. For example, `GB Standard GM/T 0009-2012`
-** IETF stadnards are identified by `IETF`. Foe example, `IETF RFC 7991`
 * If an entry is defined in both the local and the global cache, the local cache entry is used.
 * If an ISO entry has no date, the latest version available for the entry is retrieved.
 * If a cached ISO entry has no date, and was last retrieved more than 60 days ago, the gem fetches it again, in case there is a newer edition of the standard available.
+* Entries are always saved to the cache with a scope-wrapped identifier; e.g. under `ISO(ISO 639-1)`, and not `ISO 639-1`.
 * Note that the gem does not currently support the totality of the Relaton model; it will only support the information available in the source websites. We do not expect to support cartographic information, for example.
+* Document identifiers are returned with a scope indication; for example, `<docidentifier type="IETF">RFC 8000</docidentifier>`. It is up to the client whether to render this with the scope indication (_IETF RFC 8000_) or without (_RFC 8000_).
 
 == Usage
 
@@ -89,13 +92,13 @@ x.to_xml
 db.to_xml
 => "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<documents>\n <bibitem type=\"international-standard\"...."
 
-db.load_entry("ISO 19011")
+db.load_entry("ISO(ISO 19011)")
 => #<IsoBibItem::IsoBibliographicItem:...>
 
-db.save_entry("ISO 19011", nil)
+db.save_entry("ISO(ISO 19011)", nil)
 => nil
 
-db.load_entry("ISO 19011")
+db.load_entry("ISO(ISO 19011)")
 => nil
 
 ----

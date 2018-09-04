@@ -1,5 +1,4 @@
 require "pstore"
-# require "iso_bib_item"
 require_relative "registry"
 
 module Relaton
@@ -78,22 +77,24 @@ module Relaton
 
     def standard_class(code)
       @registry.processors.each do |name, processor|
-        return name if processor.prefix.match(code)
+        return name if /#{processor.prefix}/.match(code) ||
+          processor.defaultprefix.match(code)
       end
       allowed = @registry.processors.reduce([]) do |m, (_k, v)|
-        m << v.prefix.inspect
+        m << v.prefix
       end
       warn "#{code} does not have a recognised prefix: #{allowed.join(', ')}"
       nil
     end
 
     # TODO: i18n
-    def std_id(code, year, opts, _stdclass)
+    def std_id(code, year, opts, stdclass)
+      prefix = @registry.processors[stdclass].prefix
+      code = code.sub(/^#{prefix}\((.+)\)$/, "\\1")
       ret = code
       ret += ":#{year}" if year
       ret += " (all parts)" if opts[:all_parts]
-      code = code.sub(/^(GB Standard|IETF( Standard)?) /, "")
-      [ret, code]
+      ["#{prefix}(#{ret})", code]
     end
 
     def bib_retval(entry)

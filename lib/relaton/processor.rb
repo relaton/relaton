@@ -3,6 +3,7 @@ module Relaton
 
     attr_reader :short
     attr_reader :prefix
+    attr_reader :defaultprefix
 
     def initialize
       raise "This is an abstract class!"
