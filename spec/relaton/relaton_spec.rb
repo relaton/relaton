@@ -88,7 +88,7 @@ RSpec.describe Relaton::Db do
   end
 
   it "get RFC reference and cache it" do
-    stub_bib RfcBib::RfcBibliography
+    stub_bib IETFBib::RfcBibliography
     bib = @db.fetch "RFC 8341", nil, {}
     expect(bib).to be_instance_of IsoBibItem::BibliographicItem
     expect(bib.to_xml).to include "<bibitem id=\"RFC8341\">"

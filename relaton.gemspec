@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "algoliasearch"
   spec.add_dependency "gbbib", "~> 0.3.0"
   spec.add_dependency "isobib", "~> 0.3.0"
-  spec.add_dependency "rfcbib", "~> 0.3.0"
+  spec.add_dependency "ietfbib", "~> 0.4.0"
   spec.add_dependency 'iso-bib-item', '~> 0.3.0'
 
   spec.add_development_dependency "bundler", "~> 1.15"
