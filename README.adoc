@@ -32,6 +32,7 @@ The gem can be extended to use other standards-specific gems. Standards-specific
 * `@short`, the name of the gem
 * `@prefix`, the regex which scopes the identifier, and constrains it to belong to a particular standards class. 
 * `@defaultprefix`, the identifier prefixes which can be recognised without a scope wrapper.
+* `@idtype`, the type assigned to document identifiers for the standard class.
 * `get(code, date, opts)`, which takes a standards code, a year, and a hash of options, and returns an iso-bib-item bibliographic entry
 ** `date == nil`: an ISO reference is treated as a generic reference to the latest available version of the reference. The latest
 version retrieved has its date of publicatipn stripped. The dated reference is retained as an `instanceOf` relation to the reference.
@@ -50,7 +51,7 @@ e.g. `get("ISO 19115-1", "2014", all_parts: true)` is transformed into a referen
 * If a cached ISO entry has no date, and was last retrieved more than 60 days ago, the gem fetches it again, in case there is a newer edition of the standard available.
 * Entries are always saved to the cache with a scope-wrapped identifier; e.g. under `ISO(ISO 639-1)`, and not `ISO 639-1`.
 * Note that the gem does not currently support the totality of the Relaton model; it will only support the information available in the source websites. We do not expect to support cartographic information, for example.
-* Document identifiers are returned with a scope indication; for example, `<docidentifier type="IETF">RFC 8000</docidentifier>`. It is up to the client whether to render this with the scope indication (_IETF RFC 8000_) or without (_RFC 8000_).
+* Document identifiers are returned with a scope indication (`@idtype`); for example, `<docidentifier type="IETF">RFC 8000</docidentifier>`. It is up to the client whether to render this with the scope indication (_IETF RFC 8000_) or without (_RFC 8000_).
 
 == Usage
 
@@ -85,6 +86,9 @@ fetching ISO 19011...
 x = db.fetch("ISO 19011", "2011", allparts: true)
 fetching ISO 19011...
 => #<IsoBibItem::IsoBibliographicItem:...>
+
+x = db.docid_type("CN(GB/T 1.1)")
+=> ["Chinese Standard", "GB/T 1.1"]
 
 x.to_xml
 => "<bib-item type=\"international-standard\" id=\"ISO19011\">...."

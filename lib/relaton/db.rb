@@ -41,6 +41,13 @@ module Relaton
       check_bibliocache(code, year, opts, stdclass)
     end
 
+    # The document identifier class corresponding to the given code
+    def docid_type(code)
+      stdclass = standard_class(code) or return [nil, code]
+      prefix, code = strip_id_wrapper(code, stdclass)
+      [@registry.processors[stdclass].idtype, code]
+    end
+
     # @param key [String]
     # @return [Hash]
     def load_entry(key)
@@ -60,7 +67,7 @@ module Relaton
       @local_db.nil? or @local_db.transaction { @local_db[key] = value }
     end
 
-    # list all entris as a serialization
+    # list all entries as a serialization
     def to_xml
       return nil if @db.nil?
       @db.transaction do
@@ -89,12 +96,17 @@ module Relaton
 
     # TODO: i18n
     def std_id(code, year, opts, stdclass)
-      prefix = @registry.processors[stdclass].prefix
-      code = code.sub(/^#{prefix}\((.+)\)$/, "\\1")
+      prefix, code = strip_id_wrapper(code, stdclass)
       ret = code
       ret += ":#{year}" if year
       ret += " (all parts)" if opts[:all_parts]
       ["#{prefix}(#{ret})", code]
+    end
+
+    def strip_id_wrapper(code, stdclass)
+      prefix = @registry.processors[stdclass].prefix
+      code = code.sub(/^#{prefix}\((.+)\)$/, "\\1")
+      [prefix, code]
     end
 
     def bib_retval(entry)
