@@ -31,6 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "gbbib", "~> 0.3.1"
   spec.add_dependency "isobib", "~> 0.3.1"
   spec.add_dependency "ietfbib", "~> 0.4.1"
+  spec.add_dependency "iecbib", "~> 0.1.1"
   spec.add_dependency 'iso-bib-item', '~> 0.3.0'
 
   spec.add_development_dependency "bundler", "~> 1.15"

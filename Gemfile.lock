@@ -4,6 +4,7 @@ PATH
     relaton (0.2.2)
       algoliasearch
       gbbib (~> 0.3.1)
+      iecbib (~> 0.1.1)
       ietfbib (~> 0.4.1)
       iso-bib-item (~> 0.3.0)
       isobib (~> 0.3.1)
@@ -44,6 +45,8 @@ GEM
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
     httpclient (2.8.3)
+    iecbib (0.1.1)
+      iso-bib-item (~> 0.3.0)
     ietfbib (0.4.1)
       iso-bib-item (~> 0.3.0)
     iso-bib-item (0.3.0)

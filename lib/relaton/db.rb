@@ -5,7 +5,7 @@ module Relaton
   class RelatonError < StandardError; end
 
   class Db
-    SUPPORTED_GEMS = %w[isobib ietfbib gbbib].freeze
+    SUPPORTED_GEMS = %w[isobib ietfbib gbbib iecbib].freeze
 
     # @param global_cache [String] filename of global DB
     # @param local_cache [String] filename of local DB
@@ -31,8 +31,8 @@ module Relaton
     end
 
     # The class of reference requested is determined by the prefix of the code:
-    # GB Standard for gbbib, IETF for ietfbib, ISO or IEC or IEV for isobib
-    # @param code [String] the ISO standard Code to look up (e..g "ISO 9000")
+    # GB Standard for gbbib, IETF for ietfbib, ISO for isobib, IEC or IEV for iecbib, 
+    # @param code [String] the ISO standard Code to look up (e.g. "ISO 9000")
     # @param year [String] the year the standard was published (optional)
     # @param opts [Hash] options; restricted to :all_parts if all-parts reference is required
     # @return [String] Relaton XML serialisation of reference
