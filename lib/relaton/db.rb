@@ -69,12 +69,12 @@ module Relaton
 
     # list all entries as a serialization
     def to_xml
-      return nil if @db.nil?
-      @db.transaction do
+      db = @local_db || @db || return
+      db.transaction do
         Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
           xml.documents do
-            @db.roots.reject { |key| key == :version }.
-              each { |key| @db[key]&.fetch("bib")&.to_xml(xml, {}) }
+            db.roots.reject { |key| key == :version }.
+              each { |key| db[key]&.fetch("bib")&.to_xml(xml, {}) }
           end
         end.to_xml
       end
@@ -119,16 +119,18 @@ module Relaton
     # @param stdclass [Symbol]
     def check_bibliocache(code, year, opts, stdclass)
       id, searchcode = std_id(code, year, opts, stdclass)
-      return bib_retval(new_bib_entry(searchcode, year, opts, stdclass)) if @db.nil?
-      @db.transaction do
-        @db.delete(id) unless valid_bib_entry?(@db[id], year)
-        @db[id] ||= new_bib_entry(searchcode, year, opts, stdclass)
-        if @local_db.nil? then bib_retval(@db[id])
-        else
-          @local_db.transaction do
-            @local_db[id] = @db[id] if !valid_bib_entry?(@local_db[id], year)
+      db = @local_db || @db
+      return bib_retval(new_bib_entry(searchcode, year, opts, stdclass)) if db.nil?
+      db.transaction do
+        db.delete(id) unless valid_bib_entry?(db[id], year)
+        db[id] ||= new_bib_entry(searchcode, year, opts, stdclass)
+        if @local_db && @db 
+          @db.transaction do
+            @db[id] = @local_db[id] if !valid_bib_entry?(@db[id], year)
             bib_retval(@local_db[id])
           end
+        else
+          bib_retval(db[id])
         end
       end
     end
