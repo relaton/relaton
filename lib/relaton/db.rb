@@ -120,16 +120,19 @@ module Relaton
     def check_bibliocache(code, year, opts, stdclass)
       id, searchcode = std_id(code, year, opts, stdclass)
       db = @local_db || @db
+      altdb = @local_db && @db ? @db : nil
       return bib_retval(new_bib_entry(searchcode, year, opts, stdclass)) if db.nil?
       db.transaction do
         db.delete(id) unless valid_bib_entry?(db[id], year)
-        db[id] ||= new_bib_entry(searchcode, year, opts, stdclass)
-        if @local_db && @db 
-          @db.transaction do
-            @db[id] = @local_db[id] if !valid_bib_entry?(@db[id], year)
-            bib_retval(@local_db[id])
+        if altdb
+          altdb.transaction do
+            db[id] ||= altdb[id]
+            db[id] ||= new_bib_entry(searchcode, year, opts, stdclass)
+            altdb[id] = db[id] if !valid_bib_entry?(altdb[id], year)
+            bib_retval(db[id])
           end
         else
+          db[id] ||= new_bib_entry(searchcode, year, opts, stdclass)
           bib_retval(db[id])
         end
       end

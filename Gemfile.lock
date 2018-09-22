@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    relaton (0.2.2)
+    relaton (0.2.3)
       algoliasearch
       gbbib (~> 0.3.1)
       iecbib (~> 0.1.1)
@@ -12,6 +12,8 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
+    addressable (2.5.2)
+      public_suffix (>= 2.0.2, < 4.0)
     algoliasearch (1.23.2)
       httpclient (~> 2.8, >= 2.8.3)
       json (>= 1.5.1)
@@ -46,15 +48,17 @@ GEM
       rspec (>= 2.99.0, < 4.0)
     httpclient (2.8.3)
     iecbib (0.1.1)
+      addressable
       iso-bib-item (~> 0.3.0)
     ietfbib (0.4.1)
       iso-bib-item (~> 0.3.0)
-    iso-bib-item (0.3.0)
+    iso-bib-item (0.3.1)
       isoics (~> 0.1.6)
       nokogiri (~> 1.8.4)
       ruby_deep_clone (~> 0.8.0)
     isobib (0.3.1)
       algoliasearch
+      iecbib (~> 0.1.1)
       iso-bib-item (~> 0.3.0)
     isoics (0.1.7)
     jaro_winkler (1.5.1)
@@ -82,6 +86,7 @@ GEM
     pry-byebug (3.6.0)
       byebug (~> 10.0)
       pry (~> 0.10)
+    public_suffix (3.0.3)
     rainbow (3.0.0)
     rake (12.3.1)
     rb-fsevent (0.10.3)
