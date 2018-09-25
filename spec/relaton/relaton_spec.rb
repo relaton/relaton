@@ -1,10 +1,11 @@
 require "spec_helper"
+require "fileutils"
 
 RSpec.describe Relaton::Db do
   # let!(:db) { Relaton::Db.new("testcache", "testcache2") }
 
   before :each do
-    system "rm testcache testcache2"
+    FileUtils.rm_f %w(testcache testcache2)
     @db = Relaton::Db.new "testcache", "testcache2"
   end
 
