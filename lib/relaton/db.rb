@@ -41,6 +41,13 @@ module Relaton
       check_bibliocache(code, year, opts, stdclass)
     end
 
+    def fetch_std(code, year = nil, stdclass = nil, opts = {})
+      unless stdclass
+        stdclass = standard_class(code) or return nil
+      end
+      check_bibliocache(code, year, opts, stdclass)
+    end
+
     # The document identifier class corresponding to the given code
     def docid_type(code)
       stdclass = standard_class(code) or return [nil, code]
