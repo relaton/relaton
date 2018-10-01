@@ -42,10 +42,14 @@ module Relaton
     end
 
     def fetch_std(code, year = nil, stdclass = nil, opts = {})
-      unless stdclass
-        stdclass = standard_class(code) or return nil
+      std = nil
+      @registry.processors.each do |name, processor|
+        std = name if processor.prefix == stdclass
       end
-      check_bibliocache(code, year, opts, stdclass)
+      unless std
+        std = standard_class(code) or return nil
+      end
+      check_bibliocache(code, year, opts, std)
     end
 
     # The document identifier class corresponding to the given code
