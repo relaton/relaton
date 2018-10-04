@@ -1,5 +1,5 @@
 # coding: utf-8
-  
+
 lib = File.expand_path("../lib", __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "relaton/version"
@@ -10,10 +10,11 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Ribose Inc."]
   spec.email         = ["open.source@ribose.com"]
 
-  spec.summary       = "gem for importing and caching bibliographic references to technical standards"
+  spec.summary       = "The Relaton core for importing, managing and caching bibliographic references to technical standards."
   spec.description   = <<~DESCRIPTION
-  gem for importing and caching bibliographic references to technical standards
-  in the Relaton/XML bibliographic model.
+  The Relaton core for importing, managing and caching bibliographic
+references to technical standards in the Relaton/XML bibliographic
+model.
 
   This gem is in active development.
   DESCRIPTION

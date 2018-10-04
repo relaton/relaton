@@ -19,19 +19,19 @@ module Relaton
     end
 
     def register_gems
-      puts "[relaton] detecting backends:"
+      puts "[relaton] Info: detecting backends:"
       SUPPORTED_GEMS.each do |b|
-        puts b
+        # puts b
         begin
           require b
         rescue LoadError
-          puts "[relaton] backend #{b} not present"
+          puts "[relaton] Error: backend #{b} not present"
         end
       end
     end
 
     # The class of reference requested is determined by the prefix of the code:
-    # GB Standard for gbbib, IETF for ietfbib, ISO for isobib, IEC or IEV for iecbib, 
+    # GB Standard for gbbib, IETF for ietfbib, ISO for isobib, IEC or IEV for iecbib,
     # @param code [String] the ISO standard Code to look up (e.g. "ISO 9000")
     # @param year [String] the year the standard was published (optional)
     # @param opts [Hash] options; restricted to :all_parts if all-parts reference is required
