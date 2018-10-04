@@ -13,6 +13,10 @@ module Relaton
     def get(code, date, opts)
       raise "This is an abstract class!"
     end
+
+    def from_xml(xml)
+      raise "This is an abstract class!"
+    end
   end
 end
 
