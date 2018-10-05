@@ -81,9 +81,9 @@ RSpec.describe Relaton::Db do
     expect(File.exist?("testcache")).to be true
     expect(File.exist?("testcache2")).to be true
     testcache = Relaton::DbCache.new "testcache"
-    expect(testcache["IETF(RFC 8341)"]["bib"]).to include "<bibitem id=\"RFC8341\">"
+    expect(testcache["IETF(RFC 8341)"]).to include "<bibitem id=\"RFC8341\">"
     testcache = Relaton::DbCache.new "testcache2"
-    expect(testcache["IETF(RFC 8341)"]["bib"]).to include "<bibitem id=\"RFC8341\">"
+    expect(testcache["IETF(RFC 8341)"]).to include "<bibitem id=\"RFC8341\">"
   end
 
   it "shoul clear global cache if version is changed" do
