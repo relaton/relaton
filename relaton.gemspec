@@ -28,11 +28,11 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = Gem::Requirement.new(">= 2.3.0")
 
   spec.add_dependency "algoliasearch"
-  spec.add_dependency "gbbib", "~> 0.3.1"
-  spec.add_dependency "isobib", "~> 0.3.1"
-  spec.add_dependency "ietfbib", "~> 0.4.1"
-  spec.add_dependency "iecbib", "~> 0.1.1"
-  spec.add_dependency 'iso-bib-item', '~> 0.3.0'
+  spec.add_dependency "gbbib", "~> 0.4.0"
+  spec.add_dependency "isobib", "~> 0.4.0"
+  spec.add_dependency "ietfbib", "~> 0.4.2"
+  spec.add_dependency "iecbib", "~> 0.2.0"
+  spec.add_dependency 'iso-bib-item', '~> 0.4.1'
 
   spec.add_development_dependency "bundler", "~> 1.15"
   spec.add_development_dependency "byebug", "~> 10.0"
