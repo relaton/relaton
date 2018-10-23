@@ -41,7 +41,7 @@ module Relaton
         value.match(/\d{4}-\d{2}-\d{2}/).to_s
       else
         doc = Nokogiri::XML value
-        doc.at('/bibitem/fetched').text
+        doc.at('/bibitem/fetched')&.text
       end
     end
 
