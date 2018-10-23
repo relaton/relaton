@@ -164,6 +164,7 @@ module Relaton
     # @return [Hash]
     def new_bib_entry(code, year, opts, stdclass)
       bib = @registry.processors[stdclass].get(code, year, opts)
+      bib = bib.to_xml if bib.respond_to? :to_xml
       bib = "not_found #{Date.today}" if bib.nil? || bib.empty?
       bib
     end
