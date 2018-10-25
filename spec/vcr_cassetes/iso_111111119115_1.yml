@@ -1,0 +1,59 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://jcl49wv5ar-dsn.algolia.net/1/indexes/all_en/query
+    body:
+      encoding: UTF-8
+      string: '{"params":"facetFilters=%5B%22category%3Astandard%22%5D&query=ISO+111111119115-1"}'
+    headers:
+      User-Agent:
+      - Algolia for Ruby (1.23.2); Ruby (2.4.0)
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip,deflate
+      Date:
+      - Thu, 18 Oct 2018 16:22:34 GMT
+      X-Algolia-Api-Key:
+      - dd1b9e1ab383f4d4817d29cd5e96d3f0
+      X-Algolia-Application-Id:
+      - JCL49WV5AR
+      Content-Type:
+      - application/json; charset=utf-8
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Thu, 18 Oct 2018 16:22:34 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Content-Length:
+      - '216'
+      Connection:
+      - keep-alive
+      X-Alg-Pt:
+      - '8'
+      Access-Control-Allow-Origin:
+      - "*"
+      Timing-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - no-cache
+      X-Content-Type-Options:
+      - nosniff
+      Content-Disposition:
+      - inline; filename=a.txt
+    body:
+      encoding: UTF-8
+      string: '{"hits":[],"nbHits":0,"page":0,"nbPages":0,"hitsPerPage":20,"processingTimeMS":6,"exhaustiveNbHits":true,"query":"ISO
+        111111119115-1","params":"facetFilters=%5B%22category%3Astandard%22%5D&query=ISO+111111119115-1"}
+
+'
+    http_version: 
+  recorded_at: Thu, 18 Oct 2018 16:22:34 GMT
+recorded_with: VCR 4.0.0

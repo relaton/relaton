@@ -46,4 +46,6 @@ model.
   spec.add_development_dependency "rubocop", "~> 0.50"
   spec.add_development_dependency "simplecov", "~> 0.15"
   spec.add_development_dependency "timecop", "~> 0.9"
+  spec.add_development_dependency "vcr"
+  spec.add_development_dependency "webmock"
 end

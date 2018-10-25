@@ -7,8 +7,8 @@ module Relaton
     def initialize(dir)
       @dir = dir
       Dir.mkdir @dir unless Dir.exist? @dir
-      fiele_version = "#{@dir}/version"
-      File.write fiele_version, VERSION unless File.exist? fiele_version
+      file_version = "#{@dir}/version"
+      File.write file_version, VERSION, encoding: "utf-8" unless File.exist? file_version
     end
 
     # Save item
@@ -18,7 +18,7 @@ module Relaton
       return if value.nil?
       prefix_dir = "#{@dir}/#{prefix(key)}"
       Dir.mkdir prefix_dir unless Dir.exist? prefix_dir
-      File.write filename(key), value
+      File.write filename(key), value, encoding: "utf-8"
     end
 
     # Read item
@@ -28,7 +28,7 @@ module Relaton
       file = filename key
       return unless File.exist? file
 
-      File.read(file)
+      File.read(file, encoding: "utf-8")
     end
 
     # Return fetched date
@@ -49,7 +49,7 @@ module Relaton
     # @return [Array<Hash>]
     def all
       Dir.glob("testcache/**/*.xml").sort.map do |f|
-        File.read(f)
+        File.read(f, encoding: "utf-8")
       end
     end
 
@@ -63,14 +63,14 @@ module Relaton
     # Check if version of the DB match to the gem version.
     # @return [TrueClass, FalseClass]
     def check_version?
-      v = File.read @dir + "/version"
+      v = File.read @dir + "/version", encoding: "utf-8"
       v == VERSION
     end
 
     # Set version of the DB to the gem version.
     # @return [Relaton::DbCache]
     def set_version
-      File.write @dir + "/version", VERSION
+      File.write @dir + "/version", VERSION, encoding: "utf-8"
       self
     end
 

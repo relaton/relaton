@@ -1,5 +1,12 @@
 # frozen_string_literal: true
-  
+
+require "vcr"
+
+VCR.configure do |c|
+  c.cassette_library_dir = "spec/vcr_cassetes"
+  c.hook_into :webmock
+end
+
 require "simplecov"
 SimpleCov.start do
   add_filter "/spec/"

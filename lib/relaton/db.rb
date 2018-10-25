@@ -53,6 +53,13 @@ module Relaton
       check_bibliocache(code, year, opts, std)
     end
 
+    def fetched(key)
+      return @local_db.fetched key if @local_db
+      return @db.fetched key if @db
+
+      ""
+    end
+
     # The document identifier class corresponding to the given code
     def docid_type(code)
       stdclass = standard_class(code) or return [nil, code]
@@ -71,9 +78,8 @@ module Relaton
     end
 
     # @param key [String]
-    # @param value [Hash]
-    # @option value [Date] "fetched"
-    # @option value [IsoBibItem::IsoBibliographicItem] "bib"
+    # @param value [String] Bibitem xml serialisation.
+    # @option value [String] Bibitem xml serialisation.
     def save_entry(key, value)
       @db.nil? || (@db[key] = value)
       @local_db.nil? || (@local_db[key] = value)
