@@ -1,3 +1,5 @@
+require "fileutils"
+
 module Relaton
   class DbCache
     # @return [String]
@@ -6,7 +8,7 @@ module Relaton
     # @param dir [String] DB directory
     def initialize(dir)
       @dir = dir
-      Dir.mkdir @dir unless Dir.exist? @dir
+      FileUtils::mkdir_p @dir
       file_version = "#{@dir}/version"
       File.write file_version, VERSION, encoding: "utf-8" unless File.exist? file_version
     end
@@ -17,7 +19,7 @@ module Relaton
     def []=(key, value)
       return if value.nil?
       prefix_dir = "#{@dir}/#{prefix(key)}"
-      Dir.mkdir prefix_dir unless Dir.exist? prefix_dir
+      FileUtils::mkdir_p prefix_dir
       File.write filename(key), value, encoding: "utf-8"
     end
 
