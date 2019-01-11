@@ -35,7 +35,7 @@ model.
   spec.add_dependency "iecbib", "~> 0.2.0"
   spec.add_dependency 'iso-bib-item', '~> 0.4.2'
 
-  spec.add_development_dependency "bundler", "~> 1.15"
+  spec.add_development_dependency "bundler", "~> 2.0.1"
   spec.add_development_dependency "byebug", "~> 10.0"
   spec.add_development_dependency "equivalent-xml", "~> 0.6"
   spec.add_development_dependency "guard", "~> 2.14"
@@ -43,7 +43,7 @@ model.
   spec.add_development_dependency "pry-byebug"
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "rspec", "~> 3.6"
-  spec.add_development_dependency "rubocop", "~> 0.50"
+  spec.add_development_dependency "rubocop", "= 0.54.0"
   spec.add_development_dependency "simplecov", "~> 0.15"
   spec.add_development_dependency "timecop", "~> 0.9"
   spec.add_development_dependency "vcr"
