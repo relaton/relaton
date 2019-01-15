@@ -24,6 +24,7 @@ Relaton imports bibliographic entries from:
 * IETF standards (Internet Drafts, RFC) through the http://xml2rfc.tools.ietf.org website, via the https://github.com/riboseinc/ietfbib[ietfbib] gem 
 
 The identifiers for which bibliographic entries are to be retrieved need to indicate which standards body they belong to. To do so, this gem adopts the convention of bracketing identifiers, and preceding them with a code that indicates the standards body:
+
 * If the standards body is national, the wrapper uses the ISO country code. So `CN(GM/T 0009-2012)` is Chinese sector standard GM/T 0009-2012.
 * If the standards body is international, the wrappers uses the agreed abbreviation of the standards body. So `IETF(I-D.ribose-asciirfc-08)` identifiers `I-D.ribose-asciirfc` as an Internet Engineering Task Force identifier.
 * Some prefixes to identifiers indicate the standards body they belong to unambiguously; e.g. `ISO` followed by slash or space. The scope wrapper is not required for those prefixes: `ISO(ISO 639-1)` can be recognised as just `ISO 639-1`.
