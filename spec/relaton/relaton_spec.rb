@@ -46,10 +46,8 @@ RSpec.describe Relaton::Db do
 
   it "list all elements as a serialization" do
     # stub_bib Isobib::IsoBibliography, 2
-    VCR.use_cassette "iso_19115_1" do
+    VCR.use_cassette "iso_19115_1_2", match_requests_on: [:path] do
       @db.fetch "ISO 19115-1", nil, {}
-    end
-    VCR.use_cassette "iso_19115-2" do
       @db.fetch "ISO 19115-2", nil, {}
     end
     # file = "spec/support/list_entries.xml"
