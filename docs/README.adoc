@@ -63,9 +63,11 @@ require "relaton"
 => true
 
 # Do not cache any entries retrieved
-db = Relaton.new(nil, nil)
+db = Relaton::Db.new(nil, nil)
+
 # Use only the global cache for any entries retrieved
-db = Relaton.new("global cache filename", nil)
+db = Relaton::Db.new("global cache filename", nil)
+
 # Use both a local and a global cache
 db = Relaton::Db.new("global cache filename", "local cache filename")
 [relaton] detecting backends:
