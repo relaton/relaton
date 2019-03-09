@@ -1,8 +1,8 @@
 = relaton
 
 image:https://img.shields.io/gem/v/relaton.svg["Gem Version", link="https://rubygems.org/gems/relaton"]
-image:https://img.shields.io/travis/riboseinc/relaton/master.svg["Build Status", link="https://travis-ci.org/riboseinc/relaton"]
-image:https://codeclimate.com/github/riboseinc/relaton/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/riboseinc/relaton"]
+image:https://img.shields.io/travis/metanorma/relaton/master.svg["Build Status", link="https://travis-ci.org/metanorma/relaton"]
+image:https://codeclimate.com/github/metanorma/relaton/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/metanorma/relaton"]
 
 Gem for importing and caching bibliographic references to technical standards. 
 
@@ -12,16 +12,16 @@ The Relaton gem obtains authoritative bibliographic entries for technical standa
 
 The gem also caches entries it has retrieved, so that subsequent iterations do not need to go back online to retrieve the same entries. The gem uses two caches: a global cache (for all bibliographic entries retrieved by the user), and a local cache (intended to store references specific to the current document being processed.)
 
-Entries are retrieved and stored in the https://github.com/riboseinc/relaton-models[Relaton bibliographic model], which is an expression of ISO 690. The subset of the model used and serialised for Relaton is defined in the https://github.com/metanorma/iso-bib-item[iso-bib-item] gem.
+Entries are retrieved and stored in the https://github.com/metanorma/relaton-models[Relaton bibliographic model], which is an expression of ISO 690. The subset of the model used and serialised for Relaton is defined in the https://github.com/metanorma/iso-bib-item[iso-bib-item] gem.
 
-Entries are serialised to and from an internal data model, and multiple formats are intended to be supported. Currently only https://github.com/riboseinc/relaton-models/blob/master/grammars/biblio.rnc[Relaton XML] is supported.
+Entries are serialised to and from an internal data model, and multiple formats are intended to be supported. Currently only https://github.com/metanorma/relaton-models/blob/master/grammars/biblio.rnc[Relaton XML] is supported.
 
 Relaton imports bibliographic entries from:
 
 * ISO through the iso.org website, via the https://github.com/metanorma/isobib[isobib] gem
 * IEC through the iec.ch website, via the https://github.com/metanorma/iecbib[isobib] gem
 * GB (Chinese national standards) through the GB websites, via the https://github.com/metanorma/gbbib[gbbib] gem 
-* IETF standards (Internet Drafts, RFC) through the http://xml2rfc.tools.ietf.org website, via the https://github.com/riboseinc/ietfbib[ietfbib] gem 
+* IETF standards (Internet Drafts, RFC) through the http://xml2rfc.tools.ietf.org website, via the https://github.com/metanorma/ietfbib[ietfbib] gem 
 
 The identifiers for which bibliographic entries are to be retrieved need to indicate which standards body they belong to. To do so, this gem adopts the convention of bracketing identifiers, and preceding them with a code that indicates the standards body:
 
