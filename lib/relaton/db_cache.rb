@@ -50,7 +50,7 @@ module Relaton
     # Returns all items
     # @return [Array<Hash>]
     def all
-      Dir.glob("testcache/**/*.xml").sort.map do |f|
+      Dir.glob("#{@dir}/**/*.xml").sort.map do |f|
         File.read(f, encoding: "utf-8")
       end
     end
