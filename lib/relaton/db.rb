@@ -192,7 +192,7 @@ module Relaton
       if File.exist? dir
         if global
           unless db.check_version?
-            FileUtils.rm_rf dir + '/.'
+            FileUtils.rm_rf(Dir.glob(dir + '/*'), secure: true)
             warn "Global cache version is obsolete and cleared."
           end
           db.set_version
