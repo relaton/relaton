@@ -28,6 +28,14 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "gets an ISO reference with year in code" do
+    VCR.use_cassette "19133_2005" do
+      bib = @db.fetch("ISO 19133:2005")
+      expect(bib).to be_instance_of IsoBibItem::IsoBibliographicItem
+      expect(bib.to_xml).to include "<bibitem type=\"international-standard\" id=\"ISO19133\">"
+    end
+  end
+
   it "deals with a non-existant ISO reference" do
     # stub_bib Isobib::IsoBibliography
     VCR.use_cassette "iso_111111119115_1" do
