@@ -32,7 +32,7 @@ RSpec.describe Relaton::Db do
     VCR.use_cassette "19133_2005" do
       bib = @db.fetch("ISO 19133:2005")
       expect(bib).to be_instance_of IsoBibItem::IsoBibliographicItem
-      expect(bib.to_xml).to include "<bibitem type=\"international-standard\" id=\"ISO19133\">"
+      expect(bib.to_xml).to include "<bibitem type=\"international-standard\" id=\"ISO19133-2005\">"
     end
   end
 
