@@ -8,6 +8,7 @@ PATH
       ietfbib (~> 0.4.2)
       iso-bib-item (~> 0.4.2)
       isobib (~> 0.4.0)
+      nistbib (~> 0.1.1)
 
 GEM
   remote: https://rubygems.org/
@@ -73,6 +74,8 @@ GEM
     method_source (0.9.2)
     mini_portile2 (2.3.0)
     nenv (0.3.0)
+    nistbib (0.1.1)
+      iso-bib-item (~> 0.4.2)
     nokogiri (1.8.5)
       mini_portile2 (~> 2.3.0)
     notiffany (0.1.1)
