@@ -14,38 +14,28 @@ http_interactions:
       User-Agent:
       - Ruby
       Host:
-      - www.rfc-editor.org
+      - xml2rfc.tools.ietf.org
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Thu, 18 Oct 2018 16:42:36 GMT
+      - Sun, 14 Apr 2019 05:28:45 GMT
       Server:
-      - Apache
+      - Apache/2.2.22 (Debian)
       Last-Modified:
-      - Thu, 18 Oct 2018 04:54:10 GMT
+      - Wed, 10 Apr 2019 03:55:55 GMT
       Etag:
-      - '"46c-5787993d38758-gzip"'
+      - '"39e4334-46c-586250be4a8c0"'
       Accept-Ranges:
       - bytes
-      Vary:
-      - Accept-Encoding
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Xss-Protection:
-      - 1; mode=block
-      X-Content-Type-Options:
-      - nosniff
       Content-Length:
-      - '606'
+      - '1132'
       Content-Type:
-      - text/xml
+      - application/xml
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: |
         <?xml version='1.0' encoding='UTF-8'?>
 
@@ -62,7 +52,7 @@ http_interactions:
         <seriesInfo name='DOI' value='10.17487/RFC8341'/>
         </reference>
     http_version: 
-  recorded_at: Thu, 18 Oct 2018 16:43:02 GMT
+  recorded_at: Sun, 14 Apr 2019 05:28:45 GMT
 - request:
     method: get
     uri: https://xml2rfc.tools.ietf.org/public/rfc/bibxml/reference.RFC.8341.xml
@@ -77,38 +67,28 @@ http_interactions:
       User-Agent:
       - Ruby
       Host:
-      - www.rfc-editor.org
+      - xml2rfc.tools.ietf.org
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Thu, 18 Oct 2018 16:42:37 GMT
+      - Sun, 14 Apr 2019 05:28:46 GMT
       Server:
-      - Apache
+      - Apache/2.2.22 (Debian)
       Last-Modified:
-      - Thu, 18 Oct 2018 04:54:10 GMT
+      - Wed, 10 Apr 2019 03:55:55 GMT
       Etag:
-      - '"46c-5787993d38758-gzip"'
+      - '"39e4334-46c-586250be4a8c0"'
       Accept-Ranges:
       - bytes
-      Vary:
-      - Accept-Encoding
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Xss-Protection:
-      - 1; mode=block
-      X-Content-Type-Options:
-      - nosniff
       Content-Length:
-      - '606'
+      - '1132'
       Content-Type:
-      - text/xml
+      - application/xml
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       string: |
         <?xml version='1.0' encoding='UTF-8'?>
 
@@ -125,5 +105,5 @@ http_interactions:
         <seriesInfo name='DOI' value='10.17487/RFC8341'/>
         </reference>
     http_version: 
-  recorded_at: Thu, 18 Oct 2018 16:43:03 GMT
+  recorded_at: Sun, 14 Apr 2019 05:28:46 GMT
 recorded_with: VCR 4.0.0
