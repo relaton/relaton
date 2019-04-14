@@ -23,11 +23,12 @@ Relaton imports bibliographic entries from:
 * IEC through the iec.ch website, via the https://github.com/metanorma/iecbib[isobib] gem
 * GB (Chinese national standards) through the GB websites, via the https://github.com/metanorma/gbbib[gbbib] gem 
 * IETF standards (Internet Drafts, RFC) through the http://xml2rfc.tools.ietf.org website, via the https://github.com/metanorma/ietfbib[ietfbib] gem 
+* NIST standards through the nist.gov website, via the https://github.com/metanorma/nistbib[nistbib] gem
 
 The identifiers for which bibliographic entries are to be retrieved need to indicate which standards body they belong to. To do so, this gem adopts the convention of bracketing identifiers, and preceding them with a code that indicates the standards body:
 
-* If the standards body is national, the wrapper uses the ISO country code. So `CN(GM/T 0009-2012)` is Chinese sector standard GM/T 0009-2012.
-* If the standards body is international, the wrappers uses the agreed abbreviation of the standards body. So `IETF(I-D.ribose-asciirfc-08)` identifiers `I-D.ribose-asciirfc` as an Internet Engineering Task Force identifier.
+* If the standards body is the national standards body, the wrapper uses the ISO country code. So `CN(GM/T 0009-2012)` is Chinese sector standard GM/T 0009-2012.
+* Otherwise, the wrappers uses the agreed abbreviation of the standards body. So `IETF(I-D.ribose-asciirfc-08)` identifies `I-D.ribose-asciirfc` as an Internet Engineering Task Force identifier.
 * Some prefixes to identifiers indicate the standards body they belong to unambiguously; e.g. `ISO` followed by slash or space. The scope wrapper is not required for those prefixes: `ISO(ISO 639-1)` can be recognised as just `ISO 639-1`.
 
 The gem can be extended to use other standards-specific gems. Standards-specific gems like isobib register themselves against Relaton using `Relaton::Registry.instance.register`, which takes as an argument a subclass of `Relaton::Processor` defined in the gem; see isobib/lib/relaton for an example. The processor within the standards-specific gem needs to define
