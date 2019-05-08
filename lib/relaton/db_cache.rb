@@ -109,5 +109,29 @@ module Relaton
       # end[1].prefix.downcase
       key.downcase.match(/^[^\(]+(?=\()/).to_s
     end
+
+    def self.global_bibliocache_name
+      "#{Dir.home}/.relaton/cache"
+    end
+
+    def self.local_bibliocache_name(cachename)
+      return nil if cachename.nil?
+      cachename = "relaton" if cachename.empty?
+      "#{cachename}/cache"
+    end
+
+    # Initialse and return relaton instance, with local and global cache names
+    # local_cache: local cache name; none created if nil
+    # global_cache: boolean to create global_cache
+    # flush_caches: flush caches
+    def self.init_bib_caches(opts)
+      globalname = global_bibliocache_name if opts[:global_cache]
+      localname = local_bibliocache_name(opts[:local_cache])
+      if opts[:flush_caches]
+        FileUtils.rm_f globalname unless globalname.nil?
+        FileUtils.rm_f localname unless localname.nil?
+      end
+      Relaton::Db.new(globalname, localname)
+    end
   end
 end
