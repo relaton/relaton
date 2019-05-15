@@ -121,12 +121,13 @@ module Relaton
     end
 
     # Initialse and return relaton instance, with local and global cache names
-    # local_cache: local cache name; none created if nil
+    # local_cache: local cache name; none created if nil; "relaton" created if empty
     # global_cache: boolean to create global_cache
     # flush_caches: flush caches
     def self.init_bib_caches(opts)
       globalname = global_bibliocache_name if opts[:global_cache]
       localname = local_bibliocache_name(opts[:local_cache])
+      localname = "relaton" if localname.empty?
       if opts[:flush_caches]
         FileUtils.rm_f globalname unless globalname.nil?
         FileUtils.rm_f localname unless localname.nil?

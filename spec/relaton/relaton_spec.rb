@@ -105,7 +105,7 @@ RSpec.describe Relaton::Db do
     end
   end
 
-  it "shoul clear global cache if version is changed" do
+  it "should clear global cache if version is changed" do
     @db.save_entry "test_key", value: "test_value"
     expect(File.exist?("testcache")).to be_truthy
     expect(File.exist?("testcache2")).to be_truthy
