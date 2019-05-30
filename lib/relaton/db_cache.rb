@@ -127,7 +127,7 @@ module Relaton
     def self.init_bib_caches(opts)
       globalname = global_bibliocache_name if opts[:global_cache]
       localname = local_bibliocache_name(opts[:local_cache])
-      localname = "relaton" if localname.empty?
+      localname = "relaton" if localname&.empty?
       if opts[:flush_caches]
         FileUtils.rm_f globalname unless globalname.nil?
         FileUtils.rm_f localname unless localname.nil?
