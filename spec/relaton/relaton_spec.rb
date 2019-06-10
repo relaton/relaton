@@ -38,6 +38,22 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  context "NIST references" do
+    it "gets FISP" do
+      VCR.use_cassette "fisp_140" do
+        bib = @db.fetch "FIPS 140"
+        expect(bib).to be_instance_of RelatonNist::NistBibliographicItem
+      end
+    end
+
+    it "gets SP" do
+      VCR.use_cassette "sp_800_38b" do
+        bib = @db.fetch "SP 800-38B"
+        expect(bib).to be_instance_of RelatonNist::NistBibliographicItem
+      end
+    end
+  end
+
   it "deals with a non-existant ISO reference" do
     # stub_bib Isobib::IsoBibliography
     VCR.use_cassette "iso_111111119115_1" do
