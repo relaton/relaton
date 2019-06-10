@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://csrc.nist.gov/publications/search?keywords-lg=SP%20800-38B&status-lg=Final,Withdrawn
+    uri: https://csrc.nist.gov/publications/search?keywords-lg=NIST%20SP%20800-38B&status-lg=Final,Withdrawn
     body:
       encoding: US-ASCII
       string: ''
@@ -29,8 +29,8 @@ http_interactions:
       Server:
       - Microsoft-IIS/8.5
       Set-Cookie:
-      - ASP.NET_SessionId=5g2frgy5r3ny0n1owssp1zzn; path=/; secure; HttpOnly
-      - CMSCsrfCookie=n0a2H0121mntWGPz3i5dAyiyJbhpuN4/Gy4Y9Daf; path=/; secure; HttpOnly
+      - ASP.NET_SessionId=ec24kapucfmfnfem2zxvufkj; path=/; secure; HttpOnly
+      - CMSCsrfCookie=bRJd28hGjsru7bYWJMRQxo9V9TYnmXb6FT2cRYnl; path=/; secure; HttpOnly
       - CMSPreferredCulture=en-US; path=/; HttpOnly; Secure
       X-Frame-Options:
       - SAMEORIGIN
@@ -39,9 +39,9 @@ http_interactions:
       X-Aspnet-Version:
       - 4.0.30319
       Date:
-      - Mon, 10 Jun 2019 12:00:30 GMT
+      - Mon, 10 Jun 2019 12:16:22 GMT
       Content-Length:
-      - '137384'
+      - '135357'
       Strict-Transport-Security:
       - max-age=31536000
     body:
@@ -84,10 +84,10 @@ http_interactions:
         \n<link href=\"/CSRC/Media/images/favicons/favicon.ico\" type=\"image/x-icon\"
         rel=\"shortcut icon\"/>\r\n<link href=\"/CSRC/Media/images/favicons/favicon.ico\"
         type=\"image/x-icon\" rel=\"icon\"/>\r\n</head>\r\n<body class=\"LTR Unknown
-        ENUS ContentBody\" >\r\n    \r\n    <form method=\"post\" action=\"/publications/search?keywords-lg=SP+800-38B&amp;status-lg=Final%2cWithdrawn\"
+        ENUS ContentBody\" >\r\n    \r\n    <form method=\"post\" action=\"/publications/search?keywords-lg=NIST+SP+800-38B&amp;status-lg=Final%2cWithdrawn\"
         id=\"form\">\r\n<input type=\"hidden\" name=\"__CMSCsrfToken\" id=\"__CMSCsrfToken\"
-        value=\"0ThvGvEywDu0E+1vAbOFd/3p5bh0EhhYuRHmcG05cK0+MhhTjOrr4lbSsLWSvwtYdA5FrL7XCSp80P7evmi+EwxdllPSKgFeHv0vvoCec2I=\"
-        />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"h55mdlUUkRmNKTbXR3g1fzOd/wZWRCGtfoGvl4KxY0ZwU6/CM/8aGW1WOcqA/4hkE+obzIESD51XokjUMxSrWPQuBNf/zq1LJCtCxSSBJPyy5bz/xpholN3Reb3frxR8Wwi5hJmZM+IoLb2xYr1PG/0M6FCrZCjdxcmErVOjAznWbxxy0r6aPkrm6YZjros2jajYv+86kcPcSnqNXVeGAg/IXrHMYY4MQ7lfnaGaKJdPy1tuFT3VmKIdcM9uK9sW8C25qKFwaai0jGk0kURL55C9tHmQS4HvM+y1iAeGAkz1gZKe/BsGDquZG2p1Mn2mr0799a0PKLnMHMVLhUQJ1FeUF+MXqRulNy71126DGwNdeJmArjqY/v1M+QOdURymTVAIc/2cLjHDjN2FT45X0w==\"
+        value=\"P2SAx9trdtP0vuySU1AR5MJdKnQenDklZkZnRJbe0M8tv/ioIO2bwITpYZ1gJ8tBt7ora9VJtsuq0ywImV0yJxhnWCpRmcxajSDn8btFRPo=\"
+        />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"mngI83iXKGJjGZnabcXsi52PxiBijvJL3myDMZs0FRQHbkJozxv8+zB/nALgxrGAXrz8PlvUe/RSqyBhtoJtfd4BSHoALkxh5RBISsVtTR0QlT4AqWvYidRbdjf5LfdBkKqwm2NgDrVQsQE3ksXKXebLIah/UpDLHl0GdHzbTsKL/1xxuyX4Qg0zNZ5HtDGDLEK4m/6KrAtrXy2wR+/2tPyJx/5RUrSG5PQEGhki6ykFnxYOIcBCQO0KSkKBRnl1dD3/bcurwcoFfwP3UK71ABVDl9F/m5VsBqvjNKXC92F5dMph1RaH2IgLMvM6Z01Eij/8GDDLAaKD5+8VGiErbFj4l8b7cpo7UFUt4oBoFyiOSdfjCAsS30Uvt9DB7HuU/JLnjVw0fmhs3buEQsV12A==\"
         />\r\n\r\n<input type=\"hidden\" name=\"lng\" id=\"lng\" value=\"en-US\" />\r\n<script
         type=\"text/javascript\">\r\n\t//<![CDATA[\n\r\nfunction PM_Postback(param)
         { if (window.top.HideScreenLockWarningAndSync) { window.top.HideScreenLockWarningAndSync(1080);
@@ -923,45 +923,45 @@ http_interactions:
         name=\"reset-btn\" data-form-button=\"reset\" class=\"btn\">Reset</button>\r\n
         \   </div>\r\n</div>\r\n<div id=\"search-criteria-container\"></div>\r\n\r\n<div
         class=\"row top-pagination-area\">\r\n\t<div class=\"col-lg-6 col-sm-12\">\r\n
-        \       <span id='showing-results-text' data-total-pages='38' data-first-record='1'
-        data-last-record='25' data-current-page='1' data-items-per-page='25' data-total-results='945'>Showing
+        \       <span id='showing-results-text' data-total-pages='50' data-first-record='1'
+        data-last-record='25' data-current-page='1' data-items-per-page='25' data-total-results='1245'>Showing
         <strong id='showing-results-first'>1</strong> through <strong id='showing-results-last'>25</strong>
-        of <strong id='showing-results-total'>945</strong> matching records.</span>\r\n\t</div>\r\n\t<div
+        of <strong id='showing-results-total'>1245</strong> matching records.</span>\r\n\t</div>\r\n\t<div
         class=\"col-lg-6 col-sm-12\">\r\n\t\t<span class=\"pull-right hidden-sm hidden-xs
         hidden-xxs\">\r\n\t\t\t<span class='pagination-links' id='top-pagination-container'
-        data-total-pages='38' data-min-page='1' data-max-page='10' data-current-page='1'
+        data-total-pages='50' data-min-page='1' data-max-page='10' data-current-page='1'
         data-show-first='False' data-show-last='True'><strong aria-label=\"Page 1\"
-        id=\"top-page-1\">1</strong> |  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=2\"
-        aria-label=\"Page 2\" id=\"top-page-2\">2</a> |  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=3\"
-        aria-label=\"Page 3\" id=\"top-page-3\">3</a> |  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=4\"
-        aria-label=\"Page 4\" id=\"top-page-4\">4</a> |  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=5\"
-        aria-label=\"Page 5\" id=\"top-page-5\">5</a> |  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=6\"
-        aria-label=\"Page 6\" id=\"top-page-6\">6</a> |  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=7\"
-        aria-label=\"Page 7\" id=\"top-page-7\">7</a> |  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=8\"
-        aria-label=\"Page 8\" id=\"top-page-8\">8</a> |  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=9\"
-        aria-label=\"Page 9\" id=\"top-page-9\">9</a> |  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=10\"
-        aria-label=\"Page 10\" id=\"top-page-10\">10</a>&nbsp;&nbsp;<a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=2\"
-        aria-label=\"Next Page\" id=\"top-page-next\">&gt;</a>&nbsp;&nbsp;<a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=38\"
-        aria-label=\"Last Page\" id=\"top-page-last\" data-last-page-number=\"38\">&gt;&gt;</a></span>\r\n\t\t</span>\r\n\t\t<p
+        id=\"top-page-1\">1</strong> |  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=2\"
+        aria-label=\"Page 2\" id=\"top-page-2\">2</a> |  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=3\"
+        aria-label=\"Page 3\" id=\"top-page-3\">3</a> |  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=4\"
+        aria-label=\"Page 4\" id=\"top-page-4\">4</a> |  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=5\"
+        aria-label=\"Page 5\" id=\"top-page-5\">5</a> |  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=6\"
+        aria-label=\"Page 6\" id=\"top-page-6\">6</a> |  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=7\"
+        aria-label=\"Page 7\" id=\"top-page-7\">7</a> |  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=8\"
+        aria-label=\"Page 8\" id=\"top-page-8\">8</a> |  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=9\"
+        aria-label=\"Page 9\" id=\"top-page-9\">9</a> |  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=10\"
+        aria-label=\"Page 10\" id=\"top-page-10\">10</a>&nbsp;&nbsp;<a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=2\"
+        aria-label=\"Next Page\" id=\"top-page-next\">&gt;</a>&nbsp;&nbsp;<a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=50\"
+        aria-label=\"Last Page\" id=\"top-page-last\" data-last-page-number=\"50\">&gt;&gt;</a></span>\r\n\t\t</span>\r\n\t\t<p
         class=\"text-center hidden-md hidden-lg\">\r\n\t\t\t<span class='pagination-links'
-        id='mobile-top-pagination-container' data-total-pages='38' data-min-page='1'
+        id='mobile-top-pagination-container' data-total-pages='50' data-min-page='1'
         data-max-page='10' data-current-page='1' data-show-first='False' data-show-last='True'><strong
         aria-label=\"Page 1\" id=\"mobile-top-page-1\">1</strong> &nbsp;|&nbsp;  <a
-        href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=2\"
-        aria-label=\"Page 2\" id=\"mobile-top-page-2\">2</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=3\"
-        aria-label=\"Page 3\" id=\"mobile-top-page-3\">3</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=4\"
-        aria-label=\"Page 4\" id=\"mobile-top-page-4\">4</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=5\"
-        aria-label=\"Page 5\" id=\"mobile-top-page-5\">5</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=6\"
-        aria-label=\"Page 6\" id=\"mobile-top-page-6\">6</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=7\"
-        aria-label=\"Page 7\" id=\"mobile-top-page-7\">7</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=8\"
-        aria-label=\"Page 8\" id=\"mobile-top-page-8\">8</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=9\"
-        aria-label=\"Page 9\" id=\"mobile-top-page-9\">9</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=10\"
-        aria-label=\"Page 10\" id=\"mobile-top-page-10\">10</a>&nbsp;&nbsp;<a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=2\"
+        href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=2\"
+        aria-label=\"Page 2\" id=\"mobile-top-page-2\">2</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=3\"
+        aria-label=\"Page 3\" id=\"mobile-top-page-3\">3</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=4\"
+        aria-label=\"Page 4\" id=\"mobile-top-page-4\">4</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=5\"
+        aria-label=\"Page 5\" id=\"mobile-top-page-5\">5</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=6\"
+        aria-label=\"Page 6\" id=\"mobile-top-page-6\">6</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=7\"
+        aria-label=\"Page 7\" id=\"mobile-top-page-7\">7</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=8\"
+        aria-label=\"Page 8\" id=\"mobile-top-page-8\">8</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=9\"
+        aria-label=\"Page 9\" id=\"mobile-top-page-9\">9</a> &nbsp;|&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=10\"
+        aria-label=\"Page 10\" id=\"mobile-top-page-10\">10</a>&nbsp;&nbsp;<a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=2\"
         aria-label=\"Next Page\" id=\"mobile-top-page-next\">&gt;</a>&nbsp;&nbsp;<a
-        href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=38\"
-        aria-label=\"Last Page\" id=\"mobile-top-page-last\" data-last-page-number=\"38\">&gt;&gt;</a></span>\r\n\t\t</p>\r\n\t</div>\r\n</div>\r\n<table
+        href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=50\"
+        aria-label=\"Last Page\" id=\"mobile-top-page-last\" data-last-page-number=\"50\">&gt;&gt;</a></span>\r\n\t\t</p>\r\n\t</div>\r\n</div>\r\n<table
         class=\"table table-striped table-condensed publications-table table-bordered\"
-        \r\n    id=\"publications-results-table\"  data-total-records=\"945\" data-page=\"1\"
+        \r\n    id=\"publications-results-table\"  data-total-records=\"1245\" data-page=\"1\"
         \r\n    data-first-record=\"1\" data-last-record=\"25\" data-ipp=\"25\">\r\n\t<thead>\r\n\t\t<tr>\r\n\t\t\t<th
         nowrap class=\"hidden-sm hidden-xs hidden-xxs\">Series</th>\r\n\t\t\t<th nowrap
         class=\"hidden-sm hidden-xs hidden-xxs\">Number</th>\r\n\t\t\t<th nowrap>\r\n\t\t\t\t<span
@@ -1007,495 +1007,474 @@ http_interactions:
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-2\">\r\n\t\t\t\t
         10/06/2016\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-3\">\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-3\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-3\"> 1800-13</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-3\"> 1500-4</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
         class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/1800-13/archive/2018-04-16\" id=\"pub-title-link-3\">Mobile
-        Application Single Sign-On: Improving Authentication for Public Safety and
-        First Responders</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div class=\"hidden-md
-        hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-3\">SP 1800-13
-        (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/1800-13/archive/2018-04-16\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-3\">Mobile Application Single
-        Sign-On: Improving Authentication for Public Safety and First Responders</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-3\">4/16/2018</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-3\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-3'><span
-        id='download-value-3-0'><a href=\"https://www.nccoe.nist.gov/projects/use-cases/mobile-sso\">Draft
-        SP 1800-13 volumes and Project Homepage</a></span>; <span id='download-value-3-1'><a
-        href=\"https://www.nccoe.nist.gov/webform/comments-sp-1800-13-mobile-application-single-sign\">Submit
-        Comments</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
-        hidden-xs hidden-xxs\" id=\"pub-status-3\">\r\n\t\t\t\tDraft (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-3\">\r\n\t\t\t\t
-        4/16/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-4\">\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-4\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-4\"> 1800-12</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/1800-12/archive/2017-09-29\" id=\"pub-title-link-4\">Derived
-        Personal Identity Verification (PIV) Credentials</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-4\">SP
-        1800-12 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/1800-12/archive/2017-09-29\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-4\">Derived Personal Identity
-        Verification (PIV) Credentials</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-4\">9/29/2017</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-4\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-4'><span
-        id='download-value-4-0'><a href=\"https://nccoe.nist.gov/projects/building-blocks/piv-credentials\">Draft
-        SP 1800-12 volumes and Project Homepage</a></span>; <span id='download-value-4-1'><a
-        href=\"https://nccoe.nist.gov/webform/comments-sp-1800-12-derived-piv-credentials\">Submit
-        Comments</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
-        hidden-xs hidden-xxs\" id=\"pub-status-4\">\r\n\t\t\t\tDraft (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-4\">\r\n\t\t\t\t
-        9/29/2017\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-5\">\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-5\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-5\"> 1800-4</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/1800-4/final\" id=\"pub-title-link-5\">Mobile
-        Device Security: Cloud and Hybrid Builds</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-5\">SP
-        1800-4</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/1800-4/final\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-5\">Mobile Device Security:
-        Cloud and Hybrid Builds</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-5\">2/21/2019</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-5\">Final</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        href=\"/publications/detail/sp/1500-4/archive/2015-10-22\" id=\"pub-title-link-3\">NIST
+        Big Data Interoperability Framework: Volume 4, Security and Privacy Version
+        1</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span
+        id=\"pub-full-display-sm-3\">SP 1500-4 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a
+        href=\"/publications/detail/sp/1500-4/archive/2015-10-22\" class=\"mobile-pub-title\"
+        id=\"pub-title-link-sm-3\">NIST Big Data Interoperability Framework: Volume
+        4, Security and Privacy Version 1</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-3\">10/22/2015</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-3\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
         \               <div class=\"control-value-no-block\">\r\n                Download:
-        <span id='download-values-5'><span id='download-value-5-0'><a href=\"https://doi.org/10.6028/NIST.SP.1800-4\">SP
-        1800-4 (DOI)</a></span>; <span id='download-value-5-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.1800-4.pdf\">Local
-        Download</a></span>; <span id='download-value-5-2'><a href=\"https://www.nccoe.nist.gov/publication/1800-4/\">Web
-        version</a></span>; <span id='download-value-5-3'><a href=\"https://nccoe.nist.gov/projects/building_blocks/mobile_device_security\">Project
-        Homepage</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
-        hidden-xs hidden-xxs\" id=\"pub-status-5\">\r\n\t\t\t\tFinal\r\n\t\t\t</td>\r\n\t\t\t<td
+        <span id='download-values-3'><span id='download-value-3-0'><a href=\"https://doi.org/10.6028/NIST.SP.1500-4\">SP
+        1500-4 (DOI)</a></span>; <span id='download-value-3-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.1500-4.pdf\">Local
+        Download</a></span>; <span id='download-value-3-2'><a href=\"https://bigdatawg.nist.gov/V1_output_docs.php\">NIST
+        Big Data Interoperability Framework V1.0</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-3\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-3\">\r\n\t\t\t\t
+        10/22/2015\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-4\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-4\">SP</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-4\"> 1500-4r1</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
+        href=\"/publications/detail/sp/1500-4r1/final\" id=\"pub-title-link-4\">NIST
+        Big Data Interoperability Framework: Volume 4, Security and Privacy Version
+        2</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span
+        id=\"pub-full-display-sm-4\">SP 1500-4r1</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/1500-4r1/final\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-4\">NIST Big Data Interoperability
+        Framework: Volume 4, Security and Privacy Version 2</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-4\">6/26/2018</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-4\">Final</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-4'><span id='download-value-4-0'><a href=\"https://doi.org/10.6028/NIST.SP.1500-4r1\">SP
+        1500-4r1 (DOI)</a></span>; <span id='download-value-4-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.1500-4r1.pdf\">Local
+        Download</a></span>; <span id='download-value-4-2'><a href=\"https://bigdatawg.nist.gov/V2_output_docs.php\">NIST
+        Big Data Interoperability Framework V2.0</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-4\">\r\n\t\t\t\tFinal\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-4\">\r\n\t\t\t\t
+        6/26/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-5\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-5\">NISTIR</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-5\"> 8204</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
+        href=\"/publications/detail/nistir/8204/archive/2019-04-26\" id=\"pub-title-link-5\">Cybersecurity
+        Framework Online Informative References (OLIR) Submissions: Specification
+        for Completing the OLIR Template</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-5\">NISTIR
+        8204 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/nistir/8204/archive/2019-04-26\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-5\">Cybersecurity Framework
+        Online Informative References (OLIR) Submissions: Specification for Completing
+        the OLIR Template</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-5\">4/26/2019</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-5\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-5'><span id='download-value-5-0'><a href=\"/CSRC/media/Publications/nistir/8204/archive/2019-04-26/documents/NIST.IR.8204-20190426.pdf\">NISTIR
+        8204 (April 2019)</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-5\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-5\">\r\n\t\t\t\t
-        2/21/2019\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-6\">\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-6\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-6\"> 800-57 Part
-        2 Rev. 1</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div class=\"hidden-sm
-        hidden-xs hidden-xxs\">\r\n                        <strong><a href=\"/publications/detail/sp/800-57-part-2/rev-1/archive/2018-11-20\"
-        id=\"pub-title-link-6\">Recommendation for Key Management, Part 2: Best Practices
-        for Key Management Organizations (2nd Draft)</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-6\">SP
-        800-57 Part 2 Rev. 1 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-57-part-2/rev-1/archive/2018-11-20\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-6\">Recommendation for Key
-        Management, Part 2: Best Practices for Key Management Organizations (2nd Draft)</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-6\">11/20/2018</strong>\r\n
+        4/26/2019\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-6\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-6\">NISTIR</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-6\"> 8204</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
+        href=\"/publications/detail/nistir/8204/draft\" id=\"pub-title-link-6\">Cybersecurity
+        Framework Online Informative References (OLIR) Submissions: Specification
+        for Completing the OLIR Template</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-6\">NISTIR
+        8204 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/nistir/8204/draft\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-6\">Cybersecurity Framework
+        Online Informative References (OLIR) Submissions: Specification for Completing
+        the OLIR Template</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-6\">5/17/2018</strong>\r\n
         \                   <br />\r\n                    Status: <span id=\"pub-status-sm-6\">Draft
         (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
         class=\"control-value-no-block\">\r\n                Download: <span id='download-values-6'><span
-        id='download-value-6-0'><a href=\"/CSRC/media/Publications/sp/800-57-part-2/rev-1/draft/documents/sp800-57pt2-r1-draft2.pdf\">Draft
-        (2nd) SP 800-57 Part 2 Rev. 1</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
+        id='download-value-6-0'><a href=\"/CSRC/media/Publications/nistir/8204/draft/documents/nistir-8204-draft.pdf\">Draft
+        NISTIR 8204</a></span>; <span id='download-value-6-1'><a href=\"https://www.nist.gov/cyberframework/informative-references\">Informative
+        References homepage</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-6\">\r\n\t\t\t\tDraft
         (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-release-date-6\">\r\n\t\t\t\t 11/20/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n
+        id=\"pub-release-date-6\">\r\n\t\t\t\t 5/17/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n
         \ \r\n\t\t<tr id=\"result-7\">\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
         id=\"pub-series-7\">SP</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-number-7\"> 800-37 Rev. 2</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        id=\"pub-number-7\"> 800-191</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
         class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/800-37/rev-2/archive/2018-10-02\" id=\"pub-title-link-7\">Risk
-        Management Framework for Information Systems and Organizations: A System Life
-        Cycle Approach for Security and Privacy (Final Public Draft)</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        href=\"/publications/detail/sp/800-191/archive/2017-08-21\" id=\"pub-title-link-7\">The
+        NIST Definition of Fog Computing</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
         class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-7\">SP
-        800-37 Rev. 2 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-37/rev-2/archive/2018-10-02\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-7\">Risk Management Framework
-        for Information Systems and Organizations: A System Life Cycle Approach for
-        Security and Privacy (Final Public Draft)</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-7\">10/02/2018</strong>\r\n
+        800-191 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-191/archive/2017-08-21\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-7\">The NIST Definition
+        of Fog Computing</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-7\">8/21/2017</strong>\r\n
         \                   <br />\r\n                    Status: <span id=\"pub-status-sm-7\">Draft
         (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
         class=\"control-value-no-block\">\r\n                Download: <span id='download-values-7'><span
-        id='download-value-7-0'><a href=\"/CSRC/media/Publications/sp/800-37/rev-2/draft/documents/sp800-37r2-draft-fpd.pdf\">Draft
-        SP 800-37 Rev. 2</a></span>; <span id='download-value-7-1'><a href=\"/CSRC/media/Publications/sp/800-37/rev-2/draft/documents/sp800-37r2-draft-fpd-with-line-nums.pdf\">Draft,
-        with line numbers</a></span>; <span id='download-value-7-2'><a href=\"/CSRC/media/Publications/sp/800-37/rev-2/draft/documents/sp800-37r2-draft-fpd-comment-template.xlsx\">Comment
-        template</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        id='download-value-7-0'><a href=\"/CSRC/media//Publications/sp/800-191/draft/documents/sp800-191-draft.pdf\">Draft
+        SP 800-191</a></span>; <span id='download-value-7-1'><a href=\"/CSRC/media//Publications/sp/800-191/draft/documents/sp800-191-draft-comment-template.xlsx\">Comment
+        Template</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
         hidden-xs hidden-xxs\" id=\"pub-status-7\">\r\n\t\t\t\tDraft (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-7\">\r\n\t\t\t\t
-        10/02/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-8\">\r\n\t\t\t<td
+        8/21/2017\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-8\">\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-8\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-8\"> 800-163 Rev.
-        1</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div class=\"hidden-sm hidden-xs
-        hidden-xxs\">\r\n                        <strong><a href=\"/publications/detail/sp/800-163/rev-1/archive/2018-07-23\"
-        id=\"pub-title-link-8\">Vetting the Security of Mobile Applications</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-8\">SP
-        800-163 Rev. 1 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-163/rev-1/archive/2018-07-23\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-8\">Vetting the Security
-        of Mobile Applications</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-8\">7/23/2018</strong>\r\n
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-8\"> 800-126A</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
+        href=\"/publications/detail/sp/800-126a/archive/2016-07-18\" id=\"pub-title-link-8\">SCAP
+        1.3 Component Specification Version Updates: An Annex to NIST Special Publication
+        800-126 Revision 3</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div class=\"hidden-md
+        hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-8\">SP 800-126A
+        (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-126a/archive/2016-07-18\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-8\">SCAP 1.3 Component Specification
+        Version Updates: An Annex to NIST Special Publication 800-126 Revision 3</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-8\">7/18/2016</strong>\r\n
         \                   <br />\r\n                    Status: <span id=\"pub-status-sm-8\">Draft
         (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
         class=\"control-value-no-block\">\r\n                Download: <span id='download-values-8'><span
-        id='download-value-8-0'><a href=\"/CSRC/media//Publications/sp/800-163/rev-1/draft/documents/sp800-163r1-draft.pdf\">Draft
-        SP 800-163 Rev. 1</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-8\">\r\n\t\t\t\tDraft
-        (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-release-date-8\">\r\n\t\t\t\t 7/23/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n
-        \ \r\n\t\t<tr id=\"result-9\">\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-series-9\">SP</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-number-9\"> 800-131A Rev. 2</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        id='download-value-8-0'><a href=\"/CSRC/media/Publications/sp/800-126a/draft/documents/sp800-126A_draft.pdf\">Draft
+        SP 800-126A</a></span>; <span id='download-value-8-1'><a href=\"/CSRC/media/Publications/sp/800-126/rev-3/draft/documents/sp800-126_draft_comment_template.doc\">Comment
+        Template</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        hidden-xs hidden-xxs\" id=\"pub-status-8\">\r\n\t\t\t\tDraft (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-8\">\r\n\t\t\t\t
+        7/18/2016\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-9\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-9\">SP</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-9\"> 800-179</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
         class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/800-131a/rev-2/archive/2018-07-19\" id=\"pub-title-link-9\">Transitioning
-        the Use of Cryptographic Algorithms and Key Lengths</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        href=\"/publications/detail/sp/800-179/archive/2016-06-23\" id=\"pub-title-link-9\">Guide
+        to Securing Apple OS X 10.10 Systems for IT Professionals: A NIST Security
+        Configuration Checklist </a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
         class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-9\">SP
-        800-131A Rev. 2 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-131a/rev-2/archive/2018-07-19\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-9\">Transitioning the Use
-        of Cryptographic Algorithms and Key Lengths</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-9\">7/19/2018</strong>\r\n
+        800-179 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-179/archive/2016-06-23\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-9\">Guide to Securing Apple
+        OS X 10.10 Systems for IT Professionals: A NIST Security Configuration Checklist
+        </a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-9\">6/23/2016</strong>\r\n
         \                   <br />\r\n                    Status: <span id=\"pub-status-sm-9\">Draft
         (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
         class=\"control-value-no-block\">\r\n                Download: <span id='download-values-9'><span
-        id='download-value-9-0'><a href=\"/CSRC/media/Publications/sp/800-131a/rev-2/draft/documents/sp800-131Ar2-draft.pdf\">Draft
-        SP 800-131A Rev. 2</a></span>; <span id='download-value-9-1'><a href=\"/CSRC/media/Publications/sp/800-131a/rev-2/draft/documents/sp800-131Ar2-draft-comments-received.pdf\">Comments
-        received</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        id='download-value-9-0'><a href=\"/CSRC/media/Publications/sp/800-179/archive/2016-06-23/documents/sp800_179_draft.pdf\">Draft
+        SP 800-179</a></span>; <span id='download-value-9-1'><a href=\"/CSRC/media/Publications/sp/800-179/archive/2016-06-23/documents/sp800_179_draft_comment-template-form.xls\">Comment
+        Template</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
         hidden-xs hidden-xxs\" id=\"pub-status-9\">\r\n\t\t\t\tDraft (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-9\">\r\n\t\t\t\t
-        7/19/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-10\">\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-10\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-10\"> 800-56B Rev.
-        2</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div class=\"hidden-sm hidden-xs
-        hidden-xxs\">\r\n                        <strong><a href=\"/publications/detail/sp/800-56b/rev-2/archive/2018-07-10\"
-        id=\"pub-title-link-10\">Recommendation for Pair-Wise Key-Establishment Using
-        Integer Factorization Cryptography</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-10\">SP
-        800-56B Rev. 2 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-56b/rev-2/archive/2018-07-10\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-10\">Recommendation for
-        Pair-Wise Key-Establishment Using Integer Factorization Cryptography</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-10\">7/10/2018</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-10\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-10'><span
-        id='download-value-10-0'><a href=\"/CSRC/media/Publications/sp/800-56b/rev-2/draft/documents/sp800-56Br2-draft.pdf\">Draft
-        SP 800-56B Rev. 2</a></span>; <span id='download-value-10-1'><a href=\"/CSRC/media/Publications/sp/800-56b/rev-2/draft/documents/sp800-56Br2-draft-comments-received.pdf\">Comments
-        received</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
-        hidden-xs hidden-xxs\" id=\"pub-status-10\">\r\n\t\t\t\tDraft (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td
+        6/23/2016\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-10\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-10\">NISTIR</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-10\"> 7987</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
+        href=\"/publications/detail/nistir/7987/archive/2014-05-31\" id=\"pub-title-link-10\">Policy
+        Machine: Features, Architecture, and Specification</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-10\">NISTIR
+        7987 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/nistir/7987/archive/2014-05-31\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-10\">Policy Machine: Features,
+        Architecture, and Specification</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-10\">5/31/2014</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-10\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-10'><span id='download-value-10-0'><a href=\"https://doi.org/10.6028/NIST.IR.7987\">NISTIR
+        7987 (DOI)</a></span>; <span id='download-value-10-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/ir/2014/NIST.IR.7987.pdf\">Local
+        Download</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        hidden-xs hidden-xxs\" id=\"pub-status-10\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-10\">\r\n\t\t\t\t
-        7/10/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-11\">\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-11\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-11\"> 800-37 Rev.
-        2</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div class=\"hidden-sm hidden-xs
-        hidden-xxs\">\r\n                        <strong><a href=\"/publications/detail/sp/800-37/rev-2/archive/2018-05-09\"
-        id=\"pub-title-link-11\">Risk Management Framework for Information Systems
-        and Organizations: A System Life Cycle Approach for Security and Privacy (Initial
-        Public Draft)</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div class=\"hidden-md
-        hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-11\">SP 800-37
-        Rev. 2 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-37/rev-2/archive/2018-05-09\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-11\">Risk Management Framework
-        for Information Systems and Organizations: A System Life Cycle Approach for
-        Security and Privacy (Initial Public Draft)</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-11\">5/09/2018</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-11\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-11'><span
-        id='download-value-11-0'><a href=\"/CSRC/media/Publications/sp/800-37/rev-2/draft/documents/sp800-37r2-draft-ipd.pdf\">Draft
-        SP 800-37 Rev. 2</a></span>; <span id='download-value-11-1'><a href=\"/CSRC/media/Publications/sp/800-37/rev-2/draft/documents/sp800-37r2-draft-ipd-with-line-nums.pdf\">Draft,
-        with line numbers</a></span>; <span id='download-value-11-2'><a href=\"/CSRC/media/Publications/sp/800-37/rev-2/draft/documents/SP800-37-rev2-IPD-redline-final.pdf\">Mark-up
-        Copy of Draft SP 800-37 Rev. 2</a></span>; <span id='download-value-11-3'><a
-        href=\"/CSRC/media/Publications/sp/800-37/rev-2/draft/documents/sp800-37r2-draft-ipd-comment-template.xlsx\">Comment
-        template</a></span>; <span id='download-value-11-4'><a href=\"/presentations/2018/rmf-2-0-risk-management-framework\">Presentation:
-        RMF 2.0 (introduces the initial public draft)</a></span>; <span id='download-value-11-5'><a
-        href=\"https://www.nist.gov/news-events/news/2018/05/nist-updates-risk-management-framework-incorporate-privacy-considerations\">NIST
-        Press Release</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-11\">\r\n\t\t\t\tDraft
-        (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-release-date-11\">\r\n\t\t\t\t 5/09/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n
-        \ \r\n\t\t<tr id=\"result-12\">\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-series-12\">SP</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-number-12\"> 800-125A Rev. 1</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        5/31/2014\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-11\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-11\">NISTIR</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-11\"> 7275 Rev. 4</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
         class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/800-125a/rev-1/archive/2018-04-11\" id=\"pub-title-link-12\">Security
-        Recommendations for Server-based Hypervisor Platforms</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        href=\"/publications/detail/nistir/7275/rev-4/archive/2011-09-30\" id=\"pub-title-link-11\">Specification
+        for the Extensible Configuration Checklist Description Format (XCCDF) Version
+        1.2</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span
+        id=\"pub-full-display-sm-11\">NISTIR 7275 Rev. 4 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a
+        href=\"/publications/detail/nistir/7275/rev-4/archive/2011-09-30\" class=\"mobile-pub-title\"
+        id=\"pub-title-link-sm-11\">Specification for the Extensible Configuration
+        Checklist Description Format (XCCDF) Version 1.2</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-11\">9/30/2011</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-11\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-11'><span id='download-value-11-0'><a href=\"https://doi.org/10.6028/NIST.IR.7275r4\">NISTIR
+        7275 Rev. 4 (DOI)</a></span>; <span id='download-value-11-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir7275r4.pdf\">Local
+        Download</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        hidden-xs hidden-xxs\" id=\"pub-status-11\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-11\">\r\n\t\t\t\t
+        9/30/2011\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-12\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-12\">SP</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-12\"> 800-68 Rev.
+        1</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div class=\"hidden-sm hidden-xs
+        hidden-xxs\">\r\n                        <strong><a href=\"/publications/detail/sp/800-68/rev-1/archive/2008-10-24\"
+        id=\"pub-title-link-12\">Guide to Securing Microsoft Windows XP Systems for
+        IT Professionals: A NIST Security Configuration Checklist</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
         class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-12\">SP
-        800-125A Rev. 1 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-125a/rev-1/archive/2018-04-11\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-12\">Security Recommendations
-        for Server-based Hypervisor Platforms</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-12\">4/11/2018</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-12\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-12'><span
-        id='download-value-12-0'><a href=\"/CSRC/media/Publications/sp/800-125a/rev-1/draft/documents/sp800-125A-r1-draft.pdf\">Draft
-        SP 800-125A Rev. 1</a></span>; <span id='download-value-12-1'><a href=\"/CSRC/media/Publications/sp/800-125a/rev-1/draft/documents/sp800-125A-r1-draft-markup.pdf\">Markup
-        copy</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
-        hidden-xs hidden-xxs\" id=\"pub-status-12\">\r\n\t\t\t\tDraft (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td
+        800-68 Rev. 1 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-68/rev-1/archive/2008-10-24\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-12\">Guide to Securing Microsoft
+        Windows XP Systems for IT Professionals: A NIST Security Configuration Checklist</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-12\">10/24/2008</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-12\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-12'><span id='download-value-12-0'><a href=\"https://doi.org/10.6028/NIST.SP.800-68r1\">SP
+        800-68 Rev. 1 (DOI)</a></span>; <span id='download-value-12-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-68r1.pdf\">Local
+        Download</a></span>; <span id='download-value-12-2'><a href=\"/CSRC/media/Publications/sp/800-68/rev-1/final/documents/sp800-68-security-templates-r1_2_1.zip\">Security
+        Templates R1.2.1</a></span>; <span id='download-value-12-3'><a href=\"/CSRC/media/Publications/sp/800-68/rev-1/final/documents/NIST-WSBD-Beta-v0_2_7.zip\">NIST
+        Windows Security Baseline Database Application v0.2.7</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-12\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-12\">\r\n\t\t\t\t
-        4/11/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-13\">\r\n\t\t\t<td
+        10/24/2008\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-13\">\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-13\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-13\"> 800-57 Part
-        2 Rev. 1</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div class=\"hidden-sm
-        hidden-xs hidden-xxs\">\r\n                        <strong><a href=\"/publications/detail/sp/800-57-part-2/rev-1/archive/2018-04-06\"
-        id=\"pub-title-link-13\">Recommendation for Key Management, Part 2: Best Practices
-        for Key Management Organization</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-13\">SP
-        800-57 Part 2 Rev. 1 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-57-part-2/rev-1/archive/2018-04-06\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-13\">Recommendation for
-        Key Management, Part 2: Best Practices for Key Management Organization</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-13\">4/06/2018</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-13\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-13'><span
-        id='download-value-13-0'><a href=\"/CSRC/media/Publications/sp/800-57-part-2/rev-1/draft/documents/sp800-57pt2-r1-draft.pdf\">Draft
-        SP 800-57 Part 2 Rev. 1</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-13\">\r\n\t\t\t\tDraft
-        (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-release-date-13\">\r\n\t\t\t\t 4/06/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n
-        \ \r\n\t\t<tr id=\"result-14\">\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-series-14\">SP</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-number-14\"> 800-202</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-13\"> 800-69</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
         class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/800-202/archive/2018-03-26\" id=\"pub-title-link-14\">Quick
-        Start Guide for Populating Mobile Test Devices</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        href=\"/publications/detail/sp/800-69/archive/2006-09-29\" id=\"pub-title-link-13\">Guidance
+        for Securing Microsoft Windows XP Home Edition: A NIST Security Configuration
+        Checklist</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div class=\"hidden-md
+        hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-13\">SP 800-69
+        (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-69/archive/2006-09-29\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-13\">Guidance for Securing
+        Microsoft Windows XP Home Edition: A NIST Security Configuration Checklist</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-13\">9/29/2006</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-13\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-13'><span id='download-value-13-0'><a href=\"https://doi.org/10.6028/NIST.SP.800-69\">SP
+        800-69 (DOI)</a></span>; <span id='download-value-13-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-69.pdf\">Local
+        Download</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        hidden-xs hidden-xxs\" id=\"pub-status-13\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-13\">\r\n\t\t\t\t
+        9/29/2006\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-14\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-14\">SP</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-14\"> 800-68</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
+        href=\"/publications/detail/sp/800-68/archive/2005-10-20\" id=\"pub-title-link-14\">Guidance
+        for Securing Microsoft Windows XP Systems for IT Professionals: A NIST Security
+        Configuration Checklist</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
         class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-14\">SP
-        800-202 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-202/archive/2018-03-26\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-14\">Quick Start Guide for
-        Populating Mobile Test Devices</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-14\">3/26/2018</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-14\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-14'><span
-        id='download-value-14-0'><a href=\"/CSRC/media/Publications/sp/800-202/draft/documents/sp800-202-draft.pdf\">Draft
-        SP 800-202</a></span>; <span id='download-value-14-1'><a href=\"https://www.cftt.nist.gov\">Computer
-        Forensics Tool Testing (CFTT) Program</a></span>; <span id='download-value-14-2'><a
-        href=\"https://www.nist.gov/itl/ssd/software-quality-group/computer-forensics-tool-testing-program-cftt/cftt-federated-testing\">CFTT
-        Federated Testing Project</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-14\">\r\n\t\t\t\tDraft
-        (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-release-date-14\">\r\n\t\t\t\t 3/26/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n
-        \ \r\n\t\t<tr id=\"result-15\">\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-series-15\">SP</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-number-15\"> 800-171 Rev. 1</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        800-68 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-68/archive/2005-10-20\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-14\">Guidance for Securing
+        Microsoft Windows XP Systems for IT Professionals: A NIST Security Configuration
+        Checklist</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-14\">10/20/2005</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-14\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-14'><span id='download-value-14-0'><a href=\"https://doi.org/10.6028/NIST.SP.800-68\">SP
+        800-68 (DOI)</a></span>; <span id='download-value-14-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-68.pdf\">Local
+        Download</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        hidden-xs hidden-xxs\" id=\"pub-status-14\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-14\">\r\n\t\t\t\t
+        10/20/2005\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-15\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-15\">SP</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-15\"> 800-12</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
         class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/800-171/rev-1/archive/2018-02-20\" id=\"pub-title-link-15\">Protecting
-        Controlled Unclassified Information in Nonfederal Systems and Organizations</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        href=\"/publications/detail/sp/800-12/archive/1995-10-02\" id=\"pub-title-link-15\">An
+        Introduction to Computer Security: the NIST Handbook</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
         class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-15\">SP
-        800-171 Rev. 1 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-171/rev-1/archive/2018-02-20\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-15\">Protecting Controlled
-        Unclassified Information in Nonfederal Systems and Organizations</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-15\">2/20/2018</strong>\r\n
+        800-12 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-12/archive/1995-10-02\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-15\">An Introduction to
+        Computer Security: the NIST Handbook</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-15\">10/02/1995</strong>\r\n
         \                   <br />\r\n                    Status: <span id=\"pub-status-sm-15\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
         \               <div class=\"control-value-no-block\">\r\n                Download:
-        <span id='download-values-15'><span id='download-value-15-0'><a href=\"/CSRC/media/Publications/sp/800-171/rev-1/archive/2018-02-20/documents/NIST.SP.800-171r1-20180220.pdf\">SP
-        800-171 Rev. 1 (2/20/18)</a></span>; <span id='download-value-15-1'><a href=\"/CSRC/media/Publications/sp/800-171/rev-1/final/documents/CUI-Plan-of-Action-Template-final.docx\">CUI
-        Plan of Action template</a></span>; <span id='download-value-15-2'><a href=\"/CSRC/media/Publications/sp/800-171/rev-1/final/documents/CUI-SSP-Template-final.docx\">CUI
-        SSP template **[see Planning Note]</a></span>; <span id='download-value-15-3'><a
-        href=\"/CSRC/media//Publications/sp/800-171/rev-1/final/documents/csf-v1-0-to-sp800-171rev1-mapping.xlsx\">Mapping:
-        Cybersecurity Framework v.1.0 to SP 800-171 Rev. 1</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-15\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
+        <span id='download-values-15'><span id='download-value-15-0'><a href=\"https://doi.org/10.6028/NIST.SP.800-12\">SP
+        800-12 (DOI)</a></span>; <span id='download-value-15-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-12.pdf\">Local
+        Download</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        hidden-xs hidden-xxs\" id=\"pub-status-15\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-15\">\r\n\t\t\t\t
-        2/20/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-16\">\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-16\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-16\"> 800-171A</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        10/02/1995\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-16\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-16\">NISTIR</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-16\"> 5395</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
         class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/800-171a/archive/2018-02-20\" id=\"pub-title-link-16\">Assessing
-        Security Requirements for Controlled Unclassified Information (Final Draft)</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-16\">SP
-        800-171A (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-171a/archive/2018-02-20\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-16\">Assessing Security
-        Requirements for Controlled Unclassified Information (Final Draft)</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-16\">2/20/2018</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-16\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-16'><span
-        id='download-value-16-0'><a href=\"/CSRC/media/Publications/sp/800-171a/draft/documents/sp800-171a-draft-20180220.pdf\">Final
-        Draft SP 800-171A</a></span>; <span id='download-value-16-1'><a href=\"/CSRC/media/Publications/sp/800-171a/draft/documents/sp800-171A-fpd-comment-template.xls\">Comment
-        template</a></span>; <span id='download-value-16-2'><a href=\"/CSRC/media/Publications/sp/800-171/rev-1/final/documents/CUI-SSP-Template-final.docx\">CUI
-        SSP template **[see Planning Note]</a></span>; <span id='download-value-16-3'><a
-        href=\"/CSRC/media//Publications/sp/800-171/rev-1/final/documents/CUI-Plan-of-Action-Template-final.docx\">CUI
-        Plan of Action template</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-16\">\r\n\t\t\t\tDraft
-        (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-release-date-16\">\r\n\t\t\t\t 2/20/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n
-        \ \r\n\t\t<tr id=\"result-17\">\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-series-17\">SP</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-number-17\"> 800-125A</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        href=\"/publications/detail/nistir/5395/archive/1994-04-01\" id=\"pub-title-link-16\">Preliminary
+        Functional Specifications of a Prototype Electronic Research Notebook for
+        NIST</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div class=\"hidden-md
+        hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-16\">NISTIR
+        5395 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/nistir/5395/archive/1994-04-01\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-16\">Preliminary Functional
+        Specifications of a Prototype Electronic Research Notebook for NIST</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-16\">4/01/1994</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-16\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-16'><span id='download-value-16-0'><a href=\"https://doi.org/10.6028/NIST.IR.5395\">NISTIR
+        5395 (DOI)</a></span>; <span id='download-value-16-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir5395.pdf\">Local
+        Download</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        hidden-xs hidden-xxs\" id=\"pub-status-16\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-16\">\r\n\t\t\t\t
+        4/01/1994\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-17\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-17\">NISTIR</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-17\"> 4934</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
         class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/800-125a/archive/2018-01-23\" id=\"pub-title-link-17\">Security
-        Recommendations for Hypervisor Deployment on Servers</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-17\">SP
-        800-125A (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-125a/archive/2018-01-23\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-17\">Security Recommendations
-        for Hypervisor Deployment on Servers</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-17\">1/23/2018</strong>\r\n
+        href=\"/publications/detail/nistir/4934/archive/1992-10-01\" id=\"pub-title-link-17\">Protocol
+        Implementation Conformance Statement (PICS) Proforma for the SDNS Security
+        Protocol at Layer 4 (SP4)</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-17\">NISTIR
+        4934 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/nistir/4934/archive/1992-10-01\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-17\">Protocol Implementation
+        Conformance Statement (PICS) Proforma for the SDNS Security Protocol at Layer
+        4 (SP4)</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-17\">10/01/1992</strong>\r\n
         \                   <br />\r\n                    Status: <span id=\"pub-status-sm-17\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
         \               <div class=\"control-value-no-block\">\r\n                Download:
-        <span id='download-values-17'><span id='download-value-17-0'><a href=\"https://doi.org/10.6028/NIST.SP.800-125A\">SP
-        800-125A (DOI)</a></span>; <span id='download-value-17-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-125A.pdf\">Local
+        <span id='download-values-17'><span id='download-value-17-0'><a href=\"https://doi.org/10.6028/NIST.IR.4934\">NISTIR
+        4934 (DOI)</a></span>; <span id='download-value-17-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir4934.pdf\">Local
         Download</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
         hidden-xs hidden-xxs\" id=\"pub-status-17\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-17\">\r\n\t\t\t\t
-        1/23/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-18\">\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-18\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-18\"> 800-160</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        10/01/1992\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-18\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-18\">NISTIR</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-18\"> 4792</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
         class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/800-160/archive/2018-01-03\" id=\"pub-title-link-18\">Systems
-        Security Engineering: Considerations for a Multidisciplinary Approach in the
-        Engineering of Trustworthy Secure Systems</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-18\">SP
-        800-160 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-160/archive/2018-01-03\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-18\">Systems Security Engineering:
-        Considerations for a Multidisciplinary Approach in the Engineering of Trustworthy
-        Secure Systems</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-18\">1/03/2018</strong>\r\n
+        href=\"/publications/detail/nistir/4792/archive/1992-03-01\" id=\"pub-title-link-18\">A
+        Formal Description of the SDNS Security Protocol at Layer 4 (SP4)</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-18\">NISTIR
+        4792 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/nistir/4792/archive/1992-03-01\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-18\">A Formal Description
+        of the SDNS Security Protocol at Layer 4 (SP4)</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-18\">3/01/1992</strong>\r\n
         \                   <br />\r\n                    Status: <span id=\"pub-status-sm-18\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
         \               <div class=\"control-value-no-block\">\r\n                Download:
-        <span id='download-values-18'><span id='download-value-18-0'><a href=\"https://doi.org/10.6028/NIST.SP.800-160\">SP
-        800-160 (DOI)</a></span>; <span id='download-value-18-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-160.pdf\">Local
-        Download</a></span>; <span id='download-value-18-2'><a href=\"https://www.nist.gov/blogs/taking-measure/rethinking-cybersecurity-inside-out\">\"Rethinking
-        Cybersecurity from the Inside Out\" (blog post)</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-18\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
+        <span id='download-values-18'><span id='download-value-18-0'><a href=\"https://doi.org/10.6028/NIST.IR.4792\">NISTIR
+        4792 (DOI)</a></span>; <span id='download-value-18-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir4792.pdf\">Local
+        Download</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        hidden-xs hidden-xxs\" id=\"pub-status-18\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-18\">\r\n\t\t\t\t
-        1/03/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-19\">\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-19\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-19\"> 800-177 Rev.
-        1</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div class=\"hidden-sm hidden-xs
-        hidden-xxs\">\r\n                        <strong><a href=\"/publications/detail/sp/800-177/rev-1/archive/2017-12-15\"
-        id=\"pub-title-link-19\">Trustworthy Email (2nd Draft)</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-19\">SP
-        800-177 Rev. 1 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-177/rev-1/archive/2017-12-15\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-19\">Trustworthy Email (2nd
-        Draft)</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-19\">12/15/2017</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-19\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-19'><span
-        id='download-value-19-0'><a href=\"/CSRC/media/Publications/sp/800-177/rev-1/draft/documents/sp800-177r1-draft2.pdf\">Draft
-        (2nd) SP 800-177 Rev. 1</a></span>; <span id='download-value-19-1'><a href=\"/CSRC/media/Publications/sp/800-177/rev-1/draft/documents/sp800-177r1-draft-comment-template-form.xls\">Comment
-        template</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
-        hidden-xs hidden-xxs\" id=\"pub-status-19\">\r\n\t\t\t\tDraft (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-19\">\r\n\t\t\t\t
-        12/15/2017\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-20\">\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-20\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-20\"> 800-171A</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        3/01/1992\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-19\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-19\">NISTIR</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-19\"> 4518</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
         class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/800-171a/archive/2017-11-28\" id=\"pub-title-link-20\">Assessing
-        Security Requirements for Controlled Unclassified Information</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-20\">SP
-        800-171A (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-171a/archive/2017-11-28\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-20\">Assessing Security
-        Requirements for Controlled Unclassified Information</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-20\">11/28/2017</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-20\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-20'><span
-        id='download-value-20-0'><a href=\"/CSRC/media/Publications/sp/800-171a/draft/sp800-171A-draft.pdf\">Draft
-        SP 800-171A</a></span>; <span id='download-value-20-1'><a href=\"/CSRC/media/Publications/sp/800-171a/draft/sp800-171A-ipd-comment-template.xls\">Comment
-        Template for Draft SP 800-171A</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-20\">\r\n\t\t\t\tDraft
-        (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-release-date-20\">\r\n\t\t\t\t 11/28/2017\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n
-        \ \r\n\t\t<tr id=\"result-21\">\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-series-21\">SP</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-number-21\"> 800-171 Rev. 1</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/800-171/rev-1/archive/2017-11-28\" id=\"pub-title-link-21\">Protecting
-        Controlled Unclassified Information in Nonfederal Systems and Organizations</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-21\">SP
-        800-171 Rev. 1 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-171/rev-1/archive/2017-11-28\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-21\">Protecting Controlled
-        Unclassified Information in Nonfederal Systems and Organizations</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-21\">11/28/2017</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-21\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        href=\"/publications/detail/nistir/4518/archive/1991-03-01\" id=\"pub-title-link-19\">National
+        Aeronautics and Space Administration's (NASA) Automated Information Security
+        Handbook</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div class=\"hidden-md
+        hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-19\">NISTIR
+        4518 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/nistir/4518/archive/1991-03-01\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-19\">National Aeronautics
+        and Space Administration's (NASA) Automated Information Security Handbook</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-19\">3/01/1991</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-19\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
         \               <div class=\"control-value-no-block\">\r\n                Download:
-        <span id='download-values-21'><span id='download-value-21-0'><a href=\"/CSRC/media/Publications/sp/800-171/rev-1/archive/2017-11-28/documents/NIST.SP.800-171r1-20171128.pdf\">SP
-        800-171 Rev. 1</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-21\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
+        <span id='download-values-19'><span id='download-value-19-0'><a href=\"https://doi.org/10.6028/NIST.IR.4518\">NISTIR
+        4518 (DOI)</a></span>; <span id='download-value-19-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir4518.pdf\">Local
+        Download</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        hidden-xs hidden-xxs\" id=\"pub-status-19\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-19\">\r\n\t\t\t\t
+        3/01/1991\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-20\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-20\">NISTIR</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-20\"> 4228</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
+        href=\"/publications/detail/nistir/4228/archive/1990-01-01\" id=\"pub-title-link-20\">Prototyping
+        SP4: a Secure Data Network System Transport Protocol Interoperability Demonstration
+        Project</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div class=\"hidden-md
+        hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-20\">NISTIR
+        4228 (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/nistir/4228/archive/1990-01-01\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-20\">Prototyping SP4: a
+        Secure Data Network System Transport Protocol Interoperability Demonstration
+        Project</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-20\">1/01/1990</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-20\">Withdrawn</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-20'><span id='download-value-20-0'><a href=\"https://doi.org/10.6028/NIST.IR.90-4228\">NISTIR
+        4228 (DOI)</a></span>; <span id='download-value-20-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/Legacy/IR/nistir90-4228.pdf\">Local
+        Download</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        hidden-xs hidden-xxs\" id=\"pub-status-20\">\r\n\t\t\t\tWithdrawn\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-20\">\r\n\t\t\t\t
+        1/01/1990\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-21\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-21\">NISTIR</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-21\"> 8204</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
+        href=\"/publications/detail/nistir/8204/final\" id=\"pub-title-link-21\">Cybersecurity
+        Framework Online Informative References (OLIR) Submissions: Specification
+        for Completing the OLIR Template</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-21\">NISTIR
+        8204</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/nistir/8204/final\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-21\">Cybersecurity Framework
+        Online Informative References (OLIR) Submissions: Specification for Completing
+        the OLIR Template</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-21\">5/31/2019</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-21\">Final</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-21'><span id='download-value-21-0'><a href=\"https://doi.org/10.6028/NIST.IR.8204\">NISTIR
+        8204 (DOI)</a></span>; <span id='download-value-21-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/ir/2019/NIST.IR.8204.pdf\">Local
+        Download</a></span>; <span id='download-value-21-2'><a href=\"https://www.nist.gov/document/olirtemplatexlsx\">OLIR
+        Template</a></span>; <span id='download-value-21-3'><a href=\"https://www.nist.gov/cyberframework/online-informative-references-validation-tool\">OLIR
+        Validation Tool</a></span>; <span id='download-value-21-4'><a href=\"https://www.nist.gov/cyberframework/informative-references\">Informative
+        References homepage</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-21\">\r\n\t\t\t\tFinal\r\n\t\t\t</td>\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-21\">\r\n\t\t\t\t
-        11/28/2017\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-22\">\r\n\t\t\t<td
+        5/31/2019\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-22\">\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-22\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-22\"> 800-52 Rev.
-        2</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div class=\"hidden-sm hidden-xs
-        hidden-xxs\">\r\n                        <strong><a href=\"/publications/detail/sp/800-52/rev-2/archive/2017-11-15\"
-        id=\"pub-title-link-22\">Guidelines for the Selection, Configuration, and
-        Use of Transport Layer Security (TLS) Implementations</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-22\"> 800-203</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
+        href=\"/publications/detail/sp/800-203/final\" id=\"pub-title-link-22\">2017
+        NIST/ITL Cybersecurity Program Annual Report</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
         class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-22\">SP
-        800-52 Rev. 2 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-52/rev-2/archive/2017-11-15\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-22\">Guidelines for the
-        Selection, Configuration, and Use of Transport Layer Security (TLS) Implementations</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-22\">11/15/2017</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-22\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-22'><span
-        id='download-value-22-0'><a href=\"/CSRC/media/Publications/sp/800-52/rev-2/draft/documents/sp800-52r2-draft.pdf\">Draft
-        SP 800-52 Rev. 2</a></span>; <span id='download-value-22-1'><a href=\"/CSRC/media/Publications/sp/800-52/rev-2/draft/documents/sp800-52r2-draft-comments-received.pdf\">Comments
-        received</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
-        hidden-xs hidden-xxs\" id=\"pub-status-22\">\r\n\t\t\t\tDraft (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td
+        800-203</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-203/final\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-22\">2017 NIST/ITL Cybersecurity
+        Program Annual Report</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-22\">7/02/2018</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-22\">Final</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-22'><span id='download-value-22-0'><a href=\"https://doi.org/10.6028/NIST.SP.800-203\">SP
+        800-203 (DOI)</a></span>; <span id='download-value-22-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-203.pdf\">Local
+        Download</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        hidden-xs hidden-xxs\" id=\"pub-status-22\">\r\n\t\t\t\tFinal\r\n\t\t\t</td>\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-22\">\r\n\t\t\t\t
-        11/15/2017\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-23\">\r\n\t\t\t<td
+        7/02/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-23\">\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-23\">SP</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-23\"> 800-37 Rev.
-        2</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div class=\"hidden-sm hidden-xs
-        hidden-xxs\">\r\n                        <strong><a href=\"/publications/detail/sp/800-37/rev-2/archive/2017-09-28\"
-        id=\"pub-title-link-23\">Risk Management Framework for Information Systems
-        and Organizations: A System Life Cycle Approach for Security and Privacy (Discussion
-        Draft)</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div class=\"hidden-md
-        hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-23\">SP 800-37
-        Rev. 2 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-37/rev-2/archive/2017-09-28\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-23\">Risk Management Framework
-        for Information Systems and Organizations: A System Life Cycle Approach for
-        Security and Privacy (Discussion Draft)</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-23\">9/28/2017</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-23\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-23'><span
-        id='download-value-23-0'><a href=\"/CSRC/media/Publications/sp/800-37/rev-2/draft/documents/sp800-37r2-discussion-draft.pdf\">SP
-        800-37 Rev. 2 (Discussion Draft)</a></span>; <span id='download-value-23-1'><a
-        href=\"/CSRC/media/Publications/sp/800-37/rev-2/draft/documents/sp800-37r2-discussion-draft.docx\">SP
-        800-37 Rev. 2 (Discussion Draft)</a></span>; <span id='download-value-23-2'><a
-        href=\"https://www.nist.gov/blogs/taking-measure/why-security-and-privacy-matter-digital-world\">\"Why
-        Security and Privacy Matter in a Digital World\" (blog post)</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-23\">\r\n\t\t\t\tDraft
-        (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-release-date-23\">\r\n\t\t\t\t 9/28/2017\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n
-        \ \r\n\t\t<tr id=\"result-24\">\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-series-24\">SP</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-number-24\"> 800-125A</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-23\"> 800-126A</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
         class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/800-125a/archive/2017-09-14\" id=\"pub-title-link-24\">Security
-        Recommendations for Hypervisor Deployment (2nd Draft)</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        href=\"/publications/detail/sp/800-126a/final\" id=\"pub-title-link-23\">SCAP
+        1.3 Component Specification Version Updates: An Annex to NIST Special Publication
+        800-126 Revision 3</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div class=\"hidden-md
+        hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-23\">SP 800-126A</span><br
+        />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-126a/final\" class=\"mobile-pub-title\"
+        id=\"pub-title-link-sm-23\">SCAP 1.3 Component Specification Version Updates:
+        An Annex to NIST Special Publication 800-126 Revision 3</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-23\">2/14/2018</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-23\">Final</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-23'><span id='download-value-23-0'><a href=\"https://doi.org/10.6028/NIST.SP.800-126A\">SP
+        800-126A (DOI)</a></span>; <span id='download-value-23-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-126A.pdf\">Local
+        Download</a></span>; <span id='download-value-23-2'><a href=\"https://scap.nist.gov\">SCAP
+        project</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        hidden-xs hidden-xxs\" id=\"pub-status-23\">\r\n\t\t\t\tFinal\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-23\">\r\n\t\t\t\t
+        2/14/2018\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-24\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-24\">SP</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-24\"> 800-195</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
+        href=\"/publications/detail/sp/800-195/final\" id=\"pub-title-link-24\">2016
+        NIST/ITL Cybersecurity Program Annual Report</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
         class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-24\">SP
-        800-125A (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-125a/archive/2017-09-14\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-24\">Security Recommendations
-        for Hypervisor Deployment (2nd Draft)</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-24\">9/14/2017</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-24\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-24'><span
-        id='download-value-24-0'><a href=\"/CSRC/media/Publications/sp/800-125a/draft/documents/sp800-125A-draft2.pdf\">Draft
-        (2nd) SP 800-125A</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
-        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-24\">\r\n\t\t\t\tDraft
-        (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-release-date-24\">\r\n\t\t\t\t 9/14/2017\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n
-        \ \r\n\t\t<tr id=\"result-25\">\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-series-25\">SP</td>\r\n\t\t\t<td class=\"hidden-sm hidden-xs hidden-xxs\"
-        id=\"pub-number-25\"> 800-177 Rev. 1</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        800-195</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-195/final\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-24\">2016 NIST/ITL Cybersecurity
+        Program Annual Report</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-24\">9/28/2017</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-24\">Final</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-24'><span id='download-value-24-0'><a href=\"https://doi.org/10.6028/NIST.SP.800-195\">SP
+        800-195 (DOI)</a></span>; <span id='download-value-24-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-195.pdf\">Local
+        Download</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
+        hidden-xs hidden-xxs\" id=\"pub-status-24\">\r\n\t\t\t\tFinal\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-24\">\r\n\t\t\t\t
+        9/28/2017\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n  \r\n\t\t<tr id=\"result-25\">\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-series-25\">SP</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-number-25\"> 800-179</td>\r\n\t\t\t<td>\r\n\t\t\t\t\r\n\t\t\t\t<div
         class=\"hidden-sm hidden-xs hidden-xxs\">\r\n                        <strong><a
-        href=\"/publications/detail/sp/800-177/rev-1/archive/2017-09-13\" id=\"pub-title-link-25\">Trustworthy
-        Email</a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div class=\"hidden-md
-        hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-25\">SP 800-177
-        Rev. 1 (DRAFT) (WITHDRAWN)</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-177/rev-1/archive/2017-09-13\"
-        class=\"mobile-pub-title\" id=\"pub-title-link-sm-25\">Trustworthy Email</a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
-        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-25\">9/13/2017</strong>\r\n
-        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-25\">Draft
-        (Withdrawn)</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n                <div
-        class=\"control-value-no-block\">\r\n                Download: <span id='download-values-25'><span
-        id='download-value-25-0'><a href=\"/CSRC/media/Publications/sp/800-177/rev-1/draft/documents/sp800-177r1-draft.pdf\">Draft
-        SP 800-177 Rev. 1</a></span>; <span id='download-value-25-1'><a href=\"/CSRC/media/Publications/sp/800-177/rev-1/draft/documents/sp800-177r1-draft-comment-template-form.xls\">Comment
-        template</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td class=\"hidden-sm
-        hidden-xs hidden-xxs\" id=\"pub-status-25\">\r\n\t\t\t\tDraft (Withdrawn)\r\n\t\t\t</td>\r\n\t\t\t<td
+        href=\"/publications/detail/sp/800-179/final\" id=\"pub-title-link-25\">Guide
+        to Securing Apple OS X 10.10 Systems for IT Professionals: A NIST Security
+        Configuration Checklist </a></strong>\r\n\t\t\t\t</div>\r\n\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n\t\t\t\t\t<strong><span id=\"pub-full-display-sm-25\">SP
+        800-179</span><br />\r\n\t\t\t\t\t\t<a href=\"/publications/detail/sp/800-179/final\"
+        class=\"mobile-pub-title\" id=\"pub-title-link-sm-25\">Guide to Securing Apple
+        OS X 10.10 Systems for IT Professionals: A NIST Security Configuration Checklist
+        </a>\r\n\t\t\t\t\t</strong>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t<div
+        class=\"hidden-md hidden-lg\">\r\n                    <strong id=\"pub-release-date-sm-25\">12/05/2016</strong>\r\n
+        \                   <br />\r\n                    Status: <span id=\"pub-status-sm-25\">Final</span>\r\n\t\t\t\t</div>\r\n\t\t\t\t\r\n\t\t\t\t\r\n
+        \               <div class=\"control-value-no-block\">\r\n                Download:
+        <span id='download-values-25'><span id='download-value-25-0'><a href=\"https://doi.org/10.6028/NIST.SP.800-179\">SP
+        800-179 (DOI)</a></span>; <span id='download-value-25-1'><a href=\"https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-179.pdf\">Local
+        Download</a></span>; <span id='download-value-25-2'><a href=\"https://github.com/usnistgov/applesec\">Supplemental
+        Content (GitHub)</a></span>; <span id='download-value-25-3'><a href=\"https://checklists.nist.gov/\">National
+        Checklist Program</a></span></span>\r\n\t\t\t\t</div>\r\n\t\t\t</td>\r\n\t\t\t<td
+        class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-status-25\">\r\n\t\t\t\tFinal\r\n\t\t\t</td>\r\n\t\t\t<td
         class=\"hidden-sm hidden-xs hidden-xxs\" id=\"pub-release-date-25\">\r\n\t\t\t\t
-        9/13/2017\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n\t</tbody>\r\n</table>\r\n<div
+        12/05/2016\r\n\t\t\t</td>\r\n\t\t\t\r\n\t\t</tr>\r\n\r\n\t</tbody>\r\n</table>\r\n<div
         class=\"row bottom-pagination-area\">\r\n  <p class=\"text-center\">\r\n      <span
-        class='pagination-links' id='bottom-pagination-container' data-total-pages='38'
+        class='pagination-links' id='bottom-pagination-container' data-total-pages='50'
         data-min-page='1' data-max-page='10' data-current-page='1' data-show-first='False'
         data-show-last='True'><strong aria-label=\"Page 1\" id=\"bottom-page-1\">1</strong>
-        &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=2\"
-        aria-label=\"Page 2\" id=\"bottom-page-2\">2</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=3\"
-        aria-label=\"Page 3\" id=\"bottom-page-3\">3</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=4\"
-        aria-label=\"Page 4\" id=\"bottom-page-4\">4</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=5\"
-        aria-label=\"Page 5\" id=\"bottom-page-5\">5</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=6\"
-        aria-label=\"Page 6\" id=\"bottom-page-6\">6</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=7\"
-        aria-label=\"Page 7\" id=\"bottom-page-7\">7</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=8\"
-        aria-label=\"Page 8\" id=\"bottom-page-8\">8</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=9\"
-        aria-label=\"Page 9\" id=\"bottom-page-9\">9</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=10\"
-        aria-label=\"Page 10\" id=\"bottom-page-10\">10</a>&nbsp;&nbsp;<a href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=2\"
+        &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=2\"
+        aria-label=\"Page 2\" id=\"bottom-page-2\">2</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=3\"
+        aria-label=\"Page 3\" id=\"bottom-page-3\">3</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=4\"
+        aria-label=\"Page 4\" id=\"bottom-page-4\">4</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=5\"
+        aria-label=\"Page 5\" id=\"bottom-page-5\">5</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=6\"
+        aria-label=\"Page 6\" id=\"bottom-page-6\">6</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=7\"
+        aria-label=\"Page 7\" id=\"bottom-page-7\">7</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=8\"
+        aria-label=\"Page 8\" id=\"bottom-page-8\">8</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=9\"
+        aria-label=\"Page 9\" id=\"bottom-page-9\">9</a> &nbsp;&nbsp;&nbsp;  <a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=10\"
+        aria-label=\"Page 10\" id=\"bottom-page-10\">10</a>&nbsp;&nbsp;<a href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=2\"
         aria-label=\"Next Page\" id=\"bottom-page-next\">next &gt;</a>&nbsp;&nbsp;<a
-        href=\"/publications/search?keywords-lg=SP+800-38B&status-lg=Final%2cWithdrawn&page=38\"
-        aria-label=\"Last Page\" id=\"bottom-page-last\" data-last-page-number=\"38\">last
+        href=\"/publications/search?keywords-lg=NIST+SP+800-38B&status-lg=Final%2cWithdrawn&page=50\"
+        aria-label=\"Last Page\" id=\"bottom-page-last\" data-last-page-number=\"50\">last
         &gt;&gt;</a></span>\r\n  </p>\r\n</div> \r\n\r\n<div id=\"publications-quicklinks-sm\"
         class=\"bs-callout bs-callout-subnav hidden-md hidden-lg\">\r\n    <h4>Quick
         Links <i class=\"fa fa-bolt\"></i></h4>\r\n    <p style=\"margin-left: 1rem;\">\r\n
@@ -1643,7 +1622,7 @@ http_interactions:
         'en');\r\n   document.getElementsByTagName('html')[0].setAttribute('xml:lang',
         'en')\r\n})(); \r\n</script>\r\n\r\n    \r\n    </form>\r\n</body>\r\n</html>\r\n"
     http_version: 
-  recorded_at: Mon, 10 Jun 2019 12:00:33 GMT
+  recorded_at: Mon, 10 Jun 2019 12:16:25 GMT
 - request:
     method: get
     uri: https://csrc.nist.gov/publications/detail/sp/800-38b/archive/2005-05-01
@@ -1675,8 +1654,8 @@ http_interactions:
       Server:
       - Microsoft-IIS/8.5
       Set-Cookie:
-      - ASP.NET_SessionId=p0n0lgssrf2tfzpp2dzuojyf; path=/; secure; HttpOnly
-      - CMSCsrfCookie=3aJmZYeu9XnRk2ZJqiVExku4THBSVHdQloGWBeCW; path=/; secure; HttpOnly
+      - ASP.NET_SessionId=amizoxxhgevmtmelzotgdtxl; path=/; secure; HttpOnly
+      - CMSCsrfCookie=Li3X125BQWXfcg688EaITtBHtZ7AxnnXD7JLQX5J; path=/; secure; HttpOnly
       - CMSPreferredCulture=en-US; path=/; HttpOnly; Secure
       X-Frame-Options:
       - SAMEORIGIN
@@ -1685,7 +1664,7 @@ http_interactions:
       X-Aspnet-Version:
       - 4.0.30319
       Date:
-      - Mon, 10 Jun 2019 12:00:31 GMT
+      - Mon, 10 Jun 2019 12:16:23 GMT
       Content-Length:
       - '36870'
       Strict-Transport-Security:
@@ -1776,8 +1755,8 @@ http_interactions:
         />\r\n</head>\r\n<body class=\"LTR Unknown ENUS ContentBody\" >\r\n    \r\n
         \   <form method=\"post\" action=\"/publications/detail/sp/800-38b/archive/2005-05-01\"
         id=\"form\">\r\n<input type=\"hidden\" name=\"__CMSCsrfToken\" id=\"__CMSCsrfToken\"
-        value=\"bZ3VDRqibqESU4jl5QiKFjPAfPvZiisaUwoqv3VbJ/5iTRsVmcMrKZza/UfDkmYR3EffbAdt1O9F3BiOnoXDeoLml7V8VXbtcnBEKl5hggw=\"
-        />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"c8ol196eJV+2AjpwnId5qT3FMAQw42LISzTiPKszNOTkXqkKxYFwx36WfUB7oYlDDsgXf3gkGZkiXM3a2QliLhROz69n04DK0mtHkBpHqOQC/Xibs6eiKAhuspJ+c21Y2XEc+FQgrfWE559pIvq7vWDsSja2E846E8svOmatBBhEBKFRWHU/tKlNYXDt0D5zcfmMmEG3PeGJj78KsCd3Noh6XAIjfBPkyTp/Gs8OjaxaeqM3sTldgxbHGk7hlZXz12rW8pbAB2TPS0w4hG1QZw9ioIFoEgUCUyLOieZ/jECvogKh7ewIoUz13rf1lrexGgOupu+cxr/pcVH6lD0elU3XEa9Sj6MHxRa/CypwhJk=\"
+        value=\"JSAo1guRieLqZ/7nnJDJeGGVksxfofqf7Yd0nqLrxfOPeY3YqYfjkjZ9aQBVQghgrIRf/12dxKN+tK4DsPhQANRKwlM7duUC+cICGzXPhgA=\"
+        />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"C+9qhTbUC4iUjGyVQIQMkcpgCCQavT3apCIKjoIfUQZUNCyl1qL1JXpmyeTRWpoXesIAOfp7h73VzbFPwGZAtEXlj4CWhChmvepgpqlm7qt+k5exqom6d8DT3jJ5COZt7MdpEevDcZk4Zn830pGiNfxJCup/Ukse7j0qyLErpb1z/gHf4FgMflNLiSz6hEFGuSmFASPlf04Cf1sw05zWHI6wryoFEW93r/xlKvX+U8YbEGC3OGHXp/8pYoCD4KzOPZED9A0+espYIUr+QJf7TCN56T1Qyr842UxCfhesUXRoMoAbu5yqFjmc1sC/Gs+kVKOnQ2j7T/9Cb/zzO+cSSvAyaMV1GmPgUl1fQ6P5ynY=\"
         />\r\n\r\n<input type=\"hidden\" name=\"lng\" id=\"lng\" value=\"en-US\" />\r\n<script
         type=\"text/javascript\">\r\n\t//<![CDATA[\n\r\nfunction PM_Postback(param)
         { if (window.top.HideScreenLockWarningAndSync) { window.top.HideScreenLockWarningAndSync(1080);
@@ -2125,7 +2104,7 @@ http_interactions:
         'en');\r\n   document.getElementsByTagName('html')[0].setAttribute('xml:lang',
         'en')\r\n})(); \r\n</script>\r\n\r\n    \r\n    </form>\r\n</body>\r\n</html>\r\n"
     http_version: 
-  recorded_at: Mon, 10 Jun 2019 12:00:34 GMT
+  recorded_at: Mon, 10 Jun 2019 12:16:26 GMT
 - request:
     method: get
     uri: https://csrc.nist.gov/publications/detail/sp/800-38b/final
@@ -2157,8 +2136,8 @@ http_interactions:
       Server:
       - Microsoft-IIS/8.5
       Set-Cookie:
-      - ASP.NET_SessionId=jsq0ide3uzxc4leeqr0lasns; path=/; secure; HttpOnly
-      - CMSCsrfCookie=dYD9KkqkgCkYrj4YcSEeBbUejuax4sWPhokW6qar; path=/; secure; HttpOnly
+      - ASP.NET_SessionId=ykrzeu13fhhfypksorjy51kp; path=/; secure; HttpOnly
+      - CMSCsrfCookie=r5lsnzF6riq1reVcIjYuPb///Mji31KODfGbWC23; path=/; secure; HttpOnly
       - CMSPreferredCulture=en-US; path=/; HttpOnly; Secure
       X-Frame-Options:
       - SAMEORIGIN
@@ -2167,7 +2146,7 @@ http_interactions:
       X-Aspnet-Version:
       - 4.0.30319
       Date:
-      - Mon, 10 Jun 2019 12:00:31 GMT
+      - Mon, 10 Jun 2019 12:16:23 GMT
       Content-Length:
       - '36430'
       Strict-Transport-Security:
@@ -2258,8 +2237,8 @@ http_interactions:
         />\r\n</head>\r\n<body class=\"LTR Unknown ENUS ContentBody\" >\r\n    \r\n
         \   <form method=\"post\" action=\"/publications/detail/sp/800-38b/final\"
         id=\"form\">\r\n<input type=\"hidden\" name=\"__CMSCsrfToken\" id=\"__CMSCsrfToken\"
-        value=\"Q6WqEm6C5ZI4whvxeLHarkijm0UgPtcv7S1qvw3TYNADEIz9A5FV59lroOL16lIqNHkG351PjTQFG1LipmgGxmj6YS0TQNUnuIdbAwq1M7E=\"
-        />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"3btZ4PN4KknBOmqSVfuPb9SHbcAz9ZmMByTuKdH3dS9bR/3h6ktgPhwfg25f0YBHPVS3Vp2xBaWINWR4eZX1AyifIStfWjx8+uZcjppJef1AVV1p7iewE59ipXUDkNXdmw8ECCzFkli5i9qKlqygbzxhAgcx86PQWXlgvmsBYgqwhitwMf0g9rS8MWVgLNlc7ad1GHHg7Beb2eT245qNAfJhABNB+wtrUFYI0HACG0CZurpEVXNm+FA56r4wim9BGj4gHGDxzXNUKcolLaCSp6AAL6fySWmMsXv3m/B+upNprrp90j951KYq1oXm/0oWNsLrz6nk5OwGvLNq979zzg==\"
+        value=\"iEetS+ioRyO5sucAuA4q8NtIOtu6gxt+VXxbtuugB6wMSQt34MDDrcsp+WmcQtnUUIVmHXVTQywitDPYrzu/ppB6jfYZjmu69+dMl/U+bro=\"
+        />\r\n<input type=\"hidden\" name=\"__VIEWSTATE\" id=\"__VIEWSTATE\" value=\"/awTdFzjCc0Ov+NsMAdUhAr35pExpCY+9sam4Cjy8v4UUEe45piBmv3F9sPR67Y2mSSA1zeynsN3h69TRTO9NGzlwCYOQy51Rgi+UtB8f4e7XFdChNuq/PFGlT46Sbgh6GdQ/zzUff2GkMS0pP/jxkrDkXC3HOcmXwQFrAc7SRtBsJMXb1bVb3Ey5AqS4kUcDDPJ6sqZ8EHYaJYuMsocbh4yE0bkVvrN4PrKEpBaIlR85KKsBcj5qNKUNFnJJ59RY7fsw72TX/NLuF01P5imnpV+4jQIapv7KNuiezhgPxfreqGr+hQ5AuLnBXOl6+NBMRrYBTFQ46EPUyM4vZNs0g==\"
         />\r\n\r\n<input type=\"hidden\" name=\"lng\" id=\"lng\" value=\"en-US\" />\r\n<script
         type=\"text/javascript\">\r\n\t//<![CDATA[\n\r\nfunction PM_Postback(param)
         { if (window.top.HideScreenLockWarningAndSync) { window.top.HideScreenLockWarningAndSync(1080);
@@ -2602,5 +2581,5 @@ http_interactions:
         'en');\r\n   document.getElementsByTagName('html')[0].setAttribute('xml:lang',
         'en')\r\n})(); \r\n</script>\r\n\r\n    \r\n    </form>\r\n</body>\r\n</html>\r\n"
     http_version: 
-  recorded_at: Mon, 10 Jun 2019 12:00:34 GMT
+  recorded_at: Mon, 10 Jun 2019 12:16:26 GMT
 recorded_with: VCR 5.0.0

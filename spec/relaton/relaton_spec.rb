@@ -41,14 +41,14 @@ RSpec.describe Relaton::Db do
   context "NIST references" do
     it "gets FISP" do
       VCR.use_cassette "fisp_140" do
-        bib = @db.fetch "FIPS 140"
+        bib = @db.fetch "NIST FIPS 140"
         expect(bib).to be_instance_of RelatonNist::NistBibliographicItem
       end
     end
 
     it "gets SP" do
       VCR.use_cassette "sp_800_38b" do
-        bib = @db.fetch "SP 800-38B"
+        bib = @db.fetch "NIST SP 800-38B"
         expect(bib).to be_instance_of RelatonNist::NistBibliographicItem
       end
     end
