@@ -17,22 +17,24 @@ RSpec.describe Relaton::Db do
     # stub_bib Isobib::IsoBibliography
     VCR.use_cassette "iso_19115_1" do
       bib = @db.fetch("ISO 19115-1", nil, {})
-      expect(bib).to be_instance_of IsoBibItem::IsoBibliographicItem
-      expect(bib.to_xml).to include "<bibitem type=\"international-standard\" id=\"ISO19115-1\">"
+      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      expect(bib.to_xml(bibdata: true)).to include "<project-number>ISO 19115</project-number>"
       expect(File.exist?("testcache")).to be true
       expect(File.exist?("testcache2")).to be true
       testcache = Relaton::DbCache.new "testcache"
-      expect(testcache["ISO(ISO 19115-1)"]).to include "<bibitem type=\"international-standard\" id=\"ISO19115-1\">"
+      expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>ISO 19115</project-number>"
       testcache = Relaton::DbCache.new "testcache2"
-      expect(testcache["ISO(ISO 19115-1)"]).to include "<bibitem type=\"international-standard\" id=\"ISO19115-1\">"
+      expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>ISO 19115</project-number>"
     end
   end
 
   it "gets an ISO reference with year in code" do
     VCR.use_cassette "19133_2005" do
       bib = @db.fetch("ISO 19133:2005")
-      expect(bib).to be_instance_of IsoBibItem::IsoBibliographicItem
-      expect(bib.to_xml).to include "<bibitem type=\"international-standard\" id=\"ISO19133-2005\">"
+      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      expect(bib.to_xml).to include "<bibitem id=\"ISO19133-2005\">"
+      testcache = Relaton::DbCache.new "testcache"
+      expect(testcache.valid_entry?("ISO(ISO 19133:2005)", "2019")).to eq Date.today.year.to_s
     end
   end
 
@@ -61,13 +63,15 @@ RSpec.describe Relaton::Db do
     # file = "spec/support/list_entries.xml"
     # File.write file, @db.to_xml unless File.exist? file
     docs = Nokogiri::XML @db.to_xml
-    expect(docs.xpath("/documents/bibitem").size).to eq 2
+    expect(docs.xpath("/documents/bibdata").size).to eq 2
   end
 
   it "save/load/delete entry" do
     @db.save_entry "test key", "test value"
     expect(@db.load_entry("test key")).to eq "test value"
     expect(@db.load_entry("not existed key")).to be_nil
+    @db.save_entry "test key", nil
+    expect(@db.load_entry("test key")).to be_nil
     testcache = Relaton::DbCache.new "testcache"
     testcache.delete("test_key")
     testcache2 = Relaton::DbCache.new "testcache2"
@@ -79,14 +83,14 @@ RSpec.describe Relaton::Db do
     # stub_bib Gbbib::GbBibliography
     VCR.use_cassette "gb_t_20223_2006" do
       bib = @db.fetch "CN(GB/T 20223)", "2006", {}
-      expect(bib).to be_instance_of Gbbib::GbBibliographicItem
-      expect(bib.to_xml).to include "<bibitem type=\"standard\" id=\"GB/T20223\">"
+      expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
+      expect(bib.to_xml(bibdata: true)).to include "<project-number>GB/T 20223</project-number>"
       expect(File.exist?("testcache")).to be true
       expect(File.exist?("testcache2")).to be true
       testcache = Relaton::DbCache.new "testcache"
-      expect(testcache["CN(GB/T 20223:2006)"]).to include "<bibitem type=\"standard\" id=\"GB/T20223\">"
+      expect(testcache["CN(GB/T 20223:2006)"]).to include "<project-number>GB/T 20223</project-number>"
       testcache = Relaton::DbCache.new "testcache2"
-      expect(testcache["CN(GB/T 20223:2006)"]).to include "<bibitem type=\"standard\" id=\"GB/T20223\">"
+      expect(testcache["CN(GB/T 20223:2006)"]).to include "<project-number>GB/T 20223</project-number>"
     end
   end
 
@@ -94,14 +98,14 @@ RSpec.describe Relaton::Db do
     # stub_bib IETFBib::RfcBibliography
     VCR.use_cassette "rfc_8341" do
       bib = @db.fetch "RFC 8341", nil, {}
-      expect(bib).to be_instance_of IsoBibItem::BibliographicItem
+      expect(bib).to be_instance_of RelatonIetf::IetfBibliographicItem
       expect(bib.to_xml).to include "<bibitem id=\"RFC8341\">"
       expect(File.exist?("testcache")).to be true
       expect(File.exist?("testcache2")).to be true
       testcache = Relaton::DbCache.new "testcache"
-      expect(testcache["IETF(RFC 8341)"]).to include "<bibitem id=\"RFC8341\">"
+      expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier type=\"IETF\">RFC 8341</docidentifier>"
       testcache = Relaton::DbCache.new "testcache2"
-      expect(testcache["IETF(RFC 8341)"]).to include "<bibitem id=\"RFC8341\">"
+      expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier type=\"IETF\">RFC 8341</docidentifier>"
     end
   end
 

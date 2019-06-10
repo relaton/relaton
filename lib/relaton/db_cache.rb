@@ -10,14 +10,18 @@ module Relaton
       @dir = dir
       FileUtils::mkdir_p @dir
       file_version = "#{@dir}/version"
-      File.write file_version, VERSION, encoding: "utf-8" unless File.exist? file_version
+      set_version unless File.exist? file_version
     end
 
     # Save item
     # @param key [String]
     # @param value [String] Bibitem xml serialization
     def []=(key, value)
-      return if value.nil?
+      if value.nil?
+        delete key
+        return
+      end
+
       prefix_dir = "#{@dir}/#{prefix(key)}"
       FileUtils::mkdir_p prefix_dir
       File.write filename(key), value, encoding: "utf-8"
@@ -39,11 +43,12 @@ module Relaton
     def fetched(key)
       value = self[key]
       return unless value
+
       if value =~ /^not_found/
         value.match(/\d{4}-\d{2}-\d{2}/).to_s
       else
         doc = Nokogiri::XML value
-        doc.at('/bibitem/fetched')&.text
+        doc.at("/bibitem/fetched|bibdata/fetched")&.text
       end
     end
 
@@ -82,6 +87,7 @@ module Relaton
     def valid_entry?(key, year)
       datestr = fetched key
       return false unless datestr
+
       date = Date.parse datestr
       year || Date.today - date < 60
     end
@@ -110,29 +116,36 @@ module Relaton
       key.downcase.match(/^[^\(]+(?=\()/).to_s
     end
 
-    def self.global_bibliocache_name
-      "#{Dir.home}/.relaton/cache"
-    end
+    class << self
+      private
 
-    def self.local_bibliocache_name(cachename)
-      return nil if cachename.nil?
-      cachename = "relaton" if cachename.empty?
-      "#{cachename}/cache"
-    end
-
-    # Initialse and return relaton instance, with local and global cache names
-    # local_cache: local cache name; none created if nil; "relaton" created if empty
-    # global_cache: boolean to create global_cache
-    # flush_caches: flush caches
-    def self.init_bib_caches(opts)
-      globalname = global_bibliocache_name if opts[:global_cache]
-      localname = local_bibliocache_name(opts[:local_cache])
-      localname = "relaton" if localname&.empty?
-      if opts[:flush_caches]
-        FileUtils.rm_f globalname unless globalname.nil?
-        FileUtils.rm_f localname unless localname.nil?
+      def global_bibliocache_name
+        "#{Dir.home}/.relaton/cache"
       end
-      Relaton::Db.new(globalname, localname)
+
+      def local_bibliocache_name(cachename)
+        return nil if cachename.nil?
+
+        cachename = "relaton" if cachename.empty?
+        "#{cachename}/cache"
+      end
+
+      public
+
+      # Initialse and return relaton instance, with local and global cache names
+      # local_cache: local cache name; none created if nil; "relaton" created if empty
+      # global_cache: boolean to create global_cache
+      # flush_caches: flush caches
+      def init_bib_caches(opts)
+        globalname = global_bibliocache_name if opts[:global_cache]
+        localname = local_bibliocache_name(opts[:local_cache])
+        localname = "relaton" if localname&.empty?
+        if opts[:flush_caches]
+          FileUtils.rm_f globalname unless globalname.nil?
+          FileUtils.rm_f localname unless localname.nil?
+        end
+        Relaton::Db.new(globalname, localname)
+      end
     end
   end
 end

@@ -1,12 +1,12 @@
 # require "pstore"
 require_relative "registry"
-require_relative 'db_cache'
+require_relative "db_cache"
 
 module Relaton
   class RelatonError < StandardError; end
 
   class Db
-    SUPPORTED_GEMS = %w[isobib ietfbib gbbib iecbib nistbib].freeze
+    SUPPORTED_GEMS = %w[relaton_iso relaton_ietf relaton_gb relaton_iec relaton_nist].freeze
 
     # @param global_cache [String] directory of global DB
     # @param local_cache [String] directory of local DB
@@ -42,28 +42,28 @@ module Relaton
       check_bibliocache(code, year, opts, stdclass)
     end
 
-    def fetch_std(code, year = nil, stdclass = nil, opts = {})
-      std = nil
-      @registry.processors.each do |name, processor|
-        std = name if processor.prefix == stdclass
-      end
-      unless std
-        std = standard_class(code) or return nil
-      end
-      check_bibliocache(code, year, opts, std)
-    end
+    # def fetch_std(code, year = nil, stdclass = nil, opts = {})
+    #   std = nil
+    #   @registry.processors.each do |name, processor|
+    #     std = name if processor.prefix == stdclass
+    #   end
+    #   unless std
+    #     std = standard_class(code) or return nil
+    #   end
+    #   check_bibliocache(code, year, opts, std)
+    # end
 
-    def fetched(key)
-      return @local_db.fetched key if @local_db
-      return @db.fetched key if @db
+    # def fetched(key)
+    #   return @local_db.fetched key if @local_db
+    #   return @db.fetched key if @db
 
-      ""
-    end
+    #   ""
+    # end
 
     # The document identifier class corresponding to the given code
     def docid_type(code)
       stdclass = standard_class(code) or return [nil, code]
-      prefix, code = strip_id_wrapper(code, stdclass)
+      _prefix, code = strip_id_wrapper(code, stdclass)
       [@registry.processors[stdclass].idtype, code]
     end
 
@@ -103,7 +103,7 @@ module Relaton
     def standard_class(code)
       @registry.processors.each do |name, processor|
         return name if /^#{processor.prefix}/.match(code) ||
-            processor.defaultprefix.match(code)
+          processor.defaultprefix.match(code)
       end
       allowed = @registry.processors.reduce([]) do |m, (_k, v)|
         m << v.prefix
@@ -170,7 +170,7 @@ module Relaton
     # @return [Hash]
     def new_bib_entry(code, year, opts, stdclass)
       bib = @registry.processors[stdclass].get(code, year, opts)
-      bib = bib.to_xml if bib.respond_to? :to_xml
+      bib = bib.to_xml(bibdata: true) if bib.respond_to? :to_xml
       bib = "not_found #{Date.today}" if bib.nil? || bib.empty?
       bib
     end
@@ -188,21 +188,22 @@ module Relaton
     # @return [PStore]
     def open_cache_biblio(dir, global: true)
       return nil if dir.nil?
+
       db = DbCache.new dir
-      if File.exist? dir
-        if global
-          unless db.check_version?
-            FileUtils.rm_rf(Dir.glob(dir + '/*'), secure: true)
-            warn "Global cache version is obsolete and cleared."
-          end
-          db.set_version
-        elsif db.check_version? then db
-        else
-          warn "Local cache version is obsolete."
-          nil
+      # if File.exist? dir
+      if global
+        unless db.check_version?
+          FileUtils.rm_rf(Dir.glob(dir + "/*"), secure: true)
+          warn "Global cache version is obsolete and cleared."
         end
-      else db.set_version
+        db.set_version
+      elsif db.check_version? then db
+      else
+        warn "Local cache version is obsolete."
+        nil
       end
+      # else db.set_version
+      # end
     end
 
     # Check if version of the DB match to the gem version.

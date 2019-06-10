@@ -19,11 +19,11 @@ Entries are serialised to and from an internal data model, and multiple formats 
 
 Relaton imports bibliographic entries from:
 
-* ISO through the iso.org website, via the https://github.com/metanorma/isobib[isobib] gem
-* IEC through the iec.ch website, via the https://github.com/metanorma/iecbib[isobib] gem
-* GB (Chinese national standards) through the GB websites, via the https://github.com/metanorma/gbbib[gbbib] gem 
-* IETF standards (Internet Drafts, RFC) through the http://xml2rfc.tools.ietf.org website, via the https://github.com/metanorma/ietfbib[ietfbib] gem 
-* NIST standards through the nist.gov website, via the https://github.com/metanorma/nistbib[nistbib] gem
+* ISO through the iso.org website, via the https://github.com/metanorma/relaton-iso[relaton-iso] gem
+* IEC through the iec.ch website, via the https://github.com/metanorma/relaton-iec[relaton-iec] gem
+* GB (Chinese national standards) through the GB websites, via the https://github.com/metanorma/relaton-gb[relaton-gb] gem 
+* IETF standards (Internet Drafts, RFC) through the http://xml2rfc.tools.ietf.org website, via the https://github.com/metanorma/relaton-ietf[relaton-ietf] gem 
+* NIST standards through the nist.gov website, via the https://github.com/metanorma/relaton-nist[relaotn-nist] gem
 
 The identifiers for which bibliographic entries are to be retrieved need to indicate which standards body they belong to. To do so, this gem adopts the convention of bracketing identifiers, and preceding them with a code that indicates the standards body:
 
@@ -66,44 +66,62 @@ require "relaton"
 
 # Do not cache any entries retrieved
 db = Relaton::Db.new(nil, nil)
+[relaton] Info: detecting backends:
+[relaton] processor "relaton_iec" registered
+[relaton] processor "relaton_iso" registered
+[relaton] processor "relaton_ietf" registered
+[relaton] processor "relaton_gb" registered
+[relaton] processor "relaton_nist" registered
+=> #<Relaton::Db:0x007fb1d2a75fe0
+...
 
 # Use only the global cache for any entries retrieved
-db = Relaton::Db.new("global cache filename", nil)
+db = Relaton::Db.new("globalcache", nil)
+[relaton] Info: detecting backends:
+=> #<Relaton::Db:0x007fb1d2856fc0
+...
 
 # Use both a local and a global cache
-db = Relaton::Db.new("global cache filename", "local cache filename")
-[relaton] detecting backends:
-isobib
-[relaton] processor "isobib" registered
-=> #<Relaton::Db:...>
+db = Relaton::Db.new("globalcahe", "localcahe")
+[relaton] Info: detecting backends:
+=> #<Relaton::Db:0x007fb1d0ab9328
+...
 
 x = db.fetch("IEEE 19011")
-"IEEE 19011 does not have a recognised prefix: /^(ISO|IEC)[ \/]|^IEV($| )/"
+IEEE 19011 does not have a recognised prefix: IEC, ISO, IETF, CN, NIST
 => nil
 
 x = db.fetch("ISO 19011")
 fetching ISO 19011...
-=> #<IsoBibItem::IsoBibliographicItem:...>
+=> #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d0ab2f00
+...
 
 x = db.fetch("ISO 19011", "2011")
 fetching ISO 19011...
-=> #<IsoBibItem::IsoBibliographicItem:...>
+=> #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d2593068
+...
 
 x = db.fetch("ISO 19011", "2011", allparts: true)
-fetching ISO 19011...
-=> #<IsoBibItem::IsoBibliographicItem:...>
+=> #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d0ae8bf0
+...
 
-x = db.docid_type("CN(GB/T 1.1)")
+db.docid_type("CN(GB/T 1.1)")
 => ["Chinese Standard", "GB/T 1.1"]
 
 x.to_xml
-=> "<bib-item type=\"international-standard\" id=\"ISO19011\">...."
+=> "<bibitem id="ISO19011-2011">...."
 
 db.to_xml
-=> "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<documents>\n <bibitem type=\"international-standard\"...."
+=> "<?xml version\"1.0" encoding="UTF-8"?><documents><bibdata>...."
+
+x.to_xml
+=> "<bibitem id="ISO19011-2011">..."
+
+x.to_xml
+=> "<bibdata>..."
 
 db.load_entry("ISO(ISO 19011)")
-=> #<IsoBibItem::IsoBibliographicItem:...>
+=> "<bibdata>..."
 
 db.save_entry("ISO(ISO 19011)", nil)
 => nil

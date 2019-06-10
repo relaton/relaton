@@ -29,16 +29,17 @@ model.
   spec.required_ruby_version = Gem::Requirement.new(">= 2.4.0")
 
   spec.add_dependency "algoliasearch"
-  spec.add_dependency "gbbib", "~> 0.4.0"
-  spec.add_dependency "isobib", "~> 0.4.0"
-  spec.add_dependency "ietfbib", "~> 0.4.2"
-  spec.add_dependency "iecbib", "~> 0.2.0"
-  spec.add_dependency "nistbib", "~> 0.1.1"
+  spec.add_dependency "relaton-gb", "~> 0.1.0"
+  spec.add_dependency "relaton-iec", "~> 0.1.0"
+  spec.add_dependency "relaton-ietf", "~> 0.1.0"
+  spec.add_dependency "relaton-iso", "~> 0.1.0"
+  spec.add_dependency "relaton-iso-bib", "~> 0.1.0"
   spec.add_dependency "relaton-itu", "~> 0.1.0"
-  spec.add_dependency 'iso-bib-item', '~> 0.4.2'
+  spec.add_dependency "relaton-nist", "~> 0.1.0"
 
   spec.add_development_dependency "bundler", "~> 2.0.1"
   spec.add_development_dependency "byebug", "~> 10.0"
+  spec.add_development_dependency "debase"
   spec.add_development_dependency "equivalent-xml", "~> 0.6"
   spec.add_development_dependency "guard", "~> 2.14"
   spec.add_development_dependency "guard-rspec", "~> 4.7"
@@ -46,6 +47,7 @@ model.
   spec.add_development_dependency "rake", "~> 12.0"
   spec.add_development_dependency "rspec", "~> 3.6"
   spec.add_development_dependency "rubocop", "= 0.54.0"
+  spec.add_development_dependency "ruby-debug-ide"
   spec.add_development_dependency "simplecov", "~> 0.15"
   spec.add_development_dependency "timecop", "~> 0.9"
   spec.add_development_dependency "vcr"
