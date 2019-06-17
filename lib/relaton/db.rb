@@ -42,16 +42,16 @@ module Relaton
       check_bibliocache(code, year, opts, stdclass)
     end
 
-    # def fetch_std(code, year = nil, stdclass = nil, opts = {})
-    #   std = nil
-    #   @registry.processors.each do |name, processor|
-    #     std = name if processor.prefix == stdclass
-    #   end
-    #   unless std
-    #     std = standard_class(code) or return nil
-    #   end
-    #   check_bibliocache(code, year, opts, std)
-    # end
+    def fetch_std(code, year = nil, stdclass = nil, opts = {})
+      std = nil
+      @registry.processors.each do |name, processor|
+        std = name if processor.prefix == stdclass
+      end
+      unless std
+        std = standard_class(code) or return nil
+      end
+      check_bibliocache(code, year, opts, std)
+    end
 
     # def fetched(key)
     #   return @local_db.fetched key if @local_db
