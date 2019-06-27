@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    relaton (0.4.0)
+    relaton (0.4.1)
       algoliasearch
       relaton-gb (~> 0.5.0)
       relaton-iec (~> 0.3.0)
@@ -85,29 +85,28 @@ GEM
     relaton-bib (0.2.3)
       addressable
       nokogiri (~> 1.8.4)
-    relaton-gb (0.5.0)
+    relaton-gb (0.5.1)
       cnccs (~> 0.1.1)
       gb-agencies (~> 0.0.1)
       relaton-iso-bib (~> 0.2.0)
-    relaton-iec (0.3.0)
+    relaton-iec (0.3.1)
       addressable
       relaton-iso-bib (~> 0.2.0)
-    relaton-ietf (0.5.0)
+    relaton-ietf (0.5.3)
       relaton-iso-bib (~> 0.2.0)
-    relaton-iso (0.5.0)
+    relaton-iso (0.5.1)
       algoliasearch
       relaton-iec (~> 0.3.0)
       relaton-iso-bib (~> 0.2.0)
-    relaton-iso-bib (0.2.0)
+    relaton-iso-bib (0.2.3)
       isoics (~> 0.1.6)
       nokogiri (~> 1.8.4)
       relaton-bib (~> 0.2.0)
       ruby_deep_clone (~> 0.8.0)
-    relaton-itu (0.2.0)
+    relaton-itu (0.2.1)
       relaton-iso-bib (~> 0.2.0)
     relaton-nist (0.2.1)
       relaton-bib (~> 0.2.0)
-      rubyzip
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
@@ -133,7 +132,6 @@ GEM
     ruby-progressbar (1.10.1)
     ruby_deep_clone (0.8.0)
     ruby_dep (1.5.0)
-    rubyzip (1.2.3)
     safe_yaml (1.0.5)
     shellany (0.0.1)
     simplecov (0.16.1)
