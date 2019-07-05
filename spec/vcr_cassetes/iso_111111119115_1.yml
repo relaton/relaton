@@ -8,13 +8,13 @@ http_interactions:
       string: '{"params":"facetFilters=%5B%22category%3Astandard%22%5D&query=ISO+111111119115-1"}'
     headers:
       User-Agent:
-      - Algolia for Ruby (1.26.0); Ruby (2.5.1)
+      - Algolia for Ruby (1.26.0); Ruby (2.5.4)
       Accept:
       - "*/*"
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sun, 14 Apr 2019 05:26:43 GMT
+      - Fri, 05 Jul 2019 08:47:54 GMT
       X-Algolia-Api-Key:
       - dd1b9e1ab383f4d4817d29cd5e96d3f0
       X-Algolia-Application-Id:
@@ -29,15 +29,17 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Sun, 14 Apr 2019 05:26:44 GMT
+      - Fri, 05 Jul 2019 08:47:54 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Content-Length:
-      - '216'
+      - '215'
       Connection:
       - keep-alive
       X-Alg-Pt:
       - '1'
+      Accept-Encoding:
+      - deflate, gzip
       Access-Control-Allow-Origin:
       - "*"
       Timing-Allow-Origin:
@@ -51,11 +53,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"hits":[],"nbHits":0,"page":0,"nbPages":0,"hitsPerPage":20,"processingTimeMS":1,"exhaustiveNbHits":true,"query":"ISO
-        111111119115-1","params":"facetFilters=%5B%22category%3Astandard%22%5D&query=ISO+111111119115-1"}
-
-        '
+        111111119115-1","params":"facetFilters=%5B%22category%3Astandard%22%5D&query=ISO+111111119115-1"}'
     http_version: 
-  recorded_at: Sun, 14 Apr 2019 05:26:44 GMT
+  recorded_at: Fri, 05 Jul 2019 08:47:54 GMT
 - request:
     method: post
     uri: https://jcl49wv5ar-dsn.algolia.net/1/indexes/all_en/query
@@ -64,13 +64,13 @@ http_interactions:
       string: '{"params":"facetFilters=%5B%22category%3Astandard%22%5D&query=ISO%2FIEC+111111119115-1"}'
     headers:
       User-Agent:
-      - Algolia for Ruby (1.26.0); Ruby (2.5.1)
+      - Algolia for Ruby (1.26.0); Ruby (2.5.4)
       Accept:
       - "*/*"
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Sun, 14 Apr 2019 05:26:44 GMT
+      - Fri, 05 Jul 2019 08:47:54 GMT
       X-Algolia-Api-Key:
       - dd1b9e1ab383f4d4817d29cd5e96d3f0
       X-Algolia-Application-Id:
@@ -85,15 +85,17 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Sun, 14 Apr 2019 05:26:44 GMT
+      - Fri, 05 Jul 2019 08:47:54 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Content-Length:
-      - '226'
+      - '225'
       Connection:
       - keep-alive
       X-Alg-Pt:
       - '1'
+      Accept-Encoding:
+      - deflate, gzip
       Access-Control-Allow-Origin:
       - "*"
       Timing-Allow-Origin:
@@ -107,9 +109,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"hits":[],"nbHits":0,"page":0,"nbPages":0,"hitsPerPage":20,"processingTimeMS":1,"exhaustiveNbHits":true,"query":"ISO/IEC
-        111111119115-1","params":"facetFilters=%5B%22category%3Astandard%22%5D&query=ISO%2FIEC+111111119115-1"}
-
-        '
+        111111119115-1","params":"facetFilters=%5B%22category%3Astandard%22%5D&query=ISO%2FIEC+111111119115-1"}'
     http_version: 
-  recorded_at: Sun, 14 Apr 2019 05:26:45 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Fri, 05 Jul 2019 08:47:55 GMT
+recorded_with: VCR 5.0.0
