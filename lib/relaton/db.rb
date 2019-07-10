@@ -6,7 +6,9 @@ module Relaton
   class RelatonError < StandardError; end
 
   class Db
-    SUPPORTED_GEMS = %w[relaton_iso relaton_ietf relaton_gb relaton_iec relaton_nist].freeze
+    SUPPORTED_GEMS = %w[
+      relaton_iso relaton_ietf relaton_gb relaton_iec relaton_nist relaton_itu
+    ].freeze
 
     # @param global_cache [String] directory of global DB
     # @param local_cache [String] directory of local DB
