@@ -1,115 +1,45 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: https://jcl49wv5ar-dsn.algolia.net/1/indexes/all_en/query
+    method: get
+    uri: https://www.iso.org/cms/render/live/en/sites/isoorg.advancedSearch.do?docNumber=111111119115&docPartNo=1&status=ENT_ACTIVE,ENT_PROGRESS,ENT_INACTIVE,ENT_DELETED
     body:
-      encoding: UTF-8
-      string: '{"params":"facetFilters=%5B%22category%3Astandard%22%5D&query=ISO+111111119115-1"}'
+      encoding: US-ASCII
+      string: ''
     headers:
-      User-Agent:
-      - Algolia for Ruby (1.26.0); Ruby (2.5.4)
       Accept:
-      - "*/*"
+      - application/json, text/plain, */*
       Accept-Encoding:
-      - gzip,deflate
-      Date:
-      - Fri, 05 Jul 2019 08:47:54 GMT
-      X-Algolia-Api-Key:
-      - dd1b9e1ab383f4d4817d29cd5e96d3f0
-      X-Algolia-Application-Id:
-      - JCL49WV5AR
-      Content-Type:
-      - application/json; charset=utf-8
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      User-Agent:
+      - Ruby
   response:
     status:
       code: 200
       message: OK
     headers:
       Server:
-      - nginx
-      Date:
-      - Fri, 05 Jul 2019 08:47:54 GMT
-      Content-Type:
-      - application/json; charset=UTF-8
-      Content-Length:
-      - '215'
-      Connection:
-      - keep-alive
-      X-Alg-Pt:
-      - '1'
-      Accept-Encoding:
-      - deflate, gzip
-      Access-Control-Allow-Origin:
-      - "*"
-      Timing-Allow-Origin:
-      - "*"
+      - Apache-Coyote/1.1
+      Expires:
+      - Wed, 09 May 1979 05:30:00 GMT
       Cache-Control:
+      - no-cache, no-store, must-revalidate, proxy-revalidate, max-age=0
+      Pragma:
       - no-cache
-      X-Content-Type-Options:
-      - nosniff
-      Content-Disposition:
-      - inline; filename=a.txt
-    body:
-      encoding: UTF-8
-      string: '{"hits":[],"nbHits":0,"page":0,"nbPages":0,"hitsPerPage":20,"processingTimeMS":1,"exhaustiveNbHits":true,"query":"ISO
-        111111119115-1","params":"facetFilters=%5B%22category%3Astandard%22%5D&query=ISO+111111119115-1"}'
-    http_version: 
-  recorded_at: Fri, 05 Jul 2019 08:47:54 GMT
-- request:
-    method: post
-    uri: https://jcl49wv5ar-dsn.algolia.net/1/indexes/all_en/query
-    body:
-      encoding: UTF-8
-      string: '{"params":"facetFilters=%5B%22category%3Astandard%22%5D&query=ISO%2FIEC+111111119115-1"}'
-    headers:
-      User-Agent:
-      - Algolia for Ruby (1.26.0); Ruby (2.5.4)
-      Accept:
-      - "*/*"
-      Accept-Encoding:
-      - gzip,deflate
-      Date:
-      - Fri, 05 Jul 2019 08:47:54 GMT
-      X-Algolia-Api-Key:
-      - dd1b9e1ab383f4d4817d29cd5e96d3f0
-      X-Algolia-Application-Id:
-      - JCL49WV5AR
+      Set-Cookie:
+      - BIGipServerpool_prod_iso_www-jahia=386093450.36895.0000; path=/
+      - JSESSIONID=1BC082A0CFF212685FFE3B870DFBDB7A; Path=/; HttpOnly
       Content-Type:
-      - application/json; charset=utf-8
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Server:
-      - nginx
-      Date:
-      - Fri, 05 Jul 2019 08:47:54 GMT
-      Content-Type:
-      - application/json; charset=UTF-8
+      - application/json;charset=UTF-8
       Content-Length:
-      - '225'
-      Connection:
-      - keep-alive
-      X-Alg-Pt:
-      - '1'
-      Accept-Encoding:
-      - deflate, gzip
-      Access-Control-Allow-Origin:
-      - "*"
-      Timing-Allow-Origin:
-      - "*"
-      Cache-Control:
-      - no-cache
-      X-Content-Type-Options:
-      - nosniff
-      Content-Disposition:
-      - inline; filename=a.txt
+      - '16'
+      Date:
+      - Mon, 22 Jul 2019 20:21:37 GMT
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
     body:
       encoding: UTF-8
-      string: '{"hits":[],"nbHits":0,"page":0,"nbPages":0,"hitsPerPage":20,"processingTimeMS":1,"exhaustiveNbHits":true,"query":"ISO/IEC
-        111111119115-1","params":"facetFilters=%5B%22category%3Astandard%22%5D&query=ISO%2FIEC+111111119115-1"}'
+      string: '{"standards":[]}'
     http_version: 
-  recorded_at: Fri, 05 Jul 2019 08:47:55 GMT
+  recorded_at: Mon, 22 Jul 2019 20:21:38 GMT
 recorded_with: VCR 5.0.0
