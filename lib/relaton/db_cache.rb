@@ -99,11 +99,12 @@ module Relaton
     # @return [String]
     def filename(key)
       prefcode = key.downcase.match /^(?<prefix>[^\(]+)\((?<code>[^\)]+)/
-      if prefcode
-        "#{@dir}/#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[-:\s\/]/, '_')}.xml"
-      else
-        "#{@dir}/#{key.gsub(/[-:\s]/, '_')}.xml"
-      end
+      fn = if prefcode
+             "#{@dir}/#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[-:\s\/]/, '_')}"
+           else
+             "#{@dir}/#{key.gsub(/[-:\s]/, '_')}"
+           end
+      fn.sub(/_$/, "") + ".xml"
     end
 
     # Return item's subdir
