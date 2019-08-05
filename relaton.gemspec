@@ -33,7 +33,7 @@ model.
   spec.add_dependency "relaton-iec", "~> 0.4.0"
   spec.add_dependency "relaton-ietf", "~> 0.6.0"
   spec.add_dependency "relaton-iso", "~> 0.6.0"
-  spec.add_dependency "relaton-iso-bib", "~> 0.3.0"
+  # spec.add_dependency "relaton-iso-bib", "~> 0.3.0"
   spec.add_dependency "relaton-itu", "~> 0.3.0"
   spec.add_dependency "relaton-nist", "~> 0.3.0"
 

@@ -1,13 +1,12 @@
 PATH
   remote: .
   specs:
-    relaton (0.5.0)
+    relaton (0.5.1)
       algoliasearch
       relaton-gb (~> 0.6.0)
       relaton-iec (~> 0.4.0)
       relaton-ietf (~> 0.6.0)
       relaton-iso (~> 0.6.0)
-      relaton-iso-bib (~> 0.3.0)
       relaton-itu (~> 0.3.0)
       relaton-nist (~> 0.3.0)
 
@@ -16,7 +15,7 @@ GEM
   specs:
     addressable (2.6.0)
       public_suffix (>= 2.0.2, < 4.0)
-    algoliasearch (1.26.0)
+    algoliasearch (1.26.1)
       httpclient (~> 2.8, >= 2.8.3)
       json (>= 1.5.1)
     ast (2.4.0)
@@ -82,28 +81,28 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.10.0)
       ffi (~> 1.0)
-    relaton-bib (0.3.0)
+    relaton-bib (0.3.3)
       addressable
       nokogiri (~> 1.10)
-    relaton-gb (0.6.0)
+    relaton-gb (0.6.1)
       cnccs (~> 0.1.1)
       gb-agencies (~> 0.0.1)
       relaton-iso-bib (~> 0.3.0)
-    relaton-iec (0.4.0)
+    relaton-iec (0.4.2)
       addressable
       relaton-iso-bib (~> 0.3.0)
-    relaton-ietf (0.6.0)
-      relaton-iso-bib (~> 0.3.0)
-    relaton-iso (0.6.0)
+    relaton-ietf (0.6.1)
+      relaton-bib (~> 0.3.0)
+    relaton-iso (0.6.2)
       relaton-iec (~> 0.4.0)
       relaton-iso-bib (~> 0.3.0)
-    relaton-iso-bib (0.3.0)
+    relaton-iso-bib (0.3.2)
       isoics (~> 0.1.6)
       relaton-bib (~> 0.3.0)
       ruby_deep_clone (~> 0.8.0)
-    relaton-itu (0.3.0)
+    relaton-itu (0.3.1)
       relaton-iso-bib (~> 0.3.0)
-    relaton-nist (0.3.0)
+    relaton-nist (0.3.1)
       relaton-bib (~> 0.3.0)
       rubyzip
     rspec (3.8.0)
