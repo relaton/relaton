@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    relaton (0.5.1)
+    relaton (0.5.2)
       algoliasearch
       relaton-gb (~> 0.6.0)
       relaton-iec (~> 0.4.0)
@@ -60,7 +60,7 @@ GEM
     method_source (0.9.2)
     mini_portile2 (2.4.0)
     nenv (0.3.0)
-    nokogiri (1.10.3)
+    nokogiri (1.10.4)
       mini_portile2 (~> 2.4.0)
     notiffany (0.1.1)
       nenv (~> 0.1)
@@ -81,7 +81,7 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.10.0)
       ffi (~> 1.0)
-    relaton-bib (0.3.3)
+    relaton-bib (0.3.4)
       addressable
       nokogiri (~> 1.10)
     relaton-gb (0.6.1)
@@ -91,18 +91,18 @@ GEM
     relaton-iec (0.4.2)
       addressable
       relaton-iso-bib (~> 0.3.0)
-    relaton-ietf (0.6.1)
+    relaton-ietf (0.6.2)
       relaton-bib (~> 0.3.0)
-    relaton-iso (0.6.2)
+    relaton-iso (0.6.3)
       relaton-iec (~> 0.4.0)
       relaton-iso-bib (~> 0.3.0)
-    relaton-iso-bib (0.3.2)
+    relaton-iso-bib (0.3.3)
       isoics (~> 0.1.6)
       relaton-bib (~> 0.3.0)
       ruby_deep_clone (~> 0.8.0)
     relaton-itu (0.3.1)
       relaton-iso-bib (~> 0.3.0)
-    relaton-nist (0.3.1)
+    relaton-nist (0.3.2)
       relaton-bib (~> 0.3.0)
       rubyzip
     rspec (3.8.0)
