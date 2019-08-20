@@ -192,7 +192,6 @@ module Relaton
       return nil if dir.nil?
 
       db = DbCache.new dir
-      # if File.exist? dir
       if global
         unless db.check_version?
           FileUtils.rm_rf(Dir.glob(dir + "/*"), secure: true)
@@ -204,8 +203,6 @@ module Relaton
         warn "Local cache version is obsolete."
         nil
       end
-      # else db.set_version
-      # end
     end
 
     # Check if version of the DB match to the gem version.

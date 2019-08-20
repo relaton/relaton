@@ -38,6 +38,13 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "gets sn ISO/AWI reference" do
+    VCR.use_cassette "iso_awi_24229" do
+      bib = @db.fetch "ISO/AWI 24229"
+      expect(bib).not_to be_nil
+    end
+  end
+
   context "NIST references" do
     it "gets FISP" do
       VCR.use_cassette "fisp_140" do
@@ -127,12 +134,12 @@ RSpec.describe Relaton::Db do
 
   it "should clear global cache if version is changed" do
     @db.save_entry "test_key", value: "test_value"
-    expect(File.exist?("testcache")).to be_truthy
-    expect(File.exist?("testcache2")).to be_truthy
+    expect(File.exist?("testcache")).to be true
+    expect(File.exist?("testcache2")).to be true
     stub_const "Relaton::VERSION", "new_version"
     db = Relaton::Db.new "testcache", "testcache2"
     testcache = db.instance_variable_get :@db
-    expect(testcache.all.any?).to be_falsey
+    expect(testcache.all.any?).to be false
     testcache = db.instance_variable_get :@local_db
     expect(testcache).to be_nil
   end
