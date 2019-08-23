@@ -24,7 +24,6 @@ module Relaton
     def register_gems
       puts "[relaton] Info: detecting backends:"
       SUPPORTED_GEMS.each do |b|
-        # puts b
         begin
           require b
         rescue LoadError
@@ -38,12 +37,18 @@ module Relaton
     # @param code [String] the ISO standard Code to look up (e.g. "ISO 9000")
     # @param year [String] the year the standard was published (optional)
     # @param opts [Hash] options; restricted to :all_parts if all-parts reference is required
-    # @return [String] Relaton XML serialisation of reference
+    # @return [NilClass, RelatonIsoBib::IsoBibliographicItem,
+    #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
+    #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem]
     def fetch(code, year = nil, opts = {})
       stdclass = standard_class(code) or return nil
       check_bibliocache(code, year, opts, stdclass)
     end
 
+    # @param code [String]
+    # @param year [String, NilClass]
+    # @param stdclass [Symbol, NilClass]
+    # @param opts [Hash]
     def fetch_std(code, year = nil, stdclass = nil, opts = {})
       std = nil
       @registry.processors.each do |name, processor|
@@ -55,14 +60,9 @@ module Relaton
       check_bibliocache(code, year, opts, std)
     end
 
-    # def fetched(key)
-    #   return @local_db.fetched key if @local_db
-    #   return @db.fetched key if @db
-
-    #   ""
-    # end
-
     # The document identifier class corresponding to the given code
+    # @param code [String]
+    # @return [Array]
     def docid_type(code)
       stdclass = standard_class(code) or return [nil, code]
       _prefix, code = strip_id_wrapper(code, stdclass)
@@ -126,7 +126,7 @@ module Relaton
       ret = code
       ret += ":#{year}" if year
       ret += " (all parts)" if opts[:all_parts]
-      ["#{prefix}(#{ret})", code]
+      ["#{prefix}(#{ret.strip})", code]
     end
 
     # Find prefix and clean code
@@ -139,6 +139,11 @@ module Relaton
       [prefix, code]
     end
 
+    # @param entry [String] XML string
+    # @param stdclass [Symbol]
+    # @return [NilClass, RelatonIsoBib::IsoBibliographicItem,
+    #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
+    #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem]
     def bib_retval(entry, stdclass)
       entry =~ /^not_found/ ? nil : @registry.processors[stdclass].from_xml(entry)
     end
@@ -147,6 +152,9 @@ module Relaton
     # @param year [String]
     # @param opts [Hash]
     # @param stdclass [Symbol]
+    # @return [NilClass, RelatonIsoBib::IsoBibliographicItem,
+    #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
+    #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem]
     def check_bibliocache(code, year, opts, stdclass)
       id, searchcode = std_id(code, year, opts, stdclass)
       db = @local_db || @db
@@ -155,35 +163,40 @@ module Relaton
 
       db.delete(id) unless db.valid_entry?(id, year)
       if altdb
-        db[id] ||= altdb[id]
-        db[id] ||= new_bib_entry(searchcode, year, opts, stdclass)
-        altdb[id] = db[id] if !altdb.valid_entry?(id, year)
+        # db[id] ||= altdb[id]
+        db.clone_entry id, altdb
+        db[id] ||= new_bib_entry(searchcode, year, opts, stdclass, db, id)
+        altdb.clone_entry(id, db) if !altdb.valid_entry?(id, year)
       else
-        db[id] ||= new_bib_entry(searchcode, year, opts, stdclass)
+        db[id] ||= new_bib_entry(searchcode, year, opts, stdclass, db, id)
       end
       bib_retval(db[id], stdclass)
     end
 
-    # hash uses => , because the hash is imported from JSON
     # @param code [String]
     # @param year [String]
     # @param opts [Hash]
     # @param stdclass [Symbol]
-    # @return [Hash]
-    def new_bib_entry(code, year, opts, stdclass)
+    # @return [String]
+    def new_bib_entry(code, year, opts, stdclass, db = nil, id = nil)
       bib = @registry.processors[stdclass].get(code, year, opts)
-      bib = bib.to_xml(bibdata: true) if bib.respond_to? :to_xml
-      bib = "not_found #{Date.today}" if bib.nil? || bib.empty?
-      bib
+      bib_id = bib&.docidentifier&.first&.id&.sub(%r{(?<=\d)-(?=\d{4})}, ":")
+      if db && id && bib_id && id !~ %r{\(#{bib_id}\)}
+        bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
+        db[bid] ||= bib_entry bib
+        "redirection #{bid}"
+      else
+        bib_entry bib
+      end
     end
 
-    # if cached reference is undated, expire it after 60 days
-    # @param bib [Hash]
-    # @param year [String]
-    # def valid_bib_entry?(bib, year)
-    #   bib&.is_a?(Hash) && bib&.has_key?("bib") && bib&.has_key?("fetched") &&
-    #     (year || Date.today - bib["fetched"] < 60)
-    # end
+    def bib_entry(bib)
+      if bib.respond_to? :to_xml
+        bib.to_xml(bibdata: true)
+      else
+        "not_found #{Date.today}"
+      end
+    end
 
     # @param dir [String] DB directory
     # @param global [TrueClass, FalseClass]
@@ -204,39 +217,5 @@ module Relaton
         nil
       end
     end
-
-    # Check if version of the DB match to the gem version.
-    # @param cache_db [String] DB directory
-    # @return [TrueClass, FalseClass]
-    # def check_cache_version(cache_db)
-    #   cache_db.transaction { cache_db[:version] == VERSION }
-    # end
-
-    # Set version of the DB to the gem version.
-    # @param cache_db [String] DB directory
-    # @return [Pstore]
-    # def set_cache_version(cache_db)
-    #   unless File.exist? cache_db.path
-    #     cache_db.transaction { cache_db[:version] = VERSION }
-    #   end
-    #   cache_db
-    # end
-
-    # @param enstry [String] entry in XML format
-    # @return [IsoBibItem::IsoBibliographicItem]
-    # def from_xml(entry)
-    #   IsoBibItem.from_xml entry # will be unmarshaller
-    # end
-
-    # @param [Hash{String=>Hash{String=>String}}] biblio
-    # def save_cache_biblio(biblio, filename)
-    #   return if biblio.nil? || filename.nil?
-    #   File.open(filename, "w") do |b|
-    #     b << biblio.reduce({}) do |s, (k, v)|
-    #       bib = v["bib"].respond_to?(:to_xml) ? v["bib"].to_xml : v["bib"]
-    #       s.merge(k => { "fetched" => v["fetched"], "bib" => bib })
-    #     end.to_json
-    #   end
-    # end
   end
 end

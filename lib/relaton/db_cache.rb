@@ -31,10 +31,19 @@ module Relaton
     # @param key [String]
     # @return [String]
     def [](key)
-      file = filename key
-      return unless File.exist? file
+      value = get(key)
+      if (code = redirect? value)
+        self[code]
+      else
+        value
+      end
+    end
 
-      File.read(file, encoding: "utf-8")
+    def clone_entry(key, db)
+      self[key] ||= db.get(key)
+      if (code = redirect? get(key))
+        clone_entry code, db
+      end
     end
 
     # Return fetched date
@@ -92,7 +101,29 @@ module Relaton
       year || Date.today - date < 60
     end
 
+    protected
+
+    # Reads file by a key
+    #
+    # @param key [String]
+    # @return [String, NilClass]
+    def get(key)
+      file = filename key
+      return unless File.exist? file
+
+      File.read(file, encoding: "utf-8")
+    end
+
     private
+
+    # Check if a file content is redirection
+    #
+    # @prarm value [String] file content
+    # @return [String, NilClass] redirection code or nil
+    def redirect?(value)
+      %r{redirection\s(?<code>.*)} =~ value
+      code
+    end
 
     # Return item's file name
     # @param key [String]

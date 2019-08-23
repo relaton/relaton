@@ -19,7 +19,7 @@ model.
   This gem is in active development.
   DESCRIPTION
 
-  spec.homepage      = "https://github.com/metanorma/relaton"
+  spec.homepage      = "https://github.com/relato/relaton"
   spec.license       = "BSD-2-Clause"
 
   spec.bindir        = "bin"
