@@ -28,7 +28,7 @@ model.
   spec.test_files    = `git ls-files -- {spec}/*`.split("\n")
   spec.required_ruby_version = Gem::Requirement.new(">= 2.4.0")
 
-  spec.add_dependency "algoliasearch"
+  # spec.add_dependency "algoliasearch"
   spec.add_dependency "relaton-gb", "~> 0.6.0"
   spec.add_dependency "relaton-iec", "~> 0.4.0"
   spec.add_dependency "relaton-ietf", "~> 0.6.0"

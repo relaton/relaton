@@ -6,30 +6,15 @@ module Relaton
   class RelatonError < StandardError; end
 
   class Db
-    SUPPORTED_GEMS = %w[
-      relaton_iso relaton_ietf relaton_gb relaton_iec relaton_nist relaton_itu
-    ].freeze
-
     # @param global_cache [String] directory of global DB
     # @param local_cache [String] directory of local DB
     def initialize(global_cache, local_cache)
-      register_gems
       @registry = Relaton::Registry.instance
+      # @registry.register_gems
       @db = open_cache_biblio(global_cache)
       @local_db = open_cache_biblio(local_cache, global: false)
       @db_name = global_cache
       @local_db_name = local_cache
-    end
-
-    def register_gems
-      puts "[relaton] Info: detecting backends:"
-      SUPPORTED_GEMS.each do |b|
-        begin
-          require b
-        rescue LoadError
-          puts "[relaton] Error: backend #{b} not present"
-        end
-      end
     end
 
     # The class of reference requested is determined by the prefix of the code:

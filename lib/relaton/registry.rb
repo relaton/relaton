@@ -5,27 +5,64 @@ end
 
 module Relaton
   class Registry
+    SUPPORTED_GEMS = %w[
+      relaton_gb relaton_iec relaton_ietf relaton_iso relaton_itu relaton_nist
+    ].freeze
+
     include Singleton
 
     attr_reader :processors
 
     def initialize
       @processors = {}
+      register_gems
+    end
+
+    def register_gems
+      puts "[relaton] Info: detecting backends:"
+      SUPPORTED_GEMS.each do |b|
+        begin
+          require b
+          require "#{b}/processor"
+          register Kernel.const_get "#{camel_case(b)}::Processor"
+        rescue LoadError
+          puts "[relaton] Error: backend #{b} not present"
+        end
+      end
     end
 
     def register(processor)
-      raise Error unless processor < :: Relaton::Processor
+      raise Error unless processor < ::Relaton::Processor
+
       p = processor.new
+      return if processors[p.short]
+
       puts "[relaton] processor \"#{p.short}\" registered"
-      @processors[p.short] = p
+      processors[p.short] = p
     end
 
     def find_processor(short)
-      @processors[short.to_sym]
+      processors[short.to_sym]
     end
 
+    # @return [Array]
     def supported_processors
-      @processors.keys
+      processors.keys
+    end
+
+    #
+    # Find processor by type
+    #
+    # @param type [String]
+    # @return [Relaton::RelatonIso::Processor]
+    def by_type(type)
+      processors.detect { |_k, v| v.idtype == type }
+    end
+
+    private
+
+    def camel_case(gem_name)
+      gem_name.split("_").map(&:capitalize).join
     end
   end
 end
