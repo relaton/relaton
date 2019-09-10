@@ -35,6 +35,7 @@ model.
   spec.add_dependency "relaton-iso", "~> 0.6.0"
   spec.add_dependency "relaton-itu", "~> 0.3.0"
   spec.add_dependency "relaton-nist", "~> 0.3.0"
+  spec.add_dependency "relaton-ogc", "~> 0.1.0"
 
   spec.add_development_dependency "bundler", "~> 2.0.1"
   spec.add_development_dependency "byebug", "~> 10.0"

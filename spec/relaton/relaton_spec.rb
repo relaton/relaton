@@ -132,6 +132,13 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "get OGC refrence and cache it" do
+    VCR.use_cassette "ogc_19_025r1" do
+      bib = @db.fetch "OGC 19-025r1", nil, {}
+      expect(bib).to be_instance_of RelatonOgc::OgcBibliographicItem
+    end
+  end
+
   it "should clear global cache if version is changed" do
     @db.save_entry "test_key", value: "test_value"
     expect(File.exist?("testcache")).to be true

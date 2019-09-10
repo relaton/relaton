@@ -7,6 +7,7 @@ module Relaton
   class Registry
     SUPPORTED_GEMS = %w[
       relaton_gb relaton_iec relaton_ietf relaton_iso relaton_itu relaton_nist
+      relaton_ogc
     ].freeze
 
     include Singleton

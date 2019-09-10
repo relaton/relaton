@@ -1,0 +1,56 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/opengeospatial/NamingAuthority/master/incubation/bibliography/bibliography.json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      If-None-Match:
+      - '"71818c439e4326ccb4b24a797aaf5ba2f6fcb949"'
+      User-Agent:
+      - Faraday v0.15.4
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 304
+      message: Not Modified
+    headers:
+      Date:
+      - Tue, 10 Sep 2019 09:48:01 GMT
+      Via:
+      - 1.1 varnish
+      Cache-Control:
+      - max-age=300
+      Etag:
+      - '"71818c439e4326ccb4b24a797aaf5ba2f6fcb949"'
+      Connection:
+      - keep-alive
+      X-Served-By:
+      - cache-fra19170-FRA
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1568108882.919399,VS0,VE226
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Fastly-Request-Id:
+      - cfc22c5ba8672564e31cc90a91622a1e6c259e2b
+      Expires:
+      - Tue, 10 Sep 2019 09:53:02 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 09:48:02 GMT
+recorded_with: VCR 5.0.0
