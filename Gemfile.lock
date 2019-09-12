@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    relaton (0.5.3)
+    relaton (0.5.4)
       relaton-gb (~> 0.6.0)
       relaton-iec (~> 0.4.0)
       relaton-ietf (~> 0.6.0)
@@ -13,8 +13,8 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.6.0)
-      public_suffix (>= 2.0.2, < 4.0)
+    addressable (2.7.0)
+      public_suffix (>= 2.0.2, < 5.0)
     ast (2.4.0)
     byebug (10.0.2)
     cnccs (0.1.3)
@@ -74,34 +74,34 @@ GEM
     pry-byebug (3.6.0)
       byebug (~> 10.0)
       pry (~> 0.10)
-    public_suffix (3.1.1)
+    public_suffix (4.0.1)
     rainbow (3.0.0)
     rake (12.3.2)
     rb-fsevent (0.10.3)
     rb-inotify (0.10.0)
       ffi (~> 1.0)
-    relaton-bib (0.3.5)
+    relaton-bib (0.3.6)
       addressable
       nokogiri
-    relaton-gb (0.6.2)
+    relaton-gb (0.6.3)
       cnccs (~> 0.1.1)
       gb-agencies (~> 0.0.1)
       relaton-iso-bib (~> 0.3.0)
-    relaton-iec (0.4.3)
+    relaton-iec (0.4.4)
       addressable
       relaton-iso-bib (~> 0.3.0)
-    relaton-ietf (0.6.3)
+    relaton-ietf (0.6.4)
       relaton-bib (~> 0.3.0)
-    relaton-iso (0.6.4)
+    relaton-iso (0.6.5)
       relaton-iec (~> 0.4.0)
       relaton-iso-bib (~> 0.3.0)
-    relaton-iso-bib (0.3.4)
+    relaton-iso-bib (0.3.5)
       isoics (~> 0.1.6)
       relaton-bib (~> 0.3.0)
       ruby_deep_clone (~> 0.8.0)
-    relaton-itu (0.3.2)
+    relaton-itu (0.3.3)
       relaton-iso-bib (~> 0.3.0)
-    relaton-nist (0.3.3)
+    relaton-nist (0.3.4)
       relaton-bib (~> 0.3.0)
       rubyzip
     relaton-ogc (0.1.0)
