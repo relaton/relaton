@@ -1,0 +1,107 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://www.iso.org/cms/render/live/en/sites/isoorg.advancedSearch.do?docNumber=1&status=ENT_ACTIVE,ENT_PROGRESS,ENT_INACTIVE,ENT_DELETED
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json, text/plain, */*
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - Apache-Coyote/1.1
+      Expires:
+      - Wed, 09 May 1979 05:30:00 GMT
+      Cache-Control:
+      - no-cache, no-store, must-revalidate, proxy-revalidate, max-age=0
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - BIGipServerpool_prod_iso_www-jahia=386093450.36895.0000; path=/
+      - JSESSIONID=B54D5B6474C3CEA5F40A1DE56DB6494B; Path=/; HttpOnly
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Date:
+      - Wed, 18 Sep 2019 07:50:57 GMT
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+    body:
+      encoding: UTF-8
+      string: '{"standards":[{"priceGroup":"A","publicationStatus":"Published","prodsAvailable":true,"docNumber":1,"langCode":"EN","docEdition":3,"newProjectDate":"2014-10-06
+        00:00:00.0","splitPath":"/06/76","docElem":"0","title":"Geometrical product
+        specifications (GPS) \u2014 Standard reference temperature for the specification
+        of geometrical and dimensional properties","stageStart":"2016-08-26","pages":4,"docRef":"ISO
+        1:2016","ics":[{"label":"17.040.01","text":"Linear and angular measurements
+        in general"}],"publicationStatus_key":"ENT_ACTIVE","docPartNo":10,"pubLangs":"en,fr","publicationDate":"2016-09","sdg_count":0,"stageId":"60.60","csnumber":67630,"committee":{"sector_key":"INFORMATION_PROCESSING_GRAPHICS","level":"Main
+        committee","splitPath":"/05/49","level_key":"MAIN_COMMITTEE","title":"Dimensional
+        and geometrical product specifications and verification","reference":"ISO/TC
+        213","sortKey":"ISO/TC 213","field_key":"TECHNICAL","field":"Technical","id":54924,"sector":"Information
+        technology, graphics and photography","status_key":"ENT_ACTIVE","status":"Active"},"docType":10,"revises":[{"csnumber":28086,"publicationStatus":"Withdrawn","docRef":"ISO
+        1:2002","splitPath":"/02/80","publicationStatus_key":"ENT_INACTIVE","stageId":"95.99"}],"urn":"iso:std:67630:en","docElemSeq":0,"revises_count":1,"stages":[{"stageStart":"2014-10-06","stageId":"10.99"},{"stageStart":"2014-10-31","stageId":"30.99"},{"stageStart":"2014-11-06","stageId":"40.00"},{"stageStart":"2015-01-29","stageId":"40.20"},{"stageStart":"2015-05-01","stageId":"40.60"},{"stageStart":"2015-11-03","stageId":"40.99"},{"stageStart":"2016-02-25","stageId":"50.00"},{"stageStart":"2016-05-05","stageId":"50.20"},{"stageStart":"2016-07-07","stageId":"50.60"},{"stageStart":"2016-07-11","stageId":"60.00"},{"stageStart":"2016-08-26","stageId":"60.60"},{"stageId":"90.20"}],"docPart":"","associatedCommittees_count":0,"supplements_count":0,"revisedBy_count":0,"ics_count":1},{"priceGroup":"B","publicationStatus":"Withdrawn","prodsAvailable":false,"revisedBy":[{"csnumber":41768,"publicationStatus":"Withdrawn","docRef":"IWA
+        1:2005","splitPath":"/04/17","publicationStatus_key":"ENT_INACTIVE","stageId":"95.99"}],"docNumber":1,"langCode":"EN","docEdition":1,"newProjectDate":"2001-08-29
+        00:00:00.0","splitPath":"/03/62","docElem":"0","title":"Quality management
+        systems \u2014 Guidelines for process improvements in health service organizations","stageStart":"2005-10-03","pages":68,"docRef":"IWA
+        1:2001","ics":[{"label":"11.020","text":"Medical sciences and health care
+        facilities in general"},{"label":"03.120.10","text":"Quality management and
+        quality assurance"}],"publicationStatus_key":"ENT_INACTIVE","docPartNo":10,"pubLangs":"en","publicationDate":"2001-10","sdg_count":0,"stageId":"95.99","csnumber":36207,"committee":{"reference":"ISO/TMBG","sortKey":"ISO/TMBG","field_key":"POLICY","field":"Policy
+        development","level":"Main committee","splitPath":"/05/49","level_key":"MAIN_COMMITTEE","id":54996,"title":"Technical
+        Management Board - groups","status_key":"ENT_ACTIVE","status":"Active"},"docType":32,"urn":"iso:std:36207:en","docElemSeq":0,"revises_count":0,"stages":[{"stageStart":"2001-08-29","stageId":"60.00"},{"stageStart":"2001-09-20","stageId":"60.60"},{"stageStart":"2004-11-25","stageId":"90.92"},{"stageStart":"2005-10-03","stageId":"95.99"}],"docPart":"","associatedCommittees_count":0,"supplements_count":0,"revisedBy_count":1,"ics_count":2},{"priceGroup":"A","publicationStatus":"Withdrawn","prodsAvailable":false,"revisedBy":[{"csnumber":67630,"publicationStatus":"Published","docRef":"ISO
+        1:2016","splitPath":"/06/76","publicationStatus_key":"ENT_ACTIVE","stageId":"60.60"}],"docNumber":1,"langCode":"EN","docEdition":2,"newProjectDate":"1997-10-02
+        00:00:00.0","splitPath":"/02/80","docElem":"0","title":"Geometrical Product
+        Specifications (GPS) \u2014 Standard reference temperature for geometrical
+        product specification and verification","stageStart":"2016-08-26","pages":3,"docRef":"ISO
+        1:2002","ics":[{"label":"17.040.01","text":"Linear and angular measurements
+        in general"}],"publicationStatus_key":"ENT_INACTIVE","docPartNo":10,"pubLangs":"en,fr","publicationDate":"2002-07","sdg_count":0,"stageId":"95.99","csnumber":28086,"committee":{"sector_key":"INFORMATION_PROCESSING_GRAPHICS","level":"Main
+        committee","splitPath":"/05/49","level_key":"MAIN_COMMITTEE","title":"Dimensional
+        and geometrical product specifications and verification","reference":"ISO/TC
+        213","sortKey":"ISO/TC 213","field_key":"TECHNICAL","field":"Technical","id":54924,"sector":"Information
+        technology, graphics and photography","status_key":"ENT_ACTIVE","status":"Active"},"docType":10,"revises":[{"csnumber":3561,"publicationStatus":"Withdrawn","docRef":"ISO
+        1:1975","splitPath":"/00/35","publicationStatus_key":"ENT_INACTIVE","stageId":"95.99"}],"urn":"iso:std:28086:en","docElemSeq":0,"revises_count":1,"stages":[{"stageStart":"1997-10-02","stageId":"10.99"},{"stageStart":"1997-10-20","stageId":"20.00"},{"stageStart":"1998-12-15","stageId":"20.20"},{"stageStart":"1999-01-15","stageId":"20.99"},{"stageStart":"1999-06-30","stageId":"30.00"},{"stageStart":"1999-06-30","stageId":"30.20"},{"stageStart":"1999-09-30","stageId":"30.99"},{"stageStart":"2001-01-30","stageId":"40.00"},{"stageStart":"2001-02-08","stageId":"40.20"},{"stageStart":"2001-07-31","stageId":"40.60"},{"stageStart":"2001-11-16","stageId":"40.99"},{"stageStart":"2001-12-06","stageId":"50.00"},{"stageStart":"2002-02-18","stageId":"50.20"},{"stageStart":"2002-05-30","stageId":"50.60"},{"stageStart":"2002-05-31","stageId":"60.00"},{"stageStart":"2002-07-25","stageId":"60.60"},{"stageStart":"2013-01-15","stageId":"90.20"},{"stageStart":"2007-07-17","stageId":"90.20"},{"stageStart":"2013-06-19","stageId":"90.60"},{"stageStart":"2007-12-18","stageId":"90.60"},{"stageStart":"2014-10-06","stageId":"90.92"},{"stageStart":"2008-01-23","stageId":"90.93"},{"stageStart":"2013-06-19","stageId":"90.93"},{"stageStart":"2016-08-26","stageId":"95.99"}],"docPart":"","associatedCommittees_count":0,"supplements_count":0,"revisedBy_count":1,"ics_count":1},{"priceGroup":"F","publicationStatus":"Withdrawn","prodsAvailable":false,"docNumber":1,"langCode":"EN","docEdition":1,"newProjectDate":"1993-10-12
+        00:00:00.0","splitPath":"/02/30","docElem":"0","title":"Advanced technical
+        ceramics \u2014 Unified classification system","stageStart":"2017-07-12","docRef":"ISO/TTA
+        1:1994","ics":[{"label":"81.060.01","text":"Ceramics in general"}],"publicationStatus_key":"ENT_INACTIVE","docPartNo":10,"publicationDate":"1994-04","sdg_count":0,"stageId":"95.99","csnumber":23062,"committee":{"sector_key":"NON_METALLIC_MATERIALS","level":"Main
+        committee","splitPath":"/05/47","level_key":"MAIN_COMMITTEE","title":"Fine
+        ceramics","reference":"ISO/TC 206","sortKey":"ISO/TC 206","field_key":"TECHNICAL","field":"Technical","id":54756,"sector":"Non-metallic
+        materials","status_key":"ENT_ACTIVE","status":"Active"},"associatedCommittees":[{"reference":"VAMAS","sortKey":"VAMAS","field_key":"EXTERNAL","field":"External","level":"Main
+        committee","splitPath":"/04/54","level_key":"MAIN_COMMITTEE","id":45430,"status_key":"ENT_ACTIVE","status":"Active"}],"docType":30,"urn":"iso:std:23062:en","docElemSeq":0,"revises_count":0,"stages":[{"stageStart":"1993-10-12","stageId":"50.00"},{"stageStart":"1994-02-18","stageId":"50.20"},{"stageStart":"1994-02-18","stageId":"50.60"},{"stageStart":"1994-04-21","stageId":"60.60"},{"stageStart":"2017-07-12","stageId":"95.99"}],"docPart":"","associatedCommittees_count":1,"supplements_count":0,"revisedBy_count":0,"ics_count":1},{"priceGroup":"B","publicationStatus":"Withdrawn","prodsAvailable":false,"docNumber":1,"langCode":"EN","docEdition":1,"newProjectDate":"1977-04-01
+        00:00:00.0","splitPath":"/00/35","docElem":"0","title":"Title missing","stageStart":"1980-11-01","docRef":"ISO/DATA
+        1:1978","ics":[{"label":"77.140.01","text":"Iron and steel products in general"}],"publicationStatus_key":"ENT_INACTIVE","docPartNo":0,"pubLangs":"en","publicationDate":"1978-11","sdg_count":0,"stageId":"95.99","csnumber":3562,"committee":{"sector_key":"ORES_AND_METALS","level":"Main
+        committee","splitPath":"/04/62","level_key":"MAIN_COMMITTEE","title":"Steel","reference":"ISO/TC
+        17","sortKey":"ISO/TC 017","field_key":"TECHNICAL","field":"Technical","id":46232,"sector":"Ores
+        and metals","status_key":"ENT_ACTIVE","status":"Active"},"docType":2,"avCode":"1","multiLangCode":"10","urn":"iso:std:3562:en","docElemSeq":1,"revises_count":0,"multiLangText":"Monolingual","stages":[{"stageStart":"1977-04-01","stageId":"30.00"},{"stageStart":"1977-04-01","stageId":"50.00"},{"stageStart":"1978-08-01","stageId":"50.20"},{"stageStart":"1978-08-01","stageId":"50.60"},{"stageStart":"1978-11-01","stageId":"60.60"},{"stageStart":"1980-11-01","stageId":"95.99"}],"docPart":"","associatedCommittees_count":0,"family":"2-1","supplements_count":0,"revisedBy_count":0,"ics_count":1},{"priceGroup":"B","publicationStatus":"Withdrawn","prodsAvailable":false,"revisedBy":[{"csnumber":28086,"publicationStatus":"Withdrawn","docRef":"ISO
+        1:2002","splitPath":"/02/80","publicationStatus_key":"ENT_INACTIVE","stageId":"95.99"}],"docNumber":1,"langCode":"EN","docEdition":1,"newProjectDate":"1975-04-01
+        00:00:00.0","splitPath":"/00/35","docElem":"0","title":"Standard reference
+        temperature for industrial length measurements","stageStart":"2002-07-25","docRef":"ISO
+        1:1975","ics":[{"label":"17.040.10","text":"Limits and fits"}],"publicationStatus_key":"ENT_INACTIVE","docPartNo":0,"pubLangs":"en,fr","publicationDate":"1975-04","sdg_count":0,"stageId":"95.99","csnumber":3561,"committee":{"sector_key":"INFORMATION_PROCESSING_GRAPHICS","level":"Main
+        committee","splitPath":"/05/49","level_key":"MAIN_COMMITTEE","title":"Dimensional
+        and geometrical product specifications and verification","reference":"ISO/TC
+        213","sortKey":"ISO/TC 213","field_key":"TECHNICAL","field":"Technical","id":54924,"sector":"Information
+        technology, graphics and photography","status_key":"ENT_ACTIVE","status":"Active"},"docType":10,"avCode":"1","multiLangCode":"10","urn":"iso:std:3561:en","docElemSeq":0,"revises_count":0,"multiLangText":"Monolingual","stages":[{"stageStart":"1975-04-01","stageId":"60.60"},{"stageStart":"1990-07-01","stageId":"90.93"},{"stageStart":"1994-11-30","stageId":"90.20"},{"stageStart":"1995-04-19","stageId":"90.60"},{"stageStart":"1995-04-19","stageId":"90.92"},{"stageStart":"2002-07-25","stageId":"95.99"}],"docPart":"","associatedCommittees_count":0,"family":"10-1","supplements_count":0,"revisedBy_count":1,"ics_count":1},{"priceGroup":"B","publicationStatus":"Withdrawn","prodsAvailable":false,"docNumber":1,"langCode":"EN","docEdition":1,"newProjectDate":"1972-09-01
+        00:00:00.0","splitPath":"/01/97","docElem":"0","title":"Presentation of International
+        Standards and technical reports","stageStart":"1979-09-01","docRef":"ISO Guide
+        1:1972","ics":[{"label":"01.120","text":"Standardization. General rules"}],"publicationStatus_key":"ENT_INACTIVE","docPartNo":10,"publicationDate":"1972-09","sdg_count":0,"stageId":"95.99","csnumber":19712,"committee":{"reference":"ISO/TMBG","sortKey":"ISO/TMBG","field_key":"POLICY","field":"Policy
+        development","level":"Main committee","splitPath":"/05/49","level_key":"MAIN_COMMITTEE","id":54996,"title":"Technical
+        Management Board - groups","status_key":"ENT_ACTIVE","status":"Active"},"docType":52,"urn":"iso:std:19712:en","docElemSeq":0,"revises_count":0,"stages":[{"stageStart":"1972-09-01","stageId":"60.60"},{"stageStart":"1979-09-01","stageId":"95.99"}],"docPart":"","associatedCommittees_count":0,"supplements_count":0,"revisedBy_count":0,"ics_count":1},{"priceGroup":"D","publicationStatus":"Withdrawn","prodsAvailable":false,"docNumber":1,"langCode":"EN","docEdition":2,"newProjectDate":"2004-11-25
+        00:00:00.0","splitPath":"/04/17","docElem":"0","title":"Quality management
+        systems -- Guidelines for process improvements in health service organizations","stageStart":"2014-01-27","docRef":"IWA
+        1:2005","ics":[{"label":"11.020","text":"Medical sciences and health care
+        facilities in general"},{"label":"03.120.10","text":"Quality management and
+        quality assurance"}],"publicationStatus_key":"ENT_INACTIVE","docPartNo":0,"pubLangs":"en","publicationDate":"2005-10","sdg_count":0,"stageId":"95.99","csnumber":41768,"committee":{"reference":"ISO/TMBG","sortKey":"ISO/TMBG","field_key":"POLICY","field":"Policy
+        development","level":"Main committee","splitPath":"/05/49","level_key":"MAIN_COMMITTEE","id":54996,"title":"Technical
+        Management Board - groups","status_key":"ENT_ACTIVE","status":"Active"},"docType":32,"avCode":"1","revises":[{"csnumber":36207,"publicationStatus":"Withdrawn","docRef":"IWA
+        1:2001","splitPath":"/03/62","publicationStatus_key":"ENT_INACTIVE","stageId":"95.99"}],"multiLangCode":"10","urn":"iso:std:41768:en","docElemSeq":0,"revises_count":1,"multiLangText":"Monolingual","stages":[{"stageStart":"2004-11-25","stageId":"10.99"},{"stageStart":"2005-03-03","stageId":"60.00"},{"stageStart":"2005-10-03","stageId":"60.60"},{"stageStart":"2014-01-27","stageId":"95.99"}],"docPart":"","associatedCommittees_count":0,"family":"32-1","supplements_count":0,"revisedBy_count":0,"ics_count":2}]}'
+    http_version: 
+  recorded_at: Wed, 18 Sep 2019 07:50:58 GMT
+recorded_with: VCR 5.0.0

@@ -1,6 +1,3 @@
-require "spec_helper"
-require "fileutils"
-
 RSpec.describe Relaton::Db do
   # let!(:db) { Relaton::Db.new("testcache", "testcache2") }
 
