@@ -1,4 +1,4 @@
-# require "pstore"
+require "yaml"
 require_relative "registry"
 require_relative "db_cache"
 
@@ -11,10 +11,12 @@ module Relaton
     def initialize(global_cache, local_cache)
       @registry = Relaton::Registry.instance
       # @registry.register_gems
-      @db = open_cache_biblio(global_cache)
-      @local_db = open_cache_biblio(local_cache, global: false)
+      @db = open_cache_biblio(global_cache, type: :global)
+      @local_db = open_cache_biblio(local_cache, type: :local)
       @db_name = global_cache
       @local_db_name = local_cache
+      static_db_name = File.expand_path "../relaton/static_cache", __dir__
+      @static_db = open_cache_biblio static_db_name
     end
 
     # The class of reference requested is determined by the prefix of the code:
@@ -26,7 +28,7 @@ module Relaton
     #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
     #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem]
     def fetch(code, year = nil, opts = {})
-      stdclass = standard_class(code) or return nil
+      stdclass = standard_class(code) || return
       check_bibliocache(code, year, opts, stdclass)
     end
 
@@ -96,7 +98,6 @@ module Relaton
         m << v.prefix
       end
       warn "#{code} does not have a recognised prefix: #{allowed.join(', ')}"
-      nil
     end
 
     # TODO: i18n
@@ -105,7 +106,7 @@ module Relaton
     # @param year [String]
     # @param opts [Hash]
     # @param stdClass [Symbol]
-    # @return [Array]
+    # @return [Array<String>] docid and code
     def std_id(code, year, opts, stdclass)
       prefix, code = strip_id_wrapper(code, stdclass)
       ret = code
@@ -126,10 +127,11 @@ module Relaton
 
     # @param entry [String] XML string
     # @param stdclass [Symbol]
+    # @param id [String] docid
     # @return [NilClass, RelatonIsoBib::IsoBibliographicItem,
     #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
     #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem]
-    def bib_retval(entry, stdclass)
+    def bib_retval(entry, stdclass, id)
       entry =~ /^not_found/ ? nil : @registry.processors[stdclass].from_xml(entry)
     end
 
@@ -142,39 +144,51 @@ module Relaton
     #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem]
     def check_bibliocache(code, year, opts, stdclass)
       id, searchcode = std_id(code, year, opts, stdclass)
+      yaml = @static_db[id]
+      return @registry.processors[stdclass].hash_to_bib YAML.safe_load(yaml) if yaml
+        
       db = @local_db || @db
       altdb = @local_db && @db ? @db : nil
-      return bib_retval(new_bib_entry(searchcode, year, opts, stdclass), stdclass) if db.nil?
+      bibentry = new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
+      return bib_retval(bibentry, stdclass, id) if db.nil?
 
       db.delete(id) unless db.valid_entry?(id, year)
       if altdb
         # db[id] ||= altdb[id]
         db.clone_entry id, altdb
-        db[id] ||= new_bib_entry(searchcode, year, opts, stdclass, db, id)
+        db[id] ||= bibentry
         altdb.clone_entry(id, db) if !altdb.valid_entry?(id, year)
       else
-        db[id] ||= new_bib_entry(searchcode, year, opts, stdclass, db, id)
+        db[id] ||= bibentry
       end
-      bib_retval(db[id], stdclass)
+      bib_retval(db[id], stdclass, id)
     end
 
     # @param code [String]
     # @param year [String]
     # @param opts [Hash]
     # @param stdclass [Symbol]
+    # @param db [Relaton::DbCache,`NilClass]
+    # @param id [String] docid
     # @return [String]
-    def new_bib_entry(code, year, opts, stdclass, db = nil, id = nil)
+    def new_bib_entry(code, year, opts, stdclass, **args)
       bib = @registry.processors[stdclass].get(code, year, opts)
       bib_id = bib&.docidentifier&.first&.id&.sub(%r{(?<=\d)-(?=\d{4})}, ":")
-      if db && id && bib_id && id !~ %r{\(#{bib_id}\)}
+
+      # when docid doesn't match bib's id then return a reference to bib's id
+      if args[:db] && args[:id] && bib_id && args[:id] !~ %r{\(#{bib_id}\)}
         bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
-        db[bid] ||= bib_entry bib
+        args[:db][bid] ||= bib_entry bib
         "redirection #{bid}"
       else
         bib_entry bib
       end
     end
 
+    # @param bib [RelatonGb::GbBibliongraphicItem, RelatonIsoBib::IsoBibliographicItem,
+    #   RelatonIetf::IetfBibliographicItem, RelatonItu::ItuBibliographicItem,
+    #   RelatonNist::NistBibliongraphicItem, RelatonOgc::OgcBibliographicItem]
+    # @return [String] XML or "not_found mm-dd-yyyy"
     def bib_entry(bib)
       if bib.respond_to? :to_xml
         bib.to_xml(bibdata: true)
@@ -184,22 +198,21 @@ module Relaton
     end
 
     # @param dir [String] DB directory
-    # @param global [TrueClass, FalseClass]
-    # @return [PStore]
-    def open_cache_biblio(dir, global: true)
+    # @param type [Symbol]
+    # @return [Relaton::DbCache, NilClass]
+    def open_cache_biblio(dir, type: :static)
       return nil if dir.nil?
 
-      db = DbCache.new dir
-      if global
-        unless db.check_version?
-          FileUtils.rm_rf(Dir.glob(dir + "/*"), secure: true)
-          warn "Global cache version is obsolete and cleared."
-        end
+      db = DbCache.new dir, type == :static ? "yml" : "xml"
+      return db if db.check_version?
+
+      case type
+      when :global
+        FileUtils.rm_rf(Dir.glob(dir + "/*"), secure: true)
+        warn "Global cache version is obsolete and cleared."
         db.set_version
-      elsif db.check_version? then db
-      else
-        warn "Local cache version is obsolete."
-        nil
+      when :static then warn "Static cache version is obsolete."
+      else warn "Local cache version is obsolete."
       end
     end
   end

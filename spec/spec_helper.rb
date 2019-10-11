@@ -12,6 +12,7 @@ SimpleCov.start do
   add_filter "/spec/"
 end
 
+require "fileutils"
 require "bundler/setup"
 require "relaton"
 require "rspec/matchers"

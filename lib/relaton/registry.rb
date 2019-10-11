@@ -46,7 +46,7 @@ module Relaton
       processors[short.to_sym]
     end
 
-    # @return [Array]
+    # @return [Array<Symbol>]
     def supported_processors
       processors.keys
     end

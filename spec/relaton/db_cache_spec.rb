@@ -1,6 +1,3 @@
-require "spec_helper"
-require "fileutils"
-
 RSpec.describe Relaton::DbCache do
   it "creates default caches" do
     FileUtils.mv File.expand_path("~/.relaton"), "relaton1", force: true

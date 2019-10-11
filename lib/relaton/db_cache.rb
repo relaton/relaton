@@ -6,8 +6,9 @@ module Relaton
     attr_reader :dir
 
     # @param dir [String] DB directory
-    def initialize(dir)
+    def initialize(dir, ext = "xml")
       @dir = dir
+      @ext = ext
       FileUtils::mkdir_p @dir
       file_version = "#{@dir}/version"
       set_version unless File.exist? file_version
@@ -80,7 +81,7 @@ module Relaton
     # @return [TrueClass, FalseClass]
     def check_version?
       v = File.read @dir + "/version", encoding: "utf-8"
-      v == VERSION
+      v.strip == VERSION
     end
 
     # Set version of the DB to the gem version.
@@ -131,11 +132,11 @@ module Relaton
     def filename(key)
       prefcode = key.downcase.match /^(?<prefix>[^\(]+)\((?<code>[^\)]+)/
       fn = if prefcode
-             "#{@dir}/#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[-:\s\/]/, '_')}"
+             "#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[-:\s\/]/, '_')}"
            else
-             "#{@dir}/#{key.gsub(/[-:\s]/, '_')}"
+             key.gsub(/[-:\s]/, "_")
            end
-      fn.sub(/_$/, "") + ".xml"
+      "#{@dir}/#{fn.sub(/(,|_$)/, '')}.#{@ext}"
     end
 
     # Return item's subdir

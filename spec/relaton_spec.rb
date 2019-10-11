@@ -1,6 +1,3 @@
-require "spec_helper"
-require "fileutils"
-
 RSpec.describe Relaton::Db do
   # let!(:db) { Relaton::Db.new("testcache", "testcache2") }
 
@@ -32,7 +29,7 @@ RSpec.describe Relaton::Db do
     VCR.use_cassette "19133_2005" do
       bib = @db.fetch("ISO 19133:2005")
       expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.to_xml).to include "<bibitem id=\"ISO19133-2005\" type=\"standard\">"
+      expect(bib.to_xml).to include '<bibitem id="ISO19133-2005" type="international-standard">'
       testcache = Relaton::DbCache.new "testcache"
       expect(testcache.valid_entry?("ISO(ISO 19133:2005)", "2019")).to eq Date.today.year.to_s
     end
@@ -149,30 +146,5 @@ RSpec.describe Relaton::Db do
     expect(testcache.all.any?).to be false
     testcache = db.instance_variable_get :@local_db
     expect(testcache).to be_nil
-  end
-
-  private
-
-  # @param count [Integer] number of stubbing
-  def stub_bib(bib_type, count = 1)
-    expect(bib_type).to receive(:get).and_wrap_original do |m, *args|
-      get_resp m, *args
-    end.exactly(count).times
-  end
-
-  def get_resp(method, *args)
-    expect_args args
-    file = "spec/support/" + args[0].downcase.gsub(/[\/\s-]/, "_")
-    file += "_#{args[1]}" if args[1]
-    file += ".xml"
-    File.write file, method.call(*args)&.to_xml, encoding: "utf-8" unless File.exist? file
-    File.read file, encoding: "utf-8"
-  end
-
-  def expect_args(args)
-    expect(args.size).to eq 3
-    expect(args[0]).to be_instance_of String
-    expect(args[1]).to be_instance_of(NilClass).or be_instance_of String
-    expect(args[2]).to be_instance_of Hash
   end
 end
