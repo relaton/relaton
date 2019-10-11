@@ -29,7 +29,7 @@ RSpec.describe Relaton::Db do
     VCR.use_cassette "19133_2005" do
       bib = @db.fetch("ISO 19133:2005")
       expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.to_xml).to include "<bibitem id=\"ISO19133-2005\" type=\"standard\">"
+      expect(bib.to_xml).to include '<bibitem id="ISO19133-2005" type="international-standard">'
       testcache = Relaton::DbCache.new "testcache"
       expect(testcache.valid_entry?("ISO(ISO 19133:2005)", "2019")).to eq Date.today.year.to_s
     end

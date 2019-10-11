@@ -81,7 +81,7 @@ module Relaton
     # @return [TrueClass, FalseClass]
     def check_version?
       v = File.read @dir + "/version", encoding: "utf-8"
-      v == VERSION
+      v.strip == VERSION
     end
 
     # Set version of the DB to the gem version.
