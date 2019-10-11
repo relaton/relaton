@@ -147,29 +147,4 @@ RSpec.describe Relaton::Db do
     testcache = db.instance_variable_get :@local_db
     expect(testcache).to be_nil
   end
-
-  private
-
-  # @param count [Integer] number of stubbing
-  def stub_bib(bib_type, count = 1)
-    expect(bib_type).to receive(:get).and_wrap_original do |m, *args|
-      get_resp m, *args
-    end.exactly(count).times
-  end
-
-  def get_resp(method, *args)
-    expect_args args
-    file = "spec/support/" + args[0].downcase.gsub(/[\/\s-]/, "_")
-    file += "_#{args[1]}" if args[1]
-    file += ".xml"
-    File.write file, method.call(*args)&.to_xml, encoding: "utf-8" unless File.exist? file
-    File.read file, encoding: "utf-8"
-  end
-
-  def expect_args(args)
-    expect(args.size).to eq 3
-    expect(args[0]).to be_instance_of String
-    expect(args[1]).to be_instance_of(NilClass).or be_instance_of String
-    expect(args[2]).to be_instance_of Hash
-  end
 end

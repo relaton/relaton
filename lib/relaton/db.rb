@@ -132,14 +132,7 @@ module Relaton
     #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
     #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem]
     def bib_retval(entry, stdclass, id)
-      if entry =~ /^not_found/
-        yaml = @static_db[id]
-        return unless yaml
-
-        @registry.processors[stdclass].hash_to_bib YAML.safe_load(yaml)
-      else
-        @registry.processors[stdclass].from_xml(entry)
-      end
+      entry =~ /^not_found/ ? nil : @registry.processors[stdclass].from_xml(entry)
     end
 
     # @param code [String]
@@ -151,6 +144,9 @@ module Relaton
     #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem]
     def check_bibliocache(code, year, opts, stdclass)
       id, searchcode = std_id(code, year, opts, stdclass)
+      yaml = @static_db[id]
+      return @registry.processors[stdclass].hash_to_bib YAML.safe_load(yaml) if yaml
+        
       db = @local_db || @db
       altdb = @local_db && @db ? @db : nil
       bibentry = new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
