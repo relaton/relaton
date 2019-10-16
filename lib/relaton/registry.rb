@@ -57,7 +57,7 @@ module Relaton
     # @param type [String]
     # @return [Relaton::RelatonIso::Processor]
     def by_type(type)
-      processors.values.detect { |v| v.idtype == type }
+      processors.values.detect { |v| v.idtype == type.upcase }
     end
 
     private
