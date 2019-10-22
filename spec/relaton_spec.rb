@@ -10,28 +10,37 @@ RSpec.describe Relaton::Db do
     expect { @db.fetch("XYZ XYZ", nil, {}) }.to output(/does not have a recognised prefix/).to_stderr
   end
 
-  it "gets an ISO reference and caches it" do
-    # stub_bib Isobib::IsoBibliography
-    VCR.use_cassette "iso_19115_1" do
-      bib = @db.fetch("ISO 19115-1", nil, {})
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.to_xml(bibdata: true)).to include "<project-number>ISO 19115</project-number>"
-      expect(File.exist?("testcache")).to be true
-      expect(File.exist?("testcache2")).to be true
-      testcache = Relaton::DbCache.new "testcache"
-      expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>ISO 19115</project-number>"
-      testcache = Relaton::DbCache.new "testcache2"
-      expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>ISO 19115</project-number>"
+  context "gets an ISO reference" do
+    it "and caches it" do
+      # stub_bib Isobib::IsoBibliography
+      VCR.use_cassette "iso_19115_1" do
+        bib = @db.fetch("ISO 19115-1", nil, {})
+        expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+        expect(bib.to_xml(bibdata: true)).to include "<project-number>ISO 19115</project-number>"
+        expect(File.exist?("testcache")).to be true
+        expect(File.exist?("testcache2")).to be true
+        testcache = Relaton::DbCache.new "testcache"
+        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>ISO 19115</project-number>"
+        testcache = Relaton::DbCache.new "testcache2"
+        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>ISO 19115</project-number>"
+      end
     end
-  end
 
-  it "gets an ISO reference with year in code" do
-    VCR.use_cassette "19133_2005" do
-      bib = @db.fetch("ISO 19133:2005")
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.to_xml).to include '<bibitem id="ISO19133-2005" type="standard">'
-      testcache = Relaton::DbCache.new "testcache"
-      expect(testcache.valid_entry?("ISO(ISO 19133:2005)", "2019")).to eq Date.today.year.to_s
+    it "with year in code" do
+      VCR.use_cassette "19133_2005" do
+        bib = @db.fetch("ISO 19133:2005")
+        expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+        expect(bib.to_xml).to include '<bibitem id="ISO19133-2005" type="standard">'
+        testcache = Relaton::DbCache.new "testcache"
+        expect(testcache.valid_entry?("ISO(ISO 19133:2005)", "2019")).to eq Date.today.year.to_s
+      end
+    end
+
+    it "all parts" do
+      VCR.use_cassette "iso_19115" do
+        bib = @db.fetch("ISO 19115", nil, {})
+        expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      end
     end
   end
 
