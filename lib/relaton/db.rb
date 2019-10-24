@@ -146,7 +146,7 @@ module Relaton
       id, searchcode = std_id(code, year, opts, stdclass)
       yaml = @static_db[id]
       return @registry.processors[stdclass].hash_to_bib YAML.safe_load(yaml) if yaml
-        
+
       db = @local_db || @db
       altdb = @local_db && @db ? @db : nil
       bibentry = new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
