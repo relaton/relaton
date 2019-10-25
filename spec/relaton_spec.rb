@@ -24,6 +24,8 @@ RSpec.describe Relaton::Db do
         testcache = Relaton::DbCache.new "testcache2"
         expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>ISO 19115</project-number>"
       end
+      bib = @db.fetch("ISO 19115-1", nil, {})
+      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
     end
 
     it "with year in code" do
