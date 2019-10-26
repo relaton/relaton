@@ -6,6 +6,14 @@ RSpec.describe Relaton::Db do
     expect(db.docid_type("CN(GB/T 1.1)")).to eq ["Chinese Standard", "GB/T 1.1"]
   end
 
+  it "doesn't use cache" do
+    db = Relaton::Db.new nil, nil
+    VCR.use_cassette "iso_19115_1" do
+      bib = db.fetch("ISO 19115-1", nil, {})
+      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+    end
+  end
+
   it "fetch when no local db" do
     db = Relaton::Db.new "testcache", nil
     VCR.use_cassette "iso_19115_1" do
@@ -23,7 +31,7 @@ RSpec.describe Relaton::Db do
   end
 
   context "fetch documents form static cache" do
-    let(:db) { db = Relaton::Db.new nil, nil }
+    let(:db) { Relaton::Db.new nil, nil }
 
     it "fetches ISO/IEC DIR 1 IEC SUP" do
       bib = db.fetch "ISO/IEC DIR 1 IEC SUP"

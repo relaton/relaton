@@ -149,7 +149,10 @@ module Relaton
 
       db = @local_db || @db
       altdb = @local_db && @db ? @db : nil
-      return bib_retval(bibentry, stdclass, id) if db.nil?
+      if db.nil?
+        bibentry = new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
+        return bib_retval(bibentry, stdclass, id)
+      end
 
       db.delete(id) unless db.valid_entry?(id, year)
       if altdb
