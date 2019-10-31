@@ -147,6 +147,13 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "get Calconnect refrence and cache it" do
+    VCR.use_cassette "cc_dir_10005_2019" do
+      bib = @db.fetch "CC/DIR 10005:2019", nil, {}
+      expect(bib).to be_instance_of RelatonCalconnect::CcBibliographicItem
+    end
+  end
+
   it "should clear global cache if version is changed" do
     @db.save_entry "test_key", value: "test_value"
     expect(File.exist?("testcache")).to be true

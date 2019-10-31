@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     relaton (0.5.9)
+      relaton-calconnect (~> 0.1.0)
       relaton-gb (~> 0.6.0)
       relaton-iec (~> 0.4.0)
       relaton-ietf (~> 0.6.0)
@@ -83,6 +84,9 @@ GEM
     relaton-bib (0.3.11)
       addressable
       nokogiri
+    relaton-calconnect (0.1.0)
+      faraday
+      relaton-iso-bib (~> 0.3.0)
     relaton-gb (0.6.6)
       cnccs (~> 0.1.1)
       gb-agencies (~> 0.0.1)
