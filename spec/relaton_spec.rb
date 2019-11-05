@@ -1,6 +1,4 @@
 RSpec.describe Relaton::Db do
-  # let!(:db) { Relaton::Db.new("testcache", "testcache2") }
-
   before :each do
     FileUtils.rm_rf %w(testcache testcache2)
     @db = Relaton::Db.new "testcache", "testcache2"
@@ -12,7 +10,6 @@ RSpec.describe Relaton::Db do
 
   context "gets an ISO reference" do
     it "and caches it" do
-      # stub_bib Isobib::IsoBibliography
       VCR.use_cassette "iso_19115_1" do
         bib = @db.fetch("ISO 19115-1", nil, {})
         expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
@@ -70,7 +67,6 @@ RSpec.describe Relaton::Db do
   end
 
   it "deals with a non-existant ISO reference" do
-    # stub_bib Isobib::IsoBibliography
     VCR.use_cassette "iso_111111119115_1" do
       bib = @db.fetch("ISO 111111119115-1", nil, {})
       expect(bib).to be_nil
@@ -86,7 +82,6 @@ RSpec.describe Relaton::Db do
   end
 
   it "list all elements as a serialization" do
-    # stub_bib Isobib::IsoBibliography, 2
     VCR.use_cassette "iso_19115_1_2", match_requests_on: [:path] do
       @db.fetch "ISO 19115-1", nil, {}
       @db.fetch "ISO 19115-2", nil, {}
@@ -110,23 +105,37 @@ RSpec.describe Relaton::Db do
     expect(@db.load_entry("test key")).to be_nil
   end
 
-  it "get GB reference and cache it" do
-    # stub_bib Gbbib::GbBibliography
-    VCR.use_cassette "gb_t_20223_2006" do
-      bib = @db.fetch "CN(GB/T 20223)", "2006", {}
-      expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
-      expect(bib.to_xml(bibdata: true)).to include "<project-number>GB/T 20223</project-number>"
-      expect(File.exist?("testcache")).to be true
-      expect(File.exist?("testcache2")).to be true
-      testcache = Relaton::DbCache.new "testcache"
-      expect(testcache["CN(GB/T 20223:2006)"]).to include "<project-number>GB/T 20223</project-number>"
-      testcache = Relaton::DbCache.new "testcache2"
-      expect(testcache["CN(GB/T 20223:2006)"]).to include "<project-number>GB/T 20223</project-number>"
+  context "get GB reference" do
+    it "and cache it" do
+      VCR.use_cassette "gb_t_20223_2006" do
+        bib = @db.fetch "CN(GB/T 20223)", "2006", {}
+        expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
+        expect(bib.to_xml(bibdata: true)).to include "<project-number>GB/T 20223</project-number>"
+        expect(File.exist?("testcache")).to be true
+        expect(File.exist?("testcache2")).to be true
+        testcache = Relaton::DbCache.new "testcache"
+        expect(testcache["CN(GB/T 20223:2006)"]).to include "<project-number>GB/T 20223</project-number>"
+        testcache = Relaton::DbCache.new "testcache2"
+        expect(testcache["CN(GB/T 20223:2006)"]).to include "<project-number>GB/T 20223</project-number>"
+      end
+    end
+
+    it "with year" do
+      VCR.use_cassette "gb_t_20223_2006" do
+        bib = @db.fetch "CN(GB/T 20223-2006)", nil, {}
+        expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
+        expect(bib.to_xml(bibdata: true)).to include "<project-number>GB/T 20223</project-number>"
+        expect(File.exist?("testcache")).to be true
+        expect(File.exist?("testcache2")).to be true
+        testcache = Relaton::DbCache.new "testcache"
+        expect(testcache["CN(GB/T 20223:2006)"]).to include "<project-number>GB/T 20223</project-number>"
+        testcache = Relaton::DbCache.new "testcache2"
+        expect(testcache["CN(GB/T 20223:2006)"]).to include "<project-number>GB/T 20223</project-number>"
+      end
     end
   end
 
   it "get RFC reference and cache it" do
-    # stub_bib IETFBib::RfcBibliography
     VCR.use_cassette "rfc_8341" do
       bib = @db.fetch "RFC 8341", nil, {}
       expect(bib).to be_instance_of RelatonIetf::IetfBibliographicItem

@@ -113,7 +113,7 @@ module Relaton
     def std_id(code, year, opts, stdclass)
       prefix, code = strip_id_wrapper(code, stdclass)
       ret = code
-      ret += ":#{year}" if year
+      ret += (stdclass == :relaton_gb ? "-" : ":") + year if year
       ret += " (all parts)" if opts[:all_parts]
       ["#{prefix}(#{ret.strip})", code]
     end
@@ -178,7 +178,7 @@ module Relaton
     # @return [String]
     def new_bib_entry(code, year, opts, stdclass, **args)
       bib = @registry.processors[stdclass].get(code, year, opts)
-      bib_id = bib&.docidentifier&.first&.id&.sub(%r{(?<=\d)-(?=\d{4})}, ":")
+      bib_id = bib&.docidentifier&.first&.id
 
       # when docid doesn't match bib's id then return a reference to bib's id
       if args[:db] && args[:id] && bib_id && args[:id] !~ %r{\(#{bib_id}\)}
