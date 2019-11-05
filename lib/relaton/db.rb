@@ -97,7 +97,10 @@ module Relaton
       allowed = @registry.processors.reduce([]) do |m, (_k, v)|
         m << v.prefix
       end
-      warn "#{code} does not have a recognised prefix: #{allowed.join(', ')}"
+      warn <<~WARN
+       #{code} does not have a recognised prefix: #{allowed.join(', ')}.
+       See https://github.com/relaton/relaton/ for instructions on prefixing and wrapping document identifiers to disambiguate them.
+       WARN
     end
 
     # TODO: i18n
