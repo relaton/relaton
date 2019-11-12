@@ -181,7 +181,7 @@ module Relaton
       bib_id = bib&.docidentifier&.first&.id
 
       # when docid doesn't match bib's id then return a reference to bib's id
-      if args[:db] && args[:id] && bib_id && args[:id] !~ %r{\(#{bib_id}\)}
+      if args[:db] && args[:id] && bib_id && args[:id] !~ %r{#{Regexp.quote("(#{bib_id})")}}
         bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
         args[:db][bid] ||= bib_entry bib
         "redirection #{bid}"

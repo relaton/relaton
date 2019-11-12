@@ -35,10 +35,19 @@ RSpec.describe Relaton::Db do
       end
     end
 
-    it "all parts" do
-      VCR.use_cassette "iso_19115" do
-        bib = @db.fetch("ISO 19115", nil, {})
-        expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+    context "all parts" do
+      it "implicity" do
+        VCR.use_cassette "iso_19115" do
+          bib = @db.fetch("ISO 19115", nil, {})
+          expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+        end
+      end
+
+      it "explicity" do
+        VCR.use_cassette "iso_19115" do
+          bib = @db.fetch("ISO 19115 (all parts)", nil, {})
+          expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+        end
       end
     end
   end
