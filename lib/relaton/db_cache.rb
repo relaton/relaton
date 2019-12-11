@@ -10,8 +10,8 @@ module Relaton
       @dir = dir
       @ext = ext
       FileUtils::mkdir_p @dir
-      file_version = "#{@dir}/version"
-      set_version unless File.exist? file_version
+      # file_version = "#{@dir}/version"
+      # set_version # unless File.exist? file_version
     end
 
     # Save item
@@ -24,7 +24,10 @@ module Relaton
       end
 
       prefix_dir = "#{@dir}/#{prefix(key)}"
-      FileUtils::mkdir_p prefix_dir
+      unless Dir.exist? prefix_dir
+        FileUtils::mkdir_p prefix_dir
+        set_version prefix_dir
+      end
       File.write filename(key), value, encoding: "utf-8"
     end
 
@@ -63,7 +66,7 @@ module Relaton
     end
 
     # Returns all items
-    # @return [Array<Hash>]
+    # @return [Array<String>]
     def all
       Dir.glob("#{@dir}/**/*.xml").sort.map do |f|
         File.read(f, encoding: "utf-8")
@@ -77,17 +80,25 @@ module Relaton
       File.delete file if File.exist? file
     end
 
-    # Check if version of the DB match to the gem version.
+    # Check if version of the DB match to the gem grammar hash.
+    # @param fdir [String] dir pathe to flover cache
     # @return [TrueClass, FalseClass]
-    def check_version?
-      v = File.read @dir + "/version", encoding: "utf-8"
-      v.strip == VERSION
+    def check_version?(fdir)
+      version_dir = fdir + "/version"
+      return false unless File.exist? version_dir
+
+      v = File.read version_dir, encoding: "utf-8"
+      v.strip == grammar_hash(fdir)
     end
 
-    # Set version of the DB to the gem version.
+    # Set version of the DB to the gem grammar hash.
+    # @param fdir [String] dir pathe to flover cache
     # @return [Relaton::DbCache]
-    def set_version
-      File.write @dir + "/version", VERSION, encoding: "utf-8"
+    def set_version(fdir)
+      file_version = "#{fdir}/version"
+      unless File.exist? file_version
+        File.write file_version, grammar_hash(fdir), encoding: "utf-8"
+      end
       self
     end
 
@@ -103,6 +114,13 @@ module Relaton
     end
 
     protected
+
+    # @param fdir [String] dir pathe to flover cache
+    # @return [String]
+    def grammar_hash(fdir)
+      type = fdir.split("/").last
+      Relaton::Registry.instance.by_type(type).grammar_hash
+    end
 
     # Reads file by a key
     #

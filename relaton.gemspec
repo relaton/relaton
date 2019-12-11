@@ -29,14 +29,14 @@ model.
   spec.required_ruby_version = Gem::Requirement.new(">= 2.4.0")
 
   # spec.add_dependency "algoliasearch"
-  spec.add_dependency "relaton-calconnect", "~> 0.1.0"
-  spec.add_dependency "relaton-gb", "~> 0.6.0"
-  spec.add_dependency "relaton-iec", "~> 0.4.0"
-  spec.add_dependency "relaton-ietf", "~> 0.6.0"
-  spec.add_dependency "relaton-iso", "~> 0.6.0"
-  spec.add_dependency "relaton-itu", "~> 0.3.0"
-  spec.add_dependency "relaton-nist", "~> 0.3.0"
-  spec.add_dependency "relaton-ogc", "~> 0.1.0"
+  spec.add_dependency "relaton-calconnect", "~> 0.2.0"
+  spec.add_dependency "relaton-gb", "~> 0.7.0"
+  spec.add_dependency "relaton-iec", "~> 0.5.0"
+  spec.add_dependency "relaton-ietf", "~> 0.7.0"
+  spec.add_dependency "relaton-iso", "~> 0.7.0"
+  spec.add_dependency "relaton-itu", "~> 0.4.0"
+  spec.add_dependency "relaton-nist", "~> 0.4.0"
+  spec.add_dependency "relaton-ogc", "~> 0.2.0"
 
   spec.add_development_dependency "bundler", "~> 2.0.1"
   spec.add_development_dependency "byebug", "~> 10.0"

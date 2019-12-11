@@ -10,7 +10,6 @@ module Relaton
     # @param local_cache [String] directory of local DB
     def initialize(global_cache, local_cache)
       @registry = Relaton::Registry.instance
-      # @registry.register_gems
       @db = open_cache_biblio(global_cache, type: :global)
       @local_db = open_cache_biblio(local_cache, type: :local)
       @db_name = global_cache
@@ -144,7 +143,8 @@ module Relaton
     # @param stdclass [Symbol]
     # @return [NilClass, RelatonIsoBib::IsoBibliographicItem,
     #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
-    #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem]
+    #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem,
+    #   RelatonOgc::OgcBibliographicItem, RelatonCalconnect::CcBibliographicItem]
     def check_bibliocache(code, year, opts, stdclass)
       id, searchcode = std_id(code, year, opts, stdclass)
       yaml = @static_db[id]
@@ -209,16 +209,21 @@ module Relaton
       return nil if dir.nil?
 
       db = DbCache.new dir, type == :static ? "yml" : "xml"
-      return db if db.check_version?
+      # return db if db.check_version?
 
-      case type
-      when :global
-        FileUtils.rm_rf(Dir.glob(dir + "/*"), secure: true)
-        warn "Global cache version is obsolete and cleared."
-        db.set_version
-      when :static then warn "Static cache version is obsolete."
-      else warn "Local cache version is obsolete."
+      Dir["#{dir}/*/"].each do |fdir|
+        next if type == :static || db.check_version?(fdir)
+
+        # case type
+        # when :global
+        # else
+        FileUtils.rm_rf(Dir.glob(fdir + "/*"), secure: true)
+        warn "Cache #{fdir}: version is obsolete and cahe is cleared."
+          # db.set_version fdir
+        # else warn "Local cache #{fdir}: version is obsolete."
+        # end
       end
+      db
     end
   end
 end

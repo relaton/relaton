@@ -173,14 +173,17 @@ RSpec.describe Relaton::Db do
   end
 
   it "should clear global cache if version is changed" do
-    @db.save_entry "test_key", value: "test_value"
+    @db.save_entry "iso(test_key)", value: "test_value"
     expect(File.exist?("testcache")).to be true
     expect(File.exist?("testcache2")).to be true
-    stub_const "Relaton::VERSION", "new_version"
+    # stub_const "Relaton::VERSION", "new_version"
+    processor = double
+    expect(processor).to receive(:grammar_hash).and_return("new_version").exactly(2).times
+    expect(Relaton::Registry.instance).to receive(:by_type).and_return(processor).exactly(2).times
     db = Relaton::Db.new "testcache", "testcache2"
     testcache = db.instance_variable_get :@db
-    expect(testcache.all.any?).to be false
+    expect(testcache.all).not_to be_any
     testcache = db.instance_variable_get :@local_db
-    expect(testcache).to be_nil
+    expect(testcache.all).not_to be_any
   end
 end
