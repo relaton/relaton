@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    relaton (0.6.0)
+    relaton (0.6.1)
       relaton-calconnect (~> 0.2.0)
       relaton-gb (~> 0.7.0)
       relaton-iec (~> 0.5.0)
@@ -81,34 +81,34 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.10.0)
       ffi (~> 1.0)
-    relaton-bib (0.4.0)
+    relaton-bib (0.4.1)
       addressable
       nokogiri
-    relaton-calconnect (0.2.0)
+    relaton-calconnect (0.2.1)
       faraday
       relaton-iso-bib (~> 0.4.0)
-    relaton-gb (0.7.0)
+    relaton-gb (0.7.1)
       cnccs (~> 0.1.1)
       gb-agencies (~> 0.0.1)
       relaton-iso-bib (~> 0.4.0)
-    relaton-iec (0.5.0)
+    relaton-iec (0.5.1)
       addressable
       relaton-iso-bib (~> 0.4.0)
-    relaton-ietf (0.7.0)
+    relaton-ietf (0.7.1)
       relaton-bib (~> 0.4.0)
-    relaton-iso (0.7.0)
+    relaton-iso (0.7.1)
       relaton-iec (~> 0.5.0)
       relaton-iso-bib (~> 0.4.0)
-    relaton-iso-bib (0.4.0)
+    relaton-iso-bib (0.4.1)
       isoics (~> 0.1.6)
       relaton-bib (~> 0.4.0)
       ruby_deep_clone (~> 0.8.0)
-    relaton-itu (0.4.0)
+    relaton-itu (0.4.1)
       relaton-iso-bib (~> 0.4.0)
-    relaton-nist (0.4.0)
+    relaton-nist (0.4.1)
       relaton-bib (~> 0.4.0)
       rubyzip
-    relaton-ogc (0.2.0)
+    relaton-ogc (0.2.1)
       faraday
       relaton-iso-bib (~> 0.4.0)
     rspec (3.8.0)
