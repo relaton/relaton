@@ -28,7 +28,8 @@ module Relaton
         FileUtils::mkdir_p prefix_dir
         set_version prefix_dir
       end
-      File.write filename(key), value, encoding: "utf-8"
+      ex = value =~ /^(not_found|redirection)/ ? "txt" : @ext
+      File.write "#{filename(key)}.#{ex}", value, encoding: "utf-8"
     end
 
     # Read item
@@ -77,7 +78,8 @@ module Relaton
     # @param key [String]
     def delete(key)
       file = filename key
-      File.delete file if File.exist? file
+      f = search_ext(file)
+      File.delete f if f
     end
 
     # Check if version of the DB match to the gem grammar hash.
@@ -128,9 +130,9 @@ module Relaton
     # @return [String, NilClass]
     def get(key)
       file = filename key
-      return unless File.exist? file
+      return unless (f = search_ext(file))
 
-      File.read(file, encoding: "utf-8")
+      File.read(f, encoding: "utf-8")
     end
 
     private
@@ -154,7 +156,20 @@ module Relaton
            else
              key.gsub(/[-:\s]/, "_")
            end
-      "#{@dir}/#{fn.sub(/(,|_$)/, '')}.#{@ext}"
+      "#{@dir}/#{fn.sub(/(,|_$)/, '')}"
+    end
+
+    #
+    # Checks if there is file with xml or txt extension and return filename with the extension.
+    #
+    # @param file [String]
+    # @return [String, NilClass]
+    def search_ext(file)
+      if File.exist?("#{file}.#{@ext}")
+        "#{file}.#{@ext}"
+      elsif File.exist? "#{file}.txt"
+        "#{file}.txt"
+      end
     end
 
     # Return item's subdir
