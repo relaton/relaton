@@ -148,7 +148,7 @@ RSpec.describe Relaton::Db do
     VCR.use_cassette "rfc_8341" do
       bib = @db.fetch "RFC 8341", nil, {}
       expect(bib).to be_instance_of RelatonIetf::IetfBibliographicItem
-      expect(bib.to_xml).to include "<bibitem id=\"RFC8341\">"
+      expect(bib.to_xml).to include "<bibitem id=\"RFC8341\" type=\"standard\">"
       expect(File.exist?("testcache")).to be true
       expect(File.exist?("testcache2")).to be true
       testcache = Relaton::DbCache.new "testcache"
