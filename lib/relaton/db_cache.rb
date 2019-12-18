@@ -28,7 +28,10 @@ module Relaton
         FileUtils::mkdir_p prefix_dir
         set_version prefix_dir
       end
-      ex = value =~ /^(not_found|redirection)/ ? "txt" : @ext
+      ex = if value =~ /^not_found/ then "notfound"
+           elsif value =~ /^redirection/ then "redirect"
+           else @ext
+           end
       File.write "#{filename(key)}.#{ex}", value, encoding: "utf-8"
     end
 
@@ -167,8 +170,10 @@ module Relaton
     def search_ext(file)
       if File.exist?("#{file}.#{@ext}")
         "#{file}.#{@ext}"
-      elsif File.exist? "#{file}.txt"
-        "#{file}.txt"
+      elsif File.exist? "#{file}.notfound"
+        "#{file}.notfound"
+      elsif File.exist? "#{file}.redirect"
+        "#{file}.redirect"
       end
     end
 
