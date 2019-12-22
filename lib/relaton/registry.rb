@@ -59,7 +59,7 @@ module Relaton
     #   RelatonIetf::Processot, RelatonItu::Processor, RelatonGb::Processor,
     #   RelatonOgc::Processor, RelatonCalconnect::Processor]
     def by_type(type)
-      processors.values.detect { |v| v.prefix == type.upcase }
+      processors.values.detect { |v| v.prefix == type&.upcase }
     end
 
     private

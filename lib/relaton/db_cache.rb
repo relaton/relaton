@@ -124,7 +124,7 @@ module Relaton
     # @return [String]
     def grammar_hash(fdir)
       type = fdir.split("/").last
-      Relaton::Registry.instance.by_type(type).grammar_hash
+      Relaton::Registry.instance.by_type(type)&.grammar_hash
     end
 
     # Reads file by a key
