@@ -14,8 +14,8 @@ module Relaton
   class Configuration
     attr_accessor :logs
 
-    def initialize()
-      @logs ||= [:warning, :error]
+    def initialize
+      @logs ||= %i(warning error)
     end
   end
 
