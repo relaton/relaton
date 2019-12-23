@@ -38,7 +38,7 @@ model.
   spec.add_dependency "relaton-nist", "~> 0.4.0"
   spec.add_dependency "relaton-ogc", "~> 0.2.0"
 
-  spec.add_development_dependency "bundler", "~> 2.0.1"
+  spec.add_development_dependency "bundler"
   spec.add_development_dependency "byebug", "~> 10.0"
   spec.add_development_dependency "debase"
   spec.add_development_dependency "equivalent-xml", "~> 0.6"
