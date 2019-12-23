@@ -15,6 +15,6 @@ RSpec.describe Relaton::Config do
   end
 
   def restore_to_default_config
-    Relaton.configuration.logs = [:warning, :error]
+    Relaton.configuration.logs = %i(warning error)
   end
 end
