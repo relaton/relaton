@@ -20,14 +20,15 @@ module Relaton
     end
 
     def register_gems
-      puts "[relaton] Info: detecting backends:"
+      Util.log("[relaton] Info: detecting backends:", :info)
+
       SUPPORTED_GEMS.each do |b|
         begin
           require b
           require "#{b}/processor"
           register Kernel.const_get "#{camel_case(b)}::Processor"
         rescue LoadError
-          puts "[relaton] Error: backend #{b} not present"
+          Util.log("[relaton] Error: backend #{b} not present", :error)
         end
       end
     end
@@ -38,7 +39,7 @@ module Relaton
       p = processor.new
       return if processors[p.short]
 
-      puts "[relaton] processor \"#{p.short}\" registered"
+      Util.log("[relaton] processor \"#{p.short}\" registered", :info)
       processors[p.short] = p
     end
 
