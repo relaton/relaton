@@ -1,3 +1,6 @@
+require_relative "relaton/util"
+require_relative "relaton/config"
+
 require_relative "relaton/db"
 require_relative "relaton/db_cache"
 require_relative "relaton/version"
