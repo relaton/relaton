@@ -1,11 +1,14 @@
 = Relaton
 
 image:https://img.shields.io/gem/v/relaton.svg["Gem Version", link="https://rubygems.org/gems/relaton"]
-image:https://img.shields.io/travis/relaton/relaton/master.svg["Build Status", link="https://travis-ci.org/relaton/relaton"]
-image:https://ci.appveyor.com/api/projects/status/rm8mundlocspsue0?svg=true["Appveyor Build Status", link="https://ci.appveyor.com/project/ribose/relaton"]
+image:https://github.com/relaton/relaton/workflows/macos/badge.svg["Build Status (macOS)", link="https://github.com/relaton/relaton/actions?workflow=macos"]
+image:https://github.com/relaton/relaton/workflows/windows/badge.svg["Build Status (Windows)", link="https://github.com/relaton/relaton/actions?workflow=windows"]
+image:https://github.com/relaton/relaton/workflows/ubuntu/badge.svg["Build Status (Ubuntu)", link="https://github.com/relaton/relaton/actions?workflow=ubuntu"]
 image:https://codeclimate.com/github/relaton/relaton/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/relaton/relaton"]
+image:https://img.shields.io/github/issues-pr-raw/relaton/relaton.svg["Pull Requests", link="https://github.com/relaton/relaton/pulls"]
+image:https://img.shields.io/github/commits-since/relaton/relaton/latest.svg["Commits since latest",link="https://github.com/relaton/relaton/releases"]
 
-Gem for importing and caching bibliographic references to technical standards. 
+Gem for importing and caching bibliographic references to technical standards.
 
 == Scope
 
@@ -21,8 +24,8 @@ Relaton imports bibliographic entries from:
 
 * ISO through the iso.org website, via the https://github.com/relaton/relaton-iso[relaton-iso] gem
 * IEC through the iec.ch website, via the https://github.com/relaton/relaton-iec[relaton-iec] gem
-* GB (Chinese national standards) through the GB websites, via the https://github.com/relaton/relaton-gb[relaton-gb] gem 
-* IETF standards (Internet Drafts, RFC) through the http://xml2rfc.tools.ietf.org website, via the https://github.com/relaton/relaton-ietf[relaton-ietf] gem 
+* GB (Chinese national standards) through the GB websites, via the https://github.com/relaton/relaton-gb[relaton-gb] gem
+* IETF standards (Internet Drafts, RFC) through the http://xml2rfc.tools.ietf.org website, via the https://github.com/relaton/relaton-ietf[relaton-ietf] gem
 * NIST standards through the nist.gov website, via the https://github.com/relaton/relaton-nist[relaotn-nist] gem
 
 The identifiers for which bibliographic entries are to be retrieved need to indicate which standards body they belong to. To do so, this gem adopts the convention of bracketing identifiers, and preceding them with a code that indicates the standards body:
@@ -34,13 +37,13 @@ The identifiers for which bibliographic entries are to be retrieved need to indi
 The gem can be extended to use other standards-specific gems. Standards-specific gems like isobib register themselves against Relaton using `Relaton::Registry.instance.register`, which takes as an argument a subclass of `Relaton::Processor` defined in the gem; see isobib/lib/relaton for an example. The processor within the standards-specific gem needs to define
 
 * `@short`, the name of the gem
-* `@prefix`, the regex which scopes the identifier, and constrains it to belong to a particular standards class. 
+* `@prefix`, the regex which scopes the identifier, and constrains it to belong to a particular standards class.
 * `@defaultprefix`, the identifier prefixes which can be recognised without a scope wrapper.
 * `@idtype`, the type assigned to document identifiers for the standard class.
 * `get(code, date, opts)`, which takes a standards code, a year, and a hash of options, and returns an iso-bib-item bibliographic entry
 ** `date == nil`: an ISO reference is treated as a generic reference to the latest available version of the reference. The latest
 version retrieved has its date of publicatipn stripped. The dated reference is retained as an `instanceOf` relation to the reference.
-e.g. `get("ISO 19115-1", nil)` is transformed from a reference to `ISO 19115-1:2014` (the latest available online) to an undated reference 
+e.g. `get("ISO 19115-1", nil)` is transformed from a reference to `ISO 19115-1:2014` (the latest available online) to an undated reference
 to `ISO 19115-1`.
 ** `opts[:keep_date] == true`: undoes the behaviour of `date == nil`: the most recent dated instance of the reference is retrieved.
 e.g.  `get("ISO 19115-1", nil, keep_date: true)` returns a reference to `ISO 19115-1:2014`
