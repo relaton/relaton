@@ -85,7 +85,7 @@ db = Relaton::Db.new("globalcache", nil)
 ...
 
 # Use both a local and a global cache
-db = Relaton::Db.new("globalcahe", "localcahe")
+db = Relaton::Db.new("globalcache", "localcache")
 [relaton] Info: detecting backends:
 => #<Relaton::Db:0x007fb1d0ab9328
 ...
