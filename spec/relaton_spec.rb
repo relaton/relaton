@@ -31,7 +31,7 @@ RSpec.describe Relaton::Db do
         expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
         expect(bib.to_xml).to include '<bibitem id="ISO19133-2005" type="standard">'
         testcache = Relaton::DbCache.new "testcache"
-        expect(testcache.valid_entry?("ISO(ISO 19133:2005)", "2019")).to eq Date.today.year.to_s
+        expect(testcache.valid_entry?("ISO(ISO 19133:2005)", Date.today.year.to_s)).to eq Date.today.year.to_s
       end
     end
 
