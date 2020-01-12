@@ -8,7 +8,9 @@ RSpec.describe Relaton::Config do
     it "allows user to set custom configuration" do
       log_types = ["info", :warning, :error]
 
-      Relaton.configuration.logs = log_types
+      Relaton.configure do |config|
+        config.logs = log_types
+      end
 
       expect(Relaton.configuration.logs).to eq(log_types)
     end
