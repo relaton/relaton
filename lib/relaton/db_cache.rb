@@ -212,8 +212,8 @@ module Relaton
         localname = local_bibliocache_name(opts[:local_cache])
         localname = "relaton" if localname&.empty?
         if opts[:flush_caches]
-          FileUtils.rm_f globalname unless globalname.nil?
-          FileUtils.rm_f localname unless localname.nil?
+          FileUtils.rm_rf globalname unless globalname.nil?
+          FileUtils.rm_rf localname unless localname.nil?
         end
         Relaton::Db.new(globalname, localname)
       end
