@@ -172,6 +172,13 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "get OMG reference" do
+    VCR.use_cassette "ogm_ami4ccm_1_0" do
+      bib = @db.fetch "OMG AMI4CCM 1.0", nil, {}
+      expect(bib).to be_instance_of RelatonOmg::OmgBibliographicItem
+    end
+  end
+
   context "version control" do
     before(:each) { @db.save_entry "iso(test_key)", value: "test_value" }
 
