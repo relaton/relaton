@@ -179,6 +179,13 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "get UN reference" do
+    VCR.use_cassette "un_rtade_cefact_2004_32" do
+      bib = @db.fetch "UN TRADE/CEFACT/2004/32", nil, {}
+      expect(bib).to be_instance_of RelatonUn::UnBibliographicItem
+    end
+  end
+
   context "version control" do
     before(:each) { @db.save_entry "iso(test_key)", value: "test_value" }
 

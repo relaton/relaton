@@ -38,6 +38,7 @@ model.
   spec.add_dependency "relaton-nist", "~> 0.8.0"
   spec.add_dependency "relaton-ogc", "~> 0.6.0"
   spec.add_dependency "relaton-omg", "~> 0.2.0"
+  spec.add_dependency "relaton-un", "~> 0.1.0"
 
   spec.add_development_dependency "byebug", "~> 10.0"
   spec.add_development_dependency "debase"
