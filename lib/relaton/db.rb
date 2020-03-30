@@ -218,7 +218,7 @@ module Relaton
         # when :global
         # else
         FileUtils.rm_rf(Dir.glob(fdir + "/*"), secure: true)
-        warn "Cache #{fdir}: version is obsolete and cache is cleared."
+        warn "[relaton] cache #{fdir}: version is obsolete and cache is cleared."
           # db.set_version fdir
         # else warn "Local cache #{fdir}: version is obsolete."
         # end
