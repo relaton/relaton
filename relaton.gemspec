@@ -1,6 +1,6 @@
 # coding: utf-8
 
-lib = File.expand_path("../lib", __FILE__)
+lib = File.expand_path("lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "relaton/version"
 
@@ -10,13 +10,14 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Ribose Inc."]
   spec.email         = ["open.source@ribose.com"]
 
-  spec.summary       = "The Relaton core for importing, managing and caching bibliographic references to technical standards."
+  spec.summary       = "The Relaton core for importing, managing and caching "\
+                       "bibliographic references to technical standards."
   spec.description   = <<~DESCRIPTION
-  The Relaton core for importing, managing and caching bibliographic
-references to technical standards in the Relaton/XML bibliographic
-model.
+      The Relaton core for importing, managing and caching bibliographic
+    references to technical standards in the Relaton/XML bibliographic
+    model.
 
-  This gem is in active development.
+    This gem is in active development.
   DESCRIPTION
 
   spec.homepage      = "https://github.com/relato/relaton"
@@ -39,6 +40,7 @@ model.
   spec.add_dependency "relaton-ogc", "~> 0.7.0"
   spec.add_dependency "relaton-omg", "~> 0.3.0"
   spec.add_dependency "relaton-un", "~> 0.2.0"
+  spec.add_dependency "relaton-w3c", "~> 0.1.0"
 
   spec.add_development_dependency "byebug", "~> 10.0"
   spec.add_development_dependency "debase"

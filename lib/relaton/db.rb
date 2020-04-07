@@ -209,19 +209,12 @@ module Relaton
       return nil if dir.nil?
 
       db = DbCache.new dir, type == :static ? "yml" : "xml"
-      # return db if db.check_version?
 
       Dir["#{dir}/*/"].each do |fdir|
         next if type == :static || db.check_version?(fdir)
 
-        # case type
-        # when :global
-        # else
         FileUtils.rm_rf(Dir.glob(fdir + "/*"), secure: true)
         warn "[relaton] cache #{fdir}: version is obsolete and cache is cleared."
-          # db.set_version fdir
-        # else warn "Local cache #{fdir}: version is obsolete."
-        # end
       end
       db
     end
