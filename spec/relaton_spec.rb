@@ -187,7 +187,7 @@ RSpec.describe Relaton::Db do
   end
 
   it "get W3C reference" do
-    VCR.use_cassette "w3c_" do
+    VCR.use_cassette "w3c_json_ld11" do
       bib = @db.fetch "W3C JSON-LD 1.1", nil, {}
       expect(bib).to be_instance_of RelatonW3c::W3cBibliographicItem
     end
