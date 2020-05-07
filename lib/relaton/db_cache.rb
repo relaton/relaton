@@ -26,8 +26,8 @@ module Relaton
       prefix_dir = "#{@dir}/#{prefix(key)}"
       unless Dir.exist? prefix_dir
         FileUtils::mkdir_p prefix_dir
-        set_version prefix_dir
       end
+      set_version prefix_dir
       ex = if value =~ /^not_found/ then "notfound"
            elsif value =~ /^redirection/ then "redirect"
            else @ext
