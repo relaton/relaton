@@ -24,15 +24,19 @@ module Relaton
       end
 
       prefix_dir = "#{@dir}/#{prefix(key)}"
-      unless Dir.exist? prefix_dir
-        FileUtils::mkdir_p prefix_dir
-      end
+      FileUtils::mkdir_p prefix_dir unless Dir.exist? prefix_dir
       set_version prefix_dir
-      ex = if value =~ /^not_found/ then "notfound"
-           elsif value =~ /^redirection/ then "redirect"
-           else @ext
-           end
-      File.write "#{filename(key)}.#{ex}", value, encoding: "utf-8"
+      File.write "#{filename(key)}.#{ext(value)}", value, encoding: "utf-8"
+    end
+
+    # @param value [String]
+    # @return [String]
+    def ext(value)
+      case value
+      when /^not_found/ then "notfound"
+      when /^redirection/ then "redirect"
+      else @ext
+      end
     end
 
     # Read item
@@ -163,7 +167,8 @@ module Relaton
     end
 
     #
-    # Checks if there is file with xml or txt extension and return filename with the extension.
+    # Checks if there is file with xml or txt extension and return filename with
+    # the extension.
     #
     # @param file [String]
     # @return [String, NilClass]
@@ -181,9 +186,6 @@ module Relaton
     # @param key [String]
     # @return [String]
     def prefix(key)
-      # @registry.processors.detect do |_n, p|
-      #   /^#{p.prefix}/.match(key) || processor.defaultprefix.match(key)
-      # end[1].prefix.downcase
       key.downcase.match(/^[^\(]+(?=\()/).to_s
     end
 
@@ -204,8 +206,8 @@ module Relaton
       public
 
       # Initialse and return relaton instance, with local and global cache names
-      # local_cache: local cache name; none created if nil; "relaton" created if empty
-      # global_cache: boolean to create global_cache
+      # local_cache: local cache name; none created if nil; "relaton" created
+      # if empty global_cache: boolean to create global_cache
       # flush_caches: flush caches
       def init_bib_caches(opts)
         globalname = global_bibliocache_name if opts[:global_cache]

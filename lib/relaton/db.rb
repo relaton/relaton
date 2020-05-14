@@ -123,7 +123,7 @@ module Relaton
     # @return [Array]
     def strip_id_wrapper(code, stdclass)
       prefix = @registry.processors[stdclass].prefix
-      code = code.sub(/^#{prefix}\((.+)\)$/, "\\1")
+      code = code.sub(/\u2013/, "-").sub(/^#{prefix}\((.+)\)$/, "\\1")
       [prefix, code]
     end
 
