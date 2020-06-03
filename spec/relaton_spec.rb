@@ -193,6 +193,13 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "get IEEE reference" do
+    VCR.use_cassette "ieee_528_2019" do
+      bib = @db.fetch "IEEE 528-2019"
+      expect(bib).to be_instance_of RelatonIeee::IeeeBibliographicItem
+    end
+  end
+
   context "version control" do
     before(:each) { @db.save_entry "iso(test_key)", value: "test_value" }
 
