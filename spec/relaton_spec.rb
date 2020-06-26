@@ -200,6 +200,13 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "get IHO reference" do
+    VCR.use_cassette "iho_b_11" do
+      bib = @db.fetch "IHO B-11"
+      expect(bib).to be_instance_of RelatonIho::IhoBibliographicItem
+    end
+  end
+
   context "version control" do
     before(:each) { @db.save_entry "iso(test_key)", value: "test_value" }
 
