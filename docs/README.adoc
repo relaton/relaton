@@ -69,42 +69,51 @@ require "relaton"
 
 # Do not cache any entries retrieved
 db = Relaton::Db.new(nil, nil)
-[relaton] Info: detecting backends:
-[relaton] processor "relaton_iec" registered
-[relaton] processor "relaton_iso" registered
-[relaton] processor "relaton_ietf" registered
-[relaton] processor "relaton_gb" registered
-[relaton] processor "relaton_nist" registered
-=> #<Relaton::Db:0x007fb1d2a75fe0
+=> #<Relaton::Db:0x007faaaba77648
+ @db=nil,
+ @db_name=nil,
+ @local_db=nil,
+ @local_db_name=nil,
 ...
 
 # Use only the global cache for any entries retrieved
 db = Relaton::Db.new("globalcache", nil)
-[relaton] Info: detecting backends:
-=> #<Relaton::Db:0x007fb1d2856fc0
+=> #<Relaton::Db:0x007faabc0e7b30
+ @db=#<Relaton::DbCache:0x007faabc0e7ab8 @dir="globalcache", @ext="xml">,
+ @db_name="globalcache",
+ @local_db=nil,
+ @local_db_name=nil,
 ...
 
 # Use both a local and a global cache
 db = Relaton::Db.new("globalcache", "localcache")
-[relaton] Info: detecting backends:
-=> #<Relaton::Db:0x007fb1d0ab9328
+=> #<Relaton::Db:0x007faabc900628
+ @db=#<Relaton::DbCache:0x007faabc900060 @dir="globalcache", @ext="xml">,
+ @db_name="globalcache",
+ @local_db=#<Relaton::DbCache:0x007faabc8fa5c0 @dir="localcache", @ext="xml">,
+ @local_db_name="localcache",
 ...
 
 x = db.fetch("IEEE 19011")
-IEEE 19011 does not have a recognised prefix: IEC, ISO, IETF, CN, NIST
+[relaton-ieee] ("IEEE 19011") fetching...
+[relaton-ieee] WARNING: no match found online for IEEE 19011. The code must be exactly like it is on the standards website.
 => nil
 
 x = db.fetch("ISO 19011")
-fetching ISO 19011...
+[relaton-iso] ("ISO 19011") fetching...
+[relaton-iso] ("ISO 19011") found ISO 19011 (all parts)
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d0ab2f00
 ...
 
 x = db.fetch("ISO 19011", "2011")
-fetching ISO 19011...
+[relaton-iso] ("ISO 19011") fetching...
+[relaton-iso] ("ISO 19011") found ISO 19011:2011
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d2593068
 ...
 
-x = db.fetch("ISO 19011", "2011", allparts: true)
+x = db.fetch("ISO 19115", nil, all_parts: true)
+[relaton-iso] ("ISO 19115") fetching...
+[relaton-iso] ("ISO 19115") found ISO 19115 (all parts)
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d0ae8bf0
 ...
 
@@ -112,19 +121,31 @@ db.docid_type("CN(GB/T 1.1)")
 => ["Chinese Standard", "GB/T 1.1"]
 
 x.to_xml
-=> "<bibitem id="ISO19011-2011">...."
+=> "<bibitem id="ISO19115(allparts)" type="standard">
+      ...
+    </bibitem>"
 
 db.to_xml
-=> "<?xml version\"1.0" encoding="UTF-8"?><documents><bibdata>...."
+=> "<?xml version"1.0" encoding="UTF-8"?>
+    <documents>
+      <bibdata type="standard">
+        ...
+      </bibdata>
+      <bibdata type="standard">
+        ...
+      </bibdata>
+      ...
+    </documents"
 
-x.to_xml
-=> "<bibitem id="ISO19011-2011">..."
-
-x.to_xml
-=> "<bibdata>..."
+x.to_xml bibdata: true
+=> "<bibdata type="standard">
+      ...
+    </bibdata>"
 
 db.load_entry("ISO(ISO 19011)")
-=> "<bibdata>..."
+=> "<bibdata type="standard">
+      ...
+    <?bibdata>"
 
 db.save_entry("ISO(ISO 19011)", nil)
 => nil
