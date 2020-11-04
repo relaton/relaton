@@ -57,9 +57,10 @@ module Relaton
     # Find processor by type
     #
     # @param type [String]
-    # @return [RelatonIso::Processor, RelatonIec::Processor, RelatonNist::Processor,
-    #   RelatonIetf::Processot, RelatonItu::Processor, RelatonGb::Processor,
-    #   RelatonOgc::Processor, RelatonCalconnect::Processor]
+    # @return [RelatonIso::Processor, RelatonIec::Processor,
+    #   RelatonNist::Processor, RelatonIetf::Processot, RelatonItu::Processor,
+    #   RelatonGb::Processor, RelatonOgc::Processor,
+    #   RelatonCalconnect::Processor]
     def by_type(type)
       processors.values.detect { |v| v.prefix == type&.upcase }
     end

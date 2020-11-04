@@ -1,22 +1,27 @@
 # frozen_string_literal: true
 
+require "bundler/setup"
+require "fileutils"
+require "rspec/matchers"
+require "equivalent-xml"
+require "simplecov"
 require "vcr"
 
 VCR.configure do |c|
   c.cassette_library_dir = "spec/vcr_cassetes"
+  c.default_cassette_options = {
+    clean_outdated_http_interactions: true,
+    re_record_interval: 7 * 24 * 3600,
+    record: :once,
+  }
   c.hook_into :webmock
 end
 
-require "simplecov"
 SimpleCov.start do
   add_filter "/spec/"
 end
 
-require "fileutils"
-require "bundler/setup"
 require "relaton"
-require "rspec/matchers"
-require "equivalent-xml"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
