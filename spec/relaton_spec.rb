@@ -5,7 +5,9 @@ RSpec.describe Relaton::Db do
   end
 
   it "rejects an illegal reference prefix" do
-    expect { @db.fetch("XYZ XYZ", nil, {}) }.to output(/does not have a recognised prefix/).to_stderr
+    expect { @db.fetch("XYZ XYZ", nil, {}) }.to output(
+      /does not have a recognised prefix/
+    ).to_stderr
   end
 
   context "gets an ISO reference" do
@@ -13,13 +15,16 @@ RSpec.describe Relaton::Db do
       VCR.use_cassette "iso_19115_1" do
         bib = @db.fetch("ISO 19115-1", nil, {})
         expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-        expect(bib.to_xml(bibdata: true)).to include "<project-number>ISO 19115</project-number>"
+        expect(bib.to_xml(bibdata: true)).to include "<project-number>"\
+          "ISO 19115</project-number>"
         expect(File.exist?("testcache")).to be true
         expect(File.exist?("testcache2")).to be true
         testcache = Relaton::DbCache.new "testcache"
-        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>ISO 19115</project-number>"
+        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>"\
+          "ISO 19115</project-number>"
         testcache = Relaton::DbCache.new "testcache2"
-        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>ISO 19115</project-number>"
+        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>"\
+          "ISO 19115</project-number>"
       end
       bib = @db.fetch("ISO 19115-1", nil, {})
       expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
@@ -29,9 +34,12 @@ RSpec.describe Relaton::Db do
       VCR.use_cassette "19133_2005" do
         bib = @db.fetch("ISO 19133:2005")
         expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-        expect(bib.to_xml).to include '<bibitem id="ISO19133-2005" type="standard">'
+        expect(bib.to_xml).to include '<bibitem id="ISO19133-2005" '\
+          'type="standard">'
         testcache = Relaton::DbCache.new "testcache"
-        expect(testcache.valid_entry?("ISO(ISO 19133:2005)", Date.today.year.to_s)).to eq Date.today.year.to_s
+        expect(
+          testcache.valid_entry?("ISO(ISO 19133:2005)", Date.today.year.to_s)
+        ).to eq Date.today.year.to_s
       end
     end
 
@@ -126,13 +134,19 @@ RSpec.describe Relaton::Db do
       VCR.use_cassette "gb_t_20223_2006" do
         bib = @db.fetch "CN(GB/T 20223)", "2006", {}
         expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
-        expect(bib.to_xml(bibdata: true)).to include "<project-number>GB/T 20223</project-number>"
+        expect(bib.to_xml(bibdata: true)).to include <<~XML
+          <project-number>GB/T 20223</project-number>
+        XML
         expect(File.exist?("testcache")).to be true
         expect(File.exist?("testcache2")).to be true
         testcache = Relaton::DbCache.new "testcache"
-        expect(testcache["CN(GB/T 20223:2006)"]).to include "<project-number>GB/T 20223</project-number>"
+        expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
+          <project-number>GB/T 20223</project-number>
+        XML
         testcache = Relaton::DbCache.new "testcache2"
-        expect(testcache["CN(GB/T 20223:2006)"]).to include "<project-number>GB/T 20223</project-number>"
+        expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
+          <project-number>GB/T 20223</project-number>
+        XML
       end
     end
 
@@ -140,13 +154,19 @@ RSpec.describe Relaton::Db do
       VCR.use_cassette "gb_t_20223_2006" do
         bib = @db.fetch "CN(GB/T 20223-2006)", nil, {}
         expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
-        expect(bib.to_xml(bibdata: true)).to include "<project-number>GB/T 20223</project-number>"
+        expect(bib.to_xml(bibdata: true)).to include <<~XML
+          <project-number>GB/T 20223</project-number>
+        XML
         expect(File.exist?("testcache")).to be true
         expect(File.exist?("testcache2")).to be true
         testcache = Relaton::DbCache.new "testcache"
-        expect(testcache["CN(GB/T 20223:2006)"]).to include "<project-number>GB/T 20223</project-number>"
+        expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
+          <project-number>GB/T 20223</project-number>
+        XML
         testcache = Relaton::DbCache.new "testcache2"
-        expect(testcache["CN(GB/T 20223:2006)"]).to include "<project-number>GB/T 20223</project-number>"
+        expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
+          <project-number>GB/T 20223</project-number>
+        XML
       end
     end
   end
@@ -159,9 +179,11 @@ RSpec.describe Relaton::Db do
       expect(File.exist?("testcache")).to be true
       expect(File.exist?("testcache2")).to be true
       testcache = Relaton::DbCache.new "testcache"
-      expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier type=\"IETF\">RFC 8341</docidentifier>"
+      expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier "\
+        "type=\"IETF\">RFC 8341</docidentifier>"
       testcache = Relaton::DbCache.new "testcache2"
-      expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier type=\"IETF\">RFC 8341</docidentifier>"
+      expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier "\
+        "type=\"IETF\">RFC 8341</docidentifier>"
     end
   end
 
@@ -176,7 +198,8 @@ RSpec.describe Relaton::Db do
     cc_fr = /\.relaton\/calconnect\/bibliography\.yml/
     expect(File).to receive(:exist?).with(cc_fr).and_return false
     expect(File).to receive(:exist?).and_call_original.at_least :once
-    expect(File).to receive(:write).with cc_fr, kind_of(String), kind_of(Hash)
+    expect(File).to receive(:write).with(cc_fr, kind_of(String), kind_of(Hash))
+      .at_most :once
     expect(File).to receive(:write).and_call_original.at_least :once
     VCR.use_cassette "cc_dir_10005_2019", match_requests_on: [:path] do
       bib = @db.fetch "CC/DIR 10005:2019", nil, {}
@@ -199,7 +222,7 @@ RSpec.describe Relaton::Db do
   end
 
   it "get W3C reference" do
-    w3c_fr = /\.relaton\/w3c\/bibliograp?hy\.yml/ # @TODO remove "?" after fixing fileneme in relaton-calconnect
+    w3c_fr = /\.relaton\/w3c\/bibliography\.yml/
     expect(File).to receive(:exist?).with(w3c_fr).and_return false
     expect(File).to receive(:exist?).and_call_original.at_least :once
     expect(File).to receive(:write).with w3c_fr, kind_of(String), kind_of(Hash)
@@ -239,8 +262,10 @@ RSpec.describe Relaton::Db do
       expect(File.exist?("testcache")).to be true
       expect(File.exist?("testcache2")).to be true
       processor = double
-      expect(processor).to receive(:grammar_hash).and_return("new_version").exactly(2).times
-      expect(Relaton::Registry.instance).to receive(:by_type).and_return(processor).exactly(2).times
+      expect(processor).to receive(:grammar_hash).and_return("new_version")
+        .exactly(2).times
+      expect(Relaton::Registry.instance).to receive(:by_type)
+        .and_return(processor).exactly(2).times
       db = Relaton::Db.new "testcache", "testcache2"
       testcache = db.instance_variable_get :@db
       expect(testcache.all).not_to be_any
