@@ -20,10 +20,12 @@ RSpec.describe Relaton::DbCache do
     file_name = File.join dir, "iso_123.xml"
     file = File.open file_name, File::RDWR | File::CREAT, encoding: "UTF-8"
     file.flock File::LOCK_EX
-    pid = fork do
+    command = <<~RBY
+      require "relaton"
       cache = Relaton::DbCache.new "testcache"
       cache["ISO(ISO 123)"] = "test 1"
-    end
+    RBY
+    pid = spawn RbConfig.ruby, "-e #{command}"
     sleep 0.1
     file.write "test 2"
     file.flock File::LOCK_UN
