@@ -26,7 +26,7 @@ module Relaton
       prefix_dir = "#{@dir}/#{prefix(key)}"
       FileUtils::mkdir_p prefix_dir unless Dir.exist? prefix_dir
       set_version prefix_dir
-      File.write "#{filename(key)}.#{ext(value)}", value, encoding: "utf-8"
+      file_safe_write "#{filename(key)}.#{ext(value)}", value
     end
 
     # @param value [String]
@@ -106,7 +106,7 @@ module Relaton
     def set_version(fdir)
       file_version = "#{fdir}/version"
       unless File.exist? file_version
-        File.write file_version, grammar_hash(fdir), encoding: "utf-8"
+        file_safe_write file_version, grammar_hash(fdir)
       end
       self
     end
@@ -187,6 +187,15 @@ module Relaton
     # @return [String]
     def prefix(key)
       key.downcase.match(/^[^\(]+(?=\()/).to_s
+    end
+
+    # @param file [String]
+    # @content [String]
+    def file_safe_write(file, content)
+      File.open file, File::RDWR | File::CREAT, encoding: "UTF-8" do |f|
+        Timeout.timeout(1) { f.flock File::LOCK_EX }
+        f.write content
+      end
     end
 
     class << self

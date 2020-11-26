@@ -227,7 +227,7 @@ RSpec.describe Relaton::Db do
     expect(File).to receive(:exist?).with(w3c_fr).and_return false
     expect(File).to receive(:exist?).and_call_original.at_least :once
     expect(File).to receive(:write).with w3c_fr, kind_of(String), kind_of(Hash)
-    expect(File).to receive(:write).and_call_original.at_least :once
+    # expect(File).to receive(:write).and_call_original.at_least :once
     VCR.use_cassette "w3c_json_ld11" do
       bib = @db.fetch "W3C JSON-LD 1.1", nil, {}
       expect(bib).to be_instance_of RelatonW3c::W3cBibliographicItem
