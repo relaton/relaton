@@ -40,9 +40,8 @@ module Relaton
       @registry.processors.each do |name, processor|
         std = name if processor.prefix == stdclass
       end
-      unless std
-        std = standard_class(code) or return nil
-      end
+      std = standard_class(code) or return nil unless std
+
       check_bibliocache(code, year, opts, std)
     end
 
@@ -97,9 +96,9 @@ module Relaton
         m << v.prefix
       end
       warn <<~WARN
-       #{code} does not have a recognised prefix: #{allowed.join(', ')}.
-       See https://github.com/relaton/relaton/ for instructions on prefixing and wrapping document identifiers to disambiguate them.
-       WARN
+        #{code} does not have a recognised prefix: #{allowed.join(', ')}.
+        See https://github.com/relaton/relaton/ for instructions on prefixing and wrapping document identifiers to disambiguate them.
+      WARN
     end
 
     # TODO: i18n
@@ -133,8 +132,8 @@ module Relaton
     # @return [NilClass, RelatonIsoBib::IsoBibliographicItem,
     #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
     #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem]
-    def bib_retval(entry, stdclass, id)
-      entry =~ /^not_found/ ? nil : @registry.processors[stdclass].from_xml(entry)
+    def bib_retval(entry, stdclass, _id)
+      entry.match?(/^not_found/) ? nil : @registry.processors[stdclass].from_xml(entry)
     end
 
     # @param code [String]
@@ -145,7 +144,7 @@ module Relaton
     #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
     #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem,
     #   RelatonOgc::OgcBibliographicItem, RelatonCalconnect::CcBibliographicItem]
-    def check_bibliocache(code, year, opts, stdclass)
+    def check_bibliocache(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
       id, searchcode = std_id(code, year, opts, stdclass)
       yaml = @static_db[id]
       return @registry.processors[stdclass].hash_to_bib YAML.safe_load(yaml) if yaml
@@ -176,7 +175,7 @@ module Relaton
     # @param db [Relaton::DbCache,`NilClass]
     # @param id [String] docid
     # @return [String]
-    def new_bib_entry(code, year, opts, stdclass, **args)
+    def new_bib_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       bib = @registry.processors[stdclass].get(code, year, opts)
       bib_id = bib&.docidentifier&.first&.id
 

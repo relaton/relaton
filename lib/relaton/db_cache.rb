@@ -65,7 +65,7 @@ module Relaton
       value = self[key]
       return unless value
 
-      if value =~ /^not_found/
+      if value.match? /^not_found/
         value.match(/\d{4}-\d{2}-\d{2}/).to_s
       else
         doc = Nokogiri::XML value
@@ -159,7 +159,7 @@ module Relaton
     def filename(key)
       prefcode = key.downcase.match /^(?<prefix>[^\(]+)\((?<code>[^\)]+)/
       fn = if prefcode
-             "#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[-:\s\/\()]/, '_').squeeze("_")}"
+             "#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[-:\s\/\()]/, '_').squeeze('_')}"
            else
              key.gsub(/[-:\s]/, "_")
            end
@@ -218,7 +218,7 @@ module Relaton
       # local_cache: local cache name; none created if nil; "relaton" created
       # if empty global_cache: boolean to create global_cache
       # flush_caches: flush caches
-      def init_bib_caches(opts)
+      def init_bib_caches(opts) # rubocop:disable Metrics/CyclomaticComplexity
         globalname = global_bibliocache_name if opts[:global_cache]
         localname = local_bibliocache_name(opts[:local_cache])
         localname = "relaton" if localname&.empty?
