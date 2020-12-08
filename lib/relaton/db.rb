@@ -28,7 +28,32 @@ module Relaton
     #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem]
     def fetch(code, year = nil, opts = {})
       stdclass = standard_class(code) || return
+      cd = combine_doc code, year, opts, stdclass
+      return cd if cd
+
       check_bibliocache(code, year, opts, stdclass)
+    end
+
+    def combine_doc(code, year, opts, stdclass)
+      if (refs = code.split " + ").size > 1
+        reltype = "derivedFrom"
+        reldesc = nil
+      elsif (refs = code.split ", ").size > 1
+        reltype = "complements"
+        reldesc = "amendment"
+      else return
+      end
+
+      doc = @registry.processors[stdclass].hash_to_bib docid: { id: code }
+      ref = refs[0]
+      updates = check_bibliocache(ref, year, opts, stdclass)
+      doc.relation << RelatonBib::DocumentRelation.new(bibitem: updates, type: "updates")
+      refs[1..-1].each_with_object(doc) do |c, d|
+        bib = check_bibliocache("#{ref}/#{c}", year, opts, stdclass)
+        d.relation << RelatonBib::DocumentRelation.new(
+          type: reltype, description: reldesc, bibitem: bib
+        )
+      end
     end
 
     # @param code [String]

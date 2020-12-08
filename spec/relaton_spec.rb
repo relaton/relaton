@@ -248,6 +248,82 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  context "get combined documents" do
+    context "ISO" do
+      it "included" do
+        VCR.use_cassette "iso_combined_included" do
+          bib = @db.fetch "ISO 19115-1 + Amd 1"
+          expect(bib.docidentifier[0].id).to eq "ISO 19115-1 + Amd 1"
+          expect(bib.relation[0].type).to eq "updates"
+          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1"
+          expect(bib.relation[1].type).to eq "derivedFrom"
+          expect(bib.relation[1].description).to be_nil
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1/Amd 1:2018"
+        end
+      end
+
+      it "applied" do
+        VCR.use_cassette "iso_combined_applied" do
+          bib = @db.fetch "ISO 19115-1, Amd 1"
+          expect(bib.docidentifier[0].id).to eq "ISO 19115-1, Amd 1"
+          expect(bib.relation[0].type).to eq "updates"
+          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1"
+          expect(bib.relation[1].type).to eq "complements"
+          expect(bib.relation[1].description).to eq "amendment"
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1/Amd 1:2018"
+        end
+      end
+    end
+
+    context "IEC" do
+      it "included" do
+        VCR.use_cassette "iec_combined_included" do
+          bib = @db.fetch "IEC 60027-1, Amd 1, Amd 2"
+          expect(bib.docidentifier[0].id).to eq "IEC 60027-1, Amd 1, Amd 2"
+          expect(bib.relation[0].type).to eq "updates"
+          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "IEC 60027-1"
+          expect(bib.relation[1].type).to eq "complements"
+          expect(bib.relation[1].description).to eq "amendment"
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "IEC 60027-1/AMD1:1997"
+          expect(bib.relation[2].type).to eq "complements"
+          expect(bib.relation[2].description).to eq "amendment"
+          expect(bib.relation[2].bibitem.docidentifier[0].id).to eq "IEC 60027-1/AMD2:2005"
+        end
+      end
+    end
+
+    context "ITU" do
+      it "included" do
+        VCR.use_cassette "itu_combined_included" do
+          bib = @db.fetch "ITU-T G.989.2, Amd 1, Amd 2"
+          expect(bib.docidentifier[0].id).to eq "ITU-T G.989.2, Amd 1, Amd 2"
+          expect(bib.relation[0].type).to eq "updates"
+          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2"
+          expect(bib.relation[1].type).to eq "complements"
+          expect(bib.relation[1].description).to eq "amendment"
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2/Amd 1"
+          expect(bib.relation[2].type).to eq "complements"
+          expect(bib.relation[2].description).to eq "amendment"
+          expect(bib.relation[2].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2/Amd 2"
+        end
+      end
+    end
+
+    context "HIST" do
+      it "included" do
+        VCR.use_cassette "hist_cmbined_included" do
+          bib = @db.fetch "NIST SP 800-38A, Add"
+          expect(bib.docidentifier[0].id).to eq "NIST SP 800-38A, Add"
+          expect(bib.relation[0].type).to eq "updates"
+          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "SP 800-38A"
+          expect(bib.relation[1].type).to eq "complements"
+          expect(bib.relation[1].description).to eq "amendment"
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "SP 800-38A-Add"
+        end
+      end
+    end
+  end
+
   context "version control" do
     before(:each) { @db.save_entry "iso(test_key)", value: "test_value" }
 

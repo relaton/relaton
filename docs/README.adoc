@@ -62,6 +62,8 @@ e.g. `get("ISO 19115-1", "2014", all_parts: true)` is transformed into a referen
 
 == Usage
 
+=== Create DB
+
 [source,ruby]
 ----
 require "relaton"
@@ -93,7 +95,12 @@ db = Relaton::Db.new("globalcache", "localcache")
  @local_db=#<Relaton::DbCache:0x007faabc8fa5c0 @dir="localcache", @ext="xml">,
  @local_db_name="localcache",
 ...
+----
 
+=== Fetch documens
+
+[source,ruby]
+----
 x = db.fetch("IEEE 19011")
 [relaton-ieee] ("IEEE 19011") fetching...
 [relaton-ieee] WARNING: no match found online for IEEE 19011. The code must be exactly like it is on the standards website.
@@ -116,10 +123,72 @@ x = db.fetch("ISO 19115", nil, all_parts: true)
 [relaton-iso] ("ISO 19115") found ISO 19115 (all parts)
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d0ae8bf0
 ...
+----
 
+=== Fetch combined documents
+
+This functionality works only for ISO, IEC, ITU, and NIST documents.
+
+==== Fetch included documents
+[source,ruby]
+----
+bib = db.fetch "ISO 19115-1 + Amd 1"
+[relaton-iso] ("ISO 19115-1") fetching...
+[relaton-iso] ("ISO 19115-1") found ISO 19115-1:2014
+[relaton-iso] ("ISO 19115-1/Amd 1") fetching...
+[relaton-iso] ("ISO 19115-1/Amd 1") found ISO 19115-1:2014/Amd 1:2018
+=> #<RelatonIsoBib::IsoBibliographicItem:0x007f95a929a748
+
+bib.docidentifier[0].id
+=> "ISO 19115-1 + Amd 1"
+
+bib.relation[0].type
+=> "updates"
+
+bib.relation[0].bibitem.docidentifier[0].id
+=> "ISO 19115-1"
+
+bib.relation[1].type
+=> "derivedFrom"
+
+bib.relation[1].bibitem.docidentifier[0].id
+=> "ISO 19115-1/Amd 1:2018"
+
+bib.docidentifier[0].id
+=> "ISO 19115-1, Amd 1"
+
+bib.relation[0].type
+=> "updates"
+
+bib.relation[0].bibitem.docidentifier[0].id
+=> "ISO 19115-1"
+
+bib.relation[1].type
+=> "complements"
+
+bib.relation[1].description
+=> "amendment"
+
+bib.relation[1].bibitem.docidentifier[0].id
+=> "ISO 19115-1/Amd 1:2018"
+----
+
+==== Fetch applied documents
+[source,ruby]
+----
+bib = db.fetch "ISO 19115-1, Amd 1"
+----
+
+=== Get document type
+[source,ruby]
+----
 db.docid_type("CN(GB/T 1.1)")
 => ["Chinese Standard", "GB/T 1.1"]
+----
 
+=== Serializing
+[source,ruby]
+----
 x.to_xml
 => "<bibitem id="ISO19115(allparts)" type="standard">
       ...
@@ -146,11 +215,14 @@ db.load_entry("ISO(ISO 19011)")
 => "<bibdata type="standard">
       ...
     <?bibdata>"
+----
 
+=== Entry manipulation
+[source,ruby]
+----
 db.save_entry("ISO(ISO 19011)", nil)
 => nil
 
 db.load_entry("ISO(ISO 19011)")
 => nil
-
 ----
