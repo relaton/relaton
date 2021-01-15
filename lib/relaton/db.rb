@@ -40,19 +40,19 @@ module Relaton
         reldesc = nil
       elsif (refs = code.split ", ").size > 1
         reltype = "complements"
-        reldesc = "amendment"
+        reldesc = RelatonBib::FormattedString.new content: "amendment"
       else return
       end
 
       doc = @registry.processors[stdclass].hash_to_bib docid: { id: code }
       ref = refs[0]
       updates = check_bibliocache(ref, year, opts, stdclass)
-      doc.relation << RelatonBib::DocumentRelation.new(bibitem: updates, type: "updates")
+      doc.relation << RelatonBib::DocumentRelation.new(bibitem: updates, type: "updates") if updates
       refs[1..-1].each_with_object(doc) do |c, d|
         bib = check_bibliocache("#{ref}/#{c}", year, opts, stdclass)
-        d.relation << RelatonBib::DocumentRelation.new(
-          type: reltype, description: reldesc, bibitem: bib
-        )
+        if bib
+          d.relation << RelatonBib::DocumentRelation.new(type: reltype, description: reldesc, bibitem: bib)
+        end
       end
     end
 

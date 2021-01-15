@@ -70,4 +70,8 @@ RSpec.describe Relaton::Registry do
   it "finds processor by type" do
     expect(Relaton::Registry.instance.by_type("BIPM")).to be_instance_of RelatonBipm::Processor
   end
+
+  it "finds processor by type" do
+    expect(Relaton::Registry.instance.by_type("ECMA")).to be_instance_of RelatonEcma::Processor
+  end
 end

@@ -248,6 +248,13 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "get ECMA reference" do
+    VCR.use_cassette "ecma_6" do
+      bib = @db.fetch "ECMA-6"
+      expect(bib).to be_instance_of RelatonBib::BibliographicItem
+    end
+  end
+
   context "get combined documents" do
     context "ISO" do
       it "included" do
@@ -269,7 +276,7 @@ RSpec.describe Relaton::Db do
           expect(bib.relation[0].type).to eq "updates"
           expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1"
           expect(bib.relation[1].type).to eq "complements"
-          expect(bib.relation[1].description).to eq "amendment"
+          expect(bib.relation[1].description.content).to eq "amendment"
           expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1/Amd 1:2018"
         end
       end
@@ -283,10 +290,10 @@ RSpec.describe Relaton::Db do
           expect(bib.relation[0].type).to eq "updates"
           expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "IEC 60027-1"
           expect(bib.relation[1].type).to eq "complements"
-          expect(bib.relation[1].description).to eq "amendment"
+          expect(bib.relation[1].description.content).to eq "amendment"
           expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "IEC 60027-1/AMD1:1997"
           expect(bib.relation[2].type).to eq "complements"
-          expect(bib.relation[2].description).to eq "amendment"
+          expect(bib.relation[2].description.content).to eq "amendment"
           expect(bib.relation[2].bibitem.docidentifier[0].id).to eq "IEC 60027-1/AMD2:2005"
         end
       end
@@ -300,10 +307,10 @@ RSpec.describe Relaton::Db do
           expect(bib.relation[0].type).to eq "updates"
           expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2"
           expect(bib.relation[1].type).to eq "complements"
-          expect(bib.relation[1].description).to eq "amendment"
+          expect(bib.relation[1].description.content).to eq "amendment"
           expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2/Amd 1"
           expect(bib.relation[2].type).to eq "complements"
-          expect(bib.relation[2].description).to eq "amendment"
+          expect(bib.relation[2].description.content).to eq "amendment"
           expect(bib.relation[2].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2/Amd 2"
         end
       end
@@ -317,7 +324,7 @@ RSpec.describe Relaton::Db do
           expect(bib.relation[0].type).to eq "updates"
           expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "SP 800-38A"
           expect(bib.relation[1].type).to eq "complements"
-          expect(bib.relation[1].description).to eq "amendment"
+          expect(bib.relation[1].description.content).to eq "amendment"
           expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "SP 800-38A-Add"
         end
       end
