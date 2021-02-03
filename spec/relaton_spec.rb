@@ -58,12 +58,28 @@ RSpec.describe Relaton::Db do
         end
       end
     end
+
+    it "gets sn ISO/AWI reference" do
+      VCR.use_cassette "iso_awi_24229" do
+        bib = @db.fetch "ISO/AWI 24229"
+        expect(bib).not_to be_nil
+      end
+    end
   end
 
-  it "gets sn ISO/AWI reference" do
-    VCR.use_cassette "iso_awi_24229" do
-      bib = @db.fetch "ISO/AWI 24229"
-      expect(bib).not_to be_nil
+  context "IEC" do
+    it "get by reference" do
+      VCR.use_cassette "iec_60050_102_2007" do
+        bib = @db.fetch "IEC 60050-102:2007"
+        expect(bib.docidentifier[0].id).to eq "IEC 60050-102:2007"
+      end
+    end
+
+    it "get by URN" do
+      VCR.use_cassette "iec_60050_102_2007" do
+        bib = @db.fetch "urn:iec:std:iec:60050-102:2007:::"
+        expect(bib.docidentifier[0].id).to eq "IEC 60050-102:2007"
+      end
     end
   end
 

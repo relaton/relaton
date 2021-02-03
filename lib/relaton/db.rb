@@ -23,18 +23,37 @@ module Relaton
     # @param code [String] the ISO standard Code to look up (e.g. "ISO 9000")
     # @param year [String] the year the standard was published (optional)
     # @param opts [Hash] options; restricted to :all_parts if all-parts reference is required
-    # @return [NilClass, RelatonIsoBib::IsoBibliographicItem,
+    # @return [nil, RelatonBib::BibliographicItem, RelatonIsoBib::IsoBibliographicItem,
     #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
-    #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem]
+    #   RelatonIec::IecBibliographicItem, RelatonIeee::IeeeBibliographicItem,
+    #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem,
+    #   RelatonOgc::OgcBibliographicItem, RelatonCalconnect::CcBibliographicItem]
+    #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
+    #   RelatonOmg::OmgBibliographicItem RelatinUn::UnBibliographicItem,
+    #   RelatonW3c::W3cBibliographicItem
     def fetch(code, year = nil, opts = {})
       stdclass = standard_class(code) || return
-      cd = combine_doc code, year, opts, stdclass
+      processor = @registry.processors[stdclass]
+      ref = processor.respond_to?(:urn_to_code) ? processor.urn_to_code(code)&.first : code
+      ref ||= code
+      cd = combine_doc ref, year, opts, stdclass
       return cd if cd
 
-      check_bibliocache(code, year, opts, stdclass)
+      check_bibliocache(ref, year, opts, stdclass)
     end
 
-    def combine_doc(code, year, opts, stdclass)
+    # @param code [String]
+    # @param year [String, nil]
+    # @param stdslass [String]
+    # @return [nil, RelatonBib::BibliographicItem, RelatonIsoBib::IsoBibliographicItem,
+    #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
+    #   RelatonIec::IecBibliographicItem, RelatonIeee::IeeeBibliographicItem,
+    #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem,
+    #   RelatonOgc::OgcBibliographicItem, RelatonCalconnect::CcBibliographicItem]
+    #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
+    #   RelatonOmg::OmgBibliographicItem RelatinUn::UnBibliographicItem,
+    #   RelatonW3c::W3cBibliographicItem
+    def combine_doc(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       if (refs = code.split " + ").size > 1
         reltype = "derivedFrom"
         reldesc = nil
@@ -60,6 +79,14 @@ module Relaton
     # @param year [String, NilClass]
     # @param stdclass [Symbol, NilClass]
     # @param opts [Hash]
+    # @return [nil, RelatonBib::BibliographicItem, RelatonIsoBib::IsoBibliographicItem,
+    #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
+    #   RelatonIec::IecBibliographicItem, RelatonIeee::IeeeBibliographicItem,
+    #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem,
+    #   RelatonOgc::OgcBibliographicItem, RelatonCalconnect::CcBibliographicItem]
+    #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
+    #   RelatonOmg::OmgBibliographicItem RelatinUn::UnBibliographicItem,
+    #   RelatonW3c::W3cBibliographicItem
     def fetch_std(code, year = nil, stdclass = nil, opts = {})
       std = nil
       @registry.processors.each do |name, processor|
@@ -114,7 +141,7 @@ module Relaton
     # @return [Symbol] standard class name
     def standard_class(code)
       @registry.processors.each do |name, processor|
-        return name if /^#{processor.prefix}/.match(code) ||
+        return name if /^(urn:)?#{processor.prefix}/i.match?(code) ||
           processor.defaultprefix.match(code)
       end
       allowed = @registry.processors.reduce([]) do |m, (_k, v)|
@@ -154,9 +181,14 @@ module Relaton
     # @param entry [String] XML string
     # @param stdclass [Symbol]
     # @param id [String] docid
-    # @return [NilClass, RelatonIsoBib::IsoBibliographicItem,
+    # @return [nil, RelatonBib::BibliographicItem, RelatonIsoBib::IsoBibliographicItem,
     #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
-    #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem]
+    #   RelatonIec::IecBibliographicItem, RelatonIeee::IeeeBibliographicItem,
+    #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem,
+    #   RelatonOgc::OgcBibliographicItem, RelatonCalconnect::CcBibliographicItem]
+    #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
+    #   RelatonOmg::OmgBibliographicItem RelatinUn::UnBibliographicItem,
+    #   RelatonW3c::W3cBibliographicItem
     def bib_retval(entry, stdclass, _id)
       entry.match?(/^not_found/) ? nil : @registry.processors[stdclass].from_xml(entry)
     end
@@ -165,10 +197,14 @@ module Relaton
     # @param year [String]
     # @param opts [Hash]
     # @param stdclass [Symbol]
-    # @return [NilClass, RelatonIsoBib::IsoBibliographicItem,
+    # @return [nil, RelatonBib::BibliographicItem, RelatonIsoBib::IsoBibliographicItem,
     #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
+    #   RelatonIec::IecBibliographicItem, RelatonIeee::IeeeBibliographicItem,
     #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem,
     #   RelatonOgc::OgcBibliographicItem, RelatonCalconnect::CcBibliographicItem]
+    #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
+    #   RelatonOmg::OmgBibliographicItem RelatinUn::UnBibliographicItem,
+    #   RelatonW3c::W3cBibliographicItem
     def check_bibliocache(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
       id, searchcode = std_id(code, year, opts, stdclass)
       yaml = @static_db[id]

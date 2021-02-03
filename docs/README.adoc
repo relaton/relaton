@@ -99,6 +99,8 @@ db = Relaton::Db.new("globalcache", "localcache")
 
 === Fetch documens
 
+==== Fetch by references
+
 [source,ruby]
 ----
 x = db.fetch("IEEE 19011")
@@ -122,6 +124,19 @@ x = db.fetch("ISO 19115", nil, all_parts: true)
 [relaton-iso] ("ISO 19115") fetching...
 [relaton-iso] ("ISO 19115") found ISO 19115 (all parts)
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d0ae8bf0
+...
+----
+
+==== Fetch by URN
+
+This functionality works only for IEC documents.
+
+[source,ruby]
+----
+x = db.fetch "urn:iec:std:iec:60050-102:2007:::"
+[relaton-iec] ("IEC 60050-102") fetching...
+[relaton-iec] ("IEC 60050-102") found IEC 60050-102:2007
+=> #<RelatonIec::IecBibliographicItem:0x007fbd6c3790e8
 ...
 ----
 

@@ -34,7 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "relaton-calconnect", "~> 1.7.0"
   spec.add_dependency "relaton-ecma", "1.7.pre1"
   spec.add_dependency "relaton-gb", "~> 1.7.0"
-  spec.add_dependency "relaton-iec", ">= 1.7.3"
+  spec.add_dependency "relaton-iec", ">= 1.7.6"
   spec.add_dependency "relaton-ieee", "~> 1.7.0"
   spec.add_dependency "relaton-ietf", "~> 1.7.0"
   spec.add_dependency "relaton-iho", "~> 1.7.0"
