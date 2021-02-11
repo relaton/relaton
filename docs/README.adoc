@@ -64,6 +64,11 @@ e.g. `get("ISO 19115-1", "2014", all_parts: true)` is transformed into a referen
 
 === Create DB
 
+`Relaton::Db#new(globalcache, localcache)`
+
+* `globalcache` - path to globalcache directory
+* `localcache` - path to localcache directory
+
 [source,ruby]
 ----
 require "relaton"
@@ -99,6 +104,20 @@ db = Relaton::Db.new("globalcache", "localcache")
 
 === Fetch documens
 
+There are 2 fetching methods:
+
+* `Relaton::Db#fetch(reference, year, options)` - fetches document immediately
+* `Relaton::Db#fetch_async(reference, year, options, &block)` - fetches document asynchronously
+
+Arguments:
+
+* `reference` - reference to fethc document
+* `year` - (String) year to filter relult (optional)
+* `options` - hash of options. Alloved options:
+- `:all_parts` - (Boolean) should be `true` if all-parts reference is required
+- `:keep_yer` - (Boolean) should be `true` if undated reference should return actual reference with year
+- `:retries` - (Number) number of network retries. Default 1
+
 ==== Fetch by references
 
 [source,ruby]
@@ -114,7 +133,7 @@ x = db.fetch("ISO 19011")
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d0ab2f00
 ...
 
-x = db.fetch("ISO 19011", "2011")
+x = db.fetch("ISO 19011", "2011", retries: 3)
 [relaton-iso] ("ISO 19011") fetching...
 [relaton-iso] ("ISO 19011") found ISO 19011:2011
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d2593068
@@ -125,6 +144,22 @@ x = db.fetch("ISO 19115", nil, all_parts: true)
 [relaton-iso] ("ISO 19115") found ISO 19115 (all parts)
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d0ae8bf0
 ...
+
+# Fetching asynchronously
+
+# prepare queue for results
+results = Queue.new
+
+# fetch document
+db.fetch_async("ISO 19115") do |result|
+  results << { "ISO 19115" => result }
+end
+# fetch other documets the same way
+
+# wait until documets fetching
+while x = results.pop
+  # do thatever you need with result x
+end
 ----
 
 ==== Fetch by URN
@@ -192,6 +227,13 @@ bib.relation[1].bibitem.docidentifier[0].id
 [source,ruby]
 ----
 bib = db.fetch "ISO 19115-1, Amd 1"
+=> ["Chinese Standard", "GB/T 1.1"]
+[relaton-iso] ("ISO 19115-1") fetching...
+[relaton-iso] ("ISO 19115-1") found ISO 19115-1:2014
+[relaton-iso] ("ISO 19115-1/Amd 1") fetching...
+[relaton-iso] ("ISO 19115-1/Amd 1") found ISO 19115-1:2014/Amd 1:2018
+=> #<RelatonIsoBib::IsoBibliographicItem:0x007fb09b36d1b8
+...
 ----
 
 === Get document type

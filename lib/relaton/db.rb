@@ -14,15 +14,22 @@ module Relaton
       @local_db = open_cache_biblio(local_cache, type: :local)
       @db_name = global_cache
       @local_db_name = local_cache
-      static_db_name = File.expand_path "../relaton/static_cache", __dir__
-      @static_db = open_cache_biblio static_db_name
+      @static_db = open_cache_biblio File.expand_path("../relaton/static_cache", __dir__)
+      @queues = {}
     end
 
+    ##
     # The class of reference requested is determined by the prefix of the code:
     # GB Standard for gbbib, IETF for ietfbib, ISO for isobib, IEC or IEV for iecbib,
+    #
     # @param code [String] the ISO standard Code to look up (e.g. "ISO 9000")
     # @param year [String] the year the standard was published (optional)
-    # @param opts [Hash] options; restricted to :all_parts if all-parts reference is required
+    #
+    # @param opts [Hash] options
+    # @option opts [Boolean] :all_parts If all-parts reference is required
+    # @option opts [Boolean] :keep_year If undated reference should return actual reference with year
+    # @option opts [Integer] :retries (1) Number of network retries
+    #
     # @return [nil, RelatonBib::BibliographicItem, RelatonIsoBib::IsoBibliographicItem,
     #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
     #   RelatonIec::IecBibliographicItem, RelatonIeee::IeeeBibliographicItem,
@@ -31,54 +38,41 @@ module Relaton
     #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
     #   RelatonOmg::OmgBibliographicItem RelatinUn::UnBibliographicItem,
     #   RelatonW3c::W3cBibliographicItem
+    ##
     def fetch(code, year = nil, opts = {})
       stdclass = standard_class(code) || return
       processor = @registry.processors[stdclass]
       ref = processor.respond_to?(:urn_to_code) ? processor.urn_to_code(code)&.first : code
       ref ||= code
-      cd = combine_doc ref, year, opts, stdclass
-      return cd if cd
-
-      check_bibliocache(ref, year, opts, stdclass)
+      result = combine_doc ref, year, opts, stdclass
+      result ||= check_bibliocache(ref, year, opts, stdclass)
+      result
     end
 
-    # @param code [String]
-    # @param year [String, nil]
-    # @param stdslass [String]
-    # @return [nil, RelatonBib::BibliographicItem, RelatonIsoBib::IsoBibliographicItem,
-    #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
-    #   RelatonIec::IecBibliographicItem, RelatonIeee::IeeeBibliographicItem,
-    #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem,
-    #   RelatonOgc::OgcBibliographicItem, RelatonCalconnect::CcBibliographicItem]
-    #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
-    #   RelatonOmg::OmgBibliographicItem RelatinUn::UnBibliographicItem,
-    #   RelatonW3c::W3cBibliographicItem
-    def combine_doc(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-      if (refs = code.split " + ").size > 1
-        reltype = "derivedFrom"
-        reldesc = nil
-      elsif (refs = code.split ", ").size > 1
-        reltype = "complements"
-        reldesc = RelatonBib::FormattedString.new content: "amendment"
-      else return
-      end
-
-      doc = @registry.processors[stdclass].hash_to_bib docid: { id: code }
-      ref = refs[0]
-      updates = check_bibliocache(ref, year, opts, stdclass)
-      doc.relation << RelatonBib::DocumentRelation.new(bibitem: updates, type: "updates") if updates
-      refs[1..-1].each_with_object(doc) do |c, d|
-        bib = check_bibliocache("#{ref}/#{c}", year, opts, stdclass)
-        if bib
-          d.relation << RelatonBib::DocumentRelation.new(type: reltype, description: reldesc, bibitem: bib)
+    def fetch_async(code, year = nil, opts = {}, &_block) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+      stdclass = standard_class code
+      if stdclass
+        unless @queues[stdclass]
+          processor = @registry.processors[stdclass]
+          threads = processor.respond_to?(:threads) ? processor.threads : 10
+          wp = WorkersPool.new(threads) { |args| yield fetch *args }
+          @queues[stdclass] = { queue: Queue.new, workers_pool: wp }
+          Thread.new { process_queue @queues[stdclass] }
         end
+        @queues[stdclass][:queue] << [code, year, opts]
+      else yield nil
       end
     end
 
     # @param code [String]
     # @param year [String, NilClass]
     # @param stdclass [Symbol, NilClass]
+    #
     # @param opts [Hash]
+    # @option opts [Boolean] :all_parts If all-parts reference is required
+    # @option opts [Boolean] :keep_year If undated reference should return actual reference with year
+    # @option opts [Integer] :retries (1) Number of network retries
+    #
     # @return [nil, RelatonBib::BibliographicItem, RelatonIsoBib::IsoBibliographicItem,
     #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
     #   RelatonIec::IecBibliographicItem, RelatonIeee::IeeeBibliographicItem,
@@ -137,6 +131,45 @@ module Relaton
 
     private
 
+    # @param code [String]
+    # @param year [String, nil]
+    # @param stdslass [String]
+    #
+    # @param opts [Hash] options
+    # @option opts [Boolean] :all_parts If all-parts reference is required
+    # @option opts [Boolean] :keep_year If undated reference should return actual reference with year
+    # @option opts [Integer] :retries (1) Number of network retries
+    #
+    # @return [nil, RelatonBib::BibliographicItem, RelatonIsoBib::IsoBibliographicItem,
+    #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
+    #   RelatonIec::IecBibliographicItem, RelatonIeee::IeeeBibliographicItem,
+    #   RelatonNist::NistBibliongraphicItem, RelatonGb::GbbibliographicItem,
+    #   RelatonOgc::OgcBibliographicItem, RelatonCalconnect::CcBibliographicItem]
+    #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
+    #   RelatonOmg::OmgBibliographicItem RelatinUn::UnBibliographicItem,
+    #   RelatonW3c::W3cBibliographicItem
+    def combine_doc(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+      if (refs = code.split " + ").size > 1
+        reltype = "derivedFrom"
+        reldesc = nil
+      elsif (refs = code.split ", ").size > 1
+        reltype = "complements"
+        reldesc = RelatonBib::FormattedString.new content: "amendment"
+      else return
+      end
+
+      doc = @registry.processors[stdclass].hash_to_bib docid: { id: code }
+      ref = refs[0]
+      updates = check_bibliocache(ref, year, opts, stdclass)
+      doc.relation << RelatonBib::DocumentRelation.new(bibitem: updates, type: "updates") if updates
+      refs[1..-1].each_with_object(doc) do |c, d|
+        bib = check_bibliocache("#{ref}/#{c}", year, opts, stdclass)
+        if bib
+          d.relation << RelatonBib::DocumentRelation.new(type: reltype, description: reldesc, bibitem: bib)
+        end
+      end
+    end
+
     # @param code [String] code of standard
     # @return [Symbol] standard class name
     def standard_class(code)
@@ -157,7 +190,12 @@ module Relaton
     # Fofmat ID
     # @param code [String]
     # @param year [String]
+    #
     # @param opts [Hash]
+    # @option opts [Boolean] :all_parts If all-parts reference is required
+    # @option opts [Boolean] :keep_year If undated reference should return actual reference with year
+    # @option opts [Integer] :retries (1) Number of network retries
+    #
     # @param stdClass [Symbol]
     # @return [Array<String>] docid and code
     def std_id(code, year, opts, stdclass)
@@ -195,7 +233,12 @@ module Relaton
 
     # @param code [String]
     # @param year [String]
+    #
     # @param opts [Hash]
+    # @option opts [Boolean] :all_parts If all-parts reference is required
+    # @option opts [Boolean] :keep_year If undated reference should return actual reference with year
+    # @option opts [Integer] :retries (1) Number of network retries
+    #
     # @param stdclass [Symbol]
     # @return [nil, RelatonBib::BibliographicItem, RelatonIsoBib::IsoBibliographicItem,
     #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
@@ -231,13 +274,18 @@ module Relaton
 
     # @param code [String]
     # @param year [String]
+    #
     # @param opts [Hash]
+    # @option opts [Boolean] :all_parts If all-parts reference is required
+    # @option opts [Boolean] :keep_year If undated reference should return actual reference with year
+    # @option opts [Integer] :retries (1) Number of network retries
+    #
     # @param stdclass [Symbol]
     # @param db [Relaton::DbCache,`NilClass]
     # @param id [String] docid
     # @return [String]
     def new_bib_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-      bib = @registry.processors[stdclass].get(code, year, opts)
+      bib = net_retry(code, year, opts, stdclass, opts.fetch(:retries, 1))
       bib_id = bib&.docidentifier&.first&.id
 
       # when docid doesn't match bib's id then return a reference to bib's id
@@ -245,9 +293,17 @@ module Relaton
         bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
         args[:db][bid] ||= bib_entry bib
         "redirection #{bid}"
-      else
-        bib_entry bib
+      else bib_entry bib
       end
+    end
+
+    # @raise [RelatonBib::RequestError]
+    def net_retry(code, year, opts, stdclass, retries)
+      @registry.processors[stdclass].get(code, year, opts)
+    rescue RelatonBib::RequestError => e
+      raise e unless retries > 1
+
+      net_retry(code, year, opts, stdclass, retries - 1)
     end
 
     # @param bib [RelatonGb::GbBibliongraphicItem, RelatonIsoBib::IsoBibliographicItem,
@@ -277,6 +333,12 @@ module Relaton
         warn "[relaton] cache #{fdir}: version is obsolete and cache is cleared."
       end
       db
+    end
+
+    def process_queue(qwp)
+      while args = qwp[:queue].pop
+        qwp[:workers_pool] << args
+      end
     end
   end
 end

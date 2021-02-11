@@ -30,6 +30,36 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "fetch document with net retries" do
+    db = Relaton::Db.new nil, nil
+    expect(db.instance_variable_get(:@registry).processors[:relaton_ietf]).to receive(:get)
+      .and_raise(RelatonBib::RequestError).exactly(3).times
+    expect { db.fetch "RFC 8341", nil, retries: 3 }.to raise_error RelatonBib::RequestError
+  end
+
+  context "async fetch" do
+    let(:db) { Relaton::Db.new nil, nil }
+    let(:queue) { Queue.new }
+
+    it "success" do
+      result = nil
+      VCR.use_cassette "rfc_8341" do
+        db.fetch_async("RFC 8341") { |r| queue << r }
+        Timeout.timeout(5) { result = queue.pop }
+      end
+      expect(result).to be_instance_of RelatonIetf::IetfBibliographicItem
+    end
+
+    it "prefix not found" do
+      result = ""
+      VCR.use_cassette "rfc_unsuccess" do
+        db.fetch_async("ABC 123456") { |r| queue << r }
+        Timeout.timeout(5) { result = queue.pop }
+      end
+      expect(result).to be_nil
+    end
+  end
+
   context "fetch documents form static cache" do
     let(:db) { Relaton::Db.new nil, nil }
 
