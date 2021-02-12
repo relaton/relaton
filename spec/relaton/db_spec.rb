@@ -1,6 +1,30 @@
 RSpec.describe Relaton::Db do
   before(:each) { FileUtils.rm_rf %w[testcache testcache2] }
 
+  context "modifing database" do
+    it "move to new dir" do
+      db = Relaton::Db.new "global_cache", "local_cache"
+      db.save_entry "ISO(ISO 123)", "<bibitem id='ISO123></bibitem>"
+      expect(File.exist?("global_cache")).to be true
+      expect(File.exist?("local_cache")).to be true
+      db.mv "testcache", "testcache2"
+      expect(File.exist?("testcache")).to be true
+      expect(File.exist?("global_cache")).to be false
+      expect(File.exist?("testcache2")).to be true
+      expect(File.exist?("local_cache")).to be false
+    end
+
+    it "clear" do
+      db = Relaton::Db.new "testcache", "testcache2"
+      db.save_entry "ISO(ISO 123)", "<bibitem id='ISO123></bibitem>"
+      expect(File.exist?("testcache/iso")).to be true
+      expect(File.exist?("testcache2/iso")).to be true
+      db.clear
+      expect(File.exist?("testcache/iso")).to be false
+      expect(File.exist?("testcache2/iso")).to be false
+    end
+  end
+
   it "returns docid type" do
     db = Relaton::Db.new "testcache", "testcache2"
     expect(db.docid_type("CN(GB/T 1.1)")).to eq ["Chinese Standard", "GB/T 1.1"]

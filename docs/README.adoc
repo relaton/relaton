@@ -64,10 +64,10 @@ e.g. `get("ISO 19115-1", "2014", all_parts: true)` is transformed into a referen
 
 === Create DB
 
-`Relaton::Db#new(globalcache, localcache)`
+`Relaton::Db#new(globalcache, localcache)` creates new DB
 
-* `globalcache` - path to globalcache directory
-* `localcache` - path to localcache directory
+* `globalcache` - (String or nil) path to globalcache directory
+* `localcache` - (String or nil) path to localcache directory
 
 [source,ruby]
 ----
@@ -102,6 +102,24 @@ db = Relaton::Db.new("globalcache", "localcache")
 ...
 ----
 
+=== Modify DB
+
+==== Move DB
+
+`Relaton::Db#mv(new_globalcache_dir, new_localcahe_dir)` moves DB directories to new location.
+
+* `new_globalcahe_dir` - (String or nil) new globalcache location
+* `new_localcahe_dir` - (String or nil) new localcache location
+
+[source,ruby]
+----
+db.mv("new_globalcache_dir", "new_localcahe_dir")
+----
+
+==== Clear DB
+
+`Relaton::Db#clear` removes all entries form DB
+
 === Fetch documens
 
 There are 2 fetching methods:
@@ -111,9 +129,9 @@ There are 2 fetching methods:
 
 Arguments:
 
-* `reference` - reference to fethc document
-* `year` - (String) year to filter relult (optional)
-* `options` - hash of options. Alloved options:
+* `reference` - (String) reference to fethc document
+* `year` - (String or nil) year to filter relult (optional)
+* `options` - (Hash) hash of options. Alloved options:
 - `:all_parts` - (Boolean) should be `true` if all-parts reference is required
 - `:keep_yer` - (Boolean) should be `true` if undated reference should return actual reference with year
 - `:retries` - (Number) number of network retries. Default 1

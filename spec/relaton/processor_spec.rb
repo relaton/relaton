@@ -23,5 +23,9 @@ RSpec.describe Relaton::Processor do
     it "hash_to_bib method should be implemented" do
       expect { subject.hash_to_bib({}) }.to raise_error StandardError
     end
+
+    it "grammar_hash method should be implemented" do
+      expect { subject.grammar_hash }.to raise_error StandardError
+    end
   end
 end

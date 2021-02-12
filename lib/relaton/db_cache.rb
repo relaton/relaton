@@ -14,6 +14,20 @@ module Relaton
       # set_version # unless File.exist? file_version
     end
 
+    # Move caches to anothe dir
+    # @param new_dir [String, nil]
+    def mv(new_dir)
+      return unless new_dir
+
+      FileUtils.mv dir, new_dir
+      @dir = new_dir
+    end
+
+    # Clear database
+    def clear
+      FileUtils.rm_rf Dir.glob "#{dir}/*"
+    end
+
     # Save item
     # @param key [String]
     # @param value [String] Bibitem xml serialization

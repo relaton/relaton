@@ -12,10 +12,22 @@ module Relaton
       @registry = Relaton::Registry.instance
       @db = open_cache_biblio(global_cache, type: :global)
       @local_db = open_cache_biblio(local_cache, type: :local)
-      @db_name = global_cache
-      @local_db_name = local_cache
       @static_db = open_cache_biblio File.expand_path("../relaton/static_cache", __dir__)
       @queues = {}
+    end
+
+    # Move global and/or local caches to anothe dirs
+    # @param new_global_dir [String, nil]
+    # @param new_local_dir [String, nil]
+    def mv(new_global_dir, new_local_dir)
+      @db.mv new_global_dir
+      @local_db.mv new_local_dir
+    end
+
+    # Clear global and local databases
+    def clear
+      @db.clear
+      @local_db.clear
     end
 
     ##
