@@ -17,7 +17,7 @@ module Relaton
     # Move caches to anothe dir
     # @param new_dir [String, nil]
     def mv(new_dir)
-      return unless new_dir
+      return unless new_dir && @ext == "xml"
 
       FileUtils.mv dir, new_dir
       @dir = new_dir
@@ -25,7 +25,7 @@ module Relaton
 
     # Clear database
     def clear
-      FileUtils.rm_rf Dir.glob "#{dir}/*"
+      FileUtils.rm_rf Dir.glob "#{dir}/*" if @ext == "xml" # unless it's static DB
     end
 
     # Save item
