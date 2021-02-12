@@ -20,5 +20,16 @@ module Relaton
     def hash_to_bib(_hash)
       raise "This is an abstract class!"
     end
+
+    def grammar_hash
+      raise "This is an abstract class!"
+    end
+
+    # Retuns default number of workers. Should be overraded by childred classes if need.
+    #
+    # @return [Integer] nuber of wokrers
+    def threads
+      10
+    end
   end
 end

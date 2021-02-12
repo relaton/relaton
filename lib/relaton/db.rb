@@ -49,13 +49,13 @@ module Relaton
       result
     end
 
+    # Fetch asynchronously
     def fetch_async(code, year = nil, opts = {}, &_block) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       stdclass = standard_class code
       if stdclass
         unless @queues[stdclass]
           processor = @registry.processors[stdclass]
-          threads = processor.respond_to?(:threads) ? processor.threads : 10
-          wp = WorkersPool.new(threads) { |args| yield fetch *args }
+          wp = WorkersPool.new(processor.threads) { |args| yield fetch *args }
           @queues[stdclass] = { queue: Queue.new, workers_pool: wp }
           Thread.new { process_queue @queues[stdclass] }
         end
@@ -335,6 +335,9 @@ module Relaton
       db
     end
 
+    # @param qwp [Hash]
+    # @option qwp [Queue] :queue The queue of references to fetch
+    # @option qwp [Relaton::WorkersPool] :workers_pool The pool of workers
     def process_queue(qwp)
       while args = qwp[:queue].pop
         qwp[:workers_pool] << args
