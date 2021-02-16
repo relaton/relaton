@@ -266,7 +266,11 @@ bib = db.fetch "ISO 19115-1, Amd 1"
 
 ==== Fetch all documents from cache
 
-`Relaton::Db#fetch_all` - fetches all document from local cache
+`Relaton::Db#fetch_all(text = nil, edition: nil, year: nil)` - fetches all document from local cache
+
+* `text` - (String) filter entries by a text (optional)
+* `edition` - (String) filter entries by an edition (optional)
+* `year` - (Integer) filter entries by a year (optional)
 
 [source,ruby]
 ----

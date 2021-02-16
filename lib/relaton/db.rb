@@ -69,8 +69,10 @@ module Relaton
 
     # fetch all standards from DB
     # @param test [String, nil]
+    # @param edition [String], nil
+    # @param year [Integer, nil]
     # @return [Array]
-    def fetch_all(text = nil, edition: nil, year: nil)
+    def fetch_all(text = nil, edition: nil, year: nil) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
       db = @db || @local_db
       return [] unless db
 
