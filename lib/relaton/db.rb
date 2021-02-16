@@ -61,6 +61,32 @@ module Relaton
       result
     end
 
+    # Fetch standard from DB
+    def fetch_db(code, year = nil, opts = {})
+      opts[:fetch_db] = true
+      fetch code, year, opts
+    end
+
+    # fetch all standards from DB
+    # @param test [String, nil]
+    # @return [Array]
+    def fetch_all(text = nil, edition: nil, year: nil)
+      db = @db || @local_db
+      return [] unless db
+
+      db.all do |file, xml|
+        next unless text.nil? ||
+          %r{((?<attr>=((?<apstr>')|"))|>).*?#{text}.*?(?(<attr>)(?(<apstr>)'|")|<)}mi.match?(xml)
+
+        stdclass = standard_class file.split("/")[-2]
+        item = @registry.processors[stdclass].from_xml xml
+        next unless (edition.nil? || item.edition == edition) &&
+          (year.nil? || item.date.detect { |d| d.type == "published" && d.on(:year) == year })
+
+        item
+      end.compact
+    end
+
     # Fetch asynchronously
     def fetch_async(code, year = nil, opts = {}, &_block) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       stdclass = standard_class code
@@ -230,7 +256,6 @@ module Relaton
 
     # @param entry [String] XML string
     # @param stdclass [Symbol]
-    # @param id [String] docid
     # @return [nil, RelatonBib::BibliographicItem, RelatonIsoBib::IsoBibliographicItem,
     #   RelatonItu::ItuBibliographicItem, RelatonIetf::IetfBibliographicItem,
     #   RelatonIec::IecBibliographicItem, RelatonIeee::IeeeBibliographicItem,
@@ -239,8 +264,8 @@ module Relaton
     #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
     #   RelatonOmg::OmgBibliographicItem RelatinUn::UnBibliographicItem,
     #   RelatonW3c::W3cBibliographicItem
-    def bib_retval(entry, stdclass, _id)
-      entry.match?(/^not_found/) ? nil : @registry.processors[stdclass].from_xml(entry)
+    def bib_retval(entry, stdclass)
+      entry.nil? || entry.match?(/^not_found/) ? nil : @registry.processors[stdclass].from_xml(entry)
     end
 
     # @param code [String]
@@ -268,20 +293,25 @@ module Relaton
       db = @local_db || @db
       altdb = @local_db && @db ? @db : nil
       if db.nil?
+        return if opts[:fetch_db]
+
         bibentry = new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
-        return bib_retval(bibentry, stdclass, id)
+        return bib_retval(bibentry, stdclass)
       end
 
       db.delete(id) unless db.valid_entry?(id, year)
       if altdb
-        # db[id] ||= altdb[id]
-        db.clone_entry id, altdb
+        return bib_retval(altdb[id], stdclass) if opts[:fetch_db]
+
+        db.clone_entry id, altdb if altdb.valid_entry? id, year
         db[id] ||= new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
         altdb.clone_entry(id, db) if !altdb.valid_entry?(id, year)
       else
+        return bib_retval(db[id], stdclass) if opts[:fetch_db]
+
         db[id] ||= new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
       end
-      bib_retval(db[id], stdclass, id)
+      bib_retval(db[id], stdclass)
     end
 
     # @param code [String]

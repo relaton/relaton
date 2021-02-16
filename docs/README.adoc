@@ -64,7 +64,7 @@ e.g. `get("ISO 19115-1", "2014", all_parts: true)` is transformed into a referen
 
 === Create DB
 
-`Relaton::Db#new(globalcache, localcache)` creates new DB
+`Relaton::Db#new(globalcache, localcache)` creates new DB. Returns Relaton::Db instance.
 
 * `globalcache` - (String or nil) path to globalcache directory
 * `localcache` - (String or nil) path to localcache directory
@@ -122,9 +122,12 @@ db.mv("new_globalcache_dir", "new_localcahe_dir")
 
 === Fetch documens
 
-There are 2 fetching methods:
+==== Fetch document by references
 
-* `Relaton::Db#fetch(reference, year, options)` - fetches document immediately
+There are 3 fetching methods:
+
+* `Relaton::Db#fetch(reference, year, options)` - fetches document from local cache or remote source.
+* `Relaton::Db#fetch_db(reference, year, options)` - fetches document from local cache
 * `Relaton::Db#fetch_async(reference, year, options, &block)` - fetches document asynchronously
 
 Arguments:
@@ -135,8 +138,6 @@ Arguments:
 - `:all_parts` - (Boolean) should be `true` if all-parts reference is required
 - `:keep_yer` - (Boolean) should be `true` if undated reference should return actual reference with year
 - `:retries` - (Number) number of network retries. Default 1
-
-==== Fetch by references
 
 [source,ruby]
 ----
@@ -162,6 +163,15 @@ x = db.fetch("ISO 19115", nil, all_parts: true)
 [relaton-iso] ("ISO 19115") found ISO 19115 (all parts)
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d0ae8bf0
 ...
+
+# Fetchig from local cache
+
+x = db.fetch("ISO 19011")
+=> #<RelatonIsoBib::IsoBibliographicItem:0x007fde5f48a9f0
+...
+
+x = db.fetch_db("ISO 5749")
+=> nil
 
 # Fetching asynchronously
 
@@ -252,6 +262,58 @@ bib = db.fetch "ISO 19115-1, Amd 1"
 [relaton-iso] ("ISO 19115-1/Amd 1") found ISO 19115-1:2014/Amd 1:2018
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb09b36d1b8
 ...
+----
+
+==== Fetch all documents from cache
+
+`Relaton::Db#fetch_all` - fetches all document from local cache
+
+[source,ruby]
+----
+# query for all entries in a cahche
+
+items = db.fetch_all
+=> [#<RelatonIec::IecBibliographicItem:0x007facda8fdc28
+...
+
+items.size
+=> 6
+
+# query for all entries in a cahche for a certain string
+
+items = db.fetch_all("mathematical terminology")
+=> [#<RelatonIec::IecBibliographicItem:0x007ffeae5bd240
+...
+
+items.size
+=> 1
+
+items[0].docidentifier[0].id
+=> "IEC 60050-102:2007"
+
+# query for all entries in a cahche for a certain string and edition
+
+items = db.fetch_all("system", edition: "2")
+=> [#<RelatonIsoBib::IsoBibliographicItem:0x007ffebe2d1be8
+...
+
+items.size
+=> 1
+
+items[0].docidentifier[0].id
+=> "ISO 19011:2011"
+
+# query for all entries in a cahche for a certain string and year
+
+items = db.fetch_all("system", year: 2018)
+=> [#<RelatonIsoBib::IsoBibliographicItem:0x007ffeae645fa0
+...
+
+items.size
+=> 1
+
+items[0].docidentifier[0].id
+=> "ISO 19011 (all parts)"
 ----
 
 === Get document type

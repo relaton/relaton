@@ -1,4 +1,5 @@
 require "fileutils"
+require "timeout"
 
 module Relaton
   class DbCache
@@ -91,7 +92,8 @@ module Relaton
     # @return [Array<String>]
     def all
       Dir.glob("#{@dir}/**/*.xml").sort.map do |f|
-        File.read(f, encoding: "utf-8")
+        xml = File.read(f, encoding: "utf-8")
+        block_given? ? yield(f, xml) : xml
       end
     end
 
@@ -207,7 +209,7 @@ module Relaton
     # @content [String]
     def file_safe_write(file, content)
       File.open file, File::RDWR | File::CREAT, encoding: "UTF-8" do |f|
-        Timeout.timeout(1) { f.flock File::LOCK_EX }
+        Timeout.timeout(10) { f.flock File::LOCK_EX }
         f.write content
       end
     end

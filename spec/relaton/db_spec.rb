@@ -25,6 +25,74 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  context "query in local DB" do
+    let(:db) { Relaton::Db.new "testcache", "testcache2" }
+
+    before(:each) do
+      db.save_entry "ISO(ISO 123)", <<~DOC
+        <bibitem id='ISO123'>
+          <title>The first test</title><edition>2</edition><date type="published"><on>2011-10-12</on></date>
+        </bibitem>
+      DOC
+      db.save_entry "IEC(IEC 123)", <<~DOC
+        <bibitem id="IEC123">
+          <title>The second test</title><edition>1</edition><date type="published"><on>2015-12</on></date>
+        </bibitem>
+      DOC
+    end
+
+    after(:each) { db.clear }
+
+    it "one document" do
+      item = db.fetch_db "ISO((ISO 124)"
+      expect(item).to be_nil
+      item = db.fetch_db "ISO(ISO 123)"
+      expect(item).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+    end
+
+    it "all documents" do
+      items = db.fetch_all
+      expect(items.size).to be 2
+      expect(items[0]).to be_instance_of RelatonIec::IecBibliographicItem
+      expect(items[1]).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+    end
+
+    context "search for text" do
+      it do
+        items = db.fetch_all "test"
+        expect(items.size).to eq 2
+        items = db.fetch_all "first"
+        expect(items.size).to eq 1
+        expect(items[0].id).to eq "ISO123"
+      end
+
+      it "in attributes" do
+        items = db.fetch_all "123"
+        expect(items.size).to eq 2
+        items = db.fetch_all "ISO"
+        expect(items.size).to eq 1
+        expect(items[0].id).to eq "ISO123"
+      end
+
+      it "and fail" do
+        items = db.fetch_all "bibitem"
+        expect(items.size).to eq 0
+      end
+
+      it "and edition" do
+        items = db.fetch_all "123", edition: "2"
+        expect(items.size).to eq 1
+        expect(items[0].id).to eq "ISO123"
+      end
+
+      it "and year" do
+        items = db.fetch_all "123", year: 2015
+        expect(items.size).to eq 1
+        expect(items[0].id).to eq "IEC123"
+      end
+    end
+  end
+
   it "returns docid type" do
     db = Relaton::Db.new "testcache", "testcache2"
     expect(db.docid_type("CN(GB/T 1.1)")).to eq ["Chinese Standard", "GB/T 1.1"]
