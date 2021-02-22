@@ -52,9 +52,9 @@ RSpec.describe Relaton::Db do
 
     it "all documents" do
       items = db.fetch_all
-      expect(items.size).to be 2
-      expect(items[0]).to be_instance_of RelatonIec::IecBibliographicItem
-      expect(items[1]).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      expect(items.size).to be 9
+      expect(items[7]).to be_instance_of RelatonIec::IecBibliographicItem
+      expect(items[8]).to be_instance_of RelatonIsoBib::IsoBibliographicItem
     end
 
     context "search for text" do
@@ -70,8 +70,8 @@ RSpec.describe Relaton::Db do
         items = db.fetch_all "123"
         expect(items.size).to eq 2
         items = db.fetch_all "ISO"
-        expect(items.size).to eq 1
-        expect(items[0].id).to eq "ISO123"
+        expect(items.size).to eq 8
+        expect(items[7].id).to eq "ISO123"
       end
 
       it "and fail" do

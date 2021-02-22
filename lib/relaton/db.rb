@@ -61,7 +61,7 @@ module Relaton
       result
     end
 
-    # Fetch standard from DB
+    # @see Relaton::Db#fetch
     def fetch_db(code, year = nil, opts = {})
       opts[:fetch_db] = true
       fetch code, year, opts
@@ -72,21 +72,11 @@ module Relaton
     # @param edition [String], nil
     # @param year [Integer, nil]
     # @return [Array]
-    def fetch_all(text = nil, edition: nil, year: nil) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
+    def fetch_all(text = nil, edition: nil, year: nil)
+      result = @static_db.all { |file, yml| search_yml file, yml, text, edition, year }.compact
       db = @db || @local_db
-      return [] unless db
-
-      db.all do |file, xml|
-        next unless text.nil? ||
-          %r{((?<attr>=((?<apstr>')|"))|>).*?#{text}.*?(?(<attr>)(?(<apstr>)'|")|<)}mi.match?(xml)
-
-        stdclass = standard_class file.split("/")[-2]
-        item = @registry.processors[stdclass].from_xml xml
-        next unless (edition.nil? || item.edition == edition) &&
-          (year.nil? || item.date.detect { |d| d.type == "published" && d.on(:year) == year })
-
-        item
-      end.compact
+      result += db.all { |file, xml| search_xml file, xml, text, edition, year }.compact if db
+      result
     end
 
     # Fetch asynchronously
@@ -170,6 +160,50 @@ module Relaton
     end
 
     private
+
+    # @param file [String] file path
+    # @param yml [String] content in YAML format
+    # @param text [String, nil] text to serach
+    # @param edition [String, nil] edition to filter
+    # @param year [Integer, nil] year to filter
+    # @return [BibliographicItem, nil]
+    def search_yml(file, yml, text, edition, year)
+      item = search_edition_year(file, yml, edition, year)
+      return unless item
+
+      item if match_xml_text(item.to_xml(bibdata: true), text)
+    end
+
+    # @param file [String] file path
+    # @param xml [String] content in XML format
+    # @param text [String, nil] text to serach
+    # @param edition [String, nil] edition to filter
+    # @param year [Integer, nil] year to filter
+    # @return [BibliographicItem, nil]
+    def search_xml(file, xml, text, edition, year)
+      return unless text.nil? || match_xml_text(xml, text)
+
+      search_edition_year(file, xml, edition, year)
+    end
+
+    # @param file [String] file path
+    # @param content [String] content in XML or YAmL format
+    # @param edition [String, nil] edition to filter
+    # @param year [Integer, nil] year to filter
+    # @return [BibliographicItem, nil]
+    def search_edition_year(file, content, edition, year) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+      processor = @registry.processors[standard_class(file.split("/")[-2])]
+      item = file.match?(/xml$/) ? processor.from_xml(content) : processor.hash_to_bib(YAML.safe_load(content))
+      item if (edition.nil? || item.edition == edition) &&
+        (year.nil? || item.date.detect { |d| d.type == "published" && d.on(:year) == year })
+    end
+
+    # @param xml [String] content in XML format
+    # @param text [String, nil] text to serach
+    # @return [Boolean]
+    def match_xml_text(xml, text)
+      %r{((?<attr>=((?<apstr>')|"))|>).*?#{text}.*?(?(<attr>)(?(<apstr>)'|")|<)}mi.match?(xml)
+    end
 
     # @param code [String]
     # @param year [String, nil]

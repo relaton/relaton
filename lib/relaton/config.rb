@@ -12,10 +12,11 @@ module Relaton
   end
 
   class Configuration
-    attr_accessor :logs
+    attr_accessor :logs, :use_api
 
     def initialize
       @logs = %i(warning error)
+      @use_api = false # @TODO change to true when we start using api.relaton.org
     end
   end
 

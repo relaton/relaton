@@ -91,9 +91,9 @@ module Relaton
     # Returns all items
     # @return [Array<String>]
     def all
-      Dir.glob("#{@dir}/**/*.xml").sort.map do |f|
-        xml = File.read(f, encoding: "utf-8")
-        block_given? ? yield(f, xml) : xml
+      Dir.glob("#{@dir}/**/*.{xml,yml,yaml}").sort.map do |f|
+        content = File.read(f, encoding: "utf-8")
+        block_given? ? yield(f, content) : content
       end
     end
 
