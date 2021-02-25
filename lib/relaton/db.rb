@@ -396,18 +396,20 @@ module Relaton
       end
     end
 
-    # @param dir [String] DB directory
+    # @param dir [String, nil] DB directory
     # @param type [Symbol]
     # @return [Relaton::DbCache, NilClass]
     def open_cache_biblio(dir, type: :static)
       return nil if dir.nil?
 
       db = DbCache.new dir, type == :static ? "yml" : "xml"
+      return db if type == :static
 
       Dir["#{dir}/*/"].each do |fdir|
-        next if type == :static || db.check_version?(fdir)
+        next if db.check_version?(fdir)
 
         FileUtils.rm_rf(Dir.glob(fdir + "/*"), secure: true)
+        db.set_version fdir
         warn "[relaton] cache #{fdir}: version is obsolete and cache is cleared."
       end
       db
