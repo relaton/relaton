@@ -1,0 +1,120 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-cie/master/data/CIE_001_1980.yaml
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '931'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"5949467f3d02bbda39c51034967def96516f85c121258cf201746e4852e279aa"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - 9362:AB65:183689:1A01F1:6052296D
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Wed, 17 Mar 2021 16:59:55 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-vie21651-VIE
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1616000395.244481,VS0,VE162
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Fastly-Request-Id:
+      - 8cbee0c5c2b22fb5ac9da1d889392dc4e570216d
+      Expires:
+      - Wed, 17 Mar 2021 17:04:55 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      string: |
+        ---
+        id: CIE001-1980
+        title:
+        - type: title-main
+          content: Guidelines for minimizing urban sky glow near astronomical observatories
+            (Joint Publication IAU/CIE)
+          format: text/plain
+        - type: main
+          content: Guidelines for minimizing urban sky glow near astronomical observatories
+            (Joint Publication IAU/CIE)
+          format: text/plain
+        link:
+          content: https://www.techstreet.com/cie/standards/cie-001-1980?product_id=1210107
+          type: src
+        type: standard
+        docid:
+        - id: CIE 001-1980
+          type: CIE
+        - id: '9783901906657'
+          type: ISBN
+        date:
+          type: published
+          value: '1980-01-01'
+        contributor:
+          organization:
+            name: Commission Internationale de L'Eclairage
+            abbreviation: CIE
+            url: cie.co.at
+          role: publisher
+        revdate: '1980-01-01'
+        language: en
+        script: Latn
+        abstract:
+          content: |-
+            The increase of outdoor lighting in urban areas has resulted in levels of sky glow which seriously threaten astronomical observatories, even where these have purposely been located more than 100 km from large cities. The International Astronomical Union (IAU) and the CIE have worked together to prepare these guidelines in order to stimulate collective action that minimizes the degradation of the astronomical environment near cities.
+
+            The problem and its solutions are stated in a manner that provides a basis for understanding, cooperation, and action by astronomers, lighting engineers and public authorities. The report explains the effect of man-made sky glow, the degree of glow likely to be produced by lighting near an observatory, the level above which sky glow should not be allowed to rise, and how it can be contained by good lighting practice and public ordinances.
+
+            The publication contains 24 pages and 2 figures.
+
+            This publication has been prepared by:
+
+                * R. Cayrel and F. G. Smith (IAU)
+                * A. J. Fisher and J. B. de Boer (CIE)
+          language: en
+          script: Latn
+          format: text/plain
+        doctype: document
+    http_version:
+  recorded_at: Wed, 17 Mar 2021 16:59:55 GMT
+recorded_with: VCR 5.1.0

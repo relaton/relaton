@@ -271,6 +271,13 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "get CIE reference" do
+    VCR.use_cassette "cie_001_1980" do
+      bib = @db.fetch "CIE 001-1980"
+      expect(bib).to be_instance_of RelatonBib::BibliographicItem
+    end
+  end
+
   context "get combined documents" do
     context "ISO" do
       it "included" do
