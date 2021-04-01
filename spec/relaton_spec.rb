@@ -368,11 +368,11 @@ RSpec.describe Relaton::Db do
       expect(File.read("testcache/iso/version", encoding: "UTF-8")).not_to eq "new_version"
       expect(File.read("testcache2/iso/version", encoding: "UTF-8")).not_to eq "new_version"
       processor = double
-      expect(processor).to receive(:grammar_hash).and_return("new_version").exactly(4).times
-      expect(Relaton::Registry.instance).to receive(:by_type).and_return(processor).exactly(4).times
+      expect(processor).to receive(:grammar_hash).and_return("new_version").exactly(2).times
+      expect(Relaton::Registry.instance).to receive(:by_type).and_return(processor).exactly(2).times
       Relaton::Db.new "testcache", "testcache2"
-      expect(File.read("testcache/iso/version", encoding: "UTF-8")).to eq "new_version"
-      expect(File.read("testcache2/iso/version", encoding: "UTF-8")).to eq "new_version"
+      expect(File.exist?("testcache/iso/version")).to eq false
+      expect(File.exist?("testcache2/iso/version")).to eq false
     end
   end
 end
