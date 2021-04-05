@@ -10,24 +10,31 @@ module Relaton
     # @param local_cache [String] directory of local DB
     def initialize(global_cache, local_cache)
       @registry = Relaton::Registry.instance
-      @db = open_cache_biblio(global_cache, type: :global)
-      @local_db = open_cache_biblio(local_cache, type: :local)
+      gpath = global_cache && File.expand_path(global_cache)
+      @db = open_cache_biblio(gpath, type: :global)
+      lpath = local_cache && File.expand_path(local_cache)
+      @local_db = open_cache_biblio(lpath, type: :local)
       @static_db = open_cache_biblio File.expand_path("../relaton/static_cache", __dir__)
       @queues = {}
     end
 
-    # Move global and/or local caches to anothe dirs
-    # @param new_global_dir [String, nil]
-    # @param new_local_dir [String, nil]
-    def mv(new_global_dir, new_local_dir)
-      @db.mv new_global_dir
-      @local_db.mv new_local_dir
+    # Move global or local caches to anothe dirs
+    # @param new_dir [String, nil]
+    # @param type: [Symbol]
+    # @return [String, nil]
+    def mv(new_dir, type: :global)
+      case type
+      when :global
+        @db&.mv new_dir
+      when :local
+        @local_db&.mv new_dir
+      end
     end
 
     # Clear global and local databases
     def clear
-      @db.clear
-      @local_db.clear
+      @db&.clear
+      @local_db&.clear
     end
 
     ##
@@ -195,7 +202,7 @@ module Relaton
       processor = @registry.processors[standard_class(file.split("/")[-2])]
       item = file.match?(/xml$/) ? processor.from_xml(content) : processor.hash_to_bib(YAML.safe_load(content))
       item if (edition.nil? || item.edition == edition) &&
-        (year.nil? || item.date.detect { |d| d.type == "published" && d.on(:year) == year })
+        (year.nil? || item.date.detect { |d| d.type == "published" && d.on(:year).to_s == year.to_s })
     end
 
     # @param xml [String] content in XML format
@@ -408,8 +415,8 @@ module Relaton
       Dir["#{dir}/*/"].each do |fdir|
         next if db.check_version?(fdir)
 
-        FileUtils.rm_rf(Dir.glob(fdir + "/*"), secure: true)
-        db.set_version fdir
+        FileUtils.rm_rf(fdir, secure: true)
+        # db.set_version fdir
         warn "[relaton] cache #{fdir}: version is obsolete and cache is cleared."
       end
       db

@@ -2,21 +2,44 @@ RSpec.describe Relaton::Db do
   before(:each) { FileUtils.rm_rf %w[testcache testcache2] }
 
   context "modifing database" do
-    it "move to new dir" do
-      db = Relaton::Db.new "global_cache", "local_cache"
+    let(:db) { Relaton::Db.new "testcache", "testcache2" }
+
+    before(:each) do
       db.save_entry "ISO(ISO 123)", "<bibitem id='ISO123></bibitem>"
-      expect(File.exist?("global_cache")).to be true
-      expect(File.exist?("local_cache")).to be true
-      db.mv "testcache", "testcache2"
-      expect(File.exist?("testcache")).to be true
-      expect(File.exist?("global_cache")).to be false
-      expect(File.exist?("testcache2")).to be true
-      expect(File.exist?("local_cache")).to be false
+    end
+
+    context "move to new dir" do
+      let(:db) { Relaton::Db.new "global_cache", "local_cache" }
+
+      after(:each) do
+        FileUtils.rm_rf "global_cache"
+        FileUtils.rm_rf "local_cache"
+      end
+
+      it "global cache" do
+        expect(File.exist?("global_cache")).to be true
+        expect(db.mv("testcache")).to eq "testcache"
+        expect(File.exist?("testcache")).to be true
+        expect(File.exist?("global_cache")).to be false
+      end
+
+      it "local cache" do
+        expect(File.exist?("local_cache")).to be true
+        expect(db.mv("testcache2", type: :local)).to eq "testcache2"
+        expect(File.exist?("testcache2")).to be true
+        expect(File.exist?("local_cache")).to be false
+      end
+    end
+
+    it "warn if moving in existed dir" do
+      expect(File).to receive(:exist?).with("new_cache_dir")
+        .and_return true
+      expect do
+        expect(db.mv("new_cache_dir")).to be_nil
+      end.to output(/\[relaton\] WARNING: target directory exists/).to_stderr
     end
 
     it "clear" do
-      db = Relaton::Db.new "testcache", "testcache2"
-      db.save_entry "ISO(ISO 123)", "<bibitem id='ISO123></bibitem>"
       expect(File.exist?("testcache/iso")).to be true
       expect(File.exist?("testcache2/iso")).to be true
       db.clear

@@ -17,8 +17,14 @@ module Relaton
 
     # Move caches to anothe dir
     # @param new_dir [String, nil]
+    # @return [String, nil]
     def mv(new_dir)
       return unless new_dir && @ext == "xml"
+
+      if File.exist? new_dir
+        warn "[relaton] WARNING: target directory exists \"#{new_dir}\""
+        return
+      end
 
       FileUtils.mv dir, new_dir
       @dir = new_dir

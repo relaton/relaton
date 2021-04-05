@@ -106,14 +106,18 @@ db = Relaton::Db.new("globalcache", "localcache")
 
 ==== Move DB
 
-`Relaton::Db#mv(new_globalcache_dir, new_localcahe_dir)` moves DB directories to new location.
+`Relaton::Db#mv(new_dir, type: :global)` moves DB directory to new location. Returns path to new directory if successful, or `nil` if target directiory exists.
 
-* `new_globalcahe_dir` - (String or nil) new globalcache location
-* `new_localcahe_dir` - (String or nil) new localcache location
+* `new_dir` - (String) new cache location
+* `type` - (Symbol) type of cache DB. Allowed values are: `:global`, `:local`. Default is `:global`.
 
 [source,ruby]
 ----
-db.mv("new_globalcache_dir", "new_localcahe_dir")
+db.mv("new_global_dir")
+=> "new_global_dir"
+
+db.mv("new_local_dir", type: :local)
+=> "new_local_dir"
 ----
 
 ==== Clear DB
@@ -330,7 +334,7 @@ ISO/IEC DIR 1
 ISO/IEC DIR 2 IEC
 ISO/IEC DIR 2 ISO
 ISO/IEC DIR IEC SUP
-ISO/IEC DIR 1 ISO SUP
+ISO/IEC DIR 1 JTC SUP
 ----
 
 === Get document type
@@ -368,7 +372,7 @@ x.to_xml bibdata: true
 db.load_entry("ISO(ISO 19011)")
 => "<bibdata type="standard">
       ...
-    <?bibdata>"
+    </bibdata>"
 ----
 
 === Entry manipulation
