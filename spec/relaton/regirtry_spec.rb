@@ -3,7 +3,7 @@ RSpec.describe Relaton::Registry do
     stub_const "Relaton::Registry::SUPPORTED_GEMS", ["not_supported_gem"]
     expect { Relaton::Registry.clone.instance }.to output(
       /backend not_supported_gem not present/
-    ).to_stdout
+    ).to_stderr
   end
 
   it "finds ISO processor" do

@@ -15,8 +15,10 @@ module Relaton
     attr_accessor :logs, :use_api
 
     def initialize
-      @logs = %i(warning error)
-      @use_api = false # @TODO change to true when we start using api.relaton.org
+      @logs = %i(info error)
+
+      # @TODO change to true when we start using api.relaton.org
+      @use_api = false
     end
   end
 

@@ -4,7 +4,7 @@ module Relaton
       log_types = Relaton.configuration.logs.map(&:to_s) || []
 
       if log_types.include?(type.to_s)
-        puts(message)
+        warn(message)
       end
     end
   end
