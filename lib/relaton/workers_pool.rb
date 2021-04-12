@@ -8,9 +8,7 @@ module Relaton
       @queue = SizedQueue.new(num_workers * 2)
       @threads = Array.new num_workers do
         Thread.new do
-          while item = @queue.pop
-            yield(item)
-          end
+          while item = @queue.pop; yield(item) end
         end
       end
     end

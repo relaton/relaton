@@ -182,14 +182,19 @@ x = db.fetch_db("ISO 5749")
 # prepare queue for results
 results = Queue.new
 
-# fetch document
-db.fetch_async("ISO 19115") do |result|
-  results << { "ISO 19115" => result }
+# references ot fetch
+refs = ["ISO 19011", "ISO 19115"]
+
+# fetch documents
+refs.each do |ref|
+  db.fetch_async(ref) do |doc|
+    results << [ref, doc]
+  end
 end
-# fetch other documets the same way
 
 # wait until documets fetching
-while x = results.pop
+refs.size.times do
+  ref, doc = results.pop
   # do thatever you need with result x
 end
 ----

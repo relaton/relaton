@@ -157,12 +157,21 @@ RSpec.describe Relaton::Db do
     let(:queue) { Queue.new }
 
     it "success" do
-      result = nil
-      VCR.use_cassette "rfc_8341" do
-        db.fetch_async("RFC 8341") { |r| queue << r }
-        Timeout.timeout(5) { result = queue.pop }
+      refs = ["ITU-T G.993.5", "ITU-T G.994.1", "ITU-T H.264.1", "ITU-T H.740",
+              "ITU-T Y.1911", "ITU-T Y.2012", "ITU-T Y.2206", "ITU-T O.172",
+              "ITU-T G.780/Y.1351", "ITU-T G.711", "ITU-T G.1011"]
+      results = []
+      VCR.use_cassette "async_fetch", match_requests_on: %i[method uri body] do
+        refs.each do |ref|
+          db.fetch_async(ref) { |r| queue << r }
+        end
+        Timeout.timeout(60) do
+          refs.size.times { results << queue.pop }
+        end
       end
-      expect(result).to be_instance_of RelatonIetf::IetfBibliographicItem
+      results.each do |result|
+        expect(result).to be_instance_of RelatonItu::ItuBibliographicItem
+      end
     end
 
     it "prefix not found" do

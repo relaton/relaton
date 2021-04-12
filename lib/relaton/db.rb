@@ -466,9 +466,7 @@ module Relaton
     # @option qwp [Queue] :queue The queue of references to fetch
     # @option qwp [Relaton::WorkersPool] :workers_pool The pool of workers
     def process_queue(qwp)
-      while args = qwp[:queue].pop
-        qwp[:workers_pool] << args
-      end
+      while args = qwp[:queue].pop; qwp[:workers_pool] << args end
     end
   end
 end
