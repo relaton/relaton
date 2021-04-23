@@ -278,6 +278,13 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "get BSI reference" do
+    VCR.use_cassette "bsi_bs_en_iso_8848" do
+      bib = @db.fetch "BSI BS EN ISO 8848"
+      expect(bib).to be_instance_of RelatonBsi::BsiBibliographicItem
+    end
+  end
+
   context "get combined documents" do
     context "ISO" do
       it "included" do
@@ -331,10 +338,10 @@ RSpec.describe Relaton::Db do
           expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2"
           expect(bib.relation[1].type).to eq "complements"
           expect(bib.relation[1].description.content).to eq "amendment"
-          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2/Amd 1"
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2 Amd 1"
           expect(bib.relation[2].type).to eq "complements"
           expect(bib.relation[2].description.content).to eq "amendment"
-          expect(bib.relation[2].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2/Amd 2"
+          expect(bib.relation[2].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2 Amd 2"
         end
       end
     end

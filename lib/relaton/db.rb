@@ -245,7 +245,7 @@ module Relaton
     #   RelatonCalconnect::CcBibliographicItem, RelatinUn::UnBibliographicItem,
     #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
-    def combine_doc(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+    def combine_doc(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       if (refs = code.split " + ").size > 1
         reltype = "derivedFrom"
         reldesc = nil
@@ -262,8 +262,9 @@ module Relaton
         doc.relation << RelatonBib::DocumentRelation.new(bibitem: updates,
                                                          type: "updates")
       end
+      divider = stdclass == :relaton_itu ? " " : "/"
       refs[1..-1].each_with_object(doc) do |c, d|
-        bib = check_bibliocache("#{ref}/#{c}", year, opts, stdclass)
+        bib = check_bibliocache(ref + divider + c, year, opts, stdclass)
         if bib
           d.relation << RelatonBib::DocumentRelation.new(
             type: reltype, description: reldesc, bibitem: bib
