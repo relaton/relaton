@@ -40,7 +40,7 @@ module Relaton
       p = processor.new
       return if processors[p.short]
 
-      Util.log("[relaton] processor \"#{p.short}\" registered", :info)
+      Util.log("[relaton] processor \"#{p.short}\" registered", :debug)
       processors[p.short] = p
     end
 

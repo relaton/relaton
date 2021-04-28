@@ -1,5 +1,7 @@
 module Relaton
   module Util
+    # @param message [String]
+    # @param type [Symbol] default :info
     def self.log(message, type = :info)
       log_types = Relaton.configuration.logs.map(&:to_s) || []
 
