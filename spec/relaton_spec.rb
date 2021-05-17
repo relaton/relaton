@@ -225,7 +225,7 @@ RSpec.describe Relaton::Db do
   end
 
   it "get OMG reference" do
-    VCR.use_cassette "ogm_ami4ccm_1_0" do
+    VCR.use_cassette "omg_ami4ccm_1_0" do
       bib = @db.fetch "OMG AMI4CCM 1.0", nil, {}
       expect(bib).to be_instance_of RelatonOmg::OmgBibliographicItem
     end
