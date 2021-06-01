@@ -79,5 +79,13 @@ RSpec.describe Relaton::Registry do
     it "CIE" do
       expect(Relaton::Registry.instance.by_type("CIE")).to be_instance_of RelatonCie::Processor
     end
+
+    it "BSI" do
+      expect(Relaton::Registry.instance.by_type("BSI")).to be_instance_of RelatonBsi::Processor
+    end
+
+    it "CEN" do
+      expect(Relaton::Registry.instance.by_type("CEN")).to be_instance_of RelatonCen::Processor
+    end
   end
 end

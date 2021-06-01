@@ -285,6 +285,13 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "get CEN reference" do
+    VCR.use_cassette "cen_en_10160_1999" do
+      bib = @db.fetch "CEN EN 10160:1999"
+      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+    end
+  end
+
   context "get combined documents" do
     context "ISO" do
       it "included" do

@@ -33,6 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "relaton-bipm", "~> 1.8.0"
   spec.add_dependency "relaton-bsi", "~> 1.8.0"
   spec.add_dependency "relaton-calconnect", "~> 1.8.0"
+  spec.add_dependency "relaton-cen", "~> 1.8.pre1"
   spec.add_dependency "relaton-cie", "~> 1.8.0"
   spec.add_dependency "relaton-ecma", "~> 1.8.0"
   spec.add_dependency "relaton-gb", "~> 1.8.0"
