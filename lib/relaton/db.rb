@@ -417,6 +417,16 @@ module Relaton
 
     # @raise [RelatonBib::RequestError]
     def net_retry(code, year, opts, stdclass, retries)
+      if Relaton.configuration.use_api
+        params = opts.merge(code: code, year: year).map { |k, v| "#{k}=#{v}"}.join "&"
+        url = "#{Relaton.configuration.api_host}/api/v1/standard?#{params}"
+        rsp = Net::HTTP.get_response URI(url)
+        if rsp.code == "200"
+          return @registry.processors[stdclass].from_xml rsp.body
+        end
+      end
+      @registry.processors[stdclass].get(code, year, opts)
+    rescue Errno::ECONNREFUSED
       @registry.processors[stdclass].get(code, year, opts)
     rescue RelatonBib::RequestError => e
       raise e unless retries > 1

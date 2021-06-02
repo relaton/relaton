@@ -389,4 +389,37 @@ RSpec.describe Relaton::Db do
       expect(File.exist?("testcache2/iso/version")).to eq false
     end
   end
+
+  context "api.relaton.org" do
+    before(:each) do
+      Relaton.configure do |config|
+        config.use_api = true
+        config.api_host = "http://0.0.0.0:9292"
+      end
+    end
+
+    after(:each) do
+      Relaton.configure do |config|
+        config.use_api = false
+      end
+    end
+
+    it "get document" do
+      VCR.use_cassette "api_relaton_org", re_record_interval: nil do
+        bib = @db.fetch "ISO 19115-2", "2019"
+        expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      end
+    end
+
+    it "if unavailable then get document directly" do
+      expect(Net::HTTP).to receive(:get_response).and_wrap_original do |m, *args|
+        raise Errno::ECONNREFUSED if args[0].host == "0.0.0.0"
+        m.call *args
+      end.at_least :once
+      VCR.use_cassette "api_relaton_org_unavailable" do
+        bib = @db.fetch "ISO 19115-2", "2019"
+        expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      end
+    end
+  end
 end
