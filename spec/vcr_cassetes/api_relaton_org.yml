@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://0.0.0.0:9292/api/v1/standard?code=ISO%2019115-2&year=2019
+    uri: http://0.0.0.0:9292/api/v1/fetch?code=ISO%2019115-2&year=2019
     body:
       encoding: US-ASCII
       string: ''

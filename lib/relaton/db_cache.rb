@@ -1,5 +1,6 @@
 require "fileutils"
 require "timeout"
+require "relaton/storage"
 
 module Relaton
   class DbCache
@@ -10,16 +11,15 @@ module Relaton
     def initialize(dir, ext = "xml")
       @dir = dir
       @ext = ext
-      FileUtils::mkdir_p @dir
-      # file_version = "#{@dir}/version"
-      # set_version # unless File.exist? file_version
+      @storage = Storage.instance
+      FileUtils::mkdir_p @dir unless Relaton.configuration.api_mode
     end
 
     # Move caches to anothe dir
     # @param new_dir [String, nil]
     # @return [String, nil]
     def mv(new_dir)
-      return unless new_dir && @ext == "xml"
+      return unless new_dir && @ext == "xml" && !Relaton.configuration.api_mode
 
       if File.exist? new_dir
         warn "[relaton] WARNING: target directory exists \"#{new_dir}\""
@@ -32,7 +32,9 @@ module Relaton
 
     # Clear database
     def clear
-      FileUtils.rm_rf Dir.glob "#{dir}/*" if @ext == "xml" # unless it's static DB
+      return if Relaton.configuration.api_mode
+
+      FileUtils.rm_rf Dir.glob "#{dir}/*" if @ext == "xml" # if it's static DB
     end
 
     # Save item
@@ -45,19 +47,8 @@ module Relaton
       end
 
       prefix_dir = "#{@dir}/#{prefix(key)}"
-      FileUtils::mkdir_p prefix_dir unless Dir.exist? prefix_dir
-      set_version prefix_dir
-      file_safe_write "#{filename(key)}.#{ext(value)}", value
-    end
-
-    # @param value [String]
-    # @return [String]
-    def ext(value)
-      case value
-      when /^not_found/ then "notfound"
-      when /^redirection/ then "redirect"
-      else @ext
-      end
+      file = "#{filename(key)}.#{ext(value)}"
+      @storage.save prefix_dir, file, value
     end
 
     # Read item
@@ -86,7 +77,7 @@ module Relaton
       value = self[key]
       return unless value
 
-      if value.match? /^not_found/
+      if value.match?(/^not_found/)
         value.match(/\d{4}-\d{2}-\d{2}/).to_s
       else
         doc = Nokogiri::XML value
@@ -96,41 +87,21 @@ module Relaton
 
     # Returns all items
     # @return [Array<String>]
-    def all
-      Dir.glob("#{@dir}/**/*.{xml,yml,yaml}").sort.map do |f|
-        content = File.read(f, encoding: "utf-8")
-        block_given? ? yield(f, content) : content
-      end
+    def all(&block)
+      @storage.all(@dir, &block)
     end
 
     # Delete item
     # @param key [String]
     def delete(key)
-      file = filename key
-      f = search_ext(file)
-      File.delete f if f
+      @storage.delete filename(key)
     end
 
     # Check if version of the DB match to the gem grammar hash.
     # @param fdir [String] dir pathe to flover cache
-    # @return [TrueClass, FalseClass]
+    # @return [Boolean]
     def check_version?(fdir)
-      version_dir = fdir + "/version"
-      return false unless File.exist? version_dir
-
-      v = File.read version_dir, encoding: "utf-8"
-      v.strip == grammar_hash(fdir)
-    end
-
-    # Set version of the DB to the gem grammar hash.
-    # @param fdir [String] dir pathe to flover cache
-    # @return [Relaton::DbCache]
-    def set_version(fdir)
-      file_version = "#{fdir}/version"
-      unless File.exist? file_version
-        file_safe_write file_version, grammar_hash(fdir)
-      end
-      self
+      @storage.check_version? fdir
     end
 
     # if cached reference is undated, expire it after 60 days
@@ -144,27 +115,39 @@ module Relaton
       year || Date.today - date < 60
     end
 
-    protected
-
-    # @param fdir [String] dir pathe to flover cache
-    # @return [String]
-    def grammar_hash(fdir)
-      type = fdir.split("/").last
-      Relaton::Registry.instance.by_type(type)&.grammar_hash
-    end
-
     # Reads file by a key
     #
     # @param key [String]
     # @return [String, NilClass]
     def get(key)
-      file = filename key
-      return unless (f = search_ext(file))
-
-      File.read(f, encoding: "utf-8")
+      @storage.get filename(key)
     end
 
     private
+
+    # @param value [String]
+    # @return [String]
+    def ext(value)
+      case value
+      when /^not_found/ then "notfound"
+      when /^redirection/ then "redirect"
+      else @ext
+      end
+    end
+
+    # Return item's file name
+    # @param key [String]
+    # @return [String]
+    def filename(key)
+      prefcode = key.downcase.match(/^(?<prefix>[^(]+)\((?<code>[^)]+)/)
+      fn = if prefcode
+             "#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[-:\s\/()]/, '_')
+               .squeeze('_')}"
+           else
+             key.gsub(/[-:\s]/, "_")
+           end
+      "#{@dir}/#{fn.sub(/(,|_$)/, '')}"
+    end
 
     # Check if a file content is redirection
     #
@@ -175,60 +158,26 @@ module Relaton
       code
     end
 
-    # Return item's file name
-    # @param key [String]
-    # @return [String]
-    def filename(key)
-      prefcode = key.downcase.match /^(?<prefix>[^\(]+)\((?<code>[^\)]+)/
-      fn = if prefcode
-             "#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[-:\s\/\()]/, '_').squeeze('_')}"
-           else
-             key.gsub(/[-:\s]/, "_")
-           end
-      "#{@dir}/#{fn.sub(/(,|_$)/, '')}"
-    end
-
-    #
-    # Checks if there is file with xml or txt extension and return filename with
-    # the extension.
-    #
-    # @param file [String]
-    # @return [String, NilClass]
-    def search_ext(file)
-      if File.exist?("#{file}.#{@ext}")
-        "#{file}.#{@ext}"
-      elsif File.exist? "#{file}.notfound"
-        "#{file}.notfound"
-      elsif File.exist? "#{file}.redirect"
-        "#{file}.redirect"
-      end
-    end
-
     # Return item's subdir
     # @param key [String]
     # @return [String]
     def prefix(key)
-      key.downcase.match(/^[^\(]+(?=\()/).to_s
-    end
-
-    # @param file [String]
-    # @content [String]
-    def file_safe_write(file, content)
-      File.open file, File::RDWR | File::CREAT, encoding: "UTF-8" do |f|
-        Timeout.timeout(10) { f.flock File::LOCK_EX }
-        f.write content
-      end
+      key.downcase.match(/^[^(]+(?=\()/).to_s
     end
 
     class << self
       private
 
       def global_bibliocache_name
-        "#{Dir.home}/.relaton/cache"
+        if Relaton.configuration.api_mode
+          "cache"
+        else
+          "#{Dir.home}/.relaton/cache"
+        end
       end
 
       def local_bibliocache_name(cachename)
-        return nil if cachename.nil?
+        return nil if Relaton.configuration.api_mode || cachename.nil?
 
         cachename = "relaton" if cachename.empty?
         "#{cachename}/cache"
@@ -243,7 +192,7 @@ module Relaton
       def init_bib_caches(opts) # rubocop:disable Metrics/CyclomaticComplexity
         globalname = global_bibliocache_name if opts[:global_cache]
         localname = local_bibliocache_name(opts[:local_cache])
-        localname = "relaton" if localname&.empty?
+        # localname = "relaton" if localname&.empty? && !Relaton.configuration.api_mode
         if opts[:flush_caches]
           FileUtils.rm_rf globalname unless globalname.nil?
           FileUtils.rm_rf localname unless localname.nil?
