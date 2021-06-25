@@ -1,6 +1,23 @@
 RSpec.describe Relaton::Db do
   before(:each) { FileUtils.rm_rf %w[testcache testcache2] }
 
+  context "initialization in API mode" do
+    before(:each) { Relaton.configure { |c| c.api_mode = true } }
+    after(:each) { Relaton.configure { |c| c.api_mode = false } }
+
+    it do
+      db = Relaton::Db.new "cache", nil
+      cache = db.instance_variable_get :@db
+      expect(cache.dir).to eq "cache"
+    end
+
+    it "with default cache directory" do
+      db = Relaton::DbCache.init_bib_caches global_cache: true
+      cache = db.instance_variable_get :@db
+      expect(cache.dir).to eq "cache"
+    end
+  end
+
   context "modifing database" do
     let(:db) { Relaton::Db.new "testcache", "testcache2" }
 

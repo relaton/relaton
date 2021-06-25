@@ -10,9 +10,14 @@ module Relaton
     # @param local_cache [String] directory of local DB
     def initialize(global_cache, local_cache)
       @registry = Relaton::Registry.instance
-      gpath = global_cache && File.expand_path(global_cache)
+      if Relaton.configuration.api_mode
+        gpath = global_cache
+        lpath = local_cache
+      else
+        gpath = global_cache && File.expand_path(global_cache)
+        lpath = local_cache && File.expand_path(local_cache)
+      end
       @db = open_cache_biblio(gpath, type: :global)
-      lpath = local_cache && File.expand_path(local_cache)
       @local_db = open_cache_biblio(lpath, type: :local)
       @static_db = open_cache_biblio File.expand_path("../relaton/static_cache",
                                                       __dir__)
@@ -207,7 +212,7 @@ module Relaton
     end
 
     # @param file [String] file path
-    # @param content [String] content in XML or YAmL format
+    # @param content [String] content in XML or YAML format
     # @param edition [String, nil] edition to filter
     # @param year [Integer, nil] year to filter
     # @return [BibliographicItem, nil]
@@ -220,9 +225,14 @@ module Relaton
         item.date.detect { |d| d.type == "published" && d.on(:year).to_s == year.to_s })
     end
 
+    #
+    # Look up text in the XML elements attributes and content
+    #
     # @param xml [String] content in XML format
     # @param text [String, nil] text to serach
+    #
     # @return [Boolean]
+    #
     def match_xml_text(xml, text)
       %r{((?<attr>=((?<apstr>')|"))|>).*?#{text}.*?(?(<attr>)(?(<apstr>)'|")|<)}mi.match?(xml)
     end
@@ -418,8 +428,9 @@ module Relaton
     # @raise [RelatonBib::RequestError]
     def net_retry(code, year, opts, stdclass, retries)
       if Relaton.configuration.use_api
-        params = opts.merge(code: code, year: year).map { |k, v| "#{k}=#{v}"}.join "&"
-        url = "#{Relaton.configuration.api_host}/api/v1/standard?#{params}"
+        params = opts.merge(code: code, year: year).map { |k, v| "#{k}=#{v}" }
+          .join "&"
+        url = "#{Relaton.configuration.api_host}/api/v1/fetch?#{params}"
         rsp = Net::HTTP.get_response URI(url)
         if rsp.code == "200"
           return @registry.processors[stdclass].from_xml rsp.body
@@ -467,7 +478,7 @@ module Relaton
         Util.log(
           "[relaton] WARNING: cache #{fdir}: version is obsolete and cache is "\
             "cleared.",
-          :warning
+          :warning,
         )
       end
       db
