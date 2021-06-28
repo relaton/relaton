@@ -36,17 +36,13 @@ module Relaton
     #
     # @return [Array<String>]
     #
-    def all(dir)
+    def all(dir, &block)
       if Relaton.configuration.api_mode
-        list = @s3.list_objects_v2 bucket: ENV["AWS_BUCKET"], prefix: dir
-        list.contents.select { |i| i.key.match?(/\.xml$/) }.sort_by(&:key).map do |item|
-          content = s3_read item.key
-          block_given? ? yield(item.key, content) : content
-        end
+        all_s3 dir, &block
       else
         Dir.glob("#{dir}/**/*.{xml,yml,yaml}").sort.map do |f|
           content = File.read(f, encoding: "utf-8")
-          block_given? ? yield(f, content) : content
+          block ? yield(f, content) : content
         end
       end
     end
@@ -59,23 +55,18 @@ module Relaton
     end
 
     # Check if version of the DB match to the gem grammar hash.
-    # @param fdir [String] dir pathe to flover cache
+    # @param fdir [String] dir pathe to flavor cache
     # @return [Boolean]
     def check_version?(fdir)
       file_version = "#{fdir}/version"
       if Relaton.configuration.api_mode
-        begin
-          v = s3_read file_version
-        rescue Aws::S3::Errors::NoSuchKey
-          return false
-        end
+        check_version_s3? file_version, fdir
       else
         return false unless File.exist? fdir
 
         v = File.read file_version, encoding: "utf-8"
+        v.strip == grammar_hash(fdir)
       end
-
-      v.strip == grammar_hash(fdir)
     end
 
     # Reads file by a key
@@ -94,6 +85,16 @@ module Relaton
 
     private
 
+    # Check if version of the DB match to the gem grammar hash.
+    # @param file_version [String] dir pathe to flover cache
+    # @param dir [String] fdir pathe to flavor cache
+    # @return [Boolean]
+    def check_version_s3?(file_version, fdir)
+      s3_read(file_version) == grammar_hash(fdir)
+    rescue Aws::S3::Errors::NoSuchKey
+      false
+    end
+
     #
     # Read file form AWS S#
     #
@@ -104,6 +105,21 @@ module Relaton
     def s3_read(key)
       obj = @s3.get_object bucket: ENV["AWS_BUCKET"], key: key
       obj.body.read
+    end
+
+    #
+    # Returns all items
+    #
+    # @param dir [String]
+    #
+    # @return [Array<String>]
+    #
+    def all_s3(dir)
+      list = @s3.list_objects_v2 bucket: ENV["AWS_BUCKET"], prefix: dir
+      list.contents.select { |i| i.key.match?(/\.xml$/) }.sort_by(&:key).map do |item|
+        content = s3_read item.key
+        block_given? ? yield(item.key, content) : content
+      end
     end
 
     #
@@ -131,19 +147,21 @@ module Relaton
     # @param fdir [String] dir pathe to flover cache
     def set_version(fdir)
       file_version = "#{fdir}/version"
-      if Relaton.configuration.api_mode
-        begin
-          @s3.head_object bucket: ENV["AWS_BUCKET"], key: file_version
-        rescue Aws::S3::Errors::NotFound
-          @s3.put_object(bucket: ENV["AWS_BUCKET"], key: file_version,
-                         body: grammar_hash(fdir))
-        end
+      if Relaton.configuration.api_mode then set_version_s3 file_version, fdir
       else
         FileUtils::mkdir_p fdir unless Dir.exist?(fdir)
         unless File.exist? file_version
           file_safe_write file_version, grammar_hash(fdir)
         end
       end
+    end
+
+    # Set version of the DB to the gem grammar hash.
+    # @param fdir [String] dir pathe to flover cache
+    def set_version_s3(fver, dir)
+      @s3.head_object bucket: ENV["AWS_BUCKET"], key: fver
+    rescue Aws::S3::Errors::NotFound
+      @s3.put_object bucket: ENV["AWS_BUCKET"], key: fver, body: grammar_hash(dir)
     end
 
     # @param file [String]
