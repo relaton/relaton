@@ -189,6 +189,8 @@ module Relaton
     #
     # @param stdclass [Symbol]
     def fetch_api(code, year, opts, stdclass)
+      return unless Relaton.configuration.use_api
+
       params = opts.merge(code: code, year: year).map { |k, v| "#{k}=#{v}" }.join "&"
       url = "#{Relaton.configuration.api_host}/api/v1/fetch?#{params}"
       rsp = Net::HTTP.get_response URI(url)
@@ -448,10 +450,9 @@ module Relaton
     # @return [RelatonBib::BibliographicItem]
     #
     def net_retry(code, year, opts, stdclass, retries)
-      if Relaton.configuration.use_api
-        doc = fetch_api code, year, opts, stdclass
-        return doc if doc
-      end
+      doc = fetch_api code, year, opts, stdclass
+      return doc if doc
+
       @registry.processors[stdclass].get(code, year, opts)
     rescue Errno::ECONNREFUSED
       @registry.processors[stdclass].get(code, year, opts)
@@ -491,7 +492,7 @@ module Relaton
         FileUtils.rm_rf(fdir, secure: true)
         Util.log(
           "[relaton] WARNING: cache #{fdir}: version is obsolete and cache is "\
-            "cleared.", :warning,
+            "cleared.", :warning
         )
       end
       db
@@ -512,22 +513,19 @@ module Relaton
       def init_bib_caches(opts) # rubocop:disable Metrics/CyclomaticComplexity
         globalname = global_bibliocache_name if opts[:global_cache]
         localname = local_bibliocache_name(opts[:local_cache])
-        # localname = "relaton" if localname&.empty? && !Relaton.configuration.api_mode
-        if opts[:flush_caches]
-          FileUtils.rm_rf globalname unless globalname.nil?
-          FileUtils.rm_rf localname unless localname.nil?
-        end
+        flush_caches globalname, localname if opts[:flush_caches]
         Relaton::Db.new(globalname, localname)
       end
 
       private
 
+      def flush_caches(gcache, lcache)
+        FileUtils.rm_rf gcache unless gcache.nil?
+        FileUtils.rm_rf lcache unless lcache.nil?
+      end
+
       def global_bibliocache_name
-        if Relaton.configuration.api_mode
-          "cache"
-        else
-          "#{Dir.home}/.relaton/cache"
-        end
+        Relaton.configuration.api_mode ? "cache" : "#{Dir.home}/.relaton/cache"
       end
 
       def local_bibliocache_name(cachename)

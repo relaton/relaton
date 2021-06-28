@@ -37,13 +37,11 @@ module Relaton
     # @return [Array<String>]
     #
     def all(dir, &block)
-      if Relaton.configuration.api_mode
-        all_s3 dir, &block
-      else
-        Dir.glob("#{dir}/**/*.{xml,yml,yaml}").sort.map do |f|
-          content = File.read(f, encoding: "utf-8")
-          block ? yield(f, content) : content
-        end
+      return all_s3 dir, &block if Relaton.configuration.api_mode
+
+      Dir.glob("#{dir}/**/*.{xml,yml,yaml}").sort.map do |f|
+        content = File.read(f, encoding: "utf-8")
+        block ? yield(f, content) : content
       end
     end
 
@@ -132,12 +130,6 @@ module Relaton
       if Relaton.configuration.api_mode
         fs = @s3.list_objects_v2 bucket: ENV["AWS_BUCKET"], prefix: "#{file}."
         fs.contents.first&.key
-      # elsif File.exist?("#{file}.#{@ext}")
-      #   "#{file}.#{@ext}"
-      # elsif File.exist? "#{file}.notfound"
-      #   "#{file}.notfound"
-      # elsif File.exist? "#{file}.redirect"
-      #   "#{file}.redirect"
       else
         Dir["#{file}.*"].first
       end
@@ -147,12 +139,11 @@ module Relaton
     # @param fdir [String] dir pathe to flover cache
     def set_version(fdir)
       file_version = "#{fdir}/version"
-      if Relaton.configuration.api_mode then set_version_s3 file_version, fdir
-      else
-        FileUtils::mkdir_p fdir unless Dir.exist?(fdir)
-        unless File.exist? file_version
-          file_safe_write file_version, grammar_hash(fdir)
-        end
+      return set_version_s3 file_version, fdir if Relaton.configuration.api_mode
+
+      FileUtils::mkdir_p fdir unless Dir.exist?(fdir)
+      unless File.exist? file_version
+        file_safe_write file_version, grammar_hash(fdir)
       end
     end
 
