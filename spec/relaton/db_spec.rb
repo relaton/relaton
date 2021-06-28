@@ -12,7 +12,7 @@ RSpec.describe Relaton::Db do
     end
 
     it "with default cache directory" do
-      db = Relaton::DbCache.init_bib_caches global_cache: true
+      db = Relaton::Db.init_bib_caches global_cache: true
       cache = db.instance_variable_get :@db
       expect(cache.dir).to eq "cache"
     end

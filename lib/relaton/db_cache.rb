@@ -45,8 +45,8 @@ module Relaton
         delete key
         return
       end
-
-      prefix_dir = "#{@dir}/#{prefix(key)}"
+      /^(?<pref>[^(]+)(?=\()/ =~ key.downcase
+      prefix_dir = "#{@dir}/#{pref}"
       file = "#{filename(key)}.#{ext(value)}"
       @storage.save prefix_dir, file, value
     end
@@ -161,44 +161,8 @@ module Relaton
     # Return item's subdir
     # @param key [String]
     # @return [String]
-    def prefix(key)
-      key.downcase.match(/^[^(]+(?=\()/).to_s
-    end
-
-    class << self
-      private
-
-      def global_bibliocache_name
-        if Relaton.configuration.api_mode
-          "cache"
-        else
-          "#{Dir.home}/.relaton/cache"
-        end
-      end
-
-      def local_bibliocache_name(cachename)
-        return nil if Relaton.configuration.api_mode || cachename.nil?
-
-        cachename = "relaton" if cachename.empty?
-        "#{cachename}/cache"
-      end
-
-      public
-
-      # Initialse and return relaton instance, with local and global cache names
-      # local_cache: local cache name; none created if nil; "relaton" created
-      # if empty global_cache: boolean to create global_cache
-      # flush_caches: flush caches
-      def init_bib_caches(opts) # rubocop:disable Metrics/CyclomaticComplexity
-        globalname = global_bibliocache_name if opts[:global_cache]
-        localname = local_bibliocache_name(opts[:local_cache])
-        # localname = "relaton" if localname&.empty? && !Relaton.configuration.api_mode
-        if opts[:flush_caches]
-          FileUtils.rm_rf globalname unless globalname.nil?
-          FileUtils.rm_rf localname unless localname.nil?
-        end
-        Relaton::Db.new(globalname, localname)
-      end
-    end
+    # def prefix(key)
+    #   key.downcase.match(/^[^(]+(?=\()/).to_s
+    # end
   end
 end
