@@ -120,7 +120,7 @@ module Relaton
     # @param key [String]
     # @return [String, NilClass]
     def get(key)
-      @storage.get filename(key)
+      @storage.get filename(key), static: @ext == "yml"
     end
 
     private
