@@ -1,7 +1,3 @@
-require "yaml"
-require_relative "registry"
-require_relative "db_cache"
-
 module Relaton
   class RelatonError < StandardError; end
 
@@ -19,8 +15,7 @@ module Relaton
       end
       @db = open_cache_biblio(gpath, type: :global)
       @local_db = open_cache_biblio(lpath, type: :local)
-      @static_db = open_cache_biblio File.expand_path("../relaton/static_cache",
-                                                      __dir__)
+      @static_db = open_cache_biblio File.expand_path "../relaton/static_cache", __dir__
       @queues = {}
     end
 
@@ -279,16 +274,13 @@ module Relaton
       doc = @registry.processors[stdclass].hash_to_bib docid: { id: code }
       updates = check_bibliocache(refs[0], year, opts, stdclass)
       if updates
-        doc.relation << RelatonBib::DocumentRelation.new(bibitem: updates,
-                                                         type: "updates")
+        doc.relation << RelatonBib::DocumentRelation.new(bibitem: updates, type: "updates")
       end
       divider = stdclass == :relaton_itu ? " " : "/"
       refs[1..-1].each_with_object(doc) do |c, d|
         bib = check_bibliocache(refs[0] + divider + c, year, opts, stdclass)
         if bib
-          d.relation << RelatonBib::DocumentRelation.new(
-            type: reltype, description: reldesc, bibitem: bib,
-          )
+          d.relation << RelatonBib::DocumentRelation.new(type: reltype, description: reldesc, bibitem: bib)
         end
       end
     end
@@ -300,9 +292,7 @@ module Relaton
         return name if /^(urn:)?#{processor.prefix}/i.match?(code) ||
           processor.defaultprefix.match(code)
       end
-      allowed = @registry.processors.reduce([]) do |m, (_k, v)|
-        m << v.prefix
-      end
+      allowed = @registry.processors.reduce([]) { |m, (_k, v)| m << v.prefix }
       Util.log <<~WARN, :info
         [relaton] #{code} does not have a recognised prefix: #{allowed.join(', ')}.
         See https://github.com/relaton/relaton/ for instructions on prefixing and wrapping document identifiers to disambiguate them.
@@ -351,8 +341,8 @@ module Relaton
     #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def bib_retval(entry, stdclass)
-      if entry.nil? || entry.match?(/^not_found/) then nil
-      else @registry.processors[stdclass].from_xml(entry)
+      unless entry.nil? || entry.match?(/^not_found/)
+        @registry.processors[stdclass].from_xml(entry)
       end
     end
 
@@ -472,9 +462,7 @@ module Relaton
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     # @return [String] XML or "not_found mm-dd-yyyy"
     def bib_entry(bib)
-      if bib.respond_to?(:to_xml) then bib.to_xml(bibdata: true)
-      else "not_found #{Date.today}"
-      end
+      bib.respond_to?(:to_xml) ? bib.to_xml(bibdata: true) : "not_found #{Date.today}"
     end
 
     # @param dir [String, nil] DB directory
@@ -510,7 +498,7 @@ module Relaton
       # local_cache: local cache name; none created if nil; "relaton" created
       # if empty global_cache: boolean to create global_cache
       # flush_caches: flush caches
-      def init_bib_caches(opts) # rubocop:disable Metrics/CyclomaticComplexity
+      def init_bib_caches(**opts) # rubocop:disable Metrics/CyclomaticComplexity
         globalname = global_bibliocache_name if opts[:global_cache]
         localname = local_bibliocache_name(opts[:local_cache])
         flush_caches globalname, localname if opts[:flush_caches]

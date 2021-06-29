@@ -25,7 +25,10 @@ RSpec.describe Relaton::Storage do
       client = double "AwsClient"
       expect(ENV).to receive(:[]).with("AWS_BUCKET").and_return(bucket).twice
       expect(client).to receive(:head_object).with(bucket: bucket, key: "cahche/iso/version")
-      expect(client).to receive(:put_object).with(bucket: bucket, key: key, body: body)
+      expect(client).to receive(:put_object).with(
+        bucket: bucket, key: key, body: body,
+        content_type: "text/plain; charset=utf-8"
+      )
       expect(Aws::S3::Client).to receive(:new).and_return client
       storage.save dir, key, body
     end
@@ -45,6 +48,18 @@ RSpec.describe Relaton::Storage do
       expect(client).to receive(:get_object).with(bucket: bucket, key: "#{key}.xml").and_return obj
       expect(Aws::S3::Client).to receive(:new).and_return client
       expect(storage.get(key)).to eq body
+    end
+
+    it "delete document from S3" do
+      key = "cache/iso/doc"
+      client = double "AwsClient"
+      item = double "Item", key: "#{key}.xml"
+      list = double "List", contents: [item]
+      expect(ENV).to receive(:[]).with("AWS_BUCKET").and_return(bucket).twice
+      expect(client).to receive(:list_objects_v2).with(bucket: bucket, prefix: "#{key}.").and_return list
+      expect(client).to receive(:delete_object).with(bucket: bucket, key: "#{key}.xml")
+      expect(Aws::S3::Client).to receive(:new).and_return client
+      storage.delete key
     end
 
     it "return all the documents from S3" do
@@ -73,8 +88,12 @@ RSpec.describe Relaton::Storage do
       expect(ENV).to receive(:[]).with("AWS_BUCKET").and_return(bucket).twice
       # expect(ENV).to receive(:[]).and_call_original
       error = Aws::S3::Errors::NotFound.new Seahorse::Client::RequestContext.new, ""
-      expect(client).to receive(:head_object).with(bucket: bucket, key: key).and_raise error
-      expect(client).to receive(:put_object).with(bucket: bucket, key: key, body: hash)
+      expect(client).to receive(:head_object).with(bucket: bucket, key: key)
+        .and_raise error
+      expect(client).to receive(:put_object).with(
+        bucket: bucket, key: key, body: hash,
+        content_type: "text/plain; charset=utf-8"
+      )
       expect(Aws::S3::Client).to receive(:new).and_return client
       storage.send :set_version, dir
     end
