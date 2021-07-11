@@ -394,7 +394,7 @@ RSpec.describe Relaton::Db do
     before(:each) do
       Relaton.configure do |config|
         config.use_api = true
-        config.api_host = "http://0.0.0.0:9292"
+        # config.api_host = "http://0.0.0.0:9292"
       end
     end
 
@@ -405,7 +405,7 @@ RSpec.describe Relaton::Db do
     end
 
     it "get document" do
-      VCR.use_cassette "api_relaton_org", re_record_interval: nil do
+      VCR.use_cassette "api_relaton_org" do
         bib = @db.fetch "ISO 19115-2", "2019"
         expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
       end
@@ -413,7 +413,7 @@ RSpec.describe Relaton::Db do
 
     it "if unavailable then get document directly" do
       expect(Net::HTTP).to receive(:get_response).and_wrap_original do |m, *args|
-        raise Errno::ECONNREFUSED if args[0].host == "0.0.0.0"
+        raise Errno::ECONNREFUSED if args[0].host == "api.relaton.org"
 
         m.call(*args)
       end.at_least :once
