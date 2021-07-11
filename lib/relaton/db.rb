@@ -1,10 +1,10 @@
 module Relaton
-  class RelatonError < StandardError; end
+  # class RelatonError < StandardError; end
 
   class Db
     # @param global_cache [String] directory of global DB
     # @param local_cache [String] directory of local DB
-    def initialize(global_cache, local_cache)
+    def initialize(global_cache, local_cache) # rubocop:disable Metrics/MethodLength
       @registry = Relaton::Registry.instance
       if Relaton.configuration.api_mode
         gpath = global_cache
@@ -186,10 +186,22 @@ module Relaton
     def fetch_api(code, year, opts, stdclass)
       return unless Relaton.configuration.use_api
 
-      params = opts.merge(code: code, year: year).map { |k, v| "#{k}=#{v}" }.join "&"
-      url = "#{Relaton.configuration.api_host}/document?#{params}"
+      url = "#{Relaton.configuration.api_host}/document?#{params(code, year, opts)}"
       rsp = Net::HTTP.get_response URI(url)
       @registry.processors[stdclass].from_xml rsp.body if rsp.code == "200"
+    end
+
+    #
+    # Make string of parametrs
+    #
+    # @param [String] code
+    # @param [String] year
+    # @param [Hash] opts
+    #
+    # @return [String]
+    #
+    def params(code, year, opts)
+      opts.merge(code: code, year: year).map { |k, v| "#{k}=#{v}" }.join "&"
     end
 
     # @param file [String] file path
