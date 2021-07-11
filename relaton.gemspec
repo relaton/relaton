@@ -43,7 +43,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "relaton-ietf", "~> 1.8.0"
   spec.add_dependency "relaton-iho", "~> 1.8.0"
   spec.add_dependency "relaton-iso", ">= 1.8.0"
-  spec.add_dependency "relaton-itu", ">= 1.8.0"
+  spec.add_dependency "relaton-itu", ">= 1.8.1"
   spec.add_dependency "relaton-nist", ">= 1.8.0"
   spec.add_dependency "relaton-ogc", "~> 1.8.0"
   spec.add_dependency "relaton-omg", "~> 1.8.0"

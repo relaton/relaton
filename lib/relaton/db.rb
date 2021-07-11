@@ -187,7 +187,7 @@ module Relaton
       return unless Relaton.configuration.use_api
 
       params = opts.merge(code: code, year: year).map { |k, v| "#{k}=#{v}" }.join "&"
-      url = "#{Relaton.configuration.api_host}/api/v1/fetch?#{params}"
+      url = "#{Relaton.configuration.api_host}/document?#{params}"
       rsp = Net::HTTP.get_response URI(url)
       @registry.processors[stdclass].from_xml rsp.body if rsp.code == "200"
     end
