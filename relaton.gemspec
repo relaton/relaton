@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.files         = `git ls-files`.split("\n")
   spec.test_files    = `git ls-files -- {spec}/*`.split("\n")
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.4.0")
+  spec.required_ruby_version = Gem::Requirement.new(">= 2.5.0")
 
   # spec.add_dependency "algoliasearch"
   spec.add_dependency "relaton-bipm", "~> 1.8.0"
@@ -57,7 +57,9 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pry-byebug", "~> 3.9.0"
   spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "rspec", "~> 3.6"
-  spec.add_development_dependency "rubocop", "= 0.54.0"
+  spec.add_development_dependency "rubocop", "= 1.17.0"
+  spec.add_development_dependency "rubocop-performance", "= 1.11.3"
+  spec.add_development_dependency "rubocop-rails", "= 2.10.1"
   # spec.add_development_dependency "ruby-debug-ide"
   spec.add_development_dependency "simplecov", "~> 0.15"
   spec.add_development_dependency "timecop", "~> 0.9"

@@ -104,7 +104,7 @@ module Relaton
       if stdclass
         unless @queues[stdclass]
           processor = @registry.processors[stdclass]
-          wp = WorkersPool.new(processor.threads) { |args| yield fetch *args }
+          wp = WorkersPool.new(processor.threads) { |args| yield fetch(*args) }
           @queues[stdclass] = { queue: Queue.new, workers_pool: wp }
           Thread.new { process_queue @queues[stdclass] }
         end
