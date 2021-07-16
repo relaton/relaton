@@ -4,11 +4,9 @@ module Relaton
     # @param local_cache [String] directory of local DB
     def initialize(global_cache, local_cache)
       @registry = Relaton::Registry.instance
-      gpath = global_cache && File.expand_path(global_cache)
-      lpath = local_cache && File.expand_path(local_cache)
-      @db = open_cache_biblio(gpath, type: :global)
-      @local_db = open_cache_biblio(lpath, type: :local)
-      @static_db = open_cache_biblio File.expand_path "../relaton/static_cache", __dir__
+      @db = open_cache_biblio(global_cache, type: :global)
+      @local_db = open_cache_biblio(local_cache, type: :local)
+      @static_db = open_cache_biblio File.expand_path("../relaton/static_cache", __dir__)
       @queues = {}
     end
 
@@ -61,8 +59,7 @@ module Relaton
             end
       ref ||= code
       result = combine_doc ref, year, opts, stdclass
-      result ||= check_bibliocache(ref, year, opts, stdclass)
-      result
+      result || check_bibliocache(ref, year, opts, stdclass)
     end
 
     # @see Relaton::Db#fetch
@@ -119,12 +116,8 @@ module Relaton
     #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def fetch_std(code, year = nil, stdclass = nil, opts = {})
-      std = nil
-      @registry.processors.each do |name, processor|
-        std = name if processor.prefix == stdclass
-      end
-      std = standard_class(code) or return nil unless std
-
+      std = @registry.processors.detect { |_, p| p.prefix == stdclass }&.first
+      std ||= standard_class(code) || return
       check_bibliocache(code, year, opts, std)
     end
 
@@ -175,13 +168,13 @@ module Relaton
     # @option opts [Boolean] :keep_year If undated reference should return
     #   actual reference with year
     #
-    # @param stdclass [Symbol]
-    def fetch_api(code, year, opts, stdclass)
+    # @param processor [Relaton::Processor]
+    def fetch_api(code, year, opts, processor)
       return unless Relaton.configuration.use_api
 
       url = "#{Relaton.configuration.api_host}/document?#{params(code, year, opts)}"
       rsp = Net::HTTP.get_response URI(url)
-      @registry.processors[stdclass].from_xml rsp.body if rsp.code == "200"
+      processor.from_xml rsp.body if rsp.code == "200"
     end
 
     #
@@ -416,7 +409,8 @@ module Relaton
     # @return [String]
     #
     def new_bib_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-      bib = net_retry(code, year, opts, stdclass, opts.fetch(:retries, 1))
+      processor = @registry.processors[stdclass]
+      bib = net_retry(code, year, opts, processor, opts.fetch(:retries, 1))
       bib_id = bib&.docidentifier&.first&.id
 
       # when docid doesn't match bib's id then return a reference to bib's id
@@ -438,23 +432,23 @@ module Relaton
     # @option opts [Boolean] :keep_year If undated reference should return
     #   actual reference with year
     #
-    # @param stdclass [Symbol]
+    # @param processor [Relaton::Processor]
     # @param retries [Integer] remain Number of network retries
     #
     # @raise [RelatonBib::RequestError]
     # @return [RelatonBib::BibliographicItem]
     #
-    def net_retry(code, year, opts, stdclass, retries)
-      doc = fetch_api code, year, opts, stdclass
+    def net_retry(code, year, opts, processor, retries)
+      doc = fetch_api code, year, opts, processor
       return doc if doc
 
-      @registry.processors[stdclass].get(code, year, opts)
+      processor.get(code, year, opts)
     rescue Errno::ECONNREFUSED
-      @registry.processors[stdclass].get(code, year, opts)
+      processor.get(code, year, opts)
     rescue RelatonBib::RequestError => e
       raise e unless retries > 1
 
-      net_retry(code, year, opts, stdclass, retries - 1)
+      net_retry(code, year, opts, processor, retries - 1)
     end
 
     # @param bib [RelatonBib::BibliographicItem,
@@ -476,10 +470,11 @@ module Relaton
     def open_cache_biblio(dir, type: :static) # rubocop:disable Metrics/MethodLength
       return nil if dir.nil?
 
-      db = DbCache.new dir, type == :static ? "yml" : "xml"
+      path = File.expand_path(dir)
+      db = DbCache.new path, type == :static ? "yml" : "xml"
       return db if type == :static
 
-      Dir["#{dir}/*/"].each do |fdir|
+      Dir["#{path}/*/"].each do |fdir|
         next if db.check_version?(fdir)
 
         FileUtils.rm_rf(fdir, secure: true)
