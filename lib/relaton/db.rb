@@ -169,15 +169,12 @@ module Relaton
     #   actual reference with year
     #
     # @param processor [Relaton::Processor]
-    def fetch_doc(code, year, opts, processor) # rubocop:disable Metrics?AbcSize
-      if Relaton.configuration.use_api
-        url = "#{Relaton.configuration.api_host}/document?#{params(code, year, opts)}"
-        rsp = Net::HTTP.get_response URI(url)
-        processor.from_xml rsp.body if rsp.code == "200"
-      else processor.get(code, year, opts)
-      end
+    def fetch_api(code, year, opts, processor)
+      url = "#{Relaton.configuration.api_host}/document?#{params(code, year, opts)}"
+      rsp = Net::HTTP.get_response URI(url)
+      processor.from_xml rsp.body if rsp.code == "200"
     rescue Errno::ECONNREFUSED
-      processor.get(code, year, opts) if Relaton.configuration.use_api
+      processor.get(code, year, opts)
     end
 
     #
@@ -442,7 +439,9 @@ module Relaton
     # @return [RelatonBib::BibliographicItem]
     #
     def net_retry(code, year, opts, processor, retries)
-      fetch_doc code, year, opts, processor
+      if Relaton.configuration.use_api then fetch_api code, year, opts, processor
+      else processor.get(code, year, opts)
+      end
     rescue RelatonBib::RequestError => e
       raise e unless retries > 1
 
