@@ -133,11 +133,7 @@ module Relaton
     # @param key [String]
     # @return [Hash]
     def load_entry(key)
-      unless @local_db.nil?
-        entry = @local_db[key]
-        return entry if entry
-      end
-      @db[key]
+      (@local_db && @local_db[key]) || @db[key]
     end
 
     # @param key [String]
@@ -159,6 +155,8 @@ module Relaton
 
     private
 
+    # @param (see #fetch_api)
+    # @return (see #fetch_api)
     def fetch_doc(code, year, opts, processor)
       if Relaton.configuration.use_api then fetch_api(code, year, opts, processor)
       else processor.get(code, year, opts)
@@ -175,6 +173,7 @@ module Relaton
     #   actual reference with year
     #
     # @param processor [Relaton::Processor]
+    # @return [RelatonBib::BibliographicItem, nil]
     def fetch_api(code, year, opts, processor)
       url = "#{Relaton.configuration.api_host}/document?#{params(code, year, opts)}"
       rsp = Net::HTTP.get_response URI(url)
