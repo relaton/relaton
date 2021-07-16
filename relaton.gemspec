@@ -30,7 +30,6 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = Gem::Requirement.new(">= 2.5.0")
 
   # spec.add_dependency "algoliasearch"
-  spec.add_dependency "aws-sdk-s3", "~> 1.96.0"
   spec.add_dependency "relaton-bipm", "~> 1.8.0"
   spec.add_dependency "relaton-bsi", "~> 1.8.0"
   spec.add_dependency "relaton-calconnect", "~> 1.8.0"

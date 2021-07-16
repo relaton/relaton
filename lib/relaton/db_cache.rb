@@ -1,6 +1,5 @@
 require "fileutils"
 require "timeout"
-require "relaton/storage"
 
 module Relaton
   class DbCache
@@ -11,15 +10,14 @@ module Relaton
     def initialize(dir, ext = "xml")
       @dir = dir
       @ext = ext
-      @storage = Storage.instance
-      FileUtils::mkdir_p @dir unless Relaton.configuration.api_mode
+      FileUtils::mkdir_p dir
     end
 
     # Move caches to anothe dir
     # @param new_dir [String, nil]
     # @return [String, nil]
     def mv(new_dir)
-      return unless new_dir && @ext == "xml" && !Relaton.configuration.api_mode
+      return unless new_dir && @ext == "xml"
 
       if File.exist? new_dir
         warn "[relaton] WARNING: target directory exists \"#{new_dir}\""
@@ -32,9 +30,7 @@ module Relaton
 
     # Clear database
     def clear
-      return if Relaton.configuration.api_mode
-
-      FileUtils.rm_rf Dir.glob "#{dir}/*" if @ext == "xml" # if it's static DB
+      FileUtils.rm_rf Dir.glob "#{dir}/*" if @ext == "xml" # if it isn't a static DB
     end
 
     # Save item
@@ -47,8 +43,9 @@ module Relaton
       end
       /^(?<pref>[^(]+)(?=\()/ =~ key.downcase
       prefix_dir = "#{@dir}/#{pref}"
-      file = "#{filename(key)}.#{ext(value)}"
-      @storage.save prefix_dir, file, value
+      FileUtils::mkdir_p prefix_dir unless Dir.exist? prefix_dir
+      set_version prefix_dir
+      file_safe_write "#{filename(key)}.#{ext(value)}", value
     end
 
     # Read item
@@ -88,20 +85,29 @@ module Relaton
     # Returns all items
     # @return [Array<String>]
     def all(&block)
-      @storage.all(@dir, &block)
+      Dir.glob("#{@dir}/**/*.{xml,yml,yaml}").sort.map do |f|
+        content = File.read(f, encoding: "utf-8")
+        block ? yield(f, content) : content
+      end
     end
 
     # Delete item
     # @param key [String]
     def delete(key)
-      @storage.delete filename(key)
+      file = filename key
+      f = search_ext file
+      File.delete f if f
     end
 
     # Check if version of the DB match to the gem grammar hash.
     # @param fdir [String] dir pathe to flover cache
     # @return [Boolean]
     def check_version?(fdir)
-      @storage.check_version? fdir
+      version_file = "#{fdir}/version"
+      return false unless File.exist? version_file
+
+      v = File.read version_file, encoding: "utf-8"
+      v.strip == self.class.grammar_hash(fdir)
     end
 
     # if cached reference is undated, expire it after 60 days
@@ -120,7 +126,17 @@ module Relaton
     # @param key [String]
     # @return [String, NilClass]
     def get(key)
-      @storage.get filename(key), static: @ext == "yml"
+      file = filename key
+      return unless (f = search_ext(file))
+
+      File.read(f, encoding: "utf-8")
+    end
+
+    # @param fdir [String] dir pathe to flover cache
+    # @return [String]
+    def self.grammar_hash(fdir)
+      type = fdir.split("/").last
+      Relaton::Registry.instance.by_type(type)&.grammar_hash
     end
 
     private
@@ -132,6 +148,31 @@ module Relaton
       when /^not_found/ then "notfound"
       when /^redirection/ then "redirect"
       else @ext
+      end
+    end
+
+    #
+    # Checks if there is file with xml or txt extension and return filename with
+    # the extension.
+    #
+    # @param file [String]
+    # @return [String, NilClass]
+    def search_ext(file)
+      if File.exist?("#{file}.#{@ext}")
+        "#{file}.#{@ext}"
+      elsif File.exist? "#{file}.notfound"
+        "#{file}.notfound"
+      elsif File.exist? "#{file}.redirect"
+        "#{file}.redirect"
+      end
+    end
+
+    # Set version of the DB to the gem grammar hash.
+    # @param fdir [String] dir pathe to flover cache
+    def set_version(fdir)
+      file_version = "#{fdir}/version"
+      unless File.exist? file_version
+        file_safe_write file_version, self.class.grammar_hash(fdir)
       end
     end
 
@@ -158,11 +199,13 @@ module Relaton
       code
     end
 
-    # Return item's subdir
-    # @param key [String]
-    # @return [String]
-    # def prefix(key)
-    #   key.downcase.match(/^[^(]+(?=\()/).to_s
-    # end
+    # @param file [String]
+    # @content [String]
+    def file_safe_write(file, content)
+      File.open file, File::RDWR | File::CREAT, encoding: "UTF-8" do |f|
+        Timeout.timeout(10) { f.flock File::LOCK_EX }
+        f.write content
+      end
+    end
   end
 end
