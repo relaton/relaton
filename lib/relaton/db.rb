@@ -169,13 +169,15 @@ module Relaton
     #   actual reference with year
     #
     # @param processor [Relaton::Processor]
-    def fetch_doc(code, year, opts, processor)
+    def fetch_doc(code, year, opts, processor) # rubocop:disable Metrics?AbcSize
       if Relaton.configuration.use_api
         url = "#{Relaton.configuration.api_host}/document?#{params(code, year, opts)}"
         rsp = Net::HTTP.get_response URI(url)
         processor.from_xml rsp.body if rsp.code == "200"
       else processor.get(code, year, opts)
       end
+    rescue Errno::ECONNREFUSED
+      processor.get(code, year, opts) if Relaton.configuration.use_api
     end
 
     #
@@ -441,8 +443,6 @@ module Relaton
     #
     def net_retry(code, year, opts, processor, retries)
       fetch_doc code, year, opts, processor
-    rescue Errno::ECONNREFUSED
-      processor.get(code, year, opts) if Relaton.configuration.use_api
     rescue RelatonBib::RequestError => e
       raise e unless retries > 1
 
@@ -476,10 +476,8 @@ module Relaton
         next if db.check_version?(fdir)
 
         FileUtils.rm_rf(fdir, secure: true)
-        Util.log(
-          "[relaton] WARNING: cache #{fdir}: version is obsolete and cache is "\
-            "cleared.", :warning
-        )
+        Util.log("[relaton] WARNING: cache #{fdir}: version is obsolete and "\
+                 "cache is cleared.", :warning)
       end
       db
     end
