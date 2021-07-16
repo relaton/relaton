@@ -439,8 +439,10 @@ module Relaton
     # @return [RelatonBib::BibliographicItem]
     #
     def net_retry(code, year, opts, processor, retries)
-      if Relaton.configuration.use_api then fetch_api code, year, opts, processor
-      else processor.get(code, year, opts)
+      if Relaton.configuration.use_api
+        fetch_api(code, year, opts, processor)
+      else
+        processor.get(code, year, opts)
       end
     rescue RelatonBib::RequestError => e
       raise e unless retries > 1
