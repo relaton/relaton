@@ -1,18 +1,11 @@
 module Relaton
-  # class RelatonError < StandardError; end
-
   class Db
     # @param global_cache [String] directory of global DB
     # @param local_cache [String] directory of local DB
-    def initialize(global_cache, local_cache) # rubocop:disable Metrics/MethodLength
+    def initialize(global_cache, local_cache)
       @registry = Relaton::Registry.instance
-      if Relaton.configuration.api_mode
-        gpath = global_cache
-        lpath = local_cache
-      else
-        gpath = global_cache && File.expand_path(global_cache)
-        lpath = local_cache && File.expand_path(local_cache)
-      end
+      gpath = global_cache && File.expand_path(global_cache)
+      lpath = local_cache && File.expand_path(local_cache)
       @db = open_cache_biblio(gpath, type: :global)
       @local_db = open_cache_biblio(lpath, type: :local)
       @static_db = open_cache_biblio File.expand_path "../relaton/static_cache", __dir__
@@ -525,12 +518,10 @@ module Relaton
       end
 
       def global_bibliocache_name
-        Relaton.configuration.api_mode ? "cache" : "#{Dir.home}/.relaton/cache"
+        "#{Dir.home}/.relaton/cache"
       end
 
       def local_bibliocache_name(cachename)
-        return nil if Relaton.configuration.api_mode || cachename.nil?
-
         cachename = "relaton" if cachename.empty?
         "#{cachename}/cache"
       end
