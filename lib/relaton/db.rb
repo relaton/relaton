@@ -169,12 +169,13 @@ module Relaton
     #   actual reference with year
     #
     # @param processor [Relaton::Processor]
-    def fetch_api(code, year, opts, processor)
-      return unless Relaton.configuration.use_api
-
-      url = "#{Relaton.configuration.api_host}/document?#{params(code, year, opts)}"
-      rsp = Net::HTTP.get_response URI(url)
-      processor.from_xml rsp.body if rsp.code == "200"
+    def fetch_doc(code, year, opts, processor)
+      if Relaton.configuration.use_api
+        url = "#{Relaton.configuration.api_host}/document?#{params(code, year, opts)}"
+        rsp = Net::HTTP.get_response URI(url)
+        processor.from_xml rsp.body if rsp.code == "200"
+      else processor.get(code, year, opts)
+      end
     end
 
     #
@@ -439,10 +440,9 @@ module Relaton
     # @return [RelatonBib::BibliographicItem]
     #
     def net_retry(code, year, opts, processor, retries)
-      doc = fetch_api code, year, opts, processor
-      doc || processor.get(code, year, opts)
+      fetch_doc code, year, opts, processor
     rescue Errno::ECONNREFUSED
-      processor.get(code, year, opts)
+      processor.get(code, year, opts) if Relaton.configuration.use_api
     rescue RelatonBib::RequestError => e
       raise e unless retries > 1
 
