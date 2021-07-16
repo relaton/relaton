@@ -440,9 +440,7 @@ module Relaton
     #
     def net_retry(code, year, opts, processor, retries)
       doc = fetch_api code, year, opts, processor
-      return doc if doc
-
-      processor.get(code, year, opts)
+      doc || processor.get(code, year, opts)
     rescue Errno::ECONNREFUSED
       processor.get(code, year, opts)
     rescue RelatonBib::RequestError => e
