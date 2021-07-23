@@ -205,6 +205,8 @@ RSpec.describe Relaton::Db do
 
   it "get OGC refrence and cache it" do
     VCR.use_cassette "ogc_19_025r1" do
+      expect(File).to receive(:exist?).with("/Users/andrej/.relaton/ogc/bibliography.json").and_return false
+      expect(File).to receive(:exist?).and_call_original.at_least :once
       bib = @db.fetch "OGC 19-025r1", nil, {}
       expect(bib).to be_instance_of RelatonOgc::OgcBibliographicItem
     end
