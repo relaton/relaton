@@ -175,7 +175,7 @@ module Relaton
     # @param processor [Relaton::Processor]
     # @return [RelatonBib::BibliographicItem, nil]
     def fetch_api(code, year, opts, processor)
-      url = "#{Relaton.configuration.api_host}/document?#{params(code, year, opts)}"
+      url = "#{Relaton.configuration.api_host}/api/v1/document?#{params(code, year, opts)}"
       rsp = Net::HTTP.get_response URI(url)
       processor.from_xml rsp.body if rsp.code == "200"
     rescue Errno::ECONNREFUSED

@@ -19,7 +19,7 @@ module Relaton
 
       # @TODO change to true when we start using api.relaton.org
       @use_api = true
-      @api_host = "https://api.relaton.org/api/v1"
+      @api_host = "https://api.relaton.org"
     end
   end
 
