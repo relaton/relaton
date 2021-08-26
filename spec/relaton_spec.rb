@@ -15,15 +15,15 @@ RSpec.describe Relaton::Db do
       VCR.use_cassette "iso_19115_1" do
         bib = @db.fetch("ISO 19115-1", nil, {})
         expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-        expect(bib.to_xml(bibdata: true)).to include "<project-number>"\
+        expect(bib.to_xml(bibdata: true)).to include "<project-number part=\"1\">"\
           "ISO 19115</project-number>"
         expect(File.exist?("testcache")).to be true
         expect(File.exist?("testcache2")).to be true
         testcache = Relaton::DbCache.new "testcache"
-        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>"\
+        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number part=\"1\">"\
           "ISO 19115</project-number>"
         testcache = Relaton::DbCache.new "testcache2"
-        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>"\
+        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number part=\"1\">"\
           "ISO 19115</project-number>"
       end
       bib = @db.fetch("ISO 19115-1", nil, {})
@@ -31,7 +31,7 @@ RSpec.describe Relaton::Db do
     end
 
     it "with year in code" do
-      VCR.use_cassette "19133_2005" do
+      VCR.use_cassette "iso_19133_2005" do
         bib = @db.fetch("ISO 19133:2005")
         expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
         expect(bib.to_xml).to include '<bibitem id="ISO19133-2005" '\
@@ -45,15 +45,15 @@ RSpec.describe Relaton::Db do
 
     context "all parts" do
       it "implicity" do
-        VCR.use_cassette "iso_19115" do
-          bib = @db.fetch("ISO 19115", nil, {})
+        VCR.use_cassette "iso_19115_all_parts" do
+          bib = @db.fetch("ISO 19115", nil, all_parts: true)
           expect(bib.docidentifier[0].id).to eq "ISO 19115 (all parts)"
         end
       end
 
       it "explicity" do
-        VCR.use_cassette "iso_19115" do
-          bib = @db.fetch("ISO 19115 (all parts)", nil, {})
+        VCR.use_cassette "iso_19115_all_parts" do
+          bib = @db.fetch("ISO 19115 (all parts)")
           expect(bib.docidentifier[0].id).to eq "ISO 19115 (all parts)"
         end
       end
@@ -62,7 +62,7 @@ RSpec.describe Relaton::Db do
     it "gets sn ISO/AWI reference" do
       VCR.use_cassette "iso_awi_14093" do
         bib = @db.fetch "ISO/AWI 14093"
-        expect(bib).not_to be_nil
+        expect(bib.docidentifier[0].id).to eq "ISO/AWI 14093"
       end
     end
   end
@@ -299,10 +299,10 @@ RSpec.describe Relaton::Db do
           bib = @db.fetch "ISO 19115-1 + Amd 1"
           expect(bib.docidentifier[0].id).to eq "ISO 19115-1 + Amd 1"
           expect(bib.relation[0].type).to eq "updates"
-          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1"
+          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014"
           expect(bib.relation[1].type).to eq "derivedFrom"
           expect(bib.relation[1].description).to be_nil
-          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1/Amd 1:2018"
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014/Amd 1:2018"
         end
       end
 
@@ -311,10 +311,10 @@ RSpec.describe Relaton::Db do
           bib = @db.fetch "ISO 19115-1, Amd 1"
           expect(bib.docidentifier[0].id).to eq "ISO 19115-1, Amd 1"
           expect(bib.relation[0].type).to eq "updates"
-          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1"
+          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014"
           expect(bib.relation[1].type).to eq "complements"
           expect(bib.relation[1].description.content).to eq "amendment"
-          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1/Amd 1:2018"
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014/Amd 1:2018"
         end
       end
     end

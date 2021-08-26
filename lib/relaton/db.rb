@@ -469,5 +469,34 @@ module Relaton
     def process_queue(qwp)
       while args = qwp[:queue].pop; qwp[:workers_pool] << args end
     end
+
+    class << self
+      # Initialse and return relaton instance, with local and global cache names
+      # local_cache: local cache name; none created if nil; "relaton" created
+      # if empty global_cache: boolean to create global_cache
+      # flush_caches: flush caches
+      def init_bib_caches(**opts) # rubocop:disable Metrics/CyclomaticComplexity
+        globalname = global_bibliocache_name if opts[:global_cache]
+        localname = local_bibliocache_name(opts[:local_cache])
+        flush_caches globalname, localname if opts[:flush_caches]
+        Relaton::Db.new(globalname, localname)
+      end
+
+      private
+
+      def flush_caches(gcache, lcache)
+        FileUtils.rm_rf gcache unless gcache.nil?
+        FileUtils.rm_rf lcache unless lcache.nil?
+      end
+
+      def global_bibliocache_name
+        "#{Dir.home}/.relaton/cache"
+      end
+
+      def local_bibliocache_name(cachename)
+        cachename = "relaton" if cachename.nil? || cachename.empty?
+        "#{cachename}/cache"
+      end
+    end
   end
 end
