@@ -55,6 +55,17 @@ module Relaton
     end
 
     #
+    # Search a rpocessos by dataset name
+    #
+    # @param [String] dataset
+    #
+    # @return [Relaton::Processor, nil]
+    #
+    def find_processor_by_dataset(dataset)
+      processors.values.detect { |p| p.datasets&.include? dataset }
+    end
+
+    #
     # Find processor by type
     #
     # @param type [String]

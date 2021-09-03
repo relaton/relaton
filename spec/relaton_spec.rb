@@ -59,10 +59,10 @@ RSpec.describe Relaton::Db do
       end
     end
 
-    it "gets sn ISO/AWI reference" do
-      VCR.use_cassette "iso_awi_14093" do
-        bib = @db.fetch "ISO/AWI 14093"
-        expect(bib.docidentifier[0].id).to eq "ISO/AWI 14093"
+    it "gets sn ISO/CD reference" do
+      VCR.use_cassette "iso_cd_14093" do
+        bib = @db.fetch "ISO/CD 14093"
+        expect(bib.docidentifier[0].id).to eq "ISO/CD 14093"
       end
     end
   end

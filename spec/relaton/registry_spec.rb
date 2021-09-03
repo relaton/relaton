@@ -88,4 +88,10 @@ RSpec.describe Relaton::Registry do
       expect(Relaton::Registry.instance.by_type("CEN")).to be_instance_of RelatonCen::Processor
     end
   end
+
+  it "find processot by dataset" do
+    expect(Relaton::Registry.instance
+      .find_processor_by_dataset("nist-tech-pubs"))
+      .to be_instance_of RelatonNist::Processor
+  end
 end
