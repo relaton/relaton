@@ -182,20 +182,21 @@ x = db.fetch_db("ISO 5749")
 # prepare queue for results
 results = Queue.new
 
-# references ot fetch
+# references to fetch
 refs = ["ISO 19011", "ISO 19115"]
 
 # fetch documents
 refs.each do |ref|
-  db.fetch_async(ref) do |doc|
-    results << [ref, doc]
+  db.fetch_async(ref, ref: ref) do |doc, other_args|
+    results << [doc, other_args[:ref]]
   end
 end
 
-# wait until documets fetching
+# wait until all the documents fetching
 refs.size.times do
-  ref, doc = results.pop
-  # do thatever you need with result x
+  doc, ref = results.pop
+  # do whatever you need with the result
+  # in case request error doc will be instance of Relaton::RequestError
 end
 ----
 

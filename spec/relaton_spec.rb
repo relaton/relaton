@@ -205,12 +205,12 @@ RSpec.describe Relaton::Db do
 
   it "get OGC refrence and cache it" do
     cc_fr = /\.relaton\/ogc\/bibliography\.json/
-    expect(File).to receive(:exist?).with(cc_fr).and_return false
-    expect(File).to receive(:exist?).with(/etag\.txt/).and_return false
+    allow(File).to receive(:exist?).with(cc_fr).and_return false
+    allow(File).to receive(:exist?).with(/etag\.txt/).and_return false
     expect(File).to receive(:exist?).and_call_original.at_least :once
     expect(File).to receive(:write).with(cc_fr, kind_of(String), kind_of(Hash))
       .at_most :once
-    expect(File).to receive(:write).and_call_original.at_least :once
+    allow(File).to receive(:write).and_call_original
     VCR.use_cassette "ogc_19_025r1" do
       bib = @db.fetch "OGC 19-025r1", nil, {}
       expect(bib).to be_instance_of RelatonOgc::OgcBibliographicItem
@@ -306,10 +306,10 @@ RSpec.describe Relaton::Db do
           bib = @db.fetch "ISO 19115-1 + Amd 1"
           expect(bib.docidentifier[0].id).to eq "ISO 19115-1 + Amd 1"
           expect(bib.relation[0].type).to eq "updates"
-          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014"
+          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1"
           expect(bib.relation[1].type).to eq "derivedFrom"
           expect(bib.relation[1].description).to be_nil
-          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014/Amd 1:2018"
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1/Amd 1:2018"
         end
       end
 
@@ -318,10 +318,10 @@ RSpec.describe Relaton::Db do
           bib = @db.fetch "ISO 19115-1, Amd 1"
           expect(bib.docidentifier[0].id).to eq "ISO 19115-1, Amd 1"
           expect(bib.relation[0].type).to eq "updates"
-          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014"
+          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1"
           expect(bib.relation[1].type).to eq "complements"
           expect(bib.relation[1].description.content).to eq "amendment"
-          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014/Amd 1:2018"
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1/Amd 1:2018"
         end
       end
     end
