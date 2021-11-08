@@ -187,8 +187,8 @@ refs = ["ISO 19011", "ISO 19115"]
 
 # fetch documents
 refs.each do |ref|
-  db.fetch_async(ref, ref: ref) do |doc, other_args|
-    results << [doc, other_args[:ref]]
+  db.fetch_async(ref) do |doc|
+    results << [doc, ref]
   end
 end
 

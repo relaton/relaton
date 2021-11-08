@@ -99,20 +99,20 @@ module Relaton
     end
 
     # Fetch asynchronously
-    def fetch_async(code, year = nil, opts = {}, **others, &_block) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+    def fetch_async(code, year = nil, opts = {}, &block) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       stdclass = standard_class code
       if stdclass
         unless @queues[stdclass]
           processor = @registry.processors[stdclass]
           wp = WorkersPool.new(processor.threads) do |args|
-            yield fetch(*args[0..2]), **args[3]
+            args[3].call fetch(*args[0..2])
           rescue RelatonBib::RequestError => e
-            yield e, **args[3]
+            args[3].call e
           end
           @queues[stdclass] = { queue: Queue.new, workers_pool: wp }
           Thread.new { process_queue @queues[stdclass] }
         end
-        @queues[stdclass][:queue] << [code, year, opts, others]
+        @queues[stdclass][:queue] << [code, year, opts, block]
       else yield nil
       end
     end

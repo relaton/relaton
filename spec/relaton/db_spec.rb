@@ -163,8 +163,8 @@ RSpec.describe Relaton::Db do
       results = []
       VCR.use_cassette "async_fetch", match_requests_on: %i[method uri body] do
         refs.each do |ref|
-          db.fetch_async(ref, ref: ref) do |r, otherargs|
-            queue << [r, otherargs[:ref]]
+          db.fetch_async(ref) do |r|
+            queue << [r, ref]
           end
         end
         Timeout.timeout(60) do
