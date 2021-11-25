@@ -246,13 +246,13 @@ RSpec.describe Relaton::Db do
   end
 
   it "get W3C reference" do
-    w3c_fr = /\.relaton\/w3c\/bibliography\.yml/
-    expect(File).to receive(:exist?).with(w3c_fr).and_return false
-    expect(File).to receive(:exist?).and_call_original.at_least :once
-    expect(File).to receive(:write).with w3c_fr, kind_of(String), kind_of(Hash)
+    # w3c_fr = /\.relaton\/w3c\/bibliography\.yml/
+    # expect(File).to receive(:exist?).with(w3c_fr).and_return false
+    # expect(File).to receive(:exist?).and_call_original.at_least :once
+    # expect(File).to receive(:write).with w3c_fr, kind_of(String), kind_of(Hash)
     # expect(File).to receive(:write).and_call_original.at_least :once
     VCR.use_cassette "w3c_json_ld11" do
-      bib = @db.fetch "W3C JSON-LD 1.1", nil, {}
+      bib = @db.fetch "W3C REC-json-ld11-20200716", nil, {}
       expect(bib).to be_instance_of RelatonW3c::W3cBibliographicItem
     end
   end
@@ -296,6 +296,13 @@ RSpec.describe Relaton::Db do
     VCR.use_cassette "cen_en_10160_1999" do
       bib = @db.fetch "CEN EN 10160:1999"
       expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+    end
+  end
+
+  it "get IANA reference" do
+    VCR.use_cassette "iana_service_names_port_numbers" do
+      bib = @db.fetch "IANA service-names-port-numbers"
+      expect(bib).to be_instance_of RelatonBib::BibliographicItem
     end
   end
 

@@ -9,7 +9,7 @@ module Relaton
       relaton_gb relaton_iec relaton_ietf relaton_iso relaton_itu relaton_nist
       relaton_ogc relaton_calconnect relaton_omg relaton_un relaton_w3c
       relaton_ieee relaton_iho relaton_bipm relaton_ecma relaton_cie relaton_bsi
-      relaton_cen
+      relaton_cen relaton_iana
     ].freeze
 
     include Singleton
