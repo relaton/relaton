@@ -17,6 +17,7 @@ module Relaton
       @static_db = open_cache_biblio File.expand_path("../relaton/static_cache",
                                                       __dir__)
       @queues = {}
+      @semaphore = Mutex.new
     end
 
     # Move global or local caches to anothe dirs
@@ -375,14 +376,20 @@ module Relaton
         return bib_retval(bibentry, stdclass)
       end
 
-      db.delete(id) unless db.valid_entry?(id, year)
+      @semaphore.synchronize do
+        db.delete(id) unless db.valid_entry?(id, year)
+      end
       if altdb
         return bib_retval(altdb[id], stdclass) if opts[:fetch_db]
 
-        db.clone_entry id, altdb if altdb.valid_entry? id, year
-        db[id] ||= new_bib_entry(searchcode, year, opts, stdclass, db: db,
-                                                                   id: id)
-        altdb.clone_entry(id, db) if !altdb.valid_entry?(id, year)
+        @semaphore.synchronize do
+          db.clone_entry id, altdb if altdb.valid_entry? id, year
+        end
+        entry = new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id) unless db[id]
+        @semaphore.synchronize do
+          db[id] ||= entry
+          altdb.clone_entry(id, db) if !altdb.valid_entry?(id, year)
+        end
       else
         return bib_retval(db[id], stdclass) if opts[:fetch_db]
 
@@ -413,7 +420,7 @@ module Relaton
       if args[:db] && args[:id] &&
           bib_id && args[:id] !~ %r{#{Regexp.quote("(#{bib_id})")}}
         bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
-        args[:db][bid] ||= bib_entry bib
+        @semaphore.synchronize { args[:db][bid] ||= bib_entry bib }
         "redirection #{bid}"
       else bib_entry bib
       end
