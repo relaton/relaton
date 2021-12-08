@@ -178,6 +178,7 @@ x = db.fetch_db("ISO 5749")
 => nil
 
 # Fetching asynchronously
+# RELATON_FETCH_PARALLEL environment variable can be used to ovveride default number of parallel fetches
 
 # prepare queue for results
 results = Queue.new

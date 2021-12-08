@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"20f81f30a958e91e107f2f86deb44c4fda28e6adbc1644277e7ba3d24e72d99c"
+      - W/"4c9616644e00d6f1a654d2bb11859ce7e6a4dffdb66f919a70daf8b05e1919d9"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,29 +41,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 5B72:A8DC:6A141F:6EBA4A:619E8B15
+      - FB1C:64AB:49097F:4E83B2:61B07168
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 24 Nov 2021 18:57:25 GMT
+      - Wed, 08 Dec 2021 08:48:40 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-vie6330-VIE
+      - cache-sof1510064-SOF
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1637780246.539514,VS0,VE186
+      - S1638953321.589884,VS0,VE230
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - 6ac79e72a7092989599ddc6c9a5f229a67d9711c
+      - 47b3d3cfd536c8faf466ba0d9d1f0fec44407ed6
       Expires:
-      - Wed, 24 Nov 2021 19:02:25 GMT
+      - Wed, 08 Dec 2021 08:53:40 GMT
       Source-Age:
       - '0'
     body:
@@ -119,10 +119,10 @@ http_interactions:
             content: W3C REC
             format: text/plain
           number: REC-json-ld11-20200716
-        fetched: '2021-11-24'
+        fetched: '2021-12-07'
         doctype: recommendation
         editorialgroup:
           name: JSON-LD Working Group
     http_version:
-  recorded_at: Wed, 24 Nov 2021 18:57:25 GMT
+  recorded_at: Wed, 08 Dec 2021 08:48:40 GMT
 recorded_with: VCR 5.1.0

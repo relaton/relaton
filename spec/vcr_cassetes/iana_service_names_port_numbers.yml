@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '313'
+      - '316'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"0e136529f7a20586b0b21080bc444f6511fc119b11f011a82120c143704ee53e"
+      - W/"801515ef0d042670e802f91cc46f9e1a6fe877f20c3066900a818d2b747183fc"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,29 +41,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 1120:3923:717FCE:7642EF:61A66CD0
+      - 7F46:4295:E1E895:F5F1DF:61B07178
       Accept-Ranges:
       - bytes
       Date:
-      - Tue, 30 Nov 2021 18:26:24 GMT
+      - Wed, 08 Dec 2021 08:48:57 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-vie6369-VIE
+      - cache-sof1510075-SOF
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1638296785.676501,VS0,VE172
+      - S1638953337.884123,VS0,VE209
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - ab2ce6d0975a76e026f783afe256f76abbe70377
+      - 41e395cf2d696435c6490ecb7452473050f4cf69
       Expires:
-      - Tue, 30 Nov 2021 18:31:24 GMT
+      - Wed, 08 Dec 2021 08:53:57 GMT
       Source-Age:
       - '0'
     body:
@@ -92,7 +92,7 @@ http_interactions:
           role: publisher
         language: en
         script: Latn
-        fetched: '2021-11-30'
+        fetched: '2021-12-07'
     http_version:
-  recorded_at: Tue, 30 Nov 2021 18:26:24 GMT
+  recorded_at: Wed, 08 Dec 2021 08:48:56 GMT
 recorded_with: VCR 5.1.0

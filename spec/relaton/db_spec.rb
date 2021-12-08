@@ -184,6 +184,16 @@ RSpec.describe Relaton::Db do
       end
       expect(result).to be_nil
     end
+
+    it "use threads number from RELATON_FETCH_PARALLEL" do
+      expect(ENV).to receive(:[]).with("RELATON_FETCH_PARALLEL").and_return(1)
+      allow(ENV).to receive(:[]).and_call_original
+      expect(Relaton::WorkersPool).to receive(:new).with(1).and_call_original
+      VCR.use_cassette "threads_from_env" do
+        db.fetch_async("ITU-T G.993.5") { |r| queue << r }
+        Timeout.timeout(5) { queue.pop }
+      end
+    end
   end
 
   context "fetch documents form static cache" do

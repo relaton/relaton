@@ -105,7 +105,8 @@ module Relaton
       if stdclass
         unless @queues[stdclass]
           processor = @registry.processors[stdclass]
-          wp = WorkersPool.new(processor.threads) do |args|
+          threads = ENV["RELATON_FETCH_PARALLEL"]&.to_i || processor.threads
+          wp = WorkersPool.new(threads) do |args|
             args[3].call fetch(*args[0..2])
           rescue RelatonBib::RequestError => e
             args[3].call e
