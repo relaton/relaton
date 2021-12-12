@@ -306,6 +306,13 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "get 3GPP reference" do
+    VCR.use_cassette "3gpp_tr_00_01u_umts_3_0_0" do
+      bib = @db.fetch "3GPP TR 00.01U:UMTS/3.0.0"
+      expect(bib).to be_instance_of Relaton3gpp::BibliographicItem
+    end
+  end
+
   context "get combined documents" do
     context "ISO" do
       it "included" do

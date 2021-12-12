@@ -91,6 +91,10 @@ RSpec.describe Relaton::Registry do
     it "IANA" do
       expect(Relaton::Registry.instance.by_type("IANA")).to be_instance_of RelatonIana::Processor
     end
+
+    it "3GPP" do
+      expect(Relaton::Registry.instance.by_type("3GPP")).to be_instance_of Relaton3gpp::Processor
+    end
   end
 
   it "find processot by dataset" do

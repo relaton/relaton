@@ -29,6 +29,7 @@ Gem::Specification.new do |spec|
   spec.test_files    = `git ls-files -- {spec}/*`.split("\n")
   spec.required_ruby_version = Gem::Requirement.new(">= 2.5.0")
 
+  spec.add_dependency "relaton-3gpp", "~> 1.9.0"
   spec.add_dependency "relaton-bipm", "~> 1.9.0"
   spec.add_dependency "relaton-bsi", "~> 1.9.0"
   spec.add_dependency "relaton-calconnect", "~> 1.9.0"
