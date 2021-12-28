@@ -40,7 +40,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "relaton-iana", "~> 1.9.0"
   spec.add_dependency "relaton-iec", "~> 1.9.0"
   spec.add_dependency "relaton-ieee", "~> 1.9.0"
-  spec.add_dependency "relaton-ietf", "~> 1.9.0"
+  spec.add_dependency "relaton-ietf", ">= 1.9.7"
   spec.add_dependency "relaton-iho", "~> 1.9.0"
   spec.add_dependency "relaton-iso", "~> 1.9.0"
   spec.add_dependency "relaton-itu", "~> 1.9.0"

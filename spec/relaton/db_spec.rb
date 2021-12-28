@@ -191,7 +191,7 @@ RSpec.describe Relaton::Db do
       expect(Relaton::WorkersPool).to receive(:new).with(1).and_call_original
       VCR.use_cassette "threads_from_env" do
         db.fetch_async("ITU-T G.993.5") { |r| queue << r }
-        Timeout.timeout(5) { queue.pop }
+        Timeout.timeout(50) { queue.pop }
       end
     end
   end

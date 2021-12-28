@@ -39,29 +39,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 90B0:4B14:ECAC30:100B235:61B07172
+      - DAE6:7D47:2314D9:25099B:61CAF6E9
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 08 Dec 2021 08:48:51 GMT
+      - Tue, 28 Dec 2021 11:37:13 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-sof1510027-SOF
+      - cache-sof1510065-SOF
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1638953331.775484,VS0,VE257
+      - S1640691433.337451,VS0,VE240
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - d5d5c482b7a9a83af2d866cf5649cdf28a3479d3
+      - fc15365bc8a24dec29c96a1f31308a33fe9264fe
       Expires:
-      - Wed, 08 Dec 2021 08:53:51 GMT
+      - Tue, 28 Dec 2021 11:42:13 GMT
       Source-Age:
       - '0'
     body:
@@ -116,5 +116,5 @@ http_interactions:
           format: text/plain
         doctype: document
     http_version:
-  recorded_at: Wed, 08 Dec 2021 08:48:50 GMT
+  recorded_at: Tue, 28 Dec 2021 11:37:13 GMT
 recorded_with: VCR 5.1.0
