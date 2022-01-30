@@ -59,10 +59,10 @@ RSpec.describe Relaton::Db do
       end
     end
 
-    it "gets sn ISO/CD reference" do
-      VCR.use_cassette "iso_cd_14093" do
-        bib = @db.fetch "ISO/CD 14093"
-        expect(bib.docidentifier[0].id).to eq "ISO/CD 14093"
+    it "gets sn ISO/DIS reference" do
+      VCR.use_cassette "iso_dis_14093" do
+        bib = @db.fetch "ISO/DIS 14093"
+        expect(bib.docidentifier[0].id).to eq "ISO/DIS 14093"
       end
     end
   end
@@ -196,10 +196,10 @@ RSpec.describe Relaton::Db do
       expect(File.exist?("testcache2")).to be true
       testcache = Relaton::DbCache.new "testcache"
       expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier "\
-        "type=\"IETF\" scope=\"anchor\">RFC8341</docidentifier>"
+        "type=\"RFC\" scope=\"anchor\">RFC8341</docidentifier>"
       testcache = Relaton::DbCache.new "testcache2"
       expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier "\
-        "type=\"IETF\" scope=\"anchor\">RFC8341</docidentifier>"
+        "type=\"RFC\" scope=\"anchor\">RFC8341</docidentifier>"
     end
   end
 

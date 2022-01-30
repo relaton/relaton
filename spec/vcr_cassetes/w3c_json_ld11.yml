@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '432'
+      - '445'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"2daf144bf7f932f2539885a36d69dd77289ce19262f9f7d291eeda2bdbd25120"
+      - W/"e2db093c8a79c8faeb7e6035550da67662db5c3204178affeaceb3a2ae73ca89"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,29 +41,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - CF0E:8A45:289C20F:2A9C0ED:61CAF6E2
+      - 19E8:7F71:3014297:31F956F:61F6F048
       Accept-Ranges:
       - bytes
       Date:
-      - Tue, 28 Dec 2021 11:37:07 GMT
+      - Sun, 30 Jan 2022 20:08:40 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-sof1510067-SOF
+      - cache-sof1510076-SOF
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1640691427.862697,VS0,VE212
+      - S1643573320.072031,VS0,VE172
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - 4869f6287eef712c30c6e31a0f47b661a96d6feb
+      - c79ceb18fafef786069f3be5fa533160ce9e3e7c
       Expires:
-      - Tue, 28 Dec 2021 11:42:07 GMT
+      - Sun, 30 Jan 2022 20:13:40 GMT
       Source-Age:
       - '0'
     body:
@@ -72,57 +72,68 @@ http_interactions:
         ---
         id: W3CREC-json-ld11-20200716
         title:
-          content: JSON-LD 1.1
+        - content: JSON-LD 1.1
           format: text/plain
         link:
-          content: https://www.w3.org/TR/2020/REC-json-ld11-20200716/
+        - content: https://www.w3.org/TR/2020/REC-json-ld11-20200716/
           type: src
         type: standard
         docid:
-          id: W3C REC-json-ld11-20200716
+        - id: W3C REC-json-ld11-20200716
           type: W3C
         docnumber: REC-json-ld11-20200716
         date:
-          type: published
+        - type: published
           value: '2020-07-16'
         contributor:
         - person:
             name:
               completename:
                 content: Dave Longley
-                language: en
-                script: Latn
-          role: editor
+                language:
+                - en
+                script:
+                - Latn
+          role:
+          - editor
         - person:
             name:
               completename:
                 content: Gregg Kellogg
-                language: en
-                script: Latn
-          role: editor
+                language:
+                - en
+                script:
+                - Latn
+          role:
+          - editor
         - person:
             name:
               completename:
                 content: Pierre-Antoine Champin
-                language: en
-                script: Latn
-          role: editor
+                language:
+                - en
+                script:
+                - Latn
+          role:
+          - editor
         revdate: '2020-07-16'
-        language: en
-        script: Latn
+        language:
+        - en
+        script:
+        - Latn
         relation:
-          type: obsoletes
+        - type: obsoletes
           bibitem:
             formattedref: W3C PR-json-ld11-20200507
         series:
-          title:
+        - title:
             content: W3C REC
             format: text/plain
           number: REC-json-ld11-20200716
-        fetched: '2021-12-28'
+        fetched: '2022-01-30'
         doctype: recommendation
         editorialgroup:
-          name: JSON-LD Working Group
+        - name: JSON-LD Working Group
     http_version:
-  recorded_at: Tue, 28 Dec 2021 11:37:06 GMT
+  recorded_at: Sun, 30 Jan 2022 20:08:40 GMT
 recorded_with: VCR 5.1.0

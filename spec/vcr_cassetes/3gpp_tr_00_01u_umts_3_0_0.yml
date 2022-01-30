@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '549'
+      - '562'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"c70f6628f95ac3979a5237c54995637171f2f370a6090b835ecd229ef159fb99"
+      - W/"c7d5e5fe82f7acf338ee2018e084c4b51759b05adec00dac3a8ceff6ce47a97d"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,29 +41,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 5F84:9E53:173E127:186CA31:61CAF6F2
+      - 9280:7295:770162:8EDD19:61F6F080
       Accept-Ranges:
       - bytes
       Date:
-      - Tue, 28 Dec 2021 11:37:22 GMT
+      - Sun, 30 Jan 2022 20:09:36 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-sof1510075-SOF
+      - cache-sof1510048-SOF
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1640691442.275517,VS0,VE245
+      - S1643573376.020860,VS0,VE247
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - f1d9e96d0649f362bbac0579ea916a9009733903
+      - 11243678148887ceff7f71189e363376c324a668
       Expires:
-      - Tue, 28 Dec 2021 11:42:22 GMT
+      - Sun, 30 Jan 2022 20:14:36 GMT
       Source-Age:
       - '0'
     body:
@@ -72,38 +72,44 @@ http_interactions:
         ---
         id: 3GPPTR00.01U-UMTS/3.0.0
         title:
-          type: main
+        - type: main
           content: Work programme for the standardization of Universal Mobile Telecommunications
             System (UMTS)
           format: text/plain
         link:
-          content: http://www.3gpp.org/ftp/Specs/archive/00_series/00.01U/0001U-300.zip
+        - content: http://www.3gpp.org/ftp/Specs/archive/00_series/00.01U/0001U-300.zip
           type: src
         type: standard
         docid:
-          id: 3GPP TR 00.01U:UMTS/3.0.0
+        - id: 3GPP TR 00.01U:UMTS/3.0.0
           type: 3GPP
         docnumber: TR 00.01U:UMTS/3.0.0
         contributor:
-          person:
+        - person:
             name:
               completename:
                 content: RAPELI, Juha
-                language: en
-                script: Latn
+                language:
+                - en
+                script:
+                - Latn
             affiliation:
-              organization:
-                name: PHILIPS CONSUMER COMMUNICATION
-          role: author
-        language: en
-        script: Latn
+            - organization:
+                name:
+                - PHILIPS CONSUMER COMMUNICATION
+          role:
+          - author
+        language:
+        - en
+        script:
+        - Latn
         docstatus:
           stage:
             value: withdrawn
-        fetched: '2021-12-24'
+        fetched: '2022-01-24'
         doctype: TR
         editorialgroup:
-          name: SMG5
+        - name: SMG5
           type: prime
         radiotechnology: 3G
         release:
@@ -117,5 +123,5 @@ http_interactions:
           close_meeting: SP-28
           project_end: '1999-02-12'
     http_version:
-  recorded_at: Tue, 28 Dec 2021 11:37:22 GMT
+  recorded_at: Sun, 30 Jan 2022 20:09:36 GMT
 recorded_with: VCR 5.1.0

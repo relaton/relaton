@@ -1,119 +1,6 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: http://www.itu.int/dms_pubrec/itu-t/rec/g/T-REC-G.993.5-202003-I!Cor1!SUM-HTM-E.htm
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip,deflate,identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML,
-        like Gecko) Version/9.0.2 Safari/601.3.9
-      Accept-Charset:
-      - ISO-8859-1,utf-8;q=0.7,*;q=0.7
-      Accept-Language:
-      - en-us,en;q=0.5
-      Cookie:
-      - GSCookie=QueryId=4713558&CookieId=ZP0bF+HnueGBx4fd28NxO7jJf/h/8IJ8qFfoJXHkzP1OxWDOU3PDXK176W2R6ZmpXGpy75RlCTb0KKcQBJprAQ==;
-        TS010592a8=018bf709fccda0a78b44b12fc2605a5f0908631f205c2fd2e34cfe3dda91c0bd46c5da56806856f46ee18fe212ce51b58d86c21bcc;
-        TS0110b275=018bf709fccda0a78b44b12fc2605a5f0908631f205c2fd2e34cfe3dda91c0bd46c5da56806856f46ee18fe212ce51b58d86c21bcc;
-        TS70351561027=08b49714d4ab200013ba2d5b7d497dc146c431497e917f4f73305ed23ed37d352b425cd8016c1c7e08b9acb1ab11300065df59b0688a9fa5687392927ed1636c84b040890ac391758d99136f9236177c4f675470c5a7a3b30d6196cbab8351b6
-      Host:
-      - www.itu.int
-      Connection:
-      - keep-alive
-      Keep-Alive:
-      - '300'
-  response:
-    status:
-      code: 302
-      message: Moved Temporarily
-    headers:
-      Location:
-      - https://www.itu.int/dms_pubrec/itu-t/rec/g/T-REC-G.993.5-202003-I!Cor1!SUM-HTM-E.htm
-      Server:
-      - BigIP
-      Connection:
-      - Keep-Alive
-      Content-Length:
-      - '0'
-    body:
-      encoding: UTF-8
-      string: ''
-    http_version:
-  recorded_at: Tue, 28 Dec 2021 11:36:49 GMT
-- request:
-    method: get
-    uri: https://www.itu.int/dms_pubrec/itu-t/rec/g/T-REC-G.993.5-202003-I!Cor1!SUM-HTM-E.htm
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip,deflate,identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML,
-        like Gecko) Version/9.0.2 Safari/601.3.9
-      Accept-Charset:
-      - ISO-8859-1,utf-8;q=0.7,*;q=0.7
-      Accept-Language:
-      - en-us,en;q=0.5
-      Cookie:
-      - BIGipServerV19edYz/rGMxUCJeS7ZH3w=!y5+C0xatiomH9dFg36Jb8L/8EifNzYI/8id1NBc/rBuwQWUpUndcJ1i5sTPP5FA4Y0Xq1TllYqm1AWo=;
-        BIGipServerlsjkXadm4jjZQNa6SsO7nw=!A9g2uwFeCOnfSZdg36Jb8L/8EifNzbSnSlDoIoXKyJgC0bdhcQut0HQz3rtDwx4AHBeyaECCIVg/Sx8=;
-        GSCookie=QueryId=4713558&CookieId=ZP0bF+HnueGBx4fd28NxO7jJf/h/8IJ8qFfoJXHkzP1OxWDOU3PDXK176W2R6ZmpXGpy75RlCTb0KKcQBJprAQ==;
-        TS010592a8=018bf709fccda0a78b44b12fc2605a5f0908631f205c2fd2e34cfe3dda91c0bd46c5da56806856f46ee18fe212ce51b58d86c21bcc;
-        TS0110b275=018bf709fccda0a78b44b12fc2605a5f0908631f205c2fd2e34cfe3dda91c0bd46c5da56806856f46ee18fe212ce51b58d86c21bcc;
-        TS70351561027=08b49714d4ab200013ba2d5b7d497dc146c431497e917f4f73305ed23ed37d352b425cd8016c1c7e08b9acb1ab11300065df59b0688a9fa5687392927ed1636c84b040890ac391758d99136f9236177c4f675470c5a7a3b30d6196cbab8351b6
-      Host:
-      - www.itu.int
-      Connection:
-      - keep-alive
-      Keep-Alive:
-      - '300'
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/html
-      Content-Encoding:
-      - gzip
-      Last-Modified:
-      - Tue, 02 Jun 2020 09:09:00 GMT
-      Accept-Ranges:
-      - bytes
-      Etag:
-      - '"c4e9274bd38d61:0"'
-      Vary:
-      - Accept-Encoding
-      Date:
-      - Tue, 28 Dec 2021 11:36:48 GMT
-      Content-Length:
-      - '2266'
-      Set-Cookie:
-      - BIGipServer4+IEUJs6ObMe1m0DiLXCRg=!gC/DGE1A06/dP7Bg36Jb8L/8EifNzTTSnRMcDFldpJGMBluR5TkzYkUjLa8Nis3/s5imFzatZ9GebFo=;
-        path=/; Httponly; Secure
-      - TS010592a8=018bf709fccda0a78b44b12fc2605a5f0908631f205c2fd2e34cfe3dda91c0bd46c5da56806856f46ee18fe212ce51b58d86c21bcc;
-        Path=/
-      - TS70351561027=08b49714d4ab200016d5499b1a1d2a8294fa6e4c31b39ecb745e7f1edd7869450fdf055dbc7841e8084970f33411300082935cc70e35aef6ae3a5d4db650d2ae8e3af5868a2c039390323604a003a19a425f93f85e7d5060e7974f16864fd6cc;Path=/
-      P3p:
-      - CP="{}"
-    body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        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
-    http_version:
-  recorded_at: Tue, 28 Dec 2021 11:36:49 GMT
-- request:
     method: post
     uri: https://jcl49wv5ar-dsn.algolia.net/1/indexes/all_en/query
     body:
@@ -144,7 +31,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Tue, 28 Dec 2021 11:36:49 GMT
+      - Sun, 30 Jan 2022 20:08:16 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Content-Length:
@@ -172,5 +59,5 @@ http_interactions:
       string: '{"hits":[],"nbHits":0,"page":0,"nbPages":0,"hitsPerPage":100,"exhaustiveNbHits":true,"exhaustiveTypo":true,"query":"ISO
         111111119115-1","params":"query=ISO+111111119115-1&hitsPerPage=100&filters=category%3Astandard","processingTimeMS":1}'
     http_version:
-  recorded_at: Tue, 28 Dec 2021 11:36:49 GMT
+  recorded_at: Sun, 30 Jan 2022 20:08:16 GMT
 recorded_with: VCR 5.1.0
