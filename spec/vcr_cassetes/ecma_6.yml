@@ -21,7 +21,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1177'
+      - '1204'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -29,7 +29,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"eec59b6e287576e4fe69659e3cbb054a78f0c4f82b58662700b828c9d22105da"
+      - W/"58966aa6b8a47c3296205235e60ec2b1b36ce526f7f7f3dd8d0eaa71ea95e7f6"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -39,29 +39,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 8196:9070:2F279DC:310ACA9:61F6F04D
+      - A21C:11D41:4AF314:4F8942:6202A104
       Accept-Ranges:
       - bytes
       Date:
-      - Sun, 30 Jan 2022 20:08:45 GMT
+      - Tue, 08 Feb 2022 16:57:40 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-sof1510055-SOF
+      - cache-sof1510059-SOF
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1643573325.316390,VS0,VE187
+      - S1644339460.105578,VS0,VE201
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - 85e86a10431a8327eee79577124496905991075b
+      - 3b9b10ee228e306e6ce996b9ed35f2b075353fb3
       Expires:
-      - Sun, 30 Jan 2022 20:13:45 GMT
+      - Tue, 08 Feb 2022 17:02:40 GMT
       Source-Age:
       - '0'
     body:
@@ -70,9 +70,11 @@ http_interactions:
         ---
         id: ECMA-6
         title:
-          content: 7-bit coded character set
-          language: en
-          script: Latn
+        - content: 7-bit coded character set
+          language:
+          - en
+          script:
+          - Latn
           format: text/plain
         link:
         - content: https://www.ecma-international.org/publications-and-standards/standards/ecma-6/
@@ -81,29 +83,36 @@ http_interactions:
           type: doi
         type: standard
         docid:
-          id: ECMA-6
+        - id: ECMA-6
           type: ECMA
+          primary: true
         date:
-          type: published
+        - type: published
           value: 1991-12
         contributor:
-          organization:
-            name: Ecma International
-          role: publisher
+        - organization:
+            name:
+            - Ecma International
+          role:
+          - publisher
         edition: '6'
         revdate: 1991-12
-        language: en
-        script: Latn
+        language:
+        - en
+        script:
+        - Latn
         abstract:
-          content: |-
+        - content: |-
             This Ecma Standard specifies a set of 128 characters, (control characters and graphic characters such as letters, digits and symbols) with their coded representation. Most of these characters are mandatory and unchangeable, but provision is made for some flexibility to accommodate national and other requirements.
             This Ecma Standard specifies a 7-bit coded character set with a number of options. It also provides guidance on how to exercise the options to define specific national versions and application-oriented versions. Furthermore it specifies the International Reference Version (IRV) in which such options have been exercised.
             This character set is primarily intended for the interchange of information among data processing systems and associated equipment, and within data communication systems. The need for graphic characters and control functions in data processing has also been taken into account in determining this character set.
             This character set is applicable to alphabets of the Latin script.
             This character set allows the use of control characters for code extension where its character set is insufficient for particular applications. Procedures for the use of these control characters are specified in Standard ECMA-35.
             The definitions of the control characters mentioned in this Ecma Standard are specified in Standard ECMA-48. It is assumed that data associated with them are to be processed serially in a forward direction. When they are included in strings of data which are processed other than serially in a forward direction or when they are included in data formatted for fixed-record processing they may have undesirable effects or may require additional special treatment to ensure that they result in their desired function.
-          language: en
-          script: Latn
+          language:
+          - en
+          script:
+          - Latn
           format: text/plain
         relation:
         - type: updates
@@ -111,49 +120,60 @@ http_interactions:
             edition: '1'
             formattedref:
               content: ECMA-6
-              language: en
-              script: Latn
+              language:
+              - en
+              script:
+              - Latn
               format: text/plain
         - type: updates
           bibitem:
             edition: '2'
             formattedref:
               content: ECMA-6
-              language: en
-              script: Latn
+              language:
+              - en
+              script:
+              - Latn
               format: text/plain
         - type: updates
           bibitem:
             edition: '3'
             formattedref:
               content: ECMA-6
-              language: en
-              script: Latn
+              language:
+              - en
+              script:
+              - Latn
               format: text/plain
         - type: updates
           bibitem:
             link:
-              content: https://www.ecma-international.org/wp-content/uploads/ECMA-6_4th_edition_august_1973.pdf
+            - content: https://www.ecma-international.org/wp-content/uploads/ECMA-6_4th_edition_august_1973.pdf
               type: doi
             edition: '4'
             formattedref:
               content: ECMA-6
-              language: en
-              script: Latn
+              language:
+              - en
+              script:
+              - Latn
               format: text/plain
         - type: updates
           bibitem:
             link:
-              content: https://www.ecma-international.org/wp-content/uploads/ECMA-6_5th_edition_march_1985.pdf
+            - content: https://www.ecma-international.org/wp-content/uploads/ECMA-6_5th_edition_march_1985.pdf
               type: doi
             edition: '5'
             formattedref:
               content: ECMA-6
-              language: en
-              script: Latn
+              language:
+              - en
+              script:
+              - Latn
               format: text/plain
-        place: Geneva
+        place:
+        - Geneva
         doctype: document
     http_version:
-  recorded_at: Sun, 30 Jan 2022 20:08:45 GMT
+  recorded_at: Tue, 08 Feb 2022 16:57:40 GMT
 recorded_with: VCR 5.1.0
