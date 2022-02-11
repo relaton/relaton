@@ -25,13 +25,13 @@ module Relaton
       Util.log("[relaton] Info: detecting backends:", :info)
 
       SUPPORTED_GEMS.each do |b|
-        begin
-          require b
-          require "#{b}/processor"
-          register Kernel.const_get "#{camel_case(b)}::Processor"
-        rescue LoadError
-          Util.log("[relaton] Error: backend #{b} not present", :error)
-        end
+        require b
+        require "#{b}/processor"
+        register Kernel.const_get "#{camel_case(b)}::Processor"
+      rescue LoadError => e
+        Util.log("[relaton] Error: backend #{b} not present", :error)
+        Util.log("[relaton] Error: #{e.message}", :error)
+        Util.log("[relaton] Error: #{e.backtrace.join "\n"}", :error)
       end
     end
 
