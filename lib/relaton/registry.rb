@@ -22,7 +22,7 @@ module Relaton
     end
 
     def register_gems
-      Util.log("[relaton] Info: detecting backends:", :info)
+      # Util.log("[relaton] Info: detecting backends:", :info)
 
       SUPPORTED_GEMS.each do |b|
         require b
