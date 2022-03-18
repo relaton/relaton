@@ -45,6 +45,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "relaton-iso", "~> 1.10.1"
   spec.add_dependency "relaton-itu", "~> 1.10.1"
   spec.add_dependency "relaton-nist", "~> 1.10.1"
+  spec.add_dependency "relaton-oasis", "~> 1.10.0"
   spec.add_dependency "relaton-ogc", "~> 1.10.1"
   spec.add_dependency "relaton-omg", "~> 1.10.1"
   spec.add_dependency "relaton-un", "~> 1.10.1"

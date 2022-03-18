@@ -313,6 +313,13 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "get OASIS reference" do
+    VCR.use_cassette "oasis_amqp_core_types_v1_0_pt1" do
+      bib = @db.fetch "OASIS amqp-core-types-v1.0-Pt1"
+      expect(bib).to be_instance_of RelatonOasis::OasisBibliographicItem
+    end
+  end
+
   context "get combined documents" do
     context "ISO" do
       it "included" do

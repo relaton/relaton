@@ -95,6 +95,10 @@ RSpec.describe Relaton::Registry do
     it "3GPP" do
       expect(Relaton::Registry.instance.by_type("3GPP")).to be_instance_of Relaton3gpp::Processor
     end
+
+    it "OASIS" do
+      expect(Relaton::Registry.instance.by_type("OASIS")).to be_instance_of RelatonOasis::Processor
+    end
   end
 
   it "find processot by dataset" do
