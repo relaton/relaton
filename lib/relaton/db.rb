@@ -273,7 +273,7 @@ module Relaton
         bib = check_bibliocache(ref + divider + c, year, opts, stdclass)
         if bib
           d.relation << RelatonBib::DocumentRelation.new(
-            type: reltype, description: reldesc, bibitem: bib
+            type: reltype, description: reldesc, bibitem: bib,
           )
         end
       end
@@ -286,12 +286,8 @@ module Relaton
         return name if /^(urn:)?#{processor.prefix}/i.match?(code) ||
           processor.defaultprefix.match(code)
       end
-      allowed = @registry.processors.reduce([]) do |m, (_k, v)|
-        m << v.prefix
-      end
       Util.log <<~WARN, :info
-        [relaton] #{code} does not have a recognised prefix: #{allowed.join(', ')}.
-        See https://github.com/relaton/relaton/ for instructions on prefixing and wrapping document identifiers to disambiguate them.
+        [relaton] #{code} does not have a recognised prefix
       WARN
     end
 

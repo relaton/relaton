@@ -293,8 +293,8 @@ RSpec.describe Relaton::Db do
   end
 
   it "get CEN reference" do
-    VCR.use_cassette "cen_en_10160_1999" do
-      bib = @db.fetch "CEN EN 10160:1999"
+    VCR.use_cassette "en_10160_1999" do
+      bib = @db.fetch "EN 10160:1999"
       expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
     end
   end
@@ -381,9 +381,9 @@ RSpec.describe Relaton::Db do
       end
     end
 
-    context "HIST" do
+    context "NIST" do
       it "included" do
-        VCR.use_cassette "hist_cmbined_included" do
+        VCR.use_cassette "nist_combined_included" do
           bib = @db.fetch "NIST SP 800-38A, Add"
           expect(bib.docidentifier[0].id).to eq "NIST SP 800-38A, Add"
           expect(bib.relation[0].type).to eq "updates"
