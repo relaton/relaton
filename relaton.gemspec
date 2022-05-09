@@ -63,6 +63,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rubocop-rails", "~> 2.10.0"
   spec.add_development_dependency "simplecov", "~> 0.15"
   spec.add_development_dependency "timecop", "~> 0.9"
-  spec.add_development_dependency "vcr", "~> 5"
+  spec.add_development_dependency "vcr", "~> 6"
   spec.add_development_dependency "webmock"
 end
