@@ -77,6 +77,34 @@ module Relaton
       processors.values.detect { |v| v.prefix == type&.upcase }
     end
 
+    #
+    # Find processor by reference or prefix
+    #
+    # @param [String] ref reference or prefix
+    #
+    # @return [Relaton::Processor] processor
+    #
+    def processor_by_ref(ref)
+      @processors[class_by_ref(ref)]
+    end
+
+    #
+    # Find processor by refernce or prefix
+    #
+    # @param ref [String] reference or prefix
+    #
+    # @return [Symbol, nil] standard class name
+    #
+    def class_by_ref(ref)
+      @processors.each do |class_name, processor|
+        return class_name if /^(urn:)?#{processor.prefix}(?!\w)/i.match?(ref) ||
+          processor.defaultprefix.match(ref)
+      end
+      Util.log <<~WARN, :info
+        [relaton] #{ref} does not have a recognised prefix
+      WARN
+    end
+
     private
 
     def camel_case(gem_name)

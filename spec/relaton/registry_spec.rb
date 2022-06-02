@@ -70,6 +70,7 @@ RSpec.describe Relaton::Registry do
 
     it "BIPM" do
       expect(Relaton::Registry.instance.by_type("BIPM")).to be_instance_of RelatonBipm::Processor
+      expect(Relaton::Registry.instance.processor_by_ref("CCTF")).to be_instance_of RelatonBipm::Processor
     end
 
     it "ECMA" do

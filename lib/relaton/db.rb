@@ -63,7 +63,7 @@ module Relaton
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     ##
     def fetch(code, year = nil, opts = {})
-      stdclass = standard_class(code) || return
+      stdclass = @registry.class_by_ref(code) || return
       processor = @registry.processors[stdclass]
       ref = if processor.respond_to?(:urn_to_code)
               processor.urn_to_code(code)&.first
@@ -101,7 +101,7 @@ module Relaton
 
     # Fetch asynchronously
     def fetch_async(code, year = nil, opts = {}, &block) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-      stdclass = standard_class code
+      stdclass = @registry.class_by_ref code
       if stdclass
         unless @queues[stdclass]
           processor = @registry.processors[stdclass]
@@ -142,7 +142,7 @@ module Relaton
       @registry.processors.each do |name, processor|
         std = name if processor.prefix == stdclass
       end
-      std = standard_class(code) or return nil unless std
+      std = @registry.class_by_ref(code) or return nil unless std
 
       check_bibliocache(code, year, opts, std)
     end
@@ -151,8 +151,8 @@ module Relaton
     # @param code [String]
     # @return [Array]
     def docid_type(code)
-      stdclass = standard_class(code) or return [nil, code]
-      _prefix, code = strip_id_wrapper(code, stdclass)
+      stdclass = @registry.class_by_ref(code) or return [nil, code]
+      _, code = strip_id_wrapper(code, stdclass)
       [@registry.processors[stdclass].idtype, code]
     end
 
@@ -218,7 +218,7 @@ module Relaton
     # @param year [Integer, nil] year to filter
     # @return [BibliographicItem, nil]
     def search_edition_year(file, content, edition, year) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-      processor = @registry.processors[standard_class(file.split("/")[-2])]
+      processor = @registry.processor_by_ref(file.split("/")[-2])
       item = if file.match?(/xml$/) then processor.from_xml(content)
              else processor.hash_to_bib(YAML.safe_load(content))
              end
@@ -269,7 +269,7 @@ module Relaton
                                                          type: "updates")
       end
       divider = stdclass == :relaton_itu ? " " : "/"
-      refs[1..-1].each_with_object(doc) do |c, d|
+      refs[1..].each_with_object(doc) do |c, d|
         bib = check_bibliocache(ref + divider + c, year, opts, stdclass)
         if bib
           d.relation << RelatonBib::DocumentRelation.new(
@@ -277,18 +277,6 @@ module Relaton
           )
         end
       end
-    end
-
-    # @param code [String] code of standard
-    # @return [Symbol] standard class name
-    def standard_class(code)
-      @registry.processors.each do |name, processor|
-        return name if /^(urn:)?#{processor.prefix}/i.match?(code) ||
-          processor.defaultprefix.match(code)
-      end
-      Util.log <<~WARN, :info
-        [relaton] #{code} does not have a recognised prefix
-      WARN
     end
 
     # TODO: i18n
