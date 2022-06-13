@@ -179,7 +179,7 @@ RSpec.describe Relaton::Db do
       refs = ["CGPM Resolution 1889-00", "CGPM Résolution 1889-00",
               "CGPM Réunion 9", "CGPM Meeting 9"]
       results = []
-      VCR.use_cassette "bipm_i18n_async_fetch", match_requests_on: %i[method uri] do
+      VCR.use_cassette "bipm_i18n_async_fetch" do
         refs.each do |ref|
           db.fetch_async(ref) { |r| queue << [r, ref] }
         end
