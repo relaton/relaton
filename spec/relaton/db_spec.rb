@@ -173,6 +173,9 @@ RSpec.describe Relaton::Db do
     end
 
     it "BIPM i18n" do
+      expect(File).to receive(:exist?).with(/index\.yaml/).and_return false
+      allow(File).to receive(:exist?).and_call_original
+      expect(File).to receive(:write).with(/index\.yaml/, kind_of(String), encoding: "UTF-8")
       refs = ["CGPM Resolution 1889-00", "CGPM Résolution 1889-00",
               "CGPM Réunion 9", "CGPM Meeting 9"]
       results = []
