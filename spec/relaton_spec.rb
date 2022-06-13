@@ -195,11 +195,13 @@ RSpec.describe Relaton::Db do
       expect(File.exist?("testcache")).to be true
       expect(File.exist?("testcache2")).to be true
       testcache = Relaton::DbCache.new "testcache"
-      expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier "\
-        "type=\"RFC\" primary=\"true\">RFC 8341</docidentifier>"
+      expect(testcache["IETF(RFC 8341)"]).to include(
+        '<docidentifier type="IETF" primary="true">RFC 8341</docidentifier>',
+      )
       testcache = Relaton::DbCache.new "testcache2"
-      expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier "\
-        "type=\"RFC\" primary=\"true\">RFC 8341</docidentifier>"
+      expect(testcache["IETF(RFC 8341)"]).to include(
+        '<docidentifier type="IETF" primary="true">RFC 8341</docidentifier>',
+      )
     end
   end
 

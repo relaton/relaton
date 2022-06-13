@@ -163,16 +163,27 @@ RSpec.describe Relaton::Db do
       results = []
       VCR.use_cassette "async_fetch", match_requests_on: %i[method uri body] do
         refs.each do |ref|
-          db.fetch_async(ref) do |r|
-            queue << [r, ref]
-          end
+          db.fetch_async(ref) { |r| queue << [r, ref] }
         end
-        Timeout.timeout(60) do
-          refs.size.times { results << queue.pop }
-        end
+        Timeout.timeout(60) { refs.size.times { results << queue.pop } }
       end
       results.each do |result|
         expect(result[0]).to be_instance_of RelatonItu::ItuBibliographicItem
+      end
+    end
+
+    it "BIPM i18n" do
+      refs = ["CGPM Resolution 1889-00", "CGPM Résolution 1889-00",
+              "CGPM Réunion 9", "CGPM Meeting 9"]
+      results = []
+      VCR.use_cassette "bipm_i18n_async_fetch", match_requests_on: %i[method uri body] do
+        refs.each do |ref|
+          db.fetch_async(ref) { |r| queue << [r, ref] }
+        end
+        Timeout.timeout(60) { refs.size.times { results << queue.pop } }
+      end
+      results.each do |result|
+        expect(result[0]).to be_instance_of RelatonBipm::BipmBibliographicItem
       end
     end
 

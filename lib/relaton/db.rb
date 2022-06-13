@@ -452,8 +452,7 @@ module Relaton
         FileUtils.rm_rf(fdir, secure: true)
         Util.log(
           "[relaton] WARNING: cache #{fdir}: version is obsolete and cache is "\
-            "cleared.",
-          :warning
+          "cleared.", :warning
         )
       end
       db
