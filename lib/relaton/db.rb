@@ -11,11 +11,9 @@ module Relaton
     def initialize(global_cache, local_cache)
       @registry = Relaton::Registry.instance
       gpath = global_cache && File.expand_path(global_cache)
-      @db = open_cache_biblio(gpath, type: :global)
+      @db = open_cache_biblio(gpath)
       lpath = local_cache && File.expand_path(local_cache)
-      @local_db = open_cache_biblio(lpath, type: :local)
-      @static_db = open_cache_biblio File.expand_path("../relaton/static_cache",
-                                                      __dir__)
+      @local_db = open_cache_biblio(lpath)
       @queues = {}
       @semaphore = Mutex.new
     end
@@ -87,9 +85,7 @@ module Relaton
     # @param year [Integer, nil]
     # @return [Array]
     def fetch_all(text = nil, edition: nil, year: nil)
-      result = @static_db.all do |file, yml|
-        search_yml file, yml, text, edition, year
-      end.compact
+      result = []
       db = @db || @local_db
       if db
         result += db.all do |file, xml|
@@ -186,19 +182,6 @@ module Relaton
     end
 
     private
-
-    # @param file [String] file path
-    # @param yml [String] content in YAML format
-    # @param text [String, nil] text to serach
-    # @param edition [String, nil] edition to filter
-    # @param year [Integer, nil] year to filter
-    # @return [BibliographicItem, nil]
-    def search_yml(file, yml, text, edition, year)
-      item = search_edition_year(file, yml, edition, year)
-      return unless item
-
-      item if match_xml_text(item.to_xml(bibdata: true), text)
-    end
 
     # @param file [String] file path
     # @param xml [String] content in XML format
@@ -346,11 +329,6 @@ module Relaton
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def check_bibliocache(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
       id, searchcode = std_id(code, year, opts, stdclass)
-      yaml = @static_db[id]
-      if yaml
-        return @registry.processors[stdclass].hash_to_bib YAML.safe_load(yaml)
-      end
-
       db = @local_db || @db
       altdb = @local_db && @db ? @db : nil
       if db.nil?
@@ -438,13 +416,11 @@ module Relaton
     end
 
     # @param dir [String, nil] DB directory
-    # @param type [Symbol]
     # @return [Relaton::DbCache, NilClass]
-    def open_cache_biblio(dir, type: :static) # rubocop:disable Metrics/MethodLength
+    def open_cache_biblio(dir) # rubocop:disable Metrics/MethodLength
       return nil if dir.nil?
 
-      db = DbCache.new dir, type == :static ? "yml" : "xml"
-      return db if type == :static
+      db = DbCache.new dir
 
       Dir["#{dir}/*/"].each do |fdir|
         next if db.check_version?(fdir)

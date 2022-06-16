@@ -32,7 +32,7 @@ module Relaton
 
     # Clear database
     def clear
-      FileUtils.rm_rf Dir.glob "#{dir}/*" if @ext == "xml" # unless it's static DB
+      FileUtils.rm_rf Dir.glob "#{dir}/*"
     end
 
     # Save item
@@ -86,7 +86,7 @@ module Relaton
       value = self[key]
       return unless value
 
-      if value.match? /^not_found/
+      if value.match?(/^not_found/)
         value.match(/\d{4}-\d{2}-\d{2}/).to_s
       else
         doc = Nokogiri::XML value
@@ -115,7 +115,7 @@ module Relaton
     # @param fdir [String] dir pathe to flover cache
     # @return [TrueClass, FalseClass]
     def check_version?(fdir)
-      version_dir = fdir + "/version"
+      version_dir = "#{fdir}/version"
       return false unless File.exist? version_dir
 
       v = File.read version_dir, encoding: "utf-8"
@@ -179,9 +179,9 @@ module Relaton
     # @param key [String]
     # @return [String]
     def filename(key)
-      prefcode = key.downcase.match /^(?<prefix>[^\(]+)\((?<code>[^\)]+)/
+      prefcode = key.downcase.match(/^(?<prefix>[^(]+)\((?<code>[^)]+)/)
       fn = if prefcode
-             "#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[-:\s\/\()]/, '_').squeeze('_')}"
+             "#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[-:\s\/()]/, '_').squeeze('_')}"
            else
              key.gsub(/[-:\s]/, "_")
            end
@@ -208,7 +208,7 @@ module Relaton
     # @param key [String]
     # @return [String]
     def prefix(key)
-      key.downcase.match(/^[^\(]+(?=\()/).to_s
+      key.downcase.match(/^[^(]+(?=\()/).to_s
     end
 
     # @param file [String]

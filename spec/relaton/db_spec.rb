@@ -75,9 +75,9 @@ RSpec.describe Relaton::Db do
 
     it "all documents" do
       items = db.fetch_all
-      expect(items.size).to be 9
-      expect(items[7]).to be_instance_of RelatonIec::IecBibliographicItem
-      expect(items[8]).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      expect(items.size).to be 2
+      expect(items[0]).to be_instance_of RelatonIec::IecBibliographicItem
+      expect(items[1]).to be_instance_of RelatonIsoBib::IsoBibliographicItem
     end
 
     context "search for text" do
@@ -93,8 +93,8 @@ RSpec.describe Relaton::Db do
         items = db.fetch_all "123"
         expect(items.size).to eq 2
         items = db.fetch_all "ISO"
-        expect(items.size).to eq 8
-        expect(items[7].id).to eq "ISO123"
+        expect(items.size).to eq 1
+        expect(items[0].id).to eq "ISO123"
       end
 
       it "and fail" do
@@ -206,52 +206,6 @@ RSpec.describe Relaton::Db do
         db.fetch_async("ITU-T G.993.5") { |r| queue << r }
         Timeout.timeout(50) { queue.pop }
       end
-    end
-  end
-
-  context "fetch documents form static cache" do
-    let(:db) { Relaton::Db.new nil, nil }
-
-    it "fetches ISO/IEC DIR 1 IEC SUP" do
-      bib = db.fetch "ISO/IEC DIR 1 IEC SUP"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR 1 IEC SUP"
-    end
-
-    it "fetches ISO/IEC DIR 1 ISO SUP" do
-      bib = db.fetch "ISO/IEC DIR 1 ISO SUP"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR 1 ISO SUP"
-    end
-
-    it "fetches ISO/IEC DIR 1" do
-      bib = db.fetch "ISO/IEC DIR 1"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR 1"
-    end
-
-    it "fetches ISO/IEC DIR 2 IEC" do
-      bib = db.fetch "ISO/IEC DIR 2 IEC"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR 2 IEC"
-    end
-
-    it "fetches ISO/IEC DIR 2 ISO" do
-      bib = db.fetch "ISO/IEC DIR 2 ISO"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR 2 ISO"
-    end
-
-    it "fetches ISO/IEC DIR IEC SUP" do
-      bib = db.fetch "ISO/IEC DIR IEC SUP"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR IEC SUP"
-    end
-
-    it "fetches ISO/IEC DIR JTC 1 SUP" do
-      bib = db.fetch "ISO/IEC DIR JTC 1 SUP"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR JTC 1 SUP"
     end
   end
 end
