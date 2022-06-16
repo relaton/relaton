@@ -95,9 +95,18 @@ module Relaton
       result
     end
 
+    #
     # Fetch asynchronously
-    def fetch_async(code, year = nil, opts = {}, &block) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-      stdclass = @registry.class_by_ref code
+    #
+    # @param [String] ref reference
+    # @param [String] year document yer
+    # @param [Hash] opts options
+    #
+    # @return [RelatonBib::BibliographicItem, RelatonBib::RequestError, nil] bibitem if document is found,
+    #   request error if server doesn't answer, nil if document not found
+    #
+    def fetch_async(ref, year = nil, opts = {}, &block) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+      stdclass = @registry.class_by_ref ref
       if stdclass
         unless @queues[stdclass]
           processor = @registry.processors[stdclass]
@@ -106,11 +115,14 @@ module Relaton
             args[3].call fetch(*args[0..2])
           rescue RelatonBib::RequestError => e
             args[3].call e
+          rescue StandardError => e
+            Util.log "[relaton] ERROR: #{args[0]} -- #{e.message}", :error
+            args[3].call nil
           end
           @queues[stdclass] = { queue: Queue.new, workers_pool: wp }
           Thread.new { process_queue @queues[stdclass] }
         end
-        @queues[stdclass][:queue] << [code, year, opts, block]
+        @queues[stdclass][:queue] << [ref, year, opts, block]
       else yield nil
       end
     end
@@ -356,8 +368,8 @@ module Relaton
       else
         return bib_retval(db[id], stdclass) if opts[:fetch_db]
 
-        db[id] ||= new_bib_entry(searchcode, year, opts, stdclass, db: db,
-                                                                   id: id)
+        entry = new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id) unless db[id]
+        @semaphore.synchronize { db[id] ||= entry }
       end
       bib_retval(db[id], stdclass)
     end

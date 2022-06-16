@@ -198,6 +198,22 @@ RSpec.describe Relaton::Db do
       expect(result).to be_nil
     end
 
+    it "handle HTTP request error" do
+      expect(db).to receive(:fetch).and_raise RelatonBib::RequestError
+      db.fetch_async("ISO REF") { |r| queue << r }
+      result = Timeout.timeout(5) { queue.pop }
+      expect(result).to be_instance_of RelatonBib::RequestError
+    end
+
+    it "handle other errors" do
+      expect(db).to receive(:fetch).and_raise Errno::EACCES
+      expect do
+        db.fetch_async("ISO REF") { |r| queue << r }
+        result = Timeout.timeout(5) { queue.pop }
+        expect(result).to be_nil
+      end.to output("[relaton] ERROR: ISO REF -- Permission denied\n").to_stderr
+    end
+
     it "use threads number from RELATON_FETCH_PARALLEL" do
       expect(ENV).to receive(:[]).with("RELATON_FETCH_PARALLEL").and_return(1)
       allow(ENV).to receive(:[]).and_call_original
