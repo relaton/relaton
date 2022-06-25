@@ -217,7 +217,7 @@ module Relaton
       item = if file.match?(/xml$/) then processor.from_xml(content)
              else processor.hash_to_bib(YAML.safe_load(content))
              end
-      item if (edition.nil? || item.edition == edition) && (year.nil? ||
+      item if (edition.nil? || item.edition.content == edition) && (year.nil? ||
         item.date.detect { |d| d.type == "published" && d.on(:year).to_s == year.to_s })
     end
 
