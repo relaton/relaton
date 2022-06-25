@@ -13,6 +13,7 @@ VCR.configure do |c|
     clean_outdated_http_interactions: true,
     re_record_interval: 7 * 24 * 3600,
     record: :once,
+    allow_playback_repeats: true,
   }
   c.hook_into :webmock
 end
