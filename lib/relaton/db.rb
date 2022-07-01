@@ -306,7 +306,7 @@ module Relaton
     end
 
     #
-    # @param entry [String] XML string
+    # @param entry [String, nil] XML string
     # @param stdclass [Symbol]
     #
     # @return [nil, RelatonBib::BibliographicItem,
@@ -318,7 +318,9 @@ module Relaton
     #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def bib_retval(entry, stdclass)
-      @registry.processors[stdclass].from_xml(entry) if entry
+      if entry && !entry.match?(/^not_found/)
+        @registry.processors[stdclass].from_xml(entry)
+      end
     end
 
     # @param code [String]
@@ -394,7 +396,10 @@ module Relaton
     def new_bib_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity,Metrics/MethodLength
       entry = @semaphore.synchronize { args[:db] && args[:db][args[:id]] }
       if entry
-        Util.log "[relaton] (#{code}) not found." if entry&.match?(/^not_found/)
+        if entry&.match?(/^not_found/)
+          Util.log "[relaton] (#{code}) not found."
+          return
+        end
         return entry
       end
 

@@ -20,7 +20,7 @@ RSpec.describe Relaton::Db do
         expect(db).to receive(:[]).with(id).and_return "not_found"
         expect do
           entry = subject.send :new_bib_entry, "ISO 123", nil, {}, :relaton_iso, db: db, id: id
-          expect(entry).to eq "not_found"
+          expect(entry).to be_nil
         end.to output("[relaton] (ISO 123) not found.\n").to_stderr
       end
     end
