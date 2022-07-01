@@ -41,29 +41,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 8632:A505:57A7C:6013A:62B49FA8
+      - 7D28:10C50:1BF854C:1DDFC0B:62BDDA6B
       Accept-Ranges:
       - bytes
       Date:
-      - Thu, 23 Jun 2022 17:15:20 GMT
+      - Thu, 30 Jun 2022 17:16:27 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-vie6363-VIE
+      - cache-vie6348-VIE
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1656004520.417992,VS0,VE231
+      - S1656609387.047148,VS0,VE235
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - e165b70d2170479617e6f38ce302ae4e577caea3
+      - 93a267346ed97c52087b05f16495084f70b848e8
       Expires:
-      - Thu, 23 Jun 2022 17:20:20 GMT
+      - Thu, 30 Jun 2022 17:21:27 GMT
       Source-Age:
       - '0'
     body:
@@ -143,5 +143,5 @@ http_interactions:
           freeze_stage3_meeting: SMG-28
           close_meeting: SP-28
           project_end: '1999-02-12'
-  recorded_at: Thu, 23 Jun 2022 17:15:20 GMT
+  recorded_at: Thu, 30 Jun 2022 17:16:27 GMT
 recorded_with: VCR 6.1.0

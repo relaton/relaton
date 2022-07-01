@@ -208,7 +208,7 @@ module Relaton
     end
 
     # @param file [String] file path
-    # @param content [String] content in XML or YAmL format
+    # @param content [String] content in XML or YAML format
     # @param edition [String, nil] edition to filter
     # @param year [Integer, nil] year to filter
     # @return [BibliographicItem, nil]
@@ -305,8 +305,10 @@ module Relaton
       [prefix, code]
     end
 
+    #
     # @param entry [String] XML string
     # @param stdclass [Symbol]
+    #
     # @return [nil, RelatonBib::BibliographicItem,
     #   RelatonIsoBib::IsoBibliographicItem, RelatonItu::ItuBibliographicItem,
     #   RelatonIetf::IetfBibliographicItem, RelatonIec::IecBibliographicItem,
@@ -316,9 +318,7 @@ module Relaton
     #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def bib_retval(entry, stdclass)
-      if entry.nil? || entry.match?(/^not_found/) then nil
-      else @registry.processors[stdclass].from_xml(entry)
-      end
+      @registry.processors[stdclass].from_xml(entry) if entry
     end
 
     # @param code [String]
@@ -346,8 +346,7 @@ module Relaton
       if db.nil?
         return if opts[:fetch_db]
 
-        bibentry = new_bib_entry(searchcode, year, opts, stdclass, db: db,
-                                                                   id: id)
+        bibentry = new_bib_entry(searchcode, year, opts, stdclass)
         return bib_retval(bibentry, stdclass)
       end
 
@@ -360,45 +359,58 @@ module Relaton
         @semaphore.synchronize do
           db.clone_entry id, altdb if altdb.valid_entry? id, year
         end
-        entry = new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id) unless db[id]
+        new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
         @semaphore.synchronize do
-          db[id] ||= entry
           altdb.clone_entry(id, db) if !altdb.valid_entry?(id, year)
         end
       else
         return bib_retval(db[id], stdclass) if opts[:fetch_db]
 
-        entry = new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id) unless db[id]
-        @semaphore.synchronize { db[id] ||= entry }
+        new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
       end
       bib_retval(db[id], stdclass)
     end
 
+    #
+    # Create new bibliographic entry if it doesn't exist in database
+    #
     # @param code [String]
     # @param year [String]
     #
     # @param opts [Hash]
-    # @option opts [Boolean] :all_parts If all-parts reference is required
-    # @option opts [Boolean] :keep_year If undated reference should return
-    #   actual reference with year
+    # @option opts [Boolean, nil] :all_parts If true then all-parts reference is
+    #   requested
+    # @option opts [Boolean, nil] :keep_year If true then undated reference
+    #   should return actual reference with year
     # @option opts [Integer] :retries (1) Number of network retries
     #
     # @param stdclass [Symbol]
-    # @param db [Relaton::DbCache,`NilClass]
-    # @param id [String] docid
-    # @return [String]
-    def new_bib_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+    # @param db [Relaton::DbCache,`nil]
+    # @param id [String, nil] docid
+    #
+    # @return [String] bibliographic entry
+    #   XML or "redirection ID" or "not_found YYYY-MM-DD" string
+    #
+    def new_bib_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity,Metrics/MethodLength
+      entry = @semaphore.synchronize { args[:db] && args[:db][args[:id]] }
+      if entry
+        Util.log "[relaton] (#{code}) not found." if entry&.match?(/^not_found/)
+        return entry
+      end
+
       bib = net_retry(code, year, opts, stdclass, opts.fetch(:retries, 1))
       bib_id = bib&.docidentifier&.first&.id
 
       # when docid doesn't match bib's id then return a reference to bib's id
-      if args[:db] && args[:id] &&
-          bib_id && args[:id] !~ %r{#{Regexp.quote("(#{bib_id})")}}
-        bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
-        @semaphore.synchronize { args[:db][bid] ||= bib_entry bib }
-        "redirection #{bid}"
-      else bib_entry bib
-      end
+      entry = if args[:db] && args[:id] && bib_id && args[:id] !~ %r{#{Regexp.quote("(#{bib_id})")}}
+                bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
+                @semaphore.synchronize { args[:db][bid] ||= bib_entry bib }
+                "redirection #{bid}"
+              else bib_entry bib
+              end
+      return entry if args[:db].nil? || args[:id].nil?
+
+      @semaphore.synchronize { args[:db][args[:id]] ||= entry }
     end
 
     # @raise [RelatonBib::RequestError]
@@ -454,10 +466,16 @@ module Relaton
     end
 
     class << self
+      #
       # Initialse and return relaton instance, with local and global cache names
-      # local_cache: local cache name; none created if nil; "relaton" created
-      # if empty global_cache: boolean to create global_cache
-      # flush_caches: flush caches
+      #
+      # @param local_cache [String, nil] local cache name;
+      #   "relaton" created if empty or nil
+      # @param global_cache [Boolean, nil] create global_cache if true
+      # @param flush_caches [Boolean, nil] flush caches if true
+      #
+      # @return [Relaton::Db] relaton DB instance
+      #
       def init_bib_caches(**opts) # rubocop:disable Metrics/CyclomaticComplexity
         globalname = global_bibliocache_name if opts[:global_cache]
         localname = local_bibliocache_name(opts[:local_cache])

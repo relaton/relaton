@@ -45,7 +45,7 @@ module Relaton
       end
 
       prefix_dir = "#{@dir}/#{prefix(key)}"
-      FileUtils::mkdir_p prefix_dir unless Dir.exist? prefix_dir
+      FileUtils::mkdir_p prefix_dir
       set_version prefix_dir
       file_safe_write "#{filename(key)}.#{ext(value)}", value
     end
@@ -72,6 +72,12 @@ module Relaton
       end
     end
 
+    #
+    # Save entry from cache of `db` to this cache.
+    #
+    # @param [String] key key of the entry
+    # @param [Relaton::Db] db database
+    #
     def clone_entry(key, db)
       self[key] ||= db.get(key)
       if (code = redirect? get(key))

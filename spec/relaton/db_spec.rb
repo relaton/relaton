@@ -1,6 +1,40 @@
 RSpec.describe Relaton::Db do
   before(:each) { FileUtils.rm_rf %w[testcache testcache2] }
 
+  context "instance methods" do
+    subject { Relaton::Db.new nil, nil }
+
+    context "#search_edition_year" do
+      it "create bibitem from YAML content" do
+        h = { "docid" => [{ "id" => "ISO 123", type: "ISO", "primary" => true }] }
+        expect(YAML).to receive(:safe_load).with(:content).and_return h
+        item = subject.send :search_edition_year, "iso/item.yaml", :content, nil, nil
+        expect(item).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      end
+    end
+
+    context "#new_bib_entry" do
+      it "warn if cached entry is not_found" do
+        id = "ISO(ISO 123)"
+        db = double "db"
+        expect(db).to receive(:[]).with(id).and_return "not_found"
+        expect do
+          entry = subject.send :new_bib_entry, "ISO 123", nil, {}, :relaton_iso, db: db, id: id
+          expect(entry).to eq "not_found"
+        end.to output("[relaton] (ISO 123) not found.\n").to_stderr
+      end
+    end
+  end
+
+  context "class methods" do
+    it "::init_bib_caches" do
+      expect(FileUtils).to receive(:rm_rf).with(/\/\.relaton\/cache$/)
+      expect(FileUtils).to receive(:rm_rf).with(/testcache\/cache$/)
+      expect(Relaton::Db).to receive(:new).with(/\/\.relaton\/cache$/, /testcache\/cache$/)
+      Relaton::Db.init_bib_caches(global_cache: true, local_cache: "testcache", flush_caches: true)
+    end
+  end
+
   context "modifing database" do
     let(:db) { Relaton::Db.new "testcache", "testcache2" }
 

@@ -21,7 +21,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1222'
+      - '1247'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -29,7 +29,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"1642c72df67cf4388864ea0b3993dcb50e3c910f7ff94ecd40c092b08d7c9e89"
+      - W/"c726ea45f24d87fe7031a6c6c2a941037b3dbabccb64e5e609c532e2ceda574f"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -39,29 +39,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 429E:4158:284A4:2C3B5:62B49FA1
+      - CC72:3071:2FCFAC:325DED:62BDDA64
       Accept-Ranges:
       - bytes
       Date:
-      - Thu, 23 Jun 2022 17:15:13 GMT
+      - Thu, 30 Jun 2022 17:16:21 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-vie6353-VIE
+      - cache-vie6346-VIE
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1656004513.278109,VS0,VE160
+      - S1656609381.962324,VS0,VE201
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - f5e17720304d48a52f2b71958a0b338e2cb2ffcc
+      - e95e2f8d20e8990d4c5e17531fd6bb52ab5c6fbd
       Expires:
-      - Thu, 23 Jun 2022 17:20:13 GMT
+      - Thu, 30 Jun 2022 17:21:21 GMT
       Source-Age:
       - '0'
     body:
@@ -95,7 +95,8 @@ http_interactions:
             - Ecma International
           role:
           - publisher
-        edition: '6'
+        edition:
+          content: '6'
         revdate: 1991-12
         language:
         - en
@@ -117,7 +118,13 @@ http_interactions:
         relation:
         - type: updates
           bibitem:
-            edition: '1'
+            id: ECMA-6
+            docid:
+            - id: ECMA-6
+              type: ECMA
+              primary: true
+            edition:
+              content: '1'
             formattedref:
               content: ECMA-6
               language:
@@ -127,7 +134,13 @@ http_interactions:
               format: text/plain
         - type: updates
           bibitem:
-            edition: '2'
+            id: ECMA-6
+            docid:
+            - id: ECMA-6
+              type: ECMA
+              primary: true
+            edition:
+              content: '2'
             formattedref:
               content: ECMA-6
               language:
@@ -137,7 +150,13 @@ http_interactions:
               format: text/plain
         - type: updates
           bibitem:
-            edition: '3'
+            id: ECMA-6
+            docid:
+            - id: ECMA-6
+              type: ECMA
+              primary: true
+            edition:
+              content: '3'
             formattedref:
               content: ECMA-6
               language:
@@ -147,10 +166,16 @@ http_interactions:
               format: text/plain
         - type: updates
           bibitem:
+            id: ECMA-6
             link:
             - content: https://www.ecma-international.org/wp-content/uploads/ECMA-6_4th_edition_august_1973.pdf
               type: doi
-            edition: '4'
+            docid:
+            - id: ECMA-6
+              type: ECMA
+              primary: true
+            edition:
+              content: '4'
             formattedref:
               content: ECMA-6
               language:
@@ -160,10 +185,16 @@ http_interactions:
               format: text/plain
         - type: updates
           bibitem:
+            id: ECMA-6
             link:
             - content: https://www.ecma-international.org/wp-content/uploads/ECMA-6_5th_edition_march_1985.pdf
               type: doi
-            edition: '5'
+            docid:
+            - id: ECMA-6
+              type: ECMA
+              primary: true
+            edition:
+              content: '5'
             formattedref:
               content: ECMA-6
               language:
@@ -173,7 +204,7 @@ http_interactions:
               format: text/plain
         place:
         - Geneva
-        fetched: '2022-06-23'
+        fetched: '2022-06-30'
         doctype: document
-  recorded_at: Thu, 23 Jun 2022 17:15:13 GMT
+  recorded_at: Thu, 30 Jun 2022 17:16:21 GMT
 recorded_with: VCR 6.1.0
