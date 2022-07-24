@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-ietf/master/data/reference.RFC.8341.xml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-rfcs/main/data/RFC8341.yaml
     body:
       encoding: US-ASCII
       string: ''
@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '606'
+      - '786'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"917849434ef8ee04a3bcadf9ae049ece388743c0c3d6cc3be9719aa90d0c2aa3"
+      - W/"fa2a9ffc0c10599a6eb343b3e3157c836457d44567a2f3418afc4a366bbcc95b"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,48 +41,135 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - E2A8:43C3:B13BA4:C169AD:6278ECDE
+      - D1E6:116B5:16FD97:1D3AF9:62BD8CCB
       Accept-Ranges:
       - bytes
       Date:
-      - Mon, 09 May 2022 10:28:47 GMT
+      - Thu, 30 Jun 2022 11:45:15 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-vie6356-VIE
+      - cache-vie6335-VIE
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1652092127.825412,VS0,VE261
+      - S1656589516.716791,VS0,VE173
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - ef405b9b55c1d0704527d6ce671494ee54a74a67
+      - 9dca9e739303a7990038725e976f448cde2adddf
       Expires:
-      - Mon, 09 May 2022 10:33:47 GMT
+      - Thu, 30 Jun 2022 11:50:15 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       string: |
-        <?xml version='1.0' encoding='UTF-8'?>
-
-        <reference  anchor='RFC8341' target='https://www.rfc-editor.org/info/rfc8341'>
-        <front>
-        <title>Network Configuration Access Control Model</title>
-        <author initials='A.' surname='Bierman' fullname='A. Bierman'><organization /></author>
-        <author initials='M.' surname='Bjorklund' fullname='M. Bjorklund'><organization /></author>
-        <date year='2018' month='March' />
-        <abstract><t>The standardization of network configuration interfaces for use with the Network Configuration Protocol (NETCONF) or the RESTCONF protocol requires a structured and secure operating environment that promotes human usability and multi-vendor interoperability.  There is a need for standard mechanisms to restrict NETCONF or RESTCONF protocol access for particular users to a preconfigured subset of all available NETCONF or RESTCONF protocol operations and content.  This document defines such an access control model.</t><t>This document obsoletes RFC 6536.</t></abstract>
-        </front>
-        <seriesInfo name='STD' value='91'/>
-        <seriesInfo name='RFC' value='8341'/>
-        <seriesInfo name='DOI' value='10.17487/RFC8341'/>
-        </reference>
-    http_version:
-  recorded_at: Mon, 09 May 2022 10:28:46 GMT
-recorded_with: VCR 5.1.0
+        ---
+        id: RFC8341
+        title:
+        - type: main
+          content: Network Configuration Access Control Model
+          format: text/plain
+        link:
+        - content: https://www.rfc-editor.org/info/rfc8341
+          type: src
+        type: standard
+        docid:
+        - id: RFC 8341
+          type: IETF
+          primary: true
+        - id: RFC8341
+          type: IETF
+          scope: anchor
+        - id: 10.17487/RFC8341
+          type: DOI
+        docnumber: RFC8341
+        date:
+        - type: published
+          value: 2018-03
+        contributor:
+        - person:
+            name:
+              initial:
+              - content: A
+                language:
+                - en
+                script:
+                - Latn
+              surname:
+                content: Bierman
+                language:
+                - en
+                script:
+                - Latn
+              completename:
+                content: A. Bierman
+                language:
+                - en
+                script:
+                - Latn
+          role:
+          - author
+        - person:
+            name:
+              initial:
+              - content: M
+                language:
+                - en
+                script:
+                - Latn
+              surname:
+                content: Bjorklund
+                language:
+                - en
+                script:
+                - Latn
+              completename:
+                content: M. Bjorklund
+                language:
+                - en
+                script:
+                - Latn
+          role:
+          - author
+        revdate: 2018-03
+        language:
+        - en
+        script:
+        - Latn
+        abstract:
+        - content: "<p>The standardization of network configuration interfaces for use with
+            the Network Configuration Protocol (NETCONF) or the RESTCONF protocol requires
+            a structured and secure operating environment that promotes human usability and
+            multi-vendor interoperability. There is a need for standard mechanisms to restrict
+            NETCONF or RESTCONF protocol access for particular users to a preconfigured subset
+            of all available NETCONF or RESTCONF protocol operations and content. This document
+            defines such an access control model.</p><p>This document obsoletes RFC 6536.</p>"
+          language:
+          - en
+          script:
+          - Latn
+          format: text/html
+        series:
+        - title:
+            content: STD
+            format: text/plain
+          number: '91'
+        - title:
+            content: RFC
+            format: text/plain
+          number: '8341'
+        fetched: '2022-06-29'
+        keyword:
+        - NETCONF RESTCONF
+        - YANG
+        - XML
+        editorialgroup:
+        - name: netconf
+  recorded_at: Thu, 30 Jun 2022 11:45:15 GMT
+recorded_with: VCR 6.1.0

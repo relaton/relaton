@@ -6,7 +6,7 @@ RSpec.describe Relaton::Db do
 
   it "rejects an illegal reference prefix" do
     expect { @db.fetch("XYZ XYZ", nil, {}) }.to output(
-      /does not have a recognised prefix/
+      /does not have a recognised prefix/,
     ).to_stderr
   end
 
@@ -38,7 +38,7 @@ RSpec.describe Relaton::Db do
           'type="standard">'
         testcache = Relaton::DbCache.new "testcache"
         expect(
-          testcache.valid_entry?("ISO(ISO 19133:2005)", Date.today.year.to_s)
+          testcache.valid_entry?("ISO(ISO 19133:2005)", Date.today.year.to_s),
         ).to eq Date.today.year.to_s
       end
     end
@@ -195,11 +195,13 @@ RSpec.describe Relaton::Db do
       expect(File.exist?("testcache")).to be true
       expect(File.exist?("testcache2")).to be true
       testcache = Relaton::DbCache.new "testcache"
-      expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier "\
-        "type=\"RFC\" scope=\"anchor\">RFC8341</docidentifier>"
+      expect(testcache["IETF(RFC 8341)"]).to include(
+        '<docidentifier type="IETF" primary="true">RFC 8341</docidentifier>',
+      )
       testcache = Relaton::DbCache.new "testcache2"
-      expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier "\
-        "type=\"RFC\" scope=\"anchor\">RFC8341</docidentifier>"
+      expect(testcache["IETF(RFC 8341)"]).to include(
+        '<docidentifier type="IETF" primary="true">RFC 8341</docidentifier>',
+      )
     end
   end
 
@@ -246,11 +248,6 @@ RSpec.describe Relaton::Db do
   end
 
   it "get W3C reference" do
-    # w3c_fr = /\.relaton\/w3c\/bibliography\.yml/
-    # expect(File).to receive(:exist?).with(w3c_fr).and_return false
-    # expect(File).to receive(:exist?).and_call_original.at_least :once
-    # expect(File).to receive(:write).with w3c_fr, kind_of(String), kind_of(Hash)
-    # expect(File).to receive(:write).and_call_original.at_least :once
     VCR.use_cassette "w3c_json_ld11" do
       bib = @db.fetch "W3C REC-json-ld11-20200716", nil, {}
       expect(bib).to be_instance_of RelatonW3c::W3cBibliographicItem

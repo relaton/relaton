@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '377'
+      - '331'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"cb38bb72f8d7265446bbaeece29c07a67a4e0bac84746ae86bdc06a7e6c9c7bb"
+      - W/"b1eac519d4e68ff52844599c51bfe47fc81a6b71ac36762aede48fa0694673ab"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,29 +41,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 26AA:1194F:D1822B:E396C7:6278EE7D
+      - 8856:BE8F:1780FC:194470:62BEC912
       Accept-Ranges:
       - bytes
       Date:
-      - Mon, 09 May 2022 10:35:41 GMT
+      - Fri, 01 Jul 2022 10:14:42 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-vie6366-VIE
+      - cache-vie6381-VIE
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1652092541.135331,VS0,VE180
+      - S1656670482.232463,VS0,VE169
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - 3c565a8d05dc699a0b639210f52e48185f6e78cf
+      - ade89169bb67fa2a97865991de3b85c75e7fa6d5
       Expires:
-      - Mon, 09 May 2022 10:40:41 GMT
+      - Fri, 01 Jul 2022 10:19:42 GMT
       Source-Age:
       - '0'
     body:
@@ -82,9 +82,6 @@ http_interactions:
         - id: IANA service-names-port-numbers
           type: IANA
           primary: true
-        - id: SERVICE-NAMES-PORT-NUMBERS
-          type: IETF
-          scope: anchor
         docnumber: service-names-port-numbers
         date:
         - type: updated
@@ -100,7 +97,6 @@ http_interactions:
         - en
         script:
         - Latn
-        fetched: '2022-05-08'
-    http_version:
-  recorded_at: Mon, 09 May 2022 10:35:41 GMT
-recorded_with: VCR 5.1.0
+        fetched: '2022-07-01'
+  recorded_at: Fri, 01 Jul 2022 10:14:42 GMT
+recorded_with: VCR 6.1.0

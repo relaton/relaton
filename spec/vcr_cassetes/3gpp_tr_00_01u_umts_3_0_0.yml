@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"7b1fd8c3cc8a83e47b78d925027060ef4583c418e75be5749d38f6a37e0f01ca"
+      - W/"ba4b443468f355962dc7524aa69c4ad80bbb98e840d6137fe420b6fa3fccf2d0"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,29 +41,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 687A:10CE7:F2C38C:107FE9E:6278EE7D
+      - 7D28:10C50:1BF854C:1DDFC0B:62BDDA6B
       Accept-Ranges:
       - bytes
       Date:
-      - Mon, 09 May 2022 10:35:41 GMT
+      - Thu, 30 Jun 2022 17:16:27 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-vie6353-VIE
+      - cache-vie6348-VIE
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1652092541.458281,VS0,VE220
+      - S1656609387.047148,VS0,VE235
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - bc2e33f28bbade3cfbf583259d99518383e6f9f3
+      - 93a267346ed97c52087b05f16495084f70b848e8
       Expires:
-      - Mon, 09 May 2022 10:40:41 GMT
+      - Thu, 30 Jun 2022 17:21:27 GMT
       Source-Age:
       - '0'
     body:
@@ -127,7 +127,7 @@ http_interactions:
             value: withdrawn
         place:
         - Sophia Antipolis Cedex, France
-        fetched: '2022-04-30'
+        fetched: '2022-06-15'
         doctype: TR
         editorialgroup:
         - name: SMG5
@@ -143,6 +143,5 @@ http_interactions:
           freeze_stage3_meeting: SMG-28
           close_meeting: SP-28
           project_end: '1999-02-12'
-    http_version:
-  recorded_at: Mon, 09 May 2022 10:35:41 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Thu, 30 Jun 2022 17:16:27 GMT
+recorded_with: VCR 6.1.0

@@ -11,11 +11,9 @@ module Relaton
     def initialize(global_cache, local_cache)
       @registry = Relaton::Registry.instance
       gpath = global_cache && File.expand_path(global_cache)
-      @db = open_cache_biblio(gpath, type: :global)
+      @db = open_cache_biblio(gpath)
       lpath = local_cache && File.expand_path(local_cache)
-      @local_db = open_cache_biblio(lpath, type: :local)
-      @static_db = open_cache_biblio File.expand_path("../relaton/static_cache",
-                                                      __dir__)
+      @local_db = open_cache_biblio(lpath)
       @queues = {}
       @semaphore = Mutex.new
     end
@@ -63,7 +61,7 @@ module Relaton
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     ##
     def fetch(code, year = nil, opts = {})
-      stdclass = standard_class(code) || return
+      stdclass = @registry.class_by_ref(code) || return
       processor = @registry.processors[stdclass]
       ref = if processor.respond_to?(:urn_to_code)
               processor.urn_to_code(code)&.first
@@ -87,9 +85,7 @@ module Relaton
     # @param year [Integer, nil]
     # @return [Array]
     def fetch_all(text = nil, edition: nil, year: nil)
-      result = @static_db.all do |file, yml|
-        search_yml file, yml, text, edition, year
-      end.compact
+      result = []
       db = @db || @local_db
       if db
         result += db.all do |file, xml|
@@ -99,9 +95,18 @@ module Relaton
       result
     end
 
+    #
     # Fetch asynchronously
-    def fetch_async(code, year = nil, opts = {}, &block) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-      stdclass = standard_class code
+    #
+    # @param [String] ref reference
+    # @param [String] year document yer
+    # @param [Hash] opts options
+    #
+    # @return [RelatonBib::BibliographicItem, RelatonBib::RequestError, nil] bibitem if document is found,
+    #   request error if server doesn't answer, nil if document not found
+    #
+    def fetch_async(ref, year = nil, opts = {}, &block) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+      stdclass = @registry.class_by_ref ref
       if stdclass
         unless @queues[stdclass]
           processor = @registry.processors[stdclass]
@@ -110,11 +115,14 @@ module Relaton
             args[3].call fetch(*args[0..2])
           rescue RelatonBib::RequestError => e
             args[3].call e
+          rescue StandardError => e
+            Util.log "[relaton] ERROR: #{args[0]} -- #{e.message}", :error
+            args[3].call nil
           end
           @queues[stdclass] = { queue: Queue.new, workers_pool: wp }
           Thread.new { process_queue @queues[stdclass] }
         end
-        @queues[stdclass][:queue] << [code, year, opts, block]
+        @queues[stdclass][:queue] << [ref, year, opts, block]
       else yield nil
       end
     end
@@ -142,7 +150,7 @@ module Relaton
       @registry.processors.each do |name, processor|
         std = name if processor.prefix == stdclass
       end
-      std = standard_class(code) or return nil unless std
+      std = @registry.class_by_ref(code) or return nil unless std
 
       check_bibliocache(code, year, opts, std)
     end
@@ -151,8 +159,8 @@ module Relaton
     # @param code [String]
     # @return [Array]
     def docid_type(code)
-      stdclass = standard_class(code) or return [nil, code]
-      _prefix, code = strip_id_wrapper(code, stdclass)
+      stdclass = @registry.class_by_ref(code) or return [nil, code]
+      _, code = strip_id_wrapper(code, stdclass)
       [@registry.processors[stdclass].idtype, code]
     end
 
@@ -188,19 +196,6 @@ module Relaton
     private
 
     # @param file [String] file path
-    # @param yml [String] content in YAML format
-    # @param text [String, nil] text to serach
-    # @param edition [String, nil] edition to filter
-    # @param year [Integer, nil] year to filter
-    # @return [BibliographicItem, nil]
-    def search_yml(file, yml, text, edition, year)
-      item = search_edition_year(file, yml, edition, year)
-      return unless item
-
-      item if match_xml_text(item.to_xml(bibdata: true), text)
-    end
-
-    # @param file [String] file path
     # @param xml [String] content in XML format
     # @param text [String, nil] text to serach
     # @param edition [String, nil] edition to filter
@@ -213,16 +208,16 @@ module Relaton
     end
 
     # @param file [String] file path
-    # @param content [String] content in XML or YAmL format
+    # @param content [String] content in XML or YAML format
     # @param edition [String, nil] edition to filter
     # @param year [Integer, nil] year to filter
     # @return [BibliographicItem, nil]
     def search_edition_year(file, content, edition, year) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-      processor = @registry.processors[standard_class(file.split("/")[-2])]
+      processor = @registry.processor_by_ref(file.split("/")[-2])
       item = if file.match?(/xml$/) then processor.from_xml(content)
              else processor.hash_to_bib(YAML.safe_load(content))
              end
-      item if (edition.nil? || item.edition == edition) && (year.nil? ||
+      item if (edition.nil? || item.edition.content == edition) && (year.nil? ||
         item.date.detect { |d| d.type == "published" && d.on(:year).to_s == year.to_s })
     end
 
@@ -269,7 +264,7 @@ module Relaton
                                                          type: "updates")
       end
       divider = stdclass == :relaton_itu ? " " : "/"
-      refs[1..-1].each_with_object(doc) do |c, d|
+      refs[1..].each_with_object(doc) do |c, d|
         bib = check_bibliocache(ref + divider + c, year, opts, stdclass)
         if bib
           d.relation << RelatonBib::DocumentRelation.new(
@@ -277,18 +272,6 @@ module Relaton
           )
         end
       end
-    end
-
-    # @param code [String] code of standard
-    # @return [Symbol] standard class name
-    def standard_class(code)
-      @registry.processors.each do |name, processor|
-        return name if /^(urn:)?#{processor.prefix}/i.match?(code) ||
-          processor.defaultprefix.match(code)
-      end
-      Util.log <<~WARN, :info
-        [relaton] #{code} does not have a recognised prefix
-      WARN
     end
 
     # TODO: i18n
@@ -322,8 +305,10 @@ module Relaton
       [prefix, code]
     end
 
-    # @param entry [String] XML string
+    #
+    # @param entry [String, nil] XML string
     # @param stdclass [Symbol]
+    #
     # @return [nil, RelatonBib::BibliographicItem,
     #   RelatonIsoBib::IsoBibliographicItem, RelatonItu::ItuBibliographicItem,
     #   RelatonIetf::IetfBibliographicItem, RelatonIec::IecBibliographicItem,
@@ -333,8 +318,8 @@ module Relaton
     #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def bib_retval(entry, stdclass)
-      if entry.nil? || entry.match?(/^not_found/) then nil
-      else @registry.processors[stdclass].from_xml(entry)
+      if entry && !entry.match?(/^not_found/)
+        @registry.processors[stdclass].from_xml(entry)
       end
     end
 
@@ -358,18 +343,12 @@ module Relaton
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def check_bibliocache(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
       id, searchcode = std_id(code, year, opts, stdclass)
-      yaml = @static_db[id]
-      if yaml
-        return @registry.processors[stdclass].hash_to_bib YAML.safe_load(yaml)
-      end
-
       db = @local_db || @db
       altdb = @local_db && @db ? @db : nil
       if db.nil?
         return if opts[:fetch_db]
 
-        bibentry = new_bib_entry(searchcode, year, opts, stdclass, db: db,
-                                                                   id: id)
+        bibentry = new_bib_entry(searchcode, year, opts, stdclass)
         return bib_retval(bibentry, stdclass)
       end
 
@@ -382,45 +361,61 @@ module Relaton
         @semaphore.synchronize do
           db.clone_entry id, altdb if altdb.valid_entry? id, year
         end
-        entry = new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id) unless db[id]
+        new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
         @semaphore.synchronize do
-          db[id] ||= entry
           altdb.clone_entry(id, db) if !altdb.valid_entry?(id, year)
         end
       else
         return bib_retval(db[id], stdclass) if opts[:fetch_db]
 
-        db[id] ||= new_bib_entry(searchcode, year, opts, stdclass, db: db,
-                                                                   id: id)
+        new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
       end
       bib_retval(db[id], stdclass)
     end
 
+    #
+    # Create new bibliographic entry if it doesn't exist in database
+    #
     # @param code [String]
     # @param year [String]
     #
     # @param opts [Hash]
-    # @option opts [Boolean] :all_parts If all-parts reference is required
-    # @option opts [Boolean] :keep_year If undated reference should return
-    #   actual reference with year
+    # @option opts [Boolean, nil] :all_parts If true then all-parts reference is
+    #   requested
+    # @option opts [Boolean, nil] :keep_year If true then undated reference
+    #   should return actual reference with year
     # @option opts [Integer] :retries (1) Number of network retries
     #
     # @param stdclass [Symbol]
-    # @param db [Relaton::DbCache,`NilClass]
-    # @param id [String] docid
-    # @return [String]
-    def new_bib_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+    # @param db [Relaton::DbCache,`nil]
+    # @param id [String, nil] docid
+    #
+    # @return [String] bibliographic entry
+    #   XML or "redirection ID" or "not_found YYYY-MM-DD" string
+    #
+    def new_bib_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity,Metrics/MethodLength
+      entry = @semaphore.synchronize { args[:db] && args[:db][args[:id]] }
+      if entry
+        if entry&.match?(/^not_found/)
+          Util.log "[relaton] (#{code}) not found."
+          return
+        end
+        return entry
+      end
+
       bib = net_retry(code, year, opts, stdclass, opts.fetch(:retries, 1))
       bib_id = bib&.docidentifier&.first&.id
 
       # when docid doesn't match bib's id then return a reference to bib's id
-      if args[:db] && args[:id] &&
-          bib_id && args[:id] !~ %r{#{Regexp.quote("(#{bib_id})")}}
-        bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
-        @semaphore.synchronize { args[:db][bid] ||= bib_entry bib }
-        "redirection #{bid}"
-      else bib_entry bib
-      end
+      entry = if args[:db] && args[:id] && bib_id && args[:id] !~ %r{#{Regexp.quote("(#{bib_id})")}}
+                bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
+                @semaphore.synchronize { args[:db][bid] ||= bib_entry bib }
+                "redirection #{bid}"
+              else bib_entry bib
+              end
+      return entry if args[:db].nil? || args[:id].nil?
+
+      @semaphore.synchronize { args[:db][args[:id]] ||= entry }
     end
 
     # @raise [RelatonBib::RequestError]
@@ -450,13 +445,11 @@ module Relaton
     end
 
     # @param dir [String, nil] DB directory
-    # @param type [Symbol]
     # @return [Relaton::DbCache, NilClass]
-    def open_cache_biblio(dir, type: :static) # rubocop:disable Metrics/MethodLength
+    def open_cache_biblio(dir) # rubocop:disable Metrics/MethodLength
       return nil if dir.nil?
 
-      db = DbCache.new dir, type == :static ? "yml" : "xml"
-      return db if type == :static
+      db = DbCache.new dir
 
       Dir["#{dir}/*/"].each do |fdir|
         next if db.check_version?(fdir)
@@ -464,8 +457,7 @@ module Relaton
         FileUtils.rm_rf(fdir, secure: true)
         Util.log(
           "[relaton] WARNING: cache #{fdir}: version is obsolete and cache is "\
-            "cleared.",
-          :warning
+          "cleared.", :warning
         )
       end
       db
@@ -479,10 +471,16 @@ module Relaton
     end
 
     class << self
+      #
       # Initialse and return relaton instance, with local and global cache names
-      # local_cache: local cache name; none created if nil; "relaton" created
-      # if empty global_cache: boolean to create global_cache
-      # flush_caches: flush caches
+      #
+      # @param local_cache [String, nil] local cache name;
+      #   "relaton" created if empty or nil
+      # @param global_cache [Boolean, nil] create global_cache if true
+      # @param flush_caches [Boolean, nil] flush caches if true
+      #
+      # @return [Relaton::Db] relaton DB instance
+      #
       def init_bib_caches(**opts) # rubocop:disable Metrics/CyclomaticComplexity
         globalname = global_bibliocache_name if opts[:global_cache]
         localname = local_bibliocache_name(opts[:local_cache])

@@ -8,7 +8,7 @@ http_interactions:
       string: '{"query":"ISO 111111119115-1","hitsPerPage":100,"filters":"category:standard"}'
     headers:
       User-Agent:
-      - Algolia for Ruby (2.1.1), Ruby (3.0.0)
+      - Algolia for Ruby (2.2.5), Ruby (3.0.0)
       X-Algolia-Api-Key:
       - dd1b9e1ab383f4d4817d29cd5e96d3f0
       X-Algolia-Application-Id:
@@ -31,7 +31,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Mon, 09 May 2022 10:28:40 GMT
+      - Thu, 30 Jun 2022 17:16:00 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Content-Length:
@@ -58,6 +58,5 @@ http_interactions:
       encoding: UTF-8
       string: '{"hits":[],"nbHits":0,"page":0,"nbPages":0,"hitsPerPage":100,"exhaustiveNbHits":true,"exhaustiveTypo":true,"query":"ISO
         111111119115-1","params":"query=ISO+111111119115-1&hitsPerPage=100&filters=category%3Astandard","processingTimeMS":1}'
-    http_version:
-  recorded_at: Mon, 09 May 2022 10:28:40 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Thu, 30 Jun 2022 17:15:59 GMT
+recorded_with: VCR 6.1.0

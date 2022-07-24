@@ -1,6 +1,40 @@
 RSpec.describe Relaton::Db do
   before(:each) { FileUtils.rm_rf %w[testcache testcache2] }
 
+  context "instance methods" do
+    subject { Relaton::Db.new nil, nil }
+
+    context "#search_edition_year" do
+      it "create bibitem from YAML content" do
+        h = { "docid" => [{ "id" => "ISO 123", type: "ISO", "primary" => true }] }
+        expect(YAML).to receive(:safe_load).with(:content).and_return h
+        item = subject.send :search_edition_year, "iso/item.yaml", :content, nil, nil
+        expect(item).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      end
+    end
+
+    context "#new_bib_entry" do
+      it "warn if cached entry is not_found" do
+        id = "ISO(ISO 123)"
+        db = double "db"
+        expect(db).to receive(:[]).with(id).and_return "not_found"
+        expect do
+          entry = subject.send :new_bib_entry, "ISO 123", nil, {}, :relaton_iso, db: db, id: id
+          expect(entry).to be_nil
+        end.to output("[relaton] (ISO 123) not found.\n").to_stderr
+      end
+    end
+  end
+
+  context "class methods" do
+    it "::init_bib_caches" do
+      expect(FileUtils).to receive(:rm_rf).with(/\/\.relaton\/cache$/)
+      expect(FileUtils).to receive(:rm_rf).with(/testcache\/cache$/)
+      expect(Relaton::Db).to receive(:new).with(/\/\.relaton\/cache$/, /testcache\/cache$/)
+      Relaton::Db.init_bib_caches(global_cache: true, local_cache: "testcache", flush_caches: true)
+    end
+  end
+
   context "modifing database" do
     let(:db) { Relaton::Db.new "testcache", "testcache2" }
 
@@ -75,9 +109,9 @@ RSpec.describe Relaton::Db do
 
     it "all documents" do
       items = db.fetch_all
-      expect(items.size).to be 9
-      expect(items[7]).to be_instance_of RelatonIec::IecBibliographicItem
-      expect(items[8]).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      expect(items.size).to be 2
+      expect(items[0]).to be_instance_of RelatonIec::IecBibliographicItem
+      expect(items[1]).to be_instance_of RelatonIsoBib::IsoBibliographicItem
     end
 
     context "search for text" do
@@ -93,8 +127,8 @@ RSpec.describe Relaton::Db do
         items = db.fetch_all "123"
         expect(items.size).to eq 2
         items = db.fetch_all "ISO"
-        expect(items.size).to eq 8
-        expect(items[7].id).to eq "ISO123"
+        expect(items.size).to eq 1
+        expect(items[0].id).to eq "ISO123"
       end
 
       it "and fail" do
@@ -163,16 +197,29 @@ RSpec.describe Relaton::Db do
       results = []
       VCR.use_cassette "async_fetch", match_requests_on: %i[method uri body] do
         refs.each do |ref|
-          db.fetch_async(ref) do |r|
-            queue << [r, ref]
-          end
+          db.fetch_async(ref) { |r| queue << [r, ref] }
         end
-        Timeout.timeout(60) do
-          refs.size.times { results << queue.pop }
-        end
+        Timeout.timeout(60) { refs.size.times { results << queue.pop } }
       end
       results.each do |result|
         expect(result[0]).to be_instance_of RelatonItu::ItuBibliographicItem
+      end
+    end
+
+    it "BIPM i18n" do
+      expect(File).to receive(:exist?).with(/index\.yaml/).and_return false
+      allow(File).to receive(:exist?).and_call_original
+      refs = ["CGPM Resolution 1889-00", "CGPM Résolution 1889-00",
+              "CGPM Réunion 9", "CGPM Meeting 9"]
+      results = []
+      VCR.use_cassette "bipm_i18n_async_fetch", match_requests_on: %i[method uri body] do
+        refs.each do |ref|
+          db.fetch_async(ref) { |r| queue << [r, ref] }
+        end
+        Timeout.timeout(60) { refs.size.times { results << queue.pop } }
+      end
+      results.each do |result|
+        expect(result[0]).to be_instance_of RelatonBipm::BipmBibliographicItem
       end
     end
 
@@ -185,6 +232,22 @@ RSpec.describe Relaton::Db do
       expect(result).to be_nil
     end
 
+    it "handle HTTP request error" do
+      expect(db).to receive(:fetch).and_raise RelatonBib::RequestError
+      db.fetch_async("ISO REF") { |r| queue << r }
+      result = Timeout.timeout(5) { queue.pop }
+      expect(result).to be_instance_of RelatonBib::RequestError
+    end
+
+    it "handle other errors" do
+      expect(db).to receive(:fetch).and_raise Errno::EACCES
+      expect do
+        db.fetch_async("ISO REF") { |r| queue << r }
+        result = Timeout.timeout(5) { queue.pop }
+        expect(result).to be_nil
+      end.to output("[relaton] ERROR: ISO REF -- Permission denied\n").to_stderr
+    end
+
     it "use threads number from RELATON_FETCH_PARALLEL" do
       expect(ENV).to receive(:[]).with("RELATON_FETCH_PARALLEL").and_return(1)
       allow(ENV).to receive(:[]).and_call_original
@@ -193,52 +256,6 @@ RSpec.describe Relaton::Db do
         db.fetch_async("ITU-T G.993.5") { |r| queue << r }
         Timeout.timeout(50) { queue.pop }
       end
-    end
-  end
-
-  context "fetch documents form static cache" do
-    let(:db) { Relaton::Db.new nil, nil }
-
-    it "fetches ISO/IEC DIR 1 IEC SUP" do
-      bib = db.fetch "ISO/IEC DIR 1 IEC SUP"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR 1 IEC SUP"
-    end
-
-    it "fetches ISO/IEC DIR 1 ISO SUP" do
-      bib = db.fetch "ISO/IEC DIR 1 ISO SUP"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR 1 ISO SUP"
-    end
-
-    it "fetches ISO/IEC DIR 1" do
-      bib = db.fetch "ISO/IEC DIR 1"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR 1"
-    end
-
-    it "fetches ISO/IEC DIR 2 IEC" do
-      bib = db.fetch "ISO/IEC DIR 2 IEC"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR 2 IEC"
-    end
-
-    it "fetches ISO/IEC DIR 2 ISO" do
-      bib = db.fetch "ISO/IEC DIR 2 ISO"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR 2 ISO"
-    end
-
-    it "fetches ISO/IEC DIR IEC SUP" do
-      bib = db.fetch "ISO/IEC DIR IEC SUP"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR IEC SUP"
-    end
-
-    it "fetches ISO/IEC DIR JTC 1 SUP" do
-      bib = db.fetch "ISO/IEC DIR JTC 1 SUP"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      expect(bib.docidentifier.first.id).to eq "ISO/IEC DIR JTC 1 SUP"
     end
   end
 end
