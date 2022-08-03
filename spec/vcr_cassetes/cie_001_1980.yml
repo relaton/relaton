@@ -21,7 +21,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '931'
+      - '955'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -29,7 +29,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"5949467f3d02bbda39c51034967def96516f85c121258cf201746e4852e279aa"
+      - W/"f21462e7d97d13d1fa7c05ad55a53b78e5116c2671560f9dc20c90491546ccb6"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -39,29 +39,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - AED2:FF41:E23AC3:ECA4F2:60FACE3F
+      - BAB8:9BFC:2DCCF9:302D97:62E93CA7
       Accept-Ranges:
       - bytes
       Date:
-      - Fri, 23 Jul 2021 14:12:15 GMT
+      - Tue, 02 Aug 2022 15:03:03 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-muc13971-MUC
+      - cache-vie6322-VIE
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1627049536.644501,VS0,VE192
+      - S1659452584.679338,VS0,VE188
       Vary:
-      - Authorization,Accept-Encoding
+      - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - 981afdd2b07bcee8b5811cf9e4f6305e3a129971
+      - 9075f02c76eaa0243cbb10e3f4ccc21cffb514dc
       Expires:
-      - Fri, 23 Jul 2021 14:17:15 GMT
+      - Tue, 02 Aug 2022 15:08:03 GMT
       Source-Age:
       - '0'
     body:
@@ -79,28 +79,33 @@ http_interactions:
             (Joint Publication IAU/CIE)
           format: text/plain
         link:
-          content: https://www.techstreet.com/cie/standards/cie-001-1980?product_id=1210107
+        - content: https://www.techstreet.com/cie/standards/cie-001-1980?product_id=1210107
           type: src
         type: standard
         docid:
         - id: CIE 001-1980
           type: CIE
+          primary: true
         - id: '9783901906657'
           type: ISBN
         date:
-          type: published
+        - type: published
           value: '1980-01-01'
         contributor:
-          organization:
-            name: Commission Internationale de L'Eclairage
+        - organization:
+            name:
+            - Commission Internationale de L'Eclairage
             abbreviation: CIE
             url: cie.co.at
-          role: publisher
+          role:
+          - publisher
         revdate: '1980-01-01'
-        language: en
-        script: Latn
+        language:
+        - en
+        script:
+        - Latn
         abstract:
-          content: |-
+        - content: |-
             The increase of outdoor lighting in urban areas has resulted in levels of sky glow which seriously threaten astronomical observatories, even where these have purposely been located more than 100 km from large cities. The International Astronomical Union (IAU) and the CIE have worked together to prepare these guidelines in order to stimulate collective action that minimizes the degradation of the astronomical environment near cities.
 
             The problem and its solutions are stated in a manner that provides a basis for understanding, cooperation, and action by astronomers, lighting engineers and public authorities. The report explains the effect of man-made sky glow, the degree of glow likely to be produced by lighting near an observatory, the level above which sky glow should not be allowed to rise, and how it can be contained by good lighting practice and public ordinances.
@@ -111,10 +116,11 @@ http_interactions:
 
                 * R. Cayrel and F. G. Smith (IAU)
                 * A. J. Fisher and J. B. de Boer (CIE)
-          language: en
-          script: Latn
+          language:
+          - en
+          script:
+          - Latn
           format: text/plain
         doctype: document
-    http_version:
-  recorded_at: Fri, 23 Jul 2021 14:12:15 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Tue, 02 Aug 2022 15:03:03 GMT
+recorded_with: VCR 6.1.0

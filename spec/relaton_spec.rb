@@ -15,15 +15,15 @@ RSpec.describe Relaton::Db do
       VCR.use_cassette "iso_19115_1" do
         bib = @db.fetch("ISO 19115-1", nil, {})
         expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-        expect(bib.to_xml(bibdata: true)).to include "<project-number>"\
+        expect(bib.to_xml(bibdata: true)).to include "<project-number part=\"1\">"\
           "ISO 19115</project-number>"
         expect(File.exist?("testcache")).to be true
         expect(File.exist?("testcache2")).to be true
         testcache = Relaton::DbCache.new "testcache"
-        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>"\
+        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number part=\"1\">"\
           "ISO 19115</project-number>"
         testcache = Relaton::DbCache.new "testcache2"
-        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number>"\
+        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number part=\"1\">"\
           "ISO 19115</project-number>"
       end
       bib = @db.fetch("ISO 19115-1", nil, {})
@@ -31,7 +31,7 @@ RSpec.describe Relaton::Db do
     end
 
     it "with year in code" do
-      VCR.use_cassette "19133_2005" do
+      VCR.use_cassette "iso_19133_2005" do
         bib = @db.fetch("ISO 19133:2005")
         expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
         expect(bib.to_xml).to include '<bibitem id="ISO19133-2005" '\
@@ -45,24 +45,24 @@ RSpec.describe Relaton::Db do
 
     context "all parts" do
       it "implicity" do
-        VCR.use_cassette "iso_19115" do
-          bib = @db.fetch("ISO 19115", nil, {})
+        VCR.use_cassette "iso_19115_all_parts" do
+          bib = @db.fetch("ISO 19115", nil, all_parts: true)
           expect(bib.docidentifier[0].id).to eq "ISO 19115 (all parts)"
         end
       end
 
       it "explicity" do
-        VCR.use_cassette "iso_19115" do
-          bib = @db.fetch("ISO 19115 (all parts)", nil, {})
+        VCR.use_cassette "iso_19115_all_parts" do
+          bib = @db.fetch("ISO 19115 (all parts)")
           expect(bib.docidentifier[0].id).to eq "ISO 19115 (all parts)"
         end
       end
     end
 
-    it "gets sn ISO/AWI reference" do
-      VCR.use_cassette "iso_awi_14093" do
-        bib = @db.fetch "ISO/AWI 14093"
-        expect(bib).not_to be_nil
+    it "gets sn ISO/DIS reference" do
+      VCR.use_cassette "iso_dis_14093" do
+        bib = @db.fetch "ISO/DIS 14093"
+        expect(bib.docidentifier[0].id).to eq "ISO/DIS 14093"
       end
     end
   end
@@ -195,19 +195,28 @@ RSpec.describe Relaton::Db do
       expect(File.exist?("testcache")).to be true
       expect(File.exist?("testcache2")).to be true
       testcache = Relaton::DbCache.new "testcache"
-      expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier "\
-        "type=\"IETF\">RFC 8341</docidentifier>"
+      expect(testcache["IETF(RFC 8341)"]).to include(
+        '<docidentifier type="IETF" primary="true">RFC 8341</docidentifier>',
+      )
       testcache = Relaton::DbCache.new "testcache2"
-      expect(testcache["IETF(RFC 8341)"]).to include "<docidentifier "\
-        "type=\"IETF\">RFC 8341</docidentifier>"
+      expect(testcache["IETF(RFC 8341)"]).to include(
+        '<docidentifier type="IETF" primary="true">RFC 8341</docidentifier>',
+      )
     end
   end
 
   it "get OGC refrence and cache it" do
+    cc_fr = /\.relaton\/ogc\/bibliography\.json/
+    allow(File).to receive(:exist?).with(cc_fr).and_return false
+    allow(File).to receive(:exist?).with(/etag\.txt/).and_return false
+    expect(File).to receive(:exist?).and_call_original.at_least :once
+    expect(File).to receive(:write).with(cc_fr, kind_of(String), kind_of(Hash))
+      .at_most :once
+    allow(File).to receive(:write).and_call_original
     VCR.use_cassette "ogc_19_025r1" do
       expect(File).to receive(:exist?).with("/Users/andrej/.relaton/ogc/bibliography.json").and_return(false).at_most :once
       expect(File).to receive(:exist?).with("/Users/andrej/.relaton/ogc/etag.txt").and_return(false).at_most :once
-      expect(File).to receive(:exist?).and_call_original.at_least :once
+      allow(File).to receive(:exist?).and_call_original
       bib = @db.fetch "OGC 19-025r1", nil, {}
       expect(bib).to be_instance_of RelatonOgc::OgcBibliographicItem
     end
@@ -242,13 +251,8 @@ RSpec.describe Relaton::Db do
   end
 
   it "get W3C reference" do
-    w3c_fr = /\.relaton\/w3c\/bibliography\.yml/
-    expect(File).to receive(:exist?).with(w3c_fr).and_return false
-    expect(File).to receive(:exist?).and_call_original.at_least :once
-    expect(File).to receive(:write).with w3c_fr, kind_of(String), kind_of(Hash)
-    # expect(File).to receive(:write).and_call_original.at_least :once
     VCR.use_cassette "w3c_json_ld11" do
-      bib = @db.fetch "W3C JSON-LD 1.1", nil, {}
+      bib = @db.fetch "W3C REC-json-ld11-20200716", nil, {}
       expect(bib).to be_instance_of RelatonW3c::W3cBibliographicItem
     end
   end
@@ -289,9 +293,30 @@ RSpec.describe Relaton::Db do
   end
 
   it "get CEN reference" do
-    VCR.use_cassette "cen_en_10160_1999" do
-      bib = @db.fetch "CEN EN 10160:1999"
+    VCR.use_cassette "en_10160_1999" do
+      bib = @db.fetch "EN 10160:1999"
       expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+    end
+  end
+
+  it "get IANA reference" do
+    VCR.use_cassette "iana_service_names_port_numbers" do
+      bib = @db.fetch "IANA service-names-port-numbers"
+      expect(bib).to be_instance_of RelatonBib::BibliographicItem
+    end
+  end
+
+  it "get 3GPP reference" do
+    VCR.use_cassette "3gpp_tr_00_01u_umts_3_0_0" do
+      bib = @db.fetch "3GPP TR 00.01U:UMTS/3.0.0"
+      expect(bib).to be_instance_of Relaton3gpp::BibliographicItem
+    end
+  end
+
+  it "get OASIS reference" do
+    VCR.use_cassette "oasis_amqp_core_types_v1_0_pt1" do
+      bib = @db.fetch "OASIS amqp-core-types-v1.0-Pt1"
+      expect(bib).to be_instance_of RelatonOasis::OasisBibliographicItem
     end
   end
 
@@ -356,9 +381,9 @@ RSpec.describe Relaton::Db do
       end
     end
 
-    context "HIST" do
+    context "NIST" do
       it "included" do
-        VCR.use_cassette "hist_combined_included" do
+        VCR.use_cassette "nist_combined_included" do
           bib = @db.fetch "NIST SP 800-38A, Add"
           expect(bib.docidentifier[0].id).to eq "NIST SP 800-38A, Add"
           expect(bib.relation[0].type).to eq "updates"

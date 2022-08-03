@@ -30,7 +30,7 @@ module Relaton
 
     # Clear database
     def clear
-      FileUtils.rm_rf Dir.glob "#{dir}/*" if @ext == "xml" # if it isn't a static DB
+      FileUtils.rm_rf Dir.glob "#{dir}/*"
     end
 
     # Save item
@@ -41,11 +41,21 @@ module Relaton
         delete key
         return
       end
-      /^(?<pref>[^(]+)(?=\()/ =~ key.downcase
-      prefix_dir = "#{@dir}/#{pref}"
-      FileUtils::mkdir_p prefix_dir unless Dir.exist? prefix_dir
+
+      prefix_dir = "#{@dir}/#{prefix(key)}"
+      FileUtils::mkdir_p prefix_dir
       set_version prefix_dir
       file_safe_write "#{filename(key)}.#{ext(value)}", value
+    end
+
+    # @param value [String]
+    # @return [String]
+    def ext(value)
+      case value
+      when /^not_found/ then "notfound"
+      when /^redirection/ then "redirect"
+      else @ext
+      end
     end
 
     # Read item
@@ -60,6 +70,12 @@ module Relaton
       end
     end
 
+    #
+    # Save entry from cache of `db` to this cache.
+    #
+    # @param [String] key key of the entry
+    # @param [Relaton::Db] db database
+    #
     def clone_entry(key, db)
       self[key] ||= db.get(key)
       if (code = redirect? get(key))
@@ -103,10 +119,10 @@ module Relaton
     # @param fdir [String] dir pathe to flover cache
     # @return [Boolean]
     def check_version?(fdir)
-      version_file = "#{fdir}/version"
-      return false unless File.exist? version_file
+      version_dir = "#{fdir}/version"
+      return false unless File.exist? version_dir
 
-      v = File.read version_file, encoding: "utf-8"
+      v = File.read version_dir, encoding: "utf-8"
       v.strip == self.class.grammar_hash(fdir)
     end
 
@@ -143,12 +159,14 @@ module Relaton
 
     # @param value [String]
     # @return [String]
-    def ext(value)
-      case value
-      when /^not_found/ then "notfound"
-      when /^redirection/ then "redirect"
-      else @ext
-      end
+    def filename(key)
+      prefcode = key.downcase.match(/^(?<prefix>[^(]+)\((?<code>[^)]+)/)
+      fn = if prefcode
+             "#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[-:\s\/()]/, '_').squeeze('_')}"
+           else
+             key.gsub(/[-:\s]/, "_")
+           end
+      "#{@dir}/#{fn.sub(/(,|_$)/, '')}"
     end
 
     #
@@ -179,15 +197,8 @@ module Relaton
     # Return item's file name
     # @param key [String]
     # @return [String]
-    def filename(key)
-      prefcode = key.downcase.match(/^(?<prefix>[^(]+)\((?<code>[^)]+)/)
-      fn = if prefcode
-             "#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[-:\s\/()]/, '_')
-               .squeeze('_')}"
-           else
-             key.gsub(/[-:\s]/, "_")
-           end
-      "#{@dir}/#{fn.sub(/(,|_$)/, '')}"
+    def prefix(key)
+      key.downcase.match(/^[^(]+(?=\()/).to_s
     end
 
     # Check if a file content is redirection

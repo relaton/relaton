@@ -4,9 +4,9 @@ module Relaton
   # Workers poll.
   class WorkersPool
     def initialize(workers = 2, &_block)
-      num_workers = workers < 2 ? 2 : workers
-      @queue = SizedQueue.new(num_workers * 2)
-      @threads = Array.new num_workers do
+      # num_workers = workers < 2 ? 2 : workers
+      @queue = SizedQueue.new(workers * 2)
+      @threads = Array.new workers do
         Thread.new do
           while item = @queue.pop; yield(item) end
         end

@@ -6,7 +6,7 @@ module Relaton
       log_types = Relaton.configuration.logs.map(&:to_s) || []
 
       if log_types.include?(type.to_s)
-        warn(message)
+        warn CGI.unescapeHTML(message)
       end
     end
   end

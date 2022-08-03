@@ -1,0 +1,102 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-iana/main/data/service-names-port-numbers.yaml
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - raw.githubusercontent.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '330'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"5a6ab691d79c45cccc62348540c941375c35baabaf9fbe477f82486029c92f91"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - 6F7A:CDF4:2D6BF2:2FCEE9:62E93CAD
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Tue, 02 Aug 2022 15:03:09 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-vie6349-VIE
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1659452590.541596,VS0,VE192
+      Vary:
+      - Authorization,Accept-Encoding,Origin
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Fastly-Request-Id:
+      - 5c4e56974c25a6923d53e6b1b6fb1988ad1154ef
+      Expires:
+      - Tue, 02 Aug 2022 15:08:09 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      string: |
+        ---
+        id: IANAservice-names-port-numbers
+        title:
+        - content: Service Name and Transport Protocol Port Number Registry
+          format: text/plain
+        link:
+        - content: http://www.iana.org/assignments/service-names-port-numbers
+          type: src
+        type: standard
+        docid:
+        - id: IANA service-names-port-numbers
+          type: IANA
+          primary: true
+        docnumber: service-names-port-numbers
+        date:
+        - type: updated
+          value: '2022-07-19'
+        contributor:
+        - organization:
+            name:
+            - Internet Assigned Numbers Authority
+            abbreviation: IANA
+          role:
+          - publisher
+        language:
+        - en
+        script:
+        - Latn
+        fetched: '2022-08-01'
+  recorded_at: Tue, 02 Aug 2022 15:03:09 GMT
+recorded_with: VCR 6.1.0

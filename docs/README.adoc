@@ -193,24 +193,26 @@ x = db.fetch_db("ISO 5749")
 => nil
 
 # Fetching asynchronously
+# RELATON_FETCH_PARALLEL environment variable can be used to ovveride default number of parallel fetches
 
 # prepare queue for results
 results = Queue.new
 
-# references ot fetch
+# references to fetch
 refs = ["ISO 19011", "ISO 19115"]
 
 # fetch documents
 refs.each do |ref|
   db.fetch_async(ref) do |doc|
-    results << [ref, doc]
+    results << [doc, ref]
   end
 end
 
-# wait until documets fetching
+# wait until all the documents fetching
 refs.size.times do
-  ref, doc = results.pop
-  # do thatever you need with result x
+  doc, ref = results.pop
+  # do whatever you need with the result
+  # in case request error doc will be instance of Relaton::RequestError
 end
 ----
 
@@ -342,19 +344,6 @@ items.size
 
 items[0].docidentifier[0].id
 => "ISO 19011 (all parts)"
-----
-
-=== Static DB
-
-This gem has a static DB which is distributed with it. Now the static contains documents:
-----
-ISO/IEC DIR 1 IEC SUP
-ISO/IEC DIR 1 ISO SUP
-ISO/IEC DIR 1
-ISO/IEC DIR 2 IEC
-ISO/IEC DIR 2 ISO
-ISO/IEC DIR IEC SUP
-ISO/IEC DIR 1 JTC SUP
 ----
 
 === Get document type

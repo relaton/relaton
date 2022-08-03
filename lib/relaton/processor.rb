@@ -1,15 +1,26 @@
 module Relaton
   class Processor
+    # @rerurn [Symbol]
     attr_reader :short
-    attr_reader :prefix
+
+    # @return [String]
+    attr_reader :prefix, :idtype
+
+    # @return [Regexp]
     attr_reader :defaultprefix
-    attr_reader :idtype
+
+    # @return [Array<String>]
+    attr_reader :datasets
 
     def initialize
       raise "This is an abstract class!"
     end
 
     def get(_code, _date, _opts)
+      raise "This is an abstract class!"
+    end
+
+    def fetch_data(_source, _opts)
       raise "This is an abstract class!"
     end
 

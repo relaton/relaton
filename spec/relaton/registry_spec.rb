@@ -70,6 +70,7 @@ RSpec.describe Relaton::Registry do
 
     it "BIPM" do
       expect(Relaton::Registry.instance.by_type("BIPM")).to be_instance_of RelatonBipm::Processor
+      expect(Relaton::Registry.instance.processor_by_ref("CCTF")).to be_instance_of RelatonBipm::Processor
     end
 
     it "ECMA" do
@@ -87,5 +88,23 @@ RSpec.describe Relaton::Registry do
     it "CEN" do
       expect(Relaton::Registry.instance.by_type("CEN")).to be_instance_of RelatonCen::Processor
     end
+
+    it "IANA" do
+      expect(Relaton::Registry.instance.by_type("IANA")).to be_instance_of RelatonIana::Processor
+    end
+
+    it "3GPP" do
+      expect(Relaton::Registry.instance.by_type("3GPP")).to be_instance_of Relaton3gpp::Processor
+    end
+
+    it "OASIS" do
+      expect(Relaton::Registry.instance.by_type("OASIS")).to be_instance_of RelatonOasis::Processor
+    end
+  end
+
+  it "find processot by dataset" do
+    expect(Relaton::Registry.instance
+      .find_processor_by_dataset("nist-tech-pubs"))
+      .to be_instance_of RelatonNist::Processor
   end
 end
