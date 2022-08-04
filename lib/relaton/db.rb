@@ -1,10 +1,4 @@
-require "yaml"
-require_relative "registry"
-require_relative "db_cache"
-
 module Relaton
-  class RelatonError < StandardError; end
-
   class Db
     # @param global_cache [String] directory of global DB
     # @param local_cache [String] directory of local DB
@@ -24,10 +18,8 @@ module Relaton
     # @return [String, nil]
     def mv(new_dir, type: :global)
       case type
-      when :global
-        @db&.mv new_dir
-      when :local
-        @local_db&.mv new_dir
+      when :global then @db&.mv new_dir
+      when :local then @local_db&.mv new_dir
       end
     end
 
@@ -69,8 +61,7 @@ module Relaton
             end
       ref ||= code
       result = combine_doc ref, year, opts, stdclass
-      result ||= check_bibliocache(ref, year, opts, stdclass)
-      result
+      result || check_bibliocache(ref, year, opts, stdclass)
     end
 
     # @see Relaton::Db#fetch
@@ -167,11 +158,7 @@ module Relaton
     # @param key [String]
     # @return [Hash]
     def load_entry(key)
-      unless @local_db.nil?
-        entry = @local_db[key]
-        return entry if entry
-      end
-      @db[key]
+      (@local_db && @local_db[key]) || @db[key]
     end
 
     # @param key [String]
@@ -187,13 +174,51 @@ module Relaton
     def to_xml
       db = @local_db || @db || return
       Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
-        xml.documents do
-          xml.parent.add_child db.all.join(" ")
-        end
+        xml.documents { xml.parent.add_child db.all.join(" ") }
       end.to_xml
     end
 
     private
+
+    # @param (see #fetch_api)
+    # @return (see #fetch_api)
+    def fetch_doc(code, year, opts, processor)
+      if Relaton.configuration.use_api then fetch_api(code, year, opts, processor)
+      else processor.get(code, year, opts)
+      end
+    end
+
+    #
+    # @param code [String]
+    # @param year [String]
+    #
+    # @param opts [Hash]
+    # @option opts [Boolean] :all_parts If all-parts reference is required
+    # @option opts [Boolean] :keep_year If undated reference should return
+    #   actual reference with year
+    #
+    # @param processor [Relaton::Processor]
+    # @return [RelatonBib::BibliographicItem, nil]
+    def fetch_api(code, year, opts, processor)
+      url = "#{Relaton.configuration.api_host}/api/v1/document?#{params(code, year, opts)}"
+      rsp = Net::HTTP.get_response URI(url)
+      processor.from_xml rsp.body if rsp.code == "200"
+    rescue Errno::ECONNREFUSED
+      processor.get(code, year, opts)
+    end
+
+    #
+    # Make string of parametrs
+    #
+    # @param [String] code
+    # @param [String] year
+    # @param [Hash] opts
+    #
+    # @return [String]
+    #
+    def params(code, year, opts)
+      opts.merge(code: code, year: year).map { |k, v| "#{k}=#{v}" }.join "&"
+    end
 
     # @param file [String] file path
     # @param xml [String] content in XML format
@@ -221,9 +246,14 @@ module Relaton
         item.date.detect { |d| d.type == "published" && d.on(:year).to_s == year.to_s })
     end
 
+    #
+    # Look up text in the XML elements attributes and content
+    #
     # @param xml [String] content in XML format
     # @param text [String, nil] text to serach
+    #
     # @return [Boolean]
+    #
     def match_xml_text(xml, text)
       %r{((?<attr>=((?<apstr>')|"))|>).*?#{text}.*?(?(<attr>)(?(<apstr>)'|")|<)}mi.match?(xml)
     end
@@ -258,10 +288,9 @@ module Relaton
 
       doc = @registry.processors[stdclass].hash_to_bib docid: { id: code }
       ref = refs[0]
-      updates = check_bibliocache(ref, year, opts, stdclass)
+      updates = check_bibliocache(refs[0], year, opts, stdclass)
       if updates
-        doc.relation << RelatonBib::DocumentRelation.new(bibitem: updates,
-                                                         type: "updates")
+        doc.relation << RelatonBib::DocumentRelation.new(bibitem: updates, type: "updates")
       end
       divider = stdclass == :relaton_itu ? " " : "/"
       refs[1..].each_with_object(doc) do |c, d|
@@ -403,7 +432,8 @@ module Relaton
         return entry
       end
 
-      bib = net_retry(code, year, opts, stdclass, opts.fetch(:retries, 1))
+      processor = @registry.processors[stdclass]
+      bib = net_retry(code, year, opts, processor, opts.fetch(:retries, 1))
       bib_id = bib&.docidentifier&.first&.id
 
       # when docid doesn't match bib's id then return a reference to bib's id
@@ -418,13 +448,27 @@ module Relaton
       @semaphore.synchronize { args[:db][args[:id]] ||= entry }
     end
 
+    #
+    # @param code [String]
+    # @param year [String]
+    #
+    # @param opts [Hash]
+    # @option opts [Boolean] :all_parts If all-parts reference is required
+    # @option opts [Boolean] :keep_year If undated reference should return
+    #   actual reference with year
+    #
+    # @param processor [Relaton::Processor]
+    # @param retries [Integer] remain Number of network retries
+    #
     # @raise [RelatonBib::RequestError]
-    def net_retry(code, year, opts, stdclass, retries)
-      @registry.processors[stdclass].get(code, year, opts)
+    # @return [RelatonBib::BibliographicItem]
+    #
+    def net_retry(code, year, opts, processor, retries)
+      fetch_doc code, year, opts, processor
     rescue RelatonBib::RequestError => e
       raise e unless retries > 1
 
-      net_retry(code, year, opts, stdclass, retries - 1)
+      net_retry(code, year, opts, processor, retries - 1)
     end
 
     # @param bib [RelatonBib::BibliographicItem,
@@ -437,11 +481,7 @@ module Relaton
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     # @return [String] XML or "not_found mm-dd-yyyy"
     def bib_entry(bib)
-      if bib.respond_to? :to_xml
-        bib.to_xml(bibdata: true)
-      else
-        "not_found #{Date.today}"
-      end
+      bib.respond_to?(:to_xml) ? bib.to_xml(bibdata: true) : "not_found #{Date.today}"
     end
 
     # @param dir [String, nil] DB directory

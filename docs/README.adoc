@@ -62,6 +62,24 @@ e.g. `get("ISO 19115-1", "2014", all_parts: true)` is transformed into a referen
 
 == Usage
 
+=== Configuration
+
+* `logs` - is array of log levels. Allowed values: `:info`, `:warning`, `:error`, `:debug`. Default values are `[:info, :error]`.
+* `use_api` - `true` if it needs to use an online cache, `false` inf not. Default value is `true`.
+* `api_host` - url of an online cache. Default value is https://api.relaton.org.
+
+[source,ruby]
+----
+require "relaton"
+=> true
+
+Relaton.configure do |conf|
+  conf.logs = %i[info error]
+  conf.use_api = true
+  conf.api_host = "https://api.relaton.org"
+end
+----
+
 === Create DB
 
 `Relaton::Db#new(globalcache, localcache)` creates new DB. Returns Relaton::Db instance.
@@ -71,9 +89,6 @@ e.g. `get("ISO 19115-1", "2014", all_parts: true)` is transformed into a referen
 
 [source,ruby]
 ----
-require "relaton"
-=> true
-
 # Do not cache any entries retrieved
 db = Relaton::Db.new(nil, nil)
 => #<Relaton::Db:0x007faaaba77648

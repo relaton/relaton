@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '787'
+      - '786'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"8bb29085a34b2a06813e5ef48d2dffbd4059db42a4b6e9df5f02a50c7c732486"
+      - W/"9872feb94c206893da18476e17e0ff11963929ceaea7b67bc3d62ba2e6570df1"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,29 +41,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 2BEC:892F:17D9B1F:19A395C:62D68898
+      - 89AC:7C8A:6A8C6:88339:62E93C8B
       Accept-Ranges:
       - bytes
       Date:
-      - Tue, 19 Jul 2022 10:52:03 GMT
+      - Tue, 02 Aug 2022 15:02:35 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-sof1510037-SOF
+      - cache-vie6358-VIE
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1658227923.091928,VS0,VE207
+      - S1659452555.148409,VS0,VE187
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - c6d45856cfc001645be836ca647a24d555610c02
+      - 0bc28fcb55106103d1e668e244c87ea95d7406f6
       Expires:
-      - Tue, 19 Jul 2022 10:57:03 GMT
+      - Tue, 02 Aug 2022 15:07:35 GMT
       Source-Age:
       - '0'
     body:
@@ -96,7 +96,7 @@ http_interactions:
         - person:
             name:
               initial:
-              - content: A
+              - content: A.
                 language:
                 - en
                 script:
@@ -118,7 +118,7 @@ http_interactions:
         - person:
             name:
               initial:
-              - content: M
+              - content: M.
                 language:
                 - en
                 script:
@@ -164,12 +164,12 @@ http_interactions:
             content: RFC
             format: text/plain
           number: '8341'
-        fetched: '2022-07-18'
+        fetched: '2022-08-01'
         keyword:
         - NETCONF RESTCONF
         - YANG
         - XML
         editorialgroup:
         - name: netconf
-  recorded_at: Tue, 19 Jul 2022 10:52:03 GMT
+  recorded_at: Tue, 02 Aug 2022 15:02:35 GMT
 recorded_with: VCR 6.1.0
