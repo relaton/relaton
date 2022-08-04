@@ -18,7 +18,7 @@ module Relaton
       @logs = %i(info error) # allowed values: :info, :warning, :error, :debug
 
       # @TODO change to true when we start using api.relaton.org
-      @use_api = true
+      @use_api = false
       @api_host = "https://api.relaton.org"
     end
   end
