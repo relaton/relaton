@@ -540,7 +540,9 @@ module Relaton
       end
 
       def local_bibliocache_name(cachename)
-        cachename = "relaton" if cachename.nil? || cachename.empty?
+        return nil if cachename.nil?
+
+        cachename = "relaton" if cachename.empty?
         "#{cachename}/cache"
       end
     end
