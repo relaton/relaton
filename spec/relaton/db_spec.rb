@@ -209,8 +209,10 @@ RSpec.describe Relaton::Db do
     it "BIPM i18n" do
       expect(File).to receive(:exist?).with(/index\.yaml/).and_return false
       allow(File).to receive(:exist?).and_call_original
-      refs = ["CGPM Resolution 1889-00", "CGPM Résolution 1889-00",
-              "CGPM Réunion 9", "CGPM Meeting 9"]
+      # refs = ["CGPM Resolution 1889-00", "CGPM Résolution 1889-00",
+      #         "CGPM Réunion 9", "CGPM Meeting 9"]
+      refs = ["CGPM -- Resolution (1889)", "CGPM -- Résolution (1889)",
+              "CGPM -- Réunion 9 (1948)", "CGPM -- Meeting 9 (1948)"]
       results = []
       VCR.use_cassette "bipm_i18n_async_fetch", match_requests_on: %i[method uri body] do
         refs.each do |ref|

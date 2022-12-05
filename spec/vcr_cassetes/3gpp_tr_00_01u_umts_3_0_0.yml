@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"bbd7f0c87384dd6862c84526ceedcbe809814a4681ced8f1e2a03507a6d36cf4"
+      - W/"7c959a43129b264a7c1e12e965e5c264a2a5f981072544989a9873d021c46a8d"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,29 +41,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 9006:DC11:12120DE:1335553:630104F9
+      - 7496:0207:4FD3F2:6988C4:6388D860
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 20 Aug 2022 15:59:54 GMT
+      - Thu, 01 Dec 2022 16:37:52 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-vie6372-VIE
+      - cache-atl18456-ATL
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1661011194.827084,VS0,VE239
+      - S1669912673.825654,VS0,VE158
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - 6f05c12cc285982fd536c28ecfc3afbe554d15b9
+      - cccf475f5d37d90f0494ab5079476a56f722fe36
       Expires:
-      - Sat, 20 Aug 2022 16:04:54 GMT
+      - Thu, 01 Dec 2022 16:42:52 GMT
       Source-Age:
       - '0'
     body:
@@ -72,10 +72,10 @@ http_interactions:
         ---
         id: 3GPPTR00.01U-UMTS/3.0.0
         title:
-        - type: main
-          content: Work programme for the standardization of Universal Mobile Telecommunications
+        - content: Work programme for the standardization of Universal Mobile Telecommunications
             System (UMTS)
           format: text/plain
+          type: main
         link:
         - content: http://www.3gpp.org/ftp/Specs/archive/00_series/00.01U/0001U-300.zip
           type: src
@@ -91,8 +91,9 @@ http_interactions:
         contributor:
         - organization:
             name:
-            - 3rd Generation Partnership Project
-            abbreviation: 3GPP
+            - content: 3rd Generation Partnership Project
+            abbreviation:
+              content: 3GPP
             contact:
             - address:
                 street:
@@ -115,7 +116,7 @@ http_interactions:
             affiliation:
             - organization:
                 name:
-                - PHILIPS CONSUMER COMMUNICATION
+                - content: PHILIPS CONSUMER COMMUNICATION
           role:
           - author
         revdate: '1994-11-18'
@@ -128,7 +129,7 @@ http_interactions:
             value: withdrawn
         place:
         - Sophia Antipolis Cedex, France
-        fetched: '2022-07-22'
+        fetched: '2022-09-21'
         doctype: TR
         editorialgroup:
         - name: SMG5
@@ -144,5 +145,5 @@ http_interactions:
           freeze_stage3_meeting: SMG-28
           close_meeting: SP-28
           project_end: '1999-02-12'
-  recorded_at: Sat, 20 Aug 2022 15:59:54 GMT
+  recorded_at: Thu, 01 Dec 2022 16:37:52 GMT
 recorded_with: VCR 6.1.0

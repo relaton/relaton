@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '329'
+      - '321'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"6144cb99b96ca0b912fc503025bf900d0d407186a80a5604a7583d0e1351ea0e"
+      - W/"1578564864c96192f976ab96350b83ce72172e49ad902ee7776b04e84e328cb0"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,29 +41,29 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - E998:8649:28370B:2D40C5:630104F9
+      - F47C:7DB9:4AE4AE:649E2A:6388D838
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 20 Aug 2022 15:59:53 GMT
+      - Thu, 01 Dec 2022 16:37:12 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-vie6328-VIE
+      - cache-atl18438-ATL
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1661011193.493366,VS0,VE172
+      - S1669912632.464960,VS0,VE131
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - d4e3245c27ac50448537487b5d26e624924c429e
+      - 854b73116aa9796de46c0d77613d384fe1f94181
       Expires:
-      - Sat, 20 Aug 2022 16:04:53 GMT
+      - Thu, 01 Dec 2022 16:42:12 GMT
       Source-Age:
       - '0'
     body:
@@ -85,18 +85,18 @@ http_interactions:
         docnumber: service-names-port-numbers
         date:
         - type: updated
-          value: '2022-08-16'
+          value: '2022-11-22'
         contributor:
         - organization:
             name:
-            - Internet Assigned Numbers Authority
-            abbreviation: IANA
+            - content: Internet Assigned Numbers Authority
+            abbreviation:
+              content: IANA
           role:
-          - publisher
+          - type: publisher
         language:
         - en
         script:
         - Latn
-        fetched: '2022-08-20'
-  recorded_at: Sat, 20 Aug 2022 15:59:53 GMT
+  recorded_at: Thu, 01 Dec 2022 16:37:12 GMT
 recorded_with: VCR 6.1.0

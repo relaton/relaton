@@ -16,6 +16,7 @@ VCR.configure do |c|
     allow_playback_repeats: true,
   }
   c.hook_into :webmock
+  c.configure_rspec_metadata!
 end
 
 SimpleCov.start do

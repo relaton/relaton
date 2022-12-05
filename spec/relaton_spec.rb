@@ -15,15 +15,15 @@ RSpec.describe Relaton::Db do
       VCR.use_cassette "iso_19115_1" do
         bib = @db.fetch("ISO 19115-1", nil, {})
         expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-        expect(bib.to_xml(bibdata: true)).to include "<project-number part=\"1\">"\
+        expect(bib.to_xml(bibdata: true)).to include "<project-number part=\"1\">" \
           "ISO 19115</project-number>"
         expect(File.exist?("testcache")).to be true
         expect(File.exist?("testcache2")).to be true
         testcache = Relaton::DbCache.new "testcache"
-        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number part=\"1\">"\
+        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number part=\"1\">" \
           "ISO 19115</project-number>"
         testcache = Relaton::DbCache.new "testcache2"
-        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number part=\"1\">"\
+        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number part=\"1\">" \
           "ISO 19115</project-number>"
       end
       bib = @db.fetch("ISO 19115-1", nil, {})
@@ -34,8 +34,8 @@ RSpec.describe Relaton::Db do
       VCR.use_cassette "iso_19133_2005" do
         bib = @db.fetch("ISO 19133:2005")
         expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-        expect(bib.to_xml).to include '<bibitem id="ISO19133-2005" '\
-          'type="standard">'
+        expect(bib.to_xml).to include '<bibitem id="ISO19133-2005" ' \
+                                      'type="standard" schema-version="v1.2.1">'
         testcache = Relaton::DbCache.new "testcache"
         expect(
           testcache.valid_entry?("ISO(ISO 19133:2005)", Date.today.year.to_s),
@@ -60,9 +60,9 @@ RSpec.describe Relaton::Db do
     end
 
     it "gets sn ISO/DIS reference" do
-      VCR.use_cassette "iso_dis_14093" do
-        bib = @db.fetch "ISO/DIS 14093"
-        expect(bib.docidentifier[0].id).to eq "ISO/DIS 14093"
+      VCR.use_cassette "iso_dis" do
+        bib = @db.fetch "ISO/DIS 14460"
+        expect(bib.docidentifier[0].id).to eq "ISO/DIS 14460"
       end
     end
   end
@@ -191,7 +191,7 @@ RSpec.describe Relaton::Db do
     VCR.use_cassette "rfc_8341" do
       bib = @db.fetch "RFC 8341", nil, {}
       expect(bib).to be_instance_of RelatonIetf::IetfBibliographicItem
-      expect(bib.to_xml).to include "<bibitem id=\"RFC8341\" type=\"standard\">"
+      expect(bib.to_xml).to include "<bibitem id=\"RFC8341\" type=\"standard\" schema-version=\"v1.2.1\">"
       expect(File.exist?("testcache")).to be true
       expect(File.exist?("testcache2")).to be true
       testcache = Relaton::DbCache.new "testcache"
@@ -274,14 +274,14 @@ RSpec.describe Relaton::Db do
   it "get ECMA reference" do
     VCR.use_cassette "ecma_6" do
       bib = @db.fetch "ECMA-6"
-      expect(bib).to be_instance_of RelatonBib::BibliographicItem
+      expect(bib).to be_instance_of RelatonEcma::BibliographicItem
     end
   end
 
   it "get CIE reference" do
     VCR.use_cassette "cie_001_1980" do
       bib = @db.fetch "CIE 001-1980"
-      expect(bib).to be_instance_of RelatonBib::BibliographicItem
+      expect(bib).to be_instance_of RelatonCie::BibliographicItem
     end
   end
 
@@ -295,14 +295,14 @@ RSpec.describe Relaton::Db do
   it "get CEN reference" do
     VCR.use_cassette "en_10160_1999" do
       bib = @db.fetch "EN 10160:1999"
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      expect(bib).to be_instance_of RelatonCen::BibliographicItem
     end
   end
 
   it "get IANA reference" do
     VCR.use_cassette "iana_service_names_port_numbers" do
       bib = @db.fetch "IANA service-names-port-numbers"
-      expect(bib).to be_instance_of RelatonBib::BibliographicItem
+      expect(bib).to be_instance_of RelatonIana::IanaBibliographicItem
     end
   end
 
@@ -320,6 +320,11 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  it "get BIPM reference", vcr: "bipm_metrologia_29_6_373" do
+    bib = @db.fetch "BIPM Metrologia 29 6 373"
+    expect(bib).to be_instance_of RelatonBipm::BipmBibliographicItem
+  end
+
   context "get combined documents" do
     context "ISO" do
       it "included" do
@@ -330,7 +335,7 @@ RSpec.describe Relaton::Db do
           expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1"
           expect(bib.relation[1].type).to eq "derivedFrom"
           expect(bib.relation[1].description).to be_nil
-          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1/Amd 1:2018"
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014/Amd 1"
         end
       end
 
@@ -342,7 +347,7 @@ RSpec.describe Relaton::Db do
           expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1"
           expect(bib.relation[1].type).to eq "complements"
           expect(bib.relation[1].description.content).to eq "amendment"
-          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1/Amd 1:2018"
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014/Amd 1"
         end
       end
     end

@@ -21,7 +21,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1248'
+      - '1231'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -29,7 +29,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"b21416ab2f819964701431afc75fe8a8f12849d9090f39af05d12e9c3ce374ae"
+      - W/"d77b8023a516690d0de93ebeb981cc5c12018907ac71f29b68d41d0b233f4c0b"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -39,31 +39,31 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - C770:1E8A:4466C9:4D1B70:630104F4
+      - 72AE:4D66:2B6A6A:4253AC:6388D706
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 20 Aug 2022 15:59:48 GMT
+      - Thu, 01 Dec 2022 16:35:14 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-vie6356-VIE
+      - cache-atl18432-ATL
       X-Cache:
-      - MISS
+      - HIT
       X-Cache-Hits:
-      - '0'
+      - '1'
       X-Timer:
-      - S1661011189.710024,VS0,VE171
+      - S1669912515.879688,VS0,VE1
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - 5090d12618004aa340e6b326a62df694146c8965
+      - 502642524ba4a44ad5c87123f442e244ca6a72b2
       Expires:
-      - Sat, 20 Aug 2022 16:04:48 GMT
+      - Thu, 01 Dec 2022 16:40:14 GMT
       Source-Age:
-      - '0'
+      - '179'
     body:
       encoding: ASCII-8BIT
       string: |
@@ -92,9 +92,9 @@ http_interactions:
         contributor:
         - organization:
             name:
-            - Ecma International
+            - content: Ecma International
           role:
-          - publisher
+          - type: publisher
         edition:
           content: '6'
         revdate: 1991-12
@@ -204,7 +204,6 @@ http_interactions:
               format: text/plain
         place:
         - Geneva
-        fetched: '2022-08-20'
         doctype: document
-  recorded_at: Sat, 20 Aug 2022 15:59:48 GMT
+  recorded_at: Thu, 01 Dec 2022 16:35:14 GMT
 recorded_with: VCR 6.1.0
