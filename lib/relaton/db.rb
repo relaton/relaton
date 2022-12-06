@@ -277,6 +277,8 @@ module Relaton
     #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def combine_doc(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+      return if stdclass == :relaton_bipm
+
       if (refs = code.split " + ").size > 1
         reltype = "derivedFrom"
         reldesc = nil
@@ -527,8 +529,6 @@ module Relaton
         flush_caches globalname, localname if opts[:flush_caches]
         Relaton::Db.new(globalname, localname)
       end
-
-      private
 
       def flush_caches(gcache, lcache)
         FileUtils.rm_rf gcache unless gcache.nil?

@@ -24,6 +24,14 @@ RSpec.describe Relaton::Db do
         end.to output("[relaton] (ISO 123) not found.\n").to_stderr
       end
     end
+
+    context "#combine_doc" do
+      it "retrun nil for BIPM documents" do
+        code = double "code"
+        expect(code).not_to receive(:split)
+        expect(subject.send(:combine_doc, code, nil, {}, :relaton_bipm)).to be_nil
+      end
+    end
   end
 
   context "class methods" do
