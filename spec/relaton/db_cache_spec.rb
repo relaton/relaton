@@ -16,7 +16,7 @@ RSpec.describe Relaton::DbCache do
 
   it "write same file by concurent processes" do
     dir = "testcache/iso"
-    FileUtils.mkdir_p dir unless File.exist? dir
+    FileUtils.mkdir_p dir
     file_name = File.join dir, "iso_123.xml"
     file = File.open file_name, File::RDWR | File::CREAT, encoding: "UTF-8"
     file.flock File::LOCK_EX

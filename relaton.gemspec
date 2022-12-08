@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "relaton-calconnect", "~> 1.14.0"
   spec.add_dependency "relaton-cen", "~> 1.14.0"
   spec.add_dependency "relaton-cie", "~> 1.14.0"
+  spec.add_dependency "relaton-doi", "~> 1.14.0"
   spec.add_dependency "relaton-ecma", "~> 1.14.0"
   spec.add_dependency "relaton-gb", "~> 1.14.0"
   spec.add_dependency "relaton-iana", "~> 1.14.0"

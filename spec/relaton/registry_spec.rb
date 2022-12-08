@@ -100,6 +100,11 @@ RSpec.describe Relaton::Registry do
     it "OASIS" do
       expect(Relaton::Registry.instance.by_type("OASIS")).to be_instance_of RelatonOasis::Processor
     end
+
+    it "DOI" do
+      expect(Relaton::Registry.instance.by_type("DOI")).to be_instance_of RelatonDoi::Processor
+      expect(Relaton::Registry.instance.processor_by_ref("doi:10.1000/182")).to be_instance_of RelatonDoi::Processor
+    end
   end
 
   it "find processot by dataset" do

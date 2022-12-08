@@ -325,6 +325,11 @@ RSpec.describe Relaton::Db do
     expect(bib).to be_instance_of RelatonBipm::BipmBibliographicItem
   end
 
+  it "get DOI reference", vcr: "doi_10_6028_nist_ir_8245" do
+    bib = @db.fetch "doi:10.6028/nist.ir.8245"
+    expect(bib).to be_instance_of RelatonBib::BibliographicItem
+  end
+
   context "get combined documents" do
     context "ISO" do
       it "included" do
