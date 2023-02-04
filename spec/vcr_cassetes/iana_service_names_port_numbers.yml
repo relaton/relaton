@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '321'
+      - '350'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"1578564864c96192f976ab96350b83ce72172e49ad902ee7776b04e84e328cb0"
+      - W/"3ecba1a2f00975b0b1bc1945ceb0479dbff1143aa21cec254af961f5e9c56288"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,35 +41,36 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - F47C:7DB9:4AE4AE:649E2A:6388D838
+      - 4F16:622A:3A171E:55A19F:63DC7C0C
       Accept-Ranges:
       - bytes
       Date:
-      - Thu, 01 Dec 2022 16:37:12 GMT
+      - Fri, 03 Feb 2023 03:14:21 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-atl18438-ATL
+      - cache-atl18467-ATL
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1669912632.464960,VS0,VE131
+      - S1675394061.966648,VS0,VE117
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - 854b73116aa9796de46c0d77613d384fe1f94181
+      - 0e867b78535e291352295b5fd11275785d878f2d
       Expires:
-      - Thu, 01 Dec 2022 16:42:12 GMT
+      - Fri, 03 Feb 2023 03:19:21 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       string: |
         ---
+        schema-version: v1.2.1
         id: IANAservice-names-port-numbers
         title:
         - content: Service Name and Transport Protocol Port Number Registry
@@ -85,7 +86,7 @@ http_interactions:
         docnumber: service-names-port-numbers
         date:
         - type: updated
-          value: '2022-11-22'
+          value: '2023-01-04'
         contributor:
         - organization:
             name:
@@ -98,5 +99,7 @@ http_interactions:
         - en
         script:
         - Latn
-  recorded_at: Thu, 01 Dec 2022 16:37:12 GMT
+        ext:
+          schema-version: v1.0.0
+  recorded_at: Fri, 03 Feb 2023 03:14:20 GMT
 recorded_with: VCR 6.1.0

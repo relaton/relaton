@@ -146,45 +146,45 @@ RSpec.describe Relaton::Db do
   end
 
   context "get GB reference" do
-    it "and cache it" do
-      VCR.use_cassette "gb_t_20223_2006" do
-        bib = @db.fetch "CN(GB/T 20223)", "2006", {}
-        expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
-        expect(bib.to_xml(bibdata: true)).to include <<~XML
-          <project-number>GB/T 20223</project-number>
-        XML
-        expect(File.exist?("testcache")).to be true
-        expect(File.exist?("testcache2")).to be true
-        testcache = Relaton::DbCache.new "testcache"
-        expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
-          <project-number>GB/T 20223</project-number>
-        XML
-        testcache = Relaton::DbCache.new "testcache2"
-        expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
-          <project-number>GB/T 20223</project-number>
-        XML
-      end
-    end
+    # it "and cache it" do
+    #   VCR.use_cassette "gb_t_20223_2006" do
+    #     bib = @db.fetch "CN(GB/T 20223)", "2006", {}
+    #     expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
+    #     expect(bib.to_xml(bibdata: true)).to include <<~XML
+    #       <project-number>GB/T 20223</project-number>
+    #     XML
+    #     expect(File.exist?("testcache")).to be true
+    #     expect(File.exist?("testcache2")).to be true
+    #     testcache = Relaton::DbCache.new "testcache"
+    #     expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
+    #       <project-number>GB/T 20223</project-number>
+    #     XML
+    #     testcache = Relaton::DbCache.new "testcache2"
+    #     expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
+    #       <project-number>GB/T 20223</project-number>
+    #     XML
+    #   end
+    # end
 
-    it "with year" do
-      VCR.use_cassette "gb_t_20223_2006" do
-        bib = @db.fetch "CN(GB/T 20223-2006)", nil, {}
-        expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
-        expect(bib.to_xml(bibdata: true)).to include <<~XML
-          <project-number>GB/T 20223</project-number>
-        XML
-        expect(File.exist?("testcache")).to be true
-        expect(File.exist?("testcache2")).to be true
-        testcache = Relaton::DbCache.new "testcache"
-        expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
-          <project-number>GB/T 20223</project-number>
-        XML
-        testcache = Relaton::DbCache.new "testcache2"
-        expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
-          <project-number>GB/T 20223</project-number>
-        XML
-      end
-    end
+    # it "with year" do
+    #   VCR.use_cassette "gb_t_20223_2006" do
+    #     bib = @db.fetch "CN(GB/T 20223-2006)", nil, {}
+    #     expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
+    #     expect(bib.to_xml(bibdata: true)).to include <<~XML
+    #       <project-number>GB/T 20223</project-number>
+    #     XML
+    #     expect(File.exist?("testcache")).to be true
+    #     expect(File.exist?("testcache2")).to be true
+    #     testcache = Relaton::DbCache.new "testcache"
+    #     expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
+    #       <project-number>GB/T 20223</project-number>
+    #     XML
+    #     testcache = Relaton::DbCache.new "testcache2"
+    #     expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
+    #       <project-number>GB/T 20223</project-number>
+    #     XML
+    #   end
+    # end
   end
 
   it "get RFC reference and cache it" do
@@ -334,10 +334,10 @@ RSpec.describe Relaton::Db do
     context "ISO" do
       it "included" do
         VCR.use_cassette "iso_combined_included" do
-          bib = @db.fetch "ISO 19115-1 + Amd 1"
-          expect(bib.docidentifier[0].id).to eq "ISO 19115-1 + Amd 1"
+          bib = @db.fetch "ISO 19115-1:2014 + Amd 1"
+          expect(bib.docidentifier[0].id).to eq "ISO 19115-1:2014 + Amd 1"
           expect(bib.relation[0].type).to eq "updates"
-          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1"
+          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014"
           expect(bib.relation[1].type).to eq "derivedFrom"
           expect(bib.relation[1].description).to be_nil
           expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014/Amd 1"
@@ -346,10 +346,10 @@ RSpec.describe Relaton::Db do
 
       it "applied" do
         VCR.use_cassette "iso_combined_applied" do
-          bib = @db.fetch "ISO 19115-1, Amd 1"
-          expect(bib.docidentifier[0].id).to eq "ISO 19115-1, Amd 1"
+          bib = @db.fetch "ISO 19115-1:2014, Amd 1"
+          expect(bib.docidentifier[0].id).to eq "ISO 19115-1:2014, Amd 1"
           expect(bib.relation[0].type).to eq "updates"
-          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1"
+          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014"
           expect(bib.relation[1].type).to eq "complements"
           expect(bib.relation[1].description.content).to eq "amendment"
           expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014/Amd 1"

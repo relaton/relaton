@@ -21,7 +21,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '972'
+      - '983'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -29,7 +29,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"1a510c191b67baa13124cd03e8c85feddfad29ef1d80a4506cbef211b1afb1fd"
+      - W/"44388e1a591e853b266be0e413b9f196ca9343c29e18db3332cb2100113520db"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -39,35 +39,36 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - DC70:7D26:4BDB81:658E5A:6388D7C3
+      - B74E:3751:6AD9E3:8A3360:63DC7BED
       Accept-Ranges:
       - bytes
       Date:
-      - Thu, 01 Dec 2022 16:36:11 GMT
+      - Fri, 03 Feb 2023 03:13:49 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-atl18424-ATL
+      - cache-atl18478-ATL
       X-Cache:
-      - HIT
+      - MISS
       X-Cache-Hits:
-      - '1'
+      - '0'
       X-Timer:
-      - S1669912571.058400,VS0,VE7
+      - S1675394030.592920,VS0,VE118
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - ca5406beb3d754d29ec0ef4bb92ac9542728cf3d
+      - 066b7eaa67fb6a3d3cb56c79a49b5729a51982fd
       Expires:
-      - Thu, 01 Dec 2022 16:41:11 GMT
+      - Fri, 03 Feb 2023 03:18:49 GMT
       Source-Age:
-      - '56'
+      - '0'
     body:
       encoding: ASCII-8BIT
       string: |
         ---
+        schema-version: v1.2.1
         id: CIE001-1980
         title:
         - content: Guidelines for minimizing urban sky glow near astronomical observatories
@@ -122,7 +123,8 @@ http_interactions:
           script:
           - Latn
           format: text/plain
-        fetched: '2022-12-01'
         doctype: document
-  recorded_at: Thu, 01 Dec 2022 16:36:10 GMT
+        ext:
+          schema-version: v1.0.0
+  recorded_at: Fri, 03 Feb 2023 03:13:49 GMT
 recorded_with: VCR 6.1.0
