@@ -27,30 +27,100 @@ http_interactions:
       Connection:
       - keep-alive
       Date:
-      - Fri, 03 Feb 2023 03:15:54 GMT
+      - Mon, 20 Mar 2023 21:56:44 GMT
       X-Amzn-Requestid:
-      - e3f54eed-e6a7-482c-be52-d5f6be6f84d1
+      - 6abf641e-024c-44fd-827d-f698ec0b9f98
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Headers:
       - Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token
       X-Amz-Apigw-Id:
-      - fvhefE3hoAMFYhg=
+      - CGZ2SEOloAMFWWg=
       Access-Control-Allow-Methods:
       - GET, POST, OPTIONS
       X-Amzn-Trace-Id:
-      - Root=1-63dc7c5c-4a3f2c861c18b1b754b6836c;Sampled=0
+      - Root=1-6418d68e-4ac1249546dd5c4d25cf3f5c;Sampled=0
       X-Cache:
       - Miss from cloudfront
       Via:
-      - 1.1 1280ed2b25df326a730453b28b0f9aaa.cloudfront.net (CloudFront)
+      - 1.1 f394ef913737988f9bc8ebc09850a2ba.cloudfront.net (CloudFront)
       X-Amz-Cf-Pop:
       - ATL51-C1
       X-Amz-Cf-Id:
-      - JsWTBCxjJWhdD70rWKwC85fG0E0jEJLfLoApV-vEDfFFxmUHsCBPIA==
+      - OLhtxFwfIuox0Cf9v4f3FuGDqppvRO3FGvbpWvxyrCbwhxFPqRrXMg==
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        PGJpYmRhdGEgdHlwZT0ic3RhbmRhcmQiPgogIDxmZXRjaGVkPjIwMjEtMDctMTE8L2ZldGNoZWQ+CiAgPHRpdGxlIHR5cGU9InRpdGxlLWludHJvIiBmb3JtYXQ9InRleHQvcGxhaW4iIGxhbmd1YWdlPSJlbiIgc2NyaXB0PSJMYXRuIj5HZW9ncmFwaGljIGluZm9ybWF0aW9uPC90aXRsZT4KICA8dGl0bGUgdHlwZT0idGl0bGUtbWFpbiIgZm9ybWF0PSJ0ZXh0L3BsYWluIiBsYW5ndWFnZT0iZW4iIHNjcmlwdD0iTGF0biI+TWV0YWRhdGE8L3RpdGxlPgogIDx0aXRsZSB0eXBlPSJ0aXRsZS1wYXJ0IiBmb3JtYXQ9InRleHQvcGxhaW4iIGxhbmd1YWdlPSJlbiIgc2NyaXB0PSJMYXRuIj5QYXJ0IDI6IEV4dGVuc2lvbnMgZm9yIGFjcXVpc2l0aW9uIGFuZCBwcm9jZXNzaW5nPC90aXRsZT4KICA8dGl0bGUgdHlwZT0ibWFpbiIgZm9ybWF0PSJ0ZXh0L3BsYWluIiBsYW5ndWFnZT0iZW4iIHNjcmlwdD0iTGF0biI+R2VvZ3JhcGhpYyBpbmZvcm1hdGlvbiAtIE1ldGFkYXRhIC0gUGFydCAyOiBFeHRlbnNpb25zIGZvciBhY3F1aXNpdGlvbiBhbmQgcHJvY2Vzc2luZzwvdGl0bGU+CiAgPHRpdGxlIHR5cGU9InRpdGxlLWludHJvIiBmb3JtYXQ9InRleHQvcGxhaW4iIGxhbmd1YWdlPSJmciIgc2NyaXB0PSJMYXRuIj5JbmZvcm1hdGlvbiBnw6lvZ3JhcGhpcXVlPC90aXRsZT4KICA8dGl0bGUgdHlwZT0idGl0bGUtbWFpbiIgZm9ybWF0PSJ0ZXh0L3BsYWluIiBsYW5ndWFnZT0iZnIiIHNjcmlwdD0iTGF0biI+TcOpdGFkb25uw6llczwvdGl0bGU+CiAgPHRpdGxlIHR5cGU9InRpdGxlLXBhcnQiIGZvcm1hdD0idGV4dC9wbGFpbiIgbGFuZ3VhZ2U9ImZyIiBzY3JpcHQ9IkxhdG4iPlBhcnRpZSAyOiBFeHRlbnNpb25zIHBvdXIgbCdhY3F1aXNpdGlvbiBldCBsZSB0cmFpdGVtZW50PC90aXRsZT4KICA8dGl0bGUgdHlwZT0ibWFpbiIgZm9ybWF0PSJ0ZXh0L3BsYWluIiBsYW5ndWFnZT0iZnIiIHNjcmlwdD0iTGF0biI+SW5mb3JtYXRpb24gZ8Opb2dyYXBoaXF1ZSAtIE3DqXRhZG9ubsOpZXMgLSBQYXJ0aWUgMjogRXh0ZW5zaW9ucyBwb3VyIGwnYWNxdWlzaXRpb24gZXQgbGUgdHJhaXRlbWVudDwvdGl0bGU+CiAgPHVyaSB0eXBlPSJzcmMiPmh0dHBzOi8vd3d3Lmlzby5vcmcvc3RhbmRhcmQvNjcwMzkuaHRtbDwvdXJpPgogIDx1cmkgdHlwZT0ib2JwIj5odHRwczovL3d3dy5pc28ub3JnL29icC91aS8jIWlzbzpzdGQ6NjcwMzk6ZW48L3VyaT4KICA8dXJpIHR5cGU9InJzcyI+aHR0cHM6Ly93d3cuaXNvLm9yZy9jb250ZW50cy9kYXRhL3N0YW5kYXJkLzA2LzcwLzY3MDM5LmRldGFpbC5yc3M8L3VyaT4KICA8ZG9jaWRlbnRpZmllciB0eXBlPSJJU08iPklTTyAxOTExNS0yOjIwMTk8L2RvY2lkZW50aWZpZXI+CiAgPGRvY2lkZW50aWZpZXIgdHlwZT0iVVJOIj51cm46aXNvOnN0ZDppc286MTkxMTU6LTI6c3RhZ2UtNjAuNjA6ZWQtMjplbixmcjwvZG9jaWRlbnRpZmllcj4KICA8ZG9jbnVtYmVyPjE5MTE1PC9kb2NudW1iZXI+CiAgPGRhdGUgdHlwZT0icHVibGlzaGVkIj4KICAgIDxvbj4yMDE5LTAxPC9vbj4KICA8L2RhdGU+CiAgPGNvbnRyaWJ1dG9yPgogICAgPHJvbGUgdHlwZT0icHVibGlzaGVyIi8+CiAgICA8b3JnYW5pemF0aW9uPgogICAgICA8bmFtZT5JbnRlcm5hdGlvbmFsIE9yZ2FuaXphdGlvbiBmb3IgU3RhbmRhcmRpemF0aW9uPC9uYW1lPgogICAgICA8YWJicmV2aWF0aW9uPklTTzwvYWJicmV2aWF0aW9uPgogICAgICA8dXJpPnd3dy5pc28ub3JnPC91cmk+CiAgICA8L29yZ2FuaXphdGlvbj4KICA8L2NvbnRyaWJ1dG9yPgogIDxlZGl0aW9uPjI8L2VkaXRpb24+CiAgPGxhbmd1YWdlPmVuPC9sYW5ndWFnZT4KICA8bGFuZ3VhZ2U+ZnI8L2xhbmd1YWdlPgogIDxzY3JpcHQ+TGF0bjwvc2NyaXB0PgogIDxzdGF0dXM+CiAgICA8c3RhZ2U+NjA8L3N0YWdlPgogICAgPHN1YnN0YWdlPjYwPC9zdWJzdGFnZT4KICA8L3N0YXR1cz4KICA8Y29weXJpZ2h0PgogICAgPGZyb20+MjAxOTwvZnJvbT4KICAgIDxvd25lcj4KICAgICAgPG9yZ2FuaXphdGlvbj4KICAgICAgICA8bmFtZT5JU088L25hbWU+CiAgICAgIDwvb3JnYW5pemF0aW9uPgogICAgPC9vd25lcj4KICA8L2NvcHlyaWdodD4KICA8cmVsYXRpb24gdHlwZT0ib2Jzb2xldGVzIj4KICAgIDxiaWJpdGVtIHR5cGU9InN0YW5kYXJkIj4KICAgICAgPGZvcm1hdHRlZHJlZiBmb3JtYXQ9InRleHQvcGxhaW4iPklTTyAxOTExNS0yOjIwMDk8L2Zvcm1hdHRlZHJlZj4KICAgIDwvYmliaXRlbT4KICA8L3JlbGF0aW9uPgogIDxyZWxhdGlvbiB0eXBlPSJ1cGRhdGVzIj4KICAgIDxiaWJpdGVtIHR5cGU9InN0YW5kYXJkIj4KICAgICAgPGZvcm1hdHRlZHJlZiBmb3JtYXQ9InRleHQvcGxhaW4iPklTTyAxOTExNS0yOjIwMTkvUFJGIEFtZCAxPC9mb3JtYXR0ZWRyZWY+CiAgICAgIDxkYXRlIHR5cGU9ImNpcmN1bGF0ZWQiPgogICAgICAgIDxvbj4yMDE5LTAxLTEwPC9vbj4KICAgICAgPC9kYXRlPgogICAgPC9iaWJpdGVtPgogIDwvcmVsYXRpb24+CiAgPHBsYWNlPkdlbmV2YTwvcGxhY2U+CiAgPGV4dD4KICAgIDxkb2N0eXBlPmludGVybmF0aW9uYWwtc3RhbmRhcmQ8L2RvY3R5cGU+CiAgICA8ZWRpdG9yaWFsZ3JvdXA+CiAgICAgIDx0ZWNobmljYWwtY29tbWl0dGVlIG51bWJlcj0iMjExIiB0eXBlPSJUQyI+SVNPL1RDIDIxMUdlb2dyYXBoaWMgaW5mb3JtYXRpb24vR2VvbWF0aWNzPC90ZWNobmljYWwtY29tbWl0dGVlPgogICAgPC9lZGl0b3JpYWxncm91cD4KICAgIDxpY3M+CiAgICAgIDxjb2RlPjM1LjI0MC43MDwvY29kZT4KICAgICAgPHRleHQ+SVQgYXBwbGljYXRpb25zIGluIHNjaWVuY2U8L3RleHQ+CiAgICA8L2ljcz4KICAgIDxzdHJ1Y3R1cmVkaWRlbnRpZmllciB0eXBlPSJJU08iPgogICAgICA8cHJvamVjdC1udW1iZXI+SVNPIDE5MTE1PC9wcm9qZWN0LW51bWJlcj4KICAgIDwvc3RydWN0dXJlZGlkZW50aWZpZXI+CiAgPC9leHQ+CjwvYmliZGF0YT4=
-  recorded_at: Fri, 03 Feb 2023 03:15:54 GMT
+      encoding: UTF-8
+      string: |-
+        <bibdata type="standard">
+          <fetched>2021-07-11</fetched>
+          <title type="title-intro" format="text/plain" language="en" script="Latn">Geographic information</title>
+          <title type="title-main" format="text/plain" language="en" script="Latn">Metadata</title>
+          <title type="title-part" format="text/plain" language="en" script="Latn">Part 2: Extensions for acquisition and processing</title>
+          <title type="main" format="text/plain" language="en" script="Latn">Geographic information - Metadata - Part 2: Extensions for acquisition and processing</title>
+          <title type="title-intro" format="text/plain" language="fr" script="Latn">Information géographique</title>
+          <title type="title-main" format="text/plain" language="fr" script="Latn">Métadonnées</title>
+          <title type="title-part" format="text/plain" language="fr" script="Latn">Partie 2: Extensions pour l'acquisition et le traitement</title>
+          <title type="main" format="text/plain" language="fr" script="Latn">Information géographique - Métadonnées - Partie 2: Extensions pour l'acquisition et le traitement</title>
+          <uri type="src">https://www.iso.org/standard/67039.html</uri>
+          <uri type="obp">https://www.iso.org/obp/ui/#!iso:std:67039:en</uri>
+          <uri type="rss">https://www.iso.org/contents/data/standard/06/70/67039.detail.rss</uri>
+          <docidentifier type="ISO">ISO 19115-2:2019</docidentifier>
+          <docidentifier type="URN">urn:iso:std:iso:19115:-2:stage-60.60:ed-2:en,fr</docidentifier>
+          <docnumber>19115</docnumber>
+          <date type="published">
+            <on>2019-01</on>
+          </date>
+          <contributor>
+            <role type="publisher"/>
+            <organization>
+              <name>International Organization for Standardization</name>
+              <abbreviation>ISO</abbreviation>
+              <uri>www.iso.org</uri>
+            </organization>
+          </contributor>
+          <edition>2</edition>
+          <language>en</language>
+          <language>fr</language>
+          <script>Latn</script>
+          <status>
+            <stage>60</stage>
+            <substage>60</substage>
+          </status>
+          <copyright>
+            <from>2019</from>
+            <owner>
+              <organization>
+                <name>ISO</name>
+              </organization>
+            </owner>
+          </copyright>
+          <relation type="obsoletes">
+            <bibitem type="standard">
+              <formattedref format="text/plain">ISO 19115-2:2009</formattedref>
+            </bibitem>
+          </relation>
+          <relation type="updates">
+            <bibitem type="standard">
+              <formattedref format="text/plain">ISO 19115-2:2019/PRF Amd 1</formattedref>
+              <date type="circulated">
+                <on>2019-01-10</on>
+              </date>
+            </bibitem>
+          </relation>
+          <place>Geneva</place>
+          <ext>
+            <doctype>international-standard</doctype>
+            <editorialgroup>
+              <technical-committee number="211" type="TC">ISO/TC 211Geographic information/Geomatics</technical-committee>
+            </editorialgroup>
+            <ics>
+              <code>35.240.70</code>
+              <text>IT applications in science</text>
+            </ics>
+            <structuredidentifier type="ISO">
+              <project-number>ISO 19115</project-number>
+            </structuredidentifier>
+          </ext>
+        </bibdata>
+  recorded_at: Mon, 20 Mar 2023 21:56:44 GMT
 recorded_with: VCR 6.1.0

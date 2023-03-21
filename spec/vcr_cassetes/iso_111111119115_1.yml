@@ -8,7 +8,7 @@ http_interactions:
       string: '{"query":"ISO 111111119115-1","hitsPerPage":100,"filters":"category:standard"}'
     headers:
       User-Agent:
-      - Algolia for Ruby (2.2.5), Ruby (3.0.0)
+      - Algolia for Ruby (2.2.5), Ruby (3.2.0)
       X-Algolia-Api-Key:
       - dd1b9e1ab383f4d4817d29cd5e96d3f0
       X-Algolia-Application-Id:
@@ -31,11 +31,11 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 03 Feb 2023 03:13:20 GMT
+      - Sun, 19 Mar 2023 00:36:12 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Content-Length:
-      - '330'
+      - '397'
       Connection:
       - keep-alive
       X-Alg-Pt:
@@ -57,8 +57,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"hits":[],"nbHits":0,"page":0,"nbPages":0,"hitsPerPage":100,"exhaustiveNbHits":true,"exhaustiveTypo":true,"exhaustive":{"nbHits":true,"typo":true},"query":"ISO
-        111111119115-1","params":"query=ISO+111111119115-1&hitsPerPage=100&filters=category%3Astandard","processingTimeMS":1,"processingTimingsMS":{"request":{"roundTrip":175}}}'
-  recorded_at: Fri, 03 Feb 2023 03:13:19 GMT
+        111111119115-1","params":"query=ISO+111111119115-1&hitsPerPage=100&filters=category%3Astandard","processingTimeMS":1,"processingTimingsMS":{"getIdx":{"load":{"total":1},"total":1},"request":{"roundTrip":113},"total":1},"serverTimeMS":2}'
+  recorded_at: Sun, 19 Mar 2023 00:36:12 GMT
 - request:
     method: post
     uri: https://jcl49wv5ar-dsn.algolia.net/1/indexes/all_en/query
@@ -67,7 +67,7 @@ http_interactions:
       string: '{"query":"ISO/IEC 111111119115-1","hitsPerPage":100,"filters":"category:standard"}'
     headers:
       User-Agent:
-      - Algolia for Ruby (2.2.5), Ruby (3.0.0)
+      - Algolia for Ruby (2.2.5), Ruby (3.2.0)
       X-Algolia-Api-Key:
       - dd1b9e1ab383f4d4817d29cd5e96d3f0
       X-Algolia-Application-Id:
@@ -90,7 +90,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 03 Feb 2023 03:13:20 GMT
+      - Sun, 19 Mar 2023 00:36:12 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Content-Length:
@@ -116,6 +116,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"hits":[],"nbHits":0,"page":0,"nbPages":0,"hitsPerPage":100,"exhaustiveNbHits":true,"exhaustiveTypo":true,"exhaustive":{"nbHits":true,"typo":true},"query":"ISO/IEC
-        111111119115-1","params":"query=ISO%2FIEC+111111119115-1&hitsPerPage=100&filters=category%3Astandard","processingTimeMS":1,"processingTimingsMS":{"request":{"roundTrip":249}}}'
-  recorded_at: Fri, 03 Feb 2023 03:13:20 GMT
+        111111119115-1","params":"query=ISO%2FIEC+111111119115-1&hitsPerPage=100&filters=category%3Astandard","processingTimeMS":1,"processingTimingsMS":{"request":{"roundTrip":102}}}'
+  recorded_at: Sun, 19 Mar 2023 00:36:12 GMT
 recorded_with: VCR 6.1.0

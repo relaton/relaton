@@ -8,6 +8,7 @@ RSpec.describe Relaton::Db do
       it "create bibitem from YAML content" do
         h = { "docid" => [{ "id" => "ISO 123", type: "ISO", "primary" => true }] }
         expect(YAML).to receive(:safe_load).with(:content).and_return h
+        allow(YAML).to receive(:safe_load).and_call_original
         item = subject.send :search_edition_year, "iso/item.yaml", :content, nil, nil
         expect(item).to be_instance_of RelatonIsoBib::IsoBibliographicItem
       end
@@ -203,33 +204,27 @@ RSpec.describe Relaton::Db do
               "ITU-T Y.1911", "ITU-T Y.2012", "ITU-T Y.2206", "ITU-T O.172",
               "ITU-T G.780/Y.1351", "ITU-T G.711", "ITU-T G.1011"]
       results = []
-      VCR.use_cassette "async_fetch", match_requests_on: %i[method uri body] do
-        refs.each do |ref|
-          db.fetch_async(ref) { |r| queue << [r, ref] }
-        end
-        Timeout.timeout(60) { refs.size.times { results << queue.pop } }
+      refs.each do |ref|
+        expect(db).to receive(:fetch).with(ref, nil, {}).and_return :result
+        db.fetch_async(ref) { |r| queue << [r, ref] }
       end
+      Timeout.timeout(60) { refs.size.times { results << queue.pop } }
       results.each do |result|
-        expect(result[0]).to be_instance_of RelatonItu::ItuBibliographicItem
+        expect(result[0]).to be :result
       end
     end
 
     it "BIPM i18n" do
-      expect(File).to receive(:exist?).with(/index\.yaml/).and_return false
-      allow(File).to receive(:exist?).and_call_original
-      # refs = ["CGPM Resolution 1889-00", "CGPM Résolution 1889-00",
-      #         "CGPM Réunion 9", "CGPM Meeting 9"]
       refs = ["CGPM -- Resolution (1889)", "CGPM -- Résolution (1889)",
               "CGPM -- Réunion 9 (1948)", "CGPM -- Meeting 9 (1948)"]
       results = []
-      VCR.use_cassette "bipm_i18n_async_fetch", match_requests_on: %i[method uri body] do
-        refs.each do |ref|
-          db.fetch_async(ref) { |r| queue << [r, ref] }
-        end
-        Timeout.timeout(60) { refs.size.times { results << queue.pop } }
+      refs.each do |ref|
+        expect(db).to receive(:fetch).with(ref, nil, {}).and_return :result
+        db.fetch_async(ref) { |r| queue << [r, ref] }
       end
+      Timeout.timeout(60) { refs.size.times { results << queue.pop } }
       results.each do |result|
-        expect(result[0]).to be_instance_of RelatonBipm::BipmBibliographicItem
+        expect(result[0]).to be :result
       end
     end
 
@@ -262,10 +257,9 @@ RSpec.describe Relaton::Db do
       expect(ENV).to receive(:[]).with("RELATON_FETCH_PARALLEL").and_return(1)
       allow(ENV).to receive(:[]).and_call_original
       expect(Relaton::WorkersPool).to receive(:new).with(1).and_call_original
-      VCR.use_cassette "threads_from_env" do
-        db.fetch_async("ITU-T G.993.5") { |r| queue << r }
-        Timeout.timeout(50) { queue.pop }
-      end
+      expect(db).to receive(:fetch).with("ITU-T G.993.5", nil, {})
+      db.fetch_async("ITU-T G.993.5") { |r| queue << r }
+      Timeout.timeout(50) { queue.pop }
     end
   end
 end

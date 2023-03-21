@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "bundler/setup"
+# require "bundler/setup"
 require "fileutils"
 require "rspec/matchers"
 require "equivalent-xml"

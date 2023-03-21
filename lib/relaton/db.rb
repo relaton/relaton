@@ -110,7 +110,7 @@ module Relaton
             Util.log "[relaton] ERROR: #{args[0]} -- #{e.message}", :error
             args[3].call nil
           end
-          @queues[stdclass] = { queue: Queue.new, workers_pool: wp }
+          @queues[stdclass] = { queue: SizedQueue.new(threads * 2), workers_pool: wp }
           Thread.new { process_queue @queues[stdclass] }
         end
         @queues[stdclass][:queue] << [ref, year, opts, block]

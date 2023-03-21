@@ -105,6 +105,10 @@ RSpec.describe Relaton::Registry do
       expect(Relaton::Registry.instance.by_type("DOI")).to be_instance_of RelatonDoi::Processor
       expect(Relaton::Registry.instance.processor_by_ref("doi:10.1000/182")).to be_instance_of RelatonDoi::Processor
     end
+
+    it "JIS" do
+      expect(Relaton::Registry.instance.by_type("JIS")).to be_instance_of RelatonJis::Processor
+    end
   end
 
   it "find processot by dataset" do

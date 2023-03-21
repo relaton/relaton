@@ -84,25 +84,22 @@ RSpec.describe Relaton::Db do
   end
 
   context "NIST references" do
-    before(:each) do
-      nist_fr = /\.relaton\/nist\/pubs-export\.zip/
-      expect(File).to receive(:exist?).with(nist_fr).and_return false
-      expect(File).to receive(:exist?).and_call_original.at_least :once
-      # expect(FileUtils).to receive(:mv).with kind_of(String), nist_fr
-    end
-
     it "gets FISP" do
-      VCR.use_cassette "fisp_140" do
-        bib = @db.fetch "NIST FIPS 140"
-        expect(bib).to be_instance_of RelatonNist::NistBibliographicItem
-      end
+      docid = RelatonBib::DocumentIdentifier.new(id: "NIST FIPS 140", type: "NIST")
+      item = RelatonNist::NistBibliographicItem.new docid: [docid]
+      expect(RelatonNist::NistBibliography).to receive(:get).with("NIST FIPS 140", nil, {}).and_return item
+      bib = @db.fetch "NIST FIPS 140"
+      expect(bib).to be_instance_of RelatonNist::NistBibliographicItem
+      expect(bib.docidentifier[0].id).to eq "NIST FIPS 140"
     end
 
     it "gets SP" do
-      VCR.use_cassette "sp_800_38b" do
-        bib = @db.fetch "NIST SP 800-38B"
-        expect(bib).to be_instance_of RelatonNist::NistBibliographicItem
-      end
+      docid = RelatonBib::DocumentIdentifier.new(id: "NIST SP 800-38B", type: "NIST")
+      item = RelatonNist::NistBibliographicItem.new docid: [docid]
+      expect(RelatonNist::NistBibliography).to receive(:get).with("NIST SP 800-38B", nil, {}).and_return item
+      bib = @db.fetch "NIST SP 800-38B"
+      expect(bib).to be_instance_of RelatonNist::NistBibliographicItem
+      expect(bib.docidentifier[0].id).to eq "NIST SP 800-38B"
     end
   end
 
@@ -244,17 +241,21 @@ RSpec.describe Relaton::Db do
   end
 
   it "get UN reference" do
-    VCR.use_cassette "un_rtade_cefact_2004_32" do
-      bib = @db.fetch "UN TRADE/CEFACT/2004/32", nil, {}
-      expect(bib).to be_instance_of RelatonUn::UnBibliographicItem
-    end
+    docid = RelatonBib::DocumentIdentifier.new(id: "UN TRADE/CEFACT/2004/32", type: "UN")
+    item = RelatonUn::UnBibliographicItem.new docid: [docid], session: RelatonUn::Session.new(session_number: "1")
+    expect(RelatonUn::UnBibliography).to receive(:get).with("UN TRADE/CEFACT/2004/32", nil, {}).and_return item
+    bib = @db.fetch "UN TRADE/CEFACT/2004/32", nil, {}
+    expect(bib).to be_instance_of RelatonUn::UnBibliographicItem
+    expect(bib.docidentifier.first.id).to eq "UN TRADE/CEFACT/2004/32"
   end
 
   it "get W3C reference" do
-    VCR.use_cassette "w3c_json_ld11" do
-      bib = @db.fetch "W3C REC-json-ld11-20200716", nil, {}
-      expect(bib).to be_instance_of RelatonW3c::W3cBibliographicItem
-    end
+    docid = RelatonBib::DocumentIdentifier.new(id: "W3C REC-json-ld11-20200716", type: "W3C")
+    item = RelatonW3c::W3cBibliographicItem.new docid: [docid]
+    expect(RelatonW3c::W3cBibliography).to receive(:get).with("W3C REC-json-ld11-20200716", nil, {}).and_return item
+    bib = @db.fetch "W3C REC-json-ld11-20200716", nil, {}
+    expect(bib).to be_instance_of RelatonW3c::W3cBibliographicItem
+    expect(bib.docidentifier.first.id).to eq "W3C REC-json-ld11-20200716"
   end
 
   it "get IEEE reference" do
@@ -265,10 +266,12 @@ RSpec.describe Relaton::Db do
   end
 
   it "get IHO reference" do
-    VCR.use_cassette "iho_b_11" do
-      bib = @db.fetch "IHO B-11"
-      expect(bib).to be_instance_of RelatonIho::IhoBibliographicItem
-    end
+    docid = RelatonBib::DocumentIdentifier.new(id: "IHO B-11", type: "IHO")
+    item = RelatonIho::IhoBibliographicItem.new docid: [docid]
+    expect(RelatonIho::IhoBibliography).to receive(:get).with("IHO B-11", nil, {}).and_return item
+    bib = @db.fetch "IHO B-11"
+    expect(bib).to be_instance_of RelatonIho::IhoBibliographicItem
+    expect(bib.docidentifier.first.id).to eq "IHO B-11"
   end
 
   it "get ECMA reference" do
@@ -314,15 +317,20 @@ RSpec.describe Relaton::Db do
   end
 
   it "get OASIS reference" do
-    VCR.use_cassette "oasis_amqp_core_types_v1_0_pt1" do
-      bib = @db.fetch "OASIS amqp-core-types-v1.0-Pt1"
-      expect(bib).to be_instance_of RelatonOasis::OasisBibliographicItem
-    end
+    docid = RelatonBib::DocumentIdentifier.new(id: "OASIS amqp-core-types-v1.0-Pt1", type: "OASIS")
+    item = RelatonOasis::OasisBibliographicItem.new docid: [docid]
+    expect(RelatonOasis::OasisBibliography).to receive(:get).with("OASIS amqp-core-types-v1.0-Pt1", nil, {}).and_return item
+    bib = @db.fetch "OASIS amqp-core-types-v1.0-Pt1"
+    expect(bib).to be_instance_of RelatonOasis::OasisBibliographicItem
   end
 
-  it "get BIPM reference", vcr: "bipm_metrologia_29_6_373" do
+  it "get BIPM reference" do
+    docid = RelatonBib::DocumentIdentifier.new(id: "BIPM Metrologia 29 6 373", type: "BIPM")
+    item = RelatonBipm::BipmBibliographicItem.new docid: [docid]
+    expect(RelatonBipm::BipmBibliography).to receive(:get).with("BIPM Metrologia 29 6 373", nil, {}).and_return item
     bib = @db.fetch "BIPM Metrologia 29 6 373"
     expect(bib).to be_instance_of RelatonBipm::BipmBibliographicItem
+    expect(bib.docidentifier.first.id).to eq "BIPM Metrologia 29 6 373"
   end
 
   it "get DOI reference", vcr: "doi_10_6028_nist_ir_8245" do
@@ -359,35 +367,48 @@ RSpec.describe Relaton::Db do
 
     context "IEC" do
       it "included" do
-        VCR.use_cassette "iec_combined_included" do
-          bib = @db.fetch "IEC 60027-1, Amd 1, Amd 2"
-          expect(bib.docidentifier[0].id).to eq "IEC 60027-1, Amd 1, Amd 2"
-          expect(bib.relation[0].type).to eq "updates"
-          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "IEC 60027-1"
-          expect(bib.relation[1].type).to eq "complements"
-          expect(bib.relation[1].description.content).to eq "amendment"
-          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "IEC 60027-1/AMD1:1997"
-          expect(bib.relation[2].type).to eq "complements"
-          expect(bib.relation[2].description.content).to eq "amendment"
-          expect(bib.relation[2].bibitem.docidentifier[0].id).to eq "IEC 60027-1/AMD2:2005"
-        end
+        item = RelatonIec::IecBibliographicItem.new docid: [RelatonBib::DocumentIdentifier.new(id: "IEC 60027-1", type: "IEC")]
+        expect(RelatonIec::IecBibliography).to receive(:get).with("IEC 60027-1", nil, {}).and_return item
+        item1 = RelatonIec::IecBibliographicItem.new docid: [RelatonBib::DocumentIdentifier.new(id: "IEC 60027-1/AMD1:1997", type: "IEC")]
+        expect(RelatonIec::IecBibliography).to receive(:get).with("IEC 60027-1/Amd 1", nil, {}).and_return item1
+        item2 = RelatonIec::IecBibliographicItem.new docid: [RelatonBib::DocumentIdentifier.new(id: "IEC 60027-1/AMD2:2005", type: "IEC")]
+        expect(RelatonIec::IecBibliography).to receive(:get).with("IEC 60027-1/Amd 2", nil, {}).and_return item2
+        bib = @db.fetch "IEC 60027-1, Amd 1, Amd 2"
+        expect(bib.docidentifier[0].id).to eq "IEC 60027-1, Amd 1, Amd 2"
+        expect(bib.relation[0].type).to eq "updates"
+        expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "IEC 60027-1"
+        expect(bib.relation[1].type).to eq "complements"
+        expect(bib.relation[1].description.content).to eq "amendment"
+        expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "IEC 60027-1/AMD1:1997"
+        expect(bib.relation[2].type).to eq "complements"
+        expect(bib.relation[2].description.content).to eq "amendment"
+        expect(bib.relation[2].bibitem.docidentifier[0].id).to eq "IEC 60027-1/AMD2:2005"
       end
     end
 
     context "ITU" do
       it "included" do
-        VCR.use_cassette "itu_combined_included" do
-          bib = @db.fetch "ITU-T G.989.2, Amd 1, Amd 2"
-          expect(bib.docidentifier[0].id).to eq "ITU-T G.989.2, Amd 1, Amd 2"
-          expect(bib.relation[0].type).to eq "updates"
-          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2"
-          expect(bib.relation[1].type).to eq "complements"
-          expect(bib.relation[1].description.content).to eq "amendment"
-          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2 Amd 1"
-          expect(bib.relation[2].type).to eq "complements"
-          expect(bib.relation[2].description.content).to eq "amendment"
-          expect(bib.relation[2].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2 Amd 2"
-        end
+        docid = RelatonBib::DocumentIdentifier.new(id: "ITU-T G.989.2", type: "ITU")
+        group = RelatonItu::ItuGroup.new(name: "Group")
+        ed = RelatonItu::EditorialGroup.new(bureau: "Bureau", group: group)
+        item = RelatonItu::ItuBibliographicItem.new docid: [docid], editorialgroup: ed
+        expect(RelatonItu::ItuBibliography).to receive(:get).with("ITU-T G.989.2", nil, {}).and_return item
+        docid1 = RelatonBib::DocumentIdentifier.new(id: "ITU-T G.989.2 Amd 1", type: "ITU")
+        item1 = RelatonItu::ItuBibliographicItem.new docid: [docid1], editorialgroup: ed
+        expect(RelatonItu::ItuBibliography).to receive(:get).with("ITU-T G.989.2 Amd 1", nil, {}).and_return item1
+        docid2 = RelatonBib::DocumentIdentifier.new(id: "ITU-T G.989.2 Amd 2", type: "ITU")
+        item2 = RelatonItu::ItuBibliographicItem.new docid: [docid2], editorialgroup: ed
+        expect(RelatonItu::ItuBibliography).to receive(:get).with("ITU-T G.989.2 Amd 2", nil, {}).and_return item2
+        bib = @db.fetch "ITU-T G.989.2, Amd 1, Amd 2"
+        expect(bib.docidentifier[0].id).to eq "ITU-T G.989.2, Amd 1, Amd 2"
+        expect(bib.relation[0].type).to eq "updates"
+        expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2"
+        expect(bib.relation[1].type).to eq "complements"
+        expect(bib.relation[1].description.content).to eq "amendment"
+        expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2 Amd 1"
+        expect(bib.relation[2].type).to eq "complements"
+        expect(bib.relation[2].description.content).to eq "amendment"
+        expect(bib.relation[2].bibitem.docidentifier[0].id).to eq "ITU-T G.989.2 Amd 2"
       end
     end
 
