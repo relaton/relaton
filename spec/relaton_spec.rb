@@ -68,18 +68,20 @@ RSpec.describe Relaton::Db do
   end
 
   context "IEC" do
+    before do
+      docid = RelatonBib::DocumentIdentifier.new(id: "IEC 60050-102:2007", type: "IEC")
+      item = RelatonIec::IecBibliographicItem.new docid: [docid]
+      expect(RelatonIec::IecBibliography).to receive(:get).with("IEC 60050-102:2007", nil, {}).and_return item
+    end
+
     it "get by reference" do
-      VCR.use_cassette "iec_60050_102_2007" do
-        bib = @db.fetch "IEC 60050-102:2007"
-        expect(bib.docidentifier[0].id).to eq "IEC 60050-102:2007"
-      end
+      bib = @db.fetch "IEC 60050-102:2007"
+      expect(bib.docidentifier[0].id).to eq "IEC 60050-102:2007"
     end
 
     it "get by URN" do
-      VCR.use_cassette "iec_60050_102_2007" do
-        bib = @db.fetch "urn:iec:std:iec:60050-102:2007:::"
-        expect(bib.docidentifier[0].id).to eq "IEC 60050-102:2007"
-      end
+      bib = @db.fetch "urn:iec:std:iec:60050-102:2007:::"
+      expect(bib.docidentifier[0].id).to eq "IEC 60050-102:2007"
     end
   end
 
@@ -414,15 +416,21 @@ RSpec.describe Relaton::Db do
 
     context "NIST" do
       it "included" do
-        VCR.use_cassette "nist_combined_included" do
-          bib = @db.fetch "NIST SP 800-38A, Add"
-          expect(bib.docidentifier[0].id).to eq "NIST SP 800-38A, Add"
-          expect(bib.relation[0].type).to eq "updates"
-          expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "SP 800-38A"
-          expect(bib.relation[1].type).to eq "complements"
-          expect(bib.relation[1].description.content).to eq "amendment"
-          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "SP 800-38A-Add"
-        end
+        # VCR.use_cassette "nist_combined_included" do
+        doci = RelatonBib::DocumentIdentifier.new(id: "SP 800-38A", type: "NIST")
+        item = RelatonNist::NistBibliographicItem.new docid: [doci]
+        expect(RelatonNist::NistBibliography).to receive(:get).with("NIST SP 800-38A", nil, {}).and_return item
+        docid1 = RelatonBib::DocumentIdentifier.new(id: "SP 800-38A-Add", type: "NIST")
+        item1 = RelatonNist::NistBibliographicItem.new docid: [docid1]
+        expect(RelatonNist::NistBibliography).to receive(:get).with("NIST SP 800-38A/Add", nil, {}).and_return item1
+        bib = @db.fetch "NIST SP 800-38A, Add"
+        expect(bib.docidentifier[0].id).to eq "NIST SP 800-38A, Add"
+        expect(bib.relation[0].type).to eq "updates"
+        expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "SP 800-38A"
+        expect(bib.relation[1].type).to eq "complements"
+        expect(bib.relation[1].description.content).to eq "amendment"
+        expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "SP 800-38A-Add"
+        # end
       end
     end
   end
