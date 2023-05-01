@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1571'
+      - '767'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"5c52c138afbf38ea9b65dea62e48d43c568b9b5195525cf830778c2c029846a2"
+      - W/"6c3d4b591f99dfd3f421ea38df7ea93c5810872095fe1c73dcf7114dde584890"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,36 +41,36 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - AF94:0BB8:82E1EC:C34C77:6418BDF8
+      - 4266:E975:16BC784:17969BF:644EBA0F
       Accept-Ranges:
       - bytes
       Date:
-      - Mon, 20 Mar 2023 20:11:37 GMT
+      - Sun, 30 Apr 2023 19:09:13 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100116-IAD
+      - cache-fra-eddf8230055-FRA
       X-Cache:
-      - MISS
+      - HIT
       X-Cache-Hits:
-      - '0'
+      - '1'
       X-Timer:
-      - S1679343097.936255,VS0,VE191
+      - S1682881753.446312,VS0,VE218
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - baac0cdd547b3db0edeca1c739043b643f24467b
+      - bdb6cb9bae5fbb866aa2e3eab254d185f0373dde
       Expires:
-      - Mon, 20 Mar 2023 20:16:37 GMT
+      - Sun, 30 Apr 2023 19:14:13 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       string: |
         ---
-        schema-version: v1.2.1
+        schema-version: v1.2.3
         id: TR00.01U-UMTS-3.0.0
         title:
         - content: Work programme for the standardization of Universal Mobile Telecommunications
@@ -147,5 +147,5 @@ http_interactions:
           freeze_stage3_meeting: SMG-28
           close_meeting: SP-28
           project_end: '1999-02-12'
-  recorded_at: Mon, 20 Mar 2023 20:11:37 GMT
+  recorded_at: Sun, 30 Apr 2023 19:09:13 GMT
 recorded_with: VCR 6.1.0

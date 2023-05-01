@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-ecma/master/data/ECMA-6.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ecma/master/index.zip
     body:
       encoding: US-ASCII
       string: ''
@@ -21,15 +21,15 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '4103'
+      - '5077'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
       - default-src 'none'; style-src 'unsafe-inline'; sandbox
       Content-Type:
-      - text/plain; charset=utf-8
+      - application/zip
       Etag:
-      - W/"91b35bddfc22a574c81f6e591df990c619dd99793604d475841e543595e86814"
+      - W/"721995b3f478079c5307966c130bad41f012f184f58b4a95be373fb6ac5d5e21"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -39,36 +39,105 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 8DCA:41E1:7CE060:A0E83D:6418D6B2
+      - F9DC:286F:1610EB1:16E932F:644EB407
       Accept-Ranges:
       - bytes
       Date:
-      - Mon, 20 Mar 2023 21:57:06 GMT
+      - Sun, 30 Apr 2023 19:09:06 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200128-IAD
+      - cache-fra-eddf8230042-FRA
       X-Cache:
-      - MISS
+      - HIT
       X-Cache-Hits:
-      - '0'
+      - '1'
       X-Timer:
-      - S1679349426.341331,VS0,VE115
+      - S1682881746.163882,VS0,VE161
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - f49b64609e97a74421fe8489fad1c1813f10b7eb
+      - ecf78b08ae776585c65a083986e7f341bd334c61
       Expires:
-      - Mon, 20 Mar 2023 22:02:06 GMT
+      - Sun, 30 Apr 2023 19:14:06 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        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
+  recorded_at: Sun, 30 Apr 2023 19:09:06 GMT
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ecma/master/data/ECMA-6-6.yaml
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1328'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"1df60bc2b5391acf92155f07d739345b677aeaf7e2a065831635769964e3cd26"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - F61C:9EF7:15ED0F0:16C725A:644EB9DA
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Sun, 30 Apr 2023 19:09:06 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-fra-eddf8230111-FRA
+      X-Cache:
+      - HIT
+      X-Cache-Hits:
+      - '1'
+      X-Timer:
+      - S1682881747.546784,VS0,VE158
+      Vary:
+      - Authorization,Accept-Encoding,Origin
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Fastly-Request-Id:
+      - bca521e680022b578683f002edccfb1e4c008300
+      Expires:
+      - Sun, 30 Apr 2023 19:14:06 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       string: |
         ---
-        schema-version: v1.2.1
+        schema-version: v1.2.3
         id: ECMA-6
         title:
         - content: 7-bit coded character set
@@ -81,7 +150,7 @@ http_interactions:
         - content: https://www.ecma-international.org/publications-and-standards/standards/ecma-6/
           type: src
         - content: https://www.ecma-international.org/wp-content/uploads/ECMA-6_6th_edition_december_1991.pdf
-          type: doi
+          type: pdf
         type: standard
         docid:
         - id: ECMA-6
@@ -124,8 +193,12 @@ http_interactions:
             - id: ECMA-6
               type: ECMA
               primary: true
+            date:
+            - type: published
+              value: 1965-04
             edition:
               content: '1'
+            revdate: 1965-04
             formattedref:
               content: ECMA-6
               language:
@@ -140,8 +213,12 @@ http_interactions:
             - id: ECMA-6
               type: ECMA
               primary: true
+            date:
+            - type: published
+              value: 1987-06
             edition:
               content: '2'
+            revdate: 1987-06
             formattedref:
               content: ECMA-6
               language:
@@ -156,8 +233,12 @@ http_interactions:
             - id: ECMA-6
               type: ECMA
               primary: true
+            date:
+            - type: published
+              value: 1970-07
             edition:
               content: '3'
+            revdate: 1970-07
             formattedref:
               content: ECMA-6
               language:
@@ -170,13 +251,17 @@ http_interactions:
             id: ECMA-6
             link:
             - content: https://www.ecma-international.org/wp-content/uploads/ECMA-6_4th_edition_august_1973.pdf
-              type: doi
+              type: pdf
             docid:
             - id: ECMA-6
               type: ECMA
               primary: true
+            date:
+            - type: published
+              value: 1973-08
             edition:
               content: '4'
+            revdate: 1973-08
             formattedref:
               content: ECMA-6
               language:
@@ -189,13 +274,17 @@ http_interactions:
             id: ECMA-6
             link:
             - content: https://www.ecma-international.org/wp-content/uploads/ECMA-6_5th_edition_march_1985.pdf
-              type: doi
+              type: pdf
             docid:
             - id: ECMA-6
               type: ECMA
               primary: true
+            date:
+            - type: published
+              value: 1985-03
             edition:
               content: '5'
+            revdate: 1985-03
             formattedref:
               content: ECMA-6
               language:
@@ -206,5 +295,7 @@ http_interactions:
         place:
         - Geneva
         doctype: document
-  recorded_at: Mon, 20 Mar 2023 21:57:06 GMT
+        ext:
+          schema-version: v1.0.0
+  recorded_at: Sun, 30 Apr 2023 19:09:06 GMT
 recorded_with: VCR 6.1.0

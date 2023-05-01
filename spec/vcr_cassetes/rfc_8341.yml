@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '2591'
+      - '880'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"acf92650e0a2c5c1726e00bc47be1657486cae4c5219d763d9c802b4d82caf7c"
+      - W/"883085e0ae0cf14f32fec6d67d88b878780d4f4746b5ff5e5d8f1ca56f942901"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,36 +41,36 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - B576:52D9:17E419:2701E7:64165909
+      - 7486:A31B:2C09F9:2D4DE2:644EB9D7
       Accept-Ranges:
       - bytes
       Date:
-      - Sun, 19 Mar 2023 00:36:25 GMT
+      - Sun, 30 Apr 2023 19:09:03 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200144-IAD
+      - cache-fra-eddf8230097-FRA
       X-Cache:
-      - MISS
+      - HIT
       X-Cache-Hits:
-      - '0'
+      - '1'
       X-Timer:
-      - S1679186185.135029,VS0,VE99
+      - S1682881743.882108,VS0,VE144
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
       - "*"
       X-Fastly-Request-Id:
-      - b615220f44b90e5f614237f8d0d5534f0471b0de
+      - 76b45788f5b20c6123daa92a7335942a7c80dcbb
       Expires:
-      - Sun, 19 Mar 2023 00:41:25 GMT
+      - Sun, 30 Apr 2023 19:14:03 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       string: |
         ---
-        schema-version: v1.2.1
+        schema-version: v1.2.3
         id: RFC8341
         title:
         - content: Network Configuration Access Control Model
@@ -198,5 +198,5 @@ http_interactions:
         - name: netconf
         ext:
           schema-version: v1.0.0
-  recorded_at: Sun, 19 Mar 2023 00:36:25 GMT
+  recorded_at: Sun, 30 Apr 2023 19:09:02 GMT
 recorded_with: VCR 6.1.0
