@@ -166,10 +166,11 @@ RSpec.describe Relaton::Db do
 
   it "doesn't use cache" do
     db = Relaton::Db.new nil, nil
-    VCR.use_cassette "iso_19115_1" do
-      bib = db.fetch("ISO 19115-1", nil, {})
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-    end
+    docid = RelatonBib::DocumentIdentifier.new id: "ISO 19115-1", type: "ISO"
+    item = RelatonIsoBib::IsoBibliographicItem.new docid: [docid]
+    expect(RelatonIso::IsoBibliography).to receive(:get).with("ISO 19115-1", nil, {}).and_return item
+    bib = db.fetch("ISO 19115-1", nil, {})
+    expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
   end
 
   it "fetch when no local db" do

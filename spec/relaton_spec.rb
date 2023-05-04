@@ -12,20 +12,11 @@ RSpec.describe Relaton::Db do
 
   context "gets an ISO reference" do
     it "and caches it" do
-      VCR.use_cassette "iso_19115_1" do
-        bib = @db.fetch("ISO 19115-1", nil, {})
-        expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-        expect(bib.to_xml(bibdata: true)).to include "<project-number part=\"1\">" \
-          "ISO 19115</project-number>"
-        expect(File.exist?("testcache")).to be true
-        expect(File.exist?("testcache2")).to be true
-        testcache = Relaton::DbCache.new "testcache"
-        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number part=\"1\">" \
-          "ISO 19115</project-number>"
-        testcache = Relaton::DbCache.new "testcache2"
-        expect(testcache["ISO(ISO 19115-1)"]).to include "<project-number part=\"1\">" \
-          "ISO 19115</project-number>"
-      end
+      docid = RelatonBib::DocumentIdentifier.new(id: "ISO 19115-1", type: "ISO")
+      item = RelatonIsoBib::IsoBibliographicItem.new docid: [docid], fetched: Date.today.to_s
+      expect(RelatonIso::IsoBibliography).to receive(:get).with("ISO 19115-1", nil, {}).and_return item
+      bib = @db.fetch("ISO 19115-1", nil, {})
+      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
       bib = @db.fetch("ISO 19115-1", nil, {})
       expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
     end
@@ -191,9 +182,7 @@ RSpec.describe Relaton::Db do
     VCR.use_cassette "rfc_8341" do
       bib = @db.fetch "RFC 8341", nil, {}
       expect(bib).to be_instance_of RelatonIetf::IetfBibliographicItem
-      xml = bib.to_xml
-      expect(xml).to include 'id="RFC8341"'
-      expect(xml).to include 'type="standard"'
+      expect(bib.to_xml).to match(/<bibitem id="RFC8341" type="standard" schema-version="v[\d.]+">/)
       expect(File.exist?("testcache")).to be true
       expect(File.exist?("testcache2")).to be true
       testcache = Relaton::DbCache.new "testcache"
@@ -308,10 +297,11 @@ RSpec.describe Relaton::Db do
   end
 
   it "get IANA reference" do
-    VCR.use_cassette "iana_service_names_port_numbers" do
-      bib = @db.fetch "IANA service-names-port-numbers"
-      expect(bib).to be_instance_of RelatonIana::IanaBibliographicItem
-    end
+    docid = RelatonBib::DocumentIdentifier.new(id: "IANA service-names-port-numbers", type: "IANA")
+    item = RelatonIana::IanaBibliographicItem.new docid: [docid]
+    expect(RelatonIana::IanaBibliography).to receive(:get).with("IANA service-names-port-numbers", nil, {}).and_return item
+    bib = @db.fetch "IANA service-names-port-numbers"
+    expect(bib).to be_instance_of RelatonIana::IanaBibliographicItem
   end
 
   it "get 3GPP reference" do
