@@ -8,7 +8,7 @@ http_interactions:
       base64_string: ''
     headers:
       User-Agent:
-      - Faraday v1.10.3
+      - Faraday v2.7.4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -29,7 +29,7 @@ http_interactions:
       Server:
       - AmazonS3
       Date:
-      - Thu, 04 May 2023 21:35:15 GMT
+      - Fri, 12 May 2023 19:17:02 GMT
       Etag:
       - '"8afffdb652d26176976bfe87c344ccbf"'
       Vary:
@@ -37,11 +37,11 @@ http_interactions:
       X-Cache:
       - RefreshHit from cloudfront
       Via:
-      - 1.1 ee45c02ae251d748ae86477cdb2ad6be.cloudfront.net (CloudFront)
+      - 1.1 2b6c303afc18a8b1bc000c5162c97882.cloudfront.net (CloudFront)
       X-Amz-Cf-Pop:
       - ATL58-P3
       X-Amz-Cf-Id:
-      - elUDKfSErJG5zah8YaG43j3GosHQ8AtKnMy6_lVhQn_EWvRJZ6FZsg==
+      - NcTdxL657dJ2TnlEPM8pAFAX9Otj-NSvB0UF45YRuo4uT9Pd5Z6uTQ==
     body:
       encoding: UTF-8
       base64_string: |
@@ -4016,7 +4016,7 @@ http_interactions:
         IHN0YW5kYXJkCiAgICB1cmk6IAogICAgeG1sOiAKICAgIHBkZjogCiAgICBk
         b2M6IAogICAgaHRtbDogCiAgICByeGw6IAogICAgdHh0OiAKICBkb2N0eXBl
         OiAKICBhdXRob3I6IENhbENvbm5lY3QK
-  recorded_at: Thu, 04 May 2023 21:35:14 GMT
+  recorded_at: Fri, 12 May 2023 19:17:01 GMT
 - request:
     method: get
     uri: https://standards.calconnect.org/csd/cc-10005.rxl
@@ -4025,7 +4025,7 @@ http_interactions:
       base64_string: ''
     headers:
       User-Agent:
-      - Faraday v1.10.3
+      - Faraday v2.7.4
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -4041,24 +4041,22 @@ http_interactions:
       - '924'
       Connection:
       - keep-alive
+      Date:
+      - Fri, 12 May 2023 19:17:03 GMT
       Last-Modified:
       - Tue, 23 Jun 2020 03:53:51 GMT
-      Server:
-      - AmazonS3
-      Date:
-      - Thu, 04 May 2023 21:35:16 GMT
       Etag:
       - '"a11e39b56e56179e8559a626fa0c798f"'
-      Vary:
-      - Accept-Encoding
+      Server:
+      - AmazonS3
       X-Cache:
-      - RefreshHit from cloudfront
+      - Miss from cloudfront
       Via:
-      - 1.1 e1b2bf56a84c50d6dc8289c956d4b596.cloudfront.net (CloudFront)
+      - 1.1 201146668df9ffb058d547b81364e0ba.cloudfront.net (CloudFront)
       X-Amz-Cf-Pop:
       - ATL58-P3
       X-Amz-Cf-Id:
-      - RGLBj3QLYh6xksaia_2j0ciOggaPyD4kunfnCus1iV8LDFJdT6l1iw==
+      - LXmKo8lMU46OvHuJD-7J9yDoyDD0XNm5JilN98etFF5gzszSjbaz1Q==
     body:
       encoding: UTF-8
       base64_string: |
@@ -4083,5 +4081,5 @@ http_interactions:
         PC9kb2N0eXBlPgo8ZWRpdG9yaWFsZ3JvdXA+Cjx0ZWNobmljYWwtY29tbWl0
         dGVlPlBVQkxJU0g8L3RlY2huaWNhbC1jb21taXR0ZWU+CjwvZWRpdG9yaWFs
         Z3JvdXA+CjwvZXh0Pgo8L2JpYmRhdGE+
-  recorded_at: Thu, 04 May 2023 21:35:15 GMT
+  recorded_at: Fri, 12 May 2023 19:17:02 GMT
 recorded_with: VCR 6.1.0

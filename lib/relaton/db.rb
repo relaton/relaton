@@ -27,6 +27,9 @@ module Relaton
     def clear
       @db&.clear
       @local_db&.clear
+      @registry.processors.each_value do |p|
+        p.remove_index_file if p.respond_to? :remove_index_file
+      end
     end
 
     ##

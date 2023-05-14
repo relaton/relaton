@@ -283,10 +283,11 @@ RSpec.describe Relaton::Db do
   end
 
   it "get BSI reference" do
-    VCR.use_cassette "bsi_bs_en_iso_8848" do
-      bib = @db.fetch "BSI BS EN ISO 8848"
-      expect(bib).to be_instance_of RelatonBsi::BsiBibliographicItem
-    end
+    docid = RelatonBib::DocumentIdentifier.new(id: "BSI BS EN ISO 8848", type: "BSI")
+    item = RelatonBsi::BsiBibliographicItem.new docid: [docid]
+    expect(RelatonBsi::BsiBibliography).to receive(:get).with("BSI BS EN ISO 8848", nil, {}).and_return item
+    bib = @db.fetch "BSI BS EN ISO 8848"
+    expect(bib).to be_instance_of RelatonBsi::BsiBibliographicItem
   end
 
   it "get CEN reference" do
