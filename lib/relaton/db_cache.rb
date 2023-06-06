@@ -162,7 +162,7 @@ module Relaton
     def filename(key)
       prefcode = key.downcase.match(/^(?<prefix>[^(]+)\((?<code>[^)]+)/)
       fn = if prefcode
-             "#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[-:\s\/()]/, '_').squeeze('_')}"
+             "#{prefcode[:prefix]}/#{prefcode[:code].gsub(/[:\s\/()]/, '_').squeeze('_')}"
            else
              key.gsub(/[-:\s]/, "_")
            end

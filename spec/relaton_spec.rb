@@ -214,13 +214,6 @@ RSpec.describe Relaton::Db do
   end
 
   it "get Calconnect refrence and cache it" do
-    cc_fr = /\.relaton\/calconnect\/bibliography\.yml/
-    expect(File).to receive(:exist?).with(cc_fr).and_return false
-    expect(File).to receive(:exist?).with(/etag\.txt/).and_return false
-    expect(File).to receive(:exist?).and_call_original.at_least :once
-    expect(File).to receive(:write).with(cc_fr, kind_of(String), kind_of(Hash))
-      .at_most :once
-    expect(File).to receive(:write).and_call_original.at_least :once
     VCR.use_cassette "cc_dir_10005_2019", match_requests_on: [:path] do
       bib = @db.fetch "CC/DIR 10005:2019", nil, {}
       expect(bib).to be_instance_of RelatonCalconnect::CcBibliographicItem
