@@ -8,9 +8,9 @@ http_interactions:
       base64_string: ''
     headers:
       User-Agent:
-      - Faraday/v2.7.5 Serrano/v1.4 (mailto:open.source@ribose.com)
+      - Faraday/v2.7.10 Serrano/v1.4 (mailto:open.source@ribose.com)
       X-User-Agent:
-      - Faraday/v2.7.5 Serrano/v1.4 (mailto:open.source@ribose.com)
+      - Faraday/v2.7.10 Serrano/v1.4 (mailto:open.source@ribose.com)
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -21,16 +21,16 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 06 Jun 2023 15:43:54 GMT
+      - Tue, 11 Jul 2023 02:00:09 GMT
       Content-Type:
       - application/json
       Content-Length:
       - '2196'
       Set-Cookie:
-      - AWSALB=qHqCbNOr4vt8D+iyteGHkhs3+55ZSl3um6REraAWHOFmmSo0mLKRKUGQ1THHjViPh1ARaVKQh8ISJony4vl9NTHv010+N90NbuTeyUIkvm2TtMkIyg6VKBI6Vr7H;
-        Expires=Tue, 13 Jun 2023 15:43:54 GMT; Path=/
-      - AWSALBCORS=qHqCbNOr4vt8D+iyteGHkhs3+55ZSl3um6REraAWHOFmmSo0mLKRKUGQ1THHjViPh1ARaVKQh8ISJony4vl9NTHv010+N90NbuTeyUIkvm2TtMkIyg6VKBI6Vr7H;
-        Expires=Tue, 13 Jun 2023 15:43:54 GMT; Path=/; SameSite=None
+      - AWSALB=hlCkWP7qeagkXN0UNb08ECZA47mIzVNA+u5ZRKP7yr16PCY3gWRRSSGa/HR+O+NDUjxg9gGimTYicdt6H1fJsoXenvoi8P1BLN7xYfIA/R2eTN+YA+bHfXnOYpGE;
+        Expires=Tue, 18 Jul 2023 02:00:09 GMT; Path=/
+      - AWSALBCORS=hlCkWP7qeagkXN0UNb08ECZA47mIzVNA+u5ZRKP7yr16PCY3gWRRSSGa/HR+O+NDUjxg9gGimTYicdt6H1fJsoXenvoi8P1BLN7xYfIA/R2eTN+YA+bHfXnOYpGE;
+        Expires=Tue, 18 Jul 2023 02:00:09 GMT; Path=/; SameSite=None
       Access-Control-Expose-Headers:
       - Link
       Access-Control-Allow-Headers:
@@ -108,5 +108,5 @@ http_interactions:
         LCJyZWZlcmVuY2VzLWNvdW50IjowLCJVUkwiOiJodHRwOlwvXC9keC5kb2ku
         b3JnXC8xMC42MDI4XC9uaXN0LmlyLjgyNDUiLCJyZWxhdGlvbiI6e30sInB1
         Ymxpc2hlZCI6eyJkYXRlLXBhcnRzIjpbWzIwMTksM11dfX19
-  recorded_at: Tue, 06 Jun 2023 15:43:54 GMT
-recorded_with: VCR 6.1.0
+  recorded_at: Tue, 11 Jul 2023 02:00:09 GMT
+recorded_with: VCR 6.2.0
