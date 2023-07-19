@@ -327,6 +327,24 @@ RSpec.describe Relaton::Db do
     expect(bib).to be_instance_of RelatonBib::BibliographicItem
   end
 
+  it "get JIS reference" do
+    docid = RelatonBib::DocumentIdentifier.new(id: "JIS X 0001", type: "JIS")
+    item = RelatonJis::BibliographicItem.new docid: [docid]
+    expect(RelatonJis::Bibliography).to receive(:get).with("JIS X 0001", nil, {}).and_return item
+    bib = @db.fetch "JIS X 0001"
+    expect(bib).to be_instance_of RelatonJis::BibliographicItem
+    expect(bib.docidentifier.first.id).to eq "JIS X 0001"
+  end
+
+  it "get XSF reference" do
+    docid = RelatonBib::DocumentIdentifier.new(id: "XEP 0001", type: "XSF")
+    item = RelatonXsf::BibliographicItem.new docid: [docid]
+    expect(RelatonXsf::Bibliography).to receive(:get).with("XEP 0001", nil, {}).and_return item
+    bib = @db.fetch "XEP 0001"
+    expect(bib).to be_instance_of RelatonXsf::BibliographicItem
+    expect(bib.docidentifier.first.id).to eq "XEP 0001"
+  end
+
   context "get combined documents" do
     context "ISO" do
       it "included" do

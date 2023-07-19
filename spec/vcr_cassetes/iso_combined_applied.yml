@@ -33,7 +33,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Tue, 11 Jul 2023 02:00:27 GMT
+      - Wed, 19 Jul 2023 01:30:52 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Transfer-Encoding:
@@ -374,9 +374,9 @@ http_interactions:
         TyAxOTExNS0xIiwicGFyYW1zIjoicXVlcnk9SVNPKzE5MTE1LTEmaGl0c1Bl
         clBhZ2U9MTAwJmZpbHRlcnM9Y2F0ZWdvcnklM0FzdGFuZGFyZCIsInByb2Nl
         c3NpbmdUaW1lTVMiOjEsInByb2Nlc3NpbmdUaW1pbmdzTVMiOnsicmVxdWVz
-        dCI6eyJyb3VuZFRyaXAiOjExNX0sInRvdGFsIjoxfSwic2VydmVyVGltZU1T
+        dCI6eyJyb3VuZFRyaXAiOjEzMX0sInRvdGFsIjoxfSwic2VydmVyVGltZU1T
         IjoxfQ==
-  recorded_at: Tue, 11 Jul 2023 02:00:27 GMT
+  recorded_at: Wed, 19 Jul 2023 01:30:52 GMT
 - request:
     method: get
     uri: https://www.iso.org/contents/data/standard/05/37/53798.html
@@ -404,21 +404,21 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=713576842.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=730354058.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=B5C7A2A6F98D75897782F7D502F059EE; Path=/; Secure; HttpOnly
+      - JSESSIONID=801D85ED96614972EE63300E60CD030E; Path=/; Secure; HttpOnly
       Location:
       - "/standard/53798.html"
       Content-Length:
       - '0'
       Date:
-      - Tue, 11 Jul 2023 02:00:27 GMT
+      - Wed, 19 Jul 2023 01:30:53 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
       encoding: UTF-8
       base64_string: ''
-  recorded_at: Tue, 11 Jul 2023 02:00:28 GMT
+  recorded_at: Wed, 19 Jul 2023 01:30:53 GMT
 - request:
     method: get
     uri: https://www.iso.org/standard/53798.html
@@ -446,9 +446,9 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=713576842.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=747131274.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=907FC8DDE2953DFFD31832DE7A0286BE; Path=/; Secure; HttpOnly
+      - JSESSIONID=C706D6D8D5C66A0891536EBED247BCCA; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -456,7 +456,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Tue, 11 Jul 2023 02:00:27 GMT
+      - Wed, 19 Jul 2023 01:30:53 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -1535,60 +1535,60 @@ http_interactions:
         aXY+CiAgICAgICAgPGRpdiBjbGFzcz0iZm9vdGVyLXNvY2lhbCBjbGVhcmZp
         eCI+CiAgICAgICAgICA8dWwgaXRlbXNjb3BlIGl0ZW10eXBlPSJodHRwczov
         L3NjaGVtYS5vcmcvT3JnYW5pemF0aW9uIj4KICAgICAgICAgICAgPGxpbmsg
-        aXRlbXByb3A9InVybCIgaHJlZj0iaHR0cHM6Ly93d3cuaXNvLm9yZy8iPgog
-        ICAgICAgICAgICA8bGk+PGEgaXRlbXByb3A9InNhbWVBcyIgdGFyZ2V0PSJf
-        YmxhbmsiIHJlbD0ibm9vcGVuZXIiIGhyZWY9Imh0dHBzOi8vd3d3Lmxpbmtl
-        ZGluLmNvbS9jb21wYW55L2lzb3N0YW5kYXJkcyIgdGl0bGU9IkxpbmtlZGlu
-        Ij48aSBjbGFzcz0iYmktbGlua2VkaW4iPjwvaT48L2E+PC9saT4KICAgICAg
-        ICAgICAgPGxpPjxhIGl0ZW1wcm9wPSJzYW1lQXMiIHRhcmdldD0iX2JsYW5r
-        IiByZWw9Im5vb3BlbmVyIiBocmVmPSJodHRwczovL3R3aXR0ZXIuY29tL2lz
-        b3N0YW5kYXJkcyIgdGl0bGU9IlR3aXR0ZXIiPjxpIGNsYXNzPSJiaS10d2l0
-        dGVyIj48L2k+PC9hPjwvbGk+CiAgICAgICAgICAgIDxsaT48YSBpdGVtcHJv
-        cD0ic2FtZUFzIiB0YXJnZXQ9Il9ibGFuayIgcmVsPSJub29wZW5lciIgaHJl
-        Zj0iaHR0cHM6Ly93d3cuZmFjZWJvb2suY29tL2lzb3N0YW5kYXJkcyIgdGl0
-        bGU9IkZhY2Vib29rIj48aSBjbGFzcz0iYmktZmFjZWJvb2siPjwvaT48L2E+
-        PC9saT4KICAgICAgICAgICAgPGxpPjxhIGl0ZW1wcm9wPSJzYW1lQXMiIHRh
-        cmdldD0iX2JsYW5rIiByZWw9Im5vb3BlbmVyIiBocmVmPSJodHRwczovL3d3
-        dy55b3V0dWJlLmNvbS91c2VyL1BsYW5ldElTTyIgdGl0bGU9IllvdVR1YmUi
-        PjxpIGNsYXNzPSJiaS15b3V0dWJlIj48L2k+PC9hPjwvbGk+CiAgICAgICAg
-        ICAgIDxsaT48YSBpdGVtcHJvcD0ic2FtZUFzIiB0YXJnZXQ9Il9ibGFuayIg
-        cmVsPSJub29wZW5lciIgaHJlZj0iaHR0cHM6Ly93d3cuaW5zdGFncmFtLmNv
-        bS9pc29zdGFuZGFyZHMiIHRpdGxlPSJJbnN0YWdyYW0iPjxpIGNsYXNzPSJi
-        aS1pbnN0YWdyYW0iPjwvaT48L2E+PC9saT4KICAgICAgICAgIDwvdWw+CiAg
-        ICAgICAgPC9kaXY+CiAgICAgICAgPHAgY2xhc3M9ImRpc3BsYXktNSBvcGFj
-        aXR5LTEwMCI+TWFraW5nIGxpdmVzIDxzdHJvbmc+PGVtPmVhc2llcjwvZW0+
-        PC9zdHJvbmc+LCA8c3Ryb25nPjxlbT5zYWZlcjwvZW0+PC9zdHJvbmc+IGFu
-        ZCA8c3Ryb25nPjxlbT5iZXR0ZXI8L2VtPjwvc3Ryb25nPi48L3A+CiAgICAg
-        ICAgPGRpdiBjbGFzcz0icm93Ij4KICAgICAgICAgIDxkaXYgY2xhc3M9ImNv
-        bC1tZC04IGNvbC1tZC1vZmZzZXQtMiBwdWxsLWxlZnQiPgogICAgICAgICAg
-        ICA8cCBjbGFzcz0idGV4dC14cyI+V2UgYXJlIGNvbW1pdHRlZCB0byBlbnN1
-        cmluZyB0aGF0IG91ciB3ZWJzaXRlIGlzIGFjY2Vzc2libGUgdG8gZXZlcnlv
-        bmUuIElmIHlvdSBoYXZlIGFueSBxdWVzdGlvbnMgb3Igc3VnZ2VzdGlvbnMg
-        cmVnYXJkaW5nIHRoZSBhY2Nlc3NpYmlsaXR5IG9mIHRoaXMgc2l0ZSwgcGxl
-        YXNlIDxhIGhyZWY9Im1haWx0bzp3ZWJtYXN0ZXJAaXNvLm9yZz9zdWJqZWN0
-        PUFjY2Vzc2liaWxpdHkiIHN0eWxlPSJ3aGl0ZS1zcGFjZTogbm93cmFwIj5j
-        b250YWN0IHVzPC9hPi48L3A+CiAgICAgICAgICAgIDxwIGNsYXNzPSJ0ZXh0
-        LXNtIj48YSBocmVmPSIjY29weXJpZ2h0IiB0YXJnZXQ9Il9zZWxmIiBkYXRh
-        LWJzLXRvZ2dsZT0iY29sbGFwc2UiIGFyaWEtZXhwYW5kZWQ9ImZhbHNlIiBh
-        cmlhLWNvbnRyb2xzPSJjb3B5cmlnaHQiPsKpIEFsbCBSaWdodHMgUmVzZXJ2
-        ZWQ8L2E+IDxzcGFuIGlkPSJjb3B5cmlnaHQiIGNsYXNzPSJjb2xsYXBzZSI+
-        QWxsIElTTyBwdWJsaWNhdGlvbnMgYW5kIG1hdGVyaWFscyBhcmUgcHJvdGVj
-        dGVkIGJ5IGNvcHlyaWdodCBhbmQgYXJlIHN1YmplY3QgdG8gdGhlIHVzZXLi
-        gJlzIGFjY2VwdGFuY2Ugb2YgSVNP4oCZcyBjb25kaXRpb25zIG9mIGNvcHly
-        aWdodC4gQW55IHVzZSwgaW5jbHVkaW5nIHJlcHJvZHVjdGlvbiByZXF1aXJl
-        cyBvdXIgd3JpdHRlbiBwZXJtaXNzaW9uLiBBbGwgY29weXJpZ2h0IHJlcXVl
-        c3RzIHNob3VsZCBiZSBhZGRyZXNzZWQgdG8gPGEgaHJlZj0ibWFpbHRvOmNv
-        cHlyaWdodEBpc28ub3JnIj5jb3B5cmlnaHRAaXNvLm9yZzwvYT4uPC9zcGFu
-        PjwvcD4KICAgICAgICAgIDwvZGl2PgogICAgICAgIDwvZGl2PgogICAgICA8
-        L2Rpdj4KICAgICAgPGRpdiBjbGFzcz0idG9wYmFyIj4KICAgICAgICA8ZGl2
-        IGNsYXNzPSJ0b3BiYXItY29udGVudCI+CiAgICAgICAgICA8YSBjbGFzcz0i
-        bG9nbyBpc29sb2dvIGxvZ28teHMgdGhlbWUtcmVkIHBvd2VyZWRieSBwYWdl
-        LXNjcm9sbCBsb2dvLXNjcm9sbFRvcCIgaHJlZj0iI3BhZ2UtdG9wIiB0aXRs
-        ZT0iU2Nyb2xsIHRvIHRvcCI+PC9hPgogICAgICAgICAgPGRpdiBjbGFzcz0i
-        cG93ZXJlZGJ5LXR4dCI+UG93ZXJlZCBieTwvZGl2PgogICAgICAgIDwvZGl2
-        PgogICAgICA8L2Rpdj4KICAgIDwvZm9vdGVyPgogICAgPC9ib2R5Pgo8L2h0
-        bWw+
-  recorded_at: Tue, 11 Jul 2023 02:00:29 GMT
+        aXRlbXByb3A9InVybCIgaHJlZj0iaHR0cHM6Ly93d3cuaXNvLm9yZyI+CiAg
+        ICAgICAgICAgIDxsaT48YSBpdGVtcHJvcD0ic2FtZUFzIiB0YXJnZXQ9Il9i
+        bGFuayIgcmVsPSJub29wZW5lciIgaHJlZj0iaHR0cHM6Ly93d3cubGlua2Vk
+        aW4uY29tL2NvbXBhbnkvaXNvc3RhbmRhcmRzIiB0aXRsZT0iTGlua2VkaW4i
+        PjxpIGNsYXNzPSJiaS1saW5rZWRpbiI+PC9pPjwvYT48L2xpPgogICAgICAg
+        ICAgICA8bGk+PGEgaXRlbXByb3A9InNhbWVBcyIgdGFyZ2V0PSJfYmxhbmsi
+        IHJlbD0ibm9vcGVuZXIiIGhyZWY9Imh0dHBzOi8vdHdpdHRlci5jb20vaXNv
+        c3RhbmRhcmRzIiB0aXRsZT0iVHdpdHRlciI+PGkgY2xhc3M9ImJpLXR3aXR0
+        ZXIiPjwvaT48L2E+PC9saT4KICAgICAgICAgICAgPGxpPjxhIGl0ZW1wcm9w
+        PSJzYW1lQXMiIHRhcmdldD0iX2JsYW5rIiByZWw9Im5vb3BlbmVyIiBocmVm
+        PSJodHRwczovL3d3dy5mYWNlYm9vay5jb20vaXNvc3RhbmRhcmRzIiB0aXRs
+        ZT0iRmFjZWJvb2siPjxpIGNsYXNzPSJiaS1mYWNlYm9vayI+PC9pPjwvYT48
+        L2xpPgogICAgICAgICAgICA8bGk+PGEgaXRlbXByb3A9InNhbWVBcyIgdGFy
+        Z2V0PSJfYmxhbmsiIHJlbD0ibm9vcGVuZXIiIGhyZWY9Imh0dHBzOi8vd3d3
+        LnlvdXR1YmUuY29tL3VzZXIvUGxhbmV0SVNPIiB0aXRsZT0iWW91VHViZSI+
+        PGkgY2xhc3M9ImJpLXlvdXR1YmUiPjwvaT48L2E+PC9saT4KICAgICAgICAg
+        ICAgPGxpPjxhIGl0ZW1wcm9wPSJzYW1lQXMiIHRhcmdldD0iX2JsYW5rIiBy
+        ZWw9Im5vb3BlbmVyIiBocmVmPSJodHRwczovL3d3dy5pbnN0YWdyYW0uY29t
+        L2lzb3N0YW5kYXJkcyIgdGl0bGU9Ikluc3RhZ3JhbSI+PGkgY2xhc3M9ImJp
+        LWluc3RhZ3JhbSI+PC9pPjwvYT48L2xpPgogICAgICAgICAgPC91bD4KICAg
+        ICAgICA8L2Rpdj4KICAgICAgICA8cCBjbGFzcz0iZGlzcGxheS01IG9wYWNp
+        dHktMTAwIj5NYWtpbmcgbGl2ZXMgPHN0cm9uZz48ZW0+ZWFzaWVyPC9lbT48
+        L3N0cm9uZz4sIDxzdHJvbmc+PGVtPnNhZmVyPC9lbT48L3N0cm9uZz4gYW5k
+        IDxzdHJvbmc+PGVtPmJldHRlcjwvZW0+PC9zdHJvbmc+LjwvcD4KICAgICAg
+        ICA8ZGl2IGNsYXNzPSJyb3ciPgogICAgICAgICAgPGRpdiBjbGFzcz0iY29s
+        LW1kLTggY29sLW1kLW9mZnNldC0yIHB1bGwtbGVmdCI+CiAgICAgICAgICAg
+        IDxwIGNsYXNzPSJ0ZXh0LXhzIj5XZSBhcmUgY29tbWl0dGVkIHRvIGVuc3Vy
+        aW5nIHRoYXQgb3VyIHdlYnNpdGUgaXMgYWNjZXNzaWJsZSB0byBldmVyeW9u
+        ZS4gSWYgeW91IGhhdmUgYW55IHF1ZXN0aW9ucyBvciBzdWdnZXN0aW9ucyBy
+        ZWdhcmRpbmcgdGhlIGFjY2Vzc2liaWxpdHkgb2YgdGhpcyBzaXRlLCBwbGVh
+        c2UgPGEgaHJlZj0ibWFpbHRvOndlYm1hc3RlckBpc28ub3JnP3N1YmplY3Q9
+        QWNjZXNzaWJpbGl0eSIgc3R5bGU9IndoaXRlLXNwYWNlOiBub3dyYXAiPmNv
+        bnRhY3QgdXM8L2E+LjwvcD4KICAgICAgICAgICAgPHAgY2xhc3M9InRleHQt
+        c20iPjxhIGhyZWY9IiNjb3B5cmlnaHQiIHRhcmdldD0iX3NlbGYiIGRhdGEt
+        YnMtdG9nZ2xlPSJjb2xsYXBzZSIgYXJpYS1leHBhbmRlZD0iZmFsc2UiIGFy
+        aWEtY29udHJvbHM9ImNvcHlyaWdodCI+wqkgQWxsIFJpZ2h0cyBSZXNlcnZl
+        ZDwvYT4gPHNwYW4gaWQ9ImNvcHlyaWdodCIgY2xhc3M9ImNvbGxhcHNlIj5B
+        bGwgSVNPIHB1YmxpY2F0aW9ucyBhbmQgbWF0ZXJpYWxzIGFyZSBwcm90ZWN0
+        ZWQgYnkgY29weXJpZ2h0IGFuZCBhcmUgc3ViamVjdCB0byB0aGUgdXNlcuKA
+        mXMgYWNjZXB0YW5jZSBvZiBJU0/igJlzIGNvbmRpdGlvbnMgb2YgY29weXJp
+        Z2h0LiBBbnkgdXNlLCBpbmNsdWRpbmcgcmVwcm9kdWN0aW9uIHJlcXVpcmVz
+        IG91ciB3cml0dGVuIHBlcm1pc3Npb24uIEFsbCBjb3B5cmlnaHQgcmVxdWVz
+        dHMgc2hvdWxkIGJlIGFkZHJlc3NlZCB0byA8YSBocmVmPSJtYWlsdG86Y29w
+        eXJpZ2h0QGlzby5vcmciPmNvcHlyaWdodEBpc28ub3JnPC9hPi48L3NwYW4+
+        PC9wPgogICAgICAgICAgPC9kaXY+CiAgICAgICAgPC9kaXY+CiAgICAgIDwv
+        ZGl2PgogICAgICA8ZGl2IGNsYXNzPSJ0b3BiYXIiPgogICAgICAgIDxkaXYg
+        Y2xhc3M9InRvcGJhci1jb250ZW50Ij4KICAgICAgICAgIDxhIGNsYXNzPSJs
+        b2dvIGlzb2xvZ28gbG9nby14cyB0aGVtZS1yZWQgcG93ZXJlZGJ5IHBhZ2Ut
+        c2Nyb2xsIGxvZ28tc2Nyb2xsVG9wIiBocmVmPSIjcGFnZS10b3AiIHRpdGxl
+        PSJTY3JvbGwgdG8gdG9wIj48L2E+CiAgICAgICAgICA8ZGl2IGNsYXNzPSJw
+        b3dlcmVkYnktdHh0Ij5Qb3dlcmVkIGJ5PC9kaXY+CiAgICAgICAgPC9kaXY+
+        CiAgICAgIDwvZGl2PgogICAgPC9mb290ZXI+CiAgICA8L2JvZHk+CjwvaHRt
+        bD4=
+  recorded_at: Wed, 19 Jul 2023 01:30:54 GMT
 - request:
     method: get
     uri: https://www.iso.org/fr/standard/53798.html
@@ -1616,9 +1616,9 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=713576842.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=747131274.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=4890F2D69C863E90C0DD9E95DDD6DBEA; Path=/; Secure; HttpOnly
+      - JSESSIONID=CF0C2AC80BFB23B9FE77E378C5BA3447; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -1626,7 +1626,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Tue, 11 Jul 2023 02:00:29 GMT
+      - Wed, 19 Jul 2023 01:30:53 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -2801,7 +2801,7 @@ http_interactions:
         YXNzPSJwb3dlcmVkYnktdHh0Ij5Ew6l2ZWxvcHDDqSBwYXI8L2Rpdj4KICAg
         ICAgICA8L2Rpdj4KICAgICAgPC9kaXY+CiAgICA8L2Zvb3Rlcj4KICAgIDwv
         Ym9keT4KPC9odG1sPg==
-  recorded_at: Tue, 11 Jul 2023 02:00:29 GMT
+  recorded_at: Wed, 19 Jul 2023 01:30:54 GMT
 - request:
     method: post
     uri: https://jcl49wv5ar-dsn.algolia.net/1/indexes/all_en/query
@@ -2835,7 +2835,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Tue, 11 Jul 2023 02:00:30 GMT
+      - Wed, 19 Jul 2023 01:30:55 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Transfer-Encoding:
@@ -2895,8 +2895,8 @@ http_interactions:
         PUlTTysxOTExNS0xJTNBMjAxNCUyRkFtZCsxJmhpdHNQZXJQYWdlPTEwMCZm
         aWx0ZXJzPWNhdGVnb3J5JTNBc3RhbmRhcmQiLCJwcm9jZXNzaW5nVGltZU1T
         IjoxLCJwcm9jZXNzaW5nVGltaW5nc01TIjp7InJlcXVlc3QiOnsicm91bmRU
-        cmlwIjoxMzF9fSwic2VydmVyVGltZU1TIjoxfQ==
-  recorded_at: Tue, 11 Jul 2023 02:00:30 GMT
+        cmlwIjoxMzV9fX0=
+  recorded_at: Wed, 19 Jul 2023 01:30:55 GMT
 - request:
     method: get
     uri: https://www.iso.org/contents/data/standard/07/31/73118.html
@@ -2924,21 +2924,21 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=713576842.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=730354058.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=7CC2B1B8D04DB9F93495BE9FEB7F91A2; Path=/; Secure; HttpOnly
+      - JSESSIONID=97681A76526027715F927B1F0EF913B2; Path=/; Secure; HttpOnly
       Location:
       - "/standard/73118.html"
       Content-Length:
       - '0'
       Date:
-      - Tue, 11 Jul 2023 02:00:30 GMT
+      - Wed, 19 Jul 2023 01:30:55 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
       encoding: UTF-8
       base64_string: ''
-  recorded_at: Tue, 11 Jul 2023 02:00:30 GMT
+  recorded_at: Wed, 19 Jul 2023 01:30:55 GMT
 - request:
     method: get
     uri: https://www.iso.org/standard/73118.html
@@ -2966,9 +2966,9 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=713576842.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=747131274.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=9E701F7FC4D25168DDC847753D75C4B9; Path=/; Secure; HttpOnly
+      - JSESSIONID=987C8F6A7CD2B992F6BA0B9D87E1B11E; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -2976,7 +2976,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Tue, 11 Jul 2023 02:00:31 GMT
+      - Wed, 19 Jul 2023 01:30:57 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -3965,7 +3965,7 @@ http_interactions:
         diBjbGFzcz0icG93ZXJlZGJ5LXR4dCI+UG93ZXJlZCBieTwvZGl2PgogICAg
         ICAgIDwvZGl2PgogICAgICA8L2Rpdj4KICAgIDwvZm9vdGVyPgogICAgPC9i
         b2R5Pgo8L2h0bWw+
-  recorded_at: Tue, 11 Jul 2023 02:00:31 GMT
+  recorded_at: Wed, 19 Jul 2023 01:30:57 GMT
 - request:
     method: get
     uri: https://www.iso.org/fr/standard/73118.html
@@ -3993,9 +3993,9 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=730354058.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=713576842.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=C46DD7A1AFEBE2AC61004013CC2FD358; Path=/; Secure; HttpOnly
+      - JSESSIONID=1E7840E60A86F7EB90A08BE6FEF946D8; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -4003,7 +4003,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Tue, 11 Jul 2023 02:00:31 GMT
+      - Wed, 19 Jul 2023 08:30:57 KRAT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -5023,5 +5023,5 @@ http_interactions:
         ZWRieS10eHQiPkTDqXZlbG9wcMOpIHBhcjwvZGl2PgogICAgICAgIDwvZGl2
         PgogICAgICA8L2Rpdj4KICAgIDwvZm9vdGVyPgogICAgPC9ib2R5Pgo8L2h0
         bWw+
-  recorded_at: Tue, 11 Jul 2023 02:00:32 GMT
+  recorded_at: Wed, 19 Jul 2023 01:30:57 GMT
 recorded_with: VCR 6.2.0

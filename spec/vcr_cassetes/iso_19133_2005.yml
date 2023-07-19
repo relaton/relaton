@@ -33,7 +33,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Tue, 11 Jul 2023 02:00:10 GMT
+      - Wed, 19 Jul 2023 01:30:27 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Transfer-Encoding:
@@ -185,8 +185,8 @@ http_interactions:
         YW1zIjoicXVlcnk9SVNPKzE5MTMzJmhpdHNQZXJQYWdlPTEwMCZmaWx0ZXJz
         PWNhdGVnb3J5JTNBc3RhbmRhcmQiLCJwcm9jZXNzaW5nVGltZU1TIjoxLCJw
         cm9jZXNzaW5nVGltaW5nc01TIjp7InJlcXVlc3QiOnsicm91bmRUcmlwIjox
-        MjN9fSwic2VydmVyVGltZU1TIjoxfQ==
-  recorded_at: Tue, 11 Jul 2023 02:00:09 GMT
+        NDF9fSwic2VydmVyVGltZU1TIjoxfQ==
+  recorded_at: Wed, 19 Jul 2023 01:30:27 GMT
 - request:
     method: get
     uri: https://www.iso.org/contents/data/standard/03/25/32551.html
@@ -214,21 +214,21 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=730354058.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=747131274.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=A54687676B8A9A5333E50D37897A9E10; Path=/; Secure; HttpOnly
+      - JSESSIONID=B16BE92A95D3126A200F60364834DD8F; Path=/; Secure; HttpOnly
       Location:
       - "/standard/32551.html"
       Content-Length:
       - '0'
       Date:
-      - Tue, 11 Jul 2023 02:00:10 GMT
+      - Wed, 19 Jul 2023 01:30:27 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
       encoding: UTF-8
       base64_string: ''
-  recorded_at: Tue, 11 Jul 2023 02:00:10 GMT
+  recorded_at: Wed, 19 Jul 2023 01:30:28 GMT
 - request:
     method: get
     uri: https://www.iso.org/standard/32551.html
@@ -258,7 +258,7 @@ http_interactions:
       Set-Cookie:
       - BIGipServerpool_prod_iso_www-jahia=713576842.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=1C6FD83BE730BC904FA2E9E1E13A8F6D; Path=/; Secure; HttpOnly
+      - JSESSIONID=90B141D54B266446D4FB8BEC9BD47AEC; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -266,7 +266,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Tue, 11 Jul 2023 02:00:10 GMT
+      - Wed, 19 Jul 2023 01:30:29 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -1429,7 +1429,7 @@ http_interactions:
         CiAgICAgICAgICA8ZGl2IGNsYXNzPSJwb3dlcmVkYnktdHh0Ij5Qb3dlcmVk
         IGJ5PC9kaXY+CiAgICAgICAgPC9kaXY+CiAgICAgIDwvZGl2PgogICAgPC9m
         b290ZXI+CiAgICA8L2JvZHk+CjwvaHRtbD4=
-  recorded_at: Tue, 11 Jul 2023 02:00:11 GMT
+  recorded_at: Wed, 19 Jul 2023 01:30:29 GMT
 - request:
     method: get
     uri: https://www.iso.org/fr/standard/32551.html
@@ -1457,9 +1457,9 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=730354058.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=747131274.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=BAD04B6F5801C2E6B8B2E2204AA3EBE3; Path=/; Secure; HttpOnly
+      - JSESSIONID=DDD8195B76ACB111329A54DC111756F9; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -1467,7 +1467,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Tue, 11 Jul 2023 02:00:12 GMT
+      - Wed, 19 Jul 2023 01:30:29 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -2660,5 +2660,5 @@ http_interactions:
         cGFnZSI+PC9hPgogICAgICAgICAgPGRpdiBjbGFzcz0icG93ZXJlZGJ5LXR4
         dCI+RMOpdmVsb3Bww6kgcGFyPC9kaXY+CiAgICAgICAgPC9kaXY+CiAgICAg
         IDwvZGl2PgogICAgPC9mb290ZXI+CiAgICA8L2JvZHk+CjwvaHRtbD4=
-  recorded_at: Tue, 11 Jul 2023 02:00:12 GMT
+  recorded_at: Wed, 19 Jul 2023 01:30:30 GMT
 recorded_with: VCR 6.2.0
