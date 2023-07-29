@@ -33,11 +33,11 @@ module Relaton
     end
 
     ##
-    # The class of reference requested is determined by the prefix of the code:
+    # The class of reference requested is determined by the prefix of the reference:
     # GB Standard for gbbib, IETF for ietfbib, ISO for isobib, IEC or IEV for
     #   iecbib,
     #
-    # @param code [String] the ISO standard Code to look up (e.g. "ISO 9000")
+    # @param text [String] the standard reference to look up (e.g. "ISO 9000")
     # @param year [String] the year the standard was published (optional)
     #
     # @param opts [Hash] options
@@ -55,14 +55,15 @@ module Relaton
     #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     ##
-    def fetch(code, year = nil, opts = {})
-      stdclass = @registry.class_by_ref(code) || return
+    def fetch(text, year = nil, opts = {})
+      reference = text.strip
+      stdclass = @registry.class_by_ref(reference) || return
       processor = @registry.processors[stdclass]
       ref = if processor.respond_to?(:urn_to_code)
-              processor.urn_to_code(code)&.first
-            else code
+              processor.urn_to_code(reference)&.first
+            else reference
             end
-      ref ||= code
+      ref ||= reference
       result = combine_doc ref, year, opts, stdclass
       result || check_bibliocache(ref, year, opts, stdclass)
     end

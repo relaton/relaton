@@ -1,9 +1,8 @@
 RSpec.describe Relaton::Db do
   before(:each) { FileUtils.rm_rf %w[testcache testcache2] }
+  subject { Relaton::Db.new nil, nil }
 
   context "instance methods" do
-    subject { Relaton::Db.new nil, nil }
-
     context "#search_edition_year" do
       it "create bibitem from YAML content" do
         h = { "docid" => [{ "id" => "ISO 123", type: "ISO", "primary" => true }] }
@@ -164,20 +163,32 @@ RSpec.describe Relaton::Db do
     expect(db.docid_type("CN(GB/T 1.1)")).to eq ["Chinese Standard", "GB/T 1.1"]
   end
 
-  it "doesn't use cache" do
-    db = Relaton::Db.new nil, nil
-    docid = RelatonBib::DocumentIdentifier.new id: "ISO 19115-1", type: "ISO"
-    item = RelatonIsoBib::IsoBibliographicItem.new docid: [docid]
-    expect(RelatonIso::IsoBibliography).to receive(:get).with("ISO 19115-1", nil, {}).and_return item
-    bib = db.fetch("ISO 19115-1", nil, {})
-    expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-  end
-
-  it "fetch when no local db" do
-    db = Relaton::Db.new "testcache", nil
-    VCR.use_cassette "iso_19115_1" do
-      bib = db.fetch("ISO 19115-1", nil, {})
+  context "#fetch" do
+    it "doesn't use cache" do
+      docid = RelatonBib::DocumentIdentifier.new id: "ISO 19115-1", type: "ISO"
+      item = RelatonIsoBib::IsoBibliographicItem.new docid: [docid]
+      expect(RelatonIso::IsoBibliography).to receive(:get).with("ISO 19115-1", nil, {}).and_return item
+      bib = subject.fetch("ISO 19115-1", nil, {})
       expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+    end
+
+    it "when no local db" do
+      db = Relaton::Db.new "testcache", nil
+      VCR.use_cassette "iso_19115_1" do
+        bib = db.fetch("ISO 19115-1", nil, {})
+        expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      end
+    end
+
+    it "document with net retries" do
+      expect(subject.instance_variable_get(:@registry).processors[:relaton_ietf]).to receive(:get)
+        .and_raise(RelatonBib::RequestError).exactly(3).times
+      expect { subject.fetch "RFC 8341", nil, retries: 3 }.to raise_error RelatonBib::RequestError
+    end
+
+    it "strip reference" do
+      expect(subject).to receive(:combine_doc).with("ISO 19115-1", nil, {}, :relaton_iso).and_return :doc
+      expect(subject.fetch(" ISO 19115-1 ", nil, {})).to be :doc
     end
   end
 
@@ -189,15 +200,7 @@ RSpec.describe Relaton::Db do
     end
   end
 
-  it "fetch document with net retries" do
-    db = Relaton::Db.new nil, nil
-    expect(db.instance_variable_get(:@registry).processors[:relaton_ietf]).to receive(:get)
-      .and_raise(RelatonBib::RequestError).exactly(3).times
-    expect { db.fetch "RFC 8341", nil, retries: 3 }.to raise_error RelatonBib::RequestError
-  end
-
   context "async fetch" do
-    let(:db) { Relaton::Db.new nil, nil }
     let(:queue) { Queue.new }
 
     it "success" do
@@ -206,8 +209,8 @@ RSpec.describe Relaton::Db do
               "ITU-T G.780/Y.1351", "ITU-T G.711", "ITU-T G.1011"]
       results = []
       refs.each do |ref|
-        expect(db).to receive(:fetch).with(ref, nil, {}).and_return :result
-        db.fetch_async(ref) { |r| queue << [r, ref] }
+        expect(subject).to receive(:fetch).with(ref, nil, {}).and_return :result
+        subject.fetch_async(ref) { |r| queue << [r, ref] }
       end
       Timeout.timeout(60) { refs.size.times { results << queue.pop } }
       results.each do |result|
@@ -220,8 +223,8 @@ RSpec.describe Relaton::Db do
               "CGPM -- Réunion 9 (1948)", "CGPM -- Meeting 9 (1948)"]
       results = []
       refs.each do |ref|
-        expect(db).to receive(:fetch).with(ref, nil, {}).and_return :result
-        db.fetch_async(ref) { |r| queue << [r, ref] }
+        expect(subject).to receive(:fetch).with(ref, nil, {}).and_return :result
+        subject.fetch_async(ref) { |r| queue << [r, ref] }
       end
       Timeout.timeout(60) { refs.size.times { results << queue.pop } }
       results.each do |result|
@@ -232,23 +235,23 @@ RSpec.describe Relaton::Db do
     it "prefix not found" do
       result = ""
       VCR.use_cassette "rfc_unsuccess" do
-        db.fetch_async("ABC 123456") { |r| queue << r }
+        subject.fetch_async("ABC 123456") { |r| queue << r }
         Timeout.timeout(5) { result = queue.pop }
       end
       expect(result).to be_nil
     end
 
     it "handle HTTP request error" do
-      expect(db).to receive(:fetch).and_raise RelatonBib::RequestError
-      db.fetch_async("ISO REF") { |r| queue << r }
+      expect(subject).to receive(:fetch).and_raise RelatonBib::RequestError
+      subject.fetch_async("ISO REF") { |r| queue << r }
       result = Timeout.timeout(5) { queue.pop }
       expect(result).to be_instance_of RelatonBib::RequestError
     end
 
     it "handle other errors" do
-      expect(db).to receive(:fetch).and_raise Errno::EACCES
+      expect(subject).to receive(:fetch).and_raise Errno::EACCES
       expect do
-        db.fetch_async("ISO REF") { |r| queue << r }
+        subject.fetch_async("ISO REF") { |r| queue << r }
         result = Timeout.timeout(5) { queue.pop }
         expect(result).to be_nil
       end.to output("[relaton] ERROR: ISO REF -- Permission denied\n").to_stderr
@@ -258,8 +261,8 @@ RSpec.describe Relaton::Db do
       expect(ENV).to receive(:[]).with("RELATON_FETCH_PARALLEL").and_return(1)
       allow(ENV).to receive(:[]).and_call_original
       expect(Relaton::WorkersPool).to receive(:new).with(1).and_call_original
-      expect(db).to receive(:fetch).with("ITU-T G.993.5", nil, {})
-      db.fetch_async("ITU-T G.993.5") { |r| queue << r }
+      expect(subject).to receive(:fetch).with("ITU-T G.993.5", nil, {})
+      subject.fetch_async("ITU-T G.993.5") { |r| queue << r }
       Timeout.timeout(50) { queue.pop }
     end
   end
