@@ -113,6 +113,10 @@ RSpec.describe Relaton::Registry do
     it "XSF" do
       expect(Relaton::Registry.instance.by_type("XEP")).to be_instance_of RelatonXsf::Processor
     end
+
+    it "CCSDS" do
+      expect(Relaton::Registry.instance.by_type("CCSDS")).to be_instance_of RelatonCcsds::Processor
+    end
   end
 
   it "find processot by dataset" do

@@ -194,7 +194,7 @@ RSpec.describe Relaton::Db do
 
   it "fetch std" do
     db = Relaton::Db.new "testcache", nil
-    VCR.use_cassette "iso_19115_1" do
+    VCR.use_cassette "iso_19115_1_std" do
       bib = db.fetch_std("ISO 19115-1", nil, :relaton_iso, {})
       expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
     end
