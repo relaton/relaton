@@ -245,6 +245,15 @@ RSpec.describe Relaton::Db do
     expect(bib.docidentifier.first.id).to eq "W3C REC-json-ld11-20200716"
   end
 
+  it "get CCSDS reference" do
+    docid = RelatonBib::DocumentIdentifier.new id: "CCSDS 230.2-G-1", type: "CCSDS"
+    item = RelatonCcsds::BibliographicItem.new docid: [docid]
+    expect(RelatonCcsds::Bibliography).to receive(:get).with("CCSDS 230.2-G-1", nil, {}).and_return item
+    bib = @db.fetch "CCSDS 230.2-G-1", nil, {}
+    expect(bib).to be_instance_of RelatonCcsds::BibliographicItem
+    expect(bib.docidentifier.first.id).to eq "CCSDS 230.2-G-1"
+  end
+
   it "get IEEE reference" do
     VCR.use_cassette "ieee_528_2019" do
       bib = @db.fetch "IEEE 528-2019"

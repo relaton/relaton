@@ -16,15 +16,35 @@ The gem also caches entries it has retrieved so that subsequent iterations do no
 
 Entries are retrieved and stored in https://github.com/relaton/relaton-models[Relaton bibliographic model], which is an expression of ISO 690. The subset of the model used and serialized for Relaton is defined in the https://github.com/relaton/relaton-bib[relaton-bib] and https://github.com/relaton/relaton-iso-bib[relaton-iso-bib] gems.
 
-Entries are serialized to and from an internal data model, and multiple formats are intended to be supported. Currently only https://github.com/relaton/relaton-models/blob/master/grammars/biblio.rnc[Relaton XML] is supported.
+Entries are serialized to and from an internal data model, and multiple formats are intended to be supported. Currently, only https://github.com/relaton/relaton-models/blob/master/grammars/biblio.rnc[Relaton XML] is supported.
 
 Relaton imports bibliographic entries from:
 
-* ISO through the iso.org website, via the https://github.com/relaton/relaton-iso[relaton-iso] gem
-* IEC through the iec.ch website, via the https://github.com/relaton/relaton-iec[relaton-iec] gem
+* 3GPP through the portal.3gpp.org website, via the https://github.com/relaton/relaton-3gpp[relaton-3gpp] gem
+* BIPM through the https://github.com/metanorma/bipm-data-outcomes[bipm-data-outcomes], https://github.com/metanorma/bipm-si-brochure[bipm-si-brochure], https://github.com/relaton/rawdata-bipm-metrologia[rawdata-bipm-metrologia] datasets, via the the https://github.com/relaton/relaton-bipm[relaton-bipm] gem
+* BSI through the knowledge.bsigroup.com/search website, via the https://github.com/relaton/relaton-bsi[relaton-bsi] gem
+* CalConnect through the standards.calconnect.org website, via the https://github.com/relaton/relaton-calconnect[relaton-calconnect] gem
+* CCSDS through the public.ccsds.org/Publications/AllPubs.aspx website, via the https://github.com/relaton/relaton-ccsds[relaton-ccsds] gem
+* CEN through the standards.cencenelec.eu website, via the https://github.com/relaton/relaton-cen[relaton-cen] gem
+* CIE through the techstreet.com website, via the https://github.com/relaton/relaton-cie[relaton-cie] gem
+* DOI through the api.crossref.org website, via the https://github.com/relaton/relaton-doi[relaton-doi] gem
+* ECMA through the ecma-international.org website, via the https://github.com/relaton/relaton-ecma[relaton-ecma] gem
 * GB (Chinese national standards) through the GB websites, via the https://github.com/relaton/relaton-gb[relaton-gb] gem
+* IANA through the https://github.com/ietf-tools/iana-registries[iana-registries] dataset, via the https://github.com/relaton/relaton-iana[relaton-iana] gem
+* IEC through the iec.ch website, via the https://github.com/relaton/relaton-iec[relaton-iec] gem
+* IEEE through the standards.ieee.org website, via the https://github.com/relaton/relaton-ieee[relaton-ieee] gem
 * IETF standards (Internet Drafts, RFC) through the http://xml2rfc.tools.ietf.org website, via the https://github.com/relaton/relaton-ietf[relaton-ietf] gem
+* IHO through the iho.int website, via the https://github.com/relaton/relaton-iho[relaton-iho] gem
+* ISO through the iso.org website, via the https://github.com/relaton/relaton-iso[relaton-iso] gem
+* ITU through the itu.int website, via the https://github.com/relaton/relaton-itu[relaton-itu] gem
+* JIS through the webdesk.jsa.or.jp website, via the https://gihub.com/relaton/relaton-jis[relaton-jis] gem
 * NIST standards through the nist.gov website, via the https://github.com/relaton/relaton-nist[relaotn-nist] gem
+* OASIS through the www.oasis-open.org/standards website, via the https://github.com/relaton/relaton-oasis[relaton-oasis] gem
+* OGC through the https://github.com/opengeospatial/NamingAuthority[dataset], via the https://gibhub.com/relaton/relaton-ogc[relaton-ogc] gem
+* OMG through the omg.org/spec website, via the https://github.com/relaton/relaton-omg[relaton-omg] gem
+* UN through the documents.un.org website, via the https://github.com/relaton/relaton-un[relaton-un] gem
+* W3C through the w3c.org website, via the https://github.com/relaton/relaton-w3c[relaton-w3c] gem
+* XSF through the xmpp.org website, via the https://github.com/relaton/relaton-xsf[relaton-xsf] gem
 
 The identifiers for which bibliographic entries are to be retrieved need to indicate which standards body they belong to. To do so, this gem adopts the convention of bracketing identifiers, and preceding them with a code that indicates the standards body:
 
