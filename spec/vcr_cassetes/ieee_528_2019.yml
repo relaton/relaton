@@ -29,7 +29,7 @@ http_interactions:
       Content-Type:
       - application/zip
       Etag:
-      - W/"19948879235679a7767d1163d71bbbd95161c7199a26c7dd1a87d14be1abc101"
+      - W/"c1c95005d1b44f0f74d1ca6e3ebd012118a65deba07a5327cfb5b339febf3ea7"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -39,21 +39,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 65AC:4D16:64C76B:77261B:64E96221
+      - F620:0A9D:90E489:ABD8CE:64F36DB3
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 26 Aug 2023 02:23:31 GMT
+      - Sat, 02 Sep 2023 17:15:31 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100174-IAD
+      - cache-iad-kjyo7100095-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1693016611.316577,VS0,VE174
+      - S1693674932.744267,VS0,VE119
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
@@ -61,16 +61,16 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - a25302f026cfeb89a0208ee4cfd64d23524f346e
+      - 2b537822094e4f54f390fe61d3c0f225c289dd6b
       Expires:
-      - Sat, 26 Aug 2023 02:28:31 GMT
+      - Sat, 02 Sep 2023 17:20:31 GMT
       Source-Age:
       - '0'
     body:
       encoding: UTF-8
       base64_string: |
-        UEsDBBQAAAAIABGBGVdKP4Poct0BAMOxCgANABwAaW5kZXgtdjEueWFtbFVU
-        CQADAtLoZALS6GR1eAsAAQTpAwAABOcDAACcvVm3JEexNfjev0Jv/dCdeWIe
+        UEsDBBQAAAAIAAuBIldKP4Poct0BAMOxCgANABwAaW5kZXgtdjEueWFtbFVU
+        CQAD9l3zZPZd82R1eAsAAQTpAwAABOcDAACcvVm3JEexNfjev0Jv/dCdeWIe
         vrc8g1DBp1INkhC8+DqnqgDBJwFCiAu/vsPN3HzI2NsjaVjrXlbZjjiREe7m
         Nm47nU7/1+mz//X9x//12aunp6fP2mmaT13Tjp+9+/Tx/3z/46f/67PP/tcf
         vv8/n/7XZx+ff36+8yAXQe7d0+P/fvX66fzv5x/+T3GfN+3aDuf+7vHUe+Ry
@@ -2786,11 +2786,11 @@ http_interactions:
         U5fbgYO0M3W5XfSRMucyzVILFHF9V7k8UI2woufFwbvhBC9UAuXYPaNWv7T9
         uj/SEe1qPQzRugWkJ6SvkCjdmvVLVnXkhYBQBAn776mSsKPhj3dI2EWcSFQY
         kw8C2wJ5ZkTGCP777HaOcvaGbqgsw5IID+7UBkBEBHiyHbUjaQz+jBC/G5t1
-        MEFpb0akF4xl8V9zakZXl+uPj75ByvZigAdEWeUr/wFQSwECHgMUAAAACAAR
-        gRlXSj+D6HLdAQDDsQoADQAYAAAAAAABAAAApIEAAAAAaW5kZXgtdjEueWFt
-        bFVUBQADAtLoZHV4CwABBOkDAAAE5wMAAFBLBQYAAAAAAQABAFMAAAC53QEA
+        MEFpb0akF4xl8V9zakZXl+uPj75ByvZigAdEWeUr/wFQSwECHgMUAAAACAAL
+        gSJXSj+D6HLdAQDDsQoADQAYAAAAAAABAAAApIEAAAAAaW5kZXgtdjEueWFt
+        bFVUBQAD9l3zZHV4CwABBOkDAAAE5wMAAFBLBQYAAAAAAQABAFMAAAC53QEA
         AAA=
-  recorded_at: Sat, 26 Aug 2023 02:23:31 GMT
+  recorded_at: Sat, 02 Sep 2023 17:15:31 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-ieee/main/data/IEEE_528-2019.yaml
@@ -2830,21 +2830,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 5858:3884:6BD563:7E3623:64E96223
+      - A0E6:7531:3BC382:47D96E:64F36DB4
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 26 Aug 2023 02:23:32 GMT
+      - Sat, 02 Sep 2023 17:15:32 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200069-IAD
+      - cache-iad-kjyo7100103-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1693016612.007568,VS0,VE85
+      - S1693674932.318261,VS0,VE90
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
@@ -2852,9 +2852,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 0a00eceb24c25c55c5b9e79f2c3e15d6cb4230e0
+      - a722ba4ccf2f7ef0134091d806a837a2e20cd6a0
       Expires:
-      - Sat, 26 Aug 2023 02:28:32 GMT
+      - Sat, 02 Sep 2023 17:20:32 GMT
       Source-Age:
       - '0'
     body:
@@ -2909,5 +2909,5 @@ http_interactions:
         Y2hlbWEtdmVyc2lvbjogdjEuMC4wCiAgc3RhbmRhcmRfc3RhdHVzOiBBY3Rp
         dmUKICBzdGFuZGFyZF9tb2RpZmllZDogQXBwcm92ZWQKICBwdWJzdGF0dXM6
         IEFjdGl2ZQogIGhvbGRzdGF0dXM6IFB1Ymxpc2gK
-  recorded_at: Sat, 26 Aug 2023 02:23:31 GMT
+  recorded_at: Sat, 02 Sep 2023 17:15:32 GMT
 recorded_with: VCR 6.2.0
