@@ -1,27 +1,18 @@
 module Relaton
   module Config
-    def configure
-      if block_given?
-        yield configuration
-      end
-    end
-
-    def configuration
-      @configuration ||= Configuration.new
-    end
+    include RelatonBib::Config
   end
+  extend Config
 
-  class Configuration
-    attr_accessor :logs, :use_api, :api_host
+  class Configuration < RelatonBib::Configuration
+    PROGNAME = "relaton".freeze
+
+    attr_accessor :use_api, :api_host
 
     def initialize
-      @logs = %i(info error) # allowed values: :info, :warning, :error, :debug
-
-      # @TODO change to true when we start using api.relaton.org
+      super
       @use_api = false
       @api_host = "https://api.relaton.org"
     end
   end
-
-  extend Config
 end

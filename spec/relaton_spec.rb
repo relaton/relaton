@@ -2,6 +2,7 @@ RSpec.describe Relaton::Db do
   before :each do
     FileUtils.rm_rf %w(testcache testcache2)
     @db = Relaton::Db.new "testcache", "testcache2"
+    Relaton.instance_variable_set :@configuration, nil
   end
 
   it "rejects an illegal reference prefix" do

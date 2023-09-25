@@ -75,16 +75,16 @@ e.g. `get("ISO 19115-1", "2014", all_parts: true)` is transformed into a referen
 * If an ISO entry has no date, the latest version available for the entry is retrieved.
 * If a cached ISO entry has no date, and was last retrieved more than 60 days ago, the gem fetches it again, in case there is a newer edition of the standard available.
 * Entries are always saved to the cache with a scope-wrapped identifier; e.g. under `ISO(ISO 639-1)`, and not `ISO 639-1`.
-* Note that the gem does not currently support the totality of the Relaton model; it will only support the information available in the source websites. We do not expect to support cartographic information, for example.
+* Note that the gem does not currently support the totality of the Relaton model; it will only support the information available on the source websites. We do not expect to support cartographic information, for example.
 * Document identifiers are returned with a scope indication (`@idtype`); for example, `<docidentifier type="IETF">RFC 8000</docidentifier>`. It is up to the client whether to render this with the scope indication (_IETF RFC 8000_) or without (_RFC 8000_).
 
 == Usage
 
 === Configuration
 
-* `logs` - is an array of log levels. Allowed values: `:info`, `:warning`, `:error`, `:debug`. Default values are `[:info, :error]`.
-* `use_api` - `true` if it needs to use an online cache, `false` inf not. Default value is `true`.
-* `api_host` - url of an online cache. The default value is https://api.relaton.org.
+* `logger` - `Logger` instance. By default, the logger is `Logger.new($stderr)` with `Logger::WARN` level.
+* `use_api` - `true` if it needs to use an online cache, `false` if not. The default value is `true`.
+* `api_host` - URL of an online cache. The default value is https://api.relaton.org.
 
 [source,ruby]
 ----
@@ -92,7 +92,7 @@ require "relaton"
 => true
 
 Relaton.configure do |conf|
-  conf.logs = %i[info error]
+  conf.logger.level = Logger::DEBUG
   conf.use_api = true
   conf.api_host = "https://api.relaton.org"
 end
@@ -173,31 +173,32 @@ Arguments:
 * `year` - (String or nil) year to filter relult (optional)
 * `options` - (Hash) hash of options. Alloved options:
 - `:all_parts` - (Boolean) should be `true` if all-parts reference is required
-- `:keep_yer` - (Boolean) should be `true` if undated reference should return actual reference with year
+- `:keep_yer` - (Boolean) should be `true` if undated reference should return an actual reference with the year
 - `:retries` - (Number) number of network retries. Default 1
+- `:no_cache` - (Boolean) should be `true` if cache should be ignored
 
 [source,ruby]
 ----
 x = db.fetch("IEEE 19011")
-[relaton-ieee] ("IEEE 19011") fetching...
-[relaton-ieee] WARNING: no match found online for IEEE 19011. The code must be exactly like it is on the standards website.
+[relaton-ieee] (IEEE 19011) fetching...
+[relaton-ieee] WARNING: no match found online for `IEEE 19011`. The code must be exactly like it is on the standards website.
 => nil
 
 x = db.fetch("ISO 19011")
-[relaton-iso] ("ISO 19011") fetching...
-[relaton-iso] ("ISO 19011") found ISO 19011 (all parts)
+[relaton-iso] (ISO 19011) fetching...
+[relaton-iso] (ISO 19011) found `ISO 19011 (all parts)`
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d0ab2f00
 ...
 
 x = db.fetch("ISO 19011", "2011", retries: 3)
-[relaton-iso] ("ISO 19011") fetching...
-[relaton-iso] ("ISO 19011") found ISO 19011:2011
+[relaton-iso] (ISO 19011) fetching...
+[relaton-iso] (ISO 19011) found `ISO 19011:2011`
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d2593068
 ...
 
 x = db.fetch("ISO 19115", nil, all_parts: true)
-[relaton-iso] ("ISO 19115") fetching...
-[relaton-iso] ("ISO 19115") found ISO 19115 (all parts)
+[relaton-iso] (ISO 19115) fetching...
+[relaton-iso] (ISO 19115) found `ISO 19115 (all parts)`
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb1d0ae8bf0
 ...
 
@@ -241,8 +242,8 @@ This functionality works only for IEC documents.
 [source,ruby]
 ----
 x = db.fetch "urn:iec:std:iec:60050-102:2007:::"
-[relaton-iec] ("IEC 60050-102") fetching...
-[relaton-iec] ("IEC 60050-102") found IEC 60050-102:2007
+[relaton-iec] (IEC 60050-102) fetching...
+[relaton-iec] (IEC 60050-102) found `IEC 60050-102:2007`
 => #<RelatonIec::IecBibliographicItem:0x007fbd6c3790e8
 ...
 ----
@@ -255,10 +256,10 @@ This functionality works only for ISO, IEC, ITU, and NIST documents.
 [source,ruby]
 ----
 bib = db.fetch "ISO 19115-1 + Amd 1"
-[relaton-iso] ("ISO 19115-1") fetching...
-[relaton-iso] ("ISO 19115-1") found ISO 19115-1:2014
-[relaton-iso] ("ISO 19115-1/Amd 1") fetching...
-[relaton-iso] ("ISO 19115-1/Amd 1") found ISO 19115-1:2014/Amd 1:2018
+[relaton-iso] (ISO 19115-1) fetching...
+[relaton-iso] (ISO 19115-1) found `ISO 19115-1:2014`
+[relaton-iso] (ISO 19115-1/Amd 1) fetching...
+[relaton-iso] (ISO 19115-1/Amd 1) found ISO `19115-1:2014/Amd 1:2018`
 => #<RelatonIsoBib::IsoBibliographicItem:0x007f95a929a748
 
 bib.docidentifier[0].id
@@ -300,10 +301,10 @@ bib.relation[1].bibitem.docidentifier[0].id
 ----
 bib = db.fetch "ISO 19115-1, Amd 1"
 => ["Chinese Standard", "GB/T 1.1"]
-[relaton-iso] ("ISO 19115-1") fetching...
-[relaton-iso] ("ISO 19115-1") found ISO 19115-1:2014
-[relaton-iso] ("ISO 19115-1/Amd 1") fetching...
-[relaton-iso] ("ISO 19115-1/Amd 1") found ISO 19115-1:2014/Amd 1:2018
+[relaton-iso] (ISO 19115-1) fetching...
+[relaton-iso] (ISO 19115-1) found ISO `19115-1:2014`
+[relaton-iso] (ISO 19115-1/Amd 1) fetching...
+[relaton-iso] (ISO 19115-1/Amd 1) found ISO `19115-1:2014/Amd 1:2018`
 => #<RelatonIsoBib::IsoBibliographicItem:0x007fb09b36d1b8
 ...
 ----

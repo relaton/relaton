@@ -1,7 +1,5 @@
-RSpec.describe Relaton::Util do
-  it "logs HTML entities" do
-    expect do
-      Relaton::Util.log("Kolbe &amp; Gr&#246;ger 2003")
-    end.to output("Kolbe & Gröger 2003\n").to_stderr
+describe Relaton::Util do
+  it "#respond_to_missing?" do
+    expect(described_class.respond_to?(:warn)).to be true
   end
 end

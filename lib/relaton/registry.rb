@@ -23,16 +23,16 @@ module Relaton
     end
 
     def register_gems
-      # Util.log("[relaton] Info: detecting backends:", :info)
+      # Util.info("Info: detecting backends:")
 
       SUPPORTED_GEMS.each do |b|
         require b
         require "#{b}/processor"
         register Kernel.const_get "#{camel_case(b)}::Processor"
       rescue LoadError => e
-        Util.log("[relaton] Error: backend #{b} not present", :error)
-        Util.log("[relaton] Error: #{e.message}", :error)
-        Util.log("[relaton] Error: #{e.backtrace.join "\n"}", :error)
+        Util.error("Error: backend #{b} not present")
+        Util.error("Error: #{e.message}")
+        Util.error("Error: #{e.backtrace.join "\n"}")
       end
     end
 
@@ -42,7 +42,7 @@ module Relaton
       p = processor.new
       return if processors[p.short]
 
-      Util.log("[relaton] processor \"#{p.short}\" registered", :debug)
+      Util.debug("processor \"#{p.short}\" registered")
       processors[p.short] = p
     end
 
@@ -101,9 +101,8 @@ module Relaton
         return class_name if /^(urn:)?#{processor.prefix}(?!\w)/i.match?(ref) ||
           processor.defaultprefix.match(ref)
       end
-      Util.log <<~WARN, :info
-        [relaton] #{ref} does not have a recognised prefix
-      WARN
+      Util.warn "`#{ref}` does not have a recognised prefix"
+      nil
     end
 
     private

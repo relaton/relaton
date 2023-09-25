@@ -1,22 +1,10 @@
-require "spec_helper"
+describe Relaton do
+  after { described_class.instance_variable_set :@configuration, nil }
 
-RSpec.describe Relaton::Config do
-  before { restore_to_default_config }
-  after { restore_to_default_config }
-
-  describe ".configure" do
-    it "allows user to set custom configuration" do
-      log_types = ["info", :warning, :error]
-
-      Relaton.configure do |config|
-        config.logs = log_types
-      end
-
-      expect(Relaton.configuration.logs).to eq(log_types)
+  it "configure" do
+    described_class.configure do |conf|
+      conf.logger = :logger
     end
-  end
-
-  def restore_to_default_config
-    Relaton.configuration.logs = %i(info error)
+    expect(described_class.configuration.logger).to eq :logger
   end
 end

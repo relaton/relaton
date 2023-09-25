@@ -1,5 +1,9 @@
 RSpec.describe Relaton::Db do
-  before(:each) { FileUtils.rm_rf %w[testcache testcache2] }
+  before(:each) do
+    Relaton.instance_variable_set :@configuration, nil
+    FileUtils.rm_rf %w[testcache testcache2]
+  end
+
   subject { Relaton::Db.new nil, nil }
 
   context "instance methods" do
@@ -14,14 +18,28 @@ RSpec.describe Relaton::Db do
     end
 
     context "#new_bib_entry" do
+      let(:db) { double "db" }
+      before do
+        expect(db).to receive(:[]).with("ISO(ISO 123)").and_return "not_found"
+      end
+
       it "warn if cached entry is not_found" do
-        id = "ISO(ISO 123)"
-        db = double "db"
-        expect(db).to receive(:[]).with(id).and_return "not_found"
         expect do
-          entry = subject.send :new_bib_entry, "ISO 123", nil, {}, :relaton_iso, db: db, id: id
+          expect(subject).to_not receive(:fetch_entry)
+          entry = subject.send :new_bib_entry, "ISO 123", nil, {}, :relaton_iso, db: db, id: "ISO(ISO 123)"
           expect(entry).to be_nil
-        end.to output("[relaton] (ISO 123) not found.\n").to_stderr
+        end.to output("[relaton] (ISO 123) not found in cache, if you wish " \
+                      "to ignore cache please use `no-cache` option.\n").to_stderr
+      end
+
+      it "ignore cache" do
+        expect(subject).to receive(:fetch_entry).with(
+          "ISO 123", nil, { no_cache: true }, :relaton_iso, db: db, id: "ISO(ISO 123)",
+        ).and_return :entry
+        entry = subject.send(
+          :new_bib_entry, "ISO 123", nil, { no_cache: true }, :relaton_iso, db: db, id: "ISO(ISO 123)"
+        )
+        expect(entry).to be :entry
       end
     end
 
@@ -74,8 +92,7 @@ RSpec.describe Relaton::Db do
     end
 
     it "warn if moving in existed dir" do
-      expect(File).to receive(:exist?).with("new_cache_dir")
-        .and_return true
+      expect(File).to receive(:exist?).with("new_cache_dir").and_return true
       expect do
         expect(db.mv("new_cache_dir")).to be_nil
       end.to output(/\[relaton\] WARNING: target directory exists/).to_stderr
@@ -250,11 +267,11 @@ RSpec.describe Relaton::Db do
 
     it "handle other errors" do
       expect(subject).to receive(:fetch).and_raise Errno::EACCES
-      expect do
-        subject.fetch_async("ISO REF") { |r| queue << r }
-        result = Timeout.timeout(5) { queue.pop }
-        expect(result).to be_nil
-      end.to output("[relaton] ERROR: ISO REF -- Permission denied\n").to_stderr
+      log_io = Relaton.configuration.logger.instance_variable_get(:@logdev)
+      expect(log_io).to receive(:write).with("[relaton] ERROR: `ISO REF` -- Permission denied\n")
+      subject.fetch_async("ISO REF") { |r| queue << r }
+      result = Timeout.timeout(5) { queue.pop }
+      expect(result).to be_nil
     end
 
     it "use threads number from RELATON_FETCH_PARALLEL" do

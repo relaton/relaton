@@ -1,4 +1,6 @@
 RSpec.describe Relaton::Registry do
+  before { Relaton.instance_variable_set :@configuration, nil }
+
   it "outputs backend not present" do
     stub_const "Relaton::Registry::SUPPORTED_GEMS", ["not_supported_gem"]
     expect { Relaton::Registry.clone.instance }.to output(

@@ -1,3 +1,4 @@
+require "relaton_bib"
 require "relaton/util"
 require "relaton/config"
 require "yaml"

@@ -29,7 +29,7 @@ http_interactions:
       Content-Type:
       - application/zip
       Etag:
-      - W/"8198f5fc2e8818073b34d5e9bbad674cdb73b6d259e746df517cf2684cdb6868"
+      - W/"a2a7695861c74ed0ae685ab70f31451a4aa6a2513093a952dc812fe3da942652"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -39,21 +39,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - FE82:22A0:87786B:A26C3E:64F36DB1
+      - 3920:7DEF:357AAC:4291BA:65103AB5
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 02 Sep 2023 17:15:29 GMT
+      - Sun, 24 Sep 2023 13:33:43 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100028-IAD
+      - cache-pdk-kpdk1780055-PDK
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1693674930.825819,VS0,VE170
+      - S1695562423.284949,VS0,VE98
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
@@ -61,16 +61,16 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 93def44ad36eb3ce49dd4d09c184a9b6a1d1e865
+      - 615b32ca6374dfb5f9f955e1922d9b3f33166913
       Expires:
-      - Sat, 02 Sep 2023 17:20:29 GMT
+      - Sun, 24 Sep 2023 13:38:43 GMT
       Source-Age:
       - '0'
     body:
       encoding: UTF-8
       base64_string: |
-        UEsDBBQAAAAIAOFwIldKI92FugUAALwsAAANABwAaW5kZXgtdjEueWFtbFVU
-        CQADhkHzZIZB82R1eAsAAQTpAwAABOcDAACF2M+KHDcQBvC7n2JeYOMu/W3t
+        UEsDBBQAAAAIAOZwN1dKI92FugUAALwsAAANABwAaW5kZXgtdjEueWFtbFVU
+        CQADD/EOZQ/xDmV1eAsAAQTpAwAABH8AAACF2M+KHDcQBvC7n2JeYOMu/W3t
         bdmJwYfYZibYx8bgBAz2LRjy9pGqNCIw9X1zrv1taVpV3VI9PT29eTo9f//2
         fHp9ffvy7edpS5s8h21Lb06n57+///jr+fTt6z9f376+Hi/nP44RPkb4t3+/
         /vxxbwO3gdnIbWQ2cZuwzfZ7M7DZfm8GNnAbmI3cRmYTt8m11yEzkNfhMsuJ
@@ -103,10 +103,10 @@ http_interactions:
         j3yj3j5OxNvXCXuhh5ltfjPQGXB+OJj353PLownd8v6Mbnk0pVven9Mt/+AQ
         uwk7xfYwmgQt78+Clq9gSrF8decUy++P/M59e+Qb9WED84CbD5s7E1geTVqW
         92cty6N5y/L+zGV5NCdY3p8VLI/mBcv7M4Pl0dxgeX92sDz6Wi0Pvlc3Xx+8
-        v0P93/v7P1BLAQIeAxQAAAAIAOFwIldKI92FugUAALwsAAANABgAAAAAAAEA
-        AACkgQAAAABpbmRleC12MS55YW1sVVQFAAOGQfNkdXgLAAEE6QMAAATnAwAA
+        v0P93/v7P1BLAQIeAxQAAAAIAOZwN1dKI92FugUAALwsAAANABgAAAAAAAEA
+        AACkgQAAAABpbmRleC12MS55YW1sVVQFAAMP8Q5ldXgLAAEE6QMAAAR/AAAA
         UEsFBgAAAAABAAEAUwAAAAEGAAAAAA==
-  recorded_at: Sat, 02 Sep 2023 17:15:29 GMT
+  recorded_at: Sun, 24 Sep 2023 13:33:43 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-calconnect/main/data/CC_DIR_10005_2019.yaml
@@ -115,7 +115,7 @@ http_interactions:
       base64_string: ''
     headers:
       User-Agent:
-      - Faraday v2.7.10
+      - Faraday v2.7.11
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -136,7 +136,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"e2e18772c9bd6ccb7f62a829c8e8d2fdb294139f2e87af9689429b940f751a43"
+      - W/"3211e5b3134534b2bd752afb7383614f0b76e5d7c68d43cc1035bd738db574f2"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -146,21 +146,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 37C0:58DF:40BD6D:4CD1CD:64F36DAF
+      - DD3A:14D8:2EA31B:3BBA3E:65103AB2
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 02 Sep 2023 17:15:31 GMT
+      - Sun, 24 Sep 2023 13:33:43 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200084-IAD
+      - cache-pdk-kpdk1780143-PDK
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1693674930.130068,VS0,VE1121
+      - S1695562423.485474,VS0,VE84
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
@@ -168,15 +168,15 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 18ff1f835c72d715446ef7b0743abb2dbdb7936a
+      - e9e52041cedcdaade67099b5199f22822b1d7a21
       Expires:
-      - Sat, 02 Sep 2023 17:20:31 GMT
+      - Sun, 24 Sep 2023 13:38:43 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
-        LS0tCnNjaGVtYS12ZXJzaW9uOiB2MS4yLjMKaWQ6IENDLURJUjEwMDA1LTIw
+        LS0tCnNjaGVtYS12ZXJzaW9uOiB2MS4yLjQKaWQ6IENDLURJUjEwMDA1LTIw
         MTkKdGl0bGU6Ci0gY29udGVudDogR3VpZGVsaW5lcyBmb3IgdGhlIGltcGxl
         bWVudGF0aW9uIG9mIHRoZSBDYWxDb25uZWN0IHBhdGVudCBwb2xpY3kKICBs
         YW5ndWFnZToKICAtIGVuCiAgZm9ybWF0OiB0ZXh0L3BsYWluCmxpbms6Ci0g
@@ -202,5 +202,5 @@ http_interactions:
         YW1lOgogICAgLSBjb250ZW50OiBDYWxDb25uZWN0CiAgZnJvbTogJzIwMTkn
         CmRvY3R5cGU6IGRpcmVjdGl2ZQplZGl0b3JpYWxncm91cDoKLSBuYW1lOiBQ
         VUJMSVNICmV4dDoKICBzY2hlbWEtdmVyc2lvbjogdjEuMC4wCg==
-  recorded_at: Sat, 02 Sep 2023 17:15:31 GMT
+  recorded_at: Sun, 24 Sep 2023 13:33:43 GMT
 recorded_with: VCR 6.2.0

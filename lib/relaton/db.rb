@@ -45,6 +45,7 @@ module Relaton
     # @option opts [Boolean] :keep_year If undated reference should return
     #   actual reference with year
     # @option opts [Integer] :retries (1) Number of network retries
+    # @option opts [Boolean] :no_cache If true then don't use cache
     #
     # @return [nil, RelatonBib::BibliographicItem,
     #   RelatonIsoBib::IsoBibliographicItem, RelatonItu::ItuBibliographicItem,
@@ -111,7 +112,7 @@ module Relaton
           rescue RelatonBib::RequestError => e
             args[3].call e
           rescue StandardError => e
-            Util.log "[relaton] ERROR: #{args[0]} -- #{e.message}", :error
+            Util.error "ERROR: `#{args[0]}` -- #{e.message}"
             args[3].call nil
           end
           @queues[stdclass] = { queue: SizedQueue.new(threads * 2), workers_pool: wp }
@@ -420,6 +421,7 @@ module Relaton
     # @option opts [Boolean, nil] :keep_year If true then undated reference
     #   should return actual reference with year
     # @option opts [Integer] :retries (1) Number of network retries
+    # @option opts [Boolean] :no_cache If true then don't use cache
     #
     # @param stdclass [Symbol]
     # @param db [Relaton::DbCache,`nil]
@@ -428,30 +430,38 @@ module Relaton
     # @return [String] bibliographic entry
     #   XML or "redirection ID" or "not_found YYYY-MM-DD" string
     #
-    def new_bib_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity,Metrics/MethodLength
+    def new_bib_entry(code, year, opts, stdclass, **args)
       entry = @semaphore.synchronize { args[:db] && args[:db][args[:id]] }
-      if entry
-        if entry&.match?(/^not_found/)
-          Util.log "[relaton] (#{code}) not found."
-          return
-        end
-        return entry
-      end
+      return fetch_entry(code, year, opts, stdclass, **args) if !entry || opts[:no_cache]
 
+      if entry&.match?(/^not_found/)
+        Util.warn "(#{code}) not found in cache, if you wish to " \
+                  "ignore cache please use `no-cache` option."
+        return
+      end
+      entry
+    end
+
+    def fetch_entry(code, year, opts, stdclass, **args)
       processor = @registry.processors[stdclass]
       bib = net_retry(code, year, opts, processor, opts.fetch(:retries, 1))
-      bib_id = bib&.docidentifier&.first&.id
 
-      # when docid doesn't match bib's id then return a reference to bib's id
-      entry = if args[:db] && args[:id] && bib_id && args[:id] !~ %r{#{Regexp.quote("(#{bib_id})")}}
-                bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
-                @semaphore.synchronize { args[:db][bid] ||= bib_entry bib }
-                "redirection #{bid}"
-              else bib_entry bib
-              end
+      entry = check_entry(bib, stdclass, **args)
       return entry if args[:db].nil? || args[:id].nil?
 
       @semaphore.synchronize { args[:db][args[:id]] ||= entry }
+    end
+
+    def check_entry(bib, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+      bib_id = bib&.docidentifier&.first&.id
+
+      # when docid doesn't match bib's id then return a reference to bib's id
+      if args[:db] && args[:id] && bib_id && args[:id] !~ %r{#{Regexp.quote("(#{bib_id})")}}
+        bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
+        @semaphore.synchronize { args[:db][bid] ||= bib_entry bib }
+        "redirection #{bid}"
+      else bib_entry bib
+      end
     end
 
     #
@@ -501,10 +511,7 @@ module Relaton
         next if db.check_version?(fdir)
 
         FileUtils.rm_rf(fdir, secure: true)
-        Util.log(
-          "[relaton] WARNING: cache #{fdir}: version is obsolete and cache is "\
-          "cleared.", :warning
-        )
+        Util.warn "WARNING: cache #{fdir}: version is obsolete and cache is cleared."
       end
       db
     end

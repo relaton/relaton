@@ -20,7 +20,7 @@ module Relaton
       return unless new_dir && @ext == "xml"
 
       if File.exist? new_dir
-        warn "[relaton] WARNING: target directory exists \"#{new_dir}\""
+        Util.warn "WARNING: target directory exists `#{new_dir}`"
         return
       end
 
