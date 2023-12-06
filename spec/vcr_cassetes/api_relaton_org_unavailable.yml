@@ -33,7 +33,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Mon, 27 Nov 2023 01:56:10 GMT
+      - Tue, 05 Dec 2023 16:43:26 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Transfer-Encoding:
@@ -319,11 +319,13 @@ http_interactions:
         dGl2ZSI6eyJuYkhpdHMiOnRydWUsInR5cG8iOnRydWV9LCJxdWVyeSI6IklT
         TyAxOTExNS0yIiwicGFyYW1zIjoicXVlcnk9SVNPKzE5MTE1LTImaGl0c1Bl
         clBhZ2U9MTAwJmZpbHRlcnM9Y2F0ZWdvcnklM0FzdGFuZGFyZCIsInF1ZXJ5
-        SUQiOiI2MTg2N2Q5NjYzOTE4YmE2ZGIyNmIwMDU3ZWY5Y2NiMiIsIl9hdXRv
-        bWF0aWNJbnNpZ2h0cyI6dHJ1ZSwicHJvY2Vzc2luZ1RpbWVNUyI6MSwicHJv
-        Y2Vzc2luZ1RpbWluZ3NNUyI6eyJfcmVxdWVzdCI6eyJyb3VuZFRyaXAiOjEx
-        NH19fQ==
-  recorded_at: Mon, 27 Nov 2023 01:56:10 GMT
+        SUQiOiIyYWJkMGZiYzIzYjUwOWE0ZTc5ODk1ZTgxNzViOTc4ZSIsIl9hdXRv
+        bWF0aWNJbnNpZ2h0cyI6dHJ1ZSwicmVuZGVyaW5nQ29udGVudCI6e30sInBy
+        b2Nlc3NpbmdUaW1lTVMiOjIsInByb2Nlc3NpbmdUaW1pbmdzTVMiOnsiX3Jl
+        cXVlc3QiOnsicm91bmRUcmlwIjoxMzJ9LCJnZXRJZHgiOnsibG9hZCI6eyJ0
+        b3RhbCI6MX0sInRvdGFsIjoxfSwidG90YWwiOjJ9LCJzZXJ2ZXJUaW1lTVMi
+        OjJ9
+  recorded_at: Tue, 05 Dec 2023 16:43:26 GMT
 - request:
     method: get
     uri: https://www.iso.org/contents/data/standard/06/70/67039.html
@@ -337,6 +339,8 @@ http_interactions:
       - "*/*"
       User-Agent:
       - Ruby
+      Host:
+      - www.iso.org
   response:
     status:
       code: 301
@@ -351,19 +355,19 @@ http_interactions:
       Set-Cookie:
       - BIGipServerpool_prod_iso_www-jahia=747131274.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=795B6207242D41D9A2D638DD8BEABD6B; Path=/; Secure; HttpOnly
+      - JSESSIONID=7A797ED29CA178865819A841370262DD; Path=/; Secure; HttpOnly
       Location:
       - "/standard/67039.html"
       Content-Length:
       - '0'
       Date:
-      - Mon, 27 Nov 2023 03:56:11 IST
+      - Tue, 05 Dec 2023 16:43:27 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
       encoding: UTF-8
       base64_string: ''
-  recorded_at: Mon, 27 Nov 2023 01:56:11 GMT
+  recorded_at: Tue, 05 Dec 2023 16:43:28 GMT
 - request:
     method: get
     uri: https://www.iso.org/standard/67039.html
@@ -377,6 +381,8 @@ http_interactions:
       - "*/*"
       User-Agent:
       - Ruby
+      Host:
+      - www.iso.org
   response:
     status:
       code: 200
@@ -389,9 +395,9 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=730354058.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=713576842.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=884964E5ED0AF2C3D8ED1063AD0449C8; Path=/; Secure; HttpOnly
+      - JSESSIONID=4204EF9E2516C1347D805244052C8288; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -399,7 +405,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Mon, 27 Nov 2023 01:56:11 GMT
+      - Tue, 05 Dec 2023 16:43:27 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -2021,7 +2027,7 @@ http_interactions:
         ICAgICAgPGRpdiBjbGFzcz0icG93ZXJlZGJ5LXR4dCI+UG93ZXJlZCBieTwv
         ZGl2PgogICAgICAgIDwvZGl2PgogICAgICA8L2Rpdj4KICAgIDwvZm9vdGVy
         PgogICAgPC9ib2R5Pgo8L2h0bWw+
-  recorded_at: Mon, 27 Nov 2023 01:56:12 GMT
+  recorded_at: Tue, 05 Dec 2023 16:43:28 GMT
 - request:
     method: get
     uri: https://www.iso.org/fr/standard/67039.html
@@ -2035,6 +2041,8 @@ http_interactions:
       - "*/*"
       User-Agent:
       - Ruby
+      Host:
+      - www.iso.org
   response:
     status:
       code: 200
@@ -2047,9 +2055,9 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=713576842.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=747131274.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=E05E88F6B408E2EC60EA5EBAD90AEADF; Path=/; Secure; HttpOnly
+      - JSESSIONID=17112027A292F5EA943221E3534F067C; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -2057,7 +2065,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Mon, 27 Nov 2023 01:56:12 GMT
+      - Tue, 05 Dec 2023 16:43:29 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -3715,5 +3723,5 @@ http_interactions:
         c3M9InBvd2VyZWRieS10eHQiPkTDqXZlbG9wcMOpIHBhcjwvZGl2PgogICAg
         ICAgIDwvZGl2PgogICAgICA8L2Rpdj4KICAgIDwvZm9vdGVyPgogICAgPC9i
         b2R5Pgo8L2h0bWw+
-  recorded_at: Mon, 27 Nov 2023 01:56:13 GMT
+  recorded_at: Tue, 05 Dec 2023 16:43:29 GMT
 recorded_with: VCR 6.2.0

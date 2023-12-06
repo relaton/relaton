@@ -138,45 +138,45 @@ RSpec.describe Relaton::Db do
   end
 
   context "get GB reference" do
-    # it "and cache it" do
-    #   VCR.use_cassette "gb_t_20223_2006" do
-    #     bib = @db.fetch "CN(GB/T 20223)", "2006", {}
-    #     expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
-    #     expect(bib.to_xml(bibdata: true)).to include <<~XML
-    #       <project-number>GB/T 20223</project-number>
-    #     XML
-    #     expect(File.exist?("testcache")).to be true
-    #     expect(File.exist?("testcache2")).to be true
-    #     testcache = Relaton::DbCache.new "testcache"
-    #     expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
-    #       <project-number>GB/T 20223</project-number>
-    #     XML
-    #     testcache = Relaton::DbCache.new "testcache2"
-    #     expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
-    #       <project-number>GB/T 20223</project-number>
-    #     XML
-    #   end
-    # end
+    it "and cache it" do
+      VCR.use_cassette "gb_t_20223_2006" do
+        bib = @db.fetch "CN(GB/T 20223)", "2006", {}
+        expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
+        expect(bib.to_xml(bibdata: true)).to include <<~XML
+          <project-number>GB/T 20223</project-number>
+        XML
+        expect(File.exist?("testcache")).to be true
+        expect(File.exist?("testcache2")).to be true
+        testcache = Relaton::DbCache.new "testcache"
+        expect(testcache["CN(GB/T 20223-2006)"]).to include <<~XML
+          <project-number>GB/T 20223</project-number>
+        XML
+        testcache = Relaton::DbCache.new "testcache2"
+        expect(testcache["CN(GB/T 20223-2006)"]).to include <<~XML
+          <project-number>GB/T 20223</project-number>
+        XML
+      end
+    end
 
-    # it "with year" do
-    #   VCR.use_cassette "gb_t_20223_2006" do
-    #     bib = @db.fetch "CN(GB/T 20223-2006)", nil, {}
-    #     expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
-    #     expect(bib.to_xml(bibdata: true)).to include <<~XML
-    #       <project-number>GB/T 20223</project-number>
-    #     XML
-    #     expect(File.exist?("testcache")).to be true
-    #     expect(File.exist?("testcache2")).to be true
-    #     testcache = Relaton::DbCache.new "testcache"
-    #     expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
-    #       <project-number>GB/T 20223</project-number>
-    #     XML
-    #     testcache = Relaton::DbCache.new "testcache2"
-    #     expect(testcache["CN(GB/T 20223:2006)"]).to include <<~XML
-    #       <project-number>GB/T 20223</project-number>
-    #     XML
-    #   end
-    # end
+    it "with year" do
+      VCR.use_cassette "gb_t_20223_2006" do
+        bib = @db.fetch "CN(GB/T 20223-2006)", nil, {}
+        expect(bib).to be_instance_of RelatonGb::GbBibliographicItem
+        expect(bib.to_xml(bibdata: true)).to include <<~XML
+          <project-number>GB/T 20223</project-number>
+        XML
+        expect(File.exist?("testcache")).to be true
+        expect(File.exist?("testcache2")).to be true
+        testcache = Relaton::DbCache.new "testcache"
+        expect(testcache["CN(GB/T 20223-2006)"]).to include <<~XML
+          <project-number>GB/T 20223</project-number>
+        XML
+        testcache = Relaton::DbCache.new "testcache2"
+        expect(testcache["CN(GB/T 20223-2006)"]).to include <<~XML
+          <project-number>GB/T 20223</project-number>
+        XML
+      end
+    end
   end
 
   it "get RFC reference and cache it" do
@@ -353,6 +353,15 @@ RSpec.describe Relaton::Db do
     bib = @db.fetch "XEP 0001"
     expect(bib).to be_instance_of RelatonXsf::BibliographicItem
     expect(bib.docidentifier.first.id).to eq "XEP 0001"
+  end
+
+  it "get ETSI reference" do
+    docid = RelatonBib::DocumentIdentifier.new(id: "ETSI EN 300 175-8", type: "ETSI")
+    item = RelatonEtsi::BibliographicItem.new docid: [docid]
+    expect(RelatonEtsi::Bibliography).to receive(:get).with("ETSI EN 300 175-8", nil, {}).and_return item
+    bib = @db.fetch "ETSI EN 300 175-8"
+    expect(bib).to be_instance_of RelatonEtsi::BibliographicItem
+    expect(bib.docidentifier.first.id).to eq "ETSI EN 300 175-8"
   end
 
   context "get combined documents" do

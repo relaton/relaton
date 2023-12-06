@@ -33,7 +33,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Mon, 27 Nov 2023 01:55:41 GMT
+      - Tue, 05 Dec 2023 16:42:57 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Transfer-Encoding:
@@ -420,12 +420,13 @@ http_interactions:
         c3RpdmVUeXBvIjp0cnVlLCJleGhhdXN0aXZlIjp7Im5iSGl0cyI6dHJ1ZSwi
         dHlwbyI6dHJ1ZX0sInF1ZXJ5IjoiSVNPIDE5MTE1LTEiLCJwYXJhbXMiOiJx
         dWVyeT1JU08rMTkxMTUtMSZoaXRzUGVyUGFnZT0xMDAmZmlsdGVycz1jYXRl
-        Z29yeSUzQXN0YW5kYXJkIiwicXVlcnlJRCI6ImM2MTJkMjFhNmFjOThhMDA2
-        OGI0MTI1YzAyNzQ3MTU2IiwiX2F1dG9tYXRpY0luc2lnaHRzIjp0cnVlLCJw
-        cm9jZXNzaW5nVGltZU1TIjoxLCJwcm9jZXNzaW5nVGltaW5nc01TIjp7Il9y
-        ZXF1ZXN0Ijp7InJvdW5kVHJpcCI6MTI1fSwidG90YWwiOjF9LCJzZXJ2ZXJU
-        aW1lTVMiOjF9
-  recorded_at: Mon, 27 Nov 2023 01:55:41 GMT
+        Z29yeSUzQXN0YW5kYXJkIiwicXVlcnlJRCI6IjlmM2IwOGFlMWIyMmYyNTc1
+        NTIyZGM5OWI2YjYxNThiIiwiX2F1dG9tYXRpY0luc2lnaHRzIjp0cnVlLCJy
+        ZW5kZXJpbmdDb250ZW50Ijp7fSwicHJvY2Vzc2luZ1RpbWVNUyI6MiwicHJv
+        Y2Vzc2luZ1RpbWluZ3NNUyI6eyJfcmVxdWVzdCI6eyJyb3VuZFRyaXAiOjE5
+        MX0sImdldElkeCI6eyJsb2FkIjp7InRvdGFsIjoxfSwidG90YWwiOjF9LCJ0
+        b3RhbCI6M30sInNlcnZlclRpbWVNUyI6M30=
+  recorded_at: Tue, 05 Dec 2023 16:42:57 GMT
 - request:
     method: get
     uri: https://www.iso.org/contents/data/standard/05/37/53798.html
@@ -439,6 +440,8 @@ http_interactions:
       - "*/*"
       User-Agent:
       - Ruby
+      Host:
+      - www.iso.org
   response:
     status:
       code: 301
@@ -453,19 +456,19 @@ http_interactions:
       Set-Cookie:
       - BIGipServerpool_prod_iso_www-jahia=747131274.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=9B8A281C2A50EFC7E03FA324AE392177; Path=/; Secure; HttpOnly
+      - JSESSIONID=B1574E05AFE685076CA1E0FADEBC6719; Path=/; Secure; HttpOnly
       Location:
       - "/standard/53798.html"
       Content-Length:
       - '0'
       Date:
-      - Mon, 27 Nov 2023 03:55:42 IST
+      - Tue, 05 Dec 2023 16:42:58 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
       encoding: UTF-8
       base64_string: ''
-  recorded_at: Mon, 27 Nov 2023 01:55:42 GMT
+  recorded_at: Tue, 05 Dec 2023 16:42:58 GMT
 - request:
     method: get
     uri: https://www.iso.org/standard/53798.html
@@ -479,6 +482,8 @@ http_interactions:
       - "*/*"
       User-Agent:
       - Ruby
+      Host:
+      - www.iso.org
   response:
     status:
       code: 200
@@ -491,9 +496,9 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=747131274.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=730354058.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=1605567F38931D01DA5B09D57E4D7725; Path=/; Secure; HttpOnly
+      - JSESSIONID=E0408465F5FBAE9D9C2C09B27B679B08; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -501,7 +506,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Mon, 27 Nov 2023 03:55:42 IST
+      - Tue, 05 Dec 2023 16:42:58 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -2144,63 +2149,63 @@ http_interactions:
         cz0iZm9vdGVyLXNvY2lhbCBjbGVhcmZpeCI+CiAgICAgICAgICA8dWwgaXRl
         bXNjb3BlIGl0ZW10eXBlPSJodHRwczovL3NjaGVtYS5vcmcvT3JnYW5pemF0
         aW9uIj4KICAgICAgICAgICAgPGxpbmsgaXRlbXByb3A9InVybCIgaHJlZj0i
-        aHR0cHM6Ly93d3cuaXNvLm9yZy8iPgogICAgICAgICAgICA8bGk+PGEgaXRl
-        bXByb3A9InNhbWVBcyIgdGFyZ2V0PSJfYmxhbmsiIHJlbD0ibm9vcGVuZXIi
-        IGhyZWY9Imh0dHBzOi8vd3d3LmxpbmtlZGluLmNvbS9jb21wYW55L2lzb3N0
-        YW5kYXJkcyIgdGl0bGU9IkxpbmtlZGluIj48aSBjbGFzcz0iYmktbGlua2Vk
-        aW4iPjwvaT48L2E+PC9saT4KICAgICAgICAgICAgPGxpPjxhIGl0ZW1wcm9w
-        PSJzYW1lQXMiIHRhcmdldD0iX2JsYW5rIiByZWw9Im5vb3BlbmVyIiBocmVm
-        PSJodHRwczovL3R3aXR0ZXIuY29tL2lzb3N0YW5kYXJkcyIgdGl0bGU9IlR3
-        aXR0ZXIiPjxpIGNsYXNzPSJiaS10d2l0dGVyIj48L2k+PC9hPjwvbGk+CiAg
-        ICAgICAgICAgIDxsaT48YSBpdGVtcHJvcD0ic2FtZUFzIiB0YXJnZXQ9Il9i
-        bGFuayIgcmVsPSJub29wZW5lciIgaHJlZj0iaHR0cHM6Ly93d3cuZmFjZWJv
-        b2suY29tL2lzb3N0YW5kYXJkcyIgdGl0bGU9IkZhY2Vib29rIj48aSBjbGFz
-        cz0iYmktZmFjZWJvb2siPjwvaT48L2E+PC9saT4KICAgICAgICAgICAgPGxp
-        PjxhIGl0ZW1wcm9wPSJzYW1lQXMiIHRhcmdldD0iX2JsYW5rIiByZWw9Im5v
-        b3BlbmVyIiBocmVmPSJodHRwczovL3d3dy5pbnN0YWdyYW0uY29tL2lzb3N0
-        YW5kYXJkcyIgdGl0bGU9Ikluc3RhZ3JhbSI+PGkgY2xhc3M9ImJpLWluc3Rh
-        Z3JhbSI+PC9pPjwvYT48L2xpPgogICAgICAgICAgICA8bGk+PGEgaXRlbXBy
-        b3A9InNhbWVBcyIgdGFyZ2V0PSJfYmxhbmsiIHJlbD0ibm9vcGVuZXIiIGhy
-        ZWY9Imh0dHBzOi8vd3d3LnlvdXR1YmUuY29tL0lTTyIgdGl0bGU9IllvdVR1
-        YmUiPjxpIGNsYXNzPSJiaS15b3V0dWJlIj48L2k+PC9hPjwvbGk+CiAgICAg
-        ICAgICAgIDxsaT48YSBpdGVtcHJvcD0ic2FtZUFzIiB0YXJnZXQ9Il9ibGFu
-        ayIgcmVsPSJub29wZW5lciIgaHJlZj0iaHR0cHM6Ly93d3cuZmxpY2tyLmNv
-        bS9waG90b3MvaXNvc3RhbmRhcmRzIiB0aXRsZT0iRmxpY2tyIj48aSBjbGFz
-        cz0iYmktZmxpY2tyIj48L2k+PC9hPjwvbGk+CiAgICAgICAgICA8L3VsPgog
-        ICAgICAgIDwvZGl2PgogICAgICAgIDxwIGNsYXNzPSJkaXNwbGF5LTUgb3Bh
-        Y2l0eS0xMDAiPk1ha2luZyBsaXZlcyA8c3Ryb25nPjxlbT5lYXNpZXI8L2Vt
-        Pjwvc3Ryb25nPiwgPHN0cm9uZz48ZW0+c2FmZXI8L2VtPjwvc3Ryb25nPiBh
-        bmQgPHN0cm9uZz48ZW0+YmV0dGVyPC9lbT48L3N0cm9uZz4uPC9wPgogICAg
-        ICAgIDxkaXYgY2xhc3M9InJvdyI+CiAgICAgICAgICA8ZGl2IGNsYXNzPSJj
-        b2wtbWQtOCBjb2wtbWQtb2Zmc2V0LTIgcHVsbC1sZWZ0Ij4KICAgICAgICAg
-        ICAgPHAgY2xhc3M9InRleHQteHMiPldlIGFyZSBjb21taXR0ZWQgdG8gZW5z
-        dXJpbmcgdGhhdCBvdXIgd2Vic2l0ZSBpcyBhY2Nlc3NpYmxlIHRvIGV2ZXJ5
-        b25lLiBJZiB5b3UgaGF2ZSBhbnkgcXVlc3Rpb25zIG9yIHN1Z2dlc3Rpb25z
-        IHJlZ2FyZGluZyB0aGUgYWNjZXNzaWJpbGl0eSBvZiB0aGlzIHNpdGUsIHBs
-        ZWFzZSA8YSBocmVmPSJtYWlsdG86d2VibWFzdGVyQGlzby5vcmc/c3ViamVj
-        dD1BY2Nlc3NpYmlsaXR5IiBzdHlsZT0id2hpdGUtc3BhY2U6IG5vd3JhcCI+
-        Y29udGFjdCB1czwvYT4uPC9wPgogICAgICAgICAgICA8cCBjbGFzcz0idGV4
-        dC1zbSI+PGEgaHJlZj0iI2NvcHlyaWdodCIgdGFyZ2V0PSJfc2VsZiIgZGF0
-        YS1icy10b2dnbGU9ImNvbGxhcHNlIiBhcmlhLWV4cGFuZGVkPSJmYWxzZSIg
-        YXJpYS1jb250cm9scz0iY29weXJpZ2h0Ij7CqSBBbGwgUmlnaHRzIFJlc2Vy
-        dmVkPC9hPiA8c3BhbiBpZD0iY29weXJpZ2h0IiBjbGFzcz0iY29sbGFwc2Ui
-        PkFsbCBJU08gcHVibGljYXRpb25zIGFuZCBtYXRlcmlhbHMgYXJlIHByb3Rl
-        Y3RlZCBieSBjb3B5cmlnaHQgYW5kIGFyZSBzdWJqZWN0IHRvIHRoZSB1c2Vy
-        4oCZcyBhY2NlcHRhbmNlIG9mIElTT+KAmXMgY29uZGl0aW9ucyBvZiBjb3B5
-        cmlnaHQuIEFueSB1c2UsIGluY2x1ZGluZyByZXByb2R1Y3Rpb24gcmVxdWly
-        ZXMgb3VyIHdyaXR0ZW4gcGVybWlzc2lvbi4gQWxsIGNvcHlyaWdodCByZXF1
-        ZXN0cyBzaG91bGQgYmUgYWRkcmVzc2VkIHRvIDxhIGhyZWY9Im1haWx0bzpj
-        b3B5cmlnaHRAaXNvLm9yZyI+Y29weXJpZ2h0QGlzby5vcmc8L2E+Ljwvc3Bh
-        bj48L3A+CiAgICAgICAgICA8L2Rpdj4KICAgICAgICA8L2Rpdj4KICAgICAg
-        PC9kaXY+CiAgICAgIDxkaXYgY2xhc3M9InRvcGJhciI+CiAgICAgICAgPGRp
-        diBjbGFzcz0idG9wYmFyLWNvbnRlbnQiPgogICAgICAgICAgPGEgY2xhc3M9
-        ImxvZ28gaXNvbG9nbyBsb2dvLXhzIHRoZW1lLXJlZCBwb3dlcmVkYnkgcGFn
-        ZS1zY3JvbGwgbG9nby1zY3JvbGxUb3AiIGhyZWY9IiNwYWdlLXRvcCIgdGl0
-        bGU9IlNjcm9sbCB0byB0b3AiPjwvYT4KICAgICAgICAgIDxkaXYgY2xhc3M9
-        InBvd2VyZWRieS10eHQiPlBvd2VyZWQgYnk8L2Rpdj4KICAgICAgICA8L2Rp
-        dj4KICAgICAgPC9kaXY+CiAgICA8L2Zvb3Rlcj4KICAgIDwvYm9keT4KPC9o
-        dG1sPg==
-  recorded_at: Mon, 27 Nov 2023 01:55:43 GMT
+        aHR0cHM6Ly93d3cuaXNvLm9yZyI+CiAgICAgICAgICAgIDxsaT48YSBpdGVt
+        cHJvcD0ic2FtZUFzIiB0YXJnZXQ9Il9ibGFuayIgcmVsPSJub29wZW5lciIg
+        aHJlZj0iaHR0cHM6Ly93d3cubGlua2VkaW4uY29tL2NvbXBhbnkvaXNvc3Rh
+        bmRhcmRzIiB0aXRsZT0iTGlua2VkaW4iPjxpIGNsYXNzPSJiaS1saW5rZWRp
+        biI+PC9pPjwvYT48L2xpPgogICAgICAgICAgICA8bGk+PGEgaXRlbXByb3A9
+        InNhbWVBcyIgdGFyZ2V0PSJfYmxhbmsiIHJlbD0ibm9vcGVuZXIiIGhyZWY9
+        Imh0dHBzOi8vdHdpdHRlci5jb20vaXNvc3RhbmRhcmRzIiB0aXRsZT0iVHdp
+        dHRlciI+PGkgY2xhc3M9ImJpLXR3aXR0ZXIiPjwvaT48L2E+PC9saT4KICAg
+        ICAgICAgICAgPGxpPjxhIGl0ZW1wcm9wPSJzYW1lQXMiIHRhcmdldD0iX2Js
+        YW5rIiByZWw9Im5vb3BlbmVyIiBocmVmPSJodHRwczovL3d3dy5mYWNlYm9v
+        ay5jb20vaXNvc3RhbmRhcmRzIiB0aXRsZT0iRmFjZWJvb2siPjxpIGNsYXNz
+        PSJiaS1mYWNlYm9vayI+PC9pPjwvYT48L2xpPgogICAgICAgICAgICA8bGk+
+        PGEgaXRlbXByb3A9InNhbWVBcyIgdGFyZ2V0PSJfYmxhbmsiIHJlbD0ibm9v
+        cGVuZXIiIGhyZWY9Imh0dHBzOi8vd3d3Lmluc3RhZ3JhbS5jb20vaXNvc3Rh
+        bmRhcmRzIiB0aXRsZT0iSW5zdGFncmFtIj48aSBjbGFzcz0iYmktaW5zdGFn
+        cmFtIj48L2k+PC9hPjwvbGk+CiAgICAgICAgICAgIDxsaT48YSBpdGVtcHJv
+        cD0ic2FtZUFzIiB0YXJnZXQ9Il9ibGFuayIgcmVsPSJub29wZW5lciIgaHJl
+        Zj0iaHR0cHM6Ly93d3cueW91dHViZS5jb20vSVNPIiB0aXRsZT0iWW91VHVi
+        ZSI+PGkgY2xhc3M9ImJpLXlvdXR1YmUiPjwvaT48L2E+PC9saT4KICAgICAg
+        ICAgICAgPGxpPjxhIGl0ZW1wcm9wPSJzYW1lQXMiIHRhcmdldD0iX2JsYW5r
+        IiByZWw9Im5vb3BlbmVyIiBocmVmPSJodHRwczovL3d3dy5mbGlja3IuY29t
+        L3Bob3Rvcy9pc29zdGFuZGFyZHMiIHRpdGxlPSJGbGlja3IiPjxpIGNsYXNz
+        PSJiaS1mbGlja3IiPjwvaT48L2E+PC9saT4KICAgICAgICAgIDwvdWw+CiAg
+        ICAgICAgPC9kaXY+CiAgICAgICAgPHAgY2xhc3M9ImRpc3BsYXktNSBvcGFj
+        aXR5LTEwMCI+TWFraW5nIGxpdmVzIDxzdHJvbmc+PGVtPmVhc2llcjwvZW0+
+        PC9zdHJvbmc+LCA8c3Ryb25nPjxlbT5zYWZlcjwvZW0+PC9zdHJvbmc+IGFu
+        ZCA8c3Ryb25nPjxlbT5iZXR0ZXI8L2VtPjwvc3Ryb25nPi48L3A+CiAgICAg
+        ICAgPGRpdiBjbGFzcz0icm93Ij4KICAgICAgICAgIDxkaXYgY2xhc3M9ImNv
+        bC1tZC04IGNvbC1tZC1vZmZzZXQtMiBwdWxsLWxlZnQiPgogICAgICAgICAg
+        ICA8cCBjbGFzcz0idGV4dC14cyI+V2UgYXJlIGNvbW1pdHRlZCB0byBlbnN1
+        cmluZyB0aGF0IG91ciB3ZWJzaXRlIGlzIGFjY2Vzc2libGUgdG8gZXZlcnlv
+        bmUuIElmIHlvdSBoYXZlIGFueSBxdWVzdGlvbnMgb3Igc3VnZ2VzdGlvbnMg
+        cmVnYXJkaW5nIHRoZSBhY2Nlc3NpYmlsaXR5IG9mIHRoaXMgc2l0ZSwgcGxl
+        YXNlIDxhIGhyZWY9Im1haWx0bzp3ZWJtYXN0ZXJAaXNvLm9yZz9zdWJqZWN0
+        PUFjY2Vzc2liaWxpdHkiIHN0eWxlPSJ3aGl0ZS1zcGFjZTogbm93cmFwIj5j
+        b250YWN0IHVzPC9hPi48L3A+CiAgICAgICAgICAgIDxwIGNsYXNzPSJ0ZXh0
+        LXNtIj48YSBocmVmPSIjY29weXJpZ2h0IiB0YXJnZXQ9Il9zZWxmIiBkYXRh
+        LWJzLXRvZ2dsZT0iY29sbGFwc2UiIGFyaWEtZXhwYW5kZWQ9ImZhbHNlIiBh
+        cmlhLWNvbnRyb2xzPSJjb3B5cmlnaHQiPsKpIEFsbCBSaWdodHMgUmVzZXJ2
+        ZWQ8L2E+IDxzcGFuIGlkPSJjb3B5cmlnaHQiIGNsYXNzPSJjb2xsYXBzZSI+
+        QWxsIElTTyBwdWJsaWNhdGlvbnMgYW5kIG1hdGVyaWFscyBhcmUgcHJvdGVj
+        dGVkIGJ5IGNvcHlyaWdodCBhbmQgYXJlIHN1YmplY3QgdG8gdGhlIHVzZXLi
+        gJlzIGFjY2VwdGFuY2Ugb2YgSVNP4oCZcyBjb25kaXRpb25zIG9mIGNvcHly
+        aWdodC4gQW55IHVzZSwgaW5jbHVkaW5nIHJlcHJvZHVjdGlvbiByZXF1aXJl
+        cyBvdXIgd3JpdHRlbiBwZXJtaXNzaW9uLiBBbGwgY29weXJpZ2h0IHJlcXVl
+        c3RzIHNob3VsZCBiZSBhZGRyZXNzZWQgdG8gPGEgaHJlZj0ibWFpbHRvOmNv
+        cHlyaWdodEBpc28ub3JnIj5jb3B5cmlnaHRAaXNvLm9yZzwvYT4uPC9zcGFu
+        PjwvcD4KICAgICAgICAgIDwvZGl2PgogICAgICAgIDwvZGl2PgogICAgICA8
+        L2Rpdj4KICAgICAgPGRpdiBjbGFzcz0idG9wYmFyIj4KICAgICAgICA8ZGl2
+        IGNsYXNzPSJ0b3BiYXItY29udGVudCI+CiAgICAgICAgICA8YSBjbGFzcz0i
+        bG9nbyBpc29sb2dvIGxvZ28teHMgdGhlbWUtcmVkIHBvd2VyZWRieSBwYWdl
+        LXNjcm9sbCBsb2dvLXNjcm9sbFRvcCIgaHJlZj0iI3BhZ2UtdG9wIiB0aXRs
+        ZT0iU2Nyb2xsIHRvIHRvcCI+PC9hPgogICAgICAgICAgPGRpdiBjbGFzcz0i
+        cG93ZXJlZGJ5LXR4dCI+UG93ZXJlZCBieTwvZGl2PgogICAgICAgIDwvZGl2
+        PgogICAgICA8L2Rpdj4KICAgIDwvZm9vdGVyPgogICAgPC9ib2R5Pgo8L2h0
+        bWw+
+  recorded_at: Tue, 05 Dec 2023 16:42:59 GMT
 - request:
     method: get
     uri: https://www.iso.org/fr/standard/53798.html
@@ -2214,6 +2219,8 @@ http_interactions:
       - "*/*"
       User-Agent:
       - Ruby
+      Host:
+      - www.iso.org
   response:
     status:
       code: 200
@@ -2228,7 +2235,7 @@ http_interactions:
       Set-Cookie:
       - BIGipServerpool_prod_iso_www-jahia=730354058.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=7A27CAF72B9190AA08643B474493D03F; Path=/; Secure; HttpOnly
+      - JSESSIONID=09F8B9FB80650EC766D2F19D5DB4BFCD; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -2236,7 +2243,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Mon, 27 Nov 2023 01:55:43 GMT
+      - Tue, 05 Dec 2023 16:43:00 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -3981,7 +3988,7 @@ http_interactions:
         ICAgIDxkaXYgY2xhc3M9InBvd2VyZWRieS10eHQiPkTDqXZlbG9wcMOpIHBh
         cjwvZGl2PgogICAgICAgIDwvZGl2PgogICAgICA8L2Rpdj4KICAgIDwvZm9v
         dGVyPgogICAgPC9ib2R5Pgo8L2h0bWw+
-  recorded_at: Mon, 27 Nov 2023 01:55:44 GMT
+  recorded_at: Tue, 05 Dec 2023 16:43:00 GMT
 - request:
     method: post
     uri: https://jcl49wv5ar-dsn.algolia.net/1/indexes/all_en/query
@@ -4015,7 +4022,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Mon, 27 Nov 2023 01:55:44 GMT
+      - Tue, 05 Dec 2023 16:43:01 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Transfer-Encoding:
@@ -4073,12 +4080,12 @@ http_interactions:
         LCJleGhhdXN0aXZlIjp7Im5iSGl0cyI6dHJ1ZSwidHlwbyI6dHJ1ZX0sInF1
         ZXJ5IjoiSVNPIDE5MTE1LTE6MjAxNC9BbWQgMSIsInBhcmFtcyI6InF1ZXJ5
         PUlTTysxOTExNS0xJTNBMjAxNCUyRkFtZCsxJmhpdHNQZXJQYWdlPTEwMCZm
-        aWx0ZXJzPWNhdGVnb3J5JTNBc3RhbmRhcmQiLCJxdWVyeUlEIjoiMzVhNmNi
-        ZmJlOTZiZTZiMDk0MDk2MmE0M2ZjN2M5ZTIiLCJfYXV0b21hdGljSW5zaWdo
-        dHMiOnRydWUsInByb2Nlc3NpbmdUaW1lTVMiOjEsInByb2Nlc3NpbmdUaW1p
-        bmdzTVMiOnsiX3JlcXVlc3QiOnsicm91bmRUcmlwIjoyMjN9LCJ0b3RhbCI6
-        MX0sInNlcnZlclRpbWVNUyI6Mn0=
-  recorded_at: Mon, 27 Nov 2023 01:55:44 GMT
+        aWx0ZXJzPWNhdGVnb3J5JTNBc3RhbmRhcmQiLCJxdWVyeUlEIjoiZWJmYzY2
+        ZWViNzg5YmI5YTNjYmEzNzVjZDJhOGI2Y2YiLCJfYXV0b21hdGljSW5zaWdo
+        dHMiOnRydWUsInJlbmRlcmluZ0NvbnRlbnQiOnt9LCJwcm9jZXNzaW5nVGlt
+        ZU1TIjoxLCJwcm9jZXNzaW5nVGltaW5nc01TIjp7Il9yZXF1ZXN0Ijp7InJv
+        dW5kVHJpcCI6MTMyfX0sInNlcnZlclRpbWVNUyI6MX0=
+  recorded_at: Tue, 05 Dec 2023 16:43:01 GMT
 - request:
     method: get
     uri: https://www.iso.org/contents/data/standard/07/31/73118.html
@@ -4092,6 +4099,8 @@ http_interactions:
       - "*/*"
       User-Agent:
       - Ruby
+      Host:
+      - www.iso.org
   response:
     status:
       code: 301
@@ -4104,21 +4113,21 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=730354058.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=713576842.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=876E7750733176DA013D8DE917933A22; Path=/; Secure; HttpOnly
+      - JSESSIONID=5759A3396403D8F837C62578BD538E0A; Path=/; Secure; HttpOnly
       Location:
       - "/standard/73118.html"
       Content-Length:
       - '0'
       Date:
-      - Mon, 27 Nov 2023 01:55:44 GMT
+      - Tue, 05 Dec 2023 16:43:00 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
       encoding: UTF-8
       base64_string: ''
-  recorded_at: Mon, 27 Nov 2023 01:55:45 GMT
+  recorded_at: Tue, 05 Dec 2023 16:43:01 GMT
 - request:
     method: get
     uri: https://www.iso.org/standard/73118.html
@@ -4132,6 +4141,8 @@ http_interactions:
       - "*/*"
       User-Agent:
       - Ruby
+      Host:
+      - www.iso.org
   response:
     status:
       code: 200
@@ -4144,9 +4155,9 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=713576842.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=747131274.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=6354240923C703C2DFE5305AB11E10A3; Path=/; Secure; HttpOnly
+      - JSESSIONID=659BF87FC99FAFF99AF04C7C84D7AF5F; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -4154,7 +4165,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Mon, 27 Nov 2023 01:55:46 GMT
+      - Tue, 05 Dec 2023 16:43:02 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -5712,7 +5723,7 @@ http_interactions:
         ICAgICAgICA8ZGl2IGNsYXNzPSJwb3dlcmVkYnktdHh0Ij5Qb3dlcmVkIGJ5
         PC9kaXY+CiAgICAgICAgPC9kaXY+CiAgICAgIDwvZGl2PgogICAgPC9mb290
         ZXI+CiAgICA8L2JvZHk+CjwvaHRtbD4=
-  recorded_at: Mon, 27 Nov 2023 01:55:46 GMT
+  recorded_at: Tue, 05 Dec 2023 16:43:02 GMT
 - request:
     method: get
     uri: https://www.iso.org/fr/standard/73118.html
@@ -5726,6 +5737,8 @@ http_interactions:
       - "*/*"
       User-Agent:
       - Ruby
+      Host:
+      - www.iso.org
   response:
     status:
       code: 200
@@ -5738,9 +5751,9 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=730354058.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=747131274.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=A29FA80DC879CE0CC4FC822C60649366; Path=/; Secure; HttpOnly
+      - JSESSIONID=DE8AADEB948E657865BE41A33B899DD1; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -5748,7 +5761,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Mon, 27 Nov 2023 01:55:47 GMT
+      - Tue, 05 Dec 2023 16:43:03 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -7340,5 +7353,5 @@ http_interactions:
         IGNsYXNzPSJwb3dlcmVkYnktdHh0Ij5Ew6l2ZWxvcHDDqSBwYXI8L2Rpdj4K
         ICAgICAgICA8L2Rpdj4KICAgICAgPC9kaXY+CiAgICA8L2Zvb3Rlcj4KICAg
         IDwvYm9keT4KPC9odG1sPg==
-  recorded_at: Mon, 27 Nov 2023 01:55:47 GMT
+  recorded_at: Tue, 05 Dec 2023 16:43:03 GMT
 recorded_with: VCR 6.2.0

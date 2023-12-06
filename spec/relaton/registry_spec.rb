@@ -119,11 +119,18 @@ RSpec.describe Relaton::Registry do
     it "CCSDS" do
       expect(Relaton::Registry.instance.by_type("CCSDS")).to be_instance_of RelatonCcsds::Processor
     end
+
+    it "ETSI" do
+      expect(Relaton::Registry.instance.by_type("ETSI")).to be_instance_of RelatonEtsi::Processor
+    end
   end
 
   it "find processot by dataset" do
-    expect(Relaton::Registry.instance
-      .find_processor_by_dataset("nist-tech-pubs"))
+    expect(Relaton::Registry.instance.find_processor_by_dataset("nist-tech-pubs"))
       .to be_instance_of RelatonNist::Processor
+  end
+
+  it "find processor by dataset" do
+    expect(Relaton::Registry.instance.find_processor_by_dataset "etsi-csv").to be_instance_of RelatonEtsi::Processor
   end
 end
