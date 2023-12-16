@@ -364,6 +364,15 @@ RSpec.describe Relaton::Db do
     expect(bib.docidentifier.first.id).to eq "ETSI EN 300 175-8"
   end
 
+  it "get ISBN reference" do
+    docid = RelatonBib::DocumentIdentifier.new(id: "ISBN 978-0-580-50101-4", type: "ISBN")
+    item = RelatonBib::BibliographicItem.new docid: [docid]
+    expect(RelatonIsbn::OpenLibrary).to receive(:get).with("ISBN 978-0-580-50101-4", nil, {}).and_return item
+    bib = @db.fetch "ISBN 978-0-580-50101-4"
+    expect(bib).to be_instance_of RelatonBib::BibliographicItem
+    expect(bib.docidentifier.first.id).to eq "ISBN 978-0-580-50101-4"
+  end
+
   context "get combined documents" do
     context "ISO" do
       it "included" do

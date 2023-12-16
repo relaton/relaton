@@ -123,6 +123,10 @@ RSpec.describe Relaton::Registry do
     it "ETSI" do
       expect(Relaton::Registry.instance.by_type("ETSI")).to be_instance_of RelatonEtsi::Processor
     end
+
+    it "ISBN" do
+      expect(Relaton::Registry.instance.by_type("ISBN")).to be_instance_of RelatonIsbn::Processor
+    end
   end
 
   it "find processot by dataset" do
