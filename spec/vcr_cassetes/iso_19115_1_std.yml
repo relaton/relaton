@@ -10,7 +10,7 @@ http_interactions:
         dGVycyI6ImNhdGVnb3J5OnN0YW5kYXJkIn0=
     headers:
       User-Agent:
-      - Algolia for Ruby (2.3.3), Ruby (3.2.0)
+      - Algolia for Ruby (2.3.4), Ruby (3.2.0)
       X-Algolia-Api-Key:
       - dd1b9e1ab383f4d4817d29cd5e96d3f0
       X-Algolia-Application-Id:
@@ -33,7 +33,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 15 Dec 2023 21:01:41 GMT
+      - Wed, 03 Jan 2024 05:07:08 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Transfer-Encoding:
@@ -420,13 +420,12 @@ http_interactions:
         c3RpdmVUeXBvIjp0cnVlLCJleGhhdXN0aXZlIjp7Im5iSGl0cyI6dHJ1ZSwi
         dHlwbyI6dHJ1ZX0sInF1ZXJ5IjoiSVNPIDE5MTE1LTEiLCJwYXJhbXMiOiJx
         dWVyeT1JU08rMTkxMTUtMSZoaXRzUGVyUGFnZT0xMDAmZmlsdGVycz1jYXRl
-        Z29yeSUzQXN0YW5kYXJkIiwicXVlcnlJRCI6IjQ3ZjkzZDQ2OTAwY2M4YzFi
-        Y2E3ZWQzNjQ0NTg4NjEzIiwiX2F1dG9tYXRpY0luc2lnaHRzIjp0cnVlLCJy
+        Z29yeSUzQXN0YW5kYXJkIiwicXVlcnlJRCI6IjU1YjBiMDBlZjc1MzkzNDNl
+        NzE0YTE1MWUwODg5Y2NmIiwiX2F1dG9tYXRpY0luc2lnaHRzIjp0cnVlLCJy
         ZW5kZXJpbmdDb250ZW50Ijp7fSwicHJvY2Vzc2luZ1RpbWVNUyI6MiwicHJv
         Y2Vzc2luZ1RpbWluZ3NNUyI6eyJfcmVxdWVzdCI6eyJyb3VuZFRyaXAiOjEw
-        MH0sImdldElkeCI6eyJsb2FkIjp7InRvdGFsIjoxfSwidG90YWwiOjF9LCJ0
-        b3RhbCI6Mn0sInNlcnZlclRpbWVNUyI6M30=
-  recorded_at: Fri, 15 Dec 2023 21:01:41 GMT
+        MX0sInRvdGFsIjoyfSwic2VydmVyVGltZU1TIjoyfQ==
+  recorded_at: Wed, 03 Jan 2024 05:07:08 GMT
 - request:
     method: get
     uri: https://www.iso.org/contents/data/standard/05/37/53798.html
@@ -456,19 +455,19 @@ http_interactions:
       Set-Cookie:
       - BIGipServerpool_prod_iso_www-jahia=747131274.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=F4736FE952D4748DA9DDC4C4F94B465E; Path=/; Secure; HttpOnly
+      - JSESSIONID=3A93482E752285557C52B6BF30531D91; Path=/; Secure; HttpOnly
       Location:
       - "/standard/53798.html"
       Content-Length:
       - '0'
       Date:
-      - Fri, 15 Dec 2023 21:01:42 GMT
+      - Wed, 03 Jan 2024 05:07:09 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
       encoding: UTF-8
       base64_string: ''
-  recorded_at: Fri, 15 Dec 2023 21:01:42 GMT
+  recorded_at: Wed, 03 Jan 2024 05:07:09 GMT
 - request:
     method: get
     uri: https://www.iso.org/standard/53798.html
@@ -498,7 +497,7 @@ http_interactions:
       Set-Cookie:
       - BIGipServerpool_prod_iso_www-jahia=747131274.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=8514CD0D2A6A3786E34C66DBEE6753E0; Path=/; Secure; HttpOnly
+      - JSESSIONID=7B3F979DD6FDC378D2559637D88B5B9E; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -506,7 +505,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Fri, 15 Dec 2023 21:01:43 GMT
+      - Wed, 03 Jan 2024 05:07:09 GMT
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -2205,7 +2204,7 @@ http_interactions:
         aXYgY2xhc3M9InBvd2VyZWRieS10eHQiPlBvd2VyZWQgYnk8L2Rpdj4KICAg
         ICAgICA8L2Rpdj4KICAgICAgPC9kaXY+CiAgICA8L2Zvb3Rlcj4KICAgIDwv
         Ym9keT4KPC9odG1sPg==
-  recorded_at: Fri, 15 Dec 2023 21:01:43 GMT
+  recorded_at: Wed, 03 Jan 2024 05:07:10 GMT
 - request:
     method: get
     uri: https://www.iso.org/fr/standard/53798.html
@@ -2233,9 +2232,9 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - BIGipServerpool_prod_iso_www-jahia=713576842.36895.0000; path=/; Httponly;
+      - BIGipServerpool_prod_iso_www-jahia=730354058.36895.0000; path=/; Httponly;
         Secure
-      - JSESSIONID=F7264095E6BC51BA78399A545C6997E9; Path=/; Secure; HttpOnly
+      - JSESSIONID=DE2F3702F37D58CF5A259B60CE16CEFD; Path=/; Secure; HttpOnly
       Vary:
       - accept-encoding
       Content-Type:
@@ -2243,7 +2242,7 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Fri, 15 Dec 2023 21:01:44 GMT
+      - Tue, 02 Jan 2024 22:07:11 MST
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains
     body:
@@ -3988,5 +3987,5 @@ http_interactions:
         YT4KICAgICAgICAgIDxkaXYgY2xhc3M9InBvd2VyZWRieS10eHQiPkTDqXZl
         bG9wcMOpIHBhcjwvZGl2PgogICAgICAgIDwvZGl2PgogICAgICA8L2Rpdj4K
         ICAgIDwvZm9vdGVyPgogICAgPC9ib2R5Pgo8L2h0bWw+
-  recorded_at: Fri, 15 Dec 2023 21:01:44 GMT
+  recorded_at: Wed, 03 Jan 2024 05:07:11 GMT
 recorded_with: VCR 6.2.0
