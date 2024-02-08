@@ -50,6 +50,38 @@ RSpec.describe Relaton::Db do
         expect(subject.send(:combine_doc, code, nil, {}, :relaton_bipm)).to be_nil
       end
     end
+
+    context "#fetch_entry" do
+      let(:db_cache) { double "db_cache" }
+
+      before do
+        expect(subject).to receive(:net_retry).with("ISO 123", nil, {}, kind_of(RelatonIso::Processor), 1).and_return :bib
+      end
+
+      it "using cache" do
+        expect(db_cache).to receive(:[]).with("ISO(ISO 123)").and_return nil
+        expect(db_cache).to receive(:[]=).with("ISO(ISO 123)", :entry)
+        expect(subject).to receive(:check_entry).with(:bib, :relaton_iso, db: db_cache, id: "ISO(ISO 123)").and_return :entry
+        entry = subject.send :fetch_entry, "ISO 123", nil, {}, :relaton_iso, db: db_cache, id: "ISO(ISO 123)"
+        expect(entry).to be :entry
+      end
+
+      it "DbCache is undefined" do
+        expect(subject).to receive(:check_entry).with(:bib, :relaton_iso).and_return :entry
+        entry = subject.send :fetch_entry, "ISO 123", nil, {}, :relaton_iso
+        expect(entry).to be :entry
+      end
+
+      it "not using cache" do
+        expect(subject).to receive(:bib_entry).with(:bib).and_return :entry
+        expect(subject).to receive(:check_entry).with(
+          :bib, :relaton_iso, db: db_cache, id: "ISO(ISO 123)", no_cache: true
+        ).and_return :entry
+        expect(db_cache).to receive(:[]).with("ISO(ISO 123)").and_return :entry
+        entry = subject.send :fetch_entry, "ISO 123", nil, {}, :relaton_iso, db: db_cache, id: "ISO(ISO 123)", no_cache: true
+        expect(entry).to be :entry
+      end
+    end
   end
 
   context "class methods" do

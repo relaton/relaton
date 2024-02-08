@@ -447,15 +447,26 @@ module Relaton
       bib = net_retry(code, year, opts, processor, opts.fetch(:retries, 1))
 
       entry = check_entry(bib, stdclass, **args)
-      return entry if args[:db].nil? || args[:id].nil?
+      return entry if args[:db].nil?
 
       @semaphore.synchronize { args[:db][args[:id]] ||= entry }
+      args[:no_cache] ? bib_entry(bib) : entry
     end
 
+    #
+    # If the reference isn't equal to the document identifier
+    # then store the document in the cache and create for the reference a redirection to the document
+    #
+    # @param [<Type>] bib <description>
+    # @param [<Type>] stdclass <description>
+    # @param [<Type>] **args <description>
+    #
+    # @return [<Type>] <description>
+    #
     def check_entry(bib, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       bib_id = bib&.docidentifier&.first&.id
 
-      # when docid doesn't match bib's id then return a reference to bib's id
+      # when ref isn't equal to bib's id then return a redirection to bib's id
       if args[:db] && args[:id] && bib_id && args[:id] !~ %r{#{Regexp.quote("(#{bib_id})")}}
         bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
         @semaphore.synchronize { args[:db][bid] ||= bib_entry bib }
