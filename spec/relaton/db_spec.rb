@@ -67,7 +67,7 @@ RSpec.describe Relaton::Db do
       end
 
       it "DbCache is undefined" do
-        expect(subject).to receive(:check_entry).with(:bib, :relaton_iso).and_return :entry
+        expect(subject).to receive(:check_entry).with(:bib, :relaton_iso, **{}).and_return :entry
         entry = subject.send :fetch_entry, "ISO 123", nil, {}, :relaton_iso
         expect(entry).to be :entry
       end
