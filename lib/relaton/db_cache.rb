@@ -20,7 +20,7 @@ module Relaton
       return unless new_dir && @ext == "xml"
 
       if File.exist? new_dir
-        Util.warn "WARNING: target directory exists `#{new_dir}`"
+        Util.info "target directory exists `#{new_dir}`"
         return
       end
 
@@ -216,6 +216,7 @@ module Relaton
       File.open file, File::RDWR | File::CREAT, encoding: "UTF-8" do |f|
         Timeout.timeout(10) { f.flock File::LOCK_EX }
         f.write content
+        f.flock File::LOCK_UN
       end
     end
   end

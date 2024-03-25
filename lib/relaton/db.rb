@@ -112,7 +112,7 @@ module Relaton
           rescue RelatonBib::RequestError => e
             args[3].call e
           rescue StandardError => e
-            Util.error "ERROR: `#{args[0]}` -- #{e.message}"
+            Util.error "`#{args[0]}` -- #{e.message}"
             args[3].call nil
           end
           @queues[stdclass] = { queue: SizedQueue.new(threads * 2), workers_pool: wp }
@@ -435,8 +435,8 @@ module Relaton
       return fetch_entry(code, year, opts, stdclass, **args) if !entry || opts[:no_cache]
 
       if entry&.match?(/^not_found/)
-        Util.warn "(#{code}) not found in cache, if you wish to " \
-                  "ignore cache please use `no-cache` option."
+        Util.info "not found in cache, if you wish to " \
+                  "ignore cache please use `no-cache` option.", key: code
         return
       end
       entry
@@ -522,7 +522,7 @@ module Relaton
         next if db.check_version?(fdir)
 
         FileUtils.rm_rf(fdir, secure: true)
-        Util.warn "WARNING: cache #{fdir}: version is obsolete and cache is cleared."
+        Util.info "cache #{fdir}: version is obsolete and cache is cleared."
       end
       db
     end
