@@ -3,8 +3,8 @@ describe Relaton do
 
   it "configure" do
     described_class.configure do |conf|
-      conf.logger = :logger
+      conf.use_api = true
     end
-    expect(described_class.configuration.logger).to eq :logger
+    expect(described_class.configuration.use_api).to be true
   end
 end

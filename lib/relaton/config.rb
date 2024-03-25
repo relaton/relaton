@@ -5,7 +5,6 @@ module Relaton
   extend Config
 
   class Configuration < RelatonBib::Configuration
-    PROGNAME = "relaton".freeze
 
     attr_accessor :use_api, :api_host
 

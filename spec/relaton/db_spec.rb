@@ -28,8 +28,8 @@ RSpec.describe Relaton::Db do
           expect(subject).to_not receive(:fetch_entry)
           entry = subject.send :new_bib_entry, "ISO 123", nil, {}, :relaton_iso, db: db, id: "ISO(ISO 123)"
           expect(entry).to be_nil
-        end.to output("[relaton] (ISO 123) not found in cache, if you wish " \
-                      "to ignore cache please use `no-cache` option.\n").to_stderr
+        end.to output("[relaton] INFO: (ISO 123) not found in cache, if you wish " \
+                      "to ignore cache please use `no-cache` option.\n").to_stderr_from_any_process
       end
 
       it "ignore cache" do
@@ -125,9 +125,10 @@ RSpec.describe Relaton::Db do
 
     it "warn if moving in existed dir" do
       expect(File).to receive(:exist?).with("new_cache_dir").and_return true
+      allow(File).to receive(:exist?).and_call_original
       expect do
         expect(db.mv("new_cache_dir")).to be_nil
-      end.to output(/\[relaton\] WARNING: target directory exists/).to_stderr
+      end.to output(/\[relaton\] INFO: target directory exists/).to_stderr_from_any_process
     end
 
     it "clear" do
@@ -299,7 +300,7 @@ RSpec.describe Relaton::Db do
 
     it "handle other errors" do
       expect(subject).to receive(:fetch).and_raise Errno::EACCES
-      log_io = Relaton.configuration.logger.instance_variable_get(:@logdev)
+      log_io = Relaton.logger_pool[0].instance_variable_get(:@logdev)
       expect(log_io).to receive(:write).with("[relaton] ERROR: `ISO REF` -- Permission denied\n")
       subject.fetch_async("ISO REF") { |r| queue << r }
       result = Timeout.timeout(5) { queue.pop }
