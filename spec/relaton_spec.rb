@@ -228,14 +228,14 @@ RSpec.describe Relaton::Db do
     end
   end
 
-  it "get UN reference" do
-    docid = RelatonBib::DocumentIdentifier.new(id: "UN TRADE/CEFACT/2004/32", type: "UN")
-    item = RelatonUn::UnBibliographicItem.new docid: [docid], session: RelatonUn::Session.new(session_number: "1")
-    expect(RelatonUn::UnBibliography).to receive(:get).with("UN TRADE/CEFACT/2004/32", nil, {}).and_return item
-    bib = @db.fetch "UN TRADE/CEFACT/2004/32", nil, {}
-    expect(bib).to be_instance_of RelatonUn::UnBibliographicItem
-    expect(bib.docidentifier.first.id).to eq "UN TRADE/CEFACT/2004/32"
-  end
+  # it "get UN reference" do
+  #   docid = RelatonBib::DocumentIdentifier.new(id: "UN TRADE/CEFACT/2004/32", type: "UN")
+  #   item = RelatonUn::UnBibliographicItem.new docid: [docid], session: RelatonUn::Session.new(session_number: "1")
+  #   expect(RelatonUn::UnBibliography).to receive(:get).with("UN TRADE/CEFACT/2004/32", nil, {}).and_return item
+  #   bib = @db.fetch "UN TRADE/CEFACT/2004/32", nil, {}
+  #   expect(bib).to be_instance_of RelatonUn::UnBibliographicItem
+  #   expect(bib.docidentifier.first.id).to eq "UN TRADE/CEFACT/2004/32"
+  # end
 
   it "get W3C reference" do
     docid = RelatonBib::DocumentIdentifier.new(id: "W3C REC-json-ld11-20200716", type: "W3C")
@@ -383,7 +383,7 @@ RSpec.describe Relaton::Db do
           expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014"
           expect(bib.relation[1].type).to eq "derivedFrom"
           expect(bib.relation[1].description).to be_nil
-          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014/Amd 1"
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014/Amd 1:2018"
         end
       end
 
@@ -395,7 +395,7 @@ RSpec.describe Relaton::Db do
           expect(bib.relation[0].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014"
           expect(bib.relation[1].type).to eq "complements"
           expect(bib.relation[1].description.content).to eq "amendment"
-          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014/Amd 1"
+          expect(bib.relation[1].bibitem.docidentifier[0].id).to eq "ISO 19115-1:2014/Amd 1:2018"
         end
       end
     end

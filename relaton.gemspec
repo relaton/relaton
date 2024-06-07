@@ -27,11 +27,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.files         = `git ls-files`.split("\n")
   # spec.test_files    = `git ls-files -- {spec}/*`.split("\n")
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.7.0")
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.0.0")
 
   spec.add_dependency "relaton-3gpp", "~> 1.18.0"
   spec.add_dependency "relaton-bipm", "~> 1.18.0"
-  spec.add_dependency "relaton-bsi", "~> 1.18.0"
+  spec.add_dependency "relaton-bsi", "~> 1.18.1"
   spec.add_dependency "relaton-calconnect", "~> 1.18.0"
   spec.add_dependency "relaton-ccsds", "~> 1.18.0"
   spec.add_dependency "relaton-cen", "~> 1.18.0"
@@ -39,14 +39,14 @@ Gem::Specification.new do |spec|
   spec.add_dependency "relaton-doi", "~> 1.18.0"
   spec.add_dependency "relaton-ecma", "~> 1.18.0"
   spec.add_dependency "relaton-etsi", "~> 1.18.0"
-  spec.add_dependency "relaton-gb", "~> 1.18.0"
+  spec.add_dependency "relaton-gb", "~> 1.18.2"
   spec.add_dependency "relaton-iana", "~> 1.18.0"
   spec.add_dependency "relaton-iec", "~> 1.18.0"
   spec.add_dependency "relaton-ieee", "~> 1.18.0"
   spec.add_dependency "relaton-ietf", "~> 1.18.0"
   spec.add_dependency "relaton-iho", "~> 1.18.0"
   spec.add_dependency "relaton-isbn", "~> 1.18.0"
-  spec.add_dependency "relaton-iso", "~> 1.18.0"
+  spec.add_dependency "relaton-iso", "~> 1.18.4"
   spec.add_dependency "relaton-itu", "~> 1.18.0"
   spec.add_dependency "relaton-jis", "~> 1.18.0"
   spec.add_dependency "relaton-nist", "~> 1.18.0"
