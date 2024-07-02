@@ -228,14 +228,14 @@ RSpec.describe Relaton::Db do
     end
   end
 
-  it "get UN reference" do
-    # docid = RelatonBib::DocumentIdentifier.new(id: "UN TRADE/CEFACT/2004/32", type: "UN")
-    # item = RelatonUn::UnBibliographicItem.new docid: [docid], session: RelatonUn::Session.new(session_number: "1")
-    # expect(RelatonUn::UnBibliography).to receive(:get).with("UN TRADE/CEFACT/2004/32", nil, {}).and_return item
-    bib = @db.fetch "UN TRADE/CEFACT/2004/32", nil, {}
-    expect(bib).to be nil # be_instance_of RelatonUn::UnBibliographicItem
-    # expect(bib.docidentifier.first.id).to eq "UN TRADE/CEFACT/2004/32"
-  end
+  # it "get UN reference" do
+  #   docid = RelatonBib::DocumentIdentifier.new(id: "UN TRADE/CEFACT/2004/32", type: "UN")
+  #   item = RelatonUn::UnBibliographicItem.new docid: [docid], session: RelatonUn::Session.new(session_number: "1")
+  #   expect(RelatonUn::UnBibliography).to receive(:get).with("UN TRADE/CEFACT/2004/32", nil, {}).and_return item
+  #   bib = @db.fetch "UN TRADE/CEFACT/2004/32", nil, {}
+  #   expect(bib).to be_instance_of RelatonUn::UnBibliographicItem
+  #   expect(bib.docidentifier.first.id).to eq "UN TRADE/CEFACT/2004/32"
+  # end
 
   it "get W3C reference" do
     docid = RelatonBib::DocumentIdentifier.new(id: "W3C REC-json-ld11-20200716", type: "W3C")

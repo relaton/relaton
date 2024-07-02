@@ -8,9 +8,7 @@ http_interactions:
       base64_string: ''
     headers:
       User-Agent:
-      - Faraday/v2.7.12 Serrano/v1.4 (mailto:open.source@ribose.com)
-      X-User-Agent:
-      - Faraday/v2.7.12 Serrano/v1.4 (mailto:open.source@ribose.com)
+      - Relaton/RelatonDoi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -21,16 +19,16 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 19 Mar 2024 03:56:56 GMT
+      - Thu, 06 Jun 2024 15:03:44 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '2196'
+      - '2209'
       Set-Cookie:
-      - AWSALB=/3PZvW3YgV9GV5VBP70izLIWvDaOIOJzi1S1beNSxfGiqKhNKvddFhWRpfunh+jzJOGdIe8o9M2/X0ib2XUSTryJtuhasZBNnolqjuRDKcvMueeiCB0uFLQo4dsq;
-        Expires=Tue, 26 Mar 2024 03:56:56 GMT; Path=/
-      - AWSALBCORS=/3PZvW3YgV9GV5VBP70izLIWvDaOIOJzi1S1beNSxfGiqKhNKvddFhWRpfunh+jzJOGdIe8o9M2/X0ib2XUSTryJtuhasZBNnolqjuRDKcvMueeiCB0uFLQo4dsq;
-        Expires=Tue, 26 Mar 2024 03:56:56 GMT; Path=/; SameSite=None
+      - AWSALB=ZWVL7G89nSP+1imetPNYQxkgb4Buhl+sCiifbxnU97+ibP1SIV09HPP4Q4LXbtZcG22v3By6gN9D9/kZ6iWrekfe3QJH5UeGoqm3gUm0iOLT+zc5PcDWVnNWNURF;
+        Expires=Thu, 13 Jun 2024 15:03:43 GMT; Path=/
+      - AWSALBCORS=ZWVL7G89nSP+1imetPNYQxkgb4Buhl+sCiifbxnU97+ibP1SIV09HPP4Q4LXbtZcG22v3By6gN9D9/kZ6iWrekfe3QJH5UeGoqm3gUm0iOLT+zc5PcDWVnNWNURF;
+        Expires=Thu, 13 Jun 2024 15:03:43 GMT; Path=/; SameSite=None
       Access-Control-Expose-Headers:
       - Link
       Access-Control-Allow-Headers:
@@ -106,7 +104,8 @@ http_interactions:
         bnRlcmVkIGludGVydmlld3MsIHBoYXNlIDEsIHZvbHVtZSAyIl0sInNob3J0
         LXRpdGxlIjpbXSwiaXNzdWVkIjp7ImRhdGUtcGFydHMiOltbMjAxOSwzXV19
         LCJyZWZlcmVuY2VzLWNvdW50IjowLCJVUkwiOiJodHRwOlwvXC9keC5kb2ku
-        b3JnXC8xMC42MDI4XC9uaXN0LmlyLjgyNDUiLCJyZWxhdGlvbiI6e30sInB1
-        Ymxpc2hlZCI6eyJkYXRlLXBhcnRzIjpbWzIwMTksM11dfX19
-  recorded_at: Tue, 19 Mar 2024 03:56:56 GMT
+        b3JnXC8xMC42MDI4XC9uaXN0LmlyLjgyNDUiLCJyZWxhdGlvbiI6e30sInN1
+        YmplY3QiOltdLCJwdWJsaXNoZWQiOnsiZGF0ZS1wYXJ0cyI6W1syMDE5LDNd
+        XX19fQ==
+  recorded_at: Thu, 06 Jun 2024 15:03:44 GMT
 recorded_with: VCR 6.2.0
