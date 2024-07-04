@@ -7,8 +7,8 @@ RSpec.describe Relaton::Db do
 
   it "rejects an illegal reference prefix" do
     expect { @db.fetch("XYZ XYZ", nil, {}) }.to output(
-      /does not have a recognised prefix/,
-    ).to_stderr
+      /\[relaton\] INFO: \(XYZ XYZ\) `XYZ XYZ` does not have a recognised prefix/,
+    ).to_stderr_from_any_process
   end
 
   context "gets an ISO reference" do

@@ -30,9 +30,7 @@ module Relaton
         require "#{b}/processor"
         register Kernel.const_get "#{camel_case(b)}::Processor"
       rescue LoadError => e
-        Util.error("Error: backend #{b} not present")
-        Util.error("Error: #{e.message}")
-        Util.error("Error: #{e.backtrace.join "\n"}")
+        Util.error "backend #{b} not present\n#{e.message}\n#{e.backtrace.join "\n"}"
       end
     end
 
@@ -97,11 +95,12 @@ module Relaton
     # @return [Symbol, nil] standard class name
     #
     def class_by_ref(ref)
+      ref = ref.match(/^\w+\((.*)\)$/) ? Regexp.last_match(1) : ref
       @processors.each do |class_name, processor|
-        return class_name if /^(urn:)?#{processor.prefix}(?!\w)/i.match?(ref) ||
+        return class_name if /^(urn:)?#{processor.prefix}\b/i.match?(ref) ||
           processor.defaultprefix.match(ref)
       end
-      Util.warn "`#{ref}` does not have a recognised prefix"
+      Util.info "`#{ref}` does not have a recognised prefix", key: ref
       nil
     end
 

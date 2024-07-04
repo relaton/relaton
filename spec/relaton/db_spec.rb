@@ -1,7 +1,14 @@
 RSpec.describe Relaton::Db do
-  before(:each) do
-    Relaton.instance_variable_set :@configuration, nil
+  before(:each) do |example|
+    # Relaton.instance_variable_set :@configuration, nil
     FileUtils.rm_rf %w[testcache testcache2]
+
+    if example.metadata[:vcr]
+      # Force to download index file
+      require "relaton/index"
+      allow_any_instance_of(Relaton::Index::Type).to receive(:actual?).and_return(false)
+      allow_any_instance_of(Relaton::Index::FileIO).to receive(:check_file).and_return(nil)
+    end
   end
 
   subject { Relaton::Db.new nil, nil }
@@ -28,8 +35,8 @@ RSpec.describe Relaton::Db do
           expect(subject).to_not receive(:fetch_entry)
           entry = subject.send :new_bib_entry, "ISO 123", nil, {}, :relaton_iso, db: db, id: "ISO(ISO 123)"
           expect(entry).to be_nil
-        end.to output("[relaton] (ISO 123) not found in cache, if you wish " \
-                      "to ignore cache please use `no-cache` option.\n").to_stderr
+        end.to output("[relaton] INFO: (ISO 123) not found in cache, if you wish " \
+                      "to ignore cache please use `no-cache` option.\n").to_stderr_from_any_process
       end
 
       it "ignore cache" do
@@ -125,9 +132,10 @@ RSpec.describe Relaton::Db do
 
     it "warn if moving in existed dir" do
       expect(File).to receive(:exist?).with("new_cache_dir").and_return true
+      allow(File).to receive(:exist?).and_call_original
       expect do
         expect(db.mv("new_cache_dir")).to be_nil
-      end.to output(/\[relaton\] WARNING: target directory exists/).to_stderr
+      end.to output(/\[relaton\] INFO: target directory exists/).to_stderr_from_any_process
     end
 
     it "clear" do
@@ -221,12 +229,10 @@ RSpec.describe Relaton::Db do
       expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
     end
 
-    it "when no local db" do
+    it "when no local db", vcr: "iso_19115_1" do
       db = Relaton::Db.new "testcache", nil
-      VCR.use_cassette "iso_19115_1" do
-        bib = db.fetch("ISO 19115-1", nil, {})
-        expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      end
+      bib = db.fetch("ISO 19115-1", nil, {})
+      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
     end
 
     it "document with net retries" do
@@ -241,12 +247,10 @@ RSpec.describe Relaton::Db do
     end
   end
 
-  it "fetch std" do
+  it "fetch std", vcr: "iso_19115_1_std" do
     db = Relaton::Db.new "testcache", nil
-    VCR.use_cassette "iso_19115_1_std" do
-      bib = db.fetch_std("ISO 19115-1", nil, :relaton_iso, {})
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-    end
+    bib = db.fetch_std("ISO 19115-1", nil, :relaton_iso, {})
+    expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
   end
 
   context "async fetch" do
@@ -281,12 +285,10 @@ RSpec.describe Relaton::Db do
       end
     end
 
-    it "prefix not found" do
+    it "prefix not found", vcr: "rfc_unsuccess" do
       result = ""
-      VCR.use_cassette "rfc_unsuccess" do
-        subject.fetch_async("ABC 123456") { |r| queue << r }
-        Timeout.timeout(5) { result = queue.pop }
-      end
+      subject.fetch_async("ABC 123456") { |r| queue << r }
+      Timeout.timeout(5) { result = queue.pop }
       expect(result).to be_nil
     end
 
@@ -299,7 +301,7 @@ RSpec.describe Relaton::Db do
 
     it "handle other errors" do
       expect(subject).to receive(:fetch).and_raise Errno::EACCES
-      log_io = Relaton.configuration.logger.instance_variable_get(:@logdev)
+      log_io = Relaton.logger_pool[:default].instance_variable_get(:@logdev)
       expect(log_io).to receive(:write).with("[relaton] ERROR: `ISO REF` -- Permission denied\n")
       subject.fetch_async("ISO REF") { |r| queue << r }
       result = Timeout.timeout(5) { queue.pop }

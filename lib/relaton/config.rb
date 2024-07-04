@@ -1,18 +1,25 @@
 module Relaton
   module Config
-    include RelatonBib::Config
+    def configure
+      yield configuration if block_given?
+    end
+
+    def configuration
+      @configuration ||= self::Configuration.new
+    end
   end
   extend Config
 
-  class Configuration < RelatonBib::Configuration
-    PROGNAME = "relaton".freeze
+  class Configuration # < RelatonBib::Configuration
 
     attr_accessor :use_api, :api_host
 
     def initialize
-      super
+      # super
       @use_api = false
       @api_host = "https://api.relaton.org"
     end
   end
+
+  extend Config
 end
