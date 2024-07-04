@@ -300,7 +300,7 @@ RSpec.describe Relaton::Db do
 
     it "handle other errors" do
       expect(subject).to receive(:fetch).and_raise Errno::EACCES
-      log_io = Relaton.logger_pool[0].instance_variable_get(:@logdev)
+      log_io = Relaton.logger_pool[:default].instance_variable_get(:@logdev)
       expect(log_io).to receive(:write).with("[relaton] ERROR: `ISO REF` -- Permission denied\n")
       subject.fetch_async("ISO REF") { |r| queue << r }
       result = Timeout.timeout(5) { queue.pop }
