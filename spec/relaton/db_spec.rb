@@ -4,7 +4,15 @@ RSpec.describe Relaton::Db do
     FileUtils.rm_rf %w[testcache testcache2]
   end
 
-  subject { Relaton::Db.new nil, nil }
+  subject do
+    subj = Relaton::Db.new nil, nil
+
+    # Force to download index file
+    allow_any_instance_of(Relaton::Index::Type).to receive(:actual?).and_return(false)
+    allow_any_instance_of(Relaton::Index::FileIO).to receive(:check_file).and_return(nil)
+
+    subj
+  end
 
   context "instance methods" do
     context "#search_edition_year" do
