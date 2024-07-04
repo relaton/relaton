@@ -1,18 +1,17 @@
 RSpec.describe Relaton::Db do
-  before(:each) do
-    Relaton.instance_variable_set :@configuration, nil
+  before(:each) do |example|
+    # Relaton.instance_variable_set :@configuration, nil
     FileUtils.rm_rf %w[testcache testcache2]
+
+    if example.metadata[:vcr]
+      # Force to download index file
+      require "relaton/index"
+      allow_any_instance_of(Relaton::Index::Type).to receive(:actual?).and_return(false)
+      allow_any_instance_of(Relaton::Index::FileIO).to receive(:check_file).and_return(nil)
+    end
   end
 
-  subject do
-    subj = Relaton::Db.new nil, nil
-
-    # Force to download index file
-    allow_any_instance_of(Relaton::Index::Type).to receive(:actual?).and_return(false)
-    allow_any_instance_of(Relaton::Index::FileIO).to receive(:check_file).and_return(nil)
-
-    subj
-  end
+  subject { Relaton::Db.new nil, nil }
 
   context "instance methods" do
     context "#search_edition_year" do
@@ -230,12 +229,10 @@ RSpec.describe Relaton::Db do
       expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
     end
 
-    it "when no local db" do
+    it "when no local db", vcr: "iso_19115_1" do
       db = Relaton::Db.new "testcache", nil
-      VCR.use_cassette "iso_19115_1" do
-        bib = db.fetch("ISO 19115-1", nil, {})
-        expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-      end
+      bib = db.fetch("ISO 19115-1", nil, {})
+      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
     end
 
     it "document with net retries" do
@@ -250,12 +247,10 @@ RSpec.describe Relaton::Db do
     end
   end
 
-  it "fetch std" do
+  it "fetch std", vcr: "iso_19115_1_std" do
     db = Relaton::Db.new "testcache", nil
-    VCR.use_cassette "iso_19115_1_std" do
-      bib = db.fetch_std("ISO 19115-1", nil, :relaton_iso, {})
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
-    end
+    bib = db.fetch_std("ISO 19115-1", nil, :relaton_iso, {})
+    expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
   end
 
   context "async fetch" do
@@ -290,12 +285,10 @@ RSpec.describe Relaton::Db do
       end
     end
 
-    it "prefix not found" do
+    it "prefix not found", vcr: "rfc_unsuccess" do
       result = ""
-      VCR.use_cassette "rfc_unsuccess" do
-        subject.fetch_async("ABC 123456") { |r| queue << r }
-        Timeout.timeout(5) { result = queue.pop }
-      end
+      subject.fetch_async("ABC 123456") { |r| queue << r }
+      Timeout.timeout(5) { result = queue.pop }
       expect(result).to be_nil
     end
 
