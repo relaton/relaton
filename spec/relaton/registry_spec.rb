@@ -127,6 +127,42 @@ RSpec.describe Relaton::Registry do
     it "ISBN" do
       expect(Relaton::Registry.instance.by_type("ISBN")).to be_instance_of RelatonIsbn::Processor
     end
+
+    context "PLATEAU" do
+      let(:processor) { Relaton::Registry.instance.by_type("PLATEAU") }
+      before { processor }
+
+      it "finds processor" do
+        expect(processor).to be_instance_of Relaton::Plateau::Processor
+      end
+
+      it "fetch data" do
+        expect(Relaton::Plateau::Fetcher).to receive(:fetch).with("plateau-handbooks", output: "dir", format: "xml")
+        processor.fetch_data "plateau-handbooks", output: "dir", format: "xml"
+      end
+
+      it "from_xml" do
+        expect(Relaton::Plateau::XMLParser).to receive(:from_xml).with(:xml).and_return :bibitem
+        expect(processor.from_xml(:xml)).to eq :bibitem
+      end
+
+      it "hash_to_bib" do
+        expect(Relaton::Plateau::HashConverter).to receive(:hash_to_bib).with(:hash).and_return bib: :bib
+        expect(Relaton::Plateau::BibItem).to receive(:new).with(bib: :bib).and_return :bibitem
+        expect(processor.hash_to_bib(:hash)).to eq :bibitem
+      end
+
+      it "grammar_hash" do
+        expect(processor.grammar_hash).to be_instance_of String
+      end
+
+      it "remove_index_file" do
+        index = double "index"
+        expect(index).to receive(:remove_file)
+        expect(Relaton::Index).to receive(:find_or_create).and_return index
+        processor.remove_index_file
+      end
+    end
   end
 
   it "find processot by dataset" do

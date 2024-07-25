@@ -53,6 +53,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "relaton-oasis", "~> 1.19.0"
   spec.add_dependency "relaton-ogc", "~> 1.19.0"
   spec.add_dependency "relaton-omg", "~> 1.19.0"
+  spec.add_dependency "relaton-plateau", "~> 1.19.0"
   spec.add_dependency "relaton-un", "~> 1.19.0"
   spec.add_dependency "relaton-w3c", "~> 1.19.0"
   spec.add_dependency "relaton-xsf", "~> 1.19.0"

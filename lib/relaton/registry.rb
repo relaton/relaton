@@ -10,7 +10,7 @@ module Relaton
       relaton_ogc relaton_calconnect relaton_omg relaton_un relaton_w3c
       relaton_ieee relaton_iho relaton_bipm relaton_ecma relaton_cie relaton_bsi
       relaton_cen relaton_iana relaton_3gpp relaton_oasis relaton_doi relaton_jis
-      relaton_xsf relaton_ccsds relaton_etsi relaton_isbn
+      relaton_xsf relaton_ccsds relaton_etsi relaton_isbn relaton/plateau
     ].freeze
 
     include Singleton
@@ -107,7 +107,9 @@ module Relaton
     private
 
     def camel_case(gem_name)
-      gem_name.split("_").map(&:capitalize).join
+      gem_name.split("/").map do |part|
+        part.split("_").map(&:capitalize).join
+      end.join("::")
     end
   end
 end

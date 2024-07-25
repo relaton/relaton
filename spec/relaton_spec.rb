@@ -373,6 +373,15 @@ RSpec.describe Relaton::Db do
     expect(bib.docidentifier.first.id).to eq "ISBN 978-0-580-50101-4"
   end
 
+  it "get PLATEAU reference" do
+    docid = RelatonBib::DocumentIdentifier.new(id: "PLATEAU Hanbook #01", type: "PLATEAU")
+    item = Relaton::Plateau::BibItem.new docid: [docid]
+    expect(Relaton::Plateau::Bibliography).to receive(:get).with("PLATEAU Hanbook #01", nil, {}).and_return item
+    bib = @db.fetch "PLATEAU Hanbook #01"
+    expect(bib).to be_instance_of Relaton::Plateau::BibItem
+    expect(bib.docidentifier.first.id).to eq "PLATEAU Hanbook #01"
+  end
+
   context "get combined documents" do
     context "ISO" do
       it "included" do
