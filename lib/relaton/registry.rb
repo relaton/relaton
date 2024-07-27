@@ -26,7 +26,7 @@ module Relaton
       # Util.info("Info: detecting backends:")
 
       SUPPORTED_GEMS.each do |b|
-        require b
+        # require b
         require "#{b}/processor"
         register Kernel.const_get "#{camel_case(b)}::Processor"
       rescue LoadError => e

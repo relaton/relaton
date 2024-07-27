@@ -28,6 +28,7 @@ module Relaton
       @db&.clear
       @local_db&.clear
       @registry.processors.each_value do |p|
+        require p.short.to_s
         p.remove_index_file if p.respond_to? :remove_index_file
       end
     end
@@ -188,6 +189,7 @@ module Relaton
     # @param (see #fetch_api)
     # @return (see #fetch_api)
     def fetch_doc(code, year, opts, processor)
+      require processor.short.to_s
       if Relaton.configuration.use_api then fetch_api(code, year, opts, processor)
       else processor.get(code, year, opts)
       end
@@ -244,6 +246,7 @@ module Relaton
     # @return [BibliographicItem, nil]
     def search_edition_year(file, content, edition, year) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       processor = @registry.processor_by_ref(file.split("/")[-2])
+      require processor.short.to_s
       item = if file.match?(/xml$/) then processor.from_xml(content)
              else processor.hash_to_bib(YAML.safe_load(content))
              end

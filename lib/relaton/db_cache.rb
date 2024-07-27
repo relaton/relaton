@@ -152,7 +152,11 @@ module Relaton
     # @return [String]
     def self.grammar_hash(fdir)
       type = fdir.split("/").last
-      Relaton::Registry.instance.by_type(type)&.grammar_hash
+      processor = Relaton::Registry.instance.by_type(type)
+      return unless processor
+
+      require processor.short.to_s
+      processor.grammar_hash
     end
 
     private
