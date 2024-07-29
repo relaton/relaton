@@ -60,7 +60,7 @@ module Relaton
     # @return [Relaton::Processor, nil]
     #
     def find_processor_by_dataset(dataset)
-      require_gem processors.values.detect { |p| p.datasets&.include? dataset }
+      require_gem(processors.values.detect { |p| p.datasets&.include? dataset })
     end
 
     #
@@ -72,7 +72,7 @@ module Relaton
     #   RelatonGb::Processor, RelatonOgc::Processor,
     #   RelatonCalconnect::Processor]
     def by_type(type)
-      require_gem processors.values.detect { |v| v.prefix == type&.upcase }
+      require_gem(processors.values.detect { |v| v.prefix == type&.upcase })
     end
 
     def [](stdclass)
@@ -105,7 +105,7 @@ module Relaton
     # @return [Symbol, nil] standard class name
     #
     def class_by_ref(ref)
-      ref = ref.match(/^\w+\((.*)\)$/) ? Regexp.last_match(1) : ref
+      ref = ref =~ /^\w+\((.*)\)$/ ? Regexp.last_match(1) : ref
       @processors.each do |class_name, processor|
         return class_name if /^(urn:)?#{processor.prefix}\b/i.match?(ref) ||
           processor.defaultprefix.match(ref)

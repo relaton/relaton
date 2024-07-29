@@ -43,7 +43,7 @@ RSpec.describe Relaton::Processor do
 
       it "get method should call get method of #{flavor}" do
         expect(bibliography).to receive(:get).with("code", nil, {}).and_return :item
-        expect(processor.get "code", nil, {}).to eq :item
+        expect(processor.get("code", nil, {})).to eq :item
       end
 
       it "grammar_hash method should call grammar_hash method of #{flavor}" do
@@ -58,7 +58,7 @@ RSpec.describe Relaton::Processor do
 
       it "fetch_data method should call fetch_data method of #{flavor}" do
         expect(fetcher_class).to receive(:fetch).with(output: "dir", format: "bibxml").and_return :item
-        expect(processor.fetch_data source, output: "dir", format: "bibxml").to eq :item
+        expect(processor.fetch_data(source, output: "dir", format: "bibxml")).to eq :item
       end
     end
 
@@ -68,7 +68,7 @@ RSpec.describe Relaton::Processor do
 
       it "from_xml method should call from_xml method of #{flavor}" do
         expect(parser_class).to receive(:from_xml).with("xml").and_return :item
-        expect(processor.from_xml "xml").to eq :item
+        expect(processor.from_xml("xml")).to eq :item
       end
     end
 
