@@ -60,7 +60,7 @@ module Relaton
     def fetch(text, year = nil, opts = {})
       reference = text.strip
       stdclass = @registry.class_by_ref(reference) || return
-      processor = @registry.processors[stdclass]
+      processor = @registry[stdclass]
       ref = if processor.respond_to?(:urn_to_code)
               processor.urn_to_code(reference)&.first
             else reference
@@ -106,7 +106,7 @@ module Relaton
       stdclass = @registry.class_by_ref ref
       if stdclass
         unless @queues[stdclass]
-          processor = @registry.processors[stdclass]
+          processor = @registry[stdclass]
           threads = ENV["RELATON_FETCH_PARALLEL"]&.to_i || processor.threads
           wp = WorkersPool.new(threads) do |args|
             args[3].call fetch(*args[0..2])
@@ -158,7 +158,7 @@ module Relaton
     def docid_type(code)
       stdclass = @registry.class_by_ref(code) or return [nil, code]
       _, code = strip_id_wrapper(code, stdclass)
-      [@registry.processors[stdclass].idtype, code]
+      [@registry[stdclass].idtype, code]
     end
 
     # @param key [String]
@@ -189,7 +189,6 @@ module Relaton
     # @param (see #fetch_api)
     # @return (see #fetch_api)
     def fetch_doc(code, year, opts, processor)
-      require processor.short.to_s
       if Relaton.configuration.use_api then fetch_api(code, year, opts, processor)
       else processor.get(code, year, opts)
       end
@@ -246,7 +245,6 @@ module Relaton
     # @return [BibliographicItem, nil]
     def search_edition_year(file, content, edition, year) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       processor = @registry.processor_by_ref(file.split("/")[-2])
-      require processor.short.to_s
       item = if file.match?(/xml$/) then processor.from_xml(content)
              else processor.hash_to_bib(YAML.safe_load(content))
              end
@@ -296,7 +294,7 @@ module Relaton
       else return
       end
 
-      doc = @registry.processors[stdclass].hash_to_bib docid: { id: code }
+      doc = @registry[stdclass].hash_to_bib docid: { id: code }
       ref = refs[0]
       updates = check_bibliocache(refs[0], year, opts, stdclass)
       if updates
@@ -339,7 +337,7 @@ module Relaton
     # @param stdClass [Symbol]
     # @return [Array]
     def strip_id_wrapper(code, stdclass)
-      prefix = @registry.processors[stdclass].prefix
+      prefix = @registry[stdclass].prefix
       code = code.sub(/\u2013/, "-").sub(/^#{prefix}\((.+)\)$/, "\\1")
       [prefix, code]
     end
@@ -358,7 +356,7 @@ module Relaton
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def bib_retval(entry, stdclass)
       if entry && !entry.match?(/^not_found/)
-        @registry.processors[stdclass].from_xml(entry)
+        @registry[stdclass].from_xml(entry)
       end
     end
 
@@ -446,7 +444,7 @@ module Relaton
     end
 
     def fetch_entry(code, year, opts, stdclass, **args)
-      processor = @registry.processors[stdclass]
+      processor = @registry[stdclass]
       bib = net_retry(code, year, opts, processor, opts.fetch(:retries, 1))
 
       entry = check_entry(bib, stdclass, **args)

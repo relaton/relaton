@@ -17,7 +17,7 @@ RSpec.describe Relaton::Processor do
     end
 
     it "fetch_data method should be implemented" do
-      expect { subject.fetch_data "cource", {} }.to raise_error StandardError
+      expect { subject.fetch_data "source", {} }.to raise_error StandardError
     end
 
     it "from_xml method should be implemented" do
