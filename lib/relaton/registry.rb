@@ -26,7 +26,6 @@ module Relaton
       # Util.info("Info: detecting backends:")
 
       SUPPORTED_GEMS.each do |b|
-        require b
         require "#{b}/processor"
         register Kernel.const_get "#{camel_case(b)}::Processor"
       rescue LoadError => e
@@ -61,7 +60,7 @@ module Relaton
     # @return [Relaton::Processor, nil]
     #
     def find_processor_by_dataset(dataset)
-      processors.values.detect { |p| p.datasets&.include? dataset }
+      require_gem(processors.values.detect { |p| p.datasets&.include? dataset })
     end
 
     #
@@ -73,7 +72,18 @@ module Relaton
     #   RelatonGb::Processor, RelatonOgc::Processor,
     #   RelatonCalconnect::Processor]
     def by_type(type)
-      processors.values.detect { |v| v.prefix == type&.upcase }
+      require_gem(processors.values.detect { |v| v.prefix == type&.upcase })
+    end
+
+    def [](stdclass)
+      require_gem processors[stdclass]
+    end
+
+    def require_gem(processor)
+      return unless processor
+
+      require processor.short.to_s
+      processor
     end
 
     #
@@ -84,7 +94,7 @@ module Relaton
     # @return [Relaton::Processor] processor
     #
     def processor_by_ref(ref)
-      @processors[class_by_ref(ref)]
+      require_gem processors[class_by_ref(ref)]
     end
 
     #
@@ -95,7 +105,7 @@ module Relaton
     # @return [Symbol, nil] standard class name
     #
     def class_by_ref(ref)
-      ref = ref.match(/^\w+\((.*)\)$/) ? Regexp.last_match(1) : ref
+      ref = ref =~ /^\w+\((.*)\)$/ ? Regexp.last_match(1) : ref
       @processors.each do |class_name, processor|
         return class_name if /^(urn:)?#{processor.prefix}\b/i.match?(ref) ||
           processor.defaultprefix.match(ref)

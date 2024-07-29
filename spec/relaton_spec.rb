@@ -490,7 +490,7 @@ RSpec.describe Relaton::Db do
     it "should clear cache if version is changed" do
       expect(File.read("testcache/iso/version", encoding: "UTF-8")).not_to eq "new_version"
       expect(File.read("testcache2/iso/version", encoding: "UTF-8")).not_to eq "new_version"
-      processor = double
+      processor = double "processor", short: :relaton_iso
       expect(processor).to receive(:grammar_hash).and_return("new_version").exactly(2).times
       expect(Relaton::Registry.instance).to receive(:by_type).and_return(processor).exactly(2).times
       Relaton::Db.new "testcache", "testcache2"
