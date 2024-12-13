@@ -36,7 +36,7 @@ module Relaton
       # @option opts [String] :lang language
       def to_xml(**opts)
         super do |builder|
-          if opts[:bibdata] && has_ext_data?
+          if opts[:bibdata] && has_ext?
             ext = builder.ext do |b|
               doctype&.to_xml b
               b.subdoctype subdoctype if subdoctype
@@ -54,7 +54,7 @@ module Relaton
 
       def to_hash
         hash = super
-        return hash unless has_ext_data?
+        return hash unless has_ext?
 
         hash["ext"] ||= {}
         hash["ext"]["stagename"] = stagename.to_hash if stagename
@@ -90,8 +90,8 @@ module Relaton
 
       private
 
-      def has_ext_data?
-        doctype || subdoctype || editorialgroup || ics&.any? || structuredidentifier || stagename || cover || filesize
+      def has_ext?
+        super || stagename || cover || filesize
       end
     end
   end

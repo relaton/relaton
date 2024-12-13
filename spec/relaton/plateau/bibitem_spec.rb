@@ -44,7 +44,7 @@ RSpec.describe Relaton::Plateau::BibItem do
         <bibdata schema-version="v1.2.9">
           <title type="main" format="text/plain" language="en" script="Latn">Title</title>
           <docidentifier type="PLATEAU">id</docidentifier>
-          <ext>
+          <ext schema-version="v0.0.1">
             <doctype>Handbook</doctype>
             <subdoctype>subdoctype</subdoctype>
             <structuredidentifier type="Handbook">
@@ -69,7 +69,7 @@ RSpec.describe Relaton::Plateau::BibItem do
         <bibdata schema-version="v1.2.9">
           <title type="main" format="text/plain" language="en" script="Latn">Title</title>
           <docidentifier type="PLATEAU">id</docidentifier>
-          <ext>
+          <ext schema-version="v0.0.1">
             <doctype>Handbook</doctype>
           </ext>
         </bibdata>
@@ -80,8 +80,15 @@ RSpec.describe Relaton::Plateau::BibItem do
   it "to_hash" do
     expect(subject.to_hash).to eq(
       "schema-version" => "v1.2.9", "id" => "id", "title" => [title.to_hash], "docid" => [docid.to_hash],
-      "doctype" => doctype.to_hash, "subdoctype" => "subdoctype", "structuredidentifier" => [strid.to_hash],
-      "ext" => { "stagename" => stagename.to_hash, "cover" => cover.to_hash, "filesize" => 123 }
+      "ext" => {
+        "doctype" => doctype.to_hash,
+        "subdoctype" => "subdoctype",
+        "structuredidentifier" => [strid.to_hash],
+        "stagename" => stagename.to_hash,
+        "cover" => cover.to_hash,
+        "filesize" => 123,
+        "schema-version" => "v0.0.1"
+      }
     )
   end
 
