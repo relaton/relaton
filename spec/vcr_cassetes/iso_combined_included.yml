@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"4178a1b206292c6983dc0f8341044dc50141d49cc1fdf6087cc3481e5b8428be"
+      - W/"a4c6770de81b82dcb5dc1d0f730c5cce5e78330ec1e6d06047f966778926e883"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - E800:1341A0:1305C2:14E672:66A173D2
+      - B8C5:320C97:8695:9640:6758E1A1
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 24 Jul 2024 21:37:55 GMT
+      - Wed, 11 Dec 2024 00:51:00 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100120-IAD
+      - cache-iad-kjyo7100117-IAD
       X-Cache:
       - HIT
       X-Cache-Hits:
       - '1'
       X-Timer:
-      - S1721857075.343152,VS0,VE1
+      - S1733878260.010759,VS0,VE1
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
@@ -63,11 +63,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 4c5e77c1a9ddcb97d6d7de47347cd4ec0ee9e340
+      - 655b049ab064853b82c6ddee74ffe42541c5c7f3
       Expires:
-      - Wed, 24 Jul 2024 21:42:55 GMT
+      - Wed, 11 Dec 2024 00:56:00 GMT
       Source-Age:
-      - '96'
+      - '81'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -102,7 +102,7 @@ http_interactions:
         b2NpZDoKLSBpZDogSVNPIDE5MTE1LTE6MjAxNAogIHR5cGU6IElTTwogIHBy
         aW1hcnk6IHRydWUKLSBpZDogSVNPIDE5MTE1LTE6MjAxNChFKQogIHR5cGU6
         IGlzby1yZWZlcmVuY2UKLSBpZDogdXJuOmlzbzpzdGQ6aXNvOjE5MTE1Oi0x
-        OnN0YWdlLTkwLjIwCiAgdHlwZTogVVJOCmRvY251bWJlcjogJzE5MTE1Jwpk
+        OnN0YWdlLTkwLjYwCiAgdHlwZTogVVJOCmRvY251bWJlcjogJzE5MTE1Jwpk
         YXRlOgotIHR5cGU6IHB1Ymxpc2hlZAogIHZhbHVlOiAyMDE0LTA0CmNvbnRy
         aWJ1dG9yOgotIG9yZ2FuaXphdGlvbjoKICAgIG5hbWU6CiAgICAtIGNvbnRl
         bnQ6IEludGVybmF0aW9uYWwgT3JnYW5pemF0aW9uIGZvciBTdGFuZGFyZGl6
@@ -188,7 +188,7 @@ http_interactions:
         Y2VzIGF1dHJlcyBmb3JtZXMgZGUgZG9ubsOpZXMuCiAgbGFuZ3VhZ2U6CiAg
         LSBmcgogIHNjcmlwdDoKICAtIExhdG4KICBmb3JtYXQ6IHRleHQvcGxhaW4K
         ZG9jc3RhdHVzOgogIHN0YWdlOgogICAgdmFsdWU6ICc5MCcKICBzdWJzdGFn
-        ZToKICAgIHZhbHVlOiAnMjAnCmNvcHlyaWdodDoKLSBvd25lcjoKICAtIG5h
+        ZToKICAgIHZhbHVlOiAnNjAnCmNvcHlyaWdodDoKLSBvd25lcjoKICAtIG5h
         bWU6CiAgICAtIGNvbnRlbnQ6IElTTwogIGZyb206ICcyMDE0JwpyZWxhdGlv
         bjoKLSB0eXBlOiBvYnNvbGV0ZXMKICBiaWJpdGVtOgogICAgaWQ6IElTTzE5
         MTE1LTIwMDMKICAgIHR5cGU6IHN0YW5kYXJkCiAgICBkb2NpZDoKICAgIC0g
@@ -205,14 +205,14 @@ http_interactions:
         ZGFyZAogICAgZG9jaWQ6CiAgICAtIGlkOiBJU08gMTkxMTUtMToyMDE0L0Ft
         ZCAxOjIwMTgKICAgICAgdHlwZTogSVNPCiAgICAgIHByaW1hcnk6IHRydWUK
         ICAgIGRhdGU6CiAgICAtIHR5cGU6IGNpcmN1bGF0ZWQKICAgICAgdmFsdWU6
-        ICcyMDI0LTA0LTE1JwogICAgZm9ybWF0dGVkcmVmOgogICAgICBjb250ZW50
+        ICcyMDI0LTA5LTAzJwogICAgZm9ybWF0dGVkcmVmOgogICAgICBjb250ZW50
         OiBJU08gMTkxMTUtMToyMDE0L0FtZCAxOjIwMTgKICAgICAgZm9ybWF0OiB0
         ZXh0L3BsYWluCi0gdHlwZTogdXBkYXRlcwogIGJpYml0ZW06CiAgICBpZDog
         SVNPMTkxMTUtMS0yMDE0L0FtZDItMjAyMAogICAgdHlwZTogc3RhbmRhcmQK
         ICAgIGRvY2lkOgogICAgLSBpZDogSVNPIDE5MTE1LTE6MjAxNC9BbWQgMjoy
         MDIwCiAgICAgIHR5cGU6IElTTwogICAgICBwcmltYXJ5OiB0cnVlCiAgICBk
         YXRlOgogICAgLSB0eXBlOiBjaXJjdWxhdGVkCiAgICAgIHZhbHVlOiAnMjAy
-        NC0wNC0xNScKICAgIGZvcm1hdHRlZHJlZjoKICAgICAgY29udGVudDogSVNP
+        NC0wOS0wMycKICAgIGZvcm1hdHRlZHJlZjoKICAgICAgY29udGVudDogSVNP
         IDE5MTE1LTE6MjAxNC9BbWQgMjoyMDIwCiAgICAgIGZvcm1hdDogdGV4dC9w
         bGFpbgpwbGFjZToKLSBHZW5ldmEKZG9jdHlwZToKICB0eXBlOiBpbnRlcm5h
         dGlvbmFsLXN0YW5kYXJkCmVkaXRvcmlhbGdyb3VwOgogIHRlY2huaWNhbF9j
@@ -223,7 +223,7 @@ http_interactions:
         bnRpZmllcjoKICBwcm9qZWN0X251bWJlcjogSVNPIDE5MTE1CiAgcGFydDog
         JzEnCiAgdHlwZTogSVNPCmV4dDoKICBzY2hlbWEtdmVyc2lvbjogdjEuMC4z
         Cg==
-  recorded_at: Wed, 24 Jul 2024 21:37:55 GMT
+  recorded_at: Wed, 11 Dec 2024 00:50:59 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-iso/main/data/iso-19115-1-2014-amd-1-2018.yaml
@@ -265,21 +265,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 264C:2A1E8D:3A0C07:3F745E:66A15DB7
+      - 18B7:FAB9:37DD1A:3D885E:6758E1F9
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 24 Jul 2024 21:38:04 GMT
+      - Wed, 11 Dec 2024 00:51:06 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100065-IAD
+      - cache-iad-kjyo7100161-IAD
       X-Cache:
-      - HIT
+      - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1721857084.943457,VS0,VE66
+      - S1733878267.733704,VS0,VE132
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
@@ -287,9 +287,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - e4dcb880457f3de25d5a85dd0ec70ee1cd2b0ca1
+      - 3e63b713c0eb270b50aa882307b99bbaaf0e862e
       Expires:
-      - Wed, 24 Jul 2024 21:43:04 GMT
+      - Wed, 11 Dec 2024 00:56:06 GMT
       Source-Age:
       - '0'
     body:
@@ -348,5 +348,5 @@ http_interactions:
         cHBsaWNhdGlvbnMgaW4gc2NpZW5jZQpzdHJ1Y3R1cmVkaWRlbnRpZmllcjoK
         ICBwcm9qZWN0X251bWJlcjogSVNPIDE5MTE1CiAgcGFydDogJzEnCiAgdHlw
         ZTogSVNPCmV4dDoKICBzY2hlbWEtdmVyc2lvbjogdjEuMC4zCg==
-  recorded_at: Wed, 24 Jul 2024 21:38:03 GMT
-recorded_with: VCR 6.2.0
+  recorded_at: Wed, 11 Dec 2024 00:51:06 GMT
+recorded_with: VCR 6.3.1

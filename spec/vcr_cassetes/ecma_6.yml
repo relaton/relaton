@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-ecma/master/index.zip
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ecma/main/index.zip
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -29,7 +29,7 @@ http_interactions:
       Content-Type:
       - application/zip
       Etag:
-      - W/"e018590d4c5b08524315eb69ff2e5122eca393f3a7d8b279d102d8e801567f65"
+      - W/"600366ecf8777a7ad5f715c58f4fe08a1775008bacfc81dd38707e7c75328dc8"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -39,21 +39,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 29B5:45107:11D6BA:13B5B4:66A173FC
+      - 9799:4F0A8:324AFC:372504:6758E1C8
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 24 Jul 2024 21:37:01 GMT
+      - Wed, 11 Dec 2024 00:50:18 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100105-IAD
+      - cache-iad-kjyo7100025-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1721857022.794162,VS0,VE102
+      - S1733878218.924429,VS0,VE143
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
@@ -61,16 +61,16 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - c020c4355a39275080c1a21034abdf5af1107f0b
+      - c2093124479b92dd84617170fcc0cf1e28ddef13
       Expires:
-      - Wed, 24 Jul 2024 21:42:01 GMT
+      - Wed, 11 Dec 2024 00:55:18 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
-        UEsDBBQAAAAIAA5x61j74VGuiRMAAKjMAAAKABwAaW5kZXgueWFtbFVUCQAD
-        XOePZlznj2Z1eAsAAQTpAwAABH8AAACVnU2vLbURRef5FW/G6IJr2237vFkU
+        UEsDBBQAAAAIAPxwS1n74VGuiRMAAKjMAAAKABwAaW5kZXgueWFtbFVUCQAD
+        PDEJZzwxCWd1eAsAAQTpAwAABH8AAACVnU2vLbURRef5FW/G6IJr2237vFkU
         MWSCmCMkiIRElEkUKf8+7j7vSbfhuNa+jIDr3urTXV3lj73st7e3v719+vz7
         r5//9mn9c/7Lp+//8cPf35ra8//8tv7PN/HN+o/P//z9j98+f/r1l//88t3X
         Nm/x7f9++dcfO41qaFTQkKEh0Ih3GtpoxJtsjd19BNxHMe6jwH0U4z5Kfh/x
@@ -181,13 +181,13 @@ http_interactions:
         8m3UnX/jy7dRd/4NL59J1E2OuplE3eSom0nUTY66mUTd5KibSdRNjrqZRN3k
         qJtJ1E2OuplE3eSom0nUTY66mUTd5KgbSdQNjrqRRN3gqBtJ1A2OupFE3eCo
         G0nUDY66kUTd4KgbSdQNjrqRRN3gqBtJ1A2OupFE3eCo60nUdY66nkRd56jr
-        SdR1jrqeRF3nqOtJ1HWOup5EXeeo60nY9C9h839QSwECHgMUAAAACAAOcetY
+        SdR1jrqeRF3nqOtJ1HWOup5EXeeo60nY9C9h839QSwECHgMUAAAACAD8cEtZ
         ++FRrokTAACozAAACgAYAAAAAAABAAAApIEAAAAAaW5kZXgueWFtbFVUBQAD
-        XOePZnV4CwABBOkDAAAEfwAAAFBLBQYAAAAAAQABAFAAAADNEwAAAAA=
-  recorded_at: Wed, 24 Jul 2024 21:37:01 GMT
+        PDEJZ3V4CwABBOkDAAAEfwAAAFBLBQYAAAAAAQABAFAAAADNEwAAAAA=
+  recorded_at: Wed, 11 Dec 2024 00:50:17 GMT
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-ecma/master/data/ECMA-6-6.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ecma/main/data/ECMA-6-6.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -224,21 +224,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 55E4:177746:3FB22E:461972:66A173FB
+      - 9C7B:19E7E5:33A082:387AA2:6758E1C7
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 24 Jul 2024 21:37:02 GMT
+      - Wed, 11 Dec 2024 00:50:18 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100143-IAD
+      - cache-iad-kjyo7100100-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1721857022.044866,VS0,VE94
+      - S1733878218.187461,VS0,VE88
       Vary:
       - Authorization,Accept-Encoding,Origin
       Access-Control-Allow-Origin:
@@ -246,9 +246,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 20b041451b099837f4582aa8628442cde8f29e6e
+      - 9e83f4bf15001929c71eeb3a46160fa232f5d8ce
       Expires:
-      - Wed, 24 Jul 2024 21:42:02 GMT
+      - Wed, 11 Dec 2024 00:55:18 GMT
       Source-Age:
       - '0'
     body:
@@ -354,5 +354,5 @@ http_interactions:
         IC0gZW4KICAgICAgc2NyaXB0OgogICAgICAtIExhdG4KICAgICAgZm9ybWF0
         OiB0ZXh0L3BsYWluCnBsYWNlOgotIEdlbmV2YQpkb2N0eXBlOgogIHR5cGU6
         IGRvY3VtZW50CmV4dDoKICBzY2hlbWEtdmVyc2lvbjogdjEuMC4wCg==
-  recorded_at: Wed, 24 Jul 2024 21:37:02 GMT
-recorded_with: VCR 6.2.0
+  recorded_at: Wed, 11 Dec 2024 00:50:18 GMT
+recorded_with: VCR 6.3.1
