@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require_relative "lib/relaton_jis/version"
+require_relative "lib/relaton/jis/version"
 
 Gem::Specification.new do |spec|
   spec.name = "relaton-jis"
-  spec.version = RelatonJis::VERSION
+  spec.version = Relaton::Jis::VERSION
   spec.authors = ["Ribose Inc."]
   spec.email = ["open.source@ribose.com"]
 
-  spec.summary = "RelatonJis: retrieve IETF Standards for bibliographic " \
+  spec.summary = "Relaton::Jis: retrieve IETF Standards for bibliographic " \
                  "use using the BibliographicItem model"
-  spec.description = "RelatonJis: retrieve IETF Standards for bibliographic " \
+  spec.description = "Relaton::Jis: retrieve IETF Standards for bibliographic " \
                      "use using the BibliographicItem model"
   spec.homepage = "https://github.com/relaton/relaton-jis"
   spec.license = "MIT"
@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   # Uncomment to register a new dependency of your gem
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "relaton-index", "~> 0.2.0"
-  spec.add_dependency "relaton-iso-bib", "~> 1.20.0"
+  spec.add_dependency "relaton-iso", "~> 2.0.0-alpha.1"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

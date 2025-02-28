@@ -6,7 +6,7 @@ SimpleCov.start do
   add_filter "/spec/"
 end
 
-require "relaton_jis"
+require "relaton/jis"
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
