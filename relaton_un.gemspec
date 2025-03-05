@@ -1,17 +1,17 @@
 lib = File.expand_path("lib", __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "relaton_un/version"
+require "relaton/un/version"
 
 # rubocop:disable Metrics/BlockLength
 Gem::Specification.new do |spec|
   spec.name          = "relaton-un"
-  spec.version       = RelatonUn::VERSION
+  spec.version       = Relaton::Un::VERSION
   spec.authors       = ["Ribose Inc."]
   spec.email         = ["open.source@ribose.com"]
 
-  spec.summary       = "RelatonIso: retrieve CC Standards for bibliographic " \
+  spec.summary       = "Relaton::Un: retrieve CC Standards for bibliographic " \
                        "use using the IsoBibliographicItem model"
-  spec.description   = "RelatonIso: retrieve CC Standards for bibliographic " \
+  spec.description   = "Relaton::Un: retrieve CC Standards for bibliographic " \
                        "use using the IsoBibliographicItem model"
   spec.homepage      = "https://github.com/relaton/relaton-un"
   spec.license       = "BSD-2-Clause"
@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "addressable", "~> 2.8.0"
   spec.add_dependency "faraday", "~> 2.7.0"
   spec.add_dependency "http-cookie", "~> 1.0.5"
-  spec.add_dependency "relaton-bib", "~> 1.20.0"
+  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.1"
   # spec.add_dependency "unf_ext", ">= 0.0.7.7"
 end
 # rubocop:enable Metrics/BlockLength
