@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.authors = ["Ribose Inc."]
   spec.email = ["open.source@ribose.com"]
 
-  spec.summary = "RelatonPlateau: retrieve Project PLATEAU bibliographic " \
+  spec.summary = "Relaton::Plateau: retrieve Project PLATEAU bibliographic " \
                  "items"
   spec.description = "Retrieve Project PLATEAU bibliographic items."
 
@@ -27,5 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "base64"
   spec.add_dependency "relaton-index", "~> 0.2.12"
   spec.add_dependency "relaton-logger", "~> 0.2.0"
-  spec.add_dependency "relaton-bib", "~> 1.20.0"
+  spec.add_dependency "relaton-iso", "~> 2.0.0-alpha.1"
 end

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "jing"
 require "rspec/matchers"
 require "equivalent-xml"
 Dir["./spec/support/**/*.rb"].sort.each { |f| require f }

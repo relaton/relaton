@@ -9,6 +9,7 @@
       <optional>
         <ref name="docsubtype"/>
       </optional>
+      <ref name="flavor"/>
       <optional>
         <ref name="editorialgroup"/>
       </optional>
@@ -18,9 +19,6 @@
       <ref name="structuredidentifier"/>
       <optional>
         <ref name="stagename"/>
-      </optional>
-      <optional>
-        <ref name="cover"/>
       </optional>
       <optional>
         <ref name="filesize"/>
@@ -112,11 +110,6 @@
         <attribute name="abbreviation"/>
       </optional>
       <text/>
-    </element>
-  </define>
-  <define name="cover">
-    <element name="cover">
-      <ref name="image-no-id"/>
     </element>
   </define>
   <define name="filesize">
