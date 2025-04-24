@@ -35,4 +35,17 @@ RSpec.describe Relaton::DbCache do
     expect(File.read(file_name)).to eq "test 1"
     FileUtils.rm_rf "testcache"
   end
+
+  context "delete file from cache" do
+    it "delete redirect file and its original" do
+      cache = Relaton::DbCache.new "testcache"
+      cache["ISO(ISO 123)"] = "test 1"
+      cache["ISO(123)"] = "redirection ISO(ISO 123)"
+      expect(File.exist?("testcache/iso/iso_123.xml")).to be true
+      expect(File.exist?("testcache/iso/123.redirect")).to be true
+      cache["ISO(123)"] = nil
+      expect(File.exist?("testcache/iso/iso_123.xml")).to be false
+      expect(File.exist?("testcache/iso/123.redirect")).to be false
+    end
+  end
 end

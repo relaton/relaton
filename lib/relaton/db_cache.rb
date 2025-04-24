@@ -63,7 +63,7 @@ module Relaton
     # @return [String]
     def [](key)
       value = get(key)
-      if (code = redirect? value)
+      if (code = redirect_code value)
         self[code]
       else
         value
@@ -78,7 +78,7 @@ module Relaton
     #
     def clone_entry(key, db)
       self[key] ||= db.get(key)
-      if (code = redirect? get(key))
+      if (code = redirect_code get(key))
         clone_entry code, db
       end
     end
@@ -112,7 +112,13 @@ module Relaton
     def delete(key)
       file = filename key
       f = search_ext file
-      File.delete f if f
+      return unless f
+
+      if File.extname(f) == ".redirect"
+        code = redirect_code get(key)
+        delete code if code
+      end
+      File.delete f
     end
 
     # Check if version of the DB match to the gem grammar hash.
@@ -205,7 +211,7 @@ module Relaton
     #
     # @prarm value [String] file content
     # @return [String, NilClass] redirection code or nil
-    def redirect?(value)
+    def redirect_code(value)
       %r{redirection\s(?<code>.*)} =~ value
       code
     end

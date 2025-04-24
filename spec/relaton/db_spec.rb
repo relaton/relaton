@@ -245,6 +245,11 @@ RSpec.describe Relaton::Db do
       expect(subject).to receive(:combine_doc).with("ISO 19115-1", nil, {}, :relaton_iso).and_return :doc
       expect(subject.fetch(" ISO 19115-1 ", nil, {})).to be :doc
     end
+
+    it "BIPM Meeting", vcr: "cipm_meeting_43" do
+      bib = subject.fetch("CIPM Meeting 43")
+      expect(bib).to be_instance_of RelatonBipm::BipmBibliographicItem
+    end
   end
 
   it "fetch std", vcr: "iso_19115_1_std" do
