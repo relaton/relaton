@@ -11,7 +11,7 @@ module Relaton
         kg_h_c_deltanu kg_h m_c_deltanu m_c mol_NA s_deltanu
       ]
 
-      attribute :schema_version, :string
+      attribute :schema_version, method: :get_schema_version
       attribute :doctype, Doctype
       attribute :subdoctype, :string
       attribute :flavor, :string
@@ -31,6 +31,10 @@ module Relaton
         map_element "si-aspect", to: :si_aspect
         map_element "meeting-note", to: :meeting_note
         map_element "structuredidentifier", to: :structuredidentifier
+      end
+
+      def get_schema_version
+       Relaton.schema_versions["relaton-model-bipm"]
       end
     end
   end

@@ -1,94 +1,86 @@
 ---
-schema-version: v1.2.9
 id: BIPMSIBrochurePart1
-title:
-- content: The International System of Units
-  language:
-  - en
-  format: text/plain
-  type: title-main
-- content: The International System of Units (SI)
-  language:
-  - en
-  format: text/plain
-  type: title-cover
-- content: Le Système international d’unités
-  language:
-  - fr
-  format: text/plain
-  type: title-main
-- content: Le Système international d’unités (SI)
-  language:
-  - fr
-  format: text/plain
-  type: title-cover
 type: standard
-docid:
-- id: BIPM SI Brochure Part 1
+schema_version: v1.4.1
+title:
+- language: en
+  content: The International System of Units
+  type: title-main
+  format: text/plain
+- language: en
+  content: The International System of Units (SI)
+  type: title-cover
+  format: text/plain
+- language: fr
+  content: Le Système international d’unités
+  type: title-main
+  format: text/plain
+- language: fr
+  content: Le Système international d’unités (SI)
+  type: title-cover
+  format: text/plain
+docidentifier:
+- language: en
+  content: BIPM SI Brochure Part 1
   type: BIPM
   primary: true
-  language: en
-- id: BIPM SI Brochure Partie 1
+- language: fr
+  content: BIPM SI Brochure Partie 1
   type: BIPM
   primary: true
-  language: fr
-- id: 978-92-822-2272-0
+- content: 978-92-822-2272-0
   type: ISBN
 docnumber: SI Brochure Part 1
 contributor:
-- organization:
-    name:
-    - content: Bureau International des Poids et Mesures
-    abbreviation:
-      content: BIPM
-  role:
+- role:
   - type: author
-- organization:
+  organization:
     name:
     - content: Bureau International des Poids et Mesures
     abbreviation:
       content: BIPM
-  role:
+- role:
   - type: publisher
+  organization:
+    name:
+    - content: Bureau International des Poids et Mesures
+    abbreviation:
+      content: BIPM
 edition:
   content: '9'
 version:
 - revision_date: '2019-05-20'
   draft: v1.07
-revdate: '2019-05-20'
 language:
 - en
 script:
 - Latn
-docstatus:
+status:
   stage:
-    value: in-force
+    content: in-force
 copyright:
-- owner:
-  - name:
-    - content: Bureau International des Poids et Mesures
-    abbreviation:
-      content: BIPM
-  from: '2019'
+- from: '2019'
+  owner:
+  - organization:
+      name:
+      - content: Bureau International des Poids et Mesures
+      abbreviation:
+        content: BIPM
 ext:
-  schema-version: v1.0.0
+  schema_version: v1.0.1
   doctype:
-    type: brochure
+    content: brochure
   editorialgroup:
     committee:
-    - acronym: BIPM
-      variants:
-      - content: International Bureau of Weights and Measures
-        language:
-        - en
-        script:
-        - Latn
-      - content: Bureau International des Poids et Mesures
-        language:
-        - fr
-        script:
-        - Latn
+    - language: en
+      script: Latn
+      content: International Bureau of Weights and Measures
+      acronym: BIPM
+    - language: fr
+      script: Latn
+      content: Bureau International des Poids et Mesures
+      acronym: BIPM
+  si_aspect: full
   structuredidentifier:
     docnumber: Brochure
     part: '1'
-  si_aspect: full

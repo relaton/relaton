@@ -1,45 +1,50 @@
+schema_version: v1.4.1
+
 id: Draft-Agenda-NMI-Dir-Meeting-2017-v10
 
 fetched: "2020-09-10"
 
-title: 19th Meeting of the Directors of NMIs and Member State Representatives
+title:
+- content: 19th Meeting of the Directors of NMIs and Member State Representatives
 
 type: standard
-doctype: brochure
 
-docid:
-  id: 2017-09-04-Draft-Agenda-NMI-Dir-Meeting-2017-v10
+docidentifier:
+- content: 2017-09-04-Draft-Agenda-NMI-Dir-Meeting-2017-v10
   type: BIPM
 
 docnumber: Draft-Agenda-NMI-Dir-Meeting-2017-v10
-edition: "1"
+edition:
+  number: "1"
 
 language:
   - en
   - fr
 
-script: Latn
+script:
+  - Latn
 
 version:
-  revision_date: "2019-04-01"
+- revision_date: "2019-04-01"
   draft: draft
 
-biblionote:
-  - note
+note:
+  - content: note
   - content: An note
     type: annote
 
-docstatus:
-  stage: in-force
+status:
+  stage:
+    content: in-force
 
 date:
   - type: issued
-    value: "2014-01-01"
+    at: "2014-01-01"
   - type: effective
     from: "2014-04-01"
     to: "2015-12-31"
   - type: supreseded
-    value: "2015-05-20"
+    at: "2015-05-20"
 
 abstract:
   - content: The agenda for the first day addresses current issues relating to the BIPM and CIPM and also includes advanced information about plans for the 26th CGPM in 2018.
@@ -53,100 +58,142 @@ abstract:
 
 contributor:
   - organization:
-      name: International Organization for Standardization
-      url: www.iso.org
-      abbreviation: ISO
-      subdivision: division
+      name:
+      - content: International Organization for Standardization
+      uri:
+        content: www.iso.org
+      abbreviation:
+        content: ISO
+      subdivision:
+      - name:
+        - content: division
     role:
-      type: publisher
-      description: Publisher role
+    - type: publisher
+      description:
+      - content: Publisher role
   - person:
       name:
         completename:
           content: A. Bierman
           language: en
       affiliation:
-        organization:
-          name: IETF
-          abbreviation: IETF
+      - organization:
+          name:
+          - content: IETF
+          abbreviation:
+            content: IETF
           identifier:
-            type: uri
-            id: www.ietf.org
-      contact:
-        - address:
-            street:
-            - Street
-            city: City
-            postcode: "123456"
-            country: Country
-            state: State
-        - phone: "223322"
-    role: author
+          - type: uri
+            content: www.ietf.org
+      address:
+      - street:
+        - Street
+        city: City
+        postcode: "123456"
+        country: Country
+        state: State
+      phone:
+      - content: "223322"
+    role:
+    - type: author
   - organization:
-      name: IETF
-      abbreviation: IETF
+      name:
+      - content: IETF
+      abbreviation:
+        content: IETF
       identifier:
-        type: uri
-        id: www.ietf.org
+      - type: uri
+        content: www.ietf.org
     role:
       - type: publisher
-        description: Publisher description
+        description:
+        - content: Publisher description
       - type: editor
-        description: Editor description
+        description:
+        - content: Editor description
   - person:
       name:
-        given:
-          forename:
-          - initial: A.
-            language: en
-          - content: Forename
-            language: en
+        forename:
+        - initial: A.
+          language: en
+        - content: Forename
+          language: en
         surname:
           content: Bierman
           language: en
         addition:
-          content: Addition
+        - content: Addition
           language: en
         prefix:
-          content: Prefix
+        - content: Prefix
           language: en
       affiliation:
-        organization:
-          name: IETF
-          abbreviation: IETF
+      - organization:
+          name:
+          - content: IETF
+          abbreviation:
+            content: IETF
         description:
-          content: Description
+        - content: Description
           language: en
-      contact:
-        - address:
-            street:
-            - Street
-            city: City
-            postcode: "123456"
-            country: Country
-            state: State
-        - phone: "223322"
+      address:
+      - street:
+        - Street
+        city: City
+        postcode: "123456"
+        country: Country
+        state: State
+      phone:
+      - content: "223322"
       identifier:
-        type: uri
-        id: www.person.com
-    role: author
-  - organization:
-      name: Institution
+      - type: uri
+        content: www.person.com
     role:
-      type: distributor
-      description: sponsor
+    - type: author
+  - organization:
+      name:
+      - content: Institution
+    role:
+    - type: distributor
+      description:
+      - content: sponsor
+  - organization:
+      name:
+      - content: BIPM
+      subdivision:
+        type: committee
+        name:
+        - content: Consultative Committee for Units
+          language: en
+          script: Latn
+        abbreviation:
+          content: CCU
+      identifier:
+      - type: workgroup
+        name:
+        - content: Work group
+        abbreviation:
+          content: ACRN
+    role:
+    - type: author
+      description:
+      - content: committee
 
 copyright:
-  owner:
-    name: International Organization for Standardization
-    abbreviation: ISO
-    url: www.iso.org
+- owner:
+  - organization:
+      name:
+      - content: International Organization for Standardization
+      abbreviation:
+        content: ISO
+      uri:
+        content: www.iso.org
   from: "2014"
   to: "2020"
   scope: Scope
 
-link:
-  type: obp
+source:
+- type: obp
   content: http://www.bipm.org/cc/PARTNERS/Allowed/2017_October/2017-09-04-Draft-Agenda-NMI-Dir-Meeting-2017-v10.pdf
 
 relation:
@@ -170,7 +217,6 @@ relation:
           reference_from: "3"
   - type: obsoletedBy
     description:
-      format: text/plain
       content: Obsoleted by
     bibitem:
       type: standard
@@ -179,37 +225,34 @@ relation:
 series:
   - type: main
     title:
-      type: original
+    - type: original
       content: ISO/IEC FDIS 10118-3
       language: en
       script: Latn
-      format: text/plain
-    place: Serie's place
+    place:
+      city: Serie's place
     organization: Serie's organization
-    abbreviation: ABVR
+    abbreviation:
+      content: ABVR
     from: "2009-02-01"
     to: "2010-12-20"
     number: serie1234
     partnumber: part5678
   - type: alt
-    formattedref:
-      content: serieref
-      language: en
-      script: Latn
+    formattedref: serieref
     title:
-      content: Series Title
+    - content: Series Title
   - type: alt
     title:
-      content: Journal
+    - content: Journal
     number: "7"
   - title:
-      content:
-        - content: Series
-          language: en
-          script: Latn
-        - content: Séries
-          language: fr
-          script: Latn
+    - content: Series
+      language: en
+      script: Latn
+    - content: Séries
+      language: fr
+      script: Latn
 
 medium:
   form: medium form
@@ -217,10 +260,10 @@ medium:
   scale: medium scale
 
 place:
-  - bib place
+  - formatted_place: bib place
   - city: Geneva
     country:
-      - name: Switzeland
+      - content: Switzeland
         iso: CH
 
 extent:
@@ -242,15 +285,17 @@ accesslocation:
 
 classification:
   - type: type
-    value: value
+    content: value
   - type: keyword
-    value: Keywords
+    content: Keywords
   - type: mendeley
-    value: Mendeley Tags
+    content: Mendeley Tags
 
 keyword:
-  - Keyword
-  - Key Word
+  - taxon:
+    - content: Keyword
+  - taxon:
+    - content: Key Word
 
 license: License
 
@@ -259,28 +304,20 @@ validity:
   ends: "2011-02-03 18:30"
   revision: "2011-03-04 09:00"
 
-editorialgroup:
-  committee:
-    - acronym: CGPM
-      variants:
-        - language: en
-        - language: fr
-    - acronym: CCU
-    - acronym: JCGM
-      content: Joint Committee for Guides in Metrology
-  workgroup:
-    - Work group
-    - acronym: ACRN
-      content: Workgroup
+ext:
+  schema_version: v1.0.1
+  doctype:
+    content: brochure
+  flavor: bipm
 
-structuredidentifier:
-  docnumber: si-brochure
-  part: '1'
-  appendix: A
+  comment_period:
+    from: '2011-01-01'
+    to: '2011-12-31'
 
-si_aspect: A_e_deltanu
-meeting_note: Meeting note
+  si_aspect: A_e_deltanu
+  meeting_note: Meeting note
 
-comment_period:
-  from: '2011-01-01'
-  to: '2011-12-31'
+  structuredidentifier:
+    docnumber: si-brochure
+    part: '1'
+    appendix: A

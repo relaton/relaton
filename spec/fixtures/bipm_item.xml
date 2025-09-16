@@ -1,6 +1,6 @@
-<bibdata type="standard" schema-version="v1.2.9">
+<bibdata type="standard" schema-version="v1.4.1">
   <fetched>2020-09-10</fetched>
-  <title format="text/plain">19th Meeting of the Directors of NMIs and Member State Representatives</title>
+  <title>19th Meeting of the Directors of NMIs and Member State Representatives</title>
   <uri type="obp">http://www.bipm.org/cc/PARTNERS/Allowed/2017_October/2017-09-04-Draft-Agenda-NMI-Dir-Meeting-2017-v10.pdf</uri>
   <docidentifier type="BIPM">2017-09-04-Draft-Agenda-NMI-Dir-Meeting-2017-v10</docidentifier>
   <docnumber>Draft-Agenda-NMI-Dir-Meeting-2017-v10</docnumber>
@@ -20,7 +20,9 @@
     </role>
     <organization>
       <name>International Organization for Standardization</name>
-      <subdivision>division</subdivision>
+      <subdivision>
+        <name>division</name>
+      </subdivision>
       <abbreviation>ISO</abbreviation>
       <uri>www.iso.org</uri>
     </organization>
@@ -66,7 +68,7 @@
     <person>
       <name>
         <prefix language="en">Prefix</prefix>
-        <forename initial="A."/>
+        <forename language="en" initial="A."></forename>
         <forename language="en">Forename</forename>
         <surname language="en">Bierman</surname>
         <addition language="en">Addition</addition>
@@ -97,7 +99,20 @@
       <name>Institution</name>
     </organization>
   </contributor>
-  <edition>1</edition>
+  <contributor>
+    <role type="author">
+      <description>committee</description>
+    </role>
+    <organization>
+      <name>BIPM</name>
+      <subdivision type="committee">
+        <name language="en" script="Latn">Consultative Committee for Units</name>
+        <abbreviation>CCU</abbreviation>
+      </subdivision>
+      <identifier type="workgroup"></identifier>
+    </organization>
+  </contributor>
+  <edition number="1"></edition>
   <version>
     <revision-date>2019-04-01</revision-date>
     <draft>draft</draft>
@@ -107,8 +122,8 @@
   <language>en</language>
   <language>fr</language>
   <script>Latn</script>
-  <abstract format="text/plain" language="en" script="Latn">The agenda for the first day addresses current issues relating to the BIPM and CIPM and also includes advanced information about plans for the 26th CGPM in 2018.</abstract>
-  <abstract format="text/plain" language="fr" script="Latn">Conférence générale des poids et mesures</abstract>
+  <abstract language="en" script="Latn">The agenda for the first day addresses current issues relating to the BIPM and CIPM and also includes advanced information about plans for the 26th CGPM in 2018.</abstract>
+  <abstract language="fr" script="Latn">Conférence générale des poids et mesures</abstract>
   <status>
     <stage>in-force</stage>
   </status>
@@ -126,7 +141,7 @@
   </copyright>
   <relation type="obsoletes">
     <bibitem>
-      <formattedref format="text/plain">ISO 19115:2003</formattedref>
+      <formattedref>ISO 19115:2003</formattedref>
     </bibitem>
     <localityStack>
       <locality type="section">
@@ -151,14 +166,16 @@
     </sourceLocalityStack>
   </relation>
   <relation type="obsoletedBy">
-    <description format="text/plain">Obsoleted by</description>
+    <description>Obsoleted by</description>
     <bibitem type="standard">
-      <formattedref format="text/plain">ISO 19115:2003/Cor 1:2006</formattedref>
+      <formattedref>ISO 19115:2003/Cor 1:2006</formattedref>
     </bibitem>
   </relation>
   <series type="main">
-    <title type="original" format="text/plain" language="en" script="Latn">ISO/IEC FDIS 10118-3</title>
-    <place>Serie's place</place>
+    <title language="en" script="Latn" type="original">ISO/IEC FDIS 10118-3</title>
+    <place>
+      <city>Serie's place</city>
+    </place>
     <organization>Serie's organization</organization>
     <abbreviation>ABVR</abbreviation>
     <from>2009-02-01</from>
@@ -167,25 +184,25 @@
     <partnumber>part5678</partnumber>
   </series>
   <series type="alt">
-    <formattedref format="text/plain" language="en" script="Latn">serieref</formattedref>
-    <title format="text/plain">Series Title</title>
+    <formattedref>serieref</formattedref>
+    <title>Series Title</title>
   </series>
   <series type="alt">
-    <title format="text/plain">Journal</title>
+    <title>Journal</title>
     <number>7</number>
   </series>
   <series>
-    <title format="text/plain">
-      <variant language="en" script="Latn">Series</variant>
-      <variant language="fr" script="Latn">Séries</variant>
-    </title>
+    <title language="en" script="Latn">Series</title>
+    <title language="fr" script="Latn">Séries</title>
   </series>
   <medium>
     <form>medium form</form>
     <size>medium size</size>
     <scale>medium scale</scale>
   </medium>
-  <place>bib place</place>
+  <place>
+    <formattedPlace>bib place</formattedPlace>
+  </place>
   <place>
     <city>Geneva</city>
     <country iso="CH">Switzeland</country>
@@ -212,25 +229,20 @@
   <classification type="type">value</classification>
   <classification type="keyword">Keywords</classification>
   <classification type="mendeley">Mendeley Tags</classification>
-  <keyword>Keyword</keyword>
-  <keyword>Key Word</keyword>
+  <keyword>
+    <taxon>Keyword</taxon>
+  </keyword>
+  <keyword>
+    <taxon>Key Word</taxon>
+  </keyword>
   <validity>
-    <validityBegins>2010-10-10 12:21</validityBegins>
-    <validityEnds>2011-02-03 18:30</validityEnds>
-    <revision>2011-03-04 09:00</revision>
+    <validityBegins>2010-10-10</validityBegins>
+    <validityEnds>2011-02-03</validityEnds>
+    <revision>2011-03-04</revision>
   </validity>
-  <ext schema-version="v1.0.0">
+  <ext schema-version="v1.0.1">
     <doctype>brochure</doctype>
-    <editorialgroup>
-      <committee acronym="CGPM">
-        <variant language="en">General Conference on Weights and Measures</variant>
-        <variant language="fr">Conférence générale des poids et mesures</variant>
-      </committee>
-      <committee acronym="CCU" language="en" script="Latn">Consultative Committee for Units</committee>
-      <committee acronym="JCGM">Joint Committee for Guides in Metrology</committee>
-      <workgroup>Work group</workgroup>
-      <workgroup acronym="ACRN">Workgroup</workgroup>
-    </editorialgroup>
+    <flavor>bipm</flavor>
     <comment-period>
       <from>2011-01-01</from>
       <to>2011-12-31</to>

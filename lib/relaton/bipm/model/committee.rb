@@ -5,10 +5,14 @@ module Relaton
         CGPM CIPM BIPM CCAUV CCEM CCL CCM CCPR CCQM CCRI CCT CCTF CCU CCL-CCTF-WGFS JCGM JCRB JCTLM INetQI
       ].freeze
 
-      attribute :acronym, :string, values: ACRONYMS
+      attribute :acronym, :string # , values: ACRONYMS
 
       xml do
         map_attribute "acronym", to: :acronym
+      end
+
+      key_value do
+        map "acronym", to: :acronym
       end
     end
   end

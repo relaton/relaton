@@ -1,0 +1,132 @@
+require_relative "id_parser"
+
+module Relaton::Bipm
+  class SiBrochureParser
+    #
+    # Create new parser
+    #
+    # @param [Relaton::Bipm::DataFetcher] data_fetcher data fetcher
+    #
+    def initialize(data_fetcher)
+      @data_fetcher = WeakRef.new data_fetcher
+    end
+
+    #
+    # Parse documents from SI brochure dataset and write thems to YAML files
+    #
+    # @param [Relaton::Bipm::DataFetcher] data_fetcher data fetcher
+    #
+    def self.parse(data_fetcher)
+      new(data_fetcher).parse
+    end
+
+    #
+    # Parse SI brochure and write them to YAML files
+    #
+    def parse # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      # puts "Parsing SI brochure..."
+      # puts "Ls #{Dir['*']}"
+      # puts "Ls #{Dir['bipm-si-brochure/*']}"
+      # puts "Ls #{Dir['bipm-si-brochure/site/*']}"
+      # puts "Ls #{Dir['bipm-si-brochure/site/documents/*']}"
+      Dir["bipm-si-brochure/_site/documents/*.rxl"].each do |f|
+        puts "Parsing #{f}"
+        xml = File.read(f, encoding: "UTF-8")
+        xml = xml.force_encoding("UTF-8") if xml.encoding != Encoding::UTF_8
+        item1 = Bibdata.from_xml(xml)
+        fix_si_brochure_id item1
+        basename = File.join @data_fetcher.output, File.basename(f).sub(/(?:-(?:en|fr))?\.rxl$/, "")
+        outfile = "#{basename}.#{@data_fetcher.ext}"
+        key = item1.docnumber || basename
+        @data_fetcher.index2.add_or_update Id.new.parse(key).to_hash, outfile
+        item =
+          if File.exist? outfile
+            warn_duplicate = false
+            item2 = Item.from_yaml File.read(outfile, encoding: "UTF-8")
+            fix_si_brochure_id item2
+            hash1 = YAML.safe_load item1.to_yaml
+            hash2 = YAML.safe_load item2.to_yaml
+            Item.from_yaml deep_merge(hash1, hash2).to_yaml
+          else
+            warn_duplicate = true
+            item1
+          end
+        @data_fetcher.write_file outfile, item, warn_duplicate: warn_duplicate
+        puts "Saved to #{outfile}"
+      end
+    end
+
+    #
+    # Update ID of SI brochure
+    #
+    # @param [ItemData] item bibliographic item
+    #
+    # @return [void]
+    #
+    def fix_si_brochure_id(item)
+      # isbn = hash["docid"].detect { |id| id["type"] == "ISBN" }
+      # num = isbn && isbn["id"] == "978-92-822-2272-0" ?  "SI Brochure" : "SI Brochure, Appendix 4"
+
+      update_id item
+
+      prid = primary_id item
+      if item.docnumber
+        item.docnumber.sub!(/^Brochure(?:\sConcise|\sFAQ)?$/i, prid.sub(/^BIPM\s/, ""))
+      else
+        item.docnumber = prid.sub(/^BIPM\s/, "")
+      end
+      item.id = prid.gsub(/[,\s]/, "")
+    end
+
+    def update_id(item)
+      item.docidentifier.each do |id|
+        next unless id.type == "BIPM" && id.content&.match?(/BIPM Brochure/i)
+
+        id.primary = true
+        id.content.sub!(/(?<=^BIPM\s)(Brochure)/i, "SI \\1")
+      end
+    end
+
+    def primary_id(item)
+      item.docidentifier.detect do |id|
+        id.primary && (id.language == "en" || id.language.nil?)
+      end.content
+    end
+
+    #
+    # Deep merge two hashes
+    #
+    # @param [Hash] hash1
+    # @param [Hash] hash2
+    #
+    # @return [Hash] Merged hash
+    #
+    def deep_merge(hash1, hash2) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity
+      hash1.merge(hash2) do |_, oldval, newval|
+        if oldval.is_a?(Hash) && newval.is_a?(Hash)
+          deep_merge(oldval, newval)
+        elsif oldval.is_a?(Array) && newval.is_a?(Array)
+          (oldval + newval).uniq { |i| downcase_all i }
+        else
+          newval || oldval
+        end
+      end
+    end
+
+    #
+    # Downcase all values in hash or array
+    #
+    # @param [Array, Hash, String] content hash, array or string
+    #
+    # @return [Array, Hash, String] hash, array or string with downcased values
+    #
+    def downcase_all(content)
+      case content
+      when Hash then content.transform_values { |v| downcase_all v }
+      when Array then content.map { |v| downcase_all v }
+      when String then content.downcase
+      else content
+      end
+    end
+  end
+end

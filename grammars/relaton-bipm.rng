@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0">
   <include href="biblio-standoc.rng">
     <define name="DocumentType">
       <choice>
@@ -16,16 +16,6 @@
         <value>resolution</value>
         <value>policy</value>
       </choice>
-    </define>
-    <define name="editorialgroup">
-      <element name="editorialgroup">
-        <oneOrMore>
-          <ref name="committee"/>
-        </oneOrMore>
-        <zeroOrMore>
-          <ref name="workgroup"/>
-        </zeroOrMore>
-      </element>
     </define>
     <define name="structuredidentifier">
       <element name="structuredidentifier">
@@ -44,30 +34,24 @@
         </optional>
       </element>
     </define>
-    <define name="BibDataExtensionType">
-      <optional>
-        <attribute name="schema-version"/>
-      </optional>
-      <optional>
-        <ref name="doctype"/>
-      </optional>
-      <optional>
-        <ref name="docsubtype"/>
-      </optional>
-      <ref name="flavor"/>
-      <ref name="editorialgroup"/>
-      <optional>
-        <ref name="comment-period"/>
-      </optional>
-      <optional>
-        <ref name="si-aspect"/>
-      </optional>
-      <optional>
-        <ref name="meeting-note"/>
-      </optional>
-      <ref name="structuredidentifier"/>
-    </define>
   </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <optional>
+      <ref name="comment-period">
+        <a:documentation>Period during which comments are allowed on the document draft</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="si-aspect">
+        <a:documentation>The domain of SI covered by the document; used to select logo in PDF cover page. The logo nominates one primary SI base units, and defining consonants for that unit and possibly others as well</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="meeting-note">
+        <a:documentation>Note on when and where a guide was adopted</a:documentation>
+      </ref>
+    </optional>
+  </define>
   <define name="comment-period">
     <element name="comment-period">
       <element name="from">
@@ -95,41 +79,6 @@
         <value>mol_NA</value>
         <value>s_deltanu</value>
       </choice>
-    </element>
-  </define>
-  <define name="committee">
-    <element name="committee">
-      <attribute name="acronym">
-        <choice>
-          <value>CGPM</value>
-          <value>CIPM</value>
-          <value>BIPM</value>
-          <value>CCAUV</value>
-          <value>CCEM</value>
-          <value>CCL</value>
-          <value>CCM</value>
-          <value>CCPR</value>
-          <value>CCQM</value>
-          <value>CCRI</value>
-          <value>CCT</value>
-          <value>CCTF</value>
-          <value>CCU</value>
-          <value>CCL-CCTF-WGFS</value>
-          <value>JCGM</value>
-          <value>JCRB</value>
-          <value>JCTLM</value>
-          <value>INetQI</value>
-        </choice>
-      </attribute>
-      <ref name="LocalizedString"/>
-    </element>
-  </define>
-  <define name="workgroup">
-    <element name="workgroup">
-      <optional>
-        <attribute name="acronym"/>
-      </optional>
-      <text/>
     </element>
   </define>
   <define name="meeting-note">
