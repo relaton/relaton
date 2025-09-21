@@ -455,7 +455,7 @@ module Relaton::Bipm
 
         mem << Relaton::Bib::Uri.new(type: "citation", content: md["url"], language: lang.to_s, script: "Latn")
       end
-      links << Relaton::Bib::Uri.new(type: "pdf", content: args[:pdf]) if args[:pdf]
+      Relaton.array(args[:pdf]).each { |pdf| links << Relaton::Bib::Uri.new(type: "pdf", content: pdf) }
       links += args[:src] if args[:src]
       links
     end

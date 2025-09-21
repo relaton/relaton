@@ -9,8 +9,8 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
   end
 
   context "instance methods" do
-    let(:index2) { double "index2" }
-    let(:data_fetcher) { double "data_fetcher", output: "output", ext: "yaml", index2: index2 }
+    let(:index) { double "index" }
+    let(:data_fetcher) { instance_double Relaton::Bipm::DataFetcher, output: "output", ext: "yaml", index: index }
     subject { described_class.new data_fetcher }
 
     context "fetch_metrologia" do
@@ -26,7 +26,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
           expect(item.source[0].content.to_s).to eq "https://iopscience.iop.org/volume/0026-1394/1A"
           expect(item.source[0].type).to eq "src"
         end
-        expect(index2).to receive(:add_or_update).with({ group: "Metrologia", number: "1A" }, "output/metrologia-1a.yaml")
+        expect(index).to receive(:add_or_update).with({ group: "Metrologia", number: "1A" }, "output/metrologia-1a.yaml")
         subject.fetch_metrologia "volume_1A"
       end
 
@@ -42,7 +42,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
           expect(item.source[0].content.to_s).to eq "https://iopscience.iop.org/issue/0026-1394/1/2"
           expect(item.source[0].type).to eq "src"
         end
-        expect(index2).to receive(:add_or_update).with({ group: "Metrologia", number: "1 2" }, "output/metrologia-1-2.yaml")
+        expect(index).to receive(:add_or_update).with({ group: "Metrologia", number: "1 2" }, "output/metrologia-1-2.yaml")
         subject.fetch_metrologia "volume_1", "issue_2"
       end
     end
@@ -69,10 +69,11 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
 
     it "fetch_articles" do
       expect(Dir).to receive(:[]).with("rawdata-bipm-metrologia/data/*content/0026-1394/**/*.xml").and_return [:path]
-      item = double "item", docidentifier: [double(id: "Metrologia")]
+      docid = Relaton::Bib::Docidentifier.new(content: "Metrologia", type: "BIPM", primary: true)
+      item = Relaton::Bipm::ItemData.new(docidentifier: [docid])
       expect(Relaton::Bipm::RawdataBipmMetrologia::ArticleParser).to receive(:parse).with(:path).and_return item
       expect(data_fetcher).to receive(:write_file).with("output/metrologia.yaml", item)
-      expect(index2).to receive(:add_or_update).with({ group: "Metrologia" }, "output/metrologia.yaml")
+      expect(index).to receive(:add_or_update).with({ group: "Metrologia" }, "output/metrologia.yaml")
       subject.fetch_articles
     end
 
@@ -93,7 +94,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
       expect(rel).to be_instance_of Array
       expect(rel[0]).to be_instance_of Relaton::Bib::Relation
       expect(rel[0].type).to eq "partOf"
-      expect(rel[0].bibitem).to be_instance_of Relaton::Bipm::Item
+      expect(rel[0].bibitem).to be_instance_of Relaton::Bib::ItemData
       expect(rel[0].bibitem.docidentifier).to be_instance_of Array
       expect(rel[0].bibitem.docidentifier[0]).to be_instance_of Relaton::Bib::Docidentifier
       expect(rel[0].bibitem.docidentifier[0].content).to eq "Metrologia 1 2 3"

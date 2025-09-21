@@ -35,10 +35,10 @@ module Relaton::Bipm
         # aff = Affiliations.parse DIR
         Dir["#{DIR}/**/*.xml"].each do |path|
           item = ArticleParser.parse path # , aff
-          file = "#{item.docidentifier.first.id.downcase.tr(' ', '-')}.#{@data_fetcher.ext}"
+          file = "#{item.docidentifier.first.content.downcase.tr(' ', '-')}.#{@data_fetcher.ext}"
           out_path = File.join(@data_fetcher.output, file)
-          key = Relaton::Bipm::Id.new.parse(item.docidentifier.first.id).to_hash
-          @data_fetcher.index2.add_or_update key, out_path
+          key = Relaton::Bipm::Id.new.parse(item.docidentifier.first.content).to_hash
+          @data_fetcher.index.add_or_update key, out_path
           @data_fetcher.write_file out_path, item
         end
       end
@@ -80,7 +80,7 @@ module Relaton::Bipm
         )
         file = "#{id.downcase.gsub(' ', '-')}.#{@data_fetcher.ext}"
         path = File.join(@data_fetcher.output, file)
-        @data_fetcher.index2.add_or_update Id.new.parse(id).to_hash, path
+        @data_fetcher.index.add_or_update Id.new.parse(id).to_hash, path
         @data_fetcher.write_file path, item
       end
 
@@ -143,9 +143,7 @@ module Relaton::Bipm
       # @return [Relaton::Bipm::Item] bibitem
       #
       def rel_bibitem(id)
-        Item.new(
-          formattedref: id, docidentifier: docidentifier(id),
-        )
+        Relaton::Bib::ItemData.new(formattedref: id, docidentifier: docidentifier(id))
       end
 
       def typed_uri(*args)

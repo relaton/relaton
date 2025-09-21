@@ -3,7 +3,7 @@ require "mechanize"
 module Relaton::Bipm
   class Bibliography
     GH_ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-bipm/main/".freeze
-    INDEX_FILE = "index2.yaml".freeze
+    INDEX_FILE = "index-v1.yaml".freeze
 
     class << self
       # @param text [String]

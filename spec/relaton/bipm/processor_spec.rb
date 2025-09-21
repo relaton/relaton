@@ -1,5 +1,4 @@
 require "relaton/bipm/processor"
-require "relaton/bipm/data_fetcher"
 
 describe Relaton::Bipm::Processor do
   it "#intialize" do
@@ -18,7 +17,7 @@ describe Relaton::Bipm::Processor do
   it "#fetch_data" do
     df = instance_double Relaton::Bipm::DataFetcher
     expect(df).to receive(:fetch).with("bipm-data-outcomes")
-    expect(Relaton::Bipm::DataFetcher).to receive(:new).with(output: "output", format: "xml").and_return df
+    expect(Relaton::Bipm::DataFetcher).to receive(:new).with("output", "xml").and_return df
     subject.fetch_data "bipm-data-outcomes", output: "output", format: "xml"
   end
 
@@ -34,5 +33,14 @@ describe Relaton::Bipm::Processor do
 
   it "#grammar_hash" do
     expect(subject.grammar_hash).to be_a String
+  end
+
+  it "#remove_index_file" do
+    index = instance_double Relaton::Index::Type
+    expect(Relaton::Index).to receive(:find_or_create)
+      .with(:bipm, url: true, file: Relaton::Bipm::Bibliography::INDEX_FILE)
+      .and_return index
+    expect(index).to receive(:remove_file)
+    subject.remove_index_file
   end
 end

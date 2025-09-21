@@ -1,4 +1,5 @@
 require_relative "id_parser"
+require_relative "../bipm"
 require_relative "data_outcomes_parser"
 require_relative "si_brochure_parser"
 require_relative "rawdata_bipm_metrologia/fetcher"
@@ -7,40 +8,9 @@ module Relaton::Bipm
   class DataFetcher < Relaton::Core::DataFetcher
     attr_reader :output, :format, :ext, :files, :index
 
-    #
-    # Initialize fetcher
-    #
-    # @param [String] output output directory to save files
-    # @param [String] format format of output files (xml, yaml, bibxml)
-    #
-    # def initialize(output, format)
-    #   @output = output
-    #   @format = format
-    #   @ext = format.sub(/^bib/, "")
-    #   @files = []
-    #   @index2 = Relaton::Index.find_or_create :bipm, file: "index2.yaml"
-    # end
-
     def index
-      @index ||= Relaton::Index.find_or_create :bipm, file: "index-v1.yaml"
+      @index ||= Relaton::Index.find_or_create :bipm, file: Bibliography::INDEX_FILE
     end
-
-    #
-    # Initialize fetcher and run fetching
-    #
-    # @param [String] source Source name
-    # @param [Strin] output directory to save files, default: "data"
-    # @param [Strin] format format of output files (xml, yaml, bibxml), default: yaml
-    #
-    # def self.fetch(source, output: "data", format: "yaml")
-    #   t1 = Time.now
-    #   puts "Started at: #{t1}"
-    #   FileUtils.mkdir_p output
-    #   new(output, format).fetch(source)
-    #   t2 = Time.now
-    #   puts "Stopped at: #{t2}"
-    #   puts "Done in: #{(t2 - t1).round} sec."
-    # end
 
     #
     # Fetch bipm-data-outcomes or si-brochure
@@ -76,8 +46,8 @@ module Relaton::Bipm
     def serialize(item)
       case @format
       when "xml" then item.to_xml bibdata: true
-      when "yaml" then item.to_hash.to_yaml
-      when "bibxml" then item.to_bibxml
+      when "yaml" then item.to_yaml
+      # when "bibxml" then item.to_bibxml # not implemented in Relaton::Bib yet
       end
     end
   end

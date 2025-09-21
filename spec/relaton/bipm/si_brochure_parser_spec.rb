@@ -11,8 +11,8 @@ describe Relaton::Bipm::SiBrochureParser do
   end
 
   context "instance methods" do
-    let(:index2) { double "index2" }
-    let(:data_fetcher) { double "data_fetcher", output: "data", ext: "yaml", files: [], index2: index2 }
+    let(:index) { double "index" }
+    let(:data_fetcher) { double "data_fetcher", output: "data", ext: "yaml", files: [], index: index }
     subject { described_class.new data_fetcher }
 
     it "#parse_si_brochure" do
@@ -41,7 +41,7 @@ describe Relaton::Bipm::SiBrochureParser do
         m.call path.sub(/^data\/si-brochure\.yaml/, "spec/fixtures/data/si-brochure_1.yaml")
       end
 
-      expect(index2).to receive(:add_or_update)
+      expect(index).to receive(:add_or_update)
         .with({group: "SI", type: "Brochure", part: "1" }, "data/si-brochure.yaml").twice
       subject.parse
     end

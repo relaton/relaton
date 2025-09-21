@@ -38,7 +38,7 @@ module Relaton::Bipm
         basename = File.join @data_fetcher.output, File.basename(f).sub(/(?:-(?:en|fr))?\.rxl$/, "")
         outfile = "#{basename}.#{@data_fetcher.ext}"
         key = item1.docnumber || basename
-        @data_fetcher.index2.add_or_update Id.new.parse(key).to_hash, outfile
+        @data_fetcher.index.add_or_update Id.new.parse(key).to_hash, outfile
         item =
           if File.exist? outfile
             warn_duplicate = false
