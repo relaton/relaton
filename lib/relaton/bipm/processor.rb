@@ -38,10 +38,12 @@ module Relaton
       # @param xml [String]
       # @return [RelatonBipm::BipmBibliographicItem]
       def from_xml(xml)
+        require "relaton/bipm"
         Item.from_xml xml
       end
 
       def from_yaml(yaml)
+        require "relaton/bipm"
         Item.from_yaml yaml
       end
 

@@ -301,7 +301,7 @@ module Relaton::Bipm
         { content: "International Bureau of Weights and Measures", language: "en" },
         { content: "Bureau international des poids et mesures", language: "fr" },
       ]
-      bipm_org = organization(nms, "BIPM").tap { |org| org.uri << Relaton::Bib::Uri.new(content: "www.bipm.org") }
+      bipm_org = organization(nms, "BIPM", "fr").tap { |org| org.uri << Relaton::Bib::Uri.new(content: "www.bipm.org") }
       role = Relaton::Bib::Contributor::Role.new(type: "publisher")
       Relaton::Bib::Contributor.new(organization: bipm_org, role: [role])
     end
@@ -314,7 +314,7 @@ module Relaton::Bipm
     # @return [Hash] CCTF organization
     #
     def cctf_org(date) # rubocop:disable Metrics/MethodLength
-      if Date.parse(date).year < 1999
+      if ::Date.parse(date).year < 1999
         nms = [
           { content: "Consultative Committee for the Definition of the Second", language: "en" },
           { content: "Comité Consultatif pour la Définition de la Seconde", language: "fr" },
@@ -337,10 +337,10 @@ module Relaton::Bipm
     #
     # @return [Relaton::Bib::Organization] organization
     #
-    def organization(names, abbr)
+    def organization(names, abbr, abbr_lang = "en")
       name = names.map { |ctrb| Relaton::Bib::TypedLocalizedString.new(**ctrb, script: "Latn") }
       # { name: names, abbreviation: { content: abbr, language: ["en", "fr"], script: "Latn" } }
-      abbreviation = Relaton::Bib::LocalizedString.new(content: abbr, language: "en", script: "Latn")
+      abbreviation = Relaton::Bib::LocalizedString.new(content: abbr, language: abbr_lang, script: "Latn")
       Relaton::Bib::Organization.new(name: name, abbreviation: abbreviation)
     end
 
@@ -354,7 +354,7 @@ module Relaton::Bipm
         { content: "General Conference on Weights and Measures", language: "en" },
         { content: "Conférence Générale des Poids et Mesures", language: "fr" },
       ]
-      organization nms, "CGPM"
+      organization nms, "CGPM", "fr"
     end
 
     #
@@ -367,7 +367,7 @@ module Relaton::Bipm
         { content: "International Committee for Weights and Measures", language: "en" },
         { content: "Comité international des poids et mesures", language: "fr" },
       ]
-      organization names, "CIPM"
+      organization names, "CIPM", "fr"
     end
 
     #
@@ -471,7 +471,7 @@ module Relaton::Bipm
     # @return [String] document number
     #
     def create_resolution_docnum(body, type, num, date)
-      year = Date.parse(date).year
+      year = ::Date.parse(date).year
       id = "#{body} #{SHORTTYPE[type.capitalize]}"
       id += " #{num}" if num.to_i.positive?
       "#{id} (#{year})"
@@ -488,7 +488,7 @@ module Relaton::Bipm
     # @return [String] <description>
     #
     def create_meeting_docnum(body, type, num, date)
-      year = Date.parse(date).year
+      year = ::Date.parse(date).year
       ord = %w[th st nd rd th th th th th th][num.to_i % 10]
       "#{body} #{num}#{ord} #{type} (#{year})"
     end
@@ -504,7 +504,7 @@ module Relaton::Bipm
     # @return [String] ID
     #
     def create_id(body, type, num, date)
-      year = Date.parse(date).year
+      year = ::Date.parse(date).year
       [body, SHORTTYPE[type.capitalize], year, num].compact.join("-")
     end
 
@@ -530,7 +530,7 @@ module Relaton::Bipm
     # @return [Array<Relaton::Bib::Docidentifier>] document IDs
     #
     def create_resolution_docids(body, type, num, date)
-      year = Date.parse(date).year
+      year = ::Date.parse(date).year
       ids = []
       resolution_short_ids(body, type, num, year) { |id| ids << id }
       resolution_long_ids(body, type, num, year) { |id| ids << id }

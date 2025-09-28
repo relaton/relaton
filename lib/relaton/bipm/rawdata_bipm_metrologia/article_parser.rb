@@ -309,7 +309,7 @@ module Relaton::Bipm
       # @return [Relaton::Bipm::BipmBibliographicItem] bibitem
       #
       def bibitem(date, type)
-        dt = Relaton::Bib::Date.new(type: type, on: date)
+        dt = Relaton::Bib::Date.new(type: type, at: date)
         carrier = type == "epub" ? "online" : "print"
         medium = Relaton::Bib::Medium.new carrier: carrier
         ItemData.new title: parse_title, date: [dt], medium: medium
@@ -322,7 +322,7 @@ module Relaton::Bipm
       #
       def parse_series
         title = Relaton::Bib::Title.new(
-          content: journal_title, language: ["en"], script: ["Latn"],
+          content: journal_title, language: "en", script: "Latn",
         )
         [Relaton::Bib::Series.new(title: title)]
       end

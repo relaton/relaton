@@ -16,6 +16,7 @@ module Relaton
       attribute :subdoctype, :string
       attribute :flavor, :string
       attribute :editorialgroup, EditorialGroup
+      attribute :ics, Relaton::Bib::ICS, collection: true, initialize_empty: true
       attribute :comment_period, CommentPeriod
       attribute :si_aspect, :string, values: SI_ASPECTS
       attribute :meeting_note, :string
@@ -27,6 +28,7 @@ module Relaton
         map_element "subdoctype", to: :subdoctype
         map_element "flavor", to: :flavor
         map_element "editorialgroup", to: :editorialgroup
+        map_element "ics", to: :ics
         map_element "comment-period", to: :comment_period
         map_element "si-aspect", to: :si_aspect
         map_element "meeting-note", to: :meeting_note
