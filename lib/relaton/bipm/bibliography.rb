@@ -1,8 +1,9 @@
 require "mechanize"
+require_relative "id_parser"
 
 module Relaton::Bipm
   class Bibliography
-    GH_ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-bipm/main/".freeze
+    GH_ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/data-v2/".freeze
     INDEX_FILE = "index-v1.yaml".freeze
 
     class << self
@@ -17,7 +18,7 @@ module Relaton::Bipm
           return
         end
 
-        Util.info "Found: `#{item.docidentifier[0].id}`", key: text
+        Util.info "Found: `#{item.docidentifier[0].content}`", key: text
         item
       rescue Mechanize::ResponseCodeError => e
         raise Relaton::RequestError, e.message unless e.response_code == "404"
@@ -55,14 +56,14 @@ module Relaton::Bipm
         resp = Mechanize.new.get url
         return unless resp.code == "200"
 
-        item = ItemData.from_yaml resp.body
+        item = Item.from_yaml resp.body
         item.fetched = Date.today.to_s
         item
       end
 
       def index
         Relaton::Index.find_or_create(
-          :bipm, url: "#{GH_ENDPOINT}index2.zip", file: INDEX_FILE, id_keys: %i[group type number year corr part append]
+          :bipm, url: "#{GH_ENDPOINT}index-v1.zip", file: INDEX_FILE, id_keys: %i[group type number year corr part append]
         )
       end
 

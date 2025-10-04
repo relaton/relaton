@@ -284,7 +284,7 @@ module Relaton::Bipm
       def parse_abstract
         @meta.xpath("./abstract").map do |a|
           Relaton::Bib::LocalizedMarkedUpString.new(
-            content: a.inner_html, language: a[:"xml:lang"], script: ["Latn"],
+            content: a.inner_html, language: a[:"xml:lang"], script: "Latn",
           )
         end
       end
@@ -321,10 +321,8 @@ module Relaton::Bipm
       # @return [Array<Relaton::Bib::Series>] array of series
       #
       def parse_series
-        title = Relaton::Bib::Title.new(
-          content: journal_title, language: "en", script: "Latn",
-        )
-        [Relaton::Bib::Series.new(title: title)]
+        title = Relaton::Bib::Title.new(content: journal_title, language: "en", script: "Latn")
+        [Relaton::Bib::Series.new(title: [title])]
       end
 
       #

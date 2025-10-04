@@ -312,8 +312,8 @@ describe Relaton::Bipm::RawdataBipmMetrologia::ArticleParser do
       it { expect(series).to be_instance_of Array }
       it { expect(series.size).to eq 1 }
       it { expect(series[0]).to be_instance_of Relaton::Bib::Series }
-      it { expect(series[0].title).to be_instance_of Relaton::Bib::Title }
-      it { expect(series[0].title.content).to eq "Metrologia" }
+      it { expect(series[0].title[0]).to be_instance_of Relaton::Bib::Title }
+      it { expect(series[0].title[0].content).to eq "Metrologia" }
     end
 
     context "parse_extent" do

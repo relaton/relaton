@@ -301,7 +301,7 @@ module Relaton::Bipm
         { content: "International Bureau of Weights and Measures", language: "en" },
         { content: "Bureau international des poids et mesures", language: "fr" },
       ]
-      bipm_org = organization(nms, "BIPM", "fr").tap { |org| org.uri << Relaton::Bib::Uri.new(content: "www.bipm.org") }
+      bipm_org = organization(nms, "BIPM", abbr_lang: "fr", url: ["www.bipm.org"])
       role = Relaton::Bib::Contributor::Role.new(type: "publisher")
       Relaton::Bib::Contributor.new(organization: bipm_org, role: [role])
     end
@@ -334,14 +334,16 @@ module Relaton::Bipm
     #
     # @param [Array<Hash>] names organization names in different languages
     # @param [String] abbr abbreviation
+    # @param [String] abbr_lang language of abbreviation
+    # @param [Array<String>] url array of organization URLs
     #
     # @return [Relaton::Bib::Organization] organization
     #
-    def organization(names, abbr, abbr_lang = "en")
+    def organization(names, abbr, abbr_lang: "en", url: [])
       name = names.map { |ctrb| Relaton::Bib::TypedLocalizedString.new(**ctrb, script: "Latn") }
-      # { name: names, abbreviation: { content: abbr, language: ["en", "fr"], script: "Latn" } }
       abbreviation = Relaton::Bib::LocalizedString.new(content: abbr, language: abbr_lang, script: "Latn")
-      Relaton::Bib::Organization.new(name: name, abbreviation: abbreviation)
+      uri = url.map { |u| Relaton::Bib::Uri.new(content: u) }
+      Relaton::Bib::Organization.new(name: name, abbreviation: abbreviation, uri: uri)
     end
 
     #
@@ -354,7 +356,7 @@ module Relaton::Bipm
         { content: "General Conference on Weights and Measures", language: "en" },
         { content: "Conférence Générale des Poids et Mesures", language: "fr" },
       ]
-      organization nms, "CGPM", "fr"
+      organization nms, "CGPM", abbr_lang: "fr"
     end
 
     #
@@ -367,7 +369,7 @@ module Relaton::Bipm
         { content: "International Committee for Weights and Measures", language: "en" },
         { content: "Comité international des poids et mesures", language: "fr" },
       ]
-      organization names, "CIPM", "fr"
+      organization names, "CIPM", abbr_lang: "fr"
     end
 
     #
