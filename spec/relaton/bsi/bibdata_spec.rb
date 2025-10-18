@@ -1,5 +1,5 @@
 describe Relaton::Bsi::Bibdata do
-  let(:file) { "spec/fixtures/Bibdata.xml" }
+  let(:file) { "spec/fixtures/bibdata.xml" }
   let(:input_xml) { File.read file, encoding: "UTF-8" }
   let(:item) { described_class.from_xml input_xml }
 

@@ -1,4 +1,4 @@
-= RelatonBsi retrieve BSI Standards for bibliographic use using the BibliographicItem model
+= Relaton::Bsi retrieve BSI Standards for bibliographic use using the BibliographicItem model
 
 image:https://img.shields.io/gem/v/relaton-bsi.svg["Gem Version", link="https://rubygems.org/gems/relaton-bsi"]
 image:https://github.com/relaton/relaton-bsi/workflows/rake/badge.svg["Build Status", link="https://github.com/relaton/relaton-bsi/actions?workflow=rake"]
@@ -6,7 +6,7 @@ image:https://codeclimate.com/github/relaton/relaton-bsi/badges/gpa.svg["Code Cl
 image:https://img.shields.io/github/issues-pr-raw/relaton/relaton-bsi.svg["Pull Requests", link="https://github.com/relaton/relaton-bsi/pulls"]
 image:https://img.shields.io/github/commits-since/relaton/relaton-bsi/latest.svg["Commits since latest",link="https://github.com/relaton/relaton-bsi/releases"]
 
-RelatonBsi is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
+Relaton::Bsi is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
 == Installation
 
@@ -31,14 +31,14 @@ Or install it yourself as:
 
 [source,ruby]
 ----
-require 'relaton_bsi'
+require 'relaton/bsi'
 => true
 
-hit_collection = RelatonBsi::BsiBibliography.search("BS EN ISO 8848")
-=> <RelatonBsi::HitCollection:0x007fead49fe1f8 @ref=BS EN ISO 8848 @fetched=false>
+hit_collection = Relaton::Bsi::Bibliography.search("BS EN ISO 8848")
+=> <Relaton::Bsi::HitCollection:0x007fead49fe1f8 @ref=BS EN ISO 8848 @fetched=false>
 
-item = hit_collection[1].fetch
-=> #<RelatonBsi::BsiBibliographicItem:0x007fead494fbf8
+item = hit_collection[1].item
+=> #<Relaton::Bsi::ItemData:0x000000012ac6c9a8
  ...
 ----
 
@@ -46,10 +46,10 @@ item = hit_collection[1].fetch
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="BSENISO8848-2021" type="standard" schema-version="v1.2.1">
-      <fetched>2022-12-02</fetched>
-      <title type="title-main" format="text/plain" language="en" script="Latn">Small craft. Remote mechanical steering systems</title>
-      <title type="main" format="text/plain" language="en" script="Latn">Small craft. Remote mechanical steering systems</title>
+=> "<bibitem id="BSENISO88482021" type="standard" schema-version="v1.4.1">
+      <fetched>2025-10-18</fetched>
+      <title language="en" script="Latn" type="title-main">Small craft. Remote mechanical steering systems</title>
+      <title language="en" script="Latn" type="main">Small craft. Remote mechanical steering systems</title>
       <uri type="src">https://shop.bsigroup.com/products/small-craft-remote-mechanical-steering-systems</uri>
       <docidentifier type="BSI" primary="true">BS EN ISO 8848:2021</docidentifier>
       ...
@@ -62,23 +62,22 @@ Each BSI document has `src` type link.
 
 [source,ruby]
 ----
-item.link
-=> [#<RelatonBib::TypedUri:0x00007fc446c4a1a0
-  @content=#<Addressable::URI:0x54d8 URI:https://shop.bsigroup.com/products/small-craft-remote-mechanical-steering-systems>,
-  @language=nil,
-  @script=nil,
-  @type="src">]
+item.source[0].type
+ => "src"
+
+item.source[0].content
+ => "https://shop.bsigroup.com/products/small-craft-remote-mechanical-steering-systems"
 ----
 
 With `bibdata: true` option XML output wrapped with `bibdata` element and `ext` element added.
 [source,ruby]
 ----
 item.to_xml bibdata: true
-=> "<bibdata type="standard" schema-version="v1.2.1">
-      <fetched>2022-12-02</fetched>
-      <title type="title-main" format="text/plain" language="en" script="Latn">Small craft. Remote mechanical steering systems</title>
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      <fetched>2025-10-18</fetched>
+      <title language="en" script="Latn" type="title-main">Small craft. Remote mechanical steering systems</title>
       ...
-      <ext schema-version="v1.0.0">
+      <ext schema-version="v1.0.3">
         <doctype>standard</doctype>
         ...
       </ext>
@@ -88,42 +87,38 @@ item.to_xml bibdata: true
 === Get standard by code and year
 [source,ruby]
 ----
-RelatonBsi::BsiBibliography.get "BS EN ISO 8848:2021"
-[relaton-bsi] (BS EN ISO 8848:2021) Fetching from shop.bsigroup.com ...
-[relaton-bsi] (BS EN ISO 8848:2021) Found: `BS EN ISO 8848:2021`
-=> #<RelatonBsi::BsiBibliographicItem:0x007feb14814ca8
+Relaton::Bsi::Bibliography.get "BS EN ISO 8848:2021"
+[relaton-bsi] INFO: (BS EN ISO 8848:2021) Fetching from shop.bsigroup.com ...
+[relaton-bsi] INFO: (BS EN ISO 8848:2021) Found: `BS EN ISO 8848:2021`
+ => #<Relaton::Bsi::ItemData:0x000000011f19b688
 ...
 
-RelatonBsi::BsiBibliography.get "BS EN ISO 8848", "2021"
-[relaton-bsi] (BS EN ISO 8848) Fetching from shop.bsigroup.com ...
-[relaton-bsi] (BS EN ISO 8848) Found: `BS EN ISO 8848:2021`
-=> #<RelatonBsi::BsiBibliographicItem:0x007feaf59188a8
+Relaton::Bsi::Bibliography.get "BS EN ISO 8848", "2021"
+[relaton-bsi] INFO: (BS EN ISO 8848) Fetching from shop.bsigroup.com ...
+[relaton-bsi] INFO: (BS EN ISO 8848) Found: `BS EN ISO 8848:2021`
+ => #<Relaton::Bsi::ItemData:0x000000011f1bdc10
 ...
 ----
 
 === Create bibliographic item form YAML
 [source,ruby]
 ----
-hash = YAML.load_file 'spec/fixtures/bibdata.yaml'
-=> {"id"=>"BSENISO8848-2021",
-...
-
-RelatonBsi::BsiBibliographicItem.from_hash hash
-=> #<RelatonBsi::BsiBibliographicItem:0x007feaf5109630
+Relaton::Bsi::Item.from_yaml File.read("spec/fixtures/item.yaml", encoding: "UTF-8")
+ => #<Relaton::Bsi::ItemData:0x0000000104dd0dd8
 ...
 ----
 
 === Create bibliographic item from XML
 [source,ruby]
 ----
-RelatonBsi::XMLParser.from_xml File.read("spec/fixtures/bibdata.xml", encoding: "UTF-8")
-=> #<RelatonBsi::BsiBibliographicItem:0x007feb14d50b68
+Relaton::Bsi::Item.from_xml File.read("spec/fixtures/bibdata.xml", encoding: "UTF-8")
+ => #<Relaton::Bsi::ItemData:0x0000000104178c20
 ...
 ----
 
 === Logging
 
-RelatonBsi uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
+Relaton::Bsi uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
 
 == Development
 

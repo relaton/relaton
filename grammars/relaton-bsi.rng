@@ -1,24 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <include href="biblio-standoc.rng">
-    <define name="BibDataExtensionType">
-      <optional>
-        <attribute name="schema-version"/>
-      </optional>
-      <ref name="doctype"/>
-      <optional>
-        <ref name="docsubtype"/>
-      </optional>
-      <ref name="flavor"/>
-      <ref name="editorialgroup"/>
-      <zeroOrMore>
-        <ref name="ics"/>
-      </zeroOrMore>
-      <ref name="structuredidentifier"/>
-      <optional>
-        <ref name="stagename"/>
-      </optional>
-    </define>
     <define name="bdate">
       <element name="date">
         <attribute name="type">
@@ -45,14 +27,6 @@
               <value>–</value>
             </choice>
           </element>
-        </choice>
-      </element>
-    </define>
-    <define name="organization">
-      <element name="organization">
-        <choice>
-          <ref name="OrganizationType"/>
-          <ref name="IsoOrganizationType"/>
         </choice>
       </element>
     </define>
@@ -98,42 +72,17 @@
         </group>
       </element>
     </define>
-    <define name="editorialgroup">
-      <element name="editorialgroup">
-        <ref name="ISOProjectGroup"/>
-      </element>
-    </define>
   </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <optional>
+      <ref name="stagename">
+        <a:documentation>Human-readable name of the stage of publication, corresponding to the numeric stage code given in `/bibdata/status/stage`</a:documentation>
+      </ref>
+    </optional>
+  </define>
   <define name="updates_document_type">
     <element name="updates-document-type">
       <ref name="DocumentType"/>
-    </element>
-  </define>
-  <define name="ISOProjectGroup">
-    <zeroOrMore>
-      <ref name="agency"/>
-    </zeroOrMore>
-    <oneOrMore>
-      <ref name="technical-committee"/>
-    </oneOrMore>
-    <zeroOrMore>
-      <ref name="subcommittee"/>
-    </zeroOrMore>
-    <zeroOrMore>
-      <ref name="workgroup"/>
-    </zeroOrMore>
-    <optional>
-      <ref name="secretariat"/>
-    </optional>
-  </define>
-  <define name="approvalgroup">
-    <element name="approvalgroup">
-      <ref name="ISOProjectGroup"/>
-    </element>
-  </define>
-  <define name="agency">
-    <element name="agency">
-      <text/>
     </element>
   </define>
   <define name="horizontal">
@@ -176,21 +125,6 @@
       <data type="int"/>
     </element>
   </define>
-  <define name="subcommittee">
-    <element name="subcommittee">
-      <ref name="IsoWorkgroup"/>
-    </element>
-  </define>
-  <define name="workgroup">
-    <element name="workgroup">
-      <ref name="IsoWorkgroup"/>
-    </element>
-  </define>
-  <define name="secretariat">
-    <element name="secretariat">
-      <text/>
-    </element>
-  </define>
   <define name="stagename">
     <element name="stagename">
       <optional>
@@ -198,19 +132,5 @@
       </optional>
       <text/>
     </element>
-  </define>
-  <define name="IsoOrganizationType">
-    <optional>
-      <ref name="technical-committee"/>
-    </optional>
-    <optional>
-      <ref name="subcommittee"/>
-    </optional>
-    <optional>
-      <ref name="workgroup"/>
-    </optional>
-    <optional>
-      <ref name="secretariat"/>
-    </optional>
   </define>
 </grammar>
