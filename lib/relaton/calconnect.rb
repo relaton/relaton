@@ -1,30 +1,26 @@
 require "relaton/index"
-require "relaton/bib"
+require "relaton/core"
 require_relative "calconnect/version"
+require_relative "calconnect/model/item"
 require_relative "calconnect/util"
-require_relative "calconnect/item"
-require_relative "calconnect/bibitem"
-require_relative "calconnect/bibdata"
-# require "relaton_calconnect/document_type"
-# require "relaton_calconnect/cc_bibliography"
-# require "relaton_calconnect/hit_collection"
-# require "relaton_calconnect/hit"
-# require "relaton_calconnect/scrapper"
-# require "relaton_calconnect/technical_committee"
-# require "relaton_calconnect/cc_bibliographic_item"
-# require "relaton_calconnect/xml_parser"
-# require "relaton_calconnect/hash_converter"
-# require "relaton_calconnect/data_fetcher"
+require_relative "calconnect/model/bibitem"
+require_relative "calconnect/model/bibdata"
+require_relative "calconnect/bibliography"
+require_relative "calconnect/hit_collection"
+require_relative "calconnect/hit"
+require_relative "calconnect/scraper"
 
-module RelatonCalconnect
-  class Error < StandardError; end
+module Relaton
+  module Calconnect
+    class Error < StandardError; end
 
-  # Returns hash of XML reammar
-  # @return [String]
-  def self.grammar_hash
-    # gem_path = File.expand_path "..", __dir__
-    # grammars_path = File.join gem_path, "grammars", "*"
-    # grammars = Dir[grammars_path].sort.map { |gp| File.read gp }.join
-    Digest::MD5.hexdigest RelatonCalconnect::VERSION + RelatonBib::VERSION # grammars
+    # Returns hash of XML reammar
+    # @return [String]
+    def self.grammar_hash
+      # gem_path = File.expand_path "..", __dir__
+      # grammars_path = File.join gem_path, "grammars", "*"
+      # grammars = Dir[grammars_path].sort.map { |gp| File.read gp }.join
+      Digest::MD5.hexdigest Relaton::Calconnect::VERSION + Relaton::Bib::VERSION # grammars
+    end
   end
 end

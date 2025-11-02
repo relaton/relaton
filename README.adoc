@@ -1,6 +1,6 @@
-= RelatonCalconnect
+= Relaton::Calconnect
 
-RelatonCalconnect is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
+Relaton::Calconnect is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
 You can use it to retrieve metadata of Calconnect Standards from https://standards.calconnect.org, and access such metadata through the `CcBibliographicItem` object.
 
@@ -27,14 +27,14 @@ Or install it yourself as:
 
 [source,ruby]
 ----
-require 'relaton_calconnect'
+require 'relaton/calconnect'
 => true
 
-hits = RelatonCalconnect::CcBibliography.search("CC/DIR 10005:2019")
-=> <RelatonCalconnect::HitCollection:0x007f98e34a8bb0 @ref=CC/DIR 10005:2019 @fetched=false>
+hits = Relaton::Calconnect::Bibliography.search("CC/DIR 10005:2019")
+=> <Relaton::Calconnect::HitCollection:0x00000000002df0 @ref=CC/DIR 10005:2019 @fetched=false>
 
-item = hits[0].fetch
-=> #<RelatonCalconnect::CcBibliographicItem:0x007f9a766b15d0
+item = hits[0].item
+=> #<Relaton::Calconnect::ItemData:0x000000011104c998
 ...
 ----
 
@@ -43,10 +43,9 @@ item = hits[0].fetch
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="CC-DIR10005-2019" type="standard" schema-version="v1.2.1">
-      <title format="text/plain" language="en">Guidelines for the implementation of the CalConnect patent policy</title>
-      <uri type="xml">https://standards.calconnect.org/csd/cc-10005.xml</uri>
-      <uri type="pdf">https://standards.calconnect.org/csd/cc-10005.pdf</uri>
+=> "<bibitem id="CC-DIR10005-2019" type="standard" schema-version="v1.4.1">
+      <title language="en">Guidelines for the implementation of the CalConnect patent policy</title>
+      <docidentifier type="CalConnect" primary="true">CC/DIR 10005:2019</docidentifier>
       ...
     </bibitem>"
 ----
@@ -54,17 +53,15 @@ With argument `bibdata: true` it outputs XML wrapped by `bibdata` element and ad
 [source,ruby]
 ----
 item.to_xml bibdata: true
-=> "<bibdata type="standard" schema-version="v1.2.1">
-      <title format="text/plain" language="en">Guidelines for the implementation of the CalConnect patent policy</title>
-      <uri type="xml">https://standards.calconnect.org/csd/cc-10005.xml</uri>
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      <title language="en">Guidelines for the implementation of the CalConnect patent policy</title>
+      <docidentifier type="CalConnect" primary="true">CC/DIR 10005:2019</docidentifier>
       ...
       <ext schema-version="v1.0.0">
-        <doctype>directive</doctype>
-        <editorialgroup>
-          <committee>PUBLISH</committee>
-        </editorialgroup>
+        <doctype abbreviation="DIR">directive</doctype>
+        <flavor>calconnect</flavor>
       </ext>
-    </bibdata>"
+  </bibdata>
 ----
 
 === Typed links
@@ -79,41 +76,37 @@ Each Calconnect document has link types:
 
 [source,ruby]
 ----
-item.link
-=> [#<RelatonBib::TypedUri:0x00007ff2d4b009e0 @content=#<Addressable::URI:0x668 URI:https://standards.calconnect.org/csd/cc-10005.xml>, @type="xml">,
- #<RelatonBib::TypedUri:0x00007ff2d4b00378 @content=#<Addressable::URI:0x67c URI:https://standards.calconnect.org/csd/cc-10005.pdf>, @type="pdf">,
- #<RelatonBib::TypedUri:0x00007ff2d4b00058 @content=#<Addressable::URI:0x690 URI:https://standards.calconnect.org/csd/cc-10005.doc>, @type="doc">,
- #<RelatonBib::TypedUri:0x00007ff2d4b23d28 @content=#<Addressable::URI:0x6a4 URI:https://standards.calconnect.org/csd/cc-10005.html>, @type="html">,
- #<RelatonBib::TypedUri:0x00007ff2d4b23a08 @content=#<Addressable::URI:0x6b8 URI:https://standards.calconnect.org/csd/cc-10005.rxl>, @type="rxl">]
+item.source
+=> [#<Relaton::Bib::Uri:0x00007ff2d4b009e0 @content=#<Addressable::URI:0x668 URI:https://standards.calconnect.org/csd/cc-10005.xml>, @type="xml">,
+ #<Relaton::Bib::Uri:0x00007ff2d4b00378 @content=#<Addressable::URI:0x67c URI:https://standards.calconnect.org/csd/cc-10005.pdf>, @type="pdf">,
+ #<Relaton::Bib::Uri:0x00007ff2d4b00058 @content=#<Addressable::URI:0x690 URI:https://standards.calconnect.org/csd/cc-10005.doc>, @type="doc">,
+ #<Relaton::Bib::Uri:0x00007ff2d4b23d28 @content=#<Addressable::URI:0x6a4 URI:https://standards.calconnect.org/csd/cc-10005.html>, @type="html">,
+ #<Relaton::Bib::Uri:0x00007ff2d4b23a08 @content=#<Addressable::URI:0x6b8 URI:https://standards.calconnect.org/csd/cc-10005.rxl>, @type="rxl">]
 ----
 
 === Get document by code and year
 [source,ruby]
 ----
-RelatonCalconnect::CcBibliography.get "CC/DIR 10005", "2019", {}
-[relaton-calconnect] (CC/DIR 10005) Fetching from Relaton repository ...
-[relaton-calconnect] (CC/DIR 10005) Found: `CC/DIR 10005:2019`
-=> #<RelatonCalconnect::CcBibliographicItem:0x007f9a73dfa290
+Relaton::Calconnect::Bibliography.get "CC/DIR 10005", "2019"
+[relaton-calconnect] INFO: (CC/DIR 10005) Fetching from Relaton repository ...
+[relaton-calconnect] INFO: (CC/DIR 10005) Found: `CC/DIR 10005:2019`
+ => #<Relaton::Calconnect::ItemData:0x0000000111944b18
 ...
 ----
 
 === Create bibliographic item from XML
 [source,ruby]
 ----
-RelatonCalconnect::XMLParser.from_xml File.read('spec/fixtures/cc_dir_10005_2019.xml')
-=> #<RelatonCalconnect::CcBibliographicItem:0x007f9a7423dde8
+Relaton::Calconnect::Item.from_xml File.read('spec/fixtures/cc_dir_10005_2019.xml')
+ => #<Relaton::Calconnect::ItemData:0x000000010ec81040
 ...
 ----
 
 === Create bibliographic item from YAML
 [source,ruby]
 ----
-hash = YAML.load_file 'spec/fixtures/cc_dir_10005_2019.yml'
-=> {"id"=>"CC/DIR10005-2019",
-...
-
-RelatonCalconnect::CcBibliographicItem.from_hash hash
-=> #<RelatonCalconnect::CcBibliographicItem:0x007fc5a0109f88
+Relaton::Calconnect::Item.from_yaml File.read('spec/fixtures/item.yaml')
+=> #<Relaton::Calconnect::ItemData:0x000000010fe5e600
 ...
 ----
 
@@ -129,7 +122,8 @@ Arguments:
 
 [source,ruby]
 ----
-RelatonCalconnect::DataFetcher.fetch
+require "relaton/calconnect/data_fetcher"
+Relaton::Calconnect::DataFetcher.fetch
 Started at: 2021-09-09 16:03:51 +0200
 Stopped at: 2021-09-09 16:04:12 +0200
 Done in: 20 sec.

@@ -1,12 +1,7 @@
-<bibdata type="standard" schema-version="v1.2.9">
-  <fetched>2022-11-23</fetched>
-  <title format="text/plain" language="en">Guidelines for the implementation of the CalConnect patent policy</title>
-  <uri type="xml">https://standards.calconnect.org/csd/cc-10005.xml</uri>
-  <uri type="pdf">https://standards.calconnect.org/csd/cc-10005.pdf</uri>
-  <uri type="doc">https://standards.calconnect.org/csd/cc-10005.doc</uri>
-  <uri type="html">https://standards.calconnect.org/csd/cc-10005.html</uri>
-  <uri type="rxl">https://standards.calconnect.org/csd/cc-10005.rxl</uri>
-  <docidentifier type="csd" primary="true">CC/DIR 10005:2019</docidentifier>
+<bibdata type="standard" schema-version="v1.4.1">
+  <fetched>2025-11-01</fetched>
+  <title language="en">Guidelines for the implementation of the CalConnect patent policy</title>
+  <docidentifier type="CalConnect" primary="true">CC/DIR 10005:2019</docidentifier>
   <docnumber>10005</docnumber>
   <date type="published">
     <on>2019-06-13</on>
@@ -23,7 +18,18 @@
       <name>CalConnect</name>
     </organization>
   </contributor>
-  <edition>1</edition>
+  <contributor>
+    <role type="author">
+      <description>committee</description>
+    </role>
+    <organization>
+      <name>CalConnect</name>
+      <subdivision type="technical-committee">
+        <name>PUBLISH</name>
+      </subdivision>
+    </organization>
+  </contributor>
+  <edition number="1"></edition>
   <version>
     <revision-date>2019-06-13</revision-date>
   </version>
@@ -41,9 +47,7 @@
     </owner>
   </copyright>
   <ext schema-version="v1.0.0">
-    <doctype>directive</doctype>
-    <editorialgroup>
-      <committee>PUBLISH</committee>
-    </editorialgroup>
+    <doctype abbreviation="DIR">directive</doctype>
+    <flavor>calconnect</flavor>
   </ext>
 </bibdata>
