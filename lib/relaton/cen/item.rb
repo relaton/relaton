@@ -1,7 +1,9 @@
+require_relative "item_data"
+
 module Relaton
   module Cen
     class Item < Iso::Item
-      model Bib::ItemData
+      model ItemData
     end
   end
 end
