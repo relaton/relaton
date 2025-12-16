@@ -6,7 +6,6 @@ module Relaton
     class HitCollection < Relaton::Core::HitCollection
       DOMAIN = "https://standards.cencenelec.eu"
 
-
       # @param ref [String]
       # @param year [String]
       # def initialize(ref, year = nil) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
@@ -14,60 +13,30 @@ module Relaton
       def search
         if !ref || ref.empty?
           @array = []
-          return
+          return self
         end
 
         redirect_page = agent.get DOMAIN
         redirect_url = redirect_page.body.slice(/(?<=follow the <a href=')#{DOMAIN}[^']+/)
         search_page = agent.get redirect_url
-        form = search_page.at "//form[@id='wwvFlowForm']"
-        form_data = req_body(form)
-        resp = agent.post form[:action], form_data.join("&")
+        form = search_page.form_with(id: "wwvFlowForm")
+        ref_field = form.field_with(id: "STAND_REF")
+        ref_field.value = ref
+        resp = agent.submit form
         @array = hits resp
         sort
       end
-
-      private
 
       def agent
         @agent ||= Mechanize.new.tap { |a| a.user_agent_alias = "Mac Safari" }
       end
 
-      def req_body(form)
-        body_array = [p_json(form)]
-        skip_inputs = %w[f11 essentialCookies]
-        form.xpath(".//input[@name]").each_with_object(body_array) do |f, acc|
-          next if f[:name].empty? || skip_inputs.include?(f[:name])
-
-          val = case f[:value]
-                when "LANGUAGE_LIST" then 0
-                when "STAND_REF" then CGI.escape(ref)
-                else
-                  case f[:name]
-                  when "p_request" then "S1-S2-S3-S4-S5-S6-S7-CEN-CLC-"
-                  when "f10" then ""
-                  else f[:value]
-                  end
-                end
-          acc << (f[:name] == "f10" ? "f10=#{f[:value]}&f11=#{val}" : "#{f[:name]}=#{val}")
-        end
+      def select!(&block)
+        @array.select!(&block)
+        self
       end
 
-      def p_json(form)
-        salt = form.at(".//input[@id='pSalt']")[:value]
-        protected = form.at(".//input[@id='pPageItemsProtected']")[:value]
-        row_version = form.at(".//input[@id='pPageItemsRowVersion']")[:value]
-        checksums = JSON.parse form.at(".//input[@id='pPageFormRegionChecksums']")[:value]
-        "p_json=" + URI.encode_www_form_component({
-          salt: salt,
-          pageItems: {
-            itemsToSubmit: [],
-            protected: protected,
-            rowVersion: row_version,
-            formRegionChecksums: checksums
-          }
-        }.to_json)
-      end
+      private
 
       def sort
         @array.sort! do |a, b|
@@ -81,6 +50,7 @@ module Relaton
           s = ap[:ac].to_s <=> bp[:ac].to_s if s.zero?
           s
         end
+        self
       end
 
       # @param resp [Mechanize::Page]

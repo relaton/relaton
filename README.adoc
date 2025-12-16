@@ -1,4 +1,4 @@
-= RelatonCen retrieve CEN Standards for bibliographic use using the BibliographicItem model
+= Relaton::Cen retrieve CEN Standards for bibliographic use using the BibliographicItem model
 
 image:https://img.shields.io/gem/v/relaton-cen.svg["Gem Version", link="https://rubygems.org/gems/relaton-cen"]
 image:https://github.com/relaton/relaton-cen/workflows/rake/badge.svg["Build Status", link="https://github.com/relaton/relaton-cen/actions?workflow=rake"]
@@ -39,20 +39,20 @@ For CENELEC standards, use references with the prefix `CEN/CLC`. For example, `C
 
 [source,ruby]
 ----
-require 'relaton_cen'
+require 'relaton/cen'
 => true
 
-hit_collection = RelatonCen::CenBibliography.search("CEN ISO/TS 21003-7")
-=> <RelatonCen::HitCollection:0x00000000017de0 @ref=ISO/TS 21003-7 @fetched=false>
+hit_collection = Relaton::Cen::Bibliography.search("CEN ISO/TS 21003-7")
+=> <Relaton::Cen::HitCollection:0x00000000002560 @ref=CEN ISO/TS 21003-7 @fetched=false>
 
-item = hit_collection[0].fetch
-=> #<RelatonIsoBib::IsoBibliographicItem:0x00007fadcd45fad8
+item = hit_collection[0].item
+=> #<Relaton::Cen::ItemData:0x000000012a35c458
  ...
 ----
 
 === Get a standard by its code
 
-Use `RelatonCen::CenBibliography.get(ref, year, options)` to get a standard by its code.
+Use `Relaton::Cen::Bibliography.get(ref, year, options)` to get a standard by its code.
 
 - `ref` is the standard code, e.g. `CEN ISO/TS 21003-7`
 - `year` is the year of the standard, e.g. `2019` (optional)
@@ -62,29 +62,31 @@ Use `RelatonCen::CenBibliography.get(ref, year, options)` to get a standard by i
 [source,ruby]
 ----
 # With year in reference
-RelatonCen::CenBibliography.get "EN 10160:1999"
-[relaton-cen] (EN 10160:1999) Fetching from standards.cencenelec.eu ...
-[relaton-cen] (EN 10160:1999) Found: `EN 10160:1999`
-=> #<RelatonCen::BibliographicItem:0x0000000112d8b900
+Relaton::Cen::Bibliography.get "EN 10160:1999"
+[relaton-cen] INFO: (EN 10160:1999) Fetching from standards.cencenelec.eu ...
+[relaton-cen] INFO: (EN 10160:1999) Found: `EN 10160:1999`
+=> #<Relaton::Cen::ItemData:0x00000001273d5b58
 ...
 
 # With a year as a separate argument
-RelatonCen::CenBibliography.get "EN 10160", "1999"
+Relaton::Cen::Bibliography.get "EN 10160", "1999"
+[relaton-cen] INFO: (EN 10160:1999) Fetching from standards.cencenelec.eu ...
+[relaton-cen] INFO: (EN 10160:1999) Found: `EN 10160:1999`
+=> #<Relaton::Cen::ItemData:0x00000001274d58c8
+...
 
 # To get the most recent version of a standard by its code use reference without year
-> RelatonCen::CenBibliography.get "CEN/CLC Guide 6"
-[relaton-cen] (CEN/CLC Guide 6) Fetching from standards.cencenelec.eu ...
-[isoics] code   not found in ICS list
-[relaton-cen] (CEN/CLC Guide 6) Found: `CEN/CLC Guide 6`
-=> #<RelatonCen::BibliographicItem:0x0000000112d81680
+Relaton::Cen::Bibliography.get "CEN/CLC Guide 6"
+[relaton-cen] INFO: (CEN/CLC Guide 6) Fetching from standards.cencenelec.eu ...
+[relaton-cen] INFO: (CEN/CLC Guide 6) Found: `CEN/CLC Guide 6:2014`
+=> #<Relaton::Cen::ItemData:0x000000012759a010
 ...
 
 # To keep the year in ID use `keep_year` option
 > RelatonCen::CenBibliography.get "CEN/CLC Guide 6", nil, keep_year: true
-[relaton-cen] (CEN/CLC Guide 6) Fetching from standards.cencenelec.eu ...
-[isoics] code   not found in ICS list
-[relaton-cen] (CEN/CLC Guide 6) Found: `CEN/CLC Guide 6:2014`
-=> #<RelatonCen::BibliographicItem:0x0000000112d8b400
+[relaton-cen] INFO: (CEN/CLC Guide 6) Fetching from standards.cencenelec.eu ...
+[relaton-cen] INFO: (CEN/CLC Guide 6) Found: `CEN/CLC Guide 6`
+=> #<Relaton::Cen::ItemData:0x000000012c629760
 ...
 ----
 
@@ -93,9 +95,9 @@ RelatonCen::CenBibliography.get "EN 10160", "1999"
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="CENISO/TS21003-7-2019" type="standard" schema-version="v1.2.1">
-      <fetched>2022-12-03</fetched>
-      <title type="title-main" format="text/plain" language="en" script="Latn">Multilayer piping systems for hot and cold water installations inside buildings</title>
+=> "<bibitem id="CENISOTS2100372019" type="standard" schema-version="v1.4.1">
+      <fetched>2025-12-15</fetched>
+      <title language="en" script="Latn" type="title-main">Multilayer piping systems for hot and cold water installations inside buildings</title>
       ...
     </bibitem>"
 ----
@@ -106,54 +108,51 @@ element added.
 [source,ruby]
 ----
 item.to_xml bibdata: true
-=> "<bibdata type="standard" schema-version="v1.2.1">
-      <fetched>2022-12-03</fetched>
-      <title type="title-main" format="text/plain" language="en" script="Latn">Multilayer piping systems for hot and cold water installations inside buildings</title>
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      <fetched>2025-12-15</fetched>
+      <title language="en" script="Latn" type="title-main">Multilayer piping systems for hot and cold water installations inside buildings</title>
       ...
       <ext schema-version="v1.0.1">
         <doctype>international-standard</doctype>
-        ...
+        <flavor>cen</flavor>
+        <ics>
+          <code>23.040.20</code>
+          <text>Plastics pipes</text>
+        </ics>
+        <ics>
+          <code>91.140.60</code>
+          <text>Water supply systems</text>
+        </ics>
+        <structuredidentifier>
+          <agency>CEN</agency>
+          <docnumber>21003</docnumber>
+          <partnumber>7</partnumber>
+        </structuredidentifier>
       </ext>
     </bibdata>"
 ----
 
 === Typed links
 
-Each CEN document has `src` type link.
+Each CEN document has `src` type source.
 
 [source,ruby]
 ----
-item.link
-=> [#<RelatonBib::TypedUri:0x00007f865cf9a328 @content=#<Addressable::URI:0xbea0 URI:https://standards.cencenelec.eu/dyn/www/f?p=CEN:110:0::::FSP_PROJECT,FSP_ORG_ID:68120,6137&cs=19764D9131733FD9E70037E7A6E6740B2>, @type="src">]
-----
-
-=== Get code, and year
-
-[source,ruby]
-----
-RelatonCen::CenBibliography.get "CEN ISO/TS 21003-7:2019"
-[relaton-cen] (CEN ISO/TS 21003-7) Fetching from standards.cencenelec.eu ...
-[relaton-cen] (CEN ISO/TS 21003-7) Found: CEN `ISO/TS 21003-7:2019`
-=> #<RelatonIsoBib::IsoBibliographicItem:0x00007fadcd596c58
-...
-
-RelatonCen::CenBibliography.get "CEN ISO/TS 21003-7", "2019"
-[relaton-cen] (CEN ISO/TS 21003-7) Fetching from standards.cencenelec.eu ...
-[relaton-cen] (CEN ISO/TS 21003-7) Found: CEN `ISO/TS 21003-7:2019`
-=> #<RelatonIsoBib::IsoBibliographicItem:0x00007fadcd5df9f8
-...
+item.source
+=> [#<Relaton::Bib::Uri:0x0000000126a80878
+  @content="https://standards.cencenelec.eu/ords/f?p=CEN:110:::::FSP_PROJECT,FSP_ORG_ID:68120,6137&cs=1AD0C0DDDE4500D5B9BFB0BCE76BB63F9",
+  @language=nil,
+  @locale=nil,
+  @script=nil,
+  @type="src">]
 ----
 
 === Create bibliographic item form YAML
 
 [source,ruby]
 ----
-hash = YAML.load_file 'spec/fixtures/bibdata.yaml'
-=> {"id"=>"CENISO/TS21003-7-2019",
-...
-
- RelatonCen::BibliographicItem.from_hash hash
-=> #<RelatonCen::BibliographicItem:0x00007f9d0118cb58
+ Relaton::Cen::Item.from_yaml File.read('spec/fixtures/item.yaml')
+=> #<Relaton::Cen::ItemData:0x00000001292f71d0
 ...
 ----
 
@@ -161,8 +160,8 @@ hash = YAML.load_file 'spec/fixtures/bibdata.yaml'
 
 [source,ruby]
 ----
-RelatonCen::XMLParser.from_xml File.read("spec/fixtures/bibdata.xml", encoding: "UTF-8")
-=> #<RelatonCen::BibliographicItem:0x00007f9cf12bc5b0
+Relaton::Cen::Item.from_xml File.read("spec/fixtures/bibdata.xml")
+=> #<Relaton::Cen::ItemData:0x0000000129353fc0
 ...
 ----
 

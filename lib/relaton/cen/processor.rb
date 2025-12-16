@@ -1,4 +1,4 @@
-require "relaton/processor"
+require_relative "../cen"
 
 module Relaton
   module Cen

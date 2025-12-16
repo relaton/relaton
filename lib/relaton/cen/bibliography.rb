@@ -10,7 +10,7 @@ module Relaton
         def search(text, year = nil)
           # /^C?EN\s(?<code>.+)/ =~ text
           HitCollection.new(text, year).search
-        rescue Mechanize::ResponseCodeError => e
+        rescue Mechanize::ResponseCodeError, Net::ReadTimeout => e
           raise Relaton::RequestError, e.message
         end
 
@@ -72,7 +72,7 @@ module Relaton
         def search_filter(code) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
           parts = code_to_parts code
           result = search(code)
-          result.select do |i|
+          result.select! do |i|
             pts = code_to_parts i.hit[:code]
             parts[:code] == pts[:code] &&
               (!parts[:part] || parts[:part] == pts[:part]) &&
@@ -92,7 +92,7 @@ module Relaton
           result.each do |r|
             /:(?<pyear>\d{4})/ =~ r.hit[:code]
             if !year || year == pyear
-              ret = r.fetch
+              ret = r.item
               return { ret: ret } if ret
             end
 
@@ -108,7 +108,7 @@ module Relaton
           ret = isobib_results_filter(result, year)
           if ret[:ret]
             bib = year || opts[:keep_year] ? ret[:ret] : ret[:ret].to_most_recent_reference
-            Util.info "Found: `#{bib.docidentifier.first&.id}`", key: ref
+            Util.info "Found: `#{bib.docidentifier.first&.content}`", key: ref
             bib
           else
             Util.info "No found.", key: ref

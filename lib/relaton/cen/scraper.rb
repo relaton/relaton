@@ -31,7 +31,7 @@ module Relaton
             source: fetch_source(doc.uri.to_s),
             relation: fetch_relations(doc),
             place: [Bib::Place.new(city: "London")],
-            ext: fetch_ext(doc)
+            ext: fetch_ext(doc, hit)
           )
         end
 
@@ -59,9 +59,9 @@ module Relaton
 
         # Fetch docid.
         # @param ref [String]
-        # @return [Array<Relaton::Bib::Docidentifier>]
+        # @return [Array<Relaton::Cen::Docidentifier>]
         def fetch_docid(ref)
-          [Bib::Docidentifier.new(type: "CEN", content: ref, primary: true)]
+          [Docidentifier.new(type: "CEN", content: ref, primary: true)]
         end
 
         # Fetch status.
@@ -75,36 +75,12 @@ module Relaton
           Bib::Status.new(stage: stage)
         end
 
-        # Fetch workgroup.
-        # @param doc [Mechanize::Page]
-        # @return [RelatonIsoBib::EditorialGroup]
-        # def fetch_editorialgroup(doc) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
-        #   code = doc.at("//tr/td/h1/text()").text
-        #   title = doc.at("//tr/td[3]/h1").text
-        #   %r{/(?<type>\w+)(?:\s(?<num>[^/]+))?$} =~ code
-        #   tc = []
-        #   COMMITTEES.each do |k, v|
-        #     next unless code.include? k
-
-        #     t, n = k.split
-        #     tc << RelatonBib::WorkGroup.new(name: v, type: t, number: n)
-        #   end
-        #   sc = []
-        #   if tc.any?
-        #     sc << RelatonBib::WorkGroup.new(name: title, type: type, number: num)
-        #   else
-        #     tc << RelatonBib::WorkGroup.new(name: title, type: type, number: num)
-        #   end
-        #   RelatonIsoBib::EditorialGroup.new(technical_committee: tc,
-        #                                     subcommittee: sc)
-        # end
-
         # @param hit [RelatonCen::Hit]
         # @return [Relaton::Bib::StructuredIdentifier]
         def fetch_structuredid(hit)
           %r{(?<docnum>\d+)(?:-(?<part>\d+))?(?:-(?<subpart>\d+))?} =~ hit[:code]
           partnumber = [part, subpart].compact.join(":")
-          Bib::StructuredIdentifier.new(docnumber: docnum, partnumber: partnumber, type: "CEN")
+          StructuredIdentifier.new(docnumber: docnum, partnumber: partnumber, agency: ["CEN"])
         end
 
         # Fetch relations.
@@ -220,9 +196,10 @@ module Relaton
           Bib::Organization.new(name: [org_name], abbreviation: org_abbr, uri: [uri])
         end
 
-        def fetch_ext(doc)
-          Iso::Ext.new(
+        def fetch_ext(doc, hit)
+          Ext.new(
             doctype: Bib::Doctype.new(content: "international-standard"),
+            flavor: "cen",
             ics: fetch_ics(doc),
             structuredidentifier: fetch_structuredid(hit.hit),
           )
