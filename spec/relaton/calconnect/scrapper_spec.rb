@@ -103,6 +103,7 @@ describe Relaton::Calconnect::Scraper do
     hash = YAML.load item.to_yaml
     expect(hash).to eq(
       "schema_version" => "v1.4.1",
+      "id" => "CCAdm08122008",
       "title" => [{ "content" => "Title", "type" => "main", "language" => "en", "script" => "Latn" }],
       "source" => [{ "content" => "https://www.ribose.com", "type" => "src" }],
       "docidentifier" => [{ "content" => "CC/Adm0812-2008", "type" => "CC", "primary" => true }],
