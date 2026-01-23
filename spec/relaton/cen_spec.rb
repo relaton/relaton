@@ -123,7 +123,7 @@ RSpec.describe Relaton::Cen do
       bib = ""
       expect do
         bib = Relaton::Cen::Bibliography.get "CEN NOT FOUND"
-      end.to output(/\[relaton-cen\] INFO: \(CEN NOT FOUND\) No found\./).to_stderr_from_any_process
+      end.to output(/\[relaton-cen\] INFO: \(CEN NOT FOUND\) Not found\./).to_stderr_from_any_process
       expect(bib).to be_nil
     end
   end

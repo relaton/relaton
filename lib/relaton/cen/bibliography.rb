@@ -111,7 +111,7 @@ module Relaton
             Util.info "Found: `#{bib.docidentifier.first&.content}`", key: ref
             bib
           else
-            Util.info "No found.", key: ref
+            Util.info "Not found.", key: ref
             fetch_ref_err(code, year, ret[:years])
           end
         end
