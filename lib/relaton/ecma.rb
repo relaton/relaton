@@ -1,4 +1,3 @@
-require "open-uri"
 require "relaton/index"
 require "relaton/bib"
 require_relative "ecma/version"
