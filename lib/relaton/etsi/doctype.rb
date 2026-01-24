@@ -1,17 +1,30 @@
 module Relaton
   module Etsi
     class Doctype < Bib::Doctype
-      ABBREVS = %w[EN ES EG TS GS GR TR ETR GTS SR TCRTR TBR ETS I-ETS NET].freeze
-      TYPES = %W[
-        European\sStandard ETSI\sStandard ETSI\sGuide Technical\sSpecification Group\sSpecification
-        Group\sReport Technical\sReport ETSI\sTechnical\sReport GSM\sTechnical\sSpecification
-        Special\sReport Technical\sCommittee\sReference\sTechnical\sReport Technical\sBasis\sfor\sRegulation
-        European\sTelecommunication\sStandard Interim\sEuropean\sTelecommunication\sStandard
-        Norme Européenne\sde\sTélécommunication
-      ].freeze
+      DOCTYPES = {
+        "EN" => "European Standard",
+        "ES" => "ETSI Standard",
+        "EG" => "ETSI Guide",
+        "TS" => "Technical Specification",
+        "GS" => "Group Specification",
+        "GR" => "Group Report",
+        "TR" => "Technical Report",
+        "ETR" => "ETSI Technical Report",
+        "GTS" => "GSM Technical Specification",
+        "SR" => "Special Report",
+        "TCRTR" => "Technical Committee Reference Technical Report",
+        "TBR" => "Technical Basis for Regulation",
+        "ETS" => "European Telecommunication Standard",
+        "I-ETS" => "Interim European Telecommunication Standard",
+        "NET" => "Norme Européenne de Télécommunication",
+      }.freeze
 
-      attribute :abbreviation, :string, values: ABBREVS
-      attribute :content, :string, values: TYPES
+      attribute :abbreviation, :string, values: DOCTYPES.keys
+      attribute :content, :string, values: DOCTYPES.values
+
+      def self.create_from_abbreviation(abbreviation)
+        new(content: DOCTYPES[abbreviation], abbreviation: abbreviation)
+      end
     end
   end
 end

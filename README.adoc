@@ -1,8 +1,8 @@
-= RelatonEtsi
+= Relaton::Etsi
 
-RelatonEtsi is a Ruby gem that implements the https://github.com/relaton/relaton-models#bibliographic-item[BibliographicItem model].
+Relaton::Etsi is a Ruby gem that implements the https://github.com/relaton/relaton-models#bibliographic-item[BibliographicItem model].
 
-You can use it to retrieve metadata of ETSI Standards and access such metadata through the `RelatonEtsi::BibliographicItem` object.
+You can use it to retrieve metadata of ETSI Standards and access such metadata through the `Relaton::Etsi::Item` object.
 
 == Installation
 
@@ -27,13 +27,13 @@ Or install it yourself as:
 
 [source,ruby]
 ----
-require 'relaton_etsi'
+require "relaton/etsi"
 => true
 
-item = RelatonEtsi::Bibliography.get("ETSI GS ZSM 012 V1.1.1")
-[relaton-etsi] (ETSI GS ZSM 012 V1.1.1) Fetching from Relaton repository ...
-[relaton-etsi] (ETSI GS ZSM 012 V1.1.1) Found: `ETSI GS ZSM 012 V1.1.1 (2022-12)`
-=> #<RelatonEtsi::BibliographicItem:0x000000010686fa18
+item = Relaton::Etsi::Bibliography.get("ETSI GS ZSM 012 V1.1.1")
+[relaton-etsi] INFO: (ETSI GS ZSM 012 V1.1.1) Fetching from Relaton repository ...
+[relaton-etsi] INFO: (ETSI GS ZSM 012 V1.1.1) Found: `ETSI GS ZSM 012 V1.1.1 (2022-12)`
+=> #<Relaton::Etsi::ItemData:0x0000000125869dd8
 ...
 ----
 
@@ -42,9 +42,9 @@ item = RelatonEtsi::Bibliography.get("ETSI GS ZSM 012 V1.1.1")
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="ETSIGSZSM012V1.1.12022-12" schema-version="v1.2.7">
-      <fetched>2023-12-05</fetched>
-      <title format="text/plain" language="en" script="Latn">Zero-touch network and Service Management (ZSM); Enablers for Artificial Intelligence-based Network and Service Automation</title>
+=> "<bibitem id="ETSIGSZSM012V111202212" schema-version="v1.4.1">
+      <fetched>2026-01-24</fetched>
+      <title language="en" script="Latn">Zero-touch network and Service Management (ZSM); Enablers for Artificial Intelligence-based Network and Service Automation</title>
       <uri type="src">http://webapp.etsi.org/workprogram/Report_WorkItem.asp?WKI_ID=62010</uri>
       <uri type="pdf">http://www.etsi.org/deliver/etsi_gs/ZSM/001_099/012/01.01.01_60/gs_ZSM012v010101p.pdf</uri>
       <docidentifier type="ETSI" primary="true">ETSI GS ZSM 012 V1.1.1 (2022-12)</docidentifier>
@@ -55,74 +55,59 @@ With argument `bibdata: true` it outputs XML wrapped by `bibdata` element and ad
 [source,ruby]
 ----
 item.to_xml bibdata: true
-=> "<bibdata schema-version="v1.2.7">
-      <fetched>2023-12-05</fetched>
-      <title format="text/plain" language="en" script="Latn">Zero-touch network and Service Management (ZSM); Enablers for Artificial Intelligence-based Network and Service Automation</title>
+=> "<bibdata schema-version="v1.4.1">
+      <fetched>2026-01-24</fetched>
+      <title language="en" script="Latn">Zero-touch network and Service Management (ZSM); Enablers for Artificial Intelligence-based Network and Service Automation</title>
       <uri type="src">http://webapp.etsi.org/workprogram/Report_WorkItem.asp?WKI_ID=62010</uri>
       <uri type="pdf">http://www.etsi.org/deliver/etsi_gs/ZSM/001_099/012/01.01.01_60/gs_ZSM012v010101p.pdf</uri>
       <docidentifier type="ETSI" primary="true">ETSI GS ZSM 012 V1.1.1 (2022-12)</docidentifier>
       ...
       <ext schema-version="v0.0.3">
         <doctype abbreviation="GS">Group Specification</doctype>
-        <editorialgroup>
-          <technical-committee>Zero-touch network and Service Management</technical-committee>
-        </editorialgroup>
       </ext>
     </bibdata>"
 ----
 
-=== Typed links
+=== Typed source links
 
 All the ETSI documents have SRC and PDF links. The gem provides a way to access these links through the `RelatonBib::TypedUri` object.
 
 [source,ruby]
 ----
-item.link
-=> [#<RelatonBib::TypedUri:0x00000001083da780
-  @content=#<Addressable::URI:0xb40 URI:http://webapp.etsi.org/workprogram/Report_WorkItem.asp?WKI_ID=62010>,
-  @language=nil,
-  @script=nil,
-  @type="src">,
- #<RelatonBib::TypedUri:0x00000001083da690
-  @content=#<Addressable::URI:0xb54 URI:http://www.etsi.org/deliver/etsi_gs/ZSM/001_099/012/01.01.01_60/gs_ZSM012v010101p.pdf>,
-  @language=nil,
-  @script=nil,
-  @type="pdf">]
+item.source
+=>
+[#<Relaton::Bib::Uri:0x0000000129ea7b38 @content="http://webapp.etsi.org/workprogram/Report_WorkItem.asp?WKI_ID=62010", @language=nil, @locale=nil, @script=nil, @type="src">,
+ #<Relaton::Bib::Uri:0x0000000129ea76d8 @content="http://www.etsi.org/deliver/etsi_gs/ZSM/001_099/012/01.01.01_60/gs_ZSM012v010101p.pdf", @language=nil, @locale=nil, @script=nil, @type="pdf">]
 
-item.link.size
+item.source.size
 => 2
 
-item.link[0].type
+item.source[0].type
 => "src"
 
-item.link[0].content.to_s
+item.source[0].content
 => "http://webapp.etsi.org/workprogram/Report_WorkItem.asp?WKI_ID=62010"
 
-item.link[1].type
+item.source[1].type
 => "pdf"
 
-item.link[1].content.to_s
+item.source[1].content
 => "http://www.etsi.org/deliver/etsi_gs/ZSM/001_099/012/01.01.01_60/gs_ZSM012v010101p.pdf"
 ----
 
 === Create bibliographic item from XML
 [source,ruby]
 ----
-RelatonEtsi::XMLParser.from_xml File.read('spec/fixtures/bibdata.xml')
-=> #<RelatonEtsi::BibliographicItem:0x000000010a7644d0
+Relaton::Etsi::Item.from_xml File.read('spec/fixtures/bibdata.xml')
+=> #<Relaton::Etsi::ItemData:0x000000012b68f660
 ...
 ----
 
 === Create bibliographic item from YAML
 [source,ruby]
 ----
-hash = YAML.load_file 'spec/fixtures/item_hash.yaml'
-=> {"schema-version"=>"v1.2.7",
- "id"=>"ETSIEN319532-4V1.3.02023-10",
-...
-
-RelatonEtsi::BibliographicItem.from_hash hash
-=> #<RelatonEtsi::BibliographicItem:0x000000010a76cf90
+Relaton::Etsi::Item.from_yaml File.read('spec/fixtures/item.yaml')
+=> #<Relaton::Etsi::ItemData:0x0000000126e34c58
 ...
 ----
 
@@ -130,7 +115,7 @@ RelatonEtsi::BibliographicItem.from_hash hash
 
 This gem uses the https://www.etsi.org as a data source.
 
-The method `RelatonEtsi::DataFetcher.fetch(output: "data", format: "yaml")` fetches all the documents from the data source and saves them to the `./data` folder in YAML format.
+The method `Relaton::Etsi::DataFetcher.fetch(output: "data", format: "yaml")` fetches all the documents from the data source and saves them to the `./data` folder in YAML format.
 Arguments:
 
 - `output` - folder to save documents (default './data').
@@ -138,7 +123,10 @@ Arguments:
 
 [source,ruby]
 ----
-RelatonEtsi::DataFetcher.fetch
+require 'relaton/etsi/data_fetcher'
+=> true
+
+Relaton::Etsi::DataFetcher.fetch
 Started at: 2023-12-05 22:44:32 -0500
 Stopped at: 2023-12-05 22:47:55 -0500
 Done in: 204 sec.
@@ -147,7 +135,7 @@ Done in: 204 sec.
 
 === Logging
 
-RelatonEtsi uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
+Relaton::Etsi uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
 
 == Development
 

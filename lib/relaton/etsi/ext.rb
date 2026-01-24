@@ -2,11 +2,9 @@ require_relative "doctype"
 
 module Relaton
   module Etsi
-    class Ext < Lutaml::Model::Serializable
-      attribute :schema_version, :string
+    class Ext < Bib::Ext
+      attribute :schema_version, method: :get_schema_version
       attribute :doctype, Doctype
-      attribute :subdoctype, :string
-      attribute :editorialgroup, Bib::EditorialGroup
       attribute :marker, :string, values: %w[Current Superseded]
       attribute :frequency, :string, collection: true
       attribute :mandate, :string, collection: true
@@ -23,6 +21,10 @@ module Relaton
         map_element "frequency", to: :frequency
         map_element "mandate", to: :mandate
         map_element "custom-collection", to: :custom_collection
+      end
+
+      def get_schema_version
+        Relaton.schema_versions["relaton-model-etsi"]
       end
     end
   end
