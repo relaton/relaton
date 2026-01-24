@@ -1,5 +1,4 @@
 require "nokogiri"
-require "open-uri"
 # require "parslet"
 require "relaton/index"
 require "relaton/bib"
