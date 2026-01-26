@@ -19,16 +19,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 28 Apr 2025 20:27:33 GMT
+      - Mon, 26 Jan 2026 15:49:12 GMT
       Content-Type:
       - application/json
       Content-Length:
       - '1512'
-      Set-Cookie:
-      - AWSALB=M+LEOrJsQqSs3n47NRgT5vQut2x7aXUiktBzCikUeOMb8Gsi8qiofZ9/hnIZXeJ9SqN7PNEcyqt2mdwWY+VeV8UnnHZxuTMP7GS9igKpSLGlHn4Q5l/LjUE/cB41;
-        Expires=Mon, 05 May 2025 20:27:33 GMT; Path=/
-      - AWSALBCORS=M+LEOrJsQqSs3n47NRgT5vQut2x7aXUiktBzCikUeOMb8Gsi8qiofZ9/hnIZXeJ9SqN7PNEcyqt2mdwWY+VeV8UnnHZxuTMP7GS9igKpSLGlHn4Q5l/LjUE/cB41;
-        Expires=Mon, 05 May 2025 20:27:33 GMT; Path=/; SameSite=None
+      Connection:
+      - keep-alive
       Access-Control-Expose-Headers:
       - Link
       Access-Control-Allow-Headers:
@@ -40,25 +37,21 @@ http_interactions:
       - Accept-Encoding
       Server:
       - Jetty(9.4.40.v20210413)
-      X-Ratelimit-Limit:
-      - '50'
-      X-Ratelimit-Interval:
-      - 1s
-      X-Api-Pool:
-      - polite
-      X-Rate-Limit-Limit:
-      - '50'
+      X-Rate-Limit:
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
+      X-Concurrency-Limit:
+      - '3'
+      X-Api-Pool:
+      - polite
       Permissions-Policy:
       - interest-cohort=()
-      Connection:
-      - close
     body:
       encoding: ASCII-8BIT
       string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2023,5,3]],"date-time":"2023-05-03T09:43:40Z","timestamp":1683107020010},"publisher-location":"Piscataway,
         NJ, USA","standards-body":{"name":"Software &amp; Systems Engineering Standards
         Committee of the IEEE Computer Society","acronym":"IEEE"},"reference-count":0,"publisher":"IEEE","isbn-type":[{"value":"9780738191683","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"DOI":"10.1109\/ieeestd.2014.6835311","type":"standard","created":{"date-parts":[[2014,6,19]],"date-time":"2014-06-19T20:13:47Z","timestamp":1403208827000},"approved":{"date-parts":[[2014,3,27]]},"source":"Crossref","is-referenced-by-count":6,"title":["IEEE
         Standard for Software Quality Assurance Processes"],"prefix":"10.1109","member":"263","container-title":[],"original-title":[],"link":[{"URL":"http:\/\/xplorestaging.ieee.org\/ielx7\/6835309\/6835310\/06835311.pdf?arnumber=6835311","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2020,10,14]],"date-time":"2020-10-14T15:36:09Z","timestamp":1602689769000},"score":1,"resource":{"primary":{"URL":"https:\/\/ieeexplore.ieee.org\/document\/6835311"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[null]]},"ISBN":["9780738191683"],"references-count":0,"URL":"https:\/\/doi.org\/10.1109\/ieeestd.2014.6835311","relation":{},"subject":[]}}'
-  recorded_at: Mon, 28 Apr 2025 20:27:33 GMT
-recorded_with: VCR 6.3.1
+  recorded_at: Mon, 26 Jan 2026 15:49:12 GMT
+recorded_with: VCR 6.4.0

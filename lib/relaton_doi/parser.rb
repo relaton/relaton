@@ -72,6 +72,9 @@ module RelatonDoi
     ATTRS = %i[type fetched title docid date link abstract contributor place
                doctype relation extent series medium].freeze
 
+    CROSSREF_API_URL = "https://api.crossref.org/works?query=%{query}&filter=%{filter}".freeze
+    MAX_RETRIES = 3
+
     #
     # Initialize instance.
     #
@@ -384,13 +387,12 @@ module RelatonDoi
     #
     # @return [Hash, nil] parent item
     #
-    def parent_item # rubocop:disable Metrics/AbcSize
+    def parent_item
       @parent_item ||= begin
-        query = [@src["container-title"][0], fetch_year].compact.join "+"
+        query = CGI.escape [@src["container-title"][0], fetch_year].compact.join("+")
         filter = "type:#{%w[book book-set edited-book monograph reference-book].join ',type:'}"
-        resp = Faraday.get "https://api.crossref.org/works?query=#{query}&filter=#{filter}"
-        json = JSON.parse resp.body
-        json["message"]["items"].detect { |i| i["title"].include? @src["container-title"][0] }
+        items = fetch_crossref(query: query, filter: filter)
+        items&.detect { |i| i["title"].include? @src["container-title"][0] }
       end
     end
 
@@ -644,14 +646,13 @@ module RelatonDoi
     #
     # @return [String, nil] The location.
     #
-    def fetch_location # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity
+    def fetch_location
       title = @item[:title].first&.title&.content
       qparts = [title, fetch_year, @src["publisher"]]
       query = CGI.escape qparts.compact.join("+").gsub(" ", "+")
       filter = "type:#{%w[book-chapter book-part book-section book-track].join(',type:')}"
-      resp = Faraday.get "https://api.crossref.org/works?query=#{query}&filter=#{filter}"
-      json = JSON.parse resp.body
-      json["message"]["items"].detect do |i|
+      items = fetch_crossref(query: query, filter: filter)
+      items&.detect do |i|
         i["publisher-location"] && i["container-title"].include?(title)
       end&.dig("publisher-location")
     end
@@ -768,6 +769,38 @@ module RelatonDoi
       return unless genre
 
       RelatonBib::Medium.new genre: genre
+    end
+
+    #
+    # Fetch data from Crossref API with retry logic.
+    #
+    # @param [String] query The query string.
+    # @param [String] filter The filter string.
+    #
+    # @return [Array<Hash>, nil] Items array from response or nil for 4xx responses.
+    #
+    # @raise [RelatonBib::RequestError] If request fails after retries.
+    #
+    def fetch_crossref(query:, filter:) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength
+      url = format(CROSSREF_API_URL, query: query, filter: filter)
+      retries = 0
+      begin
+        resp = Faraday.get url
+        case resp.status
+        when 200..299
+          JSON.parse(resp.body).dig("message", "items")
+        when 400..499
+          nil
+        else
+          raise RelatonBib::RequestError, "Crossref request failed: #{resp.status} #{resp.body}"
+        end
+      rescue Faraday::Error => e
+        retries += 1
+        retry if retries <= MAX_RETRIES
+        raise RelatonBib::RequestError, "Crossref network error after #{MAX_RETRIES} retries: #{e.message}"
+      rescue JSON::ParserError => e
+        raise RelatonBib::RequestError, "Crossref JSON parsing error: #{e.message}"
+      end
     end
   end
 end

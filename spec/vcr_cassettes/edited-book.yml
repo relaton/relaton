@@ -19,16 +19,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 28 Apr 2025 20:27:48 GMT
+      - Mon, 26 Jan 2026 15:49:23 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1477'
-      Set-Cookie:
-      - AWSALB=VR+XSYOjfLTxsQgJavQYIHHBPdbToaS6wgAqR9Zjrg0Y4R6kj1HHSU59GNc/MteMb/9yHt73exx58q55kROptmq6Q+KfmKoKEunrWAYrJM+LR7YVB6DT8Popo+Ag;
-        Expires=Mon, 05 May 2025 20:27:48 GMT; Path=/
-      - AWSALBCORS=VR+XSYOjfLTxsQgJavQYIHHBPdbToaS6wgAqR9Zjrg0Y4R6kj1HHSU59GNc/MteMb/9yHt73exx58q55kROptmq6Q+KfmKoKEunrWAYrJM+LR7YVB6DT8Popo+Ag;
-        Expires=Mon, 05 May 2025 20:27:48 GMT; Path=/; SameSite=None
+      - '1478'
+      Connection:
+      - keep-alive
       Access-Control-Expose-Headers:
       - Link
       Access-Control-Allow-Headers:
@@ -40,27 +37,23 @@ http_interactions:
       - Accept-Encoding
       Server:
       - Jetty(9.4.40.v20210413)
-      X-Ratelimit-Limit:
-      - '50'
-      X-Ratelimit-Interval:
-      - 1s
-      X-Api-Pool:
-      - polite
-      X-Rate-Limit-Limit:
-      - '50'
+      X-Rate-Limit:
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
+      X-Concurrency-Limit:
+      - '3'
+      X-Api-Pool:
+      - polite
       Permissions-Policy:
       - interest-cohort=()
-      Connection:
-      - close
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2025,4,21]],"date-time":"2025-04-21T06:44:01Z","timestamp":1745217841270},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"published-print":{"date-parts":[[2022,12,31]]},"DOI":"10.1515\/9780691229409","type":"edited-book","created":{"date-parts":[[2022,11,24]],"date-time":"2022-11-24T21:16:13Z","timestamp":1669324573000},"source":"Crossref","is-referenced-by-count":31,"title":["The
+      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2025,12,31]],"date-time":"2025-12-31T00:10:49Z","timestamp":1767139849088},"reference-count":0,"publisher":"Princeton
+        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"published-print":{"date-parts":[[2022,12,31]]},"DOI":"10.1515\/9780691229409","type":"edited-book","created":{"date-parts":[[2022,11,24]],"date-time":"2022-11-24T21:16:13Z","timestamp":1669324573000},"source":"Crossref","is-referenced-by-count":43,"title":["The
         New Natural History of Madagascar"],"prefix":"10.1515","member":"374","published-online":{"date-parts":[[2022,9,2]]},"container-title":[],"original-title":[],"deposited":{"date-parts":[[2022,11,24]],"date-time":"2022-11-24T21:16:16Z","timestamp":1669324576000},"score":1,"resource":{"primary":{"URL":"https:\/\/www.degruyter.com\/document\/doi\/10.1515\/9780691229409\/html"}},"subtitle":[],"editor":[{"given":"Steven
         M.","family":"Goodman","sequence":"first","affiliation":[]}],"short-title":[],"issued":{"date-parts":[[2022,9,2]]},"ISBN":["9780691229409"],"references-count":0,"alternative-id":["10.1515\/9780691229409"],"URL":"https:\/\/doi.org\/10.1515\/9780691229409","relation":{"is-identical-to":[{"id-type":"doi","id":"10.2307\/j.ctv2ks6tbb","asserted-by":"subject"}]},"subject":[],"published":{"date-parts":[[2022,9,2]]}}}'
-  recorded_at: Mon, 28 Apr 2025 20:27:48 GMT
+  recorded_at: Mon, 26 Jan 2026 15:49:23 GMT
 - request:
     method: get
     uri: https://api.crossref.org/works?filter=type:book-chapter,type:book-part,type:book-section,type:book-track&query=The%2BNew%2BNatural%2BHistory%2Bof%2BMadagascar%2B2022%2BPrinceton%2BUniversity%2BPress
@@ -80,11 +73,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 28 Apr 2025 20:27:48 GMT
+      - Mon, 26 Jan 2026 15:49:23 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '24234'
+      - '76246'
+      Connection:
+      - keep-alive
       Access-Control-Expose-Headers:
       - Link
       Access-Control-Allow-Headers:
@@ -96,68 +91,444 @@ http_interactions:
       - Accept-Encoding
       Server:
       - Jetty(9.4.40.v20210413)
-      X-Ratelimit-Limit:
-      - '50'
-      X-Ratelimit-Interval:
-      - 1s
-      X-Api-Pool:
-      - public
-      X-Rate-Limit-Limit:
-      - '50'
+      X-Rate-Limit:
+      - '5'
       X-Rate-Limit-Interval:
       - 1s
+      X-Concurrency-Limit:
+      - '1'
+      X-Api-Pool:
+      - public
       Permissions-Policy:
       - interest-cohort=()
-      Connection:
-      - close
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":2480255,"items":[{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:08Z","timestamp":1711500308891},"reference-count":0,"publisher":"Princeton
+      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":2575250,"items":[{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:08Z","timestamp":1711500308891},"reference-count":0,"publisher":"Princeton
         University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.9","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"1-38","source":"Crossref","is-referenced-by-count":1,"title":["THE
         HISTORY OF ZOOLOGICAL EXPLORATION OF MADAGASCAR"],"prefix":"10.2307","author":[{"given":"F.","family":"Andriamialisoa","sequence":"first","affiliation":[]},{"given":"O.","family":"Langrand","sequence":"additional","affiliation":[]}],"member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:05:37Z","timestamp":1711476337000},"score":32.51394,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.9"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.9","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:44:13Z","timestamp":1711500253847},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.14","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"69-73","source":"Crossref","is-referenced-by-count":1,"title":["CENOZOIC
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:05:37Z","timestamp":1711476337000},"score":32.562897,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.9"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.9","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2025,7,7]],"date-time":"2025-07-07T10:45:43Z","timestamp":1751885143493},"reference-count":0,"publisher":"Princeton
+        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.14","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"69-73","source":"Crossref","is-referenced-by-count":2,"title":["CENOZOIC
         FOSSILS OF MADAGASCAR"],"prefix":"10.2307","author":[{"given":"K. E.","family":"Samonds","sequence":"first","affiliation":[]}],"member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:05:44Z","timestamp":1711476344000},"score":32.377544,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.14"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.14","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,4,3]],"date-time":"2024-04-03T05:02:20Z","timestamp":1712120540160},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.18","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"91-98","source":"Crossref","is-referenced-by-count":2,"title":["THE
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:05:44Z","timestamp":1711476344000},"score":32.305023,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.14"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.14","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2025,12,19]],"date-time":"2025-12-19T09:55:57Z","timestamp":1766138157926},"reference-count":0,"publisher":"Princeton
+        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.18","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"91-98","source":"Crossref","is-referenced-by-count":3,"title":["THE
         CLIMATE OF MADAGASCAR"],"prefix":"10.2307","author":[{"given":"M. R.","family":"Jury","sequence":"first","affiliation":[]}],"member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:05:51Z","timestamp":1711476351000},"score":32.359215,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.18"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.18","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:44:20Z","timestamp":1711500260650},"reference-count":0,"publisher":"Princeton
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:05:51Z","timestamp":1711476351000},"score":32.30052,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.18"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.18","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:44:20Z","timestamp":1711500260650},"reference-count":0,"publisher":"Princeton
         University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.10","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"39-44","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:05:38Z","timestamp":1711476338000},"score":32.01582,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.10"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.10","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:01Z","timestamp":1711500301859},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.155","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"1202-1244","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:10:03Z","timestamp":1711476603000},"score":31.96383,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.155"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.155","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:04Z","timestamp":1711500304356},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.45","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"302-310","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:06:41Z","timestamp":1711476401000},"score":31.959463,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.45"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.45","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:34Z","timestamp":1711500334139},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.107","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"811-846","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:08:26Z","timestamp":1711476506000},"score":31.959463,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.107"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.107","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:44:20Z","timestamp":1711500260777},"reference-count":0,"publisher":"Princeton
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:05:38Z","timestamp":1711476338000},"score":32.028797,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.10"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.10","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:44:20Z","timestamp":1711500260777},"reference-count":0,"publisher":"Princeton
         University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.177","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"1300-1304","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:10:45Z","timestamp":1711476645000},"score":31.949533,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.177"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.177","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:36Z","timestamp":1711500336619},"reference-count":0,"publisher":"Princeton
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:10:45Z","timestamp":1711476645000},"score":31.938627,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.177"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.177","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:36Z","timestamp":1711500336619},"reference-count":0,"publisher":"Princeton
         University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.202","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"1410-1422","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:11:31Z","timestamp":1711476691000},"score":31.949509,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.202"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.202","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:01Z","timestamp":1711500301492},"reference-count":0,"publisher":"Princeton
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:11:31Z","timestamp":1711476691000},"score":31.92782,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.202"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.202","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:01Z","timestamp":1711500301859},"reference-count":0,"publisher":"Princeton
+        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.155","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"1202-1244","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:10:03Z","timestamp":1711476603000},"score":31.920853,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.155"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.155","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:34Z","timestamp":1711500334139},"reference-count":0,"publisher":"Princeton
+        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.107","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"811-846","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:08:26Z","timestamp":1711476506000},"score":31.910063,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.107"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.107","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:04Z","timestamp":1711500304356},"reference-count":0,"publisher":"Princeton
+        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.45","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"302-310","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:06:41Z","timestamp":1711476401000},"score":31.910063,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.45"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.45","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2025,11,23]],"date-time":"2025-11-23T02:45:42Z","timestamp":1763865942801,"version":"3.45.0"},"reference-count":0,"publisher":"Princeton
+        University Press","isbn-type":[{"type":"electronic","value":"9780691229409"},{"type":"electronic","value":"0691229406"},{"type":"print","value":"9780691222622"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.306","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T12:41:09Z","timestamp":1669120869000},"page":"2147-2171","source":"Crossref","is-referenced-by-count":0,"title":["CONTRIBUTORS"],"prefix":"10.2307","member":"1121","container-title":["The
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T14:14:45Z","timestamp":1711462485000},"score":31.897991,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.306"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.306","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:01Z","timestamp":1711500301492},"reference-count":0,"publisher":"Princeton
         University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.56","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"434-451","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:06:58Z","timestamp":1711476418000},"score":31.92488,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.56"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.56","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:01Z","timestamp":1711500301766},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.297","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"2038-2090","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:14:30Z","timestamp":1711476870000},"score":31.9248,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.297"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.297","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:01Z","timestamp":1711500301800},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.28","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"169-180","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:06:14Z","timestamp":1711476374000},"score":31.920727,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.28"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.28","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:02Z","timestamp":1711500302814},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.306","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"2147-2171","source":"Crossref","is-referenced-by-count":0,"title":["CONTRIBUTORS"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:14:45Z","timestamp":1711476885000},"score":31.894794,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.306"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.306","relation":{"is-identical-to":[{"id-type":"doi","id":"10.1515\/9780691229409-033","asserted-by":"object"}]},"published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:44:33Z","timestamp":1711500273786},"reference-count":0,"publisher":"Princeton
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:06:58Z","timestamp":1711476418000},"score":31.896183,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.56"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.56","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:44:33Z","timestamp":1711500273786},"reference-count":0,"publisher":"Princeton
         University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.19","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"99-99","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:05:53Z","timestamp":1711476353000},"score":31.859703,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.19"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.19","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:31Z","timestamp":1711500331115},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.222","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"1534-1552","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:12:11Z","timestamp":1711476731000},"score":31.844841,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.222"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.222","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:30Z","timestamp":1711500330820},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.37","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"252-264","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:06:30Z","timestamp":1711476390000},"score":31.81675,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.37"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.37","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:02Z","timestamp":1711500302830},"reference-count":0,"publisher":"Princeton
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:05:53Z","timestamp":1711476353000},"score":31.890476,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.19"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.19","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:01Z","timestamp":1711500301800},"reference-count":0,"publisher":"Princeton
+        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.28","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"169-180","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:06:14Z","timestamp":1711476374000},"score":31.868153,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.28"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.28","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:02Z","timestamp":1711500302830},"reference-count":0,"publisher":"Princeton
         University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.245","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"1719-1736","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:12:57Z","timestamp":1711476777000},"score":31.81055,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.245"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.245","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:44:33Z","timestamp":1711500273777},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.305","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"2140-2146","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:14:41Z","timestamp":1711476881000},"score":31.80075,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.305"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.305","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:09Z","timestamp":1711500309538},"reference-count":0,"publisher":"Princeton
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:12:57Z","timestamp":1711476777000},"score":31.848003,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.245"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.245","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:30Z","timestamp":1711500330820},"reference-count":0,"publisher":"Princeton
+        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.37","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"252-264","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:06:30Z","timestamp":1711476390000},"score":31.829819,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.37"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.37","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:01Z","timestamp":1711500301766},"reference-count":0,"publisher":"Princeton
+        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.297","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"2038-2090","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:14:30Z","timestamp":1711476870000},"score":31.824127,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.297"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.297","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:09Z","timestamp":1711500309538},"reference-count":0,"publisher":"Princeton
         University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.17","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"82-90","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
-        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:05:49Z","timestamp":1711476349000},"score":31.739592,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.17"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.17","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:06Z","timestamp":1711500306418},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.156","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"i-x","source":"Crossref","is-referenced-by-count":0,"title":["[Middle
-        Matter]"],"prefix":"10.2307","member":"1121","container-title":["The New Natural
-        History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:10:04Z","timestamp":1711476604000},"score":31.44617,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.156"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.156","published":{"date-parts":[[2022,11,15]]}}],"items-per-page":20,"query":{"start-index":0,"search-terms":"The+New+Natural+History+of+Madagascar+2022+Princeton+University+Press"}}}'
-  recorded_at: Mon, 28 Apr 2025 20:27:48 GMT
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:05:49Z","timestamp":1711476349000},"score":31.790213,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.17"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.17","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:45:31Z","timestamp":1711500331115},"reference-count":0,"publisher":"Princeton
+        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.222","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"1534-1552","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:12:11Z","timestamp":1711476731000},"score":31.775076,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.222"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.222","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2024,3,27]],"date-time":"2024-03-27T00:44:33Z","timestamp":1711500273777},"reference-count":0,"publisher":"Princeton
+        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb.305","type":"book-chapter","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"page":"2140-2146","source":"Crossref","is-referenced-by-count":0,"title":["REFERENCES"],"prefix":"10.2307","member":"1121","container-title":["The
+        New Natural History of Madagascar"],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:14:41Z","timestamp":1711476881000},"score":31.725863,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb.305"}},"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb.305","published":{"date-parts":[[2022,11,15]]}},{"indexed":{"date-parts":[[2025,3,21]],"date-time":"2025-03-21T04:04:37Z","timestamp":1742529877327,"version":"3.40.1"},"edition-number":"1","reference-count":281,"publisher":"Oxford
+        University PressOxford","isbn-type":[{"value":"0198905556","type":"print"},{"value":"9780198905554","type":"print"},{"value":"9780198905585","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2025,3,27]]},"abstract":"<jats:title>Abstract<\/jats:title>\n               <jats:p>Wight
+        asked, \u201cCan the absolute values and moral laws which most of us suppose
+        to have some place in political life\u2014individual freedom, political justice,
+        pacta sunt servanda\u2014be established in any way by modern scientific method?
+        Is there any bridge across the logical gulf between metaphysics and empirical
+        science, between Ought and Is?\u00a0.\u00a0.\u00a0. Is scientific relativism
+        necessarily destructive of belief in values? If not, can scientific method
+        examine values and say anything about them? Such are the questions Dr Brecht
+        discusses, in this wide and tranquil survey of the social sciences and scientific
+        method from Kant to the present day.\u00a0.\u00a0.\u00a0. His argument culminates
+        in the discovery of factual truth as the first postulate of justice, on the
+        ground that it is a universal phenomenon of human thinking and feeling to
+        understand justice as at least the correcting of a falsification of facts
+        (e.g. the Dreyfus case).\u00a0.\u00a0.\u00a0. \u2018A precious wreath will
+        await science if it will wage a candid fight against superstition, against
+        factual errors and poor thinking, and especially\u2014against lies\u2019 (p.\u00a0416).\u00a0.\u00a0.\u00a0.
+        It displays scientific method not as the spirit of technological barbarism
+        gnawing at the values on which Western civilization is built, but as itself
+        one of the highest products of these values, because it unites the pursuit
+        of knowledge that can be communicated between man and man with the respect
+        each man must have for the trans-scientific beliefs of others.\u201d<\/jats:p>","DOI":"10.1093\/oso\/9780198905554.003.0057","type":"book-chapter","created":{"date-parts":[[2025,3,20]],"date-time":"2025-03-20T05:41:53Z","timestamp":1742449313000},"page":"361-362","source":"Crossref","is-referenced-by-count":0,"title":["Review
+        of Arnold Brecht, <i>Political Theory: The Foundations of Twentieth-Century
+        Political Thought<\/i> (Princeton, New Jersey: Princeton University Press;
+        and London, Oxford University Press, 1959)"],"prefix":"10.1093","author":[{"given":"Martin","family":"Wight","sequence":"first","affiliation":[]}],"member":"286","reference":[{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-448","volume-title":"Gulag:
+        A History","author":"","year":"2003"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-449","volume-title":"The
+        Politics of Modernization","author":"","year":"1969"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-450","volume-title":"Peace
+        and War: A Theory of International Relations","author":"","year":"1967"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-451","unstructured":"Balfour,
+        Michael. 1956. Four-Power Control in Germany 1945\u20131946, in Michael Balfour
+        and John Mair (eds), Four-Power Control in Germany and Austria 1945\u20131946,
+        p. 390 London: Oxford University Press."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-452","volume-title":"History
+        in a Changing World","author":"","year":"1955"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-453","volume-title":"The
+        Canons of International Law","author":"","year":"1930"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-454","volume-title":"The
+        Foreign Policy of Soviet Russia 1929\u20131941","author":"","year":"1947"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-455","volume-title":"Lord
+        of the World","author":"","year":"2016"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-456","unstructured":"Blish,
+        James. 1958. A Case of Conscience, in Best Science Fiction. London: Faber."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-457","volume-title":"The
+        Totalitarian Enemy","author":"","year":"1940"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-458","volume-title":"Life
+        of Johnson","author":"","year":"1980"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-459","volume-title":"The
+        Emperor Charles V","author":"","year":"1963"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-460","volume-title":"Political
+        Theory: The Foundations of Twentieth-Century Political Thought","author":"","year":"1959"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-461","volume-title":"The
+        Outlook for International Law","author":"","year":"1944"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-462","volume-title":"The
+        Basis of Obligation in International Law","author":"","year":"1958"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-463","volume-title":"The
+        Anatomy of Revolution","author":"","year":"1938"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-464","unstructured":"Brooks,
+        Cleanth. 1951. Irony as a Principle of Structure, in Morton Dauwen Zabel (ed.),
+        Literary Opinion in America, Rev. edn. New York: Harper; chapter page range
+        of appendices, pp. 791\u2013890."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-465","volume-title":"Principles
+        of Public International Law","author":"","year":"1966"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-466","volume-title":"Diplomatic
+        Investigations: Essays in the Theory of International Politics","author":"","year":"1966"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-467","article-title":"Martin
+        Wight and the Theory of International Relations.","author":"","year":"1976","journal-title":"British
+        Journal of International Studies"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-468","unstructured":"Bull,
+        Hedley. 1977. Introduction: Martin Wight and the Study of International Relations,
+        in Martin Wight, Systems of States, edited by Hedley Bull. London: Leicester
+        University Press, pp. 1\u201320, in association with the London School of
+        Economics and Political Science."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-469","volume-title":"The
+        Works of the Right Hon Edmund Burke, with a Biographical and Critical Introduction
+        by Henry Rogers.","author":"","year":"1842"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-470","volume-title":"The
+        Development of International Law","author":"","year":"1928"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-471","volume-title":"The
+        Peace Tactics of Napoleon, 1806\u20131808","author":"","year":"1929"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-472","volume-title":"Christianity
+        and History","author":"","year":"1949"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-473","volume-title":"The
+        Reconstruction of an Historical Episode: The History of the Enquiry into the
+        Origins of the Seven Years War.","author":"","year":"1951"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-474","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-475","volume-title":"The
+        Golden Age of Burgundy: The Magnificent Dukes and TheirCourts","author":"","year":"1962"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-476","volume-title":"The
+        Rebel","author":"","year":"1953"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-477","volume-title":"Political
+        Liberty","author":"","year":"1941"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-478","volume-title":"The
+        Bolshevik Revolution 1917\u20131923, Vol.\u00a0III","author":"","year":"1953"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-479","author":"","year":"1939"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-480","volume-title":"The
+        Secret Diplomacy of the Habsburgs, 1598\u20131625","author":"","year":"1964"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-481","volume-title":"Life
+        of Robert Marquis of Salisbury, Vol.\u00a0I","author":"","year":"1921"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-482","volume-title":"Machiavelli
+        and the Renaissance","author":"","year":"1958"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-483","volume-title":"Spain
+        and the Empire 1519\u20131643","author":"","year":"1952"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-484","volume-title":"The
+        Second World War, Vol.\u00a0I: The Gathering Storm.","author":"","year":"1948"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-485","volume-title":"Ciano\u2019s
+        Diary 1939\u20131943","author":"","year":"1947"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-486","volume-title":"Diario
+        1939 (\u20131943)","author":"","year":"1947"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-487","volume-title":"Ciano\u2019s
+        Diplomatic Papers","author":"","year":"1948"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-488","author":"","year":"1948"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-489","volume-title":"On
+        War","author":"","year":"1950"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-490","volume-title":"An
+        Autobiography","author":"","year":"1939"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-491","volume-title":"Law
+        and Society in the Relations of States","author":"","year":"1951"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-492","volume-title":"Law
+        in Diplomacy","author":"","year":"1959"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-493","volume-title":"Rider
+        on a Grey Horse: A Life of Hodson of Hodson\u2019s Horse","author":"","year":"1958"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-494","volume-title":"Locke
+        on War and Peace","author":"","year":"1960"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-495","volume-title":"The
+        New Cambridge Modern History, Vol.\u00a0IX: War and Peace in an Age of Upheaval,
+        1793\u20131830","author":"","year":"1965"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-496","volume-title":"The
+        Gods of Revolution","author":"","year":"1972"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-497","volume-title":"The
+        Geneva Racket, 1920\u20131939","author":"","year":"1941"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-498","volume-title":"Stalin:
+        A Political Biography","author":"","year":"1949"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-499","volume-title":"The
+        Prophet Armed: Trotsky: 1879\u20131921","author":"","year":"1954"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-500","unstructured":"Dostoyevsky,
+        Fyodor. [1879-1880] 1950. The Grand Inquisitor, in The Brothers Karamazov,
+        translated by Constance Garnett with an Introduction by Marc Slonim, pp. 292\u2013314.
+        New York: The Modern Library [first published in Russian]."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-501","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-502","volume-title":"From
+        Empire to Nation: The Rise to Self-Assertion of Asian and African Peoples","author":"","year":"1960"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-503","volume-title":"Seven
+        Types of Ambiguity","author":"","year":"1947"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-504","volume-title":"Germany:
+        Revolution and Counter-Revolution","author":"","year":"1933"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-505","volume-title":"The
+        Life of Neville Chamberlain","author":"","year":"1947"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-506","volume-title":"A
+        History of Europe","author":"","year":"1939"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-507","volume-title":"A
+        Dictionary of Modern English Usage","author":"","year":"1926"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-508","author":"","year":"1954"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-509","volume-title":"Vietnam:
+        History, Documents and Opinions on a Major World Crisis","author":"","year":"1966"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-510","volume-title":"Dante
+        the Philosopher","author":"","year":"1952"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-511","volume-title":"Survey
+        of the Sino-Soviet Dispute","author":"","year":"1968"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-512","volume-title":"The
+        Goebbels Diaries","author":"","year":"1948"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-513","unstructured":"Gooch,
+        G. P. \u00a01957. Foreword, in Georges Bonnin (ed.), Bismarck and the Hohenzollern
+        Candidature for the Spanish Throne: The Documents in the German Diplomatic
+        Archives, translated by Isabella M. Massey, pp. 9\u201312. London: Chatto
+        and Windus."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-514","volume-title":"The
+        Soviet Design for a World State","author":"","year":"1960"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-515","article-title":"The
+        Urge to Compete: Rationales for Arms Racing.","author":"","year":"1974","journal-title":"World
+        Politics"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-516","volume-title":"Man
+        in his Pride: A Study in the Political Philosophy of Thucydides and Plato","author":"","year":"1950"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-517","volume-title":"Twenty-Five
+        Years 1892\u20131916","year":"1925"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-518","volume-title":"The
+        Law of War and Peace, De Jure Belli ac Pacis Libri Tres","author":"","year":"1925"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-519","volume-title":"Ricasoli
+        and the Risorgimento in Tuscany","author":"","year":"1926"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-520","volume-title":"Survey
+        of British Commonwealth Affairs","author":"","year":"1937"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-521","volume-title":"Country
+        and Calling","author":"","year":"1954"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-522","unstructured":"Hassner,
+        Pierre. 1979. Jouvenel, Bertrand de, in David L. Sills (ed.), International
+        Encyclopedia of the Social Sciences: Biographical Supplement, Vol.\u00a018.
+        New York: The Free Press."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-523","volume-title":"Charles
+        XII of Sweden","author":"","year":"1968"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-524","volume-title":"Studies
+        in Diplomatic History","author":"","year":"1930"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-525","volume-title":"Failure
+        of a Mission","author":"","year":"1940"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-526","volume-title":"International
+        Politics in the Atomic Age","author":"","year":"1959"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-527","volume-title":"The
+        Development of International Law through the Political Organs of the United
+        Nations","author":"","year":"1963"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-528","volume-title":"Power
+        and the Pursuit of Peace","author":"","year":"1963"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-529","volume-title":"Mein
+        Kampf","author":"","year":"1938"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-530","volume-title":"The
+        Speeches of Adolf Hitler, April 1922\u2013August 1939","author":"","year":"1942"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-531","volume-title":"Contemporary
+        Theory in International Relations","author":"","year":"1960"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-532","volume-title":"The
+        Far East in World Politics: A Study in Recent History","author":"","year":"1937"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-533","unstructured":"Huizinga,
+        Johan. 1936. A Definition of the Concept of History, in Raymond Klibansky
+        and H. J. Paton (eds), Philosophy and History: Essays Presented to Ernst Cassirer.
+        Oxford: Clarendon Press."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-534","volume-title":"The
+        Politics of Peace-keeping","author":"","year":"1969"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-535","volume-title":"The
+        European Spirit","author":"","year":"1948"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-536","volume-title":"Why
+        War?","author":"","year":"1939"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-537","article-title":"A
+        Permanent UN Force: British Thinking after Suez.","author":"","year":"1991","journal-title":"Review
+        of International Studies"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-538","volume-title":"The
+        Collected Works C. G. Jung, Vol.\u00a03: The Psychogenesis of Mental Disease","author":"","year":"1960"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-539","volume-title":"System
+        and Process in International Politics","author":"","year":"1957"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-540","volume-title":"England
+        and the Middle East: The Destruction of the Ottoman Empire","author":"","year":"1956"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-541","volume-title":"American
+        Diplomacy, 1900\u20131950","author":"","year":"1951"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-542","volume-title":"Realities
+        of American Foreign Policy","author":"","year":"1966"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-543","volume-title":"Hitler
+        1936\u20131945: Nemesis","author":"","year":"2000"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-544","volume-title":"The
+        Economic Consequences of the Peace","author":"","year":"1920"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-545","volume-title":"The
+        Revelation of St. John","author":"","year":"1940"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-546","volume-title":"Empire","author":"","year":"1961"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-547","volume-title":"Imperialism:
+        The Story and Significance of a Political Word, 1840\u20131960","author":"","year":"1964"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-548","volume-title":"The
+        Yogi and the Commissar and Other Essays","author":"","year":"1945"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-549","volume-title":"Mass
+        Uprisings in the USSR: Protest and Rebellion in the Post-Stalin Years","author":"","year":"2015"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-550","volume-title":"From
+        Moscow to the Prussian Frontier","author":"","year":"1945"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-551","volume-title":"Hobbes","author":"","year":"1934"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-552","volume-title":"Recognition
+        in International Law","author":"","year":"1948"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-553","volume-title":"Mere
+        Christianity","author":"","year":"1952"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-554","unstructured":"Lewis,
+        C. S. \u00a01986. On Living in an Atomic Age, in C. S. Lewis, Present Concerns,
+        edited by Walter Hooper, pp. 73\u201380. London: Fount Paperbacks."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-555","volume-title":"The
+        Principles of Politics","author":"","year":"1966"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-556","volume-title":"The
+        Real World of Democracy","author":"","year":"1966"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-557","volume-title":"Cry
+        Havoc: How the Arms Race Drove the World to War, 1931\u20131941","author":"","year":"2010"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-558","volume-title":"The
+        Commonwealth Experience, Vol.\u00a0II: From British to Multiracial Commonwealth","author":"","year":"1982"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-559","unstructured":"Marshall,
+        Andrew W. \u00a01983. Arms Competitions: The Status of Analysis, in Uwe Nerlich
+        (ed.), The Western Panacea: Constraining Soviet Power through Negotiation,
+        Vol. 2 of Soviet Power and Western Negotiating Policies. Cambridge, MA: Ballinger
+        Publishing Co."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-560","unstructured":"Marx,
+        Karl. 1938. Theses on Feuerbach, no. 11, in Karl Marx and Friedrich Engels,
+        edited by C. J. Arthur. The German Ideology. London: Lawrence and Wishart."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-561","volume-title":"Towards
+        a Pax Africana","author":"","year":"1967"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-562","volume-title":"Public
+        Opinion and the Last Peace","author":"","year":"1944"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-563","volume-title":"Antichrist:
+        Two Thousand Years of the Human Fascination with Evil","author":"","year":"2000"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-564","volume-title":"Past
+        and Future","author":"","year":"1954"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-565","volume-title":"America,
+        Britain, and Russia: Their Co-operation and Conflict 1941\u20131946","author":"","year":"1953"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-566","volume-title":"Machiavellism:
+        The Doctrine of Raison d\u2019\u00c9tat and Its Place in Modern History","author":"","year":"1957"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-567","volume-title":"The
+        Politics of the Third World","author":"","year":"1966"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-568","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-569","volume-title":"In
+        Defense of the National Interest: A Critical Examination of American Foreign
+        Policy","author":"","year":"1951"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-570","volume-title":"Dilemmas
+        of Politics","author":"","year":"1958"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-571","volume-title":"Franz
+        Joseph I of Austria and His Empire","author":"","year":"1968"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-572","volume-title":"The
+        Free Society","author":"","year":"1948"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-573","volume-title":"Diplomatic
+        Prelude 1938\u20131939","author":"","year":"1948"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-574","volume-title":"Egypt\u2019s
+        Liberation: The Philosophy of the Revolution","author":"","year":"1955"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-575","article-title":"The
+        Enigma of Martin Wight.","author":"","year":"1981","journal-title":"Review
+        of International Studies"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-576","volume-title":"The
+        Children of Light and the Children of Darkness","author":"","year":"1945"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-577","volume-title":"Discerning
+        the Signs of the Times","author":"","year":"1946"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-578","volume-title":"Faith
+        and History","author":"","year":"1949"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-579","volume-title":"The
+        Irony of American History","author":"","year":"1952"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-580","volume-title":"Trent:
+        What Happened at the Council","author":"","year":"2013"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-581","volume-title":"The
+        Social and Political Doctrines of Contemporary Europe","author":"","year":"1939"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-582","volume-title":"Nelson","author":"","year":"1948"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-583","volume-title":"International
+        Law: A Treatise, Vol.\u00a0I","author":"","year":"1955"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-584","volume-title":"The
+        Revolt of the Masses","author":"","year":"1932"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-585","volume-title":"A
+        History of Europe","author":"","year":"1939"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-586","volume-title":"Histoire
+        de la diplomatie","author":"","year":"1946"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-587","unstructured":"Pitt,
+        Harry G. \u00a02004. Wight, (Robert James), Martin (1913-1972), in The Oxford
+        Dictionary of National Biography. Oxford: Oxford University Press, http:\/\/www.oxforddnb.com\/view\/article\/38935."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-588","unstructured":"Porter,
+        Brian. 1978. Patterns of Thought and Practice: Martin Wight\u2019s \u2018International
+        Theory\u2019, in The Reason of States: A Study in International Political
+        Theory, edited by Michael Donelan, ed., London: George Allen & Unwin, pp.
+        64\u201374."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-589","volume-title":"King
+        Henry III and the Lord Edward: The Community of the Realm in the Thirteenth
+        Century","author":"","year":"1947"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-590","volume-title":"Light
+        on Moscow","author":"","year":"1939"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-591","author":"","year":"1940"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-592","volume-title":"The
+        History of the Popes, Their Church and State, and Especially of Their Conflicts
+        with Protestantism in the Sixteenth and Seventeenth Centuries","author":"","year":"1848"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-593","volume-title":"Hitler
+        Speaks: A Series of Political Conversations with Adolf Hitler on his Real
+        Aims","author":"","year":"1939"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-594","article-title":"The
+        Political Objectives of Gustavus Adolphus in Germany, 1630\u20131632.","author":"","year":"1957","journal-title":"Transactions
+        of the Royal Historical Society"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-595","volume-title":"Gustavus
+        Adolphus: A History of Sweden 1611\u20131632","author":"","year":"1958"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-596","volume-title":"Recovery","author":"","year":"1932"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-597","volume-title":"Security:
+        Can We Retrieve It?","author":"","year":"1939"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-598","article-title":"The
+        Basis of the Relations between the Socialist Countries.","author":"","year":"1958","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-599","volume-title":"The
+        Legal Community of Mankind","author":"","year":"1954"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-600","volume-title":"The
+        Spanish Origin of International Law: Francisco de Vitoria and his Law of Nations","author":"","year":"1934"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-601","article-title":"The
+        Problem of the Malvinas Islands (Falkland).","author":"","year":"1967","journal-title":"Revue
+        Egyptienne de droit international"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-602","article-title":"Helsinki:
+        The Last Youth Festival?","author":"","year":"1962","journal-title":"Problems
+        of Communism"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-603","volume-title":"The
+        Saburov Memoirs","author":"","year":"1929"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-604","volume-title":"A
+        History of the Italian Republics","author":"","year":"1966"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-605","volume-title":"Cavour
+        and Garibaldi 1860","author":"","year":"1954"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-606","unstructured":"Solovyov,
+        Vladimir, [1900] 1915. Short Narrative about Antichrist, in War and Christianity:
+        From the Russian Point of View: Three Conversations, edited and with an Introduction
+        by Stephen Graham, pp. 144\u2013188. London: Constable and Company Ltd."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-607","volume-title":"The
+        Gulag Archipelago 1918-1956: An Experiment in Literary Investigation","author":"","year":"1974"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-608","volume-title":"The
+        Life of Nelson","author":"","year":"1969"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-609","volume-title":"The
+        Decline of the West","author":"","year":"1926"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-610","volume-title":"The
+        Growth of International Thought","author":"","year":"1930"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-611","volume-title":"The
+        Doom of the Hapsburgs","author":"","year":"1937"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-612","volume-title":"On
+        Active Service in Peace and War","author":"","year":"1948"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-613","volume-title":"On
+        the Prevention of War","author":"","year":"1962"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-614","volume-title":"Thoughts
+        on Machiavelli","author":"","year":"1958"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-615","volume-title":"Survey
+        of Russian History","author":"","year":"1944"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-616","volume-title":"The
+        Roman Revolution","author":"","year":"1960"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-617","volume-title":"The
+        Western Political Tradition","author":"","year":"1949"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-618","volume-title":"The
+        Struggle for Mastery in Europe 1848\u20131918","author":"","year":"1954"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-619","volume-title":"Bismarck:
+        The Man and the Statesman","author":"","year":"1955"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-620","volume-title":"Englishmen
+        and Others","author":"","year":"1956"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-621","volume-title":"The
+        Origins of the Second World War","author":"","year":"1964"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-622","volume-title":"Foundations
+        of British Policy","author":"","year":"1938"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-623","volume-title":"Observations
+        Upon the United Provinces of the Netherlands","author":"","year":"1972"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-624","volume-title":"The
+        French Revolution","author":"","year":"1943"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-625","volume-title":"Political
+        Realism and the Crisis of World Politics","author":"","year":"1960"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-626","volume-title":"The
+        World in March 1939","author":"","year":"1952"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-627","volume-title":"A
+        Study of History, Vol.\u00a0I","author":"","year":"1934"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-628","volume-title":"Survey
+        of International Affairs","author":"","year":"1937"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-629","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-630","volume-title":"Nazi\u2013Soviet
+        Relations 1939\u20131941: Documents from the Archives of the German Foreign
+        Office","year":"1948"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-631","volume-title":"Theory
+        and Reality in Public International Law","author":"","year":"1957"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-632","volume-title":"The
+        Survival of Small States","author":"","year":"1971"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-633","author":"","year":"1923"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-634","volume-title":"The
+        Art and Practice of Diplomacy","author":"","year":"1962"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-635","volume-title":"The
+        Foreign Policy of Palmerston","author":"","year":"1951"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-636","volume-title":"The
+        Foreign Policy of Palmerston, 1830\u20131841: Britain, the Liberal Movement,
+        and the Eastern Question, Vol.\u00a01","author":"","year":"1969"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-637","volume-title":"The
+        King\u2019s Peace, 1637\u20131641, Vol.\u00a0I of The Great Rebellion","author":"","year":"1955"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-638","volume-title":"Munich:
+        Prologue to Tragedy","author":"","year":"1948"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-639","article-title":"Christian
+        Pacifism.","author":"","year":"1936","journal-title":"Theology: A Monthly
+        Journal of Historic Christianity"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-640","author":"","year":"1946","journal-title":"The
+        Observer"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-641","article-title":"Review
+        of Ely Culbertson, Must We Fight Russia? (Philadelphia: The John C. Winston
+        Company, 1946","author":"","year":"1946","journal-title":"International Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-642","article-title":"Review
+        of Henrique de Pinheiro, The World State or the New Order of Common Sense
+        (Rio de Janeiro: Grafica Olimpica, 1944).","author":"","year":"1946","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-643","article-title":"Review
+        of John Middleton Murry, Trust or Perish (Rickmansworth: Andrew Dakers, 1946).","author":"","year":"1946","journal-title":"International
+        Affairs,"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-644","volume-title":"The
+        Development of the Legislative Council, 1606\u20131945","author":"","year":"1946"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-645","article-title":"Review
+        of C. E. M. Joad, Conditions of Survival. (London: Federal Union, 1946).","author":"","year":"1947","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-646","article-title":"Review
+        of David Mitrany, A Working Peace System, An Argument for the Functional Development
+        of International Organization, Fourth Edition with a New Introduction. (London:
+        National Peace Council, 1946","author":"","year":"1947","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-647","article-title":"Review
+        of J. L. Brierly, The Covenant and the Charter. (Cambridge: Cambridge University
+        Press, 1947).","author":"","year":"1947","journal-title":"International Affairs,"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-648","author":"","year":"1947","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-649","author":"","year":"1947","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-650","article-title":"The
+        United Nations General Assembly.","author":"","year":"1947","journal-title":"The
+        World Today"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-651","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-652","author":"","year":"1948","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-653","article-title":"The
+        Church, Russia and the West.","author":"","year":"1948","journal-title":"The
+        Ecumenical Review"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-654","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-655","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-656","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-657","article-title":"History
+        and Judgement: Butterfield, Niebuhr and the Technical Historian.","author":"","year":"1950","journal-title":"The
+        Frontier: A Christian Commentary on the Common Life"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-658","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-659","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-660","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-661","author":"","year":"1951","journal-title":"The
+        Observer,"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-662","article-title":"Review
+        of John MacLaurin, The United Nations and Power Politics (London: Allen and
+        Unwin, 1952).","author":"","year":"1952","journal-title":"International Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-663","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-664","unstructured":"Wight,
+        Martin. 1952. Eastern Europe, in Arnold Toynbee and Frank T. Ashton-Gwatkin
+        (eds), The World in March 1939. London: Oxford University Press, pp. 206\u2013293."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-665","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-666","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-667","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-668","unstructured":"Wight,
+        Martin. 1954. Spiritual and Material Achievement: The Law of Inverse Operation
+        in Italian Visual Art, in Arnold J. Toynbee (ed.), A Study of History, Vol.\u00a0VII.
+        London: Oxford University Press, pp. 711\u2013715."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-669","unstructured":"Martin
+        Wight. 1954. The Crux for an Historian Brought up in the Christian Tradition,
+        in Arnold J. Toynbee (ed.), A Study of History, Vol.\u00a0VII. London and
+        New York: Oxford University Press, pp. 737\u2013748 [republished in the current
+        volume]."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-670","article-title":"Communist
+        Movement Throughout the World,\u201d Review of Hugh Seton-Watson, The Pattern
+        of Communist Revolution (London: Methuen, 1953).","author":"","year":"1955","journal-title":"The
+        International Review of Missions,"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-671","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-672","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-673","unstructured":"Wight,
+        Martin. 1956. The Power Struggle within the United Nations, in Democracy on
+        Trial, Proceedings of the Institute of World Affairs, 33rd Session, 9\u201312
+        December 1956, edited by Paul E. Hadley, et al. Los Angeles: University of
+        Southern California, 1957, pp. 247\u2013259, republished in Martin Wight,
+        Foreign Policy and Security Strategy, edited by David S. Yost."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-674","article-title":"Review
+        of Friedrich Meinecke,","author":"","year":"1958","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-675","article-title":"Review
+        of A. P. Thornton, The Imperial Idea and Its Enemies: A Study in British Power
+        (London: Macmillan, 1959), \u201cOther Men\u2019s Masters.","author":"","year":"1959","journal-title":"The
+        Observer,"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-676","article-title":"Review
+        of John H. Herz, International Politics in the Atomic Age (New York: Columbia
+        University Press, 1959).","author":"","year":"1959","journal-title":"American
+        Political Science Review,"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-677","author":"","year":"1959","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-678","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-679","article-title":"Review
+        of Hugh Seton-Watson, Neither War nor Peace: The Struggle for Power in the
+        Post-War World (London, Methuen, 1960).","author":"","year":"1960","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-680","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-681","article-title":"Why
+        Is There No International Theory?","author":"","year":"1960","journal-title":"International
+        Relations"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-682","author":"","year":"1961","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-683","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-684","article-title":"Does
+        Peace Take Care of Itself?","author":"","year":"1963","journal-title":"Views"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-685","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-686","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-687","unstructured":"Wight,
+        Martin. 1966. The Balance of Power, in Herbert Butterfield and Martin Wight
+        (eds), Diplomatic Investigations: Essays in the Theory of International Politics.
+        Cambridge, MA: Harvard University Press; and London: George Allen and Unwin,
+        pp. 149\u2013175."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-688","volume-title":"Diplomatic
+        Investigations: Essays in the Theory of International Politics","author":"","year":"1966"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-689","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-690","author":"","year":"1968"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-691","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-692","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-693","unstructured":"Wight,
+        Martin. 1973. The Balance of Power and International Order, in Alan James
+        (ed.), The Bases of International Order: Essays in Honour of C. A. W. Manning.
+        London: Oxford University Press, pp. 85\u2013115."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-694","article-title":"Arnold
+        Toynbee: An Appreciation.","author":"","year":"1976","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-695","unstructured":"Wight,
+        Martin. 1977. International Legitimacy, in Martin Wight, Systems of States,
+        edited by Hedley Bull. London: Leicester University Press, in association
+        with the London School of Economics and Political Science, pp. 153\u2013173."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-696","unstructured":"389Wight,
+        Martin. 1977. Triangles and Duels, in Martin Wight, Systems of States, edited
+        by Hedley Bull. London: Leicester University Press, in association with the
+        London School of Economics and Political Science, pp. 174\u2013200."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-697","volume-title":"Power
+        Politics","author":"","year":"1978"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-698","article-title":"Is
+        the Commonwealth a Non-Hobbesian Institution?","author":"","year":"1978","journal-title":"Journal
+        of Commonwealth and Comparative Politics"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-699","volume-title":"International
+        Theory: The Three Traditions","author":"","year":"1991"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-700","doi-asserted-by":"crossref","unstructured":"Wight,
+        Martin. 2005. An Anatomy of International Thought, in Martin Wight, Four Seminal
+        Thinkers in International Theory: Machiavelli, Grotius, Kant, and Mazzini,
+        edited by Gabriele Wight and Brian Porter. London and Oxford: Oxford University
+        Press, pp. 141\u2013156.","DOI":"10.1093\/0199273677.001.0001"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-701","volume-title":"Four
+        Seminal Thinkers in International Theory: Machiavelli, Grotius, Kant, and
+        Mazzini","author":"","year":"2005"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-702","article-title":"The
+        Disunity of Mankind.","author":"","year":"2015","journal-title":"Millennium:
+        Journal of International Studies"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-703","volume-title":"Foreign
+        Policy and Security Strategy","author":"","year":"2023"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-704","volume-title":"History
+        and International Relations","author":"","year":"2023"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-705","volume-title":"International
+        Relations and Political Philosophy","author":"","year":"2022"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-706","volume-title":"Faith
+        and the Philosophy of History","author":"","year":"2025"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-707","unstructured":"Wight,
+        Martin. forthcoming in 2025. The Function of a Philosophy of History, in Martin
+        Wight, Faith and the Philosophy of History, edited by David S. Yost. Oxford
+        and New York: Oxford University Press."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-708","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-709","author":""},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-710","volume-title":"Czechoslovakia
+        1968","author":"","year":"1969"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-711","volume-title":"To
+        the Finland Station: A Study in the Writing and Acting of History","author":"","year":"1940"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-712","volume-title":"The
+        Greek War of Independence: Its Historical Setting","author":"","year":"1952"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-713","article-title":"Some
+        Reflections on British Policy, 1939\u201345.","author":"","year":"1955","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-714","author":"","year":"1971"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-715","volume-title":"The
+        War for Peace","author":"","year":"1940"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-716","volume-title":"A
+        Study of War, Vol.\u00a0II","author":"","year":"1942"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-717","article-title":"\u2018New
+        Perspectives on Historical States-Systems,\u201d\u2019 Review article concerning
+        the International Political System, by F. S. Northedge, and Systems of States,
+        by Martin Wight.","author":"","year":"1979","journal-title":"World Politics,"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-718","article-title":"Political
+        Philosophy and the Theory of International Relations.","author":"","year":"1994","journal-title":"International
+        Affairs"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-719","volume-title":"NATO
+        Transformed: The Alliance\u2019s New Roles in International Security","author":"","year":"1998"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-720","unstructured":"390Yost,
+        David S. \u00a02005. Introduction: Martin Wight and Philosophers of War and
+        Peace, in Martin Wight, Four Seminal Thinkers in International Theory: Machiavelli,
+        Grotius, Kant, and Mazzini, edited by Gabriele Wight and Brian Porter. London:
+        Oxford University Press, pp. xvii\u2013lxiv."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-721","doi-asserted-by":"crossref","unstructured":"Yost,
+        David S. \u00a02022. Introduction: Martin Wight and the Political Philosophy
+        of International Relations, in Martin Wight, International Relations and Political
+        Philosophy, edited by David S. Yost. Oxford and New York: Oxford University
+        Press, pp. 1\u201321.","DOI":"10.1093\/oso\/9780198848219.003.0001"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-722","unstructured":"Yost,
+        David S. \u00a02022. Preface: Martin Wight\u2019s Scholarly Stature, in Martin
+        Wight, International Relations and Political Philosophy, edited by David S.
+        Yost. Oxford and New York: Oxford University Press, pp. xi\u2013xvii."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-723","doi-asserted-by":"crossref","unstructured":"Yost,
+        David S. \u00a02023. Introduction: Martin Wight on History and International
+        Relations, in Martin Wight, History and International Relations, edited by
+        David S. Yost. Oxford and New York: Oxford University Press, pp. 1\u201319.","DOI":"10.1093\/oso\/9780192867476.003.0001"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-724","doi-asserted-by":"crossref","unstructured":"Yost,
+        David S. \u00a02023. Introduction: Martin Wight on Foreign Policy and Security
+        Strategy, in Martin Wight, Foreign Policy and Security Strategy, edited by
+        David S. Yost. Oxford and New York: Oxford University Press, pp. 1\u201325.","DOI":"10.1093\/oso\/9780192867889.003.0001"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-725","unstructured":"Yost,
+        David S. 2025. Introduction: Martin Wight on Faith and the Philosophy of History,
+        in Martin Wight, Faith and the Philosophy of History, edited by David S. Yost.
+        Oxford and New York: Oxford University Press."},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-726","volume-title":"Victorian
+        England: Portrait of an Age","author":"","year":"1953"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-727","volume-title":"The
+        Study of International Relations","author":"","year":"1931"},{"key":"2025032005233492100_oso-9780198905554-bibliography-1-bibItem-728","volume-title":"The
+        League of Nations and the Rule of Law 1918\u20131935","author":"","year":"1936"}],"container-title":["Faith
+        and the Philosophy of History"],"language":"en","link":[{"URL":"https:\/\/academic.oup.com\/book\/chapter-pdf\/62277584\/oso-9780198905554-chapter-57.pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2025,3,20]],"date-time":"2025-03-20T05:57:40Z","timestamp":1742450260000},"score":31.449858,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/59722\/chapter\/507141379"}},"issued":{"date-parts":[[2025,3,27]]},"ISBN":["0198905556","9780198905554","9780198905585"],"references-count":281,"URL":"https:\/\/doi.org\/10.1093\/oso\/9780198905554.003.0057","published":{"date-parts":[[2025,3,27]]}}],"items-per-page":20,"query":{"start-index":0,"search-terms":"The+New+Natural+History+of+Madagascar+2022+Princeton+University+Press"}}}'
+  recorded_at: Mon, 26 Jan 2026 15:49:23 GMT
 - request:
     method: get
     uri: https://api.crossref.org/works/10.2307%2Fj.ctv2ks6tbb
@@ -177,16 +548,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 28 Apr 2025 20:27:48 GMT
+      - Mon, 26 Jan 2026 15:49:23 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '3038'
-      Set-Cookie:
-      - AWSALB=t815rTJShlEm4KTU7xuMrmKIfzomt/HG+yRSu85u4eNeD8SedgG0u9QxtSus9eH8QxmN+ky9p9x1ZU1+vR317PpRy5bpwbj4ccUg8i86KAB46OPAXetwTJVqklY8;
-        Expires=Mon, 05 May 2025 20:27:48 GMT; Path=/
-      - AWSALBCORS=t815rTJShlEm4KTU7xuMrmKIfzomt/HG+yRSu85u4eNeD8SedgG0u9QxtSus9eH8QxmN+ky9p9x1ZU1+vR317PpRy5bpwbj4ccUg8i86KAB46OPAXetwTJVqklY8;
-        Expires=Mon, 05 May 2025 20:27:48 GMT; Path=/; SameSite=None
+      - '2968'
+      Connection:
+      - keep-alive
       Access-Control-Expose-Headers:
       - Link
       Access-Control-Allow-Headers:
@@ -198,25 +566,21 @@ http_interactions:
       - Accept-Encoding
       Server:
       - Jetty(9.4.40.v20210413)
-      X-Ratelimit-Limit:
-      - '50'
-      X-Ratelimit-Interval:
-      - 1s
-      X-Api-Pool:
-      - polite
-      X-Rate-Limit-Limit:
-      - '50'
+      X-Rate-Limit:
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
+      X-Concurrency-Limit:
+      - '3'
+      X-Api-Pool:
+      - polite
       Permissions-Policy:
       - interest-cohort=()
-      Connection:
-      - close
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2024,7,15]],"date-time":"2024-07-15T19:11:23Z","timestamp":1721070683446},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691229409","type":"electronic"},{"value":"0691229406","type":"electronic"},{"value":"9780691222622","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb","type":"monograph","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T17:41:09Z","timestamp":1669138869000},"source":"Crossref","is-referenced-by-count":3,"title":["The
-        New Natural History of Madagascar"],"prefix":"10.2307","member":"1121","container-title":[],"original-title":[],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T18:05:17Z","timestamp":1711476317000},"score":1,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb"}},"subtitle":[],"editor":[{"given":"STEVEN
+      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2025,11,23]],"date-time":"2025-11-23T02:46:52Z","timestamp":1763866012201,"version":"3.45.0"},"reference-count":0,"publisher":"Princeton
+        University Press","isbn-type":[{"type":"electronic","value":"9780691229409"},{"type":"electronic","value":"0691229406"},{"type":"print","value":"9780691222622"}],"content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"published-print":{"date-parts":[[2022,11,15]]},"DOI":"10.2307\/j.ctv2ks6tbb","type":"monograph","created":{"date-parts":[[2022,11,22]],"date-time":"2022-11-22T12:41:09Z","timestamp":1669120869000},"source":"Crossref","is-referenced-by-count":5,"title":["The
+        New Natural History of Madagascar"],"prefix":"10.2307","member":"1121","container-title":[],"original-title":[],"deposited":{"date-parts":[[2024,3,26]],"date-time":"2024-03-26T14:05:17Z","timestamp":1711461917000},"score":1,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv2ks6tbb"}},"subtitle":[],"editor":[{"given":"STEVEN
         M.","family":"GOODMAN","sequence":"additional","affiliation":[]},{"given":"Aristide","family":"Andrianarimisa","sequence":"additional","affiliation":[]},{"given":"Amanda
         H.","family":"Armstrong","sequence":"additional","affiliation":[]},{"given":"Andrew","family":"Cooke","sequence":"additional","affiliation":[]},{"given":"Maarten","family":"De
         Wit","sequence":"additional","affiliation":[]},{"given":"J\u00f6rg U.","family":"Ganzhorn","sequence":"additional","affiliation":[]},{"given":"Laurent","family":"Gautier","sequence":"additional","affiliation":[]},{"given":"Steven
@@ -229,6 +593,6 @@ http_interactions:
         P.","family":"Raselimanana","sequence":"additional","affiliation":[]},{"given":"Roger
         J.","family":"Safford","sequence":"additional","affiliation":[]},{"given":"John
         S.","family":"Sparks","sequence":"additional","affiliation":[]},{"given":"Melanie
-        L. J.","family":"Stiassny","sequence":"additional","affiliation":[]},{"given":"Pablo","family":"Tortosa","sequence":"additional","affiliation":[]},{"given":"Miguel","family":"Vences","sequence":"additional","affiliation":[]}],"short-title":[],"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb","relation":{"is-identical-to":[{"id-type":"doi","id":"10.1515\/9780691229409","asserted-by":"object"}]},"subject":[],"published":{"date-parts":[[2022,11,15]]}}}'
-  recorded_at: Mon, 28 Apr 2025 20:27:48 GMT
-recorded_with: VCR 6.3.1
+        L. J.","family":"Stiassny","sequence":"additional","affiliation":[]},{"given":"Pablo","family":"Tortosa","sequence":"additional","affiliation":[]},{"given":"Miguel","family":"Vences","sequence":"additional","affiliation":[]}],"short-title":[],"issued":{"date-parts":[[2022,11,15]]},"ISBN":["9780691229409","0691229406","9780691222622"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv2ks6tbb","relation":{},"subject":[],"published":{"date-parts":[[2022,11,15]]}}}'
+  recorded_at: Mon, 26 Jan 2026 15:49:23 GMT
+recorded_with: VCR 6.4.0

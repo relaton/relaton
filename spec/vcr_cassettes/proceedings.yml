@@ -19,16 +19,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 28 Apr 2025 20:27:56 GMT
+      - Mon, 26 Jan 2026 15:49:33 GMT
       Content-Type:
       - application/json
       Content-Length:
       - '1445'
-      Set-Cookie:
-      - AWSALB=N4V50aP3x7ocjSoHfHK1gIlX2OHDmYCvW+94Zpyv3RlX6Q2Tgq3TMeBps0VBavbGPrZMchXdA2CeL2Xmcoj4yjAa+GNGYG3WReRhgDj3tkoY+pYdX31Ik67+qfe6;
-        Expires=Mon, 05 May 2025 20:27:56 GMT; Path=/
-      - AWSALBCORS=N4V50aP3x7ocjSoHfHK1gIlX2OHDmYCvW+94Zpyv3RlX6Q2Tgq3TMeBps0VBavbGPrZMchXdA2CeL2Xmcoj4yjAa+GNGYG3WReRhgDj3tkoY+pYdX31Ik67+qfe6;
-        Expires=Mon, 05 May 2025 20:27:56 GMT; Path=/; SameSite=None
+      Connection:
+      - keep-alive
       Access-Control-Expose-Headers:
       - Link
       Access-Control-Allow-Headers:
@@ -40,20 +37,16 @@ http_interactions:
       - Accept-Encoding
       Server:
       - Jetty(9.4.40.v20210413)
-      X-Ratelimit-Limit:
-      - '50'
-      X-Ratelimit-Interval:
-      - 1s
-      X-Api-Pool:
-      - polite
-      X-Rate-Limit-Limit:
-      - '50'
+      X-Rate-Limit:
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
+      X-Concurrency-Limit:
+      - '3'
+      X-Api-Pool:
+      - polite
       Permissions-Policy:
       - interest-cohort=()
-      Connection:
-      - close
     body:
       encoding: ASCII-8BIT
       string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2022,4,3]],"date-time":"2022-04-03T01:44:59Z","timestamp":1648950299666},"publisher-location":"New
@@ -62,5 +55,5 @@ http_interactions:
         - ICCCS ''11"],"prefix":"10.1145","member":"320","event":{"name":"the 2011
         International Conference","location":"Rourkela, Odisha, India","acronym":"ICCCS
         ''11","number":"2011","start":{"date-parts":[[2011,2,12]]},"end":{"date-parts":[[2011,2,14]]}},"container-title":[],"original-title":[],"deposited":{"date-parts":[[2011,3,4]],"date-time":"2011-03-04T13:14:55Z","timestamp":1299244495000},"score":1,"resource":{"primary":{"URL":"http:\/\/portal.acm.org\/citation.cfm?doid=1947940"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[2011]]},"ISBN":["9781450304641"],"references-count":0,"URL":"https:\/\/doi.org\/10.1145\/1947940","relation":{},"subject":[],"published":{"date-parts":[[2011]]}}}'
-  recorded_at: Mon, 28 Apr 2025 20:27:55 GMT
-recorded_with: VCR 6.3.1
+  recorded_at: Mon, 26 Jan 2026 15:49:33 GMT
+recorded_with: VCR 6.4.0
