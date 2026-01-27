@@ -1,8 +1,16 @@
-= RelatonIana
+= Relaton::Iana
 
-RelatonIana is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
+image:https://img.shields.io/gem/v/relaton-iana.svg["Gem Version", link="https://rubygems.org/gems/relaton-iana"]
+image:https://github.com/relaton/relaton-iana/workflows/macos/badge.svg["Build Status (macOS)", link="https://github.com/relaton/relaton-iana/actions?workflow=macos"]
+image:https://github.com/relaton/relaton-iana/workflows/windows/badge.svg["Build Status (Windows)", link="https://github.com/relaton/relaton-iana/actions?workflow=windows"]
+image:https://github.com/relaton/relaton-iana/workflows/ubuntu/badge.svg["Build Status (Ubuntu)", link="https://github.com/relaton/relaton-iana/actions?workflow=ubuntu"]
+image:https://codeclimate.com/github/relaton/relaton-iana/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/metanorma/relaton-iana"]
+image:https://img.shields.io/github/issues-pr-raw/relaton/relaton-iana.svg["Pull Requests", link="https://github.com/relaton/relaton-iana/pulls"]
+image:https://img.shields.io/github/commits-since/relaton/relaton/latest.svg["Commits since latest",link="https://github.com/relaton/relaton/releases"]
 
-You can use it to retrieve metadata of W3C Standards from https://w3.org, and access such metadata through the `IanaBibliographicItem` object.
+Relaton::Iana is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
+
+You can use it to retrieve metadata of IANA Standards and access such metadata through the `Realaton::Iana::ItemData` object.
 
 == Installation
 
@@ -27,13 +35,13 @@ Or install it yourself as:
 
 [source,ruby]
 ----
-require 'relaton_iana'
+require 'relaton/iana'
 => true
 
-item = RelatonIana::IanaBibliography.get "IANA service-names-port-numbers"
-[relaton-iana] (IANA service-names-port-numbers) Fetching from Relaton repository ...
-[relaton-iana] (IANA service-names-port-numbers) Found: `IANA service-names-port-numbers`
-=> #<RelatonIana::IanaBibliographicItem:0x00007f7c6cc024d0
+item = Relaton::Iana::Bibliography.get "IANA service-names-port-numbers"
+[relaton-iana] INFO: (IANA service-names-port-numbers) Fetching from Relaton repository ...
+[relaton-iana] INFO: (IANA service-names-port-numbers) Found: `IANA service-names-port-numbers`
+=> #<Relaton::Iana::ItemData:0x0000000110a8ed80
 ...
 ----
 
@@ -42,10 +50,10 @@ item = RelatonIana::IanaBibliography.get "IANA service-names-port-numbers"
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="IANAservice-names-port-numbers" type="standard" schema-version="v1.2.1">
-      <fetched>2022-12-03</fetched>
-      <title format="text/plain">Service Name and Transport Protocol Port Number Registry</title>
-      <uri type="src">http://www.iana.org/assignments/service-names-port-numbers</uri>
+=> "<bibitem id="IANAservicenamesportnumbers" type="standard" schema-version="v1.4.1">
+      <fetched>2026-01-27</fetched>
+      <title language="en" script="Latn">Service Name and Transport Protocol Port Number Registry</title>
+      <uri type="self">https://www.iana.org/assignments/service-names-port-numbers</uri>
       <docidentifier type="IANA" primary="true">IANA service-names-port-numbers</docidentifier>
       ...
     </bibitem>"
@@ -53,40 +61,30 @@ item.to_xml
 
 === Typed links
 
-Each IANA document has `src` type link.
+Each IANA document has `src` type source link.
 
 [source,ruby]
 ----
-item.link.first.type
+item.source.first.type
 => "src"
 
-item.link.first.content
-=> #<Addressable::URI:0x9ec URI:http://www.iana.org/assignments/service-names-port-numbers>
+item.source.first.content
+=> "https://www.iana.org/assignments/service-names-port-numbers"
 ----
 
 === Create bibliographic item from XML
 [source,ruby]
 ----
-RelatonIana::XMLParser.from_xml File.read('spec/fixtures/auto-response-parameters.xml')
-=> #<RelatonIana::IanaBibliographicItem:0x00007fa5da1bd118
+Relaton::Iana::Item.from_xml File.read('spec/fixtures/auto-response-parameters.xml')
+=> #<Relaton::Iana::ItemData:0x0000000124776198
 ...
 ----
 
 === Create bibliographic item from YAML
 [source,ruby]
 ----
-YAML.load_file 'spec/fixtures/auto-response-parameters.yaml'
-=> {"schema-version"=>"v1.2.1",
- "id"=>"IANAauto-response-parameters",
-...
-
-bib_hash = RelatonIana::HashConverter.hash_to_bib hash
-=> {:"schema-version"=>"v1.2.1",
- :id=>"IANAauto-response-parameters",
-...
-
-RelatonIana::IanaBibliographicItem.new **bib_hash
-=> #<RelatonIana::IanaBibliographicItem:0x007f9381ec6a00
+Relaton::Iana::Item.from_yaml File.read('spec/fixtures/item.yaml')
+=> #<Relaton::Iana::ItemData:0x0000000124e1c588
 ...
 ----
 
@@ -94,7 +92,7 @@ RelatonIana::IanaBibliographicItem.new **bib_hash
 
 There is an IANA dataset https://github.com/ietf-ribose/iana-registries which can be converted into RelatonXML/BibXML/BibYAML formats.
 
-The method `RelatonIana::DataFetcher.fetch(output: "data", format: "yaml")` converts all the documents from the dataset and saves them to the `./data` folder in YAML format.
+The method `Relaton::Iana::DataFetcher.fetch(output: "data", format: "yaml")` converts all the documents from the dataset and saves them to the `./data` folder in YAML format.
 Arguments:
 
 - `output` - folder to save documents (default './data').
@@ -102,7 +100,7 @@ Arguments:
 
 [source,ruby]
 ----
-RelatonIana::DataFetcher.fetch
+Relaton::Iana::DataFetcher.fetch
 Started at: 2021-11-19 13:32:05 +0100
 Stopped at: 2021-11-19 13:34:40 +0100
 Done in: 155 sec.
@@ -115,7 +113,7 @@ You can use a personal access token (PTA) to increase the rate limit. To do this
 
 === Logging
 
-RelatonIana uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
+Relaton::Iana uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
 
 == Development
 
