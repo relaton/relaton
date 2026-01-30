@@ -1,12 +1,12 @@
-<bibdata type="standard" schema-version="v1.2.9">
-  <fetched>2023-05-16</fetched>
-  <title type="main" format="text/plain">IEEE Standard for Inertial Sensor Terminology</title>
+<bibdata type="standard" schema-version="v1.4.1">
+  <fetched>2026-01-29</fetched>
+  <title type="main">IEEE Standard for Inertial Sensor Terminology</title>
   <uri type="src">https://ieeexplore.ieee.org/document/8863799</uri>
-  <docidentifier type="IEEE" primary="true">IEEE 528-2019</docidentifier>
-  <docidentifier type="IEEE" scope="trademark" primary="true">IEEE 528™-2019</docidentifier>
+  <docidentifier type="IEEE" primary="true">IEEE Std 528-2019</docidentifier>
+  <docidentifier type="IEEE" scope="trademark" primary="true">IEEE Std 528™-2019</docidentifier>
   <docidentifier type="ISBN">978-1-5044-5983-9</docidentifier>
   <docidentifier type="DOI">10.1109/IEEESTD.2019.8863799</docidentifier>
-  <docnumber>IEEE 528-2019</docnumber>
+  <docnumber>IEEE Std 528-2019</docnumber>
   <date type="updated">
     <on>2020-06-05</on>
   </date>
@@ -22,18 +22,30 @@
   <contributor>
     <role type="publisher"/>
     <organization>
-      <name>Institute of Electrical and Electronics Engineers</name>
+      <name language="en" script="Latn">Institute of Electrical and Electronics Engineers</name>
       <abbreviation>IEEE</abbreviation>
-      <uri>http://www.ieee.org</uri>
       <address>
         <city>New York</city>
         <country>USA</country>
       </address>
+      <uri type="org">http://www.ieee.org</uri>
+    </organization>
+  </contributor>
+  <contributor>
+    <role type="author">
+      <description language="en" script="Latn">committee</description>
+    </role>
+    <organization>
+      <name language="en" script="Latn">Institute of Electrical and Electronics Engineers</name>
+      <subdivision type="committee">
+        <name language="en" script="Latn">Gyro Accelerometer Panel of the IEEE Aerospace and Electronic Systems Society</name>
+      </subdivision>
+      <abbreviation>IEEE</abbreviation>
     </organization>
   </contributor>
   <language>en</language>
   <script>Latn</script>
-  <abstract format="text/plain" language="en" script="Latn">Terms and definitions relating to inertial sensors are presented in this standard. Usage as understood by the inertial sensor community is given preference over general technical usage of the terms herein. The criterion for inclusion of a term and its definition in this standard is usefulness as related to inertial sensor technology.</abstract>
+  <abstract language="en" script="Latn">Terms and definitions relating to inertial sensors are presented in this standard. Usage as understood by the inertial sensor community is given preference over general technical usage of the terms herein. The criterion for inclusion of a term and its definition in this standard is usefulness as related to inertial sensor technology.</abstract>
   <status>
     <stage>approved</stage>
   </status>
@@ -41,23 +53,23 @@
     <from>2019</from>
     <owner>
       <organization>
-        <name>Institute of Electrical and Electronics Engineers</name>
+        <name language="en" script="Latn">Institute of Electrical and Electronics Engineers</name>
         <abbreviation>IEEE</abbreviation>
-        <uri>http://www.ieee.org</uri>
+        <uri type="org">http://www.ieee.org</uri>
       </organization>
     </owner>
   </copyright>
-  <keyword>IEEE Standards</keyword>
-  <keyword>Sensors</keyword>
-  <keyword>Terminology</keyword>
-  <keyword>IEEE 528™</keyword>
-  <keyword>inertial sensor technology</keyword>
-  <keyword>inertial sensor terminology</keyword>
+  <keyword>
+    <taxon language="en" script="Latn">IEEE Standards</taxon>
+    <taxon language="en" script="Latn">Sensors</taxon>
+    <taxon language="en" script="Latn">Terminology</taxon>
+    <taxon language="en" script="Latn">IEEE 528&amp;#8482;</taxon>
+    <taxon language="en" script="Latn">inertial sensor technology</taxon>
+    <taxon language="en" script="Latn">inertial sensor terminology</taxon>
+  </keyword>
   <ext schema-version="v1.0.1">
     <doctype>standard</doctype>
-    <editorialgroup>
-      <committee>Gyro Accelerometer Panel of the IEEE Aerospace and Electronic Systems Society</committee>
-    </editorialgroup>
+    <flavor>ieee</flavor>
     <ics>
       <code>01.040.17</code>
       <text>Metrology and measurement. Physical phenomena (Vocabularies)</text>

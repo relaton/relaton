@@ -5,22 +5,17 @@ require "relaton/index"
 require "relaton/bib"
 require_relative "ieee/version"
 require_relative "ieee/util"
-# require "relaton_ieee/document_type"
-# require "relaton_ieee/document_status"
-# require "relaton_ieee/ieee_bibliography"
+require_relative "ieee/bibliography"
+require_relative "ieee/item_data"
 require_relative "ieee/item"
 require_relative "ieee/bibitem"
 require_relative "ieee/bibdata"
-# require "relaton_ieee/editorial_group"
-# require "relaton_ieee/balloting_group"
-# require "relaton_ieee/xml_parser"
-# require "relaton_ieee/bibxml_parser"
-# require "relaton_ieee/hash_converter"
-# require "relaton_ieee/data_fetcher"
 
 module Relaton
   module Ieee
     class Error < StandardError; end
+
+    INDEXFILE = "index-v1".freeze
 
     # Returns hash of XML reammar
     # @return [String]

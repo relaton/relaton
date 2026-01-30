@@ -1,8 +1,8 @@
-= RelatonIeee
+= Relaton::Ieee
 
 RelatonIeee is a Ruby gem that implements the https://github.com/relaton/relaton-model-ieee#ieee-bibliographic-item-model[IeeeBibliographicItem model].
 
-You can use it to retrieve metadata of IEEE Standards from standards.ieee.org, and access such metadata through the `IeeeBibliographicItem` object.
+You can use it to retrieve metadata of IEEE Standards from standards.ieee.org, and access such metadata through the `Relaton::Ieee::ItemData` object.
 
 == Installation
 
@@ -27,11 +27,11 @@ Or install it yourself as:
 
 [source,ruby]
 ----
-require 'relaton_ieee'
+require 'relaton/ieee'
 => true
 
-item = RelatonIeee::IeeeBibliography.search("IEEE 528-2019")
-=> #<RelatonIeee::IeeeBibliographicItem:0x00007fe12ebc8cb8
+item = Relaton::Ieee::Bibliography.search("IEEE Std 528-2019")
+=> #<Relaton::Ieee::ItemData:0x000000012891cf70
 ...
 ----
 
@@ -40,11 +40,11 @@ item = RelatonIeee::IeeeBibliography.search("IEEE 528-2019")
 [source,ruby]
 ----
 item.to_xml
- => "<bibitem id="IEEE528-2019" type="standard" schema-version="v1.2.1">
-      <fetched>2022-12-03</fetched>
-      <title type="main" format="text/plain">IEEE Standard for Inertial Sensor Terminology</title>
+ => "<bibitem id="IEEEStd5282019" type="standard" schema-version="v1.4.1">
+      <fetched>2026-01-30</fetched>
+      <title type="main">IEEE Standard for Inertial Sensor Terminology</title>
       <uri type="src">https://ieeexplore.ieee.org/document/8863799</uri>
-      <docidentifier type="IEEE" primary="true">IEEE 528-2019</docidentifier>
+      <docidentifier type="IEEE" primary="true">IEEE Std 528-2019</docidentifier>
       ...
     </bibitem>"
 ----
@@ -54,16 +54,15 @@ With argument `bibdata: true` it ouputs XML wrapped by `bibdata` element and add
 [source,ruby]
 ----
 item.to_xml bibdata: true
-=> "<bibdata type="standard" schema-version="v1.2.1">
-      <fetched>2022-12-03</fetched>
-      <title type="main" format="text/plain">IEEE Standard for Inertial Sensor Terminology</title>
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      <fetched>2026-01-30</fetched>
+      <title type="main">IEEE Standard for Inertial Sensor Terminology</title>
       <uri type="src">https://ieeexplore.ieee.org/document/8863799</uri>
-      <docidentifier type="IEEE" primary="true">IEEE 528-2019</docidentifier>
+      <docidentifier type="IEEE" primary="true">IEEE Std 528-2019</docidentifier>
       ...
       <ext schema-version="v1.0.1">
-        <editorialgroup>
-          <committee>Gyro Accelerometer Panel of the IEEE Aerospace and Electronic Systems Society</committee>
-        </editorialgroup>
+        <doctype>standard</doctype>
+        <flavor>ieee</flavor>
         ...
       </ext>
     </bibdata>"
@@ -72,40 +71,39 @@ item.to_xml bibdata: true
 === Get document by reference
 [source,ruby]
 ----
-RelatonIeee::IeeeBibliography.get("IEEE 528-2019")
-[relaton-ieee] (IEEE 528-2019) fetching...
-[relaton-ieee] (IEEE 528-2019) found `IEEE 528-2019`
- => #<RelatonIeee::IeeeBibliographicItem:0x007fceb52a6e40
+Relaton::Ieee::Bibliography.get("IEEE Std 528-2019")
+[relaton-ieee] INFO: (IEEE Std 528-2019) Fetching from Relaton repository ...
+[relaton-ieee] INFO: (IEEE Std 528-2019) Found: `IEEE Std 528-2019`
+=> #<Relaton::Ieee::ItemData:0x00000001288b9380
  ...
 ----
 
-=== Typed links
+=== Typed source links
 
 Each IEEE document has `src` type link.
 
 [source,ruby]
 ----
-item.link
-=> [#<RelatonBib::TypedUri:0x00007fe885219ba0 @content=#<Addressable::URI:0x8ac URI:https://standards.ieee.org/standard/528-2019.html>, @type="src">]
+item.source.first.type
+=> "src"
+
+item.source.first.content
+=> "https://ieeexplore.ieee.org/document/8863799"
 ----
 
 === Create bibliographic item from XML
 [source,ruby]
 ----
-RelatonIeee::XMLParser.from_xml File.read "spec/fixtures/ieee_528_2019.xml"
- => #<RelatonIeee::IeeeBibliographicItem:0x007fceb550c978
+Relaton::Ieee::Item.from_xml File.read "spec/fixtures/ieee_528_2019.xml"
+ => #<Relaton::Ieee::ItemData:0x0000000128815a00
  ...
 ----
 
 === Create bibliographic item from YAML
 [source,ruby]
 ----
-hash = YAML.load_file 'spec/fixtures/ieee_528_2019.yaml'
- => {"id"=>"IEEE528-2019",
- ...
-
- RelatonIeee::IeeeBibliographicItem.from_hash hash
- => #<RelatonIeee::IeeeBibliographicItem:0x007fce940b3eb0
+ Relaton::Ieee::Item.from_yaml File.read('spec/fixtures/item.yaml')
+=> #<Relaton::Ieee::ItemData:0x0000000122f70c88
  ...
 ----
 
@@ -113,15 +111,16 @@ hash = YAML.load_file 'spec/fixtures/ieee_528_2019.yaml'
 
 There is an IEEE dataset https://github.com/relaton/ieee-rawbib which can be converted into BibXML/BibYAML formats. The dataset needs to be placed into the local directory.
 
-The method `RelatonIeee::DataFetcher.fetch(output: "data", format: "yaml")` converts all the documents from the local `ieee-rawbib` directory and saves them to the `./data` folder in YAML format.
+The method `Relaton::Ieee::DataFetcher.fetch(source, output: "data", format: "yaml")` converts all the documents from the local `ieee-rawbib` directory and saves them to the `./data` folder in YAML format.
 Arguments:
 
+- `source` - a name of data source (default 'ieee-rawbib').
 - `output` - folder to save documents (default './data').
 - `format` - the format in which the documents are saved. Possible formats are: `yaml`, `xml` (default `yaml`).
 
 [source,ruby]
 ----
-RelatonIeee::DataFetcher.fetch
+Relaton::Ieee::DataFetcher.fetch
 Started at: 2021-09-24 17:55:07 +0200
 Stopped at: 2021-09-24 17:57:30 +0200
 Done in: 143 sec.

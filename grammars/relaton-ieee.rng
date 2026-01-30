@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <include href="biblio-standoc.rng">
     <define name="DocumentType">
       <choice>
@@ -21,66 +21,51 @@
         </choice>
       </element>
     </define>
-    <define name="editorialgroup">
-      <element name="editorialgroup">
-        <optional>
-          <ref name="society"/>
-        </optional>
-        <optional>
-          <ref name="balloting-group"/>
-        </optional>
-        <optional>
-          <ref name="working-group"/>
-        </optional>
-        <oneOrMore>
-          <ref name="committee"/>
-        </oneOrMore>
-      </element>
-    </define>
     <define name="DocumentSubtype">
       <choice>
         <value>amendment</value>
         <value>corrigendum</value>
         <value>erratum</value>
+        <value>icap</value>
+        <value>document</value>
+        <value>industry-connections-report</value>
+        <value>industry-affiliate-network</value>
       </choice>
     </define>
-    <define name="BibDataExtensionType">
-      <optional>
-        <attribute name="schema-version"/>
-      </optional>
-      <optional>
-        <ref name="doctype"/>
-      </optional>
-      <optional>
-        <ref name="docsubtype"/>
-      </optional>
-      <ref name="flavor"/>
-      <optional>
-        <ref name="trialuse"/>
-      </optional>
-      <optional>
-        <ref name="editorialgroup"/>
-      </optional>
-      <zeroOrMore>
-        <ref name="ics"/>
-      </zeroOrMore>
-      <optional>
-        <ref name="standard_status"/>
-      </optional>
-      <optional>
-        <ref name="standard_modified"/>
-      </optional>
-      <optional>
-        <ref name="pubstatus"/>
-      </optional>
-      <optional>
-        <ref name="holdstatus"/>
-      </optional>
-      <optional>
-        <ref name="program"/>
-      </optional>
-    </define>
   </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <optional>
+      <ref name="trialuse">
+        <a:documentation>Document published for a limited period of time.  Can apply to any of the document types
+A Trial-Use standard is only described in the text of the introduction, it is not prominently displayed nor is it fielded data.
+https://standards.ieee.org/about/policies/opman/sect5/</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="standard_status">
+        <a:documentation>Status of standard: Inactive, Active, Superseded</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="standard_modified">
+        <a:documentation>Modification status of standard: Draft, Withdrawn, Superseded, Approved, Reserved, Redline</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="pubstatus">
+        <a:documentation>Publication status of standard: Active, Inactive</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <!-- On-Hold status of standard: Hold, Publish -->
+      <ref name="holdstatus"/>
+    </optional>
+    <optional>
+      <ref name="program">
+        <a:documentation>Program under which a white paper was authored</a:documentation>
+      </ref>
+    </optional>
+  </define>
   <define name="standard_status">
     <element name="standard_status">
       <choice>
@@ -124,37 +109,16 @@
     </element>
   </define>
   <define name="BibliographicDateType" combine="choice">
-    <value>feedback-ended</value>
+    <choice>
+      <value>feedback-ended</value>
+      <a:documentation>Date on which feedback on the document must be received by</a:documentation>
+      <value>ieee-sasb-approved</value>
+      <a:documentation>Date that the document was approved by the IEEE SA Standards Body</a:documentation>
+    </choice>
   </define>
   <define name="trialuse">
     <element name="trial-use">
       <data type="boolean"/>
-    </element>
-  </define>
-  <define name="balloting-group">
-    <element name="balloting-group">
-      <attribute name="type">
-        <choice>
-          <value>individual</value>
-          <value>entity</value>
-        </choice>
-      </attribute>
-      <text/>
-    </element>
-  </define>
-  <define name="working-group">
-    <element name="working-group">
-      <text/>
-    </element>
-  </define>
-  <define name="committee">
-    <element name="committee">
-      <text/>
-    </element>
-  </define>
-  <define name="society">
-    <element name="society">
-      <text/>
     </element>
   </define>
 </grammar>

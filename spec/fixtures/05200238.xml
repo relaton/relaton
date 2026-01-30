@@ -1,5 +1,5 @@
-<bibdata type="standard" schema-version="v1.2.9">
-  <title type="main" format="text/plain">IEEE Draft Standard for Information technology--Telecommunications and information exchange between systems--Local and metropolitan area networks--Specific requirements Part 3: Carrier Sense Multiple Access with Collision Detection (CSMA/CD) Access Method and Physical Layer Specifications Amendment: Corrigendum 1</title>
+<bibdata type="standard" schema-version="v1.4.1">
+  <title type="main">IEEE Draft Standard for Information technology--Telecommunications and information exchange between systems--Local and metropolitan area networks--Specific requirements Part 3: Carrier Sense Multiple Access with Collision Detection (CSMA/CD) Access Method and Physical Layer Specifications Amendment: Corrigendum 1</title>
   <uri type="src">https://ieeexplore.ieee.org/document/5200238</uri>
   <docidentifier type="IEEE" primary="true">IEEE Unapproved P802.3/D-D2.0/Cor1-2009</docidentifier>
   <docidentifier type="IEEE" scope="trademark" primary="true">IEEE Unapproved P802.3™/D-D2.0/Cor1-2009</docidentifier>
@@ -10,14 +10,14 @@
   <contributor>
     <role type="publisher"/>
     <organization>
-      <name>Institute of Electrical and Electronics Engineers</name>
+      <name language="en" script="Latn">Institute of Electrical and Electronics Engineers</name>
       <abbreviation>IEEE</abbreviation>
-      <uri>http://www.ieee.org</uri>
+      <uri type="org">http://www.ieee.org</uri>
     </organization>
   </contributor>
   <language>en</language>
   <script>Latn</script>
-  <abstract format="text/plain" language="en" script="Latn">This Corrigendum to IEEE Std 802.3-2008 corrects the PAUSE reaction timing delay for the 10GBASE-T port type.</abstract>
+  <abstract language="en" script="Latn">This Corrigendum to IEEE Std 802.3-2008 corrects the PAUSE reaction timing delay for the 10GBASE-T port type.</abstract>
   <status>
     <stage>draft</stage>
   </status>
@@ -25,18 +25,21 @@
     <from>2009</from>
     <owner>
       <organization>
-        <name>Institute of Electrical and Electronics Engineers</name>
+        <name language="en" script="Latn">Institute of Electrical and Electronics Engineers</name>
         <abbreviation>IEEE</abbreviation>
-        <uri>http://www.ieee.org</uri>
+        <uri type="org">http://www.ieee.org</uri>
       </organization>
     </owner>
   </copyright>
-  <keyword>802.3</keyword>
-  <keyword>802.3bb</keyword>
-  <keyword>802.3-2008/Cor 1</keyword>
-  <keyword>PAUSE</keyword>
+  <keyword>
+    <taxon language="en" script="Latn">802.3</taxon>
+    <taxon language="en" script="Latn">802.3bb</taxon>
+    <taxon language="en" script="Latn">802.3-2008/Cor 1</taxon>
+    <taxon language="en" script="Latn">PAUSE</taxon>
+  </keyword>
   <ext schema-version="v1.0.1">
     <doctype>standard</doctype>
+    <flavor>ieee</flavor>
     <ics>
       <code>35.110</code>
       <text>Networking</text>

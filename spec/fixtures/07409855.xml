@@ -1,5 +1,5 @@
-<bibdata type="standard" schema-version="v1.2.9">
-  <title type="main" format="text/plain">AIEE Standards for Telephony and Telegraphy</title>
+<bibdata type="standard" schema-version="v1.4.1">
+  <title type="main">AIEE Standards for Telephony and Telegraphy</title>
   <uri type="src">https://ieeexplore.ieee.org/document/7409855</uri>
   <docidentifier type="IEEE" primary="true">AIEE 34-1922</docidentifier>
   <docidentifier type="IEEE" scope="trademark" primary="true">AIEE 34™-1922</docidentifier>
@@ -18,18 +18,18 @@
   <contributor>
     <role type="publisher"/>
     <organization>
-      <name>Institute of Electrical and Electronics Engineers</name>
+      <name language="en" script="Latn">Institute of Electrical and Electronics Engineers</name>
       <abbreviation>IEEE</abbreviation>
-      <uri>http://www.ieee.org</uri>
       <address>
         <city>Piscataway</city>
         <country>USA</country>
       </address>
+      <uri type="org">http://www.ieee.org</uri>
     </organization>
   </contributor>
   <language>en</language>
   <script>Latn</script>
-  <abstract format="text/plain" language="en" script="Latn">Many of the following definitions are tentative and not yet fully established. Some of the definitions are specific to telephony, and differ in detail from similar definitions appearing in other sections of the rules.</abstract>
+  <abstract language="en" script="Latn">Many of the following definitions are tentative and not yet fully established. Some of the definitions are specific to telephony, and differ in detail from similar definitions appearing in other sections of the rules.</abstract>
   <status>
     <stage>withdrawn</stage>
   </status>
@@ -37,18 +37,21 @@
     <from>1922</from>
     <owner>
       <organization>
-        <name>AIEE</name>
+        <name language="en" script="Latn">AIEE</name>
       </organization>
     </owner>
   </copyright>
-  <keyword>AIEE Standards</keyword>
-  <keyword>Telegraphy</keyword>
-  <keyword>Telephony</keyword>
-  <keyword>Communication systems</keyword>
-  <keyword>Line circuits</keyword>
-  <keyword>Equivilent circuits</keyword>
+  <keyword>
+    <taxon language="en" script="Latn">AIEE Standards</taxon>
+    <taxon language="en" script="Latn">Telegraphy</taxon>
+    <taxon language="en" script="Latn">Telephony</taxon>
+    <taxon language="en" script="Latn">Communication systems</taxon>
+    <taxon language="en" script="Latn">Line circuits</taxon>
+    <taxon language="en" script="Latn">Equivilent circuits</taxon>
+  </keyword>
   <ext schema-version="v1.0.1">
     <doctype>standard</doctype>
+    <flavor>ieee</flavor>
     <standard_status>Inactive</standard_status>
     <standard_modified>Withdrawn</standard_modified>
     <pubstatus>Active</pubstatus>
