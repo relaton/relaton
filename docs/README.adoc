@@ -176,6 +176,8 @@ Arguments:
 - `:keep_yer` - (Boolean) should be `true` if undated reference should return an actual reference with the year
 - `:retries` - (Number) number of network retries. Default 1
 - `:no_cache` - (Boolean) should be `true` if cache should be ignored
+- `:publication_date_after` - (String) filter for documents published on or after this date (inclusive, `"YYYY-MM-DD"`)
+- `:publication_date_before` - (String) filter for documents published before this date (exclusive, `"YYYY-MM-DD"`)
 
 [source,ruby]
 ----
@@ -233,6 +235,24 @@ refs.size.times do
   # do whatever you need with the result
   # in case request error doc will be instance of Relaton::RequestError
 end
+----
+
+==== Fetch with publication date filter
+
+The `:publication_date_after` and `:publication_date_before` options restrict results to documents published within a date range. The range is inclusive of `:publication_date_after` and exclusive of `:publication_date_before`.
+
+When a date filter is used, the cache is checked first for an existing entry whose publication date satisfies the range. If no match is found, a date-specific cache entry is created.
+
+[source,ruby]
+----
+# Fetch documents published on or after 2018-01-01
+x = db.fetch("ISO 19115-1", nil, publication_date_after: "2018-01-01")
+
+# Fetch documents published before 2020-01-01
+x = db.fetch("ISO 19115-1", nil, publication_date_before: "2020-01-01")
+
+# Fetch documents published within a range
+x = db.fetch("ISO 19115-1", nil, publication_date_after: "2018-01-01", publication_date_before: "2020-01-01")
 ----
 
 ==== Fetch by URN

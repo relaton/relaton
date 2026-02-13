@@ -91,6 +91,160 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  context "#pub_date_in_range?" do
+    let(:xml_with_date) do
+      <<~XML
+        <bibitem id="ISO123">
+          <title>Test</title>
+          <date type="published"><on>2019-06-15</on></date>
+        </bibitem>
+      XML
+    end
+
+    let(:xml_year_only) do
+      <<~XML
+        <bibitem id="ISO123">
+          <title>Test</title>
+          <date type="published"><on>2019</on></date>
+        </bibitem>
+      XML
+    end
+
+    let(:xml_year_month) do
+      <<~XML
+        <bibitem id="ISO123">
+          <title>Test</title>
+          <date type="published"><on>2019-06</on></date>
+        </bibitem>
+      XML
+    end
+
+    let(:xml_no_date) do
+      <<~XML
+        <bibitem id="ISO123">
+          <title>Test</title>
+        </bibitem>
+      XML
+    end
+
+    it "returns true when date is within range" do
+      result = subject.send(:pub_date_in_range?, xml_with_date,
+                            publication_date_after: "2019-01-01", publication_date_before: "2020-01-01")
+      expect(result).to be true
+    end
+
+    it "returns false when date is before :publication_date_after" do
+      result = subject.send(:pub_date_in_range?, xml_with_date,
+                            publication_date_after: "2020-01-01")
+      expect(result).to be false
+    end
+
+    it "returns false when date is on or after :publication_date_before (exclusive)" do
+      result = subject.send(:pub_date_in_range?, xml_with_date,
+                            publication_date_before: "2019-06-15")
+      expect(result).to be false
+    end
+
+    it "returns true when date equals :publication_date_after (inclusive)" do
+      result = subject.send(:pub_date_in_range?, xml_with_date,
+                            publication_date_after: "2019-06-15")
+      expect(result).to be true
+    end
+
+    it "handles year-only dates" do
+      result = subject.send(:pub_date_in_range?, xml_year_only,
+                            publication_date_after: "2018-01-01", publication_date_before: "2020-01-01")
+      expect(result).to be true
+    end
+
+    it "handles year-month dates" do
+      result = subject.send(:pub_date_in_range?, xml_year_month,
+                            publication_date_after: "2019-05-01", publication_date_before: "2019-07-01")
+      expect(result).to be true
+    end
+
+    it "returns false when no published date exists" do
+      result = subject.send(:pub_date_in_range?, xml_no_date,
+                            publication_date_after: "2019-01-01")
+      expect(result).to be false
+    end
+
+    it "returns true with only :publication_date_after when date matches" do
+      result = subject.send(:pub_date_in_range?, xml_with_date,
+                            publication_date_after: "2019-01-01")
+      expect(result).to be true
+    end
+
+    it "returns true with only :publication_date_before when date matches" do
+      result = subject.send(:pub_date_in_range?, xml_with_date,
+                            publication_date_before: "2020-01-01")
+      expect(result).to be true
+    end
+  end
+
+  context "#std_id with date options" do
+    it "includes after suffix" do
+      id, code = subject.send(:std_id, "ISO 19115-1", nil,
+                              { publication_date_after: "2018-01-01" }, :relaton_iso)
+      expect(id).to eq "ISO(ISO 19115-1 after-2018-01-01)"
+      expect(code).to eq "ISO 19115-1"
+    end
+
+    it "includes before suffix" do
+      id, code = subject.send(:std_id, "ISO 19115-1", nil,
+                              { publication_date_before: "2020-12-31" }, :relaton_iso)
+      expect(id).to eq "ISO(ISO 19115-1 before-2020-12-31)"
+      expect(code).to eq "ISO 19115-1"
+    end
+
+    it "includes both after and before suffixes" do
+      id, code = subject.send(:std_id, "ISO 19115-1", nil,
+                              { publication_date_after: "2018-01-01", publication_date_before: "2020-12-31" }, :relaton_iso)
+      expect(id).to eq "ISO(ISO 19115-1 after-2018-01-01 before-2020-12-31)"
+      expect(code).to eq "ISO 19115-1"
+    end
+
+    it "does not change key without date options" do
+      id, code = subject.send(:std_id, "ISO 19115-1", nil, {}, :relaton_iso)
+      expect(id).to eq "ISO(ISO 19115-1)"
+      expect(code).to eq "ISO 19115-1"
+    end
+
+    it "combines with year and all_parts" do
+      id, = subject.send(:std_id, "ISO 19115-1", "2014",
+                          { all_parts: true, publication_date_after: "2014-01-01" }, :relaton_iso)
+      expect(id).to eq "ISO(ISO 19115-1:2014 (all parts) after-2014-01-01)"
+    end
+  end
+
+  context "#check_bibliocache with date options" do
+    let(:db) { Relaton::Db.new "testcache", nil }
+
+    before(:each) do
+      db.save_entry "ISO(ISO 123)", <<~XML
+        <bibitem id="ISO123">
+          <fetched>#{Date.today}</fetched>
+          <title>Test</title>
+          <date type="published"><on>2019-06-15</on></date>
+        </bibitem>
+      XML
+    end
+
+    after(:each) { db.clear }
+
+    it "returns base cached entry when date matches" do
+      item = db.send(:check_bibliocache, "ISO 123", nil,
+                     { publication_date_after: "2019-01-01", fetch_db: true }, :relaton_iso)
+      expect(item).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+    end
+
+    it "does not return base cached entry when date does not match" do
+      item = db.send(:check_bibliocache, "ISO 123", nil,
+                     { publication_date_after: "2020-01-01", fetch_db: true }, :relaton_iso)
+      expect(item).to be_nil
+    end
+  end
+
   context "class methods" do
     it "::init_bib_caches" do
       expect(FileUtils).to receive(:rm_rf).with(/\/\.relaton\/cache$/)

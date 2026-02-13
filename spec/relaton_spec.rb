@@ -1,8 +1,14 @@
 RSpec.describe Relaton::Db do
-  before :each do
+  before :each do |example|
     FileUtils.rm_rf %w(testcache testcache2)
     @db = Relaton::Db.new "testcache", "testcache2"
     Relaton.instance_variable_set :@configuration, nil
+
+    if example.metadata[:vcr]
+      require "relaton/index"
+      allow_any_instance_of(Relaton::Index::Type).to receive(:actual?).and_return(false)
+      allow_any_instance_of(Relaton::Index::FileIO).to receive(:check_file).and_return(nil)
+    end
   end
 
   it "rejects an illegal reference prefix" do
@@ -255,11 +261,9 @@ RSpec.describe Relaton::Db do
     expect(bib.docidentifier.first.id).to eq "CCSDS 230.2-G-1"
   end
 
-  it "get IEEE reference" do
-    VCR.use_cassette "ieee_528_2019" do
-      bib = @db.fetch "IEEE 528-2019"
-      expect(bib).to be_instance_of RelatonIeee::IeeeBibliographicItem
-    end
+  it "get IEEE reference", vcr: "ieee_528_2019" do
+    bib = @db.fetch "IEEE Std 528-2019"
+    expect(bib).to be_instance_of RelatonIeee::IeeeBibliographicItem
   end
 
   it "get IHO reference" do

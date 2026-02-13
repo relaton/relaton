@@ -27,27 +27,27 @@ http_interactions:
       Connection:
       - keep-alive
       Date:
-      - Wed, 23 Apr 2025 21:13:25 GMT
+      - Fri, 13 Feb 2026 18:37:35 GMT
       X-Amzn-Trace-Id:
-      - Root=1-680957e3-4f18ab5561420c08720634b0;Parent=4910f2a0e123ebf2;Sampled=0;Lineage=1:521d48d5:0
+      - Root=1-698f6f5d-4f0880f0163c1e0923734b31;Parent=7b56a441116ec3dc;Sampled=0;Lineage=1:521d48d5:0
       X-Amzn-Requestid:
-      - dd53b692-8047-4485-82b7-866188be6090
+      - b1261755-ae7f-463c-aec6-2e993dd9380c
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Headers:
       - Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token
       X-Amz-Apigw-Id:
-      - JfqrqELZoAMEeYA=
+      - Yu5WmHj1oAMEKcg=
       Access-Control-Allow-Methods:
       - GET, POST, OPTIONS
       X-Cache:
       - Miss from cloudfront
       Via:
-      - 1.1 ce717f0b4c986e0f08b86835ca2dcb12.cloudfront.net (CloudFront)
+      - 1.1 9b3bff8ad607506969166da683ad5188.cloudfront.net (CloudFront)
       X-Amz-Cf-Pop:
-      - ATL59-P4
+      - ATL59-P14
       X-Amz-Cf-Id:
-      - X7IL7SZNrq4WbeSMQ9SPScicH99_GxjmEzJd8chpyO_x5aS5Mp8Bug==
+      - RWq1KEeygWIlFsL-pS5l97bvfTjofvL0JeAaeZDXG026cq2aInwxtQ==
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -117,5 +117,5 @@ http_interactions:
         dHJ1Y3R1cmVkaWRlbnRpZmllciB0eXBlPSJJU08iPgogICAgICA8cHJvamVj
         dC1udW1iZXI+SVNPIDE5MTE1PC9wcm9qZWN0LW51bWJlcj4KICAgIDwvc3Ry
         dWN0dXJlZGlkZW50aWZpZXI+CiAgPC9leHQ+CjwvYmliZGF0YT4=
-  recorded_at: Wed, 23 Apr 2025 21:13:25 GMT
-recorded_with: VCR 6.3.1
+  recorded_at: Fri, 13 Feb 2026 18:37:35 GMT
+recorded_with: VCR 6.4.0

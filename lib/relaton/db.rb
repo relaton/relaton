@@ -47,6 +47,8 @@ module Relaton
     #   actual reference with year
     # @option opts [Integer] :retries (1) Number of network retries
     # @option opts [Boolean] :no_cache If true then don't use cache
+    # @option opts [String] :publication_date_before published before this date (exclusive, "YYYY-MM-DD")
+    # @option opts [String] :publication_date_after published on or after this date (inclusive, "YYYY-MM-DD")
     #
     # @return [nil, RelatonBib::BibliographicItem,
     #   RelatonIsoBib::IsoBibliographicItem, RelatonItu::ItuBibliographicItem,
@@ -329,6 +331,8 @@ module Relaton
       ret = code
       ret += (stdclass == :relaton_gb ? "-" : ":") + year if year
       ret += " (all parts)" if opts[:all_parts]
+      ret += " after-#{opts[:publication_date_after]}" if opts[:publication_date_after]
+      ret += " before-#{opts[:publication_date_before]}" if opts[:publication_date_before]
       ["#{prefix}(#{ret.strip})", code]
     end
 
@@ -379,6 +383,19 @@ module Relaton
     #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def check_bibliocache(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
+      # When date filters are present, check if the base (non-date-filtered) cache entry satisfies the range
+      if opts[:publication_date_before] || opts[:publication_date_after]
+        base_opts = opts.reject { |k, _| %i[publication_date_before publication_date_after].include?(k) }
+        base_id, = std_id(code, year, base_opts, stdclass)
+        db = @local_db || @db
+        if db&.valid_entry?(base_id, year)
+          entry = db[base_id]
+          if entry && !entry.match?(/^not_found/) && pub_date_in_range?(entry, opts)
+            return bib_retval(entry, stdclass)
+          end
+        end
+      end
+
       id, searchcode = std_id(code, year, opts, stdclass)
       db = @local_db || @db
       altdb = @local_db && @db ? @db : nil
@@ -510,6 +527,39 @@ module Relaton
     # @return [String] XML or "not_found mm-dd-yyyy"
     def bib_entry(bib)
       bib.respond_to?(:to_xml) ? bib.to_xml(bibdata: true) : "not_found #{Date.today}"
+    end
+
+    # Check if an XML entry's published date falls within the requested range.
+    # Range semantics: [after, before) — inclusive start, exclusive end.
+    #
+    # @param entry [String] XML string
+    # @param opts [Hash]
+    # @return [Boolean]
+    def pub_date_in_range?(entry, opts)
+      doc = Nokogiri::XML(entry)
+      date_str = doc.at("//date[@type='published']/on")&.text
+      return false unless date_str
+
+      date = parse_pub_date(date_str)
+      return false unless date
+
+      after = opts[:publication_date_after]
+      return false if after && date < Date.parse(after.to_s)
+
+      before = opts[:publication_date_before]
+      return false if before && date >= Date.parse(before.to_s)
+
+      true
+    end
+
+    # @param str [String] date string in "YYYY", "YYYY-MM", or "YYYY-MM-DD" format
+    # @return [Date, nil]
+    def parse_pub_date(str)
+      case str
+      when /^\d{4}-\d{1,2}-\d{1,2}/ then Date.parse(str)
+      when /^\d{4}-\d{1,2}/ then Date.strptime(str, "%Y-%m")
+      when /^\d{4}/ then Date.strptime(str, "%Y")
+      end
     end
 
     # @param dir [String, nil] DB directory
