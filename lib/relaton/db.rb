@@ -47,8 +47,10 @@ module Relaton
     #   actual reference with year
     # @option opts [Integer] :retries (1) Number of network retries
     # @option opts [Boolean] :no_cache If true then don't use cache
-    # @option opts [String] :publication_date_before published before this date (exclusive, "YYYY-MM-DD")
-    # @option opts [String] :publication_date_after published on or after this date (inclusive, "YYYY-MM-DD")
+    # @option opts [String] :publication_date_before published before this date
+    #  (exclusive, formats: "YYYY", "YYYY-MM", or "YYYY-MM-DD")
+    # @option opts [String] :publication_date_after published on or after this date
+    #  (inclusive, formats: "YYYY", "YYYY-MM", or "YYYY-MM-DD")
     #
     # @return [nil, RelatonBib::BibliographicItem,
     #   RelatonIsoBib::IsoBibliographicItem, RelatonItu::ItuBibliographicItem,
@@ -560,6 +562,8 @@ module Relaton
       when /^\d{4}-\d{1,2}/ then Date.strptime(str, "%Y-%m")
       when /^\d{4}/ then Date.strptime(str, "%Y")
       end
+    rescue ArgumentError
+      nil
     end
 
     # @param dir [String, nil] DB directory
