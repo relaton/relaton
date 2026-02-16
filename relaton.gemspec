@@ -57,5 +57,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "relaton-un", "~> 1.20.0"
   spec.add_dependency "relaton-w3c", "~> 1.20.0"
   spec.add_dependency "relaton-xsf", "~> 1.20.0"
-  spec.development_dependency "rubocop-rails"
+  spec.add_development_dependency "rubocop-rails"
 end
