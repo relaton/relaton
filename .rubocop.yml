@@ -2,11 +2,12 @@
 # https://github.com/riboseinc/oss-guides
 # All project-specific additions and overrides should be specified in this file.
 
-require: rubocop-rails
+plugins: rubocop-rails
 
 inherit_from:
   - https://raw.githubusercontent.com/riboseinc/oss-guides/master/ci/rubocop.yml
 AllCops:
+  NewCops: enable
   TargetRubyVersion: 3.1
 Rails:
   Enabled: false
