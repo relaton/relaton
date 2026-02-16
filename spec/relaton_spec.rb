@@ -6,8 +6,10 @@ RSpec.describe Relaton::Db do
 
     if example.metadata[:vcr]
       require "relaton/index"
-      allow_any_instance_of(Relaton::Index::Type).to receive(:actual?).and_return(false)
-      allow_any_instance_of(Relaton::Index::FileIO).to receive(:check_file).and_return(nil)
+      allow_any_instance_of(Relaton::Index::Type)
+        .to receive(:actual?).and_return(false)
+      allow_any_instance_of(Relaton::Index::FileIO)
+        .to receive(:check_file).and_return(nil)
     end
   end
 

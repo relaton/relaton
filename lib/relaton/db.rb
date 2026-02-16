@@ -49,8 +49,9 @@ module Relaton
     # @option opts [Boolean] :no_cache If true then don't use cache
     # @option opts [String] :publication_date_before published before this date
     #  (exclusive, formats: "YYYY", "YYYY-MM", or "YYYY-MM-DD")
-    # @option opts [String] :publication_date_after published on or after this date
-    #  (inclusive, formats: "YYYY", "YYYY-MM", or "YYYY-MM-DD")
+    # @option opts [String] :publication_date_after published on or
+    #  after this date (inclusive, formats: "YYYY", "YYYY-MM",
+    #  or "YYYY-MM-DD")
     #
     # @return [nil, RelatonBib::BibliographicItem,
     #   RelatonIsoBib::IsoBibliographicItem, RelatonItu::ItuBibliographicItem,
@@ -333,8 +334,12 @@ module Relaton
       ret = code
       ret += (stdclass == :relaton_gb ? "-" : ":") + year if year
       ret += " (all parts)" if opts[:all_parts]
-      ret += " after-#{opts[:publication_date_after]}" if opts[:publication_date_after]
-      ret += " before-#{opts[:publication_date_before]}" if opts[:publication_date_before]
+      if opts[:publication_date_after]
+        ret += " after-#{opts[:publication_date_after]}"
+      end
+      if opts[:publication_date_before]
+        ret += " before-#{opts[:publication_date_before]}"
+      end
       ["#{prefix}(#{ret.strip})", code]
     end
 
@@ -385,14 +390,18 @@ module Relaton
     #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def check_bibliocache(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
-      # When date filters are present, check if the base (non-date-filtered) cache entry satisfies the range
+      # When date filters are present, check if the base
+      # (non-date-filtered) cache entry satisfies the range
       if opts[:publication_date_before] || opts[:publication_date_after]
-        base_opts = opts.reject { |k, _| %i[publication_date_before publication_date_after].include?(k) }
+        base_opts = opts.except(
+          :publication_date_before, :publication_date_after
+        )
         base_id, = std_id(code, year, base_opts, stdclass)
         db = @local_db || @db
         if db&.valid_entry?(base_id, year)
           entry = db[base_id]
-          if entry && !entry.match?(/^not_found/) && pub_date_in_range?(entry, opts)
+          if entry && !entry.match?(/^not_found/) &&
+              pub_date_in_range?(entry, opts)
             return bib_retval(entry, stdclass)
           end
         end
@@ -537,7 +546,7 @@ module Relaton
     # @param entry [String] XML string
     # @param opts [Hash]
     # @return [Boolean]
-    def pub_date_in_range?(entry, opts)
+    def pub_date_in_range?(entry, opts) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       doc = Nokogiri::XML(entry)
       date_str = doc.at("//date[@type='published']/on")&.text
       return false unless date_str
@@ -554,7 +563,8 @@ module Relaton
       true
     end
 
-    # @param str [String] date string in "YYYY", "YYYY-MM", or "YYYY-MM-DD" format
+    # @param str [String] date string in "YYYY", "YYYY-MM",
+    #   or "YYYY-MM-DD" format
     # @return [Date, nil]
     def parse_pub_date(str)
       case str
