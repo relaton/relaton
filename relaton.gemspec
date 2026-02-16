@@ -41,7 +41,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "relaton-etsi", "~> 1.20.0"
   spec.add_dependency "relaton-gb", "~> 1.20.0"
   spec.add_dependency "relaton-iana", "~> 1.20.0"
-  spec.add_dependency "relaton-iec", "~> 1.20.3"
+  spec.add_dependency "relaton-iec", "~> 1.20.0"
   spec.add_dependency "relaton-ieee", "~> 1.20.0"
   spec.add_dependency "relaton-ietf", "~> 1.20.0"
   spec.add_dependency "relaton-iho", "~> 1.20.0"
