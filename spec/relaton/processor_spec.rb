@@ -1,6 +1,6 @@
 module Relaton
   class TestProcessor < Relaton::Processor
-    def initialize; end # rubocop:disable Lint/MissingSuper
+    def initialize; end
   end
 end
 
@@ -42,8 +42,7 @@ RSpec.describe Relaton::Processor do
       let(:bibliography) { Object.const_get "#{namespace}::#{bibmodule}" }
 
       it "get method should call get method of #{flavor}" do
-        expect(bibliography).to receive(:get).with("code", nil,
-                                                   {}).and_return :item
+        expect(bibliography).to receive(:get).with("code", nil, {}).and_return :item
         expect(processor.get("code", nil, {})).to eq :item
       end
 
@@ -58,10 +57,8 @@ RSpec.describe Relaton::Processor do
       let(:fetcher_class) { Object.const_get fetcher }
 
       it "fetch_data method should call fetch_data method of #{flavor}" do
-        expect(fetcher_class).to receive(:fetch)
-          .with(output: "dir", format: "bibxml").and_return :item
-        expect(processor.fetch_data(source, output: "dir",
-                                            format: "bibxml")).to eq :item
+        expect(fetcher_class).to receive(:fetch).with(output: "dir", format: "bibxml").and_return :item
+        expect(processor.fetch_data(source, output: "dir", format: "bibxml")).to eq :item
       end
     end
 
@@ -81,10 +78,8 @@ RSpec.describe Relaton::Processor do
       let(:bibitem_class) { Object.const_get bibitem }
 
       it "hash_to_bib method should call hash_to_bib method of #{flavor}" do
-        expect(converter_class).to receive(:hash_to_bib)
-          .with(:hash).and_return title: "title"
-        expect(bibitem_class).to receive(:new)
-          .with(title: "title").and_return :item
+        expect(converter_class).to receive(:hash_to_bib).with(:hash).and_return title: "title"
+        expect(bibitem_class).to receive(:new).with(title: "title").and_return :item
         expect(processor.hash_to_bib(:hash)).to eq :item
       end
     end
@@ -102,22 +97,17 @@ RSpec.describe Relaton::Processor do
     end
 
     context "ETSI processor" do
-      it_behaves_like "common processor methods", "ETSI", "RelatonEtsi",
-                      "Bibliography"
-      it_behaves_like "fetch_data method", "ETSI", "RelatonEtsi::DataFetcher",
-                      "etsi-csv"
+      it_behaves_like "common processor methods", "ETSI", "RelatonEtsi", "Bibliography"
+      it_behaves_like "fetch_data method", "ETSI", "RelatonEtsi::DataFetcher", "etsi-csv"
       it_behaves_like "from_xml method", "ETSI", "RelatonEtsi::XMLParser"
-      it_behaves_like "hash_to_bib method", "ETSI",
-                      "RelatonEtsi::HashConverter", "RelatonEtsi::BibliographicItem"
+      it_behaves_like "hash_to_bib method", "ETSI", "RelatonEtsi::HashConverter", "RelatonEtsi::BibliographicItem"
       it_behaves_like "remove_index_file method", "ETSI", "index-v1.yaml"
     end
 
     context "ISBN processor" do
-      it_behaves_like "common processor methods", "ISBN", "RelatonIsbn",
-                      "OpenLibrary"
+      it_behaves_like "common processor methods", "ISBN", "RelatonIsbn", "OpenLibrary"
       it_behaves_like "from_xml method", "ISBN", "RelatonBib::XMLParser"
-      it_behaves_like "hash_to_bib method", "ISBN",
-                      "RelatonBib::HashConverter", "RelatonBib::BibliographicItem"
+      it_behaves_like "hash_to_bib method", "ISBN", "RelatonBib::HashConverter", "RelatonBib::BibliographicItem"
     end
   end
 end

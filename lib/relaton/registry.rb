@@ -9,8 +9,7 @@ module Relaton
       relaton_gb relaton_iec relaton_ietf relaton_iso relaton_itu relaton_nist
       relaton_ogc relaton_calconnect relaton_omg relaton_un relaton_w3c
       relaton_ieee relaton_iho relaton_bipm relaton_ecma relaton_cie relaton_bsi
-      relaton_cen relaton_iana relaton_3gpp relaton_oasis relaton_doi
-      relaton_jis
+      relaton_cen relaton_iana relaton_3gpp relaton_oasis relaton_doi relaton_jis
       relaton_xsf relaton_ccsds relaton_etsi relaton_isbn relaton/plateau
     ].freeze
 
@@ -30,8 +29,7 @@ module Relaton
         require "#{b}/processor"
         register Kernel.const_get "#{camel_case(b)}::Processor"
       rescue LoadError => e
-        Util.error "backend #{b} not present\n" \
-          "#{e.message}\n#{e.backtrace.join "\n"}"
+        Util.error "backend #{b} not present\n#{e.message}\n#{e.backtrace.join "\n"}"
       end
     end
 

@@ -36,8 +36,7 @@ module Relaton
       raise "This is an abstract class!"
     end
 
-    # Retuns default number of workers.
-    # Should be overraded by childred classes if need.
+    # Retuns default number of workers. Should be overraded by childred classes if need.
     #
     # @return [Integer] nuber of wokrers
     def threads
