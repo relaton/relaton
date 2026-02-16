@@ -1,5 +1,9 @@
 module Relaton
   class Db
+    DATE_FILTER_KEYS = %i[
+      publication_date_before publication_date_after
+    ].freeze
+
     # @param global_cache [String] directory of global DB
     # @param local_cache [String] directory of local DB
     def initialize(global_cache, local_cache)
@@ -34,7 +38,8 @@ module Relaton
     end
 
     ##
-    # The class of reference requested is determined by the prefix of the reference:
+    # The class of reference requested is determined by the prefix
+    # of the reference:
     # GB Standard for gbbib, IETF for ietfbib, ISO for isobib, IEC or IEV for
     #   iecbib,
     #
@@ -49,7 +54,8 @@ module Relaton
     # @option opts [Boolean] :no_cache If true then don't use cache
     # @option opts [String] :publication_date_before published before this date
     #  (exclusive, formats: "YYYY", "YYYY-MM", or "YYYY-MM-DD")
-    # @option opts [String] :publication_date_after published on or after this date
+    # @option opts [String] :publication_date_after published on or
+    #  after this date
     #  (inclusive, formats: "YYYY", "YYYY-MM", or "YYYY-MM-DD")
     #
     # @return [nil, RelatonBib::BibliographicItem,
@@ -103,8 +109,10 @@ module Relaton
     # @param [String] year document yer
     # @param [Hash] opts options
     #
-    # @return [RelatonBib::BibliographicItem, RelatonBib::RequestError, nil] bibitem if document is found,
-    #   request error if server doesn't answer, nil if document not found
+    # @return [RelatonBib::BibliographicItem,
+    #   RelatonBib::RequestError, nil] bibitem if document is
+    #   found, request error if server doesn't answer,
+    #   nil if document not found
     #
     def fetch_async(ref, year = nil, opts = {}, &block) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       stdclass = @registry.class_by_ref ref
@@ -120,7 +128,8 @@ module Relaton
             Util.error "`#{args[0]}` -- #{e.message}"
             args[3].call nil
           end
-          @queues[stdclass] = { queue: SizedQueue.new(threads * 2), workers_pool: wp }
+          @queues[stdclass] =
+            { queue: SizedQueue.new(threads * 2), workers_pool: wp }
           Thread.new { process_queue @queues[stdclass] }
         end
         @queues[stdclass][:queue] << [ref, year, opts, block]
@@ -193,7 +202,8 @@ module Relaton
     # @param (see #fetch_api)
     # @return (see #fetch_api)
     def fetch_doc(code, year, opts, processor)
-      if Relaton.configuration.use_api then fetch_api(code, year, opts, processor)
+      if Relaton.configuration.use_api then fetch_api(code, year, opts,
+                                                      processor)
       else processor.get(code, year, opts)
       end
     end
@@ -210,7 +220,8 @@ module Relaton
     # @param processor [Relaton::Processor]
     # @return [RelatonBib::BibliographicItem, nil]
     def fetch_api(code, year, opts, processor)
-      url = "#{Relaton.configuration.api_host}/api/v1/document?#{params(code, year, opts)}"
+      q = params(code, year, opts)
+      url = "#{Relaton.configuration.api_host}/api/v1/document?#{q}"
       rsp = Net::HTTP.get_response URI(url)
       processor.from_xml rsp.body if rsp.code == "200"
     rescue Errno::ECONNREFUSED
@@ -253,7 +264,9 @@ module Relaton
              else processor.hash_to_bib(YAML.safe_load(content))
              end
       item if (edition.nil? || item.edition.content == edition) && (year.nil? ||
-        item.date.detect { |d| d.type == "published" && d.on(:year).to_s == year.to_s })
+        item.date.detect do |d|
+          d.type == "published" && d.on(:year).to_s == year.to_s
+        end)
     end
 
     #
@@ -264,9 +277,11 @@ module Relaton
     #
     # @return [Boolean]
     #
+    # rubocop:disable Layout/LineLength
     def match_xml_text(xml, text)
       %r{((?<attr>=((?<apstr>')|"))|>).*?#{text}.*?(?(<attr>)(?(<apstr>)'|")|<)}mi.match?(xml)
     end
+    # rubocop:enable Layout/LineLength
 
     # @param code [String]
     # @param year [String, nil]
@@ -302,7 +317,8 @@ module Relaton
       ref = refs[0]
       updates = check_bibliocache(refs[0], year, opts, stdclass)
       if updates
-        doc.relation << RelatonBib::DocumentRelation.new(bibitem: updates, type: "updates")
+        doc.relation << RelatonBib::DocumentRelation.new(bibitem: updates,
+                                                         type: "updates")
       end
       divider = stdclass == :relaton_itu ? " " : "/"
       refs[1..].each_with_object(doc) do |c, d|
@@ -333,8 +349,10 @@ module Relaton
       ret = code
       ret += (stdclass == :relaton_gb ? "-" : ":") + year if year
       ret += " (all parts)" if opts[:all_parts]
-      ret += " after-#{opts[:publication_date_after]}" if opts[:publication_date_after]
-      ret += " before-#{opts[:publication_date_before]}" if opts[:publication_date_before]
+      pd = opts[:publication_date_after]
+      ret += " after-#{pd}" if pd
+      pd = opts[:publication_date_before]
+      ret += " before-#{pd}" if pd
       ["#{prefix}(#{ret.strip})", code]
     end
 
@@ -385,14 +403,18 @@ module Relaton
     #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def check_bibliocache(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
-      # When date filters are present, check if the base (non-date-filtered) cache entry satisfies the range
+      # When date filters are present, check if the base
+      # (non-date-filtered) cache entry satisfies the range
       if opts[:publication_date_before] || opts[:publication_date_after]
-        base_opts = opts.reject { |k, _| %i[publication_date_before publication_date_after].include?(k) }
+        base_opts = opts.reject do |k, _|
+          DATE_FILTER_KEYS.include?(k)
+        end
         base_id, = std_id(code, year, base_opts, stdclass)
         db = @local_db || @db
         if db&.valid_entry?(base_id, year)
           entry = db[base_id]
-          if entry && !entry.match?(/^not_found/) && pub_date_in_range?(entry, opts)
+          if entry && !entry.match?(/^not_found/) && pub_date_in_range?(entry,
+                                                                        opts)
             return bib_retval(entry, stdclass)
           end
         end
@@ -452,7 +474,9 @@ module Relaton
     #
     def new_bib_entry(code, year, opts, stdclass, **args)
       entry = @semaphore.synchronize { args[:db] && args[:db][args[:id]] }
-      return fetch_entry(code, year, opts, stdclass, **args) if !entry || opts[:no_cache]
+      if !entry || opts[:no_cache]
+        return fetch_entry(code, year, opts, stdclass, **args)
+      end
 
       if entry&.match?(/^not_found/)
         Util.info "not found in cache, if you wish to " \
@@ -475,7 +499,8 @@ module Relaton
 
     #
     # If the reference isn't equal to the document identifier
-    # then store the document in the cache and create for the reference a redirection to the document
+    # then store the document in the cache and create for the
+    # reference a redirection to the document
     #
     # @param [<Type>] bib <description>
     # @param [<Type>] stdclass <description>
@@ -487,7 +512,9 @@ module Relaton
       bib_id = bib&.docidentifier&.first&.id
 
       # when ref isn't equal to bib's id then return a redirection to bib's id
-      if args[:db] && args[:id] && bib_id && args[:id] !~ %r{#{Regexp.quote("(#{bib_id})")}}
+      quoted = Regexp.quote("(#{bib_id})")
+      if args[:db] && args[:id] && bib_id &&
+          args[:id] !~ /#{quoted}/
         bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
         @semaphore.synchronize { args[:db][bid] ||= bib_entry bib }
         "redirection #{bid}"
@@ -528,7 +555,11 @@ module Relaton
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     # @return [String] XML or "not_found mm-dd-yyyy"
     def bib_entry(bib)
-      bib.respond_to?(:to_xml) ? bib.to_xml(bibdata: true) : "not_found #{Date.today}"
+      if bib.respond_to?(:to_xml)
+        bib.to_xml(bibdata: true)
+      else
+        "not_found #{Date.today}"
+      end
     end
 
     # Check if an XML entry's published date falls within the requested range.
@@ -538,23 +569,23 @@ module Relaton
     # @param opts [Hash]
     # @return [Boolean]
     def pub_date_in_range?(entry, opts)
-      doc = Nokogiri::XML(entry)
-      date_str = doc.at("//date[@type='published']/on")&.text
-      return false unless date_str
-
-      date = parse_pub_date(date_str)
+      date = extract_pub_date(entry)
       return false unless date
 
       after = opts[:publication_date_after]
-      return false if after && date < Date.parse(after.to_s)
-
       before = opts[:publication_date_before]
-      return false if before && date >= Date.parse(before.to_s)
-
-      true
+      (!after || date >= Date.parse(after.to_s)) &&
+        (!before || date < Date.parse(before.to_s))
     end
 
-    # @param str [String] date string in "YYYY", "YYYY-MM", or "YYYY-MM-DD" format
+    def extract_pub_date(entry)
+      doc = Nokogiri::XML(entry)
+      str = doc.at("//date[@type='published']/on")&.text
+      parse_pub_date(str) if str
+    end
+
+    # @param str [String] date string in "YYYY", "YYYY-MM",
+    #   or "YYYY-MM-DD" format
     # @return [Date, nil]
     def parse_pub_date(str)
       case str

@@ -14,7 +14,8 @@ RSpec.describe Relaton::Registry do
   end
 
   it "returns supported processors" do
-    expect(Relaton::Registry.instance.supported_processors).to include :relaton_iso
+    expect(Relaton::Registry.instance.supported_processors)
+      .to include :relaton_iso
   end
 
   context "finds processor by type" do
@@ -72,7 +73,8 @@ RSpec.describe Relaton::Registry do
 
     it "BIPM" do
       expect(Relaton::Registry.instance.by_type("BIPM")).to be_instance_of RelatonBipm::Processor
-      expect(Relaton::Registry.instance.processor_by_ref("CCTF")).to be_instance_of RelatonBipm::Processor
+      expect(Relaton::Registry.instance.processor_by_ref("CCTF"))
+        .to be_instance_of RelatonBipm::Processor
     end
 
     it "ECMA" do
@@ -104,8 +106,11 @@ RSpec.describe Relaton::Registry do
     end
 
     it "DOI" do
-      expect(Relaton::Registry.instance.by_type("DOI")).to be_instance_of RelatonDoi::Processor
-      expect(Relaton::Registry.instance.processor_by_ref("doi:10.1000/182")).to be_instance_of RelatonDoi::Processor
+      expect(Relaton::Registry.instance.by_type("DOI"))
+        .to be_instance_of RelatonDoi::Processor
+      expect(Relaton::Registry.instance
+        .processor_by_ref("doi:10.1000/182"))
+        .to be_instance_of RelatonDoi::Processor
     end
 
     it "JIS" do
@@ -137,18 +142,25 @@ RSpec.describe Relaton::Registry do
       end
 
       it "fetch data" do
-        expect(Relaton::Plateau::Fetcher).to receive(:fetch).with("plateau-handbooks", output: "dir", format: "xml")
+        expect(Relaton::Plateau::Fetcher).to receive(:fetch).with(
+          "plateau-handbooks", output: "dir", format: "xml"
+        )
         processor.fetch_data "plateau-handbooks", output: "dir", format: "xml"
       end
 
       it "from_xml" do
-        expect(Relaton::Plateau::XMLParser).to receive(:from_xml).with(:xml).and_return :bibitem
+        expect(Relaton::Plateau::XMLParser).to receive(:from_xml)
+          .with(:xml).and_return :bibitem
         expect(processor.from_xml(:xml)).to eq :bibitem
       end
 
       it "hash_to_bib" do
-        expect(Relaton::Plateau::HashConverter).to receive(:hash_to_bib).with(:hash).and_return bib: :bib
-        expect(Relaton::Plateau::BibItem).to receive(:new).with(bib: :bib).and_return :bibitem
+        expect(Relaton::Plateau::HashConverter)
+          .to receive(:hash_to_bib).with(:hash)
+          .and_return bib: :bib
+        expect(Relaton::Plateau::BibItem)
+          .to receive(:new).with(bib: :bib)
+          .and_return :bibitem
         expect(processor.hash_to_bib(:hash)).to eq :bibitem
       end
 
@@ -171,6 +183,8 @@ RSpec.describe Relaton::Registry do
   end
 
   it "find processor by dataset" do
-    expect(Relaton::Registry.instance.find_processor_by_dataset "etsi-csv").to be_instance_of RelatonEtsi::Processor
+    expect(Relaton::Registry.instance
+      .find_processor_by_dataset("etsi-csv"))
+      .to be_instance_of RelatonEtsi::Processor
   end
 end
