@@ -31,7 +31,7 @@ Core model classes and their base classes:
 - `Bibdata < Item` — XML bibdata serialization (includes `Bib::BibdataShared`)
 - `Relation < Bib::Relation` — overrides `bibitem` attribute to use `Iho::ItemBase`
 - `Doctype < Bib::Doctype` — IHO document type vocabulary
-- `Ext` — IHO-specific extension data (doctype, flavor, editorialgroup, ics, commentperiod)
+- `Ext` — IHO-specific extension data (doctype, flavor, ics, commentperiod)
 
 All model classes use Lutaml::Model for declarative attribute/serialization definitions.
 

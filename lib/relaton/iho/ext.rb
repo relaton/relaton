@@ -1,5 +1,4 @@
 require_relative "doctype"
-require_relative "editorial_group"
 require_relative "comment_period"
 
 module Relaton
@@ -9,7 +8,6 @@ module Relaton
       attribute :doctype, Doctype
       attribute :subdoctype, :string
       attribute :flavor, :string
-      attribute :editorialgroup, EditorialGroup, collection: true
       attribute :ics, Bib::ICS, collection: true
       attribute :commentperiod, CommentPeriod
 
@@ -18,7 +16,6 @@ module Relaton
         map_element "doctype", to: :doctype
         map_element "subdoctype", to: :subdoctype
         map_element "flavor", to: :flavor
-        map_element "editorialgroup", to: :editorialgroup
         map_element "ics", to: :ics
         map_element "commentperiod", to: :commentperiod
       end

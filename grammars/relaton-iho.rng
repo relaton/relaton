@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0">
   <include href="biblio-standoc.rng">
     <define name="DocumentType">
       <choice>
@@ -11,80 +11,57 @@
         <value>directives</value>
         <value>proposal</value>
         <value>standard</value>
+        <value>specification</value>
+        <value>resolution</value>
+        <value>regulation</value>
       </choice>
     </define>
-    <define name="editorialgroup">
-      <element name="editorialgroup">
-        <oneOrMore>
-          <choice>
-            <ref name="committee"/>
-            <ref name="workgroup"/>
-            <ref name="commission"/>
-          </choice>
-        </oneOrMore>
+    <define name="structuredidentifier">
+      <element name="structuredidentifier">
+        <element name="docnumber">
+          <text/>
+        </element>
+        <optional>
+          <element name="part">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="annexid">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="appendixid">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="supplementid">
+            <text/>
+          </element>
+        </optional>
       </element>
-    </define>
-    <define name="BibDataExtensionType">
-      <optional>
-        <attribute name="schema-version"/>
-      </optional>
-      <optional>
-        <ref name="doctype"/>
-      </optional>
-      <optional>
-        <ref name="docsubtype"/>
-      </optional>
-      <ref name="flavor"/>
-      <zeroOrMore>
-        <ref name="editorialgroup"/>
-      </zeroOrMore>
-      <zeroOrMore>
-        <ref name="ics"/>
-      </zeroOrMore>
-      <optional>
-        <ref name="commentperiod"/>
-      </optional>
     </define>
   </include>
-  <define name="committee">
-    <element name="committee">
-      <ref name="IHO_Group"/>
-    </element>
-  </define>
-  <define name="workgroup">
-    <element name="workgroup">
-      <ref name="IHO_Group"/>
-    </element>
-  </define>
-  <define name="commission">
-    <element name="commission">
-      <ref name="IHO_Group"/>
-    </element>
-  </define>
-  <define name="IHO_Group">
+  <define name="BibDataExtensionType" combine="interleave">
     <optional>
-      <element name="name">
-        <text/>
-      </element>
-    </optional>
-    <element name="abbreviation">
-      <text/>
-    </element>
-    <optional>
-      <choice>
-        <ref name="committee"/>
-        <ref name="workgroup"/>
-        <ref name="commission"/>
-      </choice>
+      <ref name="commentperiod">
+        <a:documentation>The period during which comments may be submitted to the document draft</a:documentation>
+      </ref>
     </optional>
   </define>
   <define name="commentperiod">
+    <a:documentation>The period during which comments may be submitted to the document draft</a:documentation>
     <element name="commentperiod">
       <element name="from">
+        <a:documentation>The beginning of the period during which comments may be submitted to the document draft</a:documentation>
         <ref name="ISO8601Date"/>
       </element>
       <optional>
         <element name="to">
+          <a:documentation>The end of the period during which comments may be submitted to the document draft. 
+The end of the period may change, and may be left open-ended (omitted)</a:documentation>
           <ref name="ISO8601Date"/>
         </element>
       </optional>
