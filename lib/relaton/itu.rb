@@ -12,7 +12,7 @@ require_relative "itu/bibdata"
 # require "relaton_itu/pubid"
 # require "relaton_itu/itu_bibliography"
 # require "relaton_itu/data_fetcher"
-# require "relaton_itu/data_parser_r"
+require_relative "itu/data_parser_r"
 
 module Relaton
   module Itu
