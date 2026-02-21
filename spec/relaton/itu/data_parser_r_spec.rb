@@ -1,3 +1,5 @@
+require "relaton/itu/data_parser_r"
+
 describe Relaton::Itu::DataParserR do
   it "parse" do
     doc = Nokogiri::HTML <<~HTML

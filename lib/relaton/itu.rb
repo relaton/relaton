@@ -3,6 +3,7 @@ require "parslet"
 require "digest/md5"
 require "relaton/index"
 require "relaton/bib"
+require "relaton/core"
 require_relative "itu/version"
 require_relative "itu/util"
 require_relative "itu/item_data"
@@ -11,8 +12,6 @@ require_relative "itu/bibitem"
 require_relative "itu/bibdata"
 # require "relaton_itu/pubid"
 # require "relaton_itu/itu_bibliography"
-# require "relaton_itu/data_fetcher"
-require_relative "itu/data_parser_r"
 
 module Relaton
   module Itu
