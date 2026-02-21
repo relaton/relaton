@@ -8,7 +8,7 @@ image:https://codeclimate.com/github/relaton/relaton-iho/badges/gpa.svg["Code Cl
 image:https://img.shields.io/github/issues-pr-raw/relaton/relaton-iho.svg["Pull Requests", link="https://github.com/relaton/relaton-iho/pulls"]
 image:https://img.shields.io/github/commits-since/relaton/relaton-iho/latest.svg["Commits since latest",link="https://github.com/relaton/relaton-iho/releases"]
 
-RelatonIho is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
+Relaton::Iho is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
 It currently retrieves metadata of IHO Standards from https://github.com/relaton/relaton-data-iho.
 
@@ -43,21 +43,20 @@ Reference can be specified with or without an edition. References without an edi
 
 [source,ruby]
 ----
-require 'relaton_iho'
+require 'relaton/iho'
 => true
 
 # Search for a standard using a reference without an edition
-item = RelatonIho::IhoBibliography.search("IHO B-11")
-[relaton-iho] (IHO B-11) Fetching from Relaton repository ...
-[relaton-iho] (IHO B-11) Found: `B-11`
-=> #<RelatonIho::IhoBibliographicItem:0x007fe74fc80800
-...
+item = Relaton::Iho::Bibliography.search("IHO B-11")
+[relaton-iho] INFO: (IHO B-11) Fetching from Relaton repository ...
+[relaton-iho] INFO: (IHO B-11) Found: `B-11`
+=> #<Relaton::Iho::ItemData:0x0000000121f85aa8...
 
 # Search for a standard using a reference with an edition
-item = RelatonIho::IhoBibliography.search("IHO B-11 1.0.0")
-[relaton-iho] (IHO B-11 1.0.0) Fetchint from Rlaont repository ...
-[relaton-iho] (IHO B-11 1.0.0) Found: `B-11`
-=> #<RelatonIho::IhoBibliographicItem:0x00007fe79d0ed698
+item = Relaton::Iho::Bibliography.search("IHO B-11 1.0.0")
+[relaton-iho] INFO: (IHO B-11 1.0.0) Fetching from Relaton repository ...
+[relaton-iho] INFO: (IHO B-11 1.0.0) Found: `B-11`
+=> #<Relaton::Iho::ItemData:0x0000000125b5bb90
 ...
 ----
 
@@ -65,10 +64,10 @@ item = RelatonIho::IhoBibliography.search("IHO B-11 1.0.0")
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="B-11" type="standard" schema-version="v1.2.1">
-      <fetched>2022-12-04</fetched>
-      <title type="main" format="text/plain" language="en">IHO-IOC GEBCO Cook Book</title>
-      <title type="main" format="text/plain" language="fr">Livre de recettes GEBCO OHI-COI</title>
+=> "<bibitem id="B11" type="standard" schema-version="v1.4.1">
+      <fetched>2026-02-20</fetched>
+      <title language="en" type="main">IHO-IOC GEBCO Cook Book</title>
+      <title language="fr" type="main">Livre de recettes GEBCO OHI-COI</title>
       <uri type="pdf">https://www.star.nesdis.noaa.gov/socd/lsa/GEBCO_Cookbook/documents/CookBook_20191031.pdf</uri>
       <docidentifier type="IHO" primary="true">B-11</docidentifier>
       ...
@@ -78,15 +77,15 @@ With argument `bibdata: true` it outputs XML wrapped by `bibdata` element and ad
 [source,ruby]
 ----
 item.to_xml bibdata: true
-=> "<bibdata type="standard" schema-version="v1.2.1">
-      <fetched>2022-12-04</fetched>
-      <title type="main" format="text/plain" language="en">IHO-IOC GEBCO Cook Book</title>
-      <title type="main" format="text/plain" language="fr">Livre de recettes GEBCO OHI-COI</title>
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      <fetched>2026-02-20</fetched>
+      <title language="en" type="main">IHO-IOC GEBCO Cook Book</title>
+      <title language="fr" type="main">Livre de recettes GEBCO OHI-COI</title>
       <uri type="pdf">https://www.star.nesdis.noaa.gov/socd/lsa/GEBCO_Cookbook/documents/CookBook_20191031.pdf</uri>
-      <docidentifier type="IHO" primary="true">B-11</docidentifier
+      <docidentifier type="IHO" primary="true">B-11</docidentifier>
       ...
       <ext schema-version="v1.0.0">
-        ...
+        <flavor>iho</flavor>
       </ext>
     </bibdata>"
 ----
@@ -94,10 +93,10 @@ item.to_xml bibdata: true
 === Get code
 [source,ruby]
 ----
-RelatonIho::IhoBibliography.get "IHO B-11"
-[relaton-iho] (IHO B-11) Fetching from Relaton repository ...
-[relaton-iho] (IHO B-11) Found: `B-11`
-=> #<RelatonIho::IhoBibliographicItem:0x007fe78dbb7c78
+Relaton::Iho::Bibliography.get "IHO B-11"
+[relaton-iho] INFO: (IHO B-11) Fetching from Relaton repository ...
+[relaton-iho] INFO: (IHO B-11) Found: `B-11`
+=> #<Relaton::Iho::ItemData:0x0000000125f530e0
 ...
 ----
 
@@ -107,27 +106,26 @@ Each IHO document has `html`, `website`, or `pdf` type link.
 
 [source,ruby]
 ----
-item.link
-=> [#<RelatonBib::TypedUri:0x00007fb5162d1478 @content=#<Addressable::URI:0x8c0 URI:https://www.star.nesdis.noaa.gov/socd/lsa/GEBCO_Cookbook/documents/CookBook_20191031.pdf>, @type="pdf">]
+item.source.first.type
+=> "pdf"
+
+item.source.first.content
+=> "https://www.star.nesdis.noaa.gov/socd/lsa/GEBCO_Cookbook/documents/CookBook_20191031.pdf"
 ----
 
 === Create bibliographic item from XML
 [source,ruby]
 ----
-RelatonIho::XMLParser.from_xml File.read('spec/fixtures/iho.xml')
-=> #<RelatonIho::IhoBibliographicItem:0x007fc322ea82c8
+Relaton::Iho::Item.from_xml File.read('spec/fixtures/bibdata.xml')
+=> #<Relaton::Iho::ItemData:0x0000000125f56920
 ...
 ----
 
 === Create bibliographic item from YAML
 [source,ruby]
 ----
-hash = YAML.load_file 'spec/fixtures/iho.yaml'
-=> {"id"=>"B-11",
-...
-
-RelatonIho::IhoBibliographicItem.from_hash hash
-=> #<RelatonIho::IhoBibliographicItem:0x007fc322ef8548
+Relaton::Iho::Item.from_yaml File.read('spec/fixtures/item.yaml')
+=> #<Relaton::Iho::ItemData:0x000000012274ac98
 ...
 ----
 

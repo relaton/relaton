@@ -31,9 +31,21 @@ Core model classes and their base classes:
 - `Bibdata < Item` — XML bibdata serialization (includes `Bib::BibdataShared`)
 - `Relation < Bib::Relation` — overrides `bibitem` attribute to use `Iho::ItemBase`
 - `Doctype < Bib::Doctype` — IHO document type vocabulary
-- `Ext` — IHO-specific extension data (doctype, flavor, ics, commentperiod)
+- `Ext < Bib::Ext` — IHO-specific extension data (doctype, commentperiod)
+- `Processor < Core::Processor` — Relaton processor for registry integration
+- `HashParserV1` — converts v1-format YAML/Hash data to v2 model objects (required on demand, not auto-loaded)
+- `Bibliography` — fetches IHO data from relaton-data-iho GitHub repo
 
 All model classes use Lutaml::Model for declarative attribute/serialization definitions.
+
+### HashParserV1
+
+`HashParserV1` (in `hash_parser_v1.rb`) handles conversion of legacy v1 data to the current model. It overrides the base `Bib::HashParserV1` to handle IHO-specific structures:
+- **editorialgroup**: IHO v1 data has nested committee arrays (`editorialgroup: [[{committee: ...}, ...]]`). Each committee is converted to a `contributor` with `role type="author"` / `description="committee"`, organization "International Hydrographic Organization"/"IHO", and nested `subdivision` elements for sub-committees.
+- **commentperiod**: Moved from top-level into `ext`.
+- Factory methods (`bib_item`, `create_doctype`, `create_relation`) return IHO-specific classes.
+
+This module is required on demand (`require "relaton/iho/hash_parser_v1"`) and not auto-loaded by the main `relaton/iho` entry point.
 
 ### Load Order Constraint
 
@@ -51,4 +63,4 @@ In `item.rb`, `require_relative "relation"` is placed **after** the `Item` class
 
 ### IHO-Specific Document Types
 
-policy-and-procedures, best-practices, supporting-document, report, legal, directives, proposal, standard, specification, resolution, regulation
+policy-and-procedures, best-practices, supporting-document, report, legal, directives, proposal, standard
