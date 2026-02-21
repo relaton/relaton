@@ -4,8 +4,6 @@ require "relaton/bib"
 require "relaton/index"
 require_relative "iho/version"
 require_relative "iho/util"
-# require "relaton_iho/document_type"
-# require "relaton_iho/iho_bibliography"
 # require "relaton_iho/hash_converter"
 # require "relaton_iho/xml_parser"
 # require "relaton_iho/editorial_group"
@@ -14,9 +12,12 @@ require_relative "iho/util"
 require_relative "iho/item"
 require_relative "iho/bibitem"
 require_relative "iho/bibdata"
+require_relative "iho/bibliography"
 
 module Relaton
   module Iho
+    INDEXFILE = "index-v1".freeze
+
     class Error < StandardError; end
 
     # Returns hash of XML reammar
