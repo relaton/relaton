@@ -3,7 +3,7 @@ require_relative "ext"
 module Relaton
   module Itu
     class Item < Bib::Item
-      model Bib::ItemData
+      model ItemData
 
       attribute :ext, Ext
     end
