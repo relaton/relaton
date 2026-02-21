@@ -3,92 +3,112 @@ module Relaton
     module DataParserR
       extend self
 
+      TYPE_MAP = {
+        "ITU-R Recommendations" => "recommendation",
+        "ITU-R Questions" => "question",
+        "ITU-R Reports" => "technical-report",
+        "Handbooks" => "handbook",
+        "ITU-R Resolutions" => "resolution",
+      }.freeze
+
       #
-      # Parse ITU-R document.
+      # Parse ITU-R document from search API result.
       #
-      # @param [Mechanize::Page] doc mechanize page
-      # @param [String] url document url
-      # @param [String] type document type
+      # @param result [Hash] single search result from the API
       #
       # @return [Relaton::Itu::ItemData] bibliographic item
       #
-      def parse(doc, url, type)
+      def parse(result)
+        doctype = fetch_doctype(result)
+        return unless doctype
+
         Relaton::Itu::ItemData.new(
-          docidentifier: fetch_docid(doc), title: fetch_title(doc),
-          abstract: fetch_abstract(doc), date: fetch_date(doc), language: ["en"],
-          source: fetch_source(url), script: ["Latn"], status: fetch_status(doc),
-          type: "standard", ext: Relaton::Itu::Ext.new(doctype: fetch_doctype(type))
+          docidentifier: fetch_docid(result), title: fetch_title(result),
+          date: fetch_date(result), language: ["en"],
+          source: fetch_source(result), script: ["Latn"],
+          type: "standard", ext: Relaton::Itu::Ext.new(doctype: doctype, flavor: "itu"),
         )
       end
 
-      # @param doc [Mechanize::Page]
+      # @param result [Hash]
       # @return [Array<Relaton::Bib::Docidentifier>]
-      def fetch_docid(doc)
-        id = doc.at('//div[@id="idDocSetPropertiesWebPart"]/h2').text.match(/^R-\w+-([^-]+(?:-\d{1,3})?)/)[1]
-        [Relaton::Bib::Docidentifier.new(type: "ITU", content: "ITU-R #{id}", primary: true)]
+      def fetch_docid(result)
+        title = result["Title"].to_s
+        id = title.match(/^(ITU-R\s+\S+)/)&.captures&.first
+        return [] unless id
+
+        id = id.sub(/\s*\(.*/, "")
+        [Relaton::Bib::Docidentifier.new(type: "ITU", content: id, primary: true)]
       end
 
-      # @param doc [Mechanize::Page]
+      # @param result [Hash]
       # @return [Array<Relaton::Bib::Title>]
-      def fetch_title(doc)
-        content = doc.at('//h3[.="Title"]/parent::td/following-sibling::td[2]').text
+      def fetch_title(result)
+        title = result["Title"].to_s
+        content = title.sub(/^[^:]+:\s*/, "").strip
+        content = title unless content.length > 0
         [Relaton::Bib::Title.new(type: "main", content: content, language: "en", script: "Latn")]
       end
 
-      # @param doc [Mechanize::Page]
-      # @return [Array<Relaton::Bib::LocalizedMarkedUpString>]
-      def fetch_abstract(doc)
-        doc.xpath('//h3[.="Observation"]/parent::td/following-sibling::td[2]').map do |a|
-          c = a.text.strip
-          Relaton::Bib::LocalizedMarkedUpString.new(content: c, language: "en", script: "Latn") unless c.empty?
-        end.compact
-      end
-
-      # @param doc [Mechanize::Page]
+      # @param result [Hash]
       # @return [Array<Relaton::Bib::Date>]
-      def fetch_date(doc)
-        dates = []
-        date = doc.at('//h3[.="Approval_Date"]/parent::td/following-sibling::td[2]',
-                      '//h3[.="Approval date"]/parent::td/following-sibling::td[2]',
-                      '//h3[.="Approval year"]/parent::td/following-sibling::td[2]')
-        dates << parse_date(date.text, "confirmed") if date
+      def fetch_date(result)
+        prop = property(result, "Publication date")
+        return [] unless prop
 
-        date = doc.at('//h3[.="Version year"]/parent::td/following-sibling::td[2]')
-        dates << parse_date(date.text, "updated") if date
-        date = doc.at('//div[@id="idDocSetPropertiesWebPart"]/h2').text.match(/(?<=-)(19|20)\d{2}/)
-        dates << parse_date(date.to_s, "published") if date
-        dates
+        date = parse_pub_date(prop)
+        return [] unless date
+
+        [Relaton::Bib::Date.new(type: "published", at: date)]
       end
 
-      # @param date [String]
-      # @param type [String]
-      # @return [Relaton::Bib::Date]
-      def parse_date(date, type)
-        d = case date
-            when /(\d{4})(\d{2})/ then "#{$1}-#{$2}"
-            when %r{(\d{1,2})/(\d{1,2})/(\d{4})} then "#{$3}-#{$1}-#{$2}"
-            else date
-            end
-        Relaton::Bib::Date.new(type: type, at: d)
-      end
-
-      # @param url [String]
+      # @param result [Hash]
       # @return [Array<Relaton::Bib::Uri>]
-      def fetch_source(url)
-        [Relaton::Bib::Uri.new(type: "src", content: url)]
+      def fetch_source(result)
+        locations = result["Locations"]
+        return [] unless locations.is_a?(Array)
+
+        pdf = locations.find { |l| l["Type"] == "pdf" }
+        return [] unless pdf && pdf["RawHref"]
+
+        [Relaton::Bib::Uri.new(type: "pdf", content: pdf["RawHref"])]
       end
 
-      # @param doc [Mechanize::Page]
-      # @return [Relaton::Bib::Status, nil]
-      def fetch_status(doc)
-        s = doc.at('//h3[.="Status"]/parent::td/following-sibling::td[2]')
-        return unless s
+      # @param result [Hash]
+      # @return [Relaton::Itu::Doctype, nil]
+      def fetch_doctype(result)
+        type_value = property(result, "Type")
+        mapped = TYPE_MAP[type_value]
+        return unless mapped
 
-        Relaton::Bib::Status.new(stage: Relaton::Bib::Status::Stage.new(content: s.text))
+        Doctype.new(type: mapped)
       end
 
-      def fetch_doctype(type)
-        Doctype.new(type: type)
+      private
+
+      # Find a property value from the result's Properties array.
+      # @param result [Hash]
+      # @param name [String]
+      # @return [String, nil]
+      def property(result, name)
+        props = result["Properties"]
+        return unless props.is_a?(Array)
+
+        entry = props.find { |p| p["Title"] == name }
+        entry&.[]("Value")
+      end
+
+      # Parse publication date string like "January, 2024" or "2024".
+      # @param value [String]
+      # @return [String, nil]
+      def parse_pub_date(value)
+        case value
+        when /(\w+),?\s+(\d{4})/
+          month = Date::MONTHNAMES.index($1)
+          month ? "#{$2}-#{format('%02d', month)}" : $2
+        when /(\d{4})/
+          $1
+        end
       end
     end
   end

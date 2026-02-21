@@ -10,161 +10,130 @@ describe Relaton::Itu::DataFetcher do
   end
 
   context "instance methods" do
+    let(:bib) do
+      Relaton::Itu::ItemData.new(
+        docidentifier: [Relaton::Bib::Docidentifier.new(type: "ITU", content: "ITU-R M.1234", primary: true)],
+        title: [Relaton::Bib::Title.new(type: "main", content: "Test title", language: "en", script: "Latn")],
+        language: ["en"], script: ["Latn"], type: "standard",
+        ext: Relaton::Itu::Ext.new(doctype: Relaton::Itu::Doctype.new(type: "recommendation")),
+      )
+    end
+
     subject { described_class.new "data", "yaml" }
 
     it("#index") { expect(subject.index).to be_instance_of Relaton::Index::Type }
-    it("#agent") { expect(subject.agent).to be_instance_of Mechanize }
-    it("#workers") { expect(subject.workers).to be_instance_of Relaton::Core::WorkersPool }
 
-    context "#parse_page" do
-      it do
-        expect(subject.agent).to receive(:get).with(:url).and_return :doc
-        expect(Relaton::Itu::DataParserR).to receive(:parse).with(:doc, :url, :type).and_return :bib
-        expect(subject).to receive(:write_file).with(:bib)
-        subject.parse_page :url, :type
+    context "#fetch" do
+      it "paginates through search results" do
+        bib = double "bib"
+        result1 = { "Title" => "ITU-R M.1" }
+        result2 = { "Title" => "ITU-R M.2" }
+
+        expect(subject).to receive(:search_request).with(0).and_return [result1, result2]
+        expect(subject).to receive(:search_request).with(100).and_return []
+        expect(subject).to receive(:search_request).with(200).and_return []
+        expect(subject).to receive(:search_request).with(300).and_return []
+
+        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result1).and_return bib
+        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result2).and_return nil
+
+        expect(subject).to receive(:write_file).with(bib).once
+        expect(subject.index).to receive(:save)
+
+        subject.fetch
       end
 
-      it "rescue" do
-        expect(subject.agent).to receive(:get).with(:url).and_raise "error"
-        expect do
-          subject.parse_page :url, :type
-        end.to output(/error/).to_stderr_from_any_process
-      end
-    end
+      it "skips empty pages and continues fetching" do
+        bib = double "bib"
+        result1 = { "Title" => "ITU-R M.1" }
+        result2 = { "Title" => "ITU-R M.2" }
 
-    it "#fetch" do
-      expect(subject).to receive(:fetch_recommendation)
-      expect(subject).to receive(:fetch_question)
-      expect(subject).to receive(:fetch_report)
-      expect(subject).to receive(:fetch_handbook)
-      expect(subject).to receive(:fetch_resolution)
-      expect(subject.workers).to receive(:end)
-      expect(subject.workers).to receive(:result)
-      expect(subject.index).to receive(:save)
-      subject.fetch
-    end
+        expect(subject).to receive(:search_request).with(0).and_return [result1]
+        expect(subject).to receive(:search_request).with(100).and_return []
+        expect(subject).to receive(:search_request).with(200).and_return [result2]
+        expect(subject).to receive(:search_request).with(300).and_return []
+        expect(subject).to receive(:search_request).with(400).and_return []
+        expect(subject).to receive(:search_request).with(500).and_return []
 
-    it "#fetch_recommendation" do
-      expect(subject).to receive(:json_index).with(kind_of(String), "recommendation")
-      subject.fetch_recommendation
-    end
+        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result1).and_return bib
+        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result2).and_return bib
 
-    it "#fetch_question" do
-      expect(subject).to receive(:html_index).with(kind_of(String), "question")
-      subject.fetch_question
-    end
+        expect(subject).to receive(:write_file).with(bib).twice
+        expect(subject.index).to receive(:save)
 
-    it "#fetch_report" do
-      expect(subject).to receive(:json_index).with(kind_of(String), "technical-report")
-      subject.fetch_report
-    end
-
-    it "#fetch_handbook" do
-      expect(subject).to receive(:html_index).with(kind_of(String), "handbook")
-      subject.fetch_handbook
-    end
-
-    it "#fetch_resolution" do
-      expect(subject).to receive(:html_index).with(kind_of(String), "resolution")
-      subject.fetch_resolution
-    end
-
-    context "#json_index" do
-      let(:url) { "http://extranet.itu.int/Paged=1" }
-
-      before do
-        result = double "result", body: :body
-        expect(subject.agent).to receive(:post).with(url).and_return result
-        expect(subject.workers).to receive(:<<).with(["page_url", :type])
+        subject.fetch
       end
 
-      it "no next page" do
-        expect(JSON).to receive(:parse).with(:body).and_return "Row" => [
-          { "serverurl.progid" => "1page_url" },
-        ]
-        subject.json_index url, :type
-      end
+      it "handles parse errors gracefully" do
+        result = { "Title" => "ITU-R M.1" }
+        expect(subject).to receive(:search_request).with(0).and_return [result]
+        expect(subject).to receive(:search_request).with(100).and_return []
+        expect(subject).to receive(:search_request).with(200).and_return []
+        expect(subject).to receive(:search_request).with(300).and_return []
+        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result).and_raise "parse error"
+        expect(subject.index).to receive(:save)
 
-      it "next page" do
-        expect(JSON).to receive(:parse).with(:body).and_return "Row" => [
-          { "serverurl.progid" => "1page_url" },
-        ], "NextHref" => "aspx?Paged=2"
-        expect(subject).to receive(:json_index).with("http://extranet.itu.int/Paged=1", :type).and_call_original
-        expect(subject).to receive(:json_index).with("http://extranet.itu.int/Paged=2", :type)
-        subject.json_index url, :type
+        expect { subject.fetch }.to output(/parse error/).to_stderr_from_any_process
       end
     end
 
-    it "#html_index" do
-      body = <<~HTML
-        <html>
-          <body>
-            <table>
-              <table>
-                <tr></tr>
-                <tr><td><a onclick="https://extranet.itu.int'">title</a></td></tr>
-              </table>
-            </table>
-          </body>
-        </html>
-      HTML
-      resp = double "resp", body: body
-      expect(subject.agent).to receive(:get).with(:url).and_return resp
-      expect(subject.workers).to receive(:<<).with(["https://extranet.itu.int", :type])
-      subject.html_index :url, :type
+    context "#search_request" do
+      it "sends POST with correct parameters" do
+        response = double "response", body: '{"results": [{"Title": "ITU-R M.1"}]}'
+        http = double "http"
+        expect(Net::HTTP).to receive(:new).with("www.itu.int", 443).and_return http
+        expect(http).to receive(:use_ssl=).with(true)
+        expect(http).to receive(:request) do |req|
+          expect(req).to be_instance_of Net::HTTP::Post
+          expect(req["Content-Type"]).to eq "application/x-www-form-urlencoded; charset=UTF-8"
+          expect(req["X-Requested-With"]).to eq "XMLHttpRequest"
+          expect(req["Referer"]).to eq "https://www.itu.int/net4/itu-t/search/"
+          expect(req.body).to start_with("json=")
+          payload = JSON.parse(URI.decode_www_form_component(req.body.sub(/^json=/, "")))
+          expect(payload["Start"]).to eq 0
+          expect(payload["Rows"]).to eq 100
+          expect(payload["CollectionName"]).to eq "ITU-R Publications"
+          response
+        end
+
+        results = subject.send(:search_request, 0)
+        expect(results).to eq [{ "Title" => "ITU-R M.1" }]
+      end
+
+      it "returns empty array when no results key" do
+        response = double "response", body: '{}'
+        http = double "http"
+        expect(Net::HTTP).to receive(:new).and_return http
+        expect(http).to receive(:use_ssl=)
+        expect(http).to receive(:request).and_return response
+
+        expect(subject.send(:search_request, 0)).to eq []
+      end
     end
 
     context "#write_file" do
-      let(:bib) do
-        docid = double "docid", content: "ITU 123.4", type: "ITU"
-        double "bib", docidentifier: [docid]
-      end
-
       before do
         expect(subject).to receive(:serialize).with(bib).and_return :content
-        expect(File).to receive(:write).with("data/ITU_123_4.yaml", :content, encoding: "UTF-8")
+        expect(File).to receive(:write).with("data/itu-r-m-1234.yaml", :content, encoding: "UTF-8")
       end
 
       it do
         subject.write_file bib
-        expect(subject.instance_variable_get(:@files)).to eq Set["data/ITU_123_4.yaml"]
+        expect(subject.instance_variable_get(:@files)).to eq Set["data/itu-r-m-1234.yaml"]
       end
 
       it "file exists" do
-        subject.instance_variable_set :@files, Set["data/ITU_123_4.yaml"]
+        subject.instance_variable_set :@files, Set["data/itu-r-m-1234.yaml"]
         expect do
           subject.write_file bib
-        end.to output(/File data\/ITU_123_4.yaml exists./).to_stderr_from_any_process
+        end.to output(/File data\/itu-r-m-1234\.yaml exists./).to_stderr_from_any_process
       end
     end
 
-    context "#to_yaml" do
-      let(:bib) { double "bib" }
-
-      it do
-        hash = double "hash"
-        expect(bib).to receive(:to_hash).and_return hash
-        expect(hash).to receive(:to_yaml).and_return :yaml
-        expect(subject.to_yaml(bib)).to eq :yaml
-      end
-    end
-
-    context "#to_xml" do
-      let(:bib) { double "bib" }
-
-      it do
-        expect(bib).to receive(:to_xml).with(bibdata: true).and_return :xml
-        expect(subject.to_xml(bib)).to eq :xml
-      end
-    end
-
-    context "#to_bibxml" do
-      let(:bib) { double "bib" }
-
-      it do
-        expect(bib).to receive(:to_bibxml).and_return :bibxml
-        expect(subject.to_bibxml(bib)).to eq :bibxml
-      end
+    context "serialization" do
+      it("#to_yaml") { expect(subject.to_yaml(bib)).to be_instance_of String }
+      it("#to_xml") { expect(subject.to_xml(bib)).to include("<bibdata") }
+      it("#to_bibxml") { expect(subject.to_bibxml(bib)).to include("<reference") }
     end
   end
 end
