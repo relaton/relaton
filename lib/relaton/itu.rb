@@ -10,11 +10,15 @@ require_relative "itu/item_data"
 require_relative "itu/model/item"
 require_relative "itu/model/bibitem"
 require_relative "itu/model/bibdata"
-# require "relaton_itu/pubid"
-# require "relaton_itu/itu_bibliography"
+require_relative "itu/pubid"
+# require_relative "itu/scraper"
+# require_relative "itu/hit"
+# require_relative "itu/hit_collection"
 
 module Relaton
   module Itu
+    INDEXFILE = "index-v1"
+
     class Error < StandardError; end
 
     # Returns hash of XML reammar
