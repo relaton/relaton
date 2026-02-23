@@ -1,6 +1,5 @@
 require_relative "doctype"
 require_relative "bureau"
-require_relative "editorial_group"
 require_relative "question"
 require_relative "recommendation_status"
 require_relative "meeting"
