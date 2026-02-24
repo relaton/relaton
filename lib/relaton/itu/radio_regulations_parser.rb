@@ -26,6 +26,7 @@ module Relaton
       def fetch_status = nil
       def fetch_abstract = []
       def fetch_relations = []
+      def fetch_workgroup = nil
 
       # @return [Array<Relaton::Bib::Title>]
       def fetch_titles

@@ -9,10 +9,7 @@ module Relaton
       # @return [Relaton::Itu::HitCollection]
       def search(refid)
         if refid.is_a? String
-          if refid =~ /(ITU[\s-]T\s\w)\.(Suppl\.|Annex)\s?(\w?\d+)/
-            correct_ref = "#{$~[1]} #{$~[2]} #{$~[3]}"
-            Util.info "Incorrect reference: `#{refid}`, the reference should be: `#{correct_ref}`"
-          end
+          warn_incorrect_ref(refid)
           refid = Pubid.parse refid
         end
         HitCollection.new(refid).tap(&:search)
@@ -23,6 +20,7 @@ module Relaton
       # @param opts [Hash] options
       # @return [Relaton::Bib::ItemData, nil]
       def get(code, year = nil, opts = {})
+        warn_incorrect_ref(code)
         refid = Pubid.parse code
         refid.year ||= year
 
@@ -35,6 +33,13 @@ module Relaton
       end
 
       private
+
+      def warn_incorrect_ref(ref)
+        if ref =~ /(ITU[\s-]T\s\w)\.(Suppl\.|Annex)\s?(\w?\d+)/
+          correct_ref = "#{$~[1]} #{$~[2]} #{$~[3]}"
+          Util.info "Incorrect reference: `#{ref}`, the reference should be: `#{correct_ref}`"
+        end
+      end
 
       def fetch_ref_err(refid, missed_years)
         Util.info "Not found.", key: refid.to_s

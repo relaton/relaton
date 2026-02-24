@@ -39,7 +39,7 @@ describe Relaton::Itu::DataParserR do
       docid = described_class.fetch_docid(result)
       expect(docid).to be_instance_of Array
       expect(docid.size).to eq 1
-      expect(docid.first).to be_instance_of Relaton::Bib::Docidentifier
+      expect(docid.first).to be_instance_of Relaton::Itu::Docidentifier
       expect(docid.first.type).to eq "ITU"
       expect(docid.first.content).to eq "ITU-R M.2150-2"
       expect(docid.first.primary).to be true

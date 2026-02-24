@@ -7,7 +7,7 @@ module Relaton
     # Page of hit collection.
     class HitCollection < Relaton::Core::HitCollection
       DOMAIN = "https://www.itu.int"
-      GH_ITU_R = "https://raw.githubusercontent.com/relaton/relaton-data-itu-r/main/"
+      GH_ITU_R = "https://raw.githubusercontent.com/relaton/relaton-data-itu-r/refs/heads/data-v2/"
 
       def search
         case ref.to_ref
@@ -21,11 +21,11 @@ module Relaton
         raise Relaton::RequestError, "Could not access #{ref.to_ref}: #{e.message}"
       end
 
-      private
-
       def agent
         @agent ||= Mechanize.new.tap { |agent| agent.user_agent_alias = "Mac Safari" }
       end
+
+      private
 
       def request_search
         Util.info "Fetching from www.itu.int ...", key: ref.to_s

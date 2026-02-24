@@ -1,7 +1,7 @@
 module Relaton
   module Itu
     class StructuredIdentifier < Lutaml::Model::Serializable
-      attribute :bureau, :string, values: Bureau::VALUES
+      attribute :bureau, :string, values: %w[T D R]
       attribute :docnumber, :string
       attribute :annexid, :string
       attribute :amendment, :integer

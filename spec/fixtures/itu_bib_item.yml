@@ -34,11 +34,21 @@ abstract:
   format: text/plain
 
 contributor:
-  organization:
-    name: International Telecommunication Union
-    url: www.itu.int
-    abbreviation: ITU
-  role: publisher
+  - organization:
+      name: International Telecommunication Union
+      url: www.itu.int
+      abbreviation: ITU
+    role: publisher
+  - organization:
+      name: International Telecommunication Union
+      abbreviation: ITU-T
+      subdivision:
+        type: technical-committee
+        subtype: study-group
+        name: ITU-T Study Group 15
+    role:
+      type: author
+      description: committee
 
 copyright:
   owner:
@@ -65,16 +75,6 @@ relation:
 
 ext:
   doctype: recommendation
-
-  editorialgroup:
-    bureau: T
-    group:
-      type: study-group
-      name: ITU-T Study Group 15
-      acronym: SG
-      period:
-        start: "2011"
-        finish: "2012"
 
   structuredidentifier:
     bureau: T

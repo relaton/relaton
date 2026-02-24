@@ -43,7 +43,7 @@ module Relaton
           fetched: Date.today.to_s,
           type: "standard",
           docidentifier: docid,
-          edition: parser.fetch_edition,
+          edition: edition,
           language: ["en"],
           script: ["Latn"],
           title: parser.fetch_titles,
@@ -63,6 +63,11 @@ module Relaton
       end
 
       private
+
+      def edition
+        ed = parser.fetch_edition
+        Relaton::Bib::Edition.new(content: ed) if ed
+      end
 
       def idrec
         return @idrec if defined? @idrec
@@ -101,11 +106,19 @@ module Relaton
           type = pubid.prefix
           pubid.to_s
         end => id
-        Relaton::Bib::Docidentifier.new(type: type, content: id, primary: true)
+        Docidentifier.new(type: type, content: id, primary: true)
       end
 
       # @return [Array<Relaton::Bib::Contributor>]
       def fetch_contributors
+        contribs = fetch_publisher_contributors
+        eg = fetch_editorial_contributor
+        contribs << eg if eg
+        contribs
+      end
+
+      # @return [Array<Relaton::Bib::Contributor>]
+      def fetch_publisher_contributors
         return [] unless hit.hit[:code]
 
         abbrev = hit.hit[:code].sub(/-\w\s.*/, "")
@@ -121,6 +134,41 @@ module Relaton
         )
         role = Relaton::Bib::Contributor::Role.new(type: "publisher")
         [Relaton::Bib::Contributor.new(organization: org, role: [role])]
+      end
+
+      # @return [Relaton::Bib::Contributor, nil]
+      def fetch_editorial_contributor
+        wg_name = parser.fetch_workgroup
+        bureau = hit.hit[:code]&.match(/(?<=-)\w/)&.to_s
+        return unless bureau
+
+        org = Relaton::Bib::Organization.new(
+          name: [Relaton::Bib::TypedLocalizedString.new(content: "International Telecommunication Union")],
+          abbreviation: Relaton::Bib::LocalizedString.new(content: "ITU-#{bureau.upcase}"),
+          subdivision: group_subdivision(wg_name),
+        )
+        role = Relaton::Bib::Contributor::Role.new(
+          type: "author",
+          description: [Relaton::Bib::LocalizedMarkedUpString.new(content: "committee")],
+        )
+        Relaton::Bib::Contributor.new(organization: org, role: [role])
+      end
+
+      # @param wg_name [String, nil]
+      # @return [Array<Relaton::Bib::Subdivision>]
+      def group_subdivision(wg_name)
+        return [] unless wg_name
+
+        subtype = case wg_name
+                  when /Advisory Group/ then "tsag"
+                  when /Study Group/ then "study-group"
+                  else "work-group"
+                  end
+        [Relaton::Bib::Subdivision.new(
+          type: "technical-committee",
+          subtype: subtype,
+          name: [Relaton::Bib::TypedLocalizedString.new(content: wg_name)],
+        )]
       end
 
       # @return [Array<Relaton::Bib::Copyright>]

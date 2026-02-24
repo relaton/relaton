@@ -1,4 +1,4 @@
-require "relaton/core"
+require_relative "../itu"
 
 module Relaton
   module Itu
@@ -12,11 +12,11 @@ module Relaton
       end
 
       # @param code [String]
-      # @param date [String, NilClass] year
+      # @param date [String, nil] year
       # @param opts [Hash]
-      # @return [RelatonItu::ItuBibliographicItem]
+      # @return [Relaton::Itu::ItemData, nil]
       def get(code, date, opts)
-        ::RelatonItu::ItuBibliography.get(code, date, opts)
+        Bibliography.get(code, date, opts)
       end
 
       #
@@ -28,32 +28,33 @@ module Relaton
       # @option opts [String] :format output format, default is yaml
       #
       def fetch_data(source, opts)
+        require_relative "data_fetcher"
         DataFetcher.fetch(source, **opts)
       end
 
       # @param xml [String]
-      # @return [RelatonItu::ItuBibliographicItem]
+      # @return [Relaton::Itu::ItemData]
       def from_xml(xml)
-        ::RelatonItu::XMLParser.from_xml xml
+        Item.from_xml xml
       end
 
-      # @param hash [Hash]
-      # @return [RelatonItu::ItuBibliographicItem]
-      def hash_to_bib(hash)
-        ::RelatonItu::ItuBibliographicItem.from_hash hash
+      # @param yaml [Hash]
+      # @return [Relaton::Itu::ItemData]
+      def from_yaml(yaml)
+        Item.from_yaml yaml
       end
 
       # Returns hash of XML grammar
       # @return [String]
       def grammar_hash
-        @grammar_hash ||= ::RelatonItu.grammar_hash
+        @grammar_hash ||= Itu.grammar_hash
       end
 
       #
       # Remove index file
       #
       def remove_index_file
-        Relaton::Index.find_or_create(:itu, url: true, file: HitCollection::INDEX_FILE).remove_file
+        Relaton::Index.find_or_create(:itu, url: true, file: "#{INDEX_FILE}.yaml").remove_file
       end
     end
   end

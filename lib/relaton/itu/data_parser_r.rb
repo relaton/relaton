@@ -38,7 +38,7 @@ module Relaton
         return [] unless id
 
         id = id.sub(/\s*\(.*/, "")
-        [Relaton::Bib::Docidentifier.new(type: "ITU", content: id, primary: true)]
+        [Docidentifier.new(type: "ITU", content: id, primary: true)]
       end
 
       # @param result [Hash]

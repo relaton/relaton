@@ -2,19 +2,26 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-itu-r/main/data/ITU-R_BO_600-1.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-itu-r/refs/heads/data-v2/data/itu-r-bo-600-1.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
     headers:
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
       User-Agent:
-      - Ruby
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 14_2_1) AppleWebKit/605.1.15 (KHTML,
+        like Gecko) Version/17.2 Safari/605.1.15
+      Accept-Language:
+      - en-us,en;q=0.5
       Host:
       - raw.githubusercontent.com
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
@@ -23,7 +30,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '786'
+      - '345'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +38,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"f94e5c3b1809bfba997230b01e84ffed53a403c8ec5819f858bcea1e9662d80d"
+      - W/"21ad845c16eeb2c8596fa5ed706b32108a7cffdf01eb1cc06813f965deb96f7d"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,53 +48,45 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 2445:231261:2C4758:360DAD:67BE0D66
+      - FAC6:2E088A:345A38:40D40E:699D2461
+      Content-Encoding:
+      - gzip
       Accept-Ranges:
       - bytes
       Date:
-      - Tue, 25 Feb 2025 18:35:19 GMT
+      - Tue, 24 Feb 2026 04:09:06 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100121-IAD
+      - cache-pdk-kpdk2140064-PDK
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1740508519.458870,VS0,VE148
+      - S1771906146.058018,VS0,VE62
       Vary:
-      - Authorization,Accept-Encoding,Origin
+      - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
       - "*"
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - f1c7ddf929027e163a20365ec5d2d2ee28c7eaa0
+      - d483bb859bb724d3e19131a10352355f27fa6594
       Expires:
-      - Tue, 25 Feb 2025 18:40:19 GMT
+      - Tue, 24 Feb 2026 04:14:06 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
-        LS0tCnNjaGVtYS12ZXJzaW9uOiB2MS4yLjkKaWQ6IElUVS1SQk8uNjAwLTEK
-        dGl0bGU6Ci0gY29udGVudDogU3RhbmRhcmRpemVkIHNldCBvZiB0ZXN0IGNv
-        bmRpdGlvbnMgYW5kIG1lYXN1cmVtZW50IHByb2NlZHVyZXMgZm9yIHRoZQog
-        ICAgc3ViamVjdGl2ZSBhbmQgb2JqZWN0aXZlIGRldGVybWluYXRpb24gb2Yg
-        cHJvdGVjdGlvbiByYXRpb3MgZm9yIHRlbGV2aXNpb24gaW4KICAgIHRoZSB0
-        ZXJyZXN0cmlhbCBicm9hZGNhc3RpbmcgYW5kIHRoZSBicm9hZGNhc3Rpbmct
-        c2F0ZWxsaXRlIHNlcnZpY2VzCiAgbGFuZ3VhZ2U6CiAgLSBlbgogIHNjcmlw
-        dDoKICAtIExhdG4KICBmb3JtYXQ6IHRleHQvcGxhaW4KICB0eXBlOiBtYWlu
-        Cmxpbms6Ci0gY29udGVudDogaHR0cHM6Ly9leHRyYW5ldC5pdHUuaW50L2Jy
-        ZG9jc2VhcmNoL19sYXlvdXRzLzE1L0RvY1NldEhvbWUuYXNweD9pZD0vYnJk
-        b2NzZWFyY2gvUi1SRUMvUi1SRUMtQk8vUi1SRUMtQk8uNjAwL1ItUkVDLUJP
-        LjYwMC0xLTE5ODYwNy1JCiAgdHlwZTogc3JjCnR5cGU6IHN0YW5kYXJkCmRv
-        Y2lkOgotIGlkOiBJVFUtUiBCTy42MDAtMQogIHR5cGU6IElUVQogIHByaW1h
-        cnk6IHRydWUKZGF0ZToKLSB0eXBlOiBjb25maXJtZWQKICB2YWx1ZTogJzE5
-        ODYtMDctMDEnCi0gdHlwZTogcHVibGlzaGVkCiAgdmFsdWU6ICcxOTg2Jwpy
-        ZXZkYXRlOiAnMTk4NicKbGFuZ3VhZ2U6Ci0gZW4Kc2NyaXB0OgotIExhdG4K
-        ZXh0OgogIHNjaGVtYS12ZXJzaW9uOiB2MS4wLjAKICBkb2N0eXBlOgogICAg
-        dHlwZTogcmVjb21tZW5kYXRpb24K
-  recorded_at: Tue, 25 Feb 2025 18:35:19 GMT
-recorded_with: VCR 6.3.1
+        H4sIAAAAAAAAA2WRQWvDMAyF7/kV+gMJaRk75NjbYFDotvNwbaXVSOwgK2Hd
+        r99zWsJgN0t++mS/V9d1JaGjl/eP0+H43La7ym4Td5TNxeA0VNlfeXSfC2uW
+        FDtads1TA5XYwF1V0+DiZXYXjHCsiLJXmayjV2el9CkaR9RvD578cKDMRqkn
+        42xFEcSAzgQFjezyrDxiiCZNngOqTH1SsiuDiBXz+Yu9ycLrRNqqwMY6SnQF
+        VxYAYOUOlZbmg8MDL1J+QxJXIsjoKhaZihvorMkF77JJvKw7iuBvs84OlEGM
+        8RddxHMG6O7c6EANyUvAH6QX1mLTZgScrk90ODYwu95tU2jjPKmMTm8dmc5c
+        BSwps3fFNJ8HyVcO0DmA9m27r5HXFgCUiOARAIo1Av7GucTyL8W22eMCD13x
+        dx/WRco+jQggrD7ioh/ckrQjsbn6BeOyz2UxAgAA
+  recorded_at: Tue, 24 Feb 2026 04:09:06 GMT
+recorded_with: VCR 6.4.0

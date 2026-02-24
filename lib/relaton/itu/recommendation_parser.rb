@@ -85,6 +85,17 @@ module Relaton
         relations
       end
 
+        # Fetch the study group name from the recommendation HTML page.
+      # @return [String, nil]
+      def fetch_workgroup
+        url = "https://www.itu.int/ITU-T/recommendations/rec.aspx?rec=#{idrec}&lang=en"
+        page = hit.hit_collection.agent.get(url)
+        wg = page.at('//span[contains(@id, "uc_rec_main_info1_rpt_main_ctl00_Label8")]/a')
+        wg&.text
+      rescue StandardError
+        nil
+      end
+
       private
 
       attr_reader :hit, :idrec, :imp
@@ -132,7 +143,7 @@ module Relaton
         fref = titles.empty? ? id : nil
         did = Relaton::Bib::Docidentifier.new(type: "ITU", content: id, primary: true)
         bibitem = Relaton::Bib::ItemData.new(title: titles, formattedref: fref, docidentifier: [did])
-        Relaton::Bib::Relation.new(type: "hasEdition", bibitem: bibitem)
+        Relaton::Bib::Relation.new(type: type, bibitem: bibitem)
       end
 
       def supplements

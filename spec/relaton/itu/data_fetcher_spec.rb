@@ -12,7 +12,7 @@ describe Relaton::Itu::DataFetcher do
   context "instance methods" do
     let(:bib) do
       Relaton::Itu::ItemData.new(
-        docidentifier: [Relaton::Bib::Docidentifier.new(type: "ITU", content: "ITU-R M.1234", primary: true)],
+        docidentifier: [Relaton::Itu::Docidentifier.new(type: "ITU", content: "ITU-R M.1234", primary: true)],
         title: [Relaton::Bib::Title.new(type: "main", content: "Test title", language: "en", script: "Latn")],
         language: ["en"], script: ["Latn"], type: "standard",
         ext: Relaton::Itu::Ext.new(doctype: Relaton::Itu::Doctype.new(type: "recommendation")),
