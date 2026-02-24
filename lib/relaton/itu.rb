@@ -11,7 +11,7 @@ require_relative "itu/model/item"
 require_relative "itu/model/bibitem"
 require_relative "itu/model/bibdata"
 require_relative "itu/pubid"
-# require_relative "itu/scraper"
+require_relative "itu/scraper"
 # require_relative "itu/hit"
 # require_relative "itu/hit_collection"
 
