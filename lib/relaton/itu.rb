@@ -13,6 +13,7 @@ require_relative "itu/model/bibdata"
 require_relative "itu/pubid"
 require_relative "itu/scraper"
 require_relative "itu/hit_collection"
+require_relative "itu/bibliography"
 
 module Relaton
   module Itu
