@@ -1,6 +1,6 @@
 id: JISX012912018
 type: standard
-schema_version: 1.2.0
+schema_version: v1.4.1
 title:
 - content: デジタル製品技術文書情報―第１部：総則
   language: ja
@@ -16,32 +16,10 @@ docidentifier:
   type: JIS
   primary: true
 ext:
-  schema_version: 1.0.1
+  schema_version: v0.0.1
   doctype:
     abbreviation: TR
     content: technical-report
-  editorialgroup:
-    agency:
-    - JIS
-    technical_committee:
-    - number: 1
-      type: Technical Committee
-      identifier: TC 1 Overall
-      prefix: TC
-      content: TC 1 Overall
-    subcommittee:
-    - number: 1
-      type: Subcommittee
-      identifier: SC 1 Overall
-      prefix: SC
-      content: SC 1 Overall
-    workgroup:
-    - number: 1
-      type: Working Group
-      identifier: WG 1 Overall
-      prefix: WG
-      content: WG 1 Overall
-    secretariat: JISC
   flavor: jis
   ics:
   - code: 01.080.20

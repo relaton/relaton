@@ -1,21 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <include href="biblio-standoc.rng">
-    <define name="BibDataExtensionType">
-      <optional>
-        <attribute name="schema-version"/>
-      </optional>
-      <ref name="doctype"/>
-      <ref name="editorialgroup"/>
-      <ref name="flavor"/>
-      <zeroOrMore>
-        <ref name="ics"/>
-      </zeroOrMore>
-      <ref name="structuredidentifier"/>
-      <optional>
-        <ref name="stagename"/>
-      </optional>
-    </define>
     <define name="DocumentType">
       <choice>
         <value>japanese-industrial-standard</value>
@@ -37,33 +22,13 @@
         </group>
       </element>
     </define>
-    <define name="editorialgroup">
-      <element name="editorialgroup">
-        <ref name="ISOProjectGroup"/>
-      </element>
-    </define>
   </include>
-  <define name="ISOProjectGroup">
-    <zeroOrMore>
-      <ref name="agency"/>
-    </zeroOrMore>
-    <oneOrMore>
-      <ref name="technical-committee"/>
-    </oneOrMore>
-    <zeroOrMore>
-      <ref name="subcommittee"/>
-    </zeroOrMore>
-    <zeroOrMore>
-      <ref name="workgroup"/>
-    </zeroOrMore>
+  <define name="BibDataExtensionType" combine="interleave">
     <optional>
-      <ref name="secretariat"/>
+      <ref name="stagename">
+        <a:documentation>Human-readable name of the stage of publication, corresponding to the numeric stage code given in `/bibdata/status/stage`</a:documentation>
+      </ref>
     </optional>
-  </define>
-  <define name="agency">
-    <element name="agency">
-      <text/>
-    </element>
   </define>
   <define name="documentnumber">
     <element name="project-number">
@@ -98,21 +63,6 @@
   <define name="tc-documentnumber">
     <element name="tc-document-number">
       <data type="int"/>
-    </element>
-  </define>
-  <define name="subcommittee">
-    <element name="subcommittee">
-      <ref name="IsoWorkgroup"/>
-    </element>
-  </define>
-  <define name="workgroup">
-    <element name="workgroup">
-      <ref name="IsoWorkgroup"/>
-    </element>
-  </define>
-  <define name="secretariat">
-    <element name="secretariat">
-      <text/>
     </element>
   </define>
   <define name="stagename">
