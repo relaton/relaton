@@ -61,7 +61,7 @@ module Relaton
 
       def fetch_docidentifier
         docid = document_id
-        [Bib::Docidentifier.new(
+        [Docidentifier.new(
           content: docid, type: "JIS", primary: true,
         )]
       end

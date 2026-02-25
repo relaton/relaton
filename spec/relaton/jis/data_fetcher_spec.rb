@@ -10,7 +10,7 @@ describe Relaton::Jis::DataFetcher do # rubocop:disable Metrics/BlockLength
   end
   let(:next_body) { { search_type: "JIS", offset: 100 } }
   let(:bib) do
-    docid = Relaton::Bib::Docidentifier.new(
+    docid = Relaton::Jis::Docidentifier.new(
       content: "JIS A 1301:1994", type: "JIS", primary: true,
     )
     Relaton::Bib::ItemData.new docidentifier: [docid]

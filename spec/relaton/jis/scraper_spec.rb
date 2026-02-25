@@ -21,7 +21,7 @@ describe Relaton::Jis::Scraper do
         expect(item.source.size).to eq 2
         expect(item.source.first).to be_instance_of Relaton::Bib::Uri
         expect(item.abstract.first).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
-        expect(item.docidentifier.first).to be_instance_of Relaton::Bib::Docidentifier
+        expect(item.docidentifier.first).to be_instance_of Relaton::Jis::Docidentifier
         expect(item.date.size).to eq 2
         expect(item.date.first).to be_instance_of Relaton::Bib::Date
         expect(item.type).to eq "standard"
