@@ -5,20 +5,14 @@ require "relaton/iso"
 require "relaton/index"
 require_relative "jis/version"
 require_relative "jis/util"
-# require_relative "relaton_jis/document_type"
 require_relative "jis/item"
 require_relative "jis/bibitem"
 require_relative "jis/bibdata"
-# require_relative "relaton_jis/xml_parser"
-# require_relative "relaton_jis/hash_converter"
-# require_relative "relaton_jis/scraper"
-# require_relative "relaton_jis/bibliography"
-# require_relative "relaton_jis/hit_collection"
-# require_relative "relaton_jis/hit"
-# require_relative "relaton_jis/data_fetcher"
 
 module Relaton
   module Jis
+    INDEXFILE = "index-v1"
+
     class Error < StandardError; end
 
     # Returns hash of XML reammar
