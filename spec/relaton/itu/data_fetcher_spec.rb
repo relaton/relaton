@@ -15,7 +15,7 @@ describe Relaton::Itu::DataFetcher do
         docidentifier: [Relaton::Itu::Docidentifier.new(type: "ITU", content: "ITU-R M.1234", primary: true)],
         title: [Relaton::Bib::Title.new(type: "main", content: "Test title", language: "en", script: "Latn")],
         language: ["en"], script: ["Latn"], type: "standard",
-        ext: Relaton::Itu::Ext.new(doctype: Relaton::Itu::Doctype.new(type: "recommendation")),
+        ext: Relaton::Itu::Ext.new(doctype: Relaton::Itu::Doctype.new(content: "recommendation")),
       )
     end
 

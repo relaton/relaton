@@ -56,7 +56,7 @@ module Relaton
           copyright: fetch_copyright,
           place: [Relaton::Bib::Place.new(city: "Geneva")],
           ext: Relaton::Itu::Ext.new(
-            doctype: Relaton::Itu::Doctype.new(type: hit.hit[:type]),
+            doctype: Relaton::Itu::Doctype.new(content: hit.hit[:type]),
             flavor: "itu",
           ),
         )

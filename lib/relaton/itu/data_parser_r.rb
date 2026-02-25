@@ -81,7 +81,7 @@ module Relaton
         mapped = TYPE_MAP[type_value]
         return unless mapped
 
-        Doctype.new(type: mapped)
+        Doctype.new(content: mapped)
       end
 
       private

@@ -25,7 +25,7 @@ describe Relaton::Itu::DataParserR do
     expect(bib.script).to eq ["Latn"]
     expect(bib.source.first.content.to_s).to eq "https://www.itu.int/rec/R-REC-M.2150-2.pdf"
     expect(bib.type).to eq "standard"
-    expect(bib.ext.doctype.type).to eq "recommendation"
+    expect(bib.ext.doctype.content).to eq "recommendation"
     expect(bib.ext.flavor).to eq "itu"
   end
 
@@ -120,27 +120,27 @@ describe Relaton::Itu::DataParserR do
     it "maps ITU-R Recommendations" do
       doctype = described_class.fetch_doctype(result)
       expect(doctype).to be_instance_of Relaton::Itu::Doctype
-      expect(doctype.type).to eq "recommendation"
+      expect(doctype.content).to eq "recommendation"
     end
 
     it "maps ITU-R Questions" do
       result["Properties"] = [{ "Title" => "Type", "Value" => "ITU-R Questions" }]
-      expect(described_class.fetch_doctype(result).type).to eq "question"
+      expect(described_class.fetch_doctype(result).content).to eq "question"
     end
 
     it "maps ITU-R Reports" do
       result["Properties"] = [{ "Title" => "Type", "Value" => "ITU-R Reports" }]
-      expect(described_class.fetch_doctype(result).type).to eq "technical-report"
+      expect(described_class.fetch_doctype(result).content).to eq "technical-report"
     end
 
     it "maps Handbooks" do
       result["Properties"] = [{ "Title" => "Type", "Value" => "Handbooks" }]
-      expect(described_class.fetch_doctype(result).type).to eq "handbook"
+      expect(described_class.fetch_doctype(result).content).to eq "handbook"
     end
 
     it "maps ITU-R Resolutions" do
       result["Properties"] = [{ "Title" => "Type", "Value" => "ITU-R Resolutions" }]
-      expect(described_class.fetch_doctype(result).type).to eq "resolution"
+      expect(described_class.fetch_doctype(result).content).to eq "resolution"
     end
 
     it "returns nil for unknown type" do

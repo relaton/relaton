@@ -7,7 +7,7 @@ module Relaton
         technical-report joint-itu-iso-iec resolution service-publication handbook question contribution
       ].freeze
 
-      attribute :type, :string, values: TYPES
+      attribute :content, :string, values: TYPES
     end
   end
 end
