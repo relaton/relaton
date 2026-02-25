@@ -54,7 +54,7 @@ module Relaton
       # Remove index file
       #
       def remove_index_file
-        Relaton::Index.find_or_create(:itu, url: true, file: "#{INDEX_FILE}.yaml").remove_file
+        Relaton::Index.find_or_create(:itu, url: true, file: "#{INDEXFILE}.yaml").remove_file
       end
     end
   end
