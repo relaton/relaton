@@ -19,7 +19,7 @@ describe Relaton::Jis::Docidentifier do
 
   it "#to_all_parts!" do
     subject.to_all_parts!
-    expect(subject.content).to eq "JIS A 1301"
+    expect(subject.content).to eq "JIS A 1301 (all parts)"
   end
 
   context "when no part or date" do

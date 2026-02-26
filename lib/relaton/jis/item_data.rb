@@ -2,6 +2,7 @@
 
 module Relaton
   module Jis
-    VERSION = "2.0.0.aplha.1"
+    class ItemData < Bib::ItemData
+    end
   end
 end

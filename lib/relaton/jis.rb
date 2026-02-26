@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "net/http"
 require "mechanize"
 require "relaton/iso"
 require "relaton/index"
@@ -8,6 +9,8 @@ require_relative "jis/util"
 require_relative "jis/item"
 require_relative "jis/bibitem"
 require_relative "jis/bibdata"
+require_relative "jis/hit_collection"
+require_relative "jis/bibliography"
 
 module Relaton
   module Jis

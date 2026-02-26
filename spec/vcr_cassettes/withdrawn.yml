@@ -2,25 +2,19 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-jis/refs/heads/main/data/JIS_Z_8201_1981.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-jis/data-v2/data/jis-z-8201-1981.yaml
     body:
       encoding: US-ASCII
       string: ''
     headers:
       Accept-Encoding:
-      - gzip,deflate,identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
-      - Mechanize/2.12.2 Ruby/3.3.3p89 (http://github.com/sparklemotion/mechanize/)
-      Accept-Language:
-      - en-us,en;q=0.5
+      - Ruby
       Host:
       - raw.githubusercontent.com
-      Connection:
-      - keep-alive
-      Keep-Alive:
-      - '300'
   response:
     status:
       code: 200
@@ -29,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '735'
+      - '1844'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -37,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"9cfd068bc48c88e7525834c39e0dfe40c87e0bb07473f1e4bfb1bb3f7d07b4c9"
+      - W/"4546af891f94672beb2d82ea44643bde76cb65e8b1ad1d68eb3ab889bba612f3"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -47,38 +41,36 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 7995:2E4CD:104D674:14BAD7C:67BFEA0D
-      Content-Encoding:
-      - gzip
+      - 1A96:3CBCAD:DBADB5:107CD12:699F9072
       Accept-Ranges:
       - bytes
       Date:
-      - Thu, 27 Feb 2025 04:29:01 GMT
+      - Thu, 26 Feb 2026 00:14:43 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100075-IAD
+      - cache-pdk-kpdk2140071-PDK
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1740630541.481524,VS0,VE108
+      - S1772064883.017870,VS0,VE90
       Vary:
-      - Authorization,Accept-Encoding,Origin
+      - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
       - "*"
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - b6562ff8abd55e2b899745b1937323ae47c667cc
+      - fdbdd5aa57fd97d57532e668212640f9e3277e89
       Expires:
-      - Thu, 27 Feb 2025 04:34:01 GMT
+      - Thu, 26 Feb 2026 00:19:43 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        H4sIAAAAAAAAA+1VzU/UQBS/96+Yi+FA2p2CBGhijPEEgRMHEy7NtB12Z2lnmpnpLstpl3jwI4QLRIMeNAohEYwfBwzhv1l2Xf8L37R1P1ASjUdt0vR1+t7vzfu919/Ytm2psEYTYjeoVExwDzVcZ8ZZtFjkoeWltfWFGeza7uKCa2mmY+pZNgoF15RrD/UPPvTOjgcnz3t75xZCMeHVjFTBByEb1Qk8VChZqouF5ZRwMDaETAgEa7qlK2lMGB+HXCXabEezkMRItZJAxOonaMqvQa8Qrn8NHTO+ObHnmtap8iqVJg0iqjaduiKOkE49rQRCbKrKA9ddxXgRVxiP6FblbpBx1RI+i+4AG9Pr04aPW7P3ckYQ0q2UekjJ8PdSpJI2GG2ap19nyt/2scHzMcb5bVD9up9KF/vstpNGG8Mcxi6zacIjIiMrEiF0CTKXvULryKB5E3uDdbBTyRIiW0CNzKgJ5FkSUOmhvL9WRHTe2SKEKZXRCKIaJM7gfcoA2njOnnWnLFOlZEGmhTQRQlYJZ9vQMJgdCEGIk4QW1hglV1/ag0eng0+vey/e9D8fXF1cdNvt/rOj/svTwfFe/9Vlb3f/6vIwD5vsdgGUD5O5Rl0vPpRDNZFsmcAiVRQt8ShTsFsYpbWSNHVjCspvSLFCtPkkRVyOX8ESyXRNSLZN5X8a/m0K0iyImarBIJAAkpBQTyjOt8cfe+dH/aOzbuddt/Ok23nY7Rx/3T8xxs7TcQ3NHd4WDkBG7/1ht73zN8IKPzqohc6UcQTrR5Xlj91kuhZJ0uQWhOQu188C7GDHaAkA5bXm0UXV9ZJbmw25tYfShBCNGEgELFalyNIykIY1bpTdD0WSMK3pcD7yWfmD4WChKooPRWQkCrsOnp+bKtNANeh+jZhWUDl2jIzc5x08g8fdRwePyrmSWagzCVVE0ES2wUAsc+9UijoNtT8poCNajN5+B0U++/pXBwAA
-  recorded_at: Thu, 27 Feb 2025 04:29:01 GMT
-recorded_with: VCR 6.3.1
+        LS0tCmlkOiBKSVNaODIwMTE5ODEKdHlwZTogc3RhbmRhcmQKc2NoZW1hX3ZlcnNpb246IHYxLjQuMQp0aXRsZToKLSBsYW5ndWFnZTogamEKICBzY3JpcHQ6IEpwYW4KICBjb250ZW50OiDmlbDlraboqJjlj7cKLSBsYW5ndWFnZTogZW4KICBzY3JpcHQ6IExhdG4KICBjb250ZW50OiBNYXRoZW1hdGljYWwgc3ltYm9scwpzb3VyY2U6Ci0gdHlwZTogc3JjCiAgY29udGVudDogaHR0cHM6Ly93ZWJkZXNrLmpzYS5vci5qcC9ib29rcy9XMTFNMDA5MC9pbmRleC8/YnVuc3lvX2lkPUpJUytaKzgyMDElM0ExOTgxCi0gdHlwZTogcGRmCiAgY29udGVudDogaHR0cHM6Ly93ZWJkZXNrLmpzYS5vci5qcC9wcmV2aWV3L3ByZV9qaXNfel8wODIwMV8wMDBfMDAwXzE5ODFfal9wcjEwX2k0LnBkZgpkb2NpZGVudGlmaWVyOgotIGNvbnRlbnQ6IEpJUyBaIDgyMDE6MTk4MQogIHR5cGU6IEpJUwogIHByaW1hcnk6IHRydWUKZG9jbnVtYmVyOiBaODIwMQpkYXRlOgotIHR5cGU6IGlzc3VlZAogIGF0OiAnMTk4MS0wNS0zMScKY29udHJpYnV0b3I6Ci0gcm9sZToKICAtIHR5cGU6IGF1dGhvcml6ZXIKICBvcmdhbml6YXRpb246CiAgICBuYW1lOgogICAgLSBsYW5ndWFnZTogamEKICAgICAgc2NyaXB0OiBKcGFuCiAgICAgIGNvbnRlbnQ6IOS4gOiIrOiyoeWbo+azleS6uuOAgOaXpeacrOimj+agvOWNlOS8mgogICAgLSBsYW5ndWFnZTogZW4KICAgICAgc2NyaXB0OiBMYXRuCiAgICAgIGNvbnRlbnQ6IEphcGFuZXNlIEluZHVzdHJpYWwgU3RhbmRhcmRzCi0gcm9sZToKICAtIHR5cGU6IGF1dGhvcgogIG9yZ2FuaXphdGlvbjoKICAgIG5hbWU6CiAgICAtIGxhbmd1YWdlOiBqYQogICAgICBzY3JpcHQ6IEpwYW4KICAgICAgY29udGVudDog5LiA6Iis6LKh5Zuj5rOV5Lq644CA5pel5pys6KaP5qC85Y2U5LyaCiAgICAtIGxhbmd1YWdlOiBlbgogICAgICBzY3JpcHQ6IExhdG4KICAgICAgY29udGVudDogSmFwYW5lc2UgSW5kdXN0cmlhbCBTdGFuZGFyZHMKLSByb2xlOgogIC0gdHlwZTogcHVibGlzaGVyCiAgb3JnYW5pemF0aW9uOgogICAgbmFtZToKICAgIC0gbGFuZ3VhZ2U6IGphCiAgICAgIHNjcmlwdDogSnBhbgogICAgICBjb250ZW50OiDkuIDoiKzosqHlm6Pms5XkurrjgIDml6XmnKzopo/moLzljZTkvJoKICAgIC0gbGFuZ3VhZ2U6IGVuCiAgICAgIHNjcmlwdDogTGF0bgogICAgICBjb250ZW50OiBKYXBhbmVzZSBJbmR1c3RyaWFsIFN0YW5kYXJkcwotIHJvbGU6CiAgLSB0eXBlOiBhdXRob3IKICAgIGRlc2NyaXB0aW9uOgogICAgLSBjb250ZW50OiBjb21taXR0ZWUKICBvcmdhbml6YXRpb246CiAgICBzdWJkaXZpc2lvbjoKICAgIC0gbmFtZToKICAgICAgLSBjb250ZW50OiDkuIDoiKzosqHlm6Pms5XkurrjgIDml6XmnKzopo/moLzljZTkvJoKICAgICAgdHlwZTogdGVjaG5pY2FsLWNvbW1pdHRlZQphYnN0cmFjdDoKLSBsYW5ndWFnZTogamEKICBzY3JpcHQ6IEpwYW4KICBjb250ZW50OiDpibHlt6Xmpa3jgavjgYrjgYTjgabnlKjjgYTjgovmlbDlraboqJjlj7fjgavjgaTjgYTjgabopo/lrprjgIIKc3RhdHVzOgogIHN0YWdlOgogICAgY29udGVudDogd2l0aGRyYXduCmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjAuMC4xCiAgZG9jdHlwZToKICAgIGNvbnRlbnQ6IGphcGFuZXNlLWluZHVzdHJpYWwtc3RhbmRhcmQKICBmbGF2b3I6IGppcwogIGljczoKICAtIGNvZGU6ICcwMS4wNzUnCiAgICB0ZXh0OiBDaGFyYWN0ZXIgc3ltYm9scwogIC0gY29kZTogJzA3LjAyMCcKICAgIHRleHQ6IE1hdGhlbWF0aWNzCiAgc3RydWN0dXJlZGlkZW50aWZpZXI6CiAgICB0eXBlOiBKSVMKICAgIHByb2plY3RfbnVtYmVyOgogICAgICBjb250ZW50OiBaODIwMQo=
+  recorded_at: Thu, 26 Feb 2026 00:14:43 GMT
+recorded_with: VCR 6.4.0

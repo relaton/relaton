@@ -2,25 +2,19 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-jis/refs/heads/main/data/TR_A_0001_1996.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-jis/data-v2/data/tr-a-0001-1996.yaml
     body:
       encoding: US-ASCII
       string: ''
     headers:
       Accept-Encoding:
-      - gzip,deflate,identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
-      - Mechanize/2.12.2 Ruby/3.3.3p89 (http://github.com/sparklemotion/mechanize/)
-      Accept-Language:
-      - en-us,en;q=0.5
+      - Ruby
       Host:
       - raw.githubusercontent.com
-      Connection:
-      - keep-alive
-      Keep-Alive:
-      - '300'
   response:
     status:
       code: 200
@@ -29,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '770'
+      - '1489'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -37,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"91640ca8b696c44f5db5cf41f60610bd8e4eecdbfea266c01edb0dfa74340ead"
+      - W/"dc45ebf6a70816aba7c9132dd50212eed271dfb727961a07f379b947c0514d25"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -47,38 +41,36 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 473E:25CC6B:125353A:169FFD9:67BFEA0A
-      Content-Encoding:
-      - gzip
+      - 9854:1D1C42:2890EB:3111F3:699F9072
       Accept-Ranges:
       - bytes
       Date:
-      - Thu, 27 Feb 2025 04:29:01 GMT
+      - Thu, 26 Feb 2026 00:14:43 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100106-IAD
+      - cache-pdk-kpdk2140074-PDK
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1740630542.698432,VS0,VE81
+      - S1772064883.370748,VS0,VE83
       Vary:
-      - Authorization,Accept-Encoding,Origin
+      - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
       - "*"
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 6219318ee9b0cafd8db7fb4f1f0e3faba5e1ab9d
+      - a11386ee35c72c3a411dd77bd35276570839ac7a
       Expires:
-      - Thu, 27 Feb 2025 04:34:01 GMT
+      - Thu, 26 Feb 2026 00:19:43 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        H4sIAAAAAAAAA8VUTU8TQRi+76+Yi+mB7HYLiaabGNMjBC9AwpFMd6btlN2ZdWaWAqe2ECMhRg8oBjGB8BE/EAyYaCr/ZvvFv/Dd3SIUITF6sJe+O/O8X8/7zmOapqHcCvWxuUClYoI7aCFnjVp5gxEHzUwVbNvOmbl8/r6hmfaoY5jIFVxTrh3U2X/d2Wv0Nt53djf7T7cv3px2v3ztvntpIORhXg5xGfAImaiK4U+5kgU6PZgIMAejJKSPIZCmizobeJjx6+En2ZOQERMHgccogXM/ECEnKnZDNaypDKQQJcbLyKd+UWJOAYR1fCBKCGJSybEHeRDAPe+3sii/UdYk5vr2sjzG54d6r2gdKCebrdEioWreqipsCWlVg2xRiHmVnc3lHtt23s4yTuhi9lEx5GpJzDHycGZqpDAS03pvrJAQi5BeCqiDlHSNgaUxJ1gSgwgX5gB502mgAoodnSG3ifFpsAPJfCyXoGgZ0tiPh36RSgclEzQI0BXHSV2YUiEl4LWAvRC+M3FA086bow8yRtyiZMVQCxl7CFnGnC0DrbAcCZcc+zS1rvHR/l7vPzvqn+523u51z161W62oXu9uHnS3j/qHL7o7553nG+3zrcRteA5poGRF4t/VPNKLwaoMJZvAcEgVReOchAqqxR6aHnCm7kxB+R0pJrGOr6TwBouRsoRDXRGSLVP55zRkMn/d4e3p/0vqICx6TFWgcVwEerGrh3b/Ym2193k9ap5FK2dR8yRa+RitnEcrzy7qO50frd7JWm/tQ9Q4TuUBjFQYOt8O2q31qPEJBCNqrEbN9bv0AzBRYz/GNA5heTrHW1G9+S+iAs8BnpQOVQwE65KbwfrXmK4QiWvcAJcEclMSbcu2cnABgRKGEu+UK03dCmcu9kxJAyFj/aCEweOBpSxLEQYD8CVsDnTMZ1rTXxNMppmOj7kq7cUVBM7yOSs3altj9iAEVIdmrwtf0o4MXR1KSEpgOqzE4NUneABVqavnhpXgqvJYOH4C27vp/QEGAAA=
-  recorded_at: Thu, 27 Feb 2025 04:29:01 GMT
-recorded_with: VCR 6.3.1
+        LS0tCmlkOiBUUkEwMDAxMTk5Ngp0eXBlOiBzdGFuZGFyZApzY2hlbWFfdmVyc2lvbjogdjEuNC4xCnRpdGxlOgotIGxhbmd1YWdlOiBqYQogIHNjcmlwdDogSnBhbgogIGNvbnRlbnQ6IOWkluWjgeeUqOWhl+iGnOmYsuawtOadkAotIGxhbmd1YWdlOiBlbgogIHNjcmlwdDogTGF0bgogIGNvbnRlbnQ6IExpcXVpZC1hcHBsaWVkIGNvbXBvdW5kcyBmb3Igd2F0ZXJwcm9vZmluZyBtZW1icmFuZSBjb2F0aW5nIG9mIGV4dGVybmFsCiAgICB3YWxsCnNvdXJjZToKLSB0eXBlOiBzcmMKICBjb250ZW50OiBodHRwczovL3dlYmRlc2suanNhLm9yLmpwL2Jvb2tzL1cxMU0wMDkwL2luZGV4Lz9idW5zeW9faWQ9VFIrQSswMDAxJTNBMTk5Ngpkb2NpZGVudGlmaWVyOgotIGNvbnRlbnQ6IFRSIEEgMDAwMToxOTk2CiAgdHlwZTogSklTCiAgcHJpbWFyeTogdHJ1ZQpkb2NudW1iZXI6IEEwMDAxCmRhdGU6Ci0gdHlwZTogaXNzdWVkCiAgYXQ6ICcxOTk2LTA5LTI3Jwpjb250cmlidXRvcjoKLSByb2xlOgogIC0gdHlwZTogYXV0aG9yaXplcgogIG9yZ2FuaXphdGlvbjoKICAgIG5hbWU6CiAgICAtIGxhbmd1YWdlOiBqYQogICAgICBzY3JpcHQ6IEpwYW4KICAgICAgY29udGVudDog5LiA6Iis6LKh5Zuj5rOV5Lq644CA5pel5pys6KaP5qC85Y2U5LyaCiAgICAtIGxhbmd1YWdlOiBlbgogICAgICBzY3JpcHQ6IExhdG4KICAgICAgY29udGVudDogSmFwYW5lc2UgSW5kdXN0cmlhbCBTdGFuZGFyZHMKLSByb2xlOgogIC0gdHlwZTogYXV0aG9yCiAgb3JnYW5pemF0aW9uOgogICAgbmFtZToKICAgIC0gbGFuZ3VhZ2U6IGphCiAgICAgIHNjcmlwdDogSnBhbgotIHJvbGU6CiAgLSB0eXBlOiBwdWJsaXNoZXIKICBvcmdhbml6YXRpb246CiAgICBuYW1lOgogICAgLSBsYW5ndWFnZTogamEKICAgICAgc2NyaXB0OiBKcGFuCi0gcm9sZToKICAtIHR5cGU6IGF1dGhvcgogICAgZGVzY3JpcHRpb246CiAgICAtIGNvbnRlbnQ6IGNvbW1pdHRlZQogIG9yZ2FuaXphdGlvbjoKICAgIHN1YmRpdmlzaW9uOgogICAgLSBuYW1lOgogICAgICAtIHt9CiAgICAgIHR5cGU6IHRlY2huaWNhbC1jb21taXR0ZWUKYWJzdHJhY3Q6Ci0gbGFuZ3VhZ2U6IGphCiAgc2NyaXB0OiBKcGFuCiAgY29udGVudDog6YmE562L44Kz44Oz44Kv44Oq44O844OI6YCg5bu656+J54mp44Gu5aSW5aOB44Gu6Ziy5rC05bel5LqL44Gr55So44GE44KL5aSW5aOB55So5aGX6Iac6Ziy5rC05p2Q44Gr44Gk44GE44Gm6KaP5a6a44CCCnN0YXR1czoKICBzdGFnZToKICAgIGNvbnRlbnQ6IHdpdGhkcmF3bgpleHQ6CiAgc2NoZW1hX3ZlcnNpb246IHYwLjAuMQogIGRvY3R5cGU6CiAgICBjb250ZW50OiB0ZWNobmljYWwtcmVwb3J0CiAgZmxhdm9yOiBqaXMKICBpY3M6CiAgLSBjb2RlOiA5MS4xMjAuMzAKICAgIHRleHQ6IFdhdGVycHJvb2ZpbmcKICBzdHJ1Y3R1cmVkaWRlbnRpZmllcjoKICAgIHR5cGU6IEpJUwogICAgcHJvamVjdF9udW1iZXI6CiAgICAgIGNvbnRlbnQ6IEEwMDAxCg==
+  recorded_at: Thu, 26 Feb 2026 00:14:43 GMT
+recorded_with: VCR 6.4.0

@@ -14,6 +14,7 @@ module Relaton
       def to_all_parts!
         remove_part!
         remove_date!
+        self.content = "#{content} (all parts)" if content
       end
     end
   end

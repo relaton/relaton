@@ -1,7 +1,7 @@
-<bibdata type="standard" schema-version="v1.2.9">
-  <fetched>2024-10-24</fetched>
-  <title format="text/plain" language="ja" script="Jpan">７ビット及び８ビットの２バイト情報交換用符号化漢字集合</title>
-  <title format="text/plain" language="en" script="Lant">7-bit and 8-bit double byte coded KANJI sets for information interchange</title>
+<bibdata type="standard" schema-version="v1.4.1">
+  <fetched>2026-02-25</fetched>
+  <title language="ja" script="Jpan">７ビット及び８ビットの２バイト情報交換用符号化漢字集合</title>
+  <title language="en" script="Latn">7-bit and 8-bit double byte coded KANJI sets for information interchange</title>
   <uri type="src">https://webdesk.jsa.or.jp/books/W11M0090/index/?bunsyo_id=JIS+X+0208%3A1997</uri>
   <uri type="pdf">https://webdesk.jsa.or.jp/preview/pre_jis_x_00208_000_000_1997_j_pr11_i4.pdf</uri>
   <docidentifier type="JIS" primary="true">JIS X 0208</docidentifier>
@@ -27,6 +27,16 @@
       <name language="en" script="Latn">Japanese Industrial Standards</name>
     </organization>
   </contributor>
+  <contributor>
+    <role type="author">
+      <description>committee</description>
+    </role>
+    <organization>
+      <subdivision type="technical-committee">
+        <name>一般財団法人　日本規格協会</name>
+      </subdivision>
+    </organization>
+  </contributor>
   <language>ja</language>
   <script>Jpan</script>
   <status>
@@ -34,9 +44,8 @@
   </status>
   <relation type="instanceOf">
     <bibitem type="standard">
-      <fetched>2024-10-24</fetched>
-      <title format="text/plain" language="ja" script="Jpan">７ビット及び８ビットの２バイト情報交換用符号化漢字集合</title>
-      <title format="text/plain" language="en" script="Lant">7-bit and 8-bit double byte coded KANJI sets for information interchange</title>
+      <title language="ja" script="Jpan">７ビット及び８ビットの２バイト情報交換用符号化漢字集合</title>
+      <title language="en" script="Latn">7-bit and 8-bit double byte coded KANJI sets for information interchange</title>
       <uri type="src">https://webdesk.jsa.or.jp/books/W11M0090/index/?bunsyo_id=JIS+X+0208%3A1997</uri>
       <uri type="pdf">https://webdesk.jsa.or.jp/preview/pre_jis_x_00208_000_000_1997_j_pr11_i4.pdf</uri>
       <docidentifier type="JIS" primary="true">JIS X 0208:1997</docidentifier>
@@ -68,25 +77,33 @@
           <name language="en" script="Latn">Japanese Industrial Standards</name>
         </organization>
       </contributor>
+      <contributor>
+        <role type="author">
+          <description>committee</description>
+        </role>
+        <organization>
+          <subdivision type="technical-committee">
+            <name>一般財団法人　日本規格協会</name>
+          </subdivision>
+        </organization>
+      </contributor>
       <language>ja</language>
       <script>Jpan</script>
-      <abstract format="text/plain" language="ja" script="Jpan">６８７９文字の図形文字とそれらのビット組合せとの対応を規定。符号化漢字集合は，この規格で規定する漢字集合だけを利用する場合，又はＪＩＳ　Ｘ　０２０１のラテン文字用図形文字集合若しくはＩＳＯ／ＩＥＣ　６４６の国際基準版（ＩＲＶ）と組み合わせて利用する場合，それぞれについての７ビット・８ビットの２バイト符号について適用。</abstract>
+      <abstract language="ja" script="Jpan">６８７９文字の図形文字とそれらのビット組合せとの対応を規定。符号化漢字集合は，この規格で規定する漢字集合だけを利用する場合，又はＪＩＳ　Ｘ　０２０１のラテン文字用図形文字集合若しくはＩＳＯ／ＩＥＣ　６４６の国際基準版（ＩＲＶ）と組み合わせて利用する場合，それぞれについての７ビット・８ビットの２バイト符号について適用。</abstract>
       <status>
         <stage>valid</stage>
       </status>
     </bibitem>
   </relation>
   <relation type="instanceOf">
-    <bibitem type="standard">
-      <formattedref format="text/plain">JIS X 0208:1997/AMENDMENT 1:2012</formattedref>
+    <bibitem>
+      <formattedref>JIS X 0208:1997/AMENDMENT 1:2012</formattedref>
       <docidentifier type="JIS" primary="true">JIS X 0208:1997/AMENDMENT 1:2012</docidentifier>
     </bibitem>
   </relation>
   <ext schema-version="v0.0.1">
     <doctype>japanese-industrial-standard</doctype>
-    <editorialgroup>
-      <technical-committee>一般財団法人　日本規格協会</technical-committee>
-    </editorialgroup>
+    <flavor>jis</flavor>
     <ics>
       <code>35.040</code>
       <text>Information coding</text>
