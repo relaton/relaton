@@ -1,4 +1,4 @@
-= RelatonJis: retrieve JIS Standards for bibliographic use using the BibliographicItem model
+= Relaton::Jis: retrieve JIS Standards for bibliographic use using the BibliographicItem model
 
 image:https://img.shields.io/gem/v/relaton-jis.svg["Gem Version", link="https://rubygems.org/gems/relaton-jis"]
 image:https://github.com/relaton/relaton-jis/workflows/macos/badge.svg["Build Status, link="https://github.com/relaton/relaton-jis/actions?workflow=rake"]
@@ -8,7 +8,7 @@ image:https://img.shields.io/github/commits-since/relaton/relaton-jis/latest.svg
 
 RelatonJis is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
-You can use it to retrieve metadata of JIS Standards from https://webdesk.jsa.or.jp, and access such metadata through the `RelatonJis::BibliographicItem` object.
+You can use it to retrieve metadata of JIS Standards from https://webdesk.jsa.or.jp, and access such metadata through the `Relaton::Jis::ItemData` object.
 
 == Installation
 
@@ -26,46 +26,43 @@ If bundler is not being used to manage dependencies, install the gem by executin
 
 [source,ruby]
 ----
-require 'relaton_jis'
+require 'relaton/jis'
 => true
 
-hit_collection = RelatonJis::Bibliography.search("JIS X 0208")
-=> <RelatonJis::HitCollection:0x00000000018858 @ref=JIS X 0208 @fetched=false>
+hit_collection = Relaton::Jis::Bibliography.search("JIS X 0208")
+=> <Relaton::Jis::HitCollection:0x000000000014a0 @ref=JIS X 0208 @fetched=false>
 
 hit_collection.first
-=> <RelatonJis::Hit:0x00000000018880 @text="JIS X 0208" @fetched="false" @fullIdentifier="" @title="">
+=> <Relaton::Jis::Hit:0x00000000001a20 @reference="JIS X 0208" @fetched="false" @docidentifier="">
 
-item = hit_collection[2].fetch
-=> #<RelatonJis::BibliographicItem:0x00007fe4564a7580
+item = hit_collection[1].item
+=> #<Relaton::Jis::ItemData:0x000000012a880790
 ...
 
-item.docidentifier
-=> [#<RelatonBib::DocumentIdentifier:0x00007fe46625c518
-  @id="JIS X 0208:1997/AMENDMENT 1:2012",
-  @language=nil,
-  @primary=true,
-  @scope=nil,
-  @script=nil,
-  @type="JIS">]
+item.docidentifier[0].type
+=> "JIS"
+
+item.docidentifier[0].content
+=> "JIS X 0208:1997/AMENDMENT 1:2012"
 ----
 
 === Fetch document by reference and year
 
 [source,ruby]
 ----
-item = RelatonJis::Bibliography.get "JIS X 0208:1997"
-[relaton-jis] (JIS X 0208:1997) Fetching from webdesk.jsa.or.jp ...
-[relaton-jis] (JIS X 0208:1997) Found: `JIS X 0208:1997`
-=> #<RelatonJis::BibliographicItem:0x00007fe4478ecc08
+item = Relaton::Jis::Bibliography.get "JIS X 0208:1997"
+[relaton-jis] INFO: (JIS X 0208:1997) Fetching from webdesk.jsa.or.jp ...
+[relaton-jis] INFO: (JIS X 0208:1997) Found: `JIS X 0208:1997`
+=> #<Relaton::Jis::ItemData:0x000000012c0f2440
 ...
 
-item = RelatonJis::Bibliography.get "JIS X 0208", "1997"
-[relaton-jis] (JIS X 0208) Fetching  from webdesk.jsa.or.jp ...
-[relaton-jis] (JIS X 0208) Found: `JIS X 0208:1997`
-=> #<RelatonJis::BibliographicItem:0x00007fe436b49d90
+item = Relaton::Jis::Bibliography.get "JIS X 0208", "1997"
+[relaton-jis] INFO: (JIS X 0208) Fetching from webdesk.jsa.or.jp ...
+[relaton-jis] INFO: (JIS X 0208) Found: `JIS X 0208:1997`
+=> #<Relaton::Jis::ItemData:0x000000012c1d7810
 ...
 
-item.docidentifier[0].id
+item.docidentifier[0].content
 => "JIS X 0208:1997"
 ----
 
@@ -73,23 +70,23 @@ item.docidentifier[0].id
 
 [source,ruby]
 ----
-item = RelatonJis::Bibliography.get "JIS B 0060 (all parts)"
-[relaton-jis] (JIS B 0060 (all parts)) Fetching from webdesk.jsa.or.jp ...
-[relaton-jis] (JIS B 0060 (all parts)) Found: `JIS B 0060 (all parts)`
-=> #<RelatonJis::BibliographicItem:0x000000010c3e2300
+item = Relaton::Jis::Bibliography.get "JIS B 0060 (all parts)"
+[relaton-jis] INFO: (JIS B 0060 (all parts)) Fetching from webdesk.jsa.or.jp ...
+[relaton-jis] INFO: (JIS B 0060 (all parts)) Found: `JIS B 0060 (all parts)`
+=> #<Relaton::Jis::ItemData:0x00000001273c8840
 ...
 
-item.docidentifier
-=> [#<RelatonBib::DocumentIdentifier:0x000000010c5905f8 @id="JIS B 0060 (all parts)", @language=nil, @primary=true, @scope=nil, @script=nil, @type="JIS">]
+item.docidentifier[0].content
+=> "JIS B 0060 (all parts)"
 
-item = RelatonJis::Bibliography.get "JIS B 0060 (規格群)"
-[relaton-jis] (JIS B 0060 (規格群)) Fetching from webdesk.jsa.or.jp ...
-[relaton-jis] (JIS B 0060 (規格群)) Found: `JIS B 0060 (all parts)`
-=> #<RelatonJis::BibliographicItem:0x000000010c3ceb20
+item = Relaton::Jis::Bibliography.get "JIS B 0060 (規格群)"
+[relaton-jis] INFO: (JIS B 0060 (規格群)) Fetching from webdesk.jsa.or.jp ...
+[relaton-jis] INFO: (JIS B 0060 (規格群)) Found: `JIS B 0060 (all parts)`
+=> #<Relaton::Jis::ItemData:0x000000012cb367d0
 ...
 
-item.docidentifier
-=> [#<RelatonBib::DocumentIdentifier:0x000000010c8d9b10 @id="JIS B 0060 (all parts)", @language=nil, @primary=true, @scope=nil, @script=nil, @type="JIS">]
+item.docidentifier[0].content
+=> "JIS B 0060 (all parts)"
 ----
 
 === XML serialization
@@ -101,59 +98,55 @@ Possible options:
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="JISX0208-1997" type="standard" schema-version="v1.2.9">
-      <fetched>2023-03-18</fetched>
-      <title format="text/plain" language="ja" script="Jpan">７ビット及び８ビットの２バイト情報交換用符号化漢字集合</title>
-      <title format="text/plain" language="en" script="Lant">7-bit and 8-bit double byte coded KANJI sets for information interchange</title>
+=> "<bibitem id="JISB006012015" type="standard" schema-version="v1.4.1">
+      <fetched>2026-02-25</fetched>
+      <title language="ja" script="Jpan">デジタル製品技術文書情報―第１部：総則</title>
+      <title language="en" script="Latn">Digital technical product documentation (DTPD) -- Part 1: General code of practices</title>
+      <uri type="src">https://webdesk.jsa.or.jp/books/W11M0090/index/?bunsyo_id=JIS+B+0060-1%3A2015</uri>
+      <docidentifier type="JIS" primary="true">JIS B 0060 (all parts)</docidentifier>
       ...
     </bibitem>"
 
 item.to_xml bibdata: true
-=> "<bibdata type="standard" schema-version="v1.2.9">
-      <fetched>2023-03-18</fetched>
-      <title format="text/plain" language="ja" script="Jpan">７ビット及び８ビットの２バイト情報交換用符号化漢字集合</title>
-      <title format="text/plain" language="en" script="Lant">7-bit and 8-bit double byte coded KANJI sets for information interchange</title>
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      <fetched>2026-02-25</fetched>
+      <title language="ja" script="Jpan">デジタル製品技術文書情報―第１部：総則</title>
+      <title language="en" script="Latn">Digital technical product documentation (DTPD) -- Part 1: General code of practices</title>
+      <uri type="src">https://webdesk.jsa.or.jp/books/W11M0090/index/?bunsyo_id=JIS+B+0060-1%3A2015</uri>
+      <docidentifier type="JIS" primary="true">JIS B 0060 (all parts)</docidentifier>
       ...
       <ext schema-version="v0.0.1">
-        <doctype>standard</doctype>
-        <editorialgroup>
-          <technical-committee>一般財団法人　日本規格協会</technical-committee>
-        </editorialgroup>
+        <doctype>japanese-industrial-standard</doctype>
+        <flavor>jis</flavor>
         <ics>
-          <code>35.040</code>
-          <text>Information coding</text>
+          <code>01.110</code>
+          <text>Technical product documentation</text>
         </ics>
         <structuredidentifier type="JIS">
-          <project-number>X0208</project-number>
+          <project-number>B0060 (all parts)</project-number>
         </structuredidentifier>
       </ext>
     </bibdata>"
 ----
 
-=== Typed links
+=== Typed source links
 
-Each JIS document has `src` type link and optional `pdf`.
+Each JIS document has `src` type source link and optional `pdf`.
 
 [source,ruby]
 ----
-item.link
-=> [#<RelatonBib::TypedUri:0x00007fe436a626c0
-  @content=#<Addressable::URI:0xc620 URI:https://webdesk.jsa.or.jp/books/W11M0090/index/?bunsyo_id=JIS+X+0208%3A1997>,
-  @language=nil,
-  @script=nil,
-  @type="src">,
- #<RelatonBib::TypedUri:0x00007fe436a60ed8
-  @content=#<Addressable::URI:0xc634 URI:https://webdesk.jsa.or.jp/preview/pre_jis_x_00208_000_000_1997_j_pr11_i4.pdf>,
-  @language=nil,
-  @script=nil,
-  @type="pdf">]
+item.source[0].type
+=> "src"
+
+item.source[0].content
+=> "https://webdesk.jsa.or.jp/books/W11M0090/index/?bunsyo_id=JIS+B+0060-1%3A2015"
 ----
 
 === Fetch data
 
 This gem scrapes the https://webdesk.jsa.or.jp/books/W11M0270 pages to fetch the JIS Standards metadata. By default the data is saved in the `./data` folder in YAML format.
 
-The method `RelatonJis::DataFetcher.fetch(output: "data", format: "yaml")` fetches all the documents from the dataset and saves them to the `./data` folder in YAML format.
+The method `Relaton::Jis::DataFetcher.fetch(output: "data", format: "yaml")` fetches all the documents from the dataset and saves them to the `./data` folder in YAML format.
 Arguments:
 
 - `output` - folder to save documents (default './data').
@@ -161,9 +154,11 @@ Arguments:
 
 [source,ruby]
 ----
-RelatonJis::DataFetcher.fetch
-Start fetching JIS data at 2024-09-27 17:49:40 -0400
-Fetching JIS data finished at 2024-09-27 18:40:11 -0400. It took 3031.0 seconds.
+require "relaton/jis/data_fetcher"
+
+Relaton::Jis::DataFetcher.fetch
+Started at: 2024-09-27 17:49:40 -0400
+Done in: 3031 sec.
 => nil
 ----
 

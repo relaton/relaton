@@ -29,6 +29,7 @@ All classes live under `lib/relaton/jis/`:
 - **`Doctype`** (extends `Bib::Doctype`) — allowed types: `japanese-industrial-standard`, `technical-report`, `technical-specification`, `amendment`
 - **`Scraper`** — scrapes individual JIS document pages from webdesk.jsa.or.jp; returns `Bib::ItemData`; editorial group is modeled as a contributor with `Bib::Subdivision` (not `EditorialGroup`)
 - **`DataFetcher`** (extends `Core::DataFetcher`) — bulk-fetches all JIS documents via threaded scraping; implements `to_yaml`/`to_xml`/`to_bibxml` for serialization dispatch; loaded on-demand via `require "relaton/jis/data_fetcher"`
+- **`Processor`** (extends `Core::Processor`) — Relaton processor registration; provides `get`, `fetch_data`, `from_xml`, `from_yaml`, `grammar_hash`; prefix `JIS`, defaultprefix `^(JIS|TR)\s`
 - **`Util`** (includes `Relaton::Bib::Util`) — logging with PROGNAME "relaton-jis"
 
 ### Key Dependencies
