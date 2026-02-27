@@ -1,6 +1,6 @@
-<bibdata type="standard" schema-version="v1.2.9">
-  <fetched>2023-09-02</fetched>
-  <title type="main" format="text/plain" language="en" script="Latn">Akoma Ntoso Version 1.0 Part 1: XML Vocabulary</title>
+<bibdata type="standard" schema-version="v1.4.1">
+  <fetched>2026-02-27</fetched>
+  <title language="en" script="Latn" type="main">Akoma Ntoso Version 1.0 Part 1: XML Vocabulary</title>
   <uri type="src">http://docs.oasis-open.org/legaldocml/akn-core/v1.0/os/part1-vocabulary/akn-core-v1.0-os-part1-vocabulary.html</uri>
   <docidentifier type="OASIS" primary="true">OASIS AkomaNtosoCore-v1.0-Pt1-Vocabulary</docidentifier>
   <docnumber>AkomaNtosoCore-v1.0-Pt1-Vocabulary</docnumber>
@@ -14,7 +14,7 @@
     <role type="publisher"/>
     <organization>
       <name>OASIS</name>
-      <uri>https://www.oasis-open.org/</uri>
+      <uri type="uri">https://www.oasis-open.org/</uri>
     </organization>
   </contributor>
   <contributor>
@@ -23,7 +23,19 @@
     </role>
     <organization>
       <name>OASIS LegalDocumentML (LegalDocML) TC</name>
-      <uri>https://www.oasis-open.org/committees/legaldocml/</uri>
+      <uri type="uri">https://www.oasis-open.org/committees/legaldocml/</uri>
+    </organization>
+  </contributor>
+  <contributor>
+    <role type="author">
+      <description>committee</description>
+    </role>
+    <organization>
+      <name>OASIS</name>
+      <subdivision type="technical-committee">
+        <name>OASIS LegalDocumentML&#13;
+(LegalDocML) TC</name>
+      </subdivision>
     </organization>
   </contributor>
   <contributor>
@@ -38,7 +50,7 @@
       <affiliation>
         <organization>
           <name>University of Bologna-CIRSFID</name>
-          <uri>http://www.cirsfid.unibo.it/</uri>
+          <uri type="uri">http://www.cirsfid.unibo.it/</uri>
         </organization>
       </affiliation>
       <email>fabio@cs.unibo.it</email>
@@ -56,7 +68,7 @@
       <affiliation>
         <organization>
           <name>University of Bologna-CIRSFID</name>
-          <uri>http://www.cirsfid.unibo.it/</uri>
+          <uri type="uri">http://www.cirsfid.unibo.it/</uri>
         </organization>
       </affiliation>
       <email>monica.palmirani@unibo.it</email>
@@ -72,7 +84,7 @@
       <affiliation>
         <organization>
           <name>University of Bologna-CIRSFID</name>
-          <uri>http://www.cirsfid.unibo.it/</uri>
+          <uri type="uri">http://www.cirsfid.unibo.it/</uri>
         </organization>
       </affiliation>
       <email>monica.palmirani@unibo.it</email>
@@ -88,7 +100,7 @@
       <affiliation>
         <organization>
           <name>LexisNexis, a Division of Reed Elsevier</name>
-          <uri>http://www.lexisnexis.com/</uri>
+          <uri type="uri">http://www.lexisnexis.com/</uri>
         </organization>
       </affiliation>
       <email>roger.sperberg@lexisnexis.com</email>
@@ -104,7 +116,7 @@
       <affiliation>
         <organization>
           <name>Xcential Group, LLC</name>
-          <uri>http://xcential.com/</uri>
+          <uri type="uri">http://xcential.com/</uri>
         </organization>
       </affiliation>
       <email>grant.vergottini@xcential.com</email>
@@ -120,7 +132,7 @@
       <affiliation>
         <organization>
           <name>University of Bologna-CIRSFID</name>
-          <uri>http://www.cirsfid.unibo.it/</uri>
+          <uri type="uri">http://www.cirsfid.unibo.it/</uri>
         </organization>
       </affiliation>
       <email>fabio@cs.unibo.it</email>
@@ -128,18 +140,15 @@
   </contributor>
   <language>en</language>
   <script>Latn</script>
-  <abstract format="text/plain" language="en" script="Latn">This document provides the motivations, the scope, and the design principles of the Akoma Ntoso XML standard. We include also a narrative part concerning the main functionalities of Akoma Ntoso XML standard. We intend also to provide a discursive illustration of the benefits, features and scenarios using Akoma Ntoso XML standard.</abstract>
+  <abstract language="en" script="Latn">This document provides the motivations, the scope, and the design principles of the Akoma Ntoso XML standard. We include also a narrative part concerning the main functionalities of Akoma Ntoso XML standard. We intend also to provide a discursive illustration of the benefits, features and scenarios using Akoma Ntoso XML standard.</abstract>
   <relation type="partOf">
     <bibitem>
-      <formattedref format="text/plain">OASIS AkomaNtosoCore-v1.0</formattedref>
+      <formattedref>OASIS AkomaNtosoCore-v1.0</formattedref>
     </bibitem>
   </relation>
   <ext schema-version="v1.0.1">
     <doctype>standard</doctype>
-    <editorialgroup>
-      <technical-committee>OASIS LegalDocumentML&#13;
-(LegalDocML) TC</technical-committee>
-    </editorialgroup>
+    <flavor>oasis</flavor>
     <technology-area>Content-Technologies</technology-area>
     <technology-area>eGov/Legal</technology-area>
   </ext>

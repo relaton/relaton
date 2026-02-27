@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "mechanize"
 require "relaton/index"
 require "relaton/bib"
 require_relative "oasis/version"
@@ -9,6 +8,7 @@ require_relative "oasis/item_data"
 require_relative "oasis/item"
 require_relative "oasis/bibitem"
 require_relative "oasis/bibdata"
+require_relative "oasis/bibliography"
 
 module Relaton
   module Oasis

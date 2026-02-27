@@ -1,3 +1,4 @@
+require "mechanize"
 require_relative "../oasis"
 require_relative "data_parser_utils"
 require_relative "data_parser"
