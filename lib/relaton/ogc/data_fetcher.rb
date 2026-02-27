@@ -3,6 +3,8 @@
 require "fileutils"
 require "faraday"
 require "json"
+require_relative "../ogc"
+require_relative "scraper"
 
 module Relaton
   module Ogc

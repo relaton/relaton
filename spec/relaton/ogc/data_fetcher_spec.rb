@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "relaton/ogc/data_fetcher"
+
 RSpec.describe Relaton::Ogc::DataFetcher do
   it "initializes" do
     df = described_class.new "data", "bibxml"

@@ -2,11 +2,10 @@ require "relaton/index"
 require "relaton/iso"
 require_relative "ogc/version"
 require_relative "ogc/util"
+require_relative "ogc/item_data"
 require_relative "ogc/item"
 require_relative "ogc/bibitem"
 require_relative "ogc/bibdata"
-require_relative "ogc/scraper"
-require_relative "ogc/data_fetcher"
 
 module Relaton
   module Ogc

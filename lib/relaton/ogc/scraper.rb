@@ -37,7 +37,7 @@ module Relaton
           type = fetch_type(hit["type"])
           contribs = fetch_contributor(hit)
           contribs << fetch_editorialgroup_contributor
-          Item.new(
+          ItemData.new(
             type: "standard",
             title: fetch_title(hit["title"]),
             docidentifier: fetch_docid(hit["identifier"]),
@@ -85,7 +85,7 @@ module Relaton
         # @param identifier [String]
         # @return [Array<Bib::Docidentifier>]
         def fetch_docid(identifier)
-          id = Bib::Docidentifier.new(
+          id = Docidentifier.new(
             content: identifier, type: "OGC", primary: true,
           )
           [id]

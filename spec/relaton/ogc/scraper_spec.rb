@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "relaton/ogc/data_fetcher"
+
 describe Relaton::Ogc::Scraper do
   it "parse_page" do
     hit = { "type" => :type, "title" => :title, "identifier" => :identifier,
@@ -16,7 +18,7 @@ describe Relaton::Ogc::Scraper do
     expect(described_class).to receive(:fetch_edition).with(:identifier).and_return(:edition)
     expect(described_class).to receive(:fetch_status).with(:draft).and_return(:status)
     expect(described_class).to receive(:fetch_doctype).with(:doctype).and_return(:doctype)
-    expect(Relaton::Ogc::Item).to receive(:new).with(
+    expect(Relaton::Ogc::ItemData).to receive(:new).with(
       type: "standard", title: "Title", docidentifier: :docid, source: :link,
       status: :status, edition: :edition, abstract: :abstract,
       contributor: [:eg_contrib], language: ["en"], script: ["Latn"],
@@ -47,7 +49,7 @@ describe Relaton::Ogc::Scraper do
   it "fetch_docid" do
     docid = described_class.send :fetch_docid, "identifier"
     expect(docid).to be_instance_of Array
-    expect(docid.first).to be_instance_of Relaton::Bib::Docidentifier
+    expect(docid.first).to be_instance_of Relaton::Ogc::Docidentifier
     expect(docid.first.content).to eq "identifier"
     expect(docid.first.type).to eq "OGC"
     expect(docid.first.primary).to be true
