@@ -42,27 +42,44 @@ All model classes use `Lutaml::Model::Serializable` for XML/YAML serialization w
 
 ```
 Iso::Item (from relaton-iso)
-└── Relaton::Ogc::Item          # OGC-specific item, adds `ext` attribute
+└── Relaton::Ogc::Item          # serializer, extends Iso::Item with `ext` and `docidentifier`
     ├── Relaton::Ogc::Bibitem   # includes Bib::BibitemShared
     └── Relaton::Ogc::Bibdata   # includes Bib::BibdataShared
+
+Bib::ItemData (from relaton-bib)
+└── Relaton::Ogc::ItemData      # data model returned by Item.from_xml / Item.from_yaml
 ```
 
-- **Item** (`lib/relaton/ogc/item.rb`) — extends `Iso::Item` with an `ext` attribute of type `Ext`
-- **Ext** (`lib/relaton/ogc/ext.rb`) — OGC extension data: doctype, subdoctype, flavor, editorialgroup, ics
+- **Item** (`lib/relaton/ogc/item.rb`) — serializer; extends `Iso::Item`, declares `model ItemData`, adds `ext` (Ext) and `docidentifier` (Docidentifier) attributes
+- **ItemData** (`lib/relaton/ogc/item_data.rb`) — plain data model extending `Bib::ItemData`
+- **Ext** (`lib/relaton/ogc/ext.rb`) — OGC extension data: doctype, subdoctype (with constrained values)
 - **Doctype** (`lib/relaton/ogc/doctype.rb`) — enumerated OGC document types (standard, engineering-report, best-practice, etc.)
-- **EditorialGroup** (`lib/relaton/ogc/editorial_group.rb`) — committee, subcommittee, workgroup
+- **Docidentifier** (`lib/relaton/ogc/docidentifier.rb`) — extends `Bib::Docidentifier`
 - **Bibitem** / **Bibdata** — thin wrappers mixing in shared serialization behavior from `relaton-bib`
+
+### Search & Fetch Pipeline
+
+- **Bibliography** (`lib/relaton/ogc/bibliography.rb`) — entry point: `search(text)` and `get(code, year, opts)`
+- **HitCollection** (`lib/relaton/ogc/hit_collection.rb`) — fetches from `relaton-data-ogc` GitHub repo (data-v2 branch), uses `relaton-index` for lookup
+- **Hit** (`lib/relaton/ogc/hit.rb`) — wraps a single search result; lazy-fetches `ItemData` on `#item`
+- **Processor** (`lib/relaton/ogc/processor.rb`) — `Core::Processor` implementation for Relaton registry integration
+
+### Data Fetching
+
+- **DataFetcher** (`lib/relaton/ogc/data_fetcher.rb`) — bulk-fetches OGC documents from the NamingAuthority JSON endpoint
+- **Scraper** (`lib/relaton/ogc/scraper.rb`) — parses individual OGC document JSON into `ItemData`
 
 ### Key Dependencies
 
 - `relaton-iso` — provides `Iso::Item` base class and ISO bibliographic structures
-- `relaton-bib` (transitive via relaton-iso) — core types: `Bib::Doctype`, `Bib::WorkGroup`, `Bib::ICS`, etc.
+- `relaton-bib` (transitive via relaton-iso) — core types: `Bib::ItemData`, `Bib::Doctype`, `Bib::Ext`, etc.
 - `lutaml-model` (transitive) — serialization framework for XML/YAML mapping
 - `faraday` — HTTP client for fetching remote data
+- `relaton-index` — index-based document lookup from GitHub-hosted data repos
 
 ### Serialization Pattern
 
-Models declare attributes and XML mappings in the same class. Round-trip fidelity (parse → serialize → parse) is the primary correctness criterion tested in specs.
+Models declare attributes and XML mappings in the same class. `Item` is the serializer (handles `from_xml`, `from_yaml`, `to_xml`), `ItemData` is the plain data object returned. Round-trip fidelity (parse → serialize → parse) is the primary correctness criterion tested in specs.
 
 ### Test Setup
 
@@ -70,11 +87,17 @@ Models declare attributes and XML mappings in the same class. Round-trip fidelit
 - **VCR** + **WebMock** for HTTP interaction recording (`spec/vcr_cassettes/`)
 - **Jing** for RelaxNG schema validation against `grammars/relaton-ogc-compile.rng`
 - **equivalent-xml** for XML comparison in tests
-- Fixtures live in `spec/fixtures/` (YAML, XML, JSON)
+- Fixtures live in `spec/fixtures/` (YAML, XML)
+- Integration tests in `spec/relaton/ogc/integration_spec.rb` exercise the full search → fetch → serialize pipeline
 
 ### Grammars
 
 RelaxNG schemas in `grammars/` define the valid XML structure. `relaton-ogc-compile.rng` is the combined schema used for test validation.
+
+### API Notes
+
+- `Bib::Docidentifier` uses `.content` (not `.id`) for the identifier string
+- `Bib::Date` uses `.at` returning a `StringDate::Value`; parse with `::Date.parse(d.at.to_s)` to extract year
 
 ## Linting
 
