@@ -1,4 +1,4 @@
-= RelatonOasis: retrieve OASIS Standards for bibliographic use using the BibliographicItem model
+= Relaton::Oasis: retrieve OASIS Standards for bibliographic use using the BibliographicItem model
 
 image:https://img.shields.io/gem/v/relaton-oasis.svg["Gem Version", link="https://rubygems.org/gems/relaton-oasis"]
 image:https://github.com/relaton/relaton-oasis/workflows/macos/badge.svg["Build Status (macOS)", link="https://github.com/relaton/relaton-oasis/actions?workflow=macos"]
@@ -10,7 +10,7 @@ image:https://img.shields.io/github/commits-since/relaton/relaton-oasis/latest.s
 
 RelatonOasis is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
-You can use it to retrieve metadata of OASIS Standards from https://www.oasis-open.org/standards/ and access such metadata through the `OasisBibliographicItem` object.
+You can use it to retrieve metadata of OASIS Standards from https://www.oasis-open.org/standards/ and access such metadata through the `Relaton::Oasis::ItemData` object.
 
 == Installation
 
@@ -36,13 +36,13 @@ All the OASIS documents are parsed from https://www.oasis-open.org/standards/ an
 
 [source,ruby]
 ----
-require 'relaton_oasis'
+require 'relaton/oasis'
 => true
 
-item = RelatonOasis::OasisBibliography.get "OASIS amqp-core"
-[relaton-oasis] (OASIS) amqp-core Fetching from Relaton repository ...
-[relaton-oasis] (OASIS amqp-core) Found: `OASIS amqp-core`
-=> #<RelatonOasis::OasisBibliographicItem:0x00007fceea1aecb0
+item = Relaton::Oasis::Bibliography.get "OASIS amqp-core"
+[relaton-oasis] INFO: (OASIS amqp-core) Fetching from Relaton repository ...
+[relaton-oasis] INFO: (OASIS amqp-core) Found: `OASIS amqp-core`
+=> #<Relaton::Oasis::ItemData:0x0000000120db0fa8
 ...
 ----
 
@@ -51,29 +51,27 @@ item = RelatonOasis::OasisBibliography.get "OASIS amqp-core"
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="OASISamqp-core" type="standard" schema-version="v1.2.9">
-      <fetched>2022-12-05</fetched>
-      <title type="main" format="text/plain" language="en" script="Latn">Advanced Message Queueing Protocol (AMQP) v1.0</title>
+=> "<bibitem id="OASISamqpcore" type="standard" schema-version="v1.4.1">
+      <fetched>2026-02-27</fetched>
+      <title language="en" script="Latn" type="main">Advanced Message Queueing Protocol (AMQP) v1.0</title>
       <docidentifier type="OASIS" primary="true">OASIS amqp-core</docidentifier>
       ...
     </bibitem>"
 ----
 
-With argument `bibdata: true` it ouputs XML wrapped by `bibdata` element and adds flavour `ext` element.
+With argument `bibdata: true` it outputs XML wrapped by `bibdata` element and adds flavour `ext` element.
 
 [source,ruby]
 ----
 item.to_xml bibdata: true
-=> "<bibdata type="standard" schema-version="v1.2.9">
-      <fetched>2022-12-05</fetched>
-      <title type="main" format="text/plain" language="en" script="Latn">Advanced Message Queueing Protocol (AMQP) v1.0</title>
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      <fetched>2026-02-27</fetched>
+      <title language="en" script="Latn" type="main">Advanced Message Queueing Protocol (AMQP) v1.0</title>
       <docidentifier type="OASIS" primary="true">OASIS amqp-core</docidentifier>
       ...
       <ext schema-version="v1.0.1">
         <doctype>standard</doctype>
-        <editorialgroup>
-          <technical-committee>OASIS Advanced Message Queuing Protocol (AMQP) TC</technical-committee>
-        </editorialgroup>
+        <flavor>oasis</flavor>
         <technology-area>Messaging</technology-area>
       </ext>
     </bibdata>"
@@ -81,41 +79,37 @@ item.to_xml bibdata: true
 
 === Typed links
 
-Some OASIS documents have `src` type link.
+Some OASIS documents have `src` type source link.
 
 [source,ruby]
 ----
-item = RelatonOasis::OasisBibliography.get "OASIS amqp-core-types-v1.0-Pt1"
-[relaton-oasis] (OASIS amqp-core-types-v1.0-Pt1) Fetching from Relaton repository ...
-[relaton-oasis] (OASIS amqp-core-types-v1.0-Pt1) Found: `OASIS amqp-core-types-v1.0-Pt1`
-=> #<RelatonOasis::OasisBibliographicItem:0x00007fceda0c5e08
+item = Relaton::Oasis::Bibliography.get "OASIS amqp-core-types-v1.0-Pt1"
+[relaton-oasis] INFO: (OASIS amqp-core-types-v1.0-Pt1) Fetching from Relaton repository ...
+[relaton-oasis] INFO: (OASIS amqp-core-types-v1.0-Pt1) Found: `OASIS amqp-core-types-v1.0-Pt1`
+=> #<Relaton::Oasis::ItemData:0x0000000123ff12d8
 ...
 
-item.link
-=> [#<RelatonBib::TypedUri:0x00007fceda0bf990
-  @content=#<Addressable::URI:0xbe00 URI:http://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-types-v1.0-os.html>,
-  @type="src">]
+item.source[0].type
+=> "src"
+
+item.source[0].content
+=> "http://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-types-v1.0-os.html"
 ----
 
 === Create bibliographic item from XML
 
 [source,ruby]
 ----
-RelatonOasis::XMLParser.from_xml File.read("spec/fixtures/oasis_bibdata.xml")
-=> #<RelatonOasis::OasisBibliographicItem:0x00007f88ab9d1d78
+Relaton::Oasis::Item.from_xml File.read("spec/fixtures/oasis_bibdata.xml")
+=> #<Relaton::Oasis::ItemData:0x0000000123ffeb18
 ...
 ----
 
 === Create bibliographic item from YAML
 [source,ruby]
 ----
-hash = YAML.load_file "spec/fixtures/oasis_bibdata.yaml"
-=> {"schema-version"=>"v1.2.9",
- "id"=>"OASISamqp-core",
-...
-
-RelatonOasis::OasisBibliographicItem.from_hash hash
-=> #<RelatonOasis::OasisBibliographicItem:0x00007fceea0b6628
+Relaton::Oasis::Item.from_yaml File.read("spec/fixtures/item.yaml")
+=> #<Relaton::Oasis::ItemData:0x000000012119a290
 ...
 ----
 
@@ -123,7 +117,7 @@ RelatonOasis::OasisBibliographicItem.from_hash hash
 
 The OASIS documents can be fetched from https://www.oasis-open.org/standards/ and converted into RelatonXML/BibXML/BibYAML formats:
 
-The method `RelatonOasis::DataFetcher.fetch(output: "data", format: "yaml")` fetches and converts all the documents from the https://www.oasis-open.org/standards/ and save them to the `./data` folder in YAML format.
+The method `Relaton::Oasis::DataFetcher.fetch(output: "data", format: "yaml")` fetches and converts all the documents from the https://www.oasis-open.org/standards/ and saves them to the `./data` folder in YAML format.
 
 Arguments:
 
@@ -132,7 +126,9 @@ Arguments:
 
 [source,ruby]
 ----
-RelatonOasis::DataFetcher.fetch
+require "relaton/oasis/data_fetcher"
+
+Relaton::Oasis::DataFetcher.fetch
 Started at: 2022-03-18 18:34:06 +0100
 Stopped at: 2022-03-18 18:34:12 +0100
 Done in: 5 sec.
