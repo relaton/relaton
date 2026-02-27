@@ -27,7 +27,7 @@ module Relaton
       end
 
       def index
-        @index ||= Relaton::Index.find_or_create :ogc, file: "index-v1.yaml"
+        @index ||= Relaton::Index.find_or_create :ogc, file: "#{INDEXFILE}.yaml"
       end
 
       def fetch(_source = nil) # rubocop:disable Metrics/AbcSize
