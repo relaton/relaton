@@ -16,13 +16,6 @@
         <value>resolution</value>
       </choice>
     </define>
-    <define name="editorialgroup">
-      <element name="editorialgroup">
-        <oneOrMore>
-          <ref name="committee"/>
-        </oneOrMore>
-      </element>
-    </define>
     <define name="BibDataExtensionType">
       <optional>
         <attribute name="schema-version"/>
@@ -36,9 +29,6 @@
       <zeroOrMore>
         <ref name="submissionlanguage"/>
       </zeroOrMore>
-      <optional>
-        <ref name="editorialgroup"/>
-      </optional>
       <zeroOrMore>
         <ref name="ics"/>
       </zeroOrMore>
@@ -79,11 +69,6 @@
       <optional>
         <ref name="item-footnote"/>
       </optional>
-    </element>
-  </define>
-  <define name="committee">
-    <element name="committee">
-      <text/>
     </element>
   </define>
   <define name="session-number">
