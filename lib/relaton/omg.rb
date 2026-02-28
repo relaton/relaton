@@ -2,13 +2,11 @@ require "nokogiri"
 require "relaton/bib"
 require_relative "omg/version"
 require_relative "omg/util"
-# require "relaton_omg/scraper"
-# require "relaton_omg/omg_bibliography"
+require_relative "omg/scraper"
+require_relative "omg/bibliography"
 require_relative "omg/item"
 require_relative "omg/bibitem"
 require_relative "omg/bibdata"
-# require "relaton_omg/xml_parser"
-# require "relaton_omg/hash_converter"
 
 module Relaton
   module Omg

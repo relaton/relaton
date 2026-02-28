@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
                        "using the IsoBibliographicItem model"
   spec.homepage      = "https://github.com/relaton/relaton-ogn"
   spec.license       = "BSD-2-Clause"
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.7.0")
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.1.0")
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/relaton/relaton-ogn"
@@ -27,5 +27,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "base64"
+  spec.add_dependency "mechanize", "~> 2.8"
   spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.1"
 end
