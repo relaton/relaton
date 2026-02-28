@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-relaton-omg is a Ruby gem that searches and fetches standards from The Object Management Group (OMG) at https://www.omg.org. It is part of the larger Relaton family of bibliographic data gems. Currently on the `lutaml-integration` branch undergoing a major refactor (v2.0.0-alpha.1).
+relaton-omg is a Ruby gem that searches and fetches standards from The Object Management Group (OMG) at https://www.omg.org. It is part of the larger Relaton family of bibliographic data gems (v2.0.0-alpha.1).
 
 ## Commands
 
@@ -27,8 +27,9 @@ The gem extends `relaton-bib` (~> 2.0.0-alpha.1), the core Relaton bibliographic
 - `Relaton::Omg::Item` < `Bib::Item` — base item class, uses `Bib::ItemData` model
 - `Relaton::Omg::Bibitem` < `Item` — includes `Bib::BibitemShared`, for `<bibitem>` XML
 - `Relaton::Omg::Bibdata` < `Item` — includes `Bib::BibdataShared`, for `<bibdata>` XML
-
-The scraper (`OmgBibliography`), XML parser, and hash converter modules are currently commented out during the lutaml-integration refactor.
+- `Relaton::Omg::Processor` < `Core::Processor` — relaton-core integration, delegates to `Bibliography`, `Bibitem`, `Item`
+- `Relaton::Omg::Bibliography` — fetches standards via `Scraper`
+- `Relaton::Omg::Scraper` — scrapes https://www.omg.org/spec for bibliographic data
 
 ### Serialization formats
 
