@@ -2,99 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-plateau/main/index-v1.zip
-    body:
-      encoding: US-ASCII
-      base64_string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Connection:
-      - keep-alive
-      Content-Length:
-      - '989'
-      Cache-Control:
-      - max-age=300
-      Content-Security-Policy:
-      - default-src 'none'; style-src 'unsafe-inline'; sandbox
-      Content-Type:
-      - application/zip
-      Etag:
-      - W/"56808fbea236fbde2191fc652f6595400568de8fa6f997208497f767765664ed"
-      Strict-Transport-Security:
-      - max-age=31536000
-      X-Content-Type-Options:
-      - nosniff
-      X-Frame-Options:
-      - deny
-      X-Xss-Protection:
-      - 1; mode=block
-      X-Github-Request-Id:
-      - 3232:2A9F6:F2906B:13994D2:67C670CD
-      Accept-Ranges:
-      - bytes
-      Date:
-      - Tue, 04 Mar 2025 03:17:34 GMT
-      Via:
-      - 1.1 varnish
-      X-Served-By:
-      - cache-iad-kjyo7100129-IAD
-      X-Cache:
-      - HIT
-      X-Cache-Hits:
-      - '1'
-      X-Timer:
-      - S1741058254.474353,VS0,VE1
-      Vary:
-      - Authorization,Accept-Encoding,Origin
-      Access-Control-Allow-Origin:
-      - "*"
-      Cross-Origin-Resource-Policy:
-      - cross-origin
-      X-Fastly-Request-Id:
-      - 364e8bd655248cb0ed7a3ce8f14d051b5595aec7
-      Expires:
-      - Tue, 04 Mar 2025 03:22:34 GMT
-      Source-Age:
-      - '0'
-    body:
-      encoding: ASCII-8BIT
-      base64_string: |
-        UEsDBBQAAAAIAMFxjVlAhAvDLQMAAEooAAANABwAaW5kZXgtdjEueWFtbFVU
-        CQADKkFcZypBXGd1eAsAAQTpAwAABHYAAACVmj1v20AQRHv/CgIuXEnR7t4H
-        qc5FgBQpgsCpCcaWYSOKbRhKkX8fJUiAACTP83pqsBrO2znZt9lsLjbd/vFu
-        3119+nh98/76S/dherr7+vz8rbvc7bq03V1ddN3+/vF42Hd302l693KcTofp
-        x/jw97lxtxvTbvtz+n5sa4WmFYqWa1quaJmmZW9r2dkve1vLxmSCVmyzohVZ
-        0PJtKFoegpbklyl+ueaXK3655pcrfvnZL1e03AUtyS9X/AqNoVAYCo2hUBgK
-        7TuG9B03Jk5m0mgbMbAhJTafZxMSm0d/O7FZGywrc1XNs6pYVrW5qjJXr83V
-        K3P12ly9MtegNdugNNugUTkoVA6aX4Pi16D5NQh+mdbeprS3ae1tSnub1t6m
-        tLeZlAkzIRNmml+m+KXtQ1PWoWnL0JRdaFqz2Xqz3RxuH54eb6dj9/nw8vx6
-        6i6HZpOc/j0/vv55fhzWG2VBuznvXBvN3fR1rr3u74J2M+Nz7fWsz7X75k6d
-        affru3VBu9kjc+31PlnQLky7EO1mL8+11/t5QTsx7US0GTs9Yadn7PSEnZ6x
-        0xN2esZOT9ipzX6dadf1nl3QZlxWwmVlXFbCZWVcVsJlZVxWwmVlXFbCZWVc
-        VsJlZVxWwmVlXFbCZWVcVsJlYVwWwmVhXBbCZWFcFsJlYVwWwmVh+S4k34Xl
-        u5B8F5bvQvJdWL4LyXdm+c4k35nlO5N8Z5bvTPKdWQYzyWBm3ZBJN2TGZSZc
-        JvYuE3mXxjJoKIOMy0y4TGcDmSvnDxB9dkZJ5IyS2E5JZKcEYzMQm8yTTDzJ
-        zJNMPEks44lk/Bwr1my/P0D02T5MZB8mODmaG9JJ2AyWwyA5DOZJEE+c7XEn
-        e9xZTpzkxJknjjxhOXGSE2OdbKSTjWXQSAbbf9udaxNPMnuXGTHPuieR7kns
-        7JbI2S1YPwTph2DMB2E+WL6D5DuY34H8ZrsqyK4Kxk7jf8UL2uyMEuSM4iyD
-        TjLojEsnXDrLoJMMOtuxTnass3w7ybeznDjJibF9Yui3IMuJkZwY89uI3+1b
-        KzPtxu2VBW3Wl43bPwvabFc1bmItaLMM/ncr7hdQSwECHgMUAAAACADBcY1Z
-        QIQLwy0DAABKKAAADQAYAAAAAAABAAAApIEAAAAAaW5kZXgtdjEueWFtbFVU
-        BQADKkFcZ3V4CwABBOkDAAAEdgAAAFBLBQYAAAAAAQABAFMAAAB0AwAAAAA=
-  recorded_at: Tue, 04 Mar 2025 03:17:34 GMT
-- request:
-    method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-plateau/main/data/plateau_technical_report_00_10.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-plateau/data-v2/index-v1.zip
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -115,15 +23,15 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1563'
+      - '1182'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
       - default-src 'none'; style-src 'unsafe-inline'; sandbox
       Content-Type:
-      - text/plain; charset=utf-8
+      - application/zip
       Etag:
-      - W/"a06d9d6cec01fad122f65ad6435adefbdaf39ee758fef66a16747e2545a24239"
+      - W/"2a306fdc109c8b43985b4f2968db2aeefeafa6ef9d12ac1163c15ad1f465c125"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -133,70 +41,169 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - CF38:2AA533:F3C657:1395996:67C670CE
+      - 335E:20FB91:439F57:4FFAE6:69A61C0E
       Accept-Ranges:
       - bytes
       Date:
-      - Tue, 04 Mar 2025 03:17:34 GMT
+      - Mon, 02 Mar 2026 23:23:59 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100038-IAD
+      - cache-pdk-kpdk2140049-PDK
       X-Cache:
-      - MISS
+      - HIT
       X-Cache-Hits:
-      - '0'
+      - '1'
       X-Timer:
-      - S1741058255.563127,VS0,VE89
+      - S1772493839.400279,VS0,VE1
       Vary:
-      - Authorization,Accept-Encoding,Origin
+      - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
       - "*"
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - c2d12f4b95856fc6ca4c2d03ec7a432bf148b0f5
+      - 96a4847616e8692d20d6ea582f706d8c323d18c8
       Expires:
-      - Tue, 04 Mar 2025 03:22:34 GMT
+      - Mon, 02 Mar 2026 23:28:59 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
-        LS0tCnNjaGVtYS12ZXJzaW9uOiB2MS4yLjkKaWQ6IFBMQVRFQVVUZWNobmlj
-        YWxSZXBvcnQjMDAxLjAKdGl0bGU6Ci0gY29udGVudDogM0Tpg73luILjg6Lj
-        g4fjg6vjgpLmtLvnlKjjgZfjgZ/oh6rli5XpgYvou6Lou4rkuKHjga7oh6rl
-        t7HkvY3nva7mjqjlrprmioDooZPmpJzoqLzjg6zjg53jg7zjg4gKICBsYW5n
-        dWFnZToKICAtIGphCiAgc2NyaXB0OgogIC0gSnBhbgogIGZvcm1hdDogdGV4
-        dC9wbGFpbgogIHR5cGU6IG1haW4KbGluazoKLSBjb250ZW50OiBodHRwczov
-        L3d3dy5tbGl0LmdvLmpwL3BsYXRlYXUvZmlsZS9saWJyYXJpZXMvZG9jL3Bs
-        YXRlYXVfdGVjaF9kb2NfMDAwMF92ZXIwMS5wZGYKICB0eXBlOiBwZGYKdHlw
-        ZTogc3RhbmRhcmQKZG9jaWQ6Ci0gaWQ6ICdQTEFURUFVIFRlY2huaWNhbCBS
-        ZXBvcnQgIzAwIDEuMCcKICB0eXBlOiBQTEFURUFVCiAgcHJpbWFyeTogdHJ1
-        ZQpkb2NudW1iZXI6ICdUZWNobmljYWwgUmVwb3J0ICMwMCAxLjAnCmRhdGU6
-        Ci0gdHlwZTogcHVibGlzaGVkCiAgdmFsdWU6ICcyMDIyLTAzLTI5Jwpjb250
-        cmlidXRvcjoKLSBvcmdhbml6YXRpb246CiAgICBuYW1lOgogICAgLSBjb250
-        ZW50OiDlm73lnJ/kuqTpgJrnnIEKICAgICAgbGFuZ3VhZ2U6CiAgICAgIC0g
-        amEKICAgICAgc2NyaXB0OgogICAgICAtIEpwYW4KICAgIC0gY29udGVudDog
-        SmFwYW5lc2UgTWluaXN0cnkgb2YgTGFuZCwgSW5mcmFzdHJ1Y3R1cmUsIFRy
-        YW5zcG9ydCBhbmQgVG91cmlzbQogICAgICBsYW5ndWFnZToKICAgICAgLSBl
-        bgogICAgICBzY3JpcHQ6CiAgICAgIC0gTGF0bgogICAgYWJicmV2aWF0aW9u
-        OgogICAgICBjb250ZW50OiBNTElUCiAgcm9sZToKICAtIHR5cGU6IHB1Ymxp
-        c2hlcgplZGl0aW9uOgogIGNvbnRlbnQ6ICcxLjAnCiAgbnVtYmVyOiAnMS4w
-        JwpyZXZkYXRlOiAnMjAyMi0wMy0yOScKYWJzdHJhY3Q6Ci0gY29udGVudDog
-        6Ieq5YuV6YGL6Lui6LuK5Lih44Gu6Ieq5bex5L2N572u5o6o5a6a44K344K5
-        44OG44Og6ZaL55m65a6f6Ki844Gu5oqA6KGT6LOH5paZ77yIMjAyMeW5tOW6
-        pu+8iQogIGxhbmd1YWdlOgogIC0gamEKICBzY3JpcHQ6CiAgLSBKcGFuCiAg
-        Zm9ybWF0OiB0ZXh0L3BsYWluCmtleXdvcmQ6Ci0gY29udGVudDog6Ieq5b6L
-        6YGL6IiqCi0gY29udGVudDogMjAyMeW5tOW6pgotIGNvbnRlbnQ6IFZQUwot
-        IGNvbnRlbnQ6IFVuaXR5CmV4dDoKICBzY2hlbWEtdmVyc2lvbjogdjAuMC4x
-        CiAgZG9jdHlwZToKICAgIHR5cGU6IHRlY2huaWNhbC1yZXBvcnQKICBzdWJk
-        b2N0eXBlOiBVc2UgQ2FzZQogIHN0cnVjdHVyZWRpZGVudGlmaWVyOgogIC0g
-        ZG9jbnVtYmVyOiAnMDAnCiAgICB0eXBlOiBUZWNobmljYWwgUmVwb3J0CiAg
-        ICBhZ2VuY3k6CiAgICAtIFBMQVRFQVUKICAgIGNsYXNzOiBVc2UgQ2FzZQog
-        IGNvdmVyOgogICAgaW1hZ2U6CiAgICAgIHNyYzogaHR0cHM6Ly93d3cubWxp
-        dC5nby5qcC8vcGxhdGVhdS91cGxvYWRzLzIwMjIvMDMvcGxhdGVhdV90ZWNo
-        X2RvY18wMDAwX3ZlcjAxLTEtc2NhbGVkLmpwZWcKICAgICAgbWltZXR5cGU6
-        IGltYWdlL2pwZWcKICBmaWxlc2l6ZTogMTkwOTg5NTcK
-  recorded_at: Tue, 04 Mar 2025 03:17:34 GMT
-recorded_with: VCR 6.3.1
+        UEsDBBQAAAAIAIJ8YlwPG8AN7gMAAMI0AAANABwAaW5kZXgtdjEueWFtbFVU
+        CQADtPSlabT0pWl1eAsAAQT1AQAABBQAAACVmr1uFEEQhHM/xUoEjvbY7vm/
+        zAESAQFCJkaLfZYtDtuyjoC35w6BhOS5ob58t9RbU11dszPzPF/M0/bhdjtd
+        fvxwdf3u6vP0fn28/fr09G16syxT2iyXF9O0vXvY77bT7XpY3z7v18Nu/THf
+        /3luXpY5LZuf6/f9GCtqWFHBChpWULBcw3IFyzQs+z+Wadybwr0duTcFK5qA
+        FTZJwQpJwPJNULA8CFgS96Zw7xr3rnDvGveucO8a965w70fuXcFyF7Ak7l3h
+        Pmg+ERSfCJpPBMUnguYTQfGJoPEVJL5mU7/SpO+cTf1Sk751FjvzhCd8b9J0
+        mxTdJq2ypNRVtFUoyhoUbQWKwn/RvrEo31i1uqpSV9XqqkpdTfPrpvh10/yn
+        Kf7TNE00RRNN474p3DeN+yZwb1quMyXXmZbrTMl1puU6U3KdabnOlFx3ekhG
+        U/C0nGhKTjTT1tKUtdSmkikzybSJZMo8MpF9iXvX6nKlLi1D2fkMdb27uX98
+        uFn306fd89PL4YgZhkHj8PeF+eX3C/PxeYQ+LLmDzmofLlQH/fyKddDHW7XX
+        6IM9Wwfdhgb7Gt3OO20PPUL0iNCHoaiDfj4d9dCHcaSDfj6X9FYV6n2QsF+j
+        N1Z6Q5WPbanDC1K7ZYieEfowynXQz2e63ppCZgY7/B46rH2QRzuKYbQ3xPp4
+        092pHLnvAj1mQR4z3nh10JHHjONtB525L5wcg1TYQ4eryvLAAn1gYYqE3j7Y
+        c/aYgd5uxNsLs4FCXKCwwgupu7I2raRLK6u7orqZAVTS/5kNjEzmRWUNVEn/
+        ZGZbmbhWZnVnUndh2IVgN7aWjaxlYXwXwndjQ6KRGZFY3YnUXZiFF+Lgha1l
+        QX3J/LsS/86Mk4w4Yf5diH8XFiUKSRKF+Xch/t1Y3Y3UnRl2JtiNzcuG5iXT
+        YCUazMyrMvGqyrArwc6M70z4zsxPMsqDjJOC+GYeW5HHst6ppHcS4zsRvhPr
+        nUR6JzENJqLBxGZDIrMhscyWSGaLbC0j+hsEt/Yk+yTWO4n0TsxfGPrpBYLP
+        5nEk8zgyv4rErwLrzYB6k3GSCCeJcZIIJ5FpPBKNH2XFXPz0AsFnfhiJH0ZY
+        OaobdifpzcB0GIgO4REcOoFz5uNOfNyZTpzoxBknjjhhOnF0FgF/zqJ/s/CH
+        OzvTgz9mic+ytUyo59nsiWT2RJbdIslugc2HQOZDYD0fSM8Hpu9A9B0Y3wHx
+        zbwK3aGAlxzQHYfAMkogGcWZBp1o0FlfOulLZxp0okFnHuvEY53p24m+nenE
+        0XkmPF5He0F43IhOG+HxN+EbXlJBd1TgpQB0JwBexED3MOB1rH9uY/0CUEsB
+        Ah4DFAAAAAgAgnxiXA8bwA3uAwAAwjQAAA0AGAAAAAAAAQAAAKSBAAAAAGlu
+        ZGV4LXYxLnlhbWxVVAUAA7T0pWl1eAsAAQT1AQAABBQAAABQSwUGAAAAAAEA
+        AQBTAAAANQQAAAAA
+  recorded_at: Mon, 02 Mar 2026 23:23:59 GMT
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-plateau/data-v2/data/plateau-technical-report-00-10.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - raw.githubusercontent.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1537'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"6270eb5fa8dbe1d1dc5ccadea52e63685c8390d67b8c85968b9420382a84a223"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - 0D8B:38B8EC:43427F:4FA12F:69A61C0F
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Mon, 02 Mar 2026 23:23:59 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-pdk-kpdk2140066-PDK
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1772493840.515976,VS0,VE69
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - f25fbd3dd1c6aa407f19db6fba4a8c34f7f6bc92
+      Expires:
+      - Mon, 02 Mar 2026 23:28:59 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        LS0tCmlkOiBQTEFURUFVVGVjaG5pY2FsUmVwb3J0MDAxMAp0eXBlOiBzdGFu
+        ZGFyZApzY2hlbWFfdmVyc2lvbjogdjEuNC4xCnRpdGxlOgotIGxhbmd1YWdl
+        OiBqYQogIHNjcmlwdDogSnBhbgogIGNvbnRlbnQ6IDNE6YO95biC44Oi44OH
+        44Or44KS5rS755So44GX44Gf6Ieq5YuV6YGL6Lui6LuK5Lih44Gu6Ieq5bex
+        5L2N572u5o6o5a6a5oqA6KGT5qSc6Ki844Os44Od44O844OICiAgdHlwZTog
+        bWFpbgpzb3VyY2U6Ci0gdHlwZTogcGRmCiAgY29udGVudDogaHR0cHM6Ly93
+        d3cubWxpdC5nby5qcC9wbGF0ZWF1L2ZpbGUvbGlicmFyaWVzL2RvYy9wbGF0
+        ZWF1X3RlY2hfZG9jXzAwMDBfdmVyMDEucGRmCmRvY2lkZW50aWZpZXI6Ci0g
+        Y29udGVudDogJ1BMQVRFQVUgVGVjaG5pY2FsIFJlcG9ydCAjMDAgMS4wJwog
+        IHR5cGU6IFBMQVRFQVUKICBwcmltYXJ5OiB0cnVlCmRvY251bWJlcjogJ1Rl
+        Y2huaWNhbCBSZXBvcnQgIzAwIDEuMCcKZGF0ZToKLSB0eXBlOiBwdWJsaXNo
+        ZWQKICBhdDogJzIwMjItMDMtMjknCmNvbnRyaWJ1dG9yOgotIHJvbGU6CiAg
+        LSB0eXBlOiBwdWJsaXNoZXIKICBvcmdhbml6YXRpb246CiAgICBuYW1lOgog
+        ICAgLSBsYW5ndWFnZTogamEKICAgICAgc2NyaXB0OiBKcGFuCiAgICAgIGNv
+        bnRlbnQ6IOWbveWcn+S6pOmAmuecgQogICAgLSBsYW5ndWFnZTogZW4KICAg
+        ICAgc2NyaXB0OiBMYXRuCiAgICAgIGNvbnRlbnQ6IEphcGFuZXNlIE1pbmlz
+        dHJ5IG9mIExhbmQsIEluZnJhc3RydWN0dXJlLCBUcmFuc3BvcnQgYW5kIFRv
+        dXJpc20KICAgIGFiYnJldmlhdGlvbjoKICAgICAgY29udGVudDogTUxJVApl
+        ZGl0aW9uOgogIG51bWJlcjogJzEuMCcKICBjb250ZW50OiAnMS4wJwphYnN0
+        cmFjdDoKLSBsYW5ndWFnZTogamEKICBzY3JpcHQ6IEpwYW4KICBjb250ZW50
+        OiDoh6rli5XpgYvou6Lou4rkuKHjga7oh6rlt7HkvY3nva7mjqjlrprjgrfj
+        grnjg4bjg6Dplovnmbrlrp/oqLzjga7mioDooZPos4fmlpnvvIgyMDIx5bm0
+        5bqm77yJCmtleXdvcmQ6Ci0gdGF4b246CiAgLSBjb250ZW50OiAyMDIx5bm0
+        5bqmCi0gdGF4b246CiAgLSBjb250ZW50OiBVbml0eQotIHRheG9uOgogIC0g
+        Y29udGVudDogVlBTCi0gdGF4b246CiAgLSBjb250ZW50OiDoh6rlvovpgYvo
+        iKoKZGVwaWN0aW9uOgogIHNjb3BlOiBjb3ZlcgogIGltYWdlOgogIC0gc3Jj
+        OiBodHRwczovL3d3dy5tbGl0LmdvLmpwLy9wbGF0ZWF1L3VwbG9hZHMvMjAy
+        Mi8wMy9wbGF0ZWF1X3RlY2hfZG9jXzAwMDBfdmVyMDEtMS1zY2FsZWQuanBl
+        ZwogICAgbWltZXR5cGU6IGltYWdlL2pwZWcKZXh0OgogIHNjaGVtYV92ZXJz
+        aW9uOiB2MC4wLjIKICBkb2N0eXBlOgogICAgY29udGVudDogdGVjaG5pY2Fs
+        LXJlcG9ydAogIHN1YmRvY3R5cGU6IFVzZSBDYXNlCiAgZmxhdm9yOiBwbGF0
+        ZWF1CiAgc3RydWN0dXJlZGlkZW50aWZpZXI6CiAgLSB0eXBlOiBUZWNobmlj
+        YWwgUmVwb3J0CiAgICBhZ2VuY3k6CiAgICAtIFBMQVRFQVUKICAgIGtsYXNz
+        OiBVc2UgQ2FzZQogICAgZG9jbnVtYmVyOiAnMDAnCiAgZmlsZXNpemU6IDE5
+        MDk4OTU3Cg==
+  recorded_at: Mon, 02 Mar 2026 23:23:59 GMT
+recorded_with: VCR 6.4.0
