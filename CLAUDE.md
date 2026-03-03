@@ -35,14 +35,18 @@ bin/console
 The gem follows the Relaton flavor pattern: base classes from `relaton-bib` (`Bib::Item`) are extended with a flavor-specific `Ext` class containing UN-specific metadata.
 
 ```
+Bib::ItemData (from relaton-bib)
+  └── Relaton::Un::ItemData    # UN flavor identity, enables NamespaceHelper#namespace → Relaton::Un
+
 Bib::Item (from relaton-bib)
-  └── Relaton::Un::Item        # adds Ext attribute
+  └── Relaton::Un::Item        # model ItemData; adds Ext attribute
         ├── Relaton::Un::Bibitem   # includes Bib::BibitemShared (for <bibitem> XML)
         └── Relaton::Un::Bibdata   # includes Bib::BibdataShared (for <bibdata> XML)
 ```
 
 ### Key Classes (all in `lib/relaton/un/`)
 
+- **ItemData** — extends `Bib::ItemData`; the UN-specific data container used by `Item` via `model ItemData`
 - **Item** — extends `Bib::Item`, adds `ext` attribute of type `Ext`
 - **Bibitem / Bibdata** — extend Item with shared mixins for two XML serialization formats
 - **Ext** — UN-specific metadata: `doctype`, `distribution`, `session`, `submissionlanguage`, `job_number`; extends `Bib::Ext`
