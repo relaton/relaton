@@ -1,30 +1,30 @@
 # frozen_string_literal: true
 
-RSpec.describe RelatonDoi do
-  before { RelatonDoi.instance_variable_set :@configuration, nil }
+RSpec.describe Relaton::Doi do
+  before { Relaton::Doi.instance_variable_set :@configuration, nil }
 
   it "has a version number" do
-    expect(RelatonDoi::VERSION).not_to be nil
+    expect(Relaton::Doi::VERSION).not_to be nil
   end
 
   it "returs grammar hash" do
-    expect(RelatonDoi.grammar_hash.size).to eq 32
+    expect(Relaton::Doi.grammar_hash.size).to eq 32
   end
 
   context "fetch document" do
     it "not found", vcr: "not_found" do
       expect do
-        expect(RelatonDoi::Crossref.get("doi:10.11111/RFC0000")).to be_nil
+        expect(Relaton::Doi::Crossref.get("doi:10.11111/RFC0000")).to be_nil
       end.to output(/\[relaton-doi\] INFO: \(doi:10.11111\/RFC0000\) Not found\./).to_stderr_from_any_process
     end
 
     it "NIST", vcr: "crossref_nist" do
       expect do
         file = "crossref_nist.xml"
-        resp = RelatonDoi::Crossref.get "doi:10.6028/nist.ir.8245"
+        resp = Relaton::Doi::Crossref.get "doi:10.6028/nist.ir.8245"
         xml = resp.to_xml bibdata: true
         write_fixture file, xml
-        expect(resp).to be_instance_of(RelatonNist::NistBibliographicItem)
+        expect(resp).to be_instance_of(Relaton::Nist::ItemData)
         expect(xml).to be_equivalent_to read_fixture(file)
       end.to output(
         include(
@@ -36,35 +36,35 @@ RSpec.describe RelatonDoi do
 
     it "RFC", vcr: "crossref_rfc" do
       file = "crossref_rfc.xml"
-      resp = RelatonDoi::Crossref.get "doi:10.17487/RFC0001"
+      resp = Relaton::Doi::Crossref.get "doi:10.17487/RFC0001"
       xml = resp.to_xml bibdata: true
       write_fixture file, xml
-      expect(resp).to be_instance_of(RelatonIetf::IetfBibliographicItem)
+      expect(resp).to be_instance_of(Relaton::Ietf::ItemData)
       expect(xml).to be_equivalent_to read_fixture(file)
     end
 
     it "BIPM", vcr: "crossref_bipm" do
       file = "crossref_bipm.xml"
-      resp = RelatonDoi::Crossref.get "doi:10.1088/0026-1394/29/6/001"
+      resp = Relaton::Doi::Crossref.get "doi:10.1088/0026-1394/29/6/001"
       xml = resp.to_xml bibdata: true
       write_fixture file, xml
-      expect(resp).to be_instance_of(RelatonBipm::BipmBibliographicItem)
+      expect(resp).to be_instance_of(Relaton::Bipm::ItemData)
       expect(xml).to be_equivalent_to read_fixture(file)
     end
 
     it "IEEE", vcr: "crossref_ieee" do
       file = "crossref_ieee.xml"
-      resp = RelatonDoi::Crossref.get "doi:10.1109/ieeestd.2014.6835311"
+      resp = Relaton::Doi::Crossref.get "doi:10.1109/ieeestd.2014.6835311"
       xml = resp.to_xml bibdata: true
       write_fixture file, xml
-      expect(resp).to be_instance_of(RelatonIeee::IeeeBibliographicItem)
+      expect(resp).to be_instance_of(Relaton::Ieee::ItemData)
       expect(xml).to be_equivalent_to read_fixture(file)
     end
 
     shared_examples "fetch document" do |type, doi|
       it type, vcr: type do
         file = "#{type}.xml"
-        resp = RelatonDoi::Crossref.get "doi:#{doi}"
+        resp = Relaton::Doi::Crossref.get "doi:#{doi}"
         xml = resp.to_xml bibdata: true
         write_fixture file, xml
         expect(xml).to be_equivalent_to read_fixture(file)

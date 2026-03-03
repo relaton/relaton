@@ -1,13 +1,13 @@
-describe RelatonDoi::Crossref do
+describe Relaton::Doi::Crossref do
   it "get" do
-    expect(RelatonDoi::Crossref).to receive(:get_by_id).with("10.6028/nist.ir.8245").and_return(:message)
-    expect(RelatonDoi::Parser).to receive(:parse).with(:message).and_return(:bibitem)
+    expect(Relaton::Doi::Crossref).to receive(:get_by_id).with("10.6028/nist.ir.8245").and_return(:message)
+    expect(Relaton::Doi::Parser).to receive(:parse).with(:message).and_return(:bibitem)
     expect(described_class.get("doi:10.6028/nist.ir.8245")).to eq :bibitem
   end
 
   context "get_by_id" do
     let(:agent) do
-      { "User-Agent" => "Relaton/RelatonDoi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)" }
+      { "User-Agent" => "Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)" }
     end
 
     it "success" do
@@ -33,7 +33,7 @@ describe RelatonDoi::Crossref do
       ).exactly(3).times.and_return(resp)
       expect_any_instance_of(Kernel).to receive(:sleep).with(1)
       expect_any_instance_of(Kernel).to receive(:sleep).with(2)
-      expect { described_class.get_by_id("10.6028/nist.ir.8245") }.to raise_error RelatonBib::RequestError
+      expect { described_class.get_by_id("10.6028/nist.ir.8245") }.to raise_error Relaton::RequestError
     end
   end
 end

@@ -8,7 +8,7 @@ http_interactions:
       string: ''
     headers:
       User-Agent:
-      - Relaton/RelatonDoi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -19,7 +19,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 26 Jan 2026 15:49:33 GMT
+      - Tue, 03 Mar 2026 18:06:32 GMT
       Content-Type:
       - application/json
       Content-Length:
@@ -37,7 +37,7 @@ http_interactions:
       - Accept-Encoding
       Server:
       - Jetty(9.4.40.v20210413)
-      X-Rate-Limit:
+      X-Rate-Limit-Limit:
       - '10'
       X-Rate-Limit-Interval:
       - 1s
@@ -55,5 +55,5 @@ http_interactions:
         - ICCCS ''11"],"prefix":"10.1145","member":"320","event":{"name":"the 2011
         International Conference","location":"Rourkela, Odisha, India","acronym":"ICCCS
         ''11","number":"2011","start":{"date-parts":[[2011,2,12]]},"end":{"date-parts":[[2011,2,14]]}},"container-title":[],"original-title":[],"deposited":{"date-parts":[[2011,3,4]],"date-time":"2011-03-04T13:14:55Z","timestamp":1299244495000},"score":1,"resource":{"primary":{"URL":"http:\/\/portal.acm.org\/citation.cfm?doid=1947940"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[2011]]},"ISBN":["9781450304641"],"references-count":0,"URL":"https:\/\/doi.org\/10.1145\/1947940","relation":{},"subject":[],"published":{"date-parts":[[2011]]}}}'
-  recorded_at: Mon, 26 Jan 2026 15:49:33 GMT
+  recorded_at: Tue, 03 Mar 2026 18:06:32 GMT
 recorded_with: VCR 6.4.0

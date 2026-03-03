@@ -8,7 +8,7 @@ http_interactions:
       string: ''
     headers:
       User-Agent:
-      - Relaton/RelatonDoi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -19,7 +19,7 @@ http_interactions:
       message: Not Found
     headers:
       Date:
-      - Mon, 26 Jan 2026 15:49:11 GMT
+      - Tue, 03 Mar 2026 18:04:58 GMT
       Content-Type:
       - text/plain
       Transfer-Encoding:
@@ -35,7 +35,7 @@ http_interactions:
       - "*"
       Server:
       - Jetty(9.4.40.v20210413)
-      X-Rate-Limit:
+      X-Rate-Limit-Limit:
       - '10'
       X-Rate-Limit-Interval:
       - 1s
@@ -48,5 +48,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: Resource not found.
-  recorded_at: Mon, 26 Jan 2026 15:49:11 GMT
+  recorded_at: Tue, 03 Mar 2026 18:04:58 GMT
 recorded_with: VCR 6.4.0

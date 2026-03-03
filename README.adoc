@@ -1,4 +1,4 @@
-= Relaton-DOI: retrieve bibliographic items using DOI
+= Relaton::Doi retrieves bibliographic items using DOI
 
 image:https://img.shields.io/gem/v/relaton-doi.svg["Gem Version", link="https://rubygems.org/gems/relaton-doi"]
 image:https://github.com/relaton/relaton-doi/workflows/macos/badge.svg["Build Status (macOS)", link="https://github.com/relaton/relaton-doi/actions?workflow=macos"]
@@ -8,7 +8,7 @@ image:https://codeclimate.com/github/relaton/relaton-doi/badges/gpa.svg["Code Cl
 image:https://img.shields.io/github/issues-pr-raw/relaton/relaton-doi.svg["Pull Requests", link="https://github.com/relaton/relaton-doi/pulls"]
 image:https://img.shields.io/github/commits-since/relaton/relaton-doi/latest.svg["Commits since latest",link="https://github.com/relaton/relaton-doi/releases"]
 
-RelatonDoi is a Ruby gem that implements the
+Relaton::Doi is a Ruby gem that implements the
 https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
 You can use it to retrieve metadata of Standards from https://crossref.org, and
@@ -49,36 +49,35 @@ will be returned via the call.
 
 [source,ruby]
 ----
-require 'relaton_doi'
+require 'relaton/doi'
 => true
 
 # get NIST standard
-RelatonDoi::Crossref.get "doi:10.6028/nist.ir.8245"
-[relaton-doi] (doi:10.6028/nist.ir.8245) Fetching from search.crossref.org ...
-[relaton-doi] (doi:10.6028/nist.ir.8245) Found: `10.6028/nist.ir.8245`
-=> #<RelatonNist::NistBibliographicItem:0x00007ff22420d820
+Relaton::Doi::Crossref.get "doi:10.6028/nist.ir.8245"
+[relaton-doi] INFO: (doi:10.6028/nist.ir.8245) Fetching from search.crossref.org ...
+[relaton-doi] INFO: (doi:10.6028/nist.ir.8245) Found: `10.6028/nist.ir.8245`
+=> #<Relaton::Nist::ItemData:0x000000011040a338
 ...
 
 # get RFC standard
-RelatonDoi::Crossref.get "doi:10.17487/RFC0001"
-[relaton-doi] (doi:10.17487/RFC0001) Fetching from search.crossref.org ...
-[relaton-doi] (doi:10.17487/RFC0001) Found: `10.17487/rfc0001`
-[relaton-ietf] WARNING: Invalid doctype report
-=> #<RelatonIetf::IetfBibliographicItem:0x00007ff2241be6d0
+Relaton::Doi::Crossref.get "doi:10.17487/RFC0001"
+[relaton-doi] INFO: (doi:10.17487/RFC0001) Fetching from search.crossref.org ...
+[relaton-doi] INFO: (doi:10.17487/RFC0001) Found: `10.17487/rfc0001`
+=> #<Relaton::Ietf::ItemData:0x0000000110be8410
 ...
 
 # get BIPM standard
-RelatonDoi::Crossref.get "doi:10.1088/0026-1394/29/6/001"
-[relaton-doi] (doi:10.1088/0026-1394/29/6/001) Fetching from search.crossref.org ...
-[relaton-doi] (doi:10.1088/0026-1394/29/6/001) Found: `10.1088/0026-1394/29/6/001`
-=> #<RelatonBipm::BipmBibliographicItem:0x00007f9c846f0a68
+Relaton::Doi::Crossref.get "doi:10.1088/0026-1394/29/6/001"
+[relaton-doi] INFO: (doi:10.1088/0026-1394/29/6/001) Fetching from search.crossref.org ...
+[relaton-doi] INFO: (doi:10.1088/0026-1394/29/6/001) Found: `10.1088/0026-1394/29/6/001`
+=> #<Relaton::Bipm::ItemData:0x00000001118dcbf8
 ...
 
 # get IEEE standard
-RelatonDoi::Crossref.get "doi:10.1109/ieeestd.2014.6835311"
-[relaton-doi] (doi:10.1109/ieeestd.2014.6835311) Fetching from search.crossref.org ...
-[relaton-doi] (doi:10.1109/ieeestd.2014.6835311) Found: `10.1109/ieeestd.2014.6835311`
-=> #<RelatonIeee::IeeeBibliographicItem:0x00007f9cb46db688
+Relaton::Doi::Crossref.get "doi:10.1109/ieeestd.2014.6835311"
+[relaton-doi] INFO: (doi:10.1109/ieeestd.2014.6835311) Fetching from search.crossref.org ...
+[relaton-doi] INFO: (doi:10.1109/ieeestd.2014.6835311) Found: `10.1109/ieeestd.2014.6835311`
+=> #<Relaton::Ieee::ItemData:0x0000000110ec5c00
 ...
 ----
 
@@ -89,16 +88,16 @@ to Relaton, an instance of RelatonBib::BibliographicItem will be returned.
 
 [source,ruby]
 ----
-RelatonDoi::Crossref.get "doi:10.1109/ACCESS.2017.2739804"
-[relaton-doi] (doi:10.1109/ACCESS.2017.2739804) Fetching from search.crossref.org ...
-[relaton-doi] (doi:10.1109/ACCESS.2017.2739804) Found: `10.1109/access.2017.2739804`
-=> #<RelatonBib::BibliographicItem:0x00007ff22435e490
+Relaton::Doi::Crossref.get "doi:10.1109/ACCESS.2017.2739804"
+[relaton-doi] INFO: (doi:10.1109/ACCESS.2017.2739804) Fetching from search.crossref.org ...
+[relaton-doi] INFO: (doi:10.1109/ACCESS.2017.2739804) Found: `10.1109/access.2017.2739804`
+=> #<Relaton::Bib::ItemData:0x0000000110f0bde0
 ...
 ----
 
 === Logging
 
-RelatonDoi uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
+Relaton::Doi uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
 
 == Development
 

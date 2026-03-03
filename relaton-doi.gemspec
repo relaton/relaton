@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative "lib/relaton_doi/version"
+require_relative "lib/relaton/doi/version"
 
 Gem::Specification.new do |spec|
   spec.name          = "relaton-doi"
-  spec.version       = RelatonDoi::VERSION
+  spec.version       = Relaton::Doi::VERSION
   spec.authors       = ["Ribose Inc."]
   spec.email         = ["open.source@ribose.com"]
 
@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
                        "using DOI through Crossrefand provide Relaton object."
   spec.homepage      = "https://github.com/relaton/relaton-doi"
   spec.license       = "BSD-2-Clause"
-  spec.required_ruby_version = ">= 2.7.0"
+  spec.required_ruby_version = ">= 3.1.0"
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to 'https://mygemserver.com'"
 
@@ -34,11 +34,11 @@ Gem::Specification.new do |spec|
   # Uncomment to register a new dependency of your gem
   # spec.add_dependency "example-gem", "~> 1.0"
 
-  spec.add_dependency "relaton-bib", "~> 1.20.0"
-  spec.add_dependency "relaton-bipm", "~> 1.20.0"
-  spec.add_dependency "relaton-ieee", "~> 1.20.0"
-  spec.add_dependency "relaton-ietf", "~> 1.20.0"
-  spec.add_dependency "relaton-nist", "~> 1.20.0"
+  spec.add_dependency "relaton-bib", "~> 2.0.0.alpha.2"
+  spec.add_dependency "relaton-bipm", "~> 2.0.0.alpha.1"
+  spec.add_dependency "relaton-ieee", "~> 2.0.0.alpha.1"
+  spec.add_dependency "relaton-ietf", "~> 2.0.0.alpha.1"
+  spec.add_dependency "relaton-nist", "~> 2.0.0.alpha.1"
   # spec.add_dependency "relaton-w3c", "~> 1.10.0"
   spec.add_dependency "faraday", "~> 2.7"
 
