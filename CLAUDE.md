@@ -30,28 +30,34 @@ bundle exec rake
 
 ## Architecture
 
-The codebase has two parallel implementations during a migration:
+All code lives in `lib/relaton/plateau/`. The gem uses LutaML::Model::Serializable for data modeling with automatic XML/YAML serialization.
 
-### LutaML Models (v2.0.0, in `lib/relaton/plateau/`)
-The new architecture uses LutaML::Model::Serializable for data modeling with automatic XML/YAML/Hash serialization:
-- **Item** (`item.rb`) — base Plateau item extending `Bib::Item`, adds `ext` (extension data)
+### Models
+- **Item** (`item.rb`) — base Plateau item extending `Bib::Item`, declares `model ItemData` and adds `ext` attribute
+- **ItemData** (`item_data.rb`) — data class extending `Bib::ItemData`, returned by `Item.from_xml`, `Item.from_yaml`, and `Bibliography.get`
 - **Bibitem** (`bibitem.rb`) — bibliographic item variant (includes `Bib::BibitemShared`)
 - **Bibdata** (`bibdata.rb`) — bibliographic data variant (includes `Bib::BibdataShared`)
-- **Ext** (`ext.rb`) — extension element: doctype, subdoctype, flavor, editorialgroup, stagename, etc.
+- **Ext** (`ext.rb`) — extension element: doctype, subdoctype, flavor, editorialgroup, stagename, filesize, etc.
 - **Doctype** (`doctype.rb`) — extends `Bib::Doctype`, valid values: `handbook`, `technical-report`, `annex`
 
-### Legacy Models (v1.x, in `lib/relaton/plateau_legacy/`)
-The RelatonBib-based implementation handles data fetching and the Relaton processor interface:
-- **Bibliography** — index-based document retrieval via `Bibliography.get(code)`
-- **Fetcher** — scrapes MLIT JSON APIs for handbooks and technical reports
-- **Parser/HandbookParser/TechnicalReportParser** — parse JSON into BibItem objects
-- **Processor** — standard Relaton processor plugin (`get`, `from_xml`, `hash_to_bib`, `fetch_data`)
-- **BibItem** — extends `RelatonBib::BibliographicItem` with cover, stagename, filesize
+### Retrieval & Data Fetching
+- **Bibliography** (`bibliography.rb`) — module with `get(code)` for index-based document retrieval, returns `ItemData`
+- **HitCollection** / **Hit** — search the relaton-data-plateau index and fetch YAML documents
+- **DataFetcher** (`data_fetcher.rb`) — extends `Core::DataFetcher`, scrapes MLIT JSON APIs for handbooks and technical reports
+- **Parser** / **HandbookParser** / **TechnicalReportParser** — parse JSON into `ItemData` objects
+- **Processor** (`processor.rb`) — standard Relaton processor plugin (`get`, `from_xml`, `from_yaml`, `fetch_data`, `grammar_hash`)
+
+### Serialization Methods
+- `bib.to_xml` — XML (bibitem format)
+- `Item.to_yaml(bib)` — YAML (class method)
+- `bib.to_rfcxml` — BibXML/RFC XML
+- `Item.from_xml(xml)` — parse XML into `ItemData`
+- `Item.from_yaml(yaml)` — parse YAML into `ItemData`
 
 ### Data Sources
 - Handbooks: `https://www.mlit.go.jp/plateau/_next/data/1.3.0/libraries/handbooks.json`
 - Technical Reports: `https://www.mlit.go.jp/plateau/_next/data/1.3.0/libraries/technical-reports.json`
-- Pre-fetched index: `https://raw.githubusercontent.com/relaton/relaton-data-plateau/main/`
+- Pre-fetched index: `https://raw.githubusercontent.com/relaton/relaton-data-plateau/data-v2/`
 
 ### Schema Validation
 RNG grammar files in `grammars/` define the XML schema. Tests validate fixtures against `relaton-plateau-compile.rng` using the `ruby-jing` gem.
@@ -67,6 +73,6 @@ RNG grammar files in `grammars/` define the XML schema. Tests validate fixtures 
 ## Key Conventions
 
 - Document identifiers follow pattern: `PLATEAU Handbook #XX Y.Z` or `PLATEAU Technical Report #XX Y.Z`
-- The gem supports multi-format serialization: XML, YAML, BibXML, AsciiBib
+- The gem supports multi-format serialization: XML, YAML, BibXML (RFC XML)
 - RuboCop follows Ribose OSS style guide; target Ruby version is 3.0
 - The `ext` element in XML/YAML carries PLATEAU-specific metadata (doctype, flavor, editorialgroup, etc.)

@@ -1,16 +1,16 @@
-= RelatonPlateau: retrieve Project PLATEAU Standards for bibliographic use using the BibliographicItem model
+= Relaton::Plateau: retrieve Project PLATEAU Standards for bibliographic use using the ItemData model
 
 image:https://img.shields.io/gem/v/relaton-plateau.svg["Gem Version", link="https://rubygems.org/gems/relaton-plateau"]
 image:https://github.com/relaton/relaton-plateau/workflows/macos/badge.svg["Build Status (macOS)", link="https://github.com/relaton/relaton-plateau/actions?workflow=macos"]
 image:https://github.com/relaton/relaton-plateau/workflows/windows/badge.svg["Build Status (Windows)", link="https://github.com/relaton/relaton-plateau/actions?workflow=windows"]
 image:https://github.com/relaton/relaton-plateau/workflows/ubuntu/badge.svg["Build Status (Ubuntu)", link="https://github.com/relaton/relaton-plateau/actions?workflow=ubuntu"]
-image:https://codeclimate.com/github/relaton/relaton-plateau/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/metanorma/relaton-plateau"]
+image:https://codeclimate.com/github/relaton/relaton-plateau/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/relaton/relaton-plateau"]
 image:https://img.shields.io/github/issues-pr-raw/relaton/relaton-plateau.svg["Pull Requests", link="https://github.com/relaton/relaton-plateau/pulls"]
 image:https://img.shields.io/github/commits-since/relaton/relaton/latest.svg["Commits since latest",link="https://github.com/relaton/relaton-plateau/releases"]
 
-RelatonPlateau is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-plateau#iso-bibliographic-item[BibliographicItem model].
+RelatonPlateau is a Ruby gem that implements the https://github.com/relaton/relaton-model-plateau[ItemData model].
 
-You can use it to retrieve metadata of Plateau Standards from GitHub repositori, and access such metadata through the `BibliographicItem` object.
+You can use it to retrieve metadata of Plateau Standards from the GitHub repository, and access such metadata through the `Relaton::Plateau::ItemData` object.
 
 == Installation
 
@@ -38,10 +38,11 @@ Or install it yourself as:
 [source,ruby]
 ----
 require "relaton/plateau"
+
 Relaton::Plateau::Bibliography.get("PLATEAU Technical Report #00")
 [relaton-plateau] INFO: (PLATEAU Technical Report #00) Fetching ...
 [relaton-plateau] INFO: (PLATEAU Technical Report #00) Found `PLATEAU Technical Report #00 1.0`
- => #<Relaton::Plateau::BibItem:0x00000001238cfc98
+=> #<Relaton::Plateau::ItemData:0x00000001236204e8
 ...
 ----
 
@@ -52,7 +53,7 @@ Relaton::Plateau::Bibliography.get("PLATEAU Technical Report #00")
 Relaton::Plateau::Bibliography.get("PLATEAU Handbook #00")
 [relaton-plateau] INFO: (PLATEAU Handbook #00) Fetching ...
 [relaton-plateau] INFO: (PLATEAU Handbook #00) Found `PLATEAU Handbook #00`
- => #<Relaton::Plateau::BibItem:0x00000001238c7598
+=> #<Relaton::Plateau::ItemData:0x00000001242bd200
 ...
 ----
 
@@ -63,7 +64,7 @@ Relaton::Plateau::Bibliography.get("PLATEAU Handbook #00")
 bib = Relaton::Plateau::Bibliography.get("PLATEAU Handbook #00 1.0")
 [relaton-plateau] INFO: (PLATEAU Handbook #00 1.0) Fetching ...
 [relaton-plateau] INFO: (PLATEAU Handbook #00 1.0) Found `PLATEAU Handbook #00 1.0`
-=> #<Relaton::Plateau::BibItem:0x0000000104afbcc0
+=> #<Relaton::Plateau::ItemData:0x0000000124157320
 ...
 ----
 
@@ -73,216 +74,88 @@ bib = Relaton::Plateau::Bibliography.get("PLATEAU Handbook #00 1.0")
 
 [source,ruby]
 ----
-# Render bibitem
 puts bib.to_xml
-<bibitem id="PLATEAUHandbook#001.0" type="standard" schema-version="v1.2.9">
-  <fetched>2024-08-25</fetched>
-  <title type="main" format="text/plain" language="ja" script="Jpan">3D都市モデルの導入ガイダンス</title>
-  <title type="main" format="text/plain" language="en" script="Latn">Guidance on the Installation for 3D City Model</title>
-  <uri type="pdf">https://www.mlit.go.jp/plateau/file/libraries/doc/plateau_doc_0000_ver01.pdf</uri>
-  <docidentifier type="PLATEAU" primary="true">PLATEAU Handbook #00 1.0</docidentifier>
-  <docnumber>Handbook #00 1.0</docnumber>
-  <date type="published">
-    <on>2021-03-26</on>
-  </date>
-  <contributor>
-    <role type="publisher"/>
-    <organization>
-      <name language="ja" script="Jpan">国土交通省</name>
-      <name language="en" script="Latn">Japanese Ministry of Land, Infrastructure, Transport and Tourism</name>
-      <abbreviation>MLIT</abbreviation>
-    </organization>
-  </contributor>
-  <edition number="1.0">1.0</edition>
-  <abstract format="text/plain" language="ja" script="Jpan">地方自治体担当者や民間事業者等に向けた 3D都市モデル導入のためのガイダンス</abstract>
-</bibitem>
+=> "<bibitem id="PLATEAUHandbook0010" type="standard" schema-version="v1.4.1">
+      <title language="en" script="Latn" type="main">PLATEAU Guidebook</title>
+      <uri type="pdf">https://www.mlit.go.jp/plateau/file/libraries/doc/plateau_doc_0000_ver01.pdf</uri>
+      <docidentifier type="PLATEAU" primary="true">PLATEAU Handbook #00 1.0</docidentifier>
+      ...
+    </bibitem>"
 
-# Render bibdata
-puts bib.to_xml(bibdata: true)
-<bibdata type="standard" schema-version="v1.2.9">
-  <fetched>2024-08-25</fetched>
-  <title type="main" format="text/plain" language="ja" script="Jpan">3D都市モデルの導入ガイダンス</title>
-  <title type="main" format="text/plain" language="en" script="Latn">Guidance on the Installation for 3D City Model</title>
-  <uri type="pdf">https://www.mlit.go.jp/plateau/file/libraries/doc/plateau_doc_0000_ver01.pdf</uri>
-  <docidentifier type="PLATEAU" primary="true">PLATEAU Handbook #00 1.</docidentifier>
-  <docnumber>Handbook #00 1.0</docnumber>
-  <date type="published">
-    <on>2021-03-26</on>
-  </date>
-    <contributor>
-    <role type="publisher"/>
-    <organization>
-      <name language="ja" script="Jpan">国土交通省</name>
-      <name language="en" script="Latn">Japanese Ministry of Land, Infrastructure, Transport and Tourism</name>
-      <abbreviation>MLIT</abbreviation>
-    </organization>
-  </contributor>
-  <edition number="1.0">1.0</edition>
-  <abstract format="text/plain" language="ja" script="Jpan">地方自治体担当者や民間事業者等に向けた 3D都市モデル導入のためのガイダンス</abstract>
-  <ext>
-    <doctype>handbook</doctype>
-    <structuredidentifier type="Handbook">
-      <agency>PLATEAU</agency>
-      <docnumber>00</docnumber>
-      <edition>1.0</edition>
-    </structuredidentifier>
-    <cover>
-      <image src="https://www.mlit.go.jp//plateau/uploads/2022/06/1@2x.jpg" mimetype="image/jpeg"/>
-    </cover>
-    <filesize>18381880</filesize>
-  </ext>
-</bibdata>
+puts bib.to_xml bibdata: true
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      <title language="en" script="Latn" type="main">PLATEAU Guidebook</title>
+      <uri type="pdf">https://www.mlit.go.jp/plateau/file/libraries/doc/plateau_doc_0000_ver01.pdf</uri>
+      <docidentifier type="PLATEAU" primary="true">PLATEAU Handbook #00 1.0</docidentifier>
+      ...
+      <ext schema-version="v0.0.2">
+        <doctype>handbook</doctype>
+        <flavor>plateau</flavor>
+        <structuredidentifier type="Handbook">
+          <agency>PLATEAU</agency>
+          <docnumber>00</docnumber>
+          <edition>1.0</edition>
+        </structuredidentifier>
+        <filesize>18381880</filesize>
+      </ext>
+    </bibdata>"
 ----
 
 ==== YAML
-[source,ruby]
-----
-puts bib.to_hash.to_yaml
----
-schema-version: v1.2.9
-id: PLATEAUHandbook#001.0
-title:
-- content: 3D都市モデルの導入ガイダンス
-  language:
-  - ja
-  script:
-  - Jpan
-  format: text/plain
-  type: main
-- content: Guidance on the Installation for 3D City Model
-  language:
-  - en
-  script:
-  - Latn
-  format: text/plain
-  type: main
-link:
-- content: https://www.mlit.go.jp/plateau/file/libraries/doc/plateau_doc_0000_ver01.pdf
-  type: pdf
-type: standard
-docid:
-- id: 'PLATEAU Handbook #00 1.0'
-  type: PLATEAU
-  primary: true
-docnumber: 'Handbook #00 1.0'
-date:
-- type: published
-  value: '2021-03-26'
-contributor:
-- organization:
-    name:
-    - content: 国土交通省
-      language:
-      - ja
-      script:
-      - Jpan
-    - content: Japanese Ministry of Land, Infrastructure, Transport and Tourism
-      language:
-      - en
-      script:
-      - Latn
-    abbreviation:
-      content: MLIT
-  role:
-  - type: publisher
-edition:
-  content: 1.0
-  number: '1.0'
-revdate: '2021-03-26'
-abstract:
-- content: 地方自治体担当者や民間事業者等に向けた 3D都市モデル導入のためのガイダンス
-  language:
-  - ja
-  script:
-  - Jpan
-  format: text/plain
-fetched: '2024-08-25'
-doctype:
-  type: handbook
-structuredidentifier:
-- docnumber: '00'
-  type: Handbook
-  agency:
-  - PLATEAU
-  edition: 1.0
-ext:
-  cover:
-    image:
-      src: https://www.mlit.go.jp//plateau/uploads/2022/06/1@2x.jpg
-      mimetype: image/jpeg
-  filesize: 18381880
-----
-
-==== BibXML
 
 [source,ruby]
 ----
-puts bib.to_bibxml
-<reference anchor="PLATEAU.Handbook.#00.1.0">
-  <front>
-    <title>3D都市モデルの導入ガイダンス</title>
-    <date year="2021" month="March" day="26"/>
-    <abstract>地方自治体担当者や民間事業者等に向けた 3D都市モデル導入のためのガイダンス</abstract>
-  </front>
-</reference>
+bib.to_yaml
+=> "---
+    id: PLATEAUHandbook0010
+    type: standard
+    schema_version: v1.4.1
+    ..."
 ----
 
-==== AsciiBib
+=== Create from XML
 
 [source,ruby]
 ----
-puts bib.to_asciibib
-[%bibitem]
-== {blank}
-id:: PLATEAUHandbook#001.0
-title::
-title.type:: main
-title.content:: 3D都市モデルの導入ガイダンス
-title.language:: ja
-title.script:: Jpan
-title.format:: text/plain
-title::
-title.type:: main
-title.content:: Guidance on the Installation for 3D City Model
-title.language:: en
-title.script:: Latn
-title.format:: text/plain
-type:: standard
-docid.type:: PLATEAU
-docid.primary:: true
-docid.id:: PLATEAU Handbook #00 1.0
-edition.content:: 1.0
-edition.number:: 1.0
-date.type:: published
-date.on:: 2021-03-26
-abstract.content:: 地方自治体担当者や民間事業者等に向けた 3D都市モデル導入のためのガイダンス
-abstract.language:: ja
-abstract.script:: Jpan
-abstract.format:: text/plain
-link.type:: pdf
-link.content:: https://www.mlit.go.jp/plateau/file/libraries/doc/plateau_doc_0000_ver01.pdf
-doctype.type:: handbook
-structured_identifier.docnumber:: 00
-structured_identifier.agency:: PLATEAU
-structured_identifier.type:: Handbook
-structured_identifier.edition:: 1.0
-cover.image.src:: https://www.mlit.go.jp//plateau/uploads/2022/06/1@2x.jpg
-cover.image.mimetype:: image/jpeg
-filesize:: 18381880
+Relaton::Plateau::Item.from_xml File.read("spec/fixtures/handbook.xml")
+=> #<Relaton::Plateau::ItemData:0x0000000123b99118
+...
+----
+
+=== Create from YAML
+
+[source,ruby]
+----
+Relaton::Plateau::Item.from_yaml File.read("spec/fixtures/item.yaml")
+=> #<Relaton::Plateau::ItemData:0x00000001209fd208
+...
 ----
 
 === Fetching data
 
-Two datasets are available for fetching: `platau-handbooks` and `plateau-technical-reports`. The data is stored in the `data` directory. The format can be `xml`, 'yaml', or `bibxml`.
+Two datasets are available for fetching: `plateau-handbooks` and `plateau-technical-reports`. The format can be `xml`, `yaml`, or `bibxml`.
 
 [source,ruby]
 ----
-Relaton::Plateau::Fetcher.fetch("plateau-handbooks", output: "dir", format: "xml")
+require "relaton/plateau/data_fetcher"
+
+Relaton::Plateau::DataFetcher.fetch("plateau-handbooks", output: "dir", format: "xml")
+Started at: 2026-03-02 15:36:03 -0500
+Stopped at: 2026-03-02 15:36:04 -0500
+Done in: 1 sec.
 ----
+
+== Logging
+
+RelatonPlateau uses https://github.com/relaton/relaton-logger[relaton-logger] for logging. By default, it logs to STDERR. To change the log level and output, use `Relaton.logger_pool` and `Relaton.logger`.
+
+== Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `bundle exec rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 == Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/metanorma/relaton-plateau
+Bug reports and pull requests are welcome on GitHub at https://github.com/relaton/relaton-plateau
 
 == License
 
