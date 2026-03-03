@@ -6,13 +6,10 @@ require_relative "un/util"
 require_relative "un/item"
 require_relative "un/bibitem"
 require_relative "un/bibdata"
-# require "relaton_un/un_bibliography"
-# require "relaton_un/hit_collection"
-# require "relaton_un/hit"
-# require "relaton_un/hash_converter"
-# require "relaton_un/xml_parser"
-# require "relaton_un/session"
-# require "relaton_un/editorialgroup"
+require_relative "un/token_generator"
+require_relative "un/hit"
+require_relative "un/hit_collection"
+require_relative "un/bibliography"
 
 module Relaton
   module Un
