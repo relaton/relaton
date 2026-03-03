@@ -11,6 +11,7 @@ require_relative "plateau/bibitem"
 require_relative "plateau/bibdata"
 require_relative "plateau/hit_collection"
 require_relative "plateau/bibliography"
+require_relative "plateau/processor"
 # require_relative "plateau/xml_parser"
 # require_relative "plateau/hash_converter"
 
