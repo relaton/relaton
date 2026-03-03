@@ -10,11 +10,9 @@ module Relaton
         @hit = hit
       end
 
-      # rubocop:disable Metrics/MethodLength
-
-      # @return [Relaton::Un::Item]
-      def parse # rubocop:disable Metrics/AbcSize
-        Item.new(
+      # @return [Relaton::Un::ItemData]
+      def parse # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+        ItemData.new(
           type: "standard",
           fetched: Date.today.to_s,
           docidentifier: fetch_docid,
@@ -32,7 +30,6 @@ module Relaton
           ),
         )
       end
-      # rubocop:enable Metrics/MethodLength
 
       private
 
