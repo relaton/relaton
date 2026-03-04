@@ -2,19 +2,13 @@ require "relaton/bib"
 require "relaton/index"
 require_relative "w3c/version"
 require_relative "w3c/util"
-# require "relaton_w3c/document_type"
-# require "relaton_w3c/w3c_bibliography"
 require_relative "w3c/item"
 require_relative "w3c/bibitem"
 require_relative "w3c/bibdata"
-# require "relaton_w3c/xml_parser"
-# require "relaton_w3c/bibxml_parser"
-# require "relaton_w3c/hash_converter"
-# require "relaton_w3c/pubid"
-# require "relaton_w3c/data_fetcher"
-# require "relaton_w3c/data_index"
 
 module RelatonW3c
+  INDEXFILE = "index-v1".freeze
+
   class Error < StandardError; end
 
   # Returns hash of XML reammar
