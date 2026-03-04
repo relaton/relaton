@@ -8,14 +8,16 @@ require_relative "xsf/util"
 require_relative "xsf/item"
 require_relative "xsf/bibitem"
 require_relative "xsf/bibdata"
-# require_relative "xsf/hit"
-# require_relative "xsf/hit_collection"
-# require_relative "xsf/bibliography"
+require_relative "xsf/hit"
+require_relative "xsf/hit_collection"
+require_relative "xsf/bibliography"
 
 module Relaton
   module Xsf
     INDEXFILE = "index-v1"
+
     class Error < StandardError; end
+
     # Your code goes here...
     def self.grammar_hash
       # gem_path = File.expand_path "..", __dir__
