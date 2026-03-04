@@ -8,16 +8,13 @@ require_relative "xsf/util"
 require_relative "xsf/item"
 require_relative "xsf/bibitem"
 require_relative "xsf/bibdata"
-# require_relative "relaton_xsf/bibliography"
-# require_relative "relaton_xsf/hit_collection"
-# require_relative "relaton_xsf/hit"
-# require_relative "relaton_xsf/xml_parser"
-# require_relative "relaton_xsf/bibxml_parser"
-# require_relative "relaton_xsf/hash_converter"
-# require_relative "relaton_xsf/data_fetcher"
+# require_relative "xsf/hit"
+# require_relative "xsf/hit_collection"
+# require_relative "xsf/bibliography"
 
 module Relaton
   module Xsf
+    INDEXFILE = "index-v1"
     class Error < StandardError; end
     # Your code goes here...
     def self.grammar_hash
