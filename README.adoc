@@ -1,4 +1,4 @@
-= Relaton-XSF: bibliographic retrieval of XMPP XEP specifications
+= Relaton::XSF: bibliographic retrieval of XMPP XEP specifications
 
 image:https://img.shields.io/gem/v/relaton-xsf.svg["Gem Version", link="https://rubygems.org/gems/relaton-xsf"]
 image:https://github.com/relaton/relaton-xsf/workflows/macos/badge.svg["Build Status (macOS)", link="https://github.com/relaton/relaton-xsf/actions?workflow=macos"]
@@ -42,14 +42,14 @@ Or install it yourself as:
 
 [source,ruby]
 ----
-require 'relaton_xsf'
+require 'relaton/xsf'
 => true
 
-hit_collection = RelatonXsf::Bibliography.search("XEP 0001")
-=> <RelatonXsf::HitCollection:0x00000000019780 @ref=XEP 0001 @fetched=false>
+hit_collection = Relaton::Xsf::Bibliography.search("XEP 0001")
+=> <Relaton::Xsf::HitCollection:0x000000000013c0 @ref=XEP 0001 @fetched=false>
 
-item = hit_collection[0].fetch
-=> #<RelatonXsf::BibliographicItem:0x000000011167a518
+item = hit_collection[0].item
+=> #<Relaton::Bib::ItemData:0x0000000124d510b8
  ...
 ----
 
@@ -57,9 +57,12 @@ item = hit_collection[0].fetch
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="XEP0001" type="standard" schema-version="v1.2.9">
-      <fetched>2023-07-18</fetched>
-      <title format="text/plain" language="en" script="Latn">XMPP Extension Protocols</title>
+=> "<bibitem id="XEP0001" type="standard" schema-version="v1.4.1">
+      <fetched>2026-03-04</fetched>
+      <title language="en" script="Latn">XMPP Extension Protocols</title>
+      <uri type="src">http://xmpp.org/extensions/xep-0001.html</uri>
+      <uri type="HTML">http://xmpp.org/extensions/xep-0001.html</uri>
+      <docidentifier type="XEP" primary="true">XEP 0001</docidentifier>
       ...
     <bibitem>"
 ----
@@ -67,12 +70,16 @@ With argument `bibdata: true` it outputs XML wrapped by `bibdata` element and ad
 [source,ruby]
 ----
 item.to_xml bibdata: true
-=> "<bibdata type="standard" schema-version="v1.2.9">
-      <fetched>2023-07-18</fetched>
-      <title format="text/plain" language="en" script="Latn">XMPP Extension Protocols</title>
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      <fetched>2026-03-04</fetched>
+      <title language="en" script="Latn">XMPP Extension Protocols</title>
+      <uri type="src">http://xmpp.org/extensions/xep-0001.html</uri>
+      <uri type="HTML">http://xmpp.org/extensions/xep-0001.html</uri>
+      <docidentifier type="XEP" primary="true">XEP 0001</docidentifier>
       ...
       <ext>
         <doctype>rfc</doctype>
+        <flavor>xsf</flavor>
       </ext>
   </bibdata>"
 ----
@@ -80,35 +87,34 @@ item.to_xml bibdata: true
 === Get document by reference
 [source,ruby]
 ----
-item = RelatonXsf::Bibliography.get "XEP 0001"
-[relaton-xsf] (XEP 0001) Fetching from Relaton repository ...
-[relaton-xsf] (XEP 0001) Found `XEP 0001`
-=> #<RelatonXsf::BibliographicItem:0x000000011275cd18
+item = Relaton::Xsf::Bibliography.get "XEP 0001"
+[relaton-xsf] INFO: (XEP 0001) Fetching from Relaton repository ...
+[relaton-xsf] INFO: (XEP 0001) Found: `XEP 0001`
+=> #<Relaton::Bib::ItemData:0x0000000125036f58
 ...
 
-item.docidentifier.first.id
+item.docidentifier.first.content
 => "XEP 0001"
 ----
 
-=== Typed links
+=== Typed source links
 
-XSF publications have `src` type link.
+XSF publications have `src` type source link.
 
 [source,ruby]
 ----
-item.link
-=> [#<RelatonBib::TypedUri:0x0000000113ad5ca0
-  @content=#<Addressable::URI:0xcc24 URI:http://xmpp.org/extensions/xep-0001.html>,
-  @language=nil,
-  @script=nil,
-  @type="src">]
+item.source[0].type
+=> "src"
+
+item.source[0].content
+=> "http://xmpp.org/extensions/xep-0001.html"
 ----
 
 === Fetch data
 
 This gem uses the https://xmpp.org/extensions/refs/ dataset as a data source.
 
-The method `RelatonXsf::DataFetcher.fetch(output: "data", format: "yaml")` fetches all the documents from the dataset and saves them to the `./data` folder in YAML format.
+The method `Relaton::Xsf::DataFetcher.fetch(output: "data", format: "yaml")` fetches all the documents from the dataset and saves them to the `./data` folder in YAML format.
 Arguments:
 
 - `output` - folder to save documents (default './data').
@@ -116,7 +122,9 @@ Arguments:
 
 [source,ruby]
 ----
-RelatonXsf::DataFetcher.fetch
+require 'relaton/xsf/data_fetcher'
+
+Relaton::Xsf::DataFetcher.fetch
 Started at: 2021-09-01 18:01:01 +0200
 Stopped at: 2021-09-01 18:01:43 +0200
 Done in: 42 sec.
@@ -125,7 +133,7 @@ Done in: 42 sec.
 
 === Logging
 
-RelatonXsf uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
+Relaton::Xsf uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
 
 == Development
 
