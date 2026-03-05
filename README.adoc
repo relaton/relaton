@@ -1,8 +1,8 @@
-= RelatonW3c
+= Relaton::W3c
 
 RelatonW3c is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
-You can use it to retrieve metadata of W3C Standards from https://w3.org, and access such metadata through the `W3cBibliographicItem` object.
+You can use it to retrieve metadata of W3C Standards from https://w3.org, and access such metadata through the `Relaton::W3c::Item` object.
 
 == Installation
 
@@ -27,13 +27,13 @@ Or install it yourself as:
 
 [source,ruby]
 ----
-require 'relaton_w3c'
+require 'relaton/w3c'
 => true
 
-item = RelatonW3c::W3cBibliography.get "W3C REC-json-ld11-20200716"
-[relaton-w3c] (W3C REC-json-ld11-20200716) Fetching from Relaton repository ...
-[relaton-w3c] (W3C REC-json-ld11-20200716) Found: `REC-json-ld11-20200716`
-=> #<RelatonW3c::W3cBibliographicItem:0x00007fc4ea03c6c0
+item = Relaton::W3c::Bibliography.get "W3C REC-json-ld11-20200716"
+[relaton-w3c] INFO: (W3C REC-json-ld11-20200716) Fetching from Relaton repository ...
+[relaton-w3c] INFO: (W3C REC-json-ld11-20200716) Found: `W3C REC-json-ld11-20200716`
+=> #<Relaton::W3c::ItemData:0x0000000129b05b38
 ...
 ----
 
@@ -42,10 +42,12 @@ item = RelatonW3c::W3cBibliography.get "W3C REC-json-ld11-20200716"
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="W3CREC-json-ld11-20200716" type="standard" schema-version="v1.2.1">
-      <fetched>2022-12-05</fetched>
-      <title format="text/plain">JSON-LD 1.1</title>
+=> "<bibitem id="W3CRECjsonld1120200716" type="standard" schema-version="v1.4.1">
+      <fetched>2026-03-04</fetched>
+      <formattedref>W3C REC-json-ld11-20200716</formattedref>
+      <title language="en" script="Latn">JSON-LD 1.1</title>
       <uri type="src">https://www.w3.org/TR/2020/REC-json-ld11-20200716/</uri>
+      <docidentifier type="W3C" primary="true">W3C REC-json-ld11-20200716</docidentifier>
       ..
     </bibitem>"
 ----
@@ -55,77 +57,65 @@ With argument `bibdata: true` it outputs XML wrapped by `bibdata` element and ad
 [source,ruby]
 ----
 item.to_xml bibdata: true
-=> "<bibdata type="standard" schema-version="v1.2.1">
-      <fetched>2022-12-05</fetched>
-      <title format="text/plain">JSON-LD 1.1</title>
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      <fetched>2026-03-04</fetched>
+      <formattedref>W3C REC-json-ld11-20200716</formattedref>
+      <title language="en" script="Latn">JSON-LD 1.1</title>
       <uri type="src">https://www.w3.org/TR/2020/REC-json-ld11-20200716/</uri>
+      <docidentifier type="W3C" primary="true">W3C REC-json-ld11-20200716</docidentifier>
       ...
       <ext schema-version="v1.0.0">
         <doctype>technicalReport</doctype>
-        <editorialgroup>
-          <technical-committee>JSON-LD Working Group</technical-committee>
-        </editorialgroup>
+        <flavor>w3c</flavor>
       </ext>
     </bibdata>"
 ----
 
-=== Typed links
+=== Typed source links
 
-Each W3C document has `src` type link.
+Each W3C document has `src` type source link.
 
 [source,ruby]
 ----
-item.link.first.type
+item.source.first.type
 => "src"
 
-item.link.first.content
-=> #<Addressable::URI:0x75634 URI:https://www.w3.org/TR/2020/REC-json-ld11-20200716/>
+item.source.first.content
+=> "https://www.w3.org/TR/2020/REC-json-ld11-20200716/"
 ----
 
 === Create bibliographic item from XML
 [source,ruby]
 ----
-RelatonW3c::XMLParser.from_xml File.read('spec/fixtures/cr_json_ld11.xml')
-=> #<RelatonW3c::W3cBibliographicItem:0x007f9381efce98
+Relaton::W3c::Bibdata.from_xml File.read('spec/fixtures/cr_json_ld11.xml')
+=> #<Relaton::Bib::ItemData:0x0000000100f50018
 ...
 ----
 
 === Create bibliographic item from YAML
 [source,ruby]
 ----
-hash = YAML.load_file 'spec/fixtures/cr_json_ld11.yml'
-=> {"schema-version"=>"v1.2.1",
-...
-
-bib_hash = RelatonW3c::HashConverter.hash_to_bib hash
-=> {:"schema-version"=>"v1.2.1",
-...
-
-RelatonW3c::W3cBibliographicItem.new **bib_hash
-=> #<RelatonW3c::W3cBibliographicItem:0x007f9381ec6a00
+Relaton::W3c::Item.from_yaml File.read('spec/fixtures/item.yaml')
+=> #<Relaton::W3c::ItemData:0x000000012b917450
 ...
 ----
 
 === Fetch data
 
-The method `RelatonW3c::DataFetcher.fetch(source, output: "data", format: "yaml")` converts all the documents from the dataset and saves them to the `./data` folder in YAML format.
+The method `Relaton::W3c::DataFetcher.fetch(output: "data", format: "yaml")` converts all the documents from the W3C API and saves them to the `./data` folder in YAML format.
 Arguments:
 
-- `source` - the name of the dataset (`w3c-rdf` or `w3c-tr-archive`)
 - `output` - folder to save documents (default './data').
 - `format` - the format in which the documents are saved. Possible formats are: `yaml`, `xml`, `bibxml` (default `yaml`).
 
-The available datasets are:
-- `w3c-rdf` - The dataset is fetched from http://www.w3.org/2002/01/tr-automation/tr.rdf.
-- `w3c-tr-archive` - The archive dataset files should be downloaded from https://github.com/relaton/w3c-tr-archive repository and placed into `w3c-tr-archive` folder.
+The available dataset is:
+- `w3c-api` - The dataset is fetched from the W3C API.
 
 [source,ruby]
 ----
-RelatonW3c::DataFetcher.fetch
-Started at: 2021-11-19 13:32:05 +0100
-Stopped at: 2021-11-19 13:34:40 +0100
-Done in: 155 sec.
-=> nil
+require 'relaton/w3c/data_fetcher'
+
+Relaton::W3c::DataFetcher.fetch
 ----
 
 === Logging

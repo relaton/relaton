@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-relaton-w3c is a Ruby gem for retrieving and representing W3C Standards bibliographic data using the Relaton model. It is part of the larger Relaton ecosystem of gems. The current `lutaml-integration` branch is a major refactor migrating to LutaML-based model architecture (namespace `Relaton::W3c`), replacing the previous `RelatonW3c` flat structure.
+relaton-w3c is a Ruby gem for retrieving and representing W3C Standards bibliographic data using the Relaton model. It is part of the larger Relaton ecosystem of gems. Uses a LutaML-based model architecture under the `Relaton::W3c` namespace.
 
 ## Common Commands
 
@@ -30,24 +30,40 @@ bin/console
 
 ## Architecture
 
-### Class Hierarchy (lutaml-integration branch)
+### Class Hierarchy
 
-All model classes live under `lib/relaton/w3c/` in the `Relaton::W3c` namespace:
+All classes live under `lib/relaton/w3c/` in the `Relaton::W3c` namespace:
 
+**Model classes:**
 - **`Item`** (`item.rb`) — extends `Bib::Item`, adds W3C `ext` attribute. Base class for both Bibitem and Bibdata.
+- **`ItemData`** (`item_data.rb`) — LutaML data model for `Item`
 - **`Bibitem`** (`bibitem.rb`) — extends `Item`, includes `Bib::BibitemShared` (XML serialization without `<bibdata>` wrapper)
 - **`Bibdata`** (`bibdata.rb`) — extends `Item`, includes `Bib::BibdataShared` (XML serialization with `<bibdata>` wrapper)
 - **`Ext`** (`ext.rb`) — extends `Bib::Ext`, adds W3C-specific `doctype` attribute
 - **`Doctype`** (`doctype.rb`) — extends `Bib::Doctype`, restricts content to `groupNote` or `technicalReport`
+
+**Public API:**
+- **`Bibliography`** (`bibliography.rb`) — search and retrieve W3C standards from the Relaton index
+- **`Processor`** (`processor.rb`) — extends `Relaton::Core::Processor`, registers the W3C flavor (prefix `W3C`, dataset `w3c-api`)
+
+**Data fetching:**
+- **`DataFetcher`** (`data_fetcher.rb`) — extends `Core::DataFetcher`, fetches all W3C specs via the W3C API
+- **`DataParser`** (`data_parser.rb`) — converts W3C API spec objects into `Relaton::W3c::Item` instances
+- **`RateLimitHandler`** (`rate_limit_handler.rb`) — mixin for retry logic and caching of fetched API objects
+- **`PubId`** (`pubid.rb`) — parses and compares W3C document identifiers (stage, code, date parts)
+
+**Utilities:**
 - **`Util`** (`util.rb`) — extends `Relaton::Bib::Util`, sets `PROGNAME` for logging
 
-The entry module `RelatonW3c` is defined in `lib/relaton/w3c.rb` and exposes `grammar_hash`.
+The entry module is defined in `lib/relaton/w3c.rb` and exposes `grammar_hash`.
 
 ### Key Dependencies
 
 - **relaton-bib** (~> 2.0.0-alpha) — provides base `Bib::Item`, `Bib::Ext`, `Bib::Doctype` and serialization mixins (LutaML model layer)
+- **relaton-core** — provides base `Core::Processor` and `Core::DataFetcher`
 - **relaton-index** — index-based search for bibliographic references
-- **linkeddata/rdf/sparql** — RDF and SPARQL support for parsing W3C data sources
+- **w3c_api** — W3C API client used by `DataFetcher` to retrieve specifications
+- **linkeddata/rdf/sparql** — legacy RDF dependencies (still in gemspec)
 
 ### Schema Validation
 
