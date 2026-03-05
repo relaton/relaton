@@ -13,6 +13,7 @@ module Relaton
       def ext_hash_to_bib(ret) # rubocop:disable Metrics/AbcSize
         ret[:ext] ||= {}
         doctype_hash_to_bib ret
+        ret[:ext][:doctype] ||= Doctype.new(content: "standard")
         ret[:ext][:subdoctype] = ret.delete(:subdoctype) if ret[:subdoctype]
         ret[:ext][:flavor] ||= flavor(ret)
         ics_hash_to_bib ret
@@ -88,6 +89,27 @@ module Relaton
           identifier: identifiers,
           subdivision: sub_divisions,
         )
+      end
+
+      def series_hash_to_bib(ret)
+        ret[:series] &&= array(ret[:series]).map do |s|
+          if s[:title].is_a?(Hash) && s[:title][:content].is_a?(Array)
+            s[:title] = s[:title][:content].map do |c|
+              { type: s[:title][:type], content: c[:content], language: c[:language], script: c[:script] }.compact
+            end
+          end
+          super_series(s)
+        end
+      end
+
+      def super_series(s)
+        s[:formattedref] && s[:formattedref] = formattedref(s[:formattedref])
+        s[:title] &&= title_collection(s[:title])
+        s[:place] &&= create_place(s[:place])
+        s[:abbreviation] &&= localizedstring(s[:abbreviation])
+        s[:from] &&= ::Date.parse(s[:from])
+        s[:to] &&= ::Date.parse(s[:to])
+        Bib::Series.new(**s)
       end
 
       def bib_item(item)

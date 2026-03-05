@@ -113,11 +113,14 @@ copyright:
 series:
 - type: main
   title:
-  - content:
-    - '{content: "Bathymetric Publications", language: "en", script: "Latn"}'
-    - '{content: "Publications bathymétriques", language: "fr", script: "Latn"}'
+  - language: en
+    script: Latn
+    content: Bathymetric Publications
     type: original
-    format: text/plain
+  - language: fr
+    script: Latn
+    content: Publications bathymétriques
+    type: original
   place:
     formatted_place: Monaco
   organization: International Hydrographic Organization
@@ -128,6 +131,8 @@ validity:
   begins: '2019-10-31'
 ext:
   schema_version: v1.0.0
+  doctype:
+    content: standard
   flavor: iho
   commentperiod:
     from: '2011-01-01'

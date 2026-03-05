@@ -1,5 +1,5 @@
 <bibdata type="standard" schema-version="v1.4.1">
-  <fetched>2026-02-20</fetched>
+  <fetched>2026-03-05</fetched>
   <title language="en" type="main">IHO-IOC GEBCO Cook Book</title>
   <title language="fr" type="main">Livre de recettes GEBCO OHI-COI</title>
   <uri type="pdf">https://www.star.nesdis.noaa.gov/socd/lsa/GEBCO_Cookbook/documents/CookBook_20191031.pdf</uri>
@@ -22,6 +22,45 @@
       <name>Intergovernmental Oceanographic Commission</name>
       <abbreviation>IOC</abbreviation>
       <uri>http://ioc-unesco.org</uri>
+    </organization>
+  </contributor>
+  <contributor>
+    <role type="author">
+      <description>committee</description>
+    </role>
+    <organization>
+      <name>International Hydrographic Organization</name>
+      <subdivision type="technical-committee">
+        <name>Hydrographic Services and Standards Committee</name>
+        <identifier>HSSC</identifier>
+      </subdivision>
+      <abbreviation>IHO</abbreviation>
+    </organization>
+  </contributor>
+  <contributor>
+    <role type="author">
+      <description>committee</description>
+    </role>
+    <organization>
+      <name>International Hydrographic Organization</name>
+      <subdivision type="technical-committee">
+        <name>Inter-Regional Coordination Committee</name>
+        <identifier>IRCC</identifier>
+      </subdivision>
+      <abbreviation>IHO</abbreviation>
+    </organization>
+  </contributor>
+  <contributor>
+    <role type="author">
+      <description>committee</description>
+    </role>
+    <organization>
+      <name>International Hydrographic Organization</name>
+      <subdivision type="technical-committee">
+        <name>Joint IHO-IOC Guiding Committee for the General Bathymetric Chart of the Oceans</name>
+        <identifier>GEBCO</identifier>
+      </subdivision>
+      <abbreviation>IHO</abbreviation>
     </organization>
   </contributor>
   <edition>1.0.0</edition>
@@ -58,13 +97,13 @@
     <title language="en" script="Latn" type="original">Bathymetric Publications</title>
     <title language="fr" script="Latn" type="original">Publications bathymétriques</title>
     <place>
-      <country>Monaco</country>
+      <formattedPlace>Monaco</formattedPlace>
     </place>
     <organization>International Hydrographic Organization</organization>
     <number>B</number>
   </series>
   <place>
-    <country>Monaco</country>
+    <formattedPlace>Monaco</formattedPlace>
   </place>
   <validity>
     <validityBegins>2019-10-31</validityBegins>

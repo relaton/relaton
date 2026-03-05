@@ -4,7 +4,7 @@ require_relative "comment_period"
 module Relaton
   module Iho
     class Ext < Bib::Ext
-      attribute :doctype, Doctype
+      attribute :doctype, Doctype, default: -> { Doctype.new(content: "standard") }
       attribute :commentperiod, CommentPeriod
 
       xml do
