@@ -1,7 +1,7 @@
-describe RelatonIsbn::Isbn do
+describe Relaton::Isbn::Isbn do
   it "creates ISBN object" do
     subj = described_class.new("ISBN 0-12-064481-9")
-    expect(subj).to be_instance_of RelatonIsbn::Isbn
+    expect(subj).to be_instance_of Relaton::Isbn::Isbn
     expect(subj.instance_variable_get(:@isbn)).to eq "0120644819"
   end
 

@@ -1,14 +1,14 @@
-require_relative "lib/relaton_isbn/version"
+require_relative "lib/relaton/isbn/version"
 
 Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   spec.name = "relaton-isbn"
-  spec.version = RelatonIsbn::VERSION
+  spec.version = Relaton::Isbn::VERSION
   spec.authors = ["Ribose Inc."]
   spec.email = ["open.source@ribose.com"]
 
-  spec.summary =  "RelatonIsbn: retrieve publications by ISBN for " \
+  spec.summary =  "Relaton::Isbn: retrieve publications by ISBN for " \
                   "bibliographic use using the BibliographicItem model"
-  spec.description =  "RelatonIsbn: retrieve publications by ISBN for " \
+  spec.description =  "Relaton::Isbn: retrieve publications by ISBN for " \
                       "bibliographic use using the BibliographicItem model"
   spec.homepage = "https://github.com/relaton/relaton-isbn"
   spec.license = "MIT"
@@ -33,7 +33,10 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   spec.require_paths = ["lib"]
 
   # Uncomment to register a new dependency of your gem
-  spec.add_dependency "relaton-bib", "~> 1.20.0"
+  spec.add_dependency "isoics", "~> 0.1.0"
+  # spec.add_dependency "psych", "~> 5.2.0"
+  spec.add_dependency "relaton-bib", "~> 2.0.0.alpha.1"
+  spec.add_dependency "relaton-core", ">= 0"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

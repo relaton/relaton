@@ -1,4 +1,4 @@
-= Relaton-ISBN: retrieves bibliographic items using OpenLibrary API
+= Relaton::ISBN: retrieves bibliographic items using OpenLibrary API
 
 image:https://img.shields.io/gem/v/relaton-isbn.svg["Gem Version", link="https://rubygems.org/gems/relaton-isbn"]
 image:https://github.com/relaton/relaton-isbn/workflows/macos/badge.svg["Build Status (macOS)", link="https://github.com/relaton/relaton-isbn/actions?workflow=macos"]
@@ -8,11 +8,11 @@ image:https://codeclimate.com/github/relaton/relaton-isbn/badges/gpa.svg["Code C
 image:https://img.shields.io/github/issues-pr-raw/relaton/relaton-isbn.svg["Pull Requests", link="https://github.com/relaton/relaton-isbn/pulls"]
 image:https://img.shields.io/github/commits-since/relaton/relaton-isbn/latest.svg["Commits since latest",link="https://github.com/relaton/relaton-isbn/releases"]
 
-RelatonIsbn is a Ruby gem that implements the
+Relaton::Isbn is a Ruby gem that implements the
 https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
 You can use it to retrieve metadata of Standards from https://openlibrary.org, and
-access such metadata through the `BibliographicItem` object.
+access such metadata through the `Bibitem` object.
 
 == Installation
 
@@ -41,25 +41,25 @@ $ gem install relaton-isbn
 
 === Retrieving bibliographic items using OpenLibrary API
 
-To retrieve bibliographic items, use `RelatonIsbn::OpenLibrary.get` method with ISBN-10 or ISBN-13 as an argument. Allowed prefixes are `ISBN`, `isbn:`. Prefix and hyphens are optional. The method returns `RelatonBib::BibliographicItem` object.
+To retrieve bibliographic items, use `Relaton::Isbn::OpenLibrary.get` method with ISBN-10 or ISBN-13 as an argument. Allowed prefixes are `ISBN`, `isbn:`. Prefix and hyphens are optional. The method returns `Relaton::Bib::Bibitem` object.
 
 [source,ruby]
 ----
-require 'relaton_isbn'
+require 'relaton/isbn'
 => true
 
 # get document by ISBN-13
-> ibitem = RelatonIsbn::OpenLibrary.get "ISBN 978-0-12-064481-0"
-[relaton-isbn] (ISBN 9780120644810) Fetching from OpenLibrary ...
-[relaton-isbn] (ISBN 9780120644810) Found: `9780120644810`
-=> #<RelatonBib::BibliographicItem:0x0000000113889258
+bibitem = Relaton::Isbn::OpenLibrary.get "ISBN 978-0-12-064481-0"
+[relaton-isbn] INFO: (ISBN 978-0-12-064481-0) Fetching from OpenLibrary ...
+[relaton-isbn] INFO: (ISBN 978-0-12-064481-0) Found: `9780120644810`
+=> #<Relaton::Bib::Bibitem:0x0000000127ed25d8
 ...
 
 # get document by ISBN-10
-> RelatonIsbn::OpenLibrary.get "isbn:0120644819"
-[relaton-isbn] (isbn:0120644819) Fetching from OpenLibrary ...
-[relaton-isbn] (isbn:0120644819) Found: `9780120644810`
-=> #<RelatonBib::BibliographicItem:0x00000001098ac960
+Relaton::Isbn::OpenLibrary.get "isbn:0120644819"
+[relaton-isbn] INFO: (isbn:0120644819) Fetching from OpenLibrary ...
+[relaton-isbn] INFO: (isbn:0120644819) Found: `9780120644810`
+=> #<Relaton::Bib::Bibitem:0x0000000127f11698
 ...
 ----
 
@@ -67,60 +67,39 @@ require 'relaton_isbn'
 [source,ruby]
 ----
 # serialize to XML
-> puts bibitem.to_xml
-<bibitem id="9780120644810" schema-version="v1.2.7">
-  <title type="main" format="text/plain">Graphics gems II</title>
-  <uri type="src">http://openlibrary.org/books/OL21119585M/Graphics_gems_II</uri>
-  <docidentifier type="ISBN" primary="true">9780120644810</docidentifier>
-  <date type="published">
-    <on>1991</on>
-  </date>
-  <contributor>
-    <role type="author"/>
-    <person>
-      <name>
-        <completename>James Arvo</completename>
-      </name>
-    </person>
-  </contributor>
-  <contributor>
-    <role type="publisher"/>
-    <organization>
-      <name>AP Professional</name>
-    </organization>
-  </contributor>
-  <place>
-    <city>Boston</city>
-  </place>
-  <place>
-    <city>London</city>
-  </place>
-</bibitem>
+bibitem.to_xml
+=> "<bibitem id="9780120644810" schema-version="v1.4.1">
+      <fetched>2026-03-04</fetched>
+      <title type="main">Graphics gems II</title>
+      <uri type="src">http://openlibrary.org/books/OL21119585M/Graphics_gems_II</uri>
+      <docidentifier type="ISBN" primary="true">9780120644810</docidentifier>
+      ...
+    </bibitem>"
 
 # serialize to bibdata XML
-> puts bibitem.to_xml bibdata: true
-<bibdata schema-version="v1.2.7">
-  <title type="main" format="text/plain">Graphics gems II</title>
-  ...
+bibitem.to_xml bibdata: true
+=> "<bibdata schema-version="v1.4.1">
+      <fetched>2026-03-04</fetched>
+      <title type="main">Graphics gems II</title>
+      <uri type="src">http://openlibrary.org/books/OL21119585M/Graphics_gems_II</uri>
+      <docidentifier type="ISBN" primary="true">9780120644810</docidentifier>
+      ...
+      <ext>
+        <flavor>isbn</flavor>
+      </ext>
+    </bibdata>"
 
 # serialize to hash
-> bibitem.to_hash
-=> {"schema-version"=>"v1.2.7",
- "id"=>"9780120644810",
- "title"=>[{"content"=>"Graphics gems II", "format"=>"text/plain", "type"=>"main"}],
- "link"=>[{"content"=>"http://openlibrary.org/books/OL21119585M/Graphics_gems_II", "type"=>"src"}],
- "docid"=>[{"id"=>"9780120644810", "type"=>"ISBN", "primary"=>true}],
- "date"=>[{"type"=>"published", "value"=>"1991"}],
- "contributor"=>
-  [{"person"=>{"name"=>{"completename"=>{"content"=>"James Arvo"}}, "url"=>"http://openlibrary.org/authors/OL2646519A/James_Arvo"}, "role"=>[{"type"=>"author"}]},
-   {"organization"=>{"name"=>[{"content"=>"AP Professional"}]}, "role"=>[{"type"=>"publisher"}]}],
- "revdate"=>"1991",
- "place"=>[{"city"=>"Boston"}, {"city"=>"London"}]}
+puts bibitem.to_yaml
+=> "---
+    id: '9780120644810'
+    schema_version: v1.4.1
+    ..."
 ----
 
 === Logging
 
-RelatonIsbn uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
+Relaton::Isbn uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
 
 == Development
 
