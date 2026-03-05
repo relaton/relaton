@@ -1,0 +1,973 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.w3.org/specifications/webrtc/versions/20241008
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Mar 2026 21:29:57 GMT
+      Content-Type:
+      - application/hal+json;version=1.0
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 9d73fab65b0c58ae-IAD
+      Cache-Control:
+      - public, s-maxage=900
+      Access-Control-Allow-Origin:
+      - "*"
+      Cf-Cache-Status:
+      - EXPIRED
+      Last-Modified:
+      - Wed, 04 Mar 2026 21:29:57 GMT
+      Set-Cookie:
+      - __cf_bm=N93powZZUPmRuSJllsHM5lrtv6oBLaCGiQZhLf0DQa8-1772659797-1.0.1.1-rRGy5n3ZRCXITD.PgJAJD.Gkxy4h6bbHJnSxwPFA4PiEw9YUVa.1xQLPfqwuN6tkc.kC1yVr96YIUgTcmOTgCOAn3wBW7DgEBxykiwKEghs;
+        path=/; expires=Wed, 04-Mar-26 21:59:57 GMT; domain=.w3.org; HttpOnly; Secure;
+        SameSite=None
+      Vary:
+      - Accept-Encoding
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      base64_string: |
+        ewogICAgInN0YXR1cyI6ICJSZWNvbW1lbmRhdGlvbiIsCiAgICAicmVjLXRy
+        YWNrIjogdHJ1ZSwKICAgICJlZGl0b3ItZHJhZnQiOiAiaHR0cHM6Ly93M2Mu
+        Z2l0aHViLmlvL3dlYnJ0Yy1wYy8iLAogICAgInVyaSI6ICJodHRwczovL3d3
+        dy53My5vcmcvVFIvMjAyNC9SRUMtd2VicnRjLTIwMjQxMDA4LyIsCiAgICAi
+        ZGF0ZSI6ICIyMDI0LTEwLTA4IiwKICAgICJpbmZvcm1hdGl2ZSI6IGZhbHNl
+        LAogICAgInRpdGxlIjogIldlYlJUQzogUmVhbC1UaW1lIENvbW11bmljYXRp
+        b24gaW4gQnJvd3NlcnMiLAogICAgInNob3J0bGluayI6ICJodHRwczovL3d3
+        dy53My5vcmcvVFIvd2VicnRjLyIsCiAgICAicHJvY2Vzcy1ydWxlcyI6ICJo
+        dHRwczovL3d3dy53My5vcmcvcG9saWNpZXMvcHJvY2Vzcy8yMDIzMTEwMy8i
+        LAogICAgIl9saW5rcyI6IHsKICAgICAgICAic2VsZiI6IHsKICAgICAgICAg
+        ICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMub3JnL3NwZWNpZmljYXRpb25z
+        L3dlYnJ0Yy92ZXJzaW9ucy8yMDI0MTAwOCIKICAgICAgICB9LAogICAgICAg
+        ICJlZGl0b3JzIjogewogICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2Fw
+        aS53My5vcmcvc3BlY2lmaWNhdGlvbnMvd2VicnRjL3ZlcnNpb25zLzIwMjQx
+        MDA4L2VkaXRvcnMiCiAgICAgICAgfSwKICAgICAgICAiZGVsaXZlcmVycyI6
+        IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMub3JnL3Nw
+        ZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI0MTAwOC9kZWxpdmVy
+        ZXJzIgogICAgICAgIH0sCiAgICAgICAgInNwZWNpZmljYXRpb24iOiB7CiAg
+        ICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9yZy9zcGVjaWZp
+        Y2F0aW9ucy93ZWJydGMiCiAgICAgICAgfSwKICAgICAgICAicHJlZGVjZXNz
+        b3ItdmVyc2lvbiI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9h
+        cGkudzMub3JnL3NwZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI0
+        MTAwOC9wcmVkZWNlc3NvcnMiCiAgICAgICAgfSwKICAgICAgICAic3VjY2Vz
+        c29yLXZlcnNpb24iOiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8v
+        YXBpLnczLm9yZy9zcGVjaWZpY2F0aW9ucy93ZWJydGMvdmVyc2lvbnMvMjAy
+        NDEwMDgvc3VjY2Vzc29ycyIKICAgICAgICB9CiAgICB9Cn0=
+  recorded_at: Wed, 04 Mar 2026 21:29:57 GMT
+- request:
+    method: get
+    uri: https://api.w3.org/specifications/webrtc
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Mar 2026 21:29:57 GMT
+      Content-Type:
+      - application/hal+json;version=1.0
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 9d73fab79d98d46a-IAD
+      Cache-Control:
+      - public, s-maxage=900
+      Access-Control-Allow-Origin:
+      - "*"
+      Cf-Cache-Status:
+      - EXPIRED
+      Last-Modified:
+      - Wed, 04 Mar 2026 21:29:57 GMT
+      Set-Cookie:
+      - __cf_bm=sKuOrhb9du8qNYVj63l56aHIoQN3G2lAapUjA978Edo-1772659797-1.0.1.1-vFDW0Lc7929LxQh.9WZNKlBUxBy9b9.CdqRjnqJyZuIX7bV4w.uHdosxgg5vIoyKc04OFQpXloPo5yKKvEY7wwqayDnYcc4Mb0sHDvD3bSY;
+        path=/; expires=Wed, 04-Mar-26 21:59:57 GMT; domain=.w3.org; HttpOnly; Secure;
+        SameSite=None
+      Vary:
+      - Accept-Encoding
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      base64_string: |
+        ewogICAgInNob3J0bGluayI6ICJodHRwczovL3d3dy53My5vcmcvVFIvd2Vi
+        cnRjLyIsCiAgICAiZGVzY3JpcHRpb24iOiAiPHA+VGhpcyBkb2N1bWVudCBk
+        ZWZpbmVzIGEgc2V0IG9mIEVDTUFTY3JpcHQgQVBJcyBpbiBXZWJJREwgdG8g
+        YWxsb3cgbWVkaWEgdG8gYmUgc2VudCB0byBhbmQgcmVjZWl2ZWQgZnJvbSBh
+        bm90aGVyIGJyb3dzZXIgb3IgZGV2aWNlIGltcGxlbWVudGluZyB0aGUgYXBw
+        cm9wcmlhdGUgc2V0IG9mIHJlYWwtdGltZSBwcm90b2NvbHMuIFRoaXMgc3Bl
+        Y2lmaWNhdGlvbiBpcyBiZWluZyBkZXZlbG9wZWQgaW4gY29uanVuY3Rpb24g
+        d2l0aCBhIHByb3RvY29sIHNwZWNpZmljYXRpb24gZGV2ZWxvcGVkIGJ5IHRo
+        ZSBJRVRGIFJUQ1dFQiBncm91cCBhbmQgYW4gQVBJIHNwZWNpZmljYXRpb24g
+        dG8gZ2V0IGFjY2VzcyB0byBsb2NhbCBtZWRpYSBkZXZpY2VzLjwvcD4iLAog
+        ICAgInRpdGxlIjogIldlYlJUQzogUmVhbC1UaW1lIENvbW11bmljYXRpb24g
+        aW4gQnJvd3NlcnMiLAogICAgInNob3J0bmFtZSI6ICJ3ZWJydGMiLAogICAg
+        ImVkaXRvci1kcmFmdCI6ICJodHRwczovL3czYy5naXRodWIuaW8vd2VicnRj
+        LXBjLyIsCiAgICAiX2xpbmtzIjogewogICAgICAgICJzZWxmIjogewogICAg
+        ICAgICAgICAiaHJlZiI6ICJodHRwczovL2FwaS53My5vcmcvc3BlY2lmaWNh
+        dGlvbnMvd2VicnRjIgogICAgICAgIH0sCiAgICAgICAgInZlcnNpb24taGlz
+        dG9yeSI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMu
+        b3JnL3NwZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucyIKICAgICAgICB9
+        LAogICAgICAgICJmaXJzdC12ZXJzaW9uIjogewogICAgICAgICAgICAiaHJl
+        ZiI6ICJodHRwczovL2FwaS53My5vcmcvc3BlY2lmaWNhdGlvbnMvd2VicnRj
+        L3ZlcnNpb25zLzIwMTExMDI3IiwKICAgICAgICAgICAgInRpdGxlIjogIldv
+        cmtpbmcgRHJhZnQiCiAgICAgICAgfSwKICAgICAgICAibGF0ZXN0LXZlcnNp
+        b24iOiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9y
+        Zy9zcGVjaWZpY2F0aW9ucy93ZWJydGMvdmVyc2lvbnMvMjAyNTAzMTMiLAog
+        ICAgICAgICAgICAidGl0bGUiOiAiUmVjb21tZW5kYXRpb24iCiAgICAgICAg
+        fSwKICAgICAgICAic2VyaWVzIjogewogICAgICAgICAgICAiaHJlZiI6ICJo
+        dHRwczovL2FwaS53My5vcmcvc3BlY2lmaWNhdGlvbi1zZXJpZXMvd2VicnRj
+        IgogICAgICAgIH0KICAgIH0KfQ==
+  recorded_at: Wed, 04 Mar 2026 21:29:57 GMT
+- request:
+    method: get
+    uri: https://api.w3.org/specifications/webrtc/versions/20241008/predecessors
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Mar 2026 21:29:58 GMT
+      Content-Type:
+      - application/hal+json;version=1.0
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 9d73fab9589ec98c-IAD
+      Cache-Control:
+      - public, s-maxage=900
+      Access-Control-Allow-Origin:
+      - "*"
+      Cf-Cache-Status:
+      - EXPIRED
+      Last-Modified:
+      - Wed, 04 Mar 2026 21:29:58 GMT
+      Set-Cookie:
+      - __cf_bm=ocYqwlQ5j3ha974RrF_4GXIiV8wjGu1GuFcNpL3L.rY-1772659798-1.0.1.1-zoJCESQPRWttHLNNOgn9Z5iFsSKkys3oR_CbThwRrNyxs16gGJFuRkJUIRBkIjpS_52IhHJHGazBKYGniKW0VXoxcapBxlS8DlWXHpNjNpk;
+        path=/; expires=Wed, 04-Mar-26 21:59:58 GMT; domain=.w3.org; HttpOnly; Secure;
+        SameSite=None
+      Vary:
+      - Accept-Encoding
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      base64_string: |
+        ewogICAgInBhZ2UiOiAxLAogICAgImxpbWl0IjogMTAwLAogICAgInBhZ2Vz
+        IjogMSwKICAgICJ0b3RhbCI6IDEsCiAgICAiX2xpbmtzIjogewogICAgICAg
+        ICJ1cCI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMu
+        b3JnL3NwZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI0MTAwOCIK
+        ICAgICAgICB9LAogICAgICAgICJwcmVkZWNlc3Nvci12ZXJzaW9uIjogWwog
+        ICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAiaHJlZiI6ICJodHRwczov
+        L2FwaS53My5vcmcvc3BlY2lmaWNhdGlvbnMvd2VicnRjL3ZlcnNpb25zLzIw
+        MjMwMzA2IiwKICAgICAgICAgICAgICAgICJ0aXRsZSI6ICJSZWNvbW1lbmRh
+        dGlvbiIKICAgICAgICAgICAgfQogICAgICAgIF0sCiAgICAgICAgInNlbGYi
+        OiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9yZy9z
+        cGVjaWZpY2F0aW9ucy93ZWJydGMvdmVyc2lvbnMvMjAyNDEwMDgvcHJlZGVj
+        ZXNzb3JzP3BhZ2U9MSZpdGVtcz0xMDAiCiAgICAgICAgfSwKICAgICAgICAi
+        Zmlyc3QiOiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLncz
+        Lm9yZy9zcGVjaWZpY2F0aW9ucy93ZWJydGMvdmVyc2lvbnMvMjAyNDEwMDgv
+        cHJlZGVjZXNzb3JzP3BhZ2U9MSZpdGVtcz0xMDAiCiAgICAgICAgfSwKICAg
+        ICAgICAibGFzdCI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9h
+        cGkudzMub3JnL3NwZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI0
+        MTAwOC9wcmVkZWNlc3NvcnM/cGFnZT0xJml0ZW1zPTEwMCIKICAgICAgICB9
+        CiAgICB9Cn0=
+  recorded_at: Wed, 04 Mar 2026 21:29:58 GMT
+- request:
+    method: get
+    uri: https://api.w3.org/specifications/webrtc/versions/20230306
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Mar 2026 21:29:58 GMT
+      Content-Type:
+      - application/hal+json;version=1.0
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 9d73fabaaa0dc97f-IAD
+      Cache-Control:
+      - public, s-maxage=900
+      Access-Control-Allow-Origin:
+      - "*"
+      Cf-Cache-Status:
+      - EXPIRED
+      Last-Modified:
+      - Wed, 04 Mar 2026 21:29:58 GMT
+      Set-Cookie:
+      - __cf_bm=seS409zivS06RnQLv.aK8q0cIZ5ZMkBYVwU94PSaCs8-1772659798-1.0.1.1-OO2CRu9M72bpvHGtlFyyLfxY9uSX9eyDigjThOjBQCGo6JnksT9ZwFztqQwkL6PvRtrEw9MI_RtGtEGeAXPjeR0CsF6tEHY4IUyIlx8juAY;
+        path=/; expires=Wed, 04-Mar-26 21:59:58 GMT; domain=.w3.org; HttpOnly; Secure;
+        SameSite=None
+      Vary:
+      - Accept-Encoding
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      base64_string: |
+        ewogICAgInN0YXR1cyI6ICJSZWNvbW1lbmRhdGlvbiIsCiAgICAicmVjLXRy
+        YWNrIjogdHJ1ZSwKICAgICJlZGl0b3ItZHJhZnQiOiAiaHR0cHM6Ly93M2Mu
+        Z2l0aHViLmlvL3dlYnJ0Yy1wYy8iLAogICAgInVyaSI6ICJodHRwczovL3d3
+        dy53My5vcmcvVFIvMjAyMy9SRUMtd2VicnRjLTIwMjMwMzA2LyIsCiAgICAi
+        ZGF0ZSI6ICIyMDIzLTAzLTA2IiwKICAgICJpbmZvcm1hdGl2ZSI6IGZhbHNl
+        LAogICAgInRpdGxlIjogIldlYlJUQzogUmVhbC1UaW1lIENvbW11bmljYXRp
+        b24gaW4gQnJvd3NlcnMiLAogICAgInNob3J0bGluayI6ICJodHRwczovL3d3
+        dy53My5vcmcvVFIvd2VicnRjLyIsCiAgICAicHJvY2Vzcy1ydWxlcyI6ICJo
+        dHRwczovL3d3dy53My5vcmcvMjAyMS9Qcm9jZXNzLTIwMjExMTAyLyIsCiAg
+        ICAiX2xpbmtzIjogewogICAgICAgICJzZWxmIjogewogICAgICAgICAgICAi
+        aHJlZiI6ICJodHRwczovL2FwaS53My5vcmcvc3BlY2lmaWNhdGlvbnMvd2Vi
+        cnRjL3ZlcnNpb25zLzIwMjMwMzA2IgogICAgICAgIH0sCiAgICAgICAgImVk
+        aXRvcnMiOiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLncz
+        Lm9yZy9zcGVjaWZpY2F0aW9ucy93ZWJydGMvdmVyc2lvbnMvMjAyMzAzMDYv
+        ZWRpdG9ycyIKICAgICAgICB9LAogICAgICAgICJkZWxpdmVyZXJzIjogewog
+        ICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2FwaS53My5vcmcvc3BlY2lm
+        aWNhdGlvbnMvd2VicnRjL3ZlcnNpb25zLzIwMjMwMzA2L2RlbGl2ZXJlcnMi
+        CiAgICAgICAgfSwKICAgICAgICAic3BlY2lmaWNhdGlvbiI6IHsKICAgICAg
+        ICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMub3JnL3NwZWNpZmljYXRp
+        b25zL3dlYnJ0YyIKICAgICAgICB9LAogICAgICAgICJwcmVkZWNlc3Nvci12
+        ZXJzaW9uIjogewogICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2FwaS53
+        My5vcmcvc3BlY2lmaWNhdGlvbnMvd2VicnRjL3ZlcnNpb25zLzIwMjMwMzA2
+        L3ByZWRlY2Vzc29ycyIKICAgICAgICB9LAogICAgICAgICJzdWNjZXNzb3It
+        dmVyc2lvbiI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGku
+        dzMub3JnL3NwZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDIzMDMw
+        Ni9zdWNjZXNzb3JzIgogICAgICAgIH0KICAgIH0KfQ==
+  recorded_at: Wed, 04 Mar 2026 21:29:58 GMT
+- request:
+    method: get
+    uri: https://api.w3.org/specifications/webrtc/versions/20241008/successors
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Mar 2026 21:29:58 GMT
+      Content-Type:
+      - application/hal+json;version=1.0
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 9d73fabc5e8c07e4-IAD
+      Cache-Control:
+      - public, s-maxage=900
+      Access-Control-Allow-Origin:
+      - "*"
+      Cf-Cache-Status:
+      - EXPIRED
+      Last-Modified:
+      - Wed, 04 Mar 2026 21:29:58 GMT
+      Set-Cookie:
+      - __cf_bm=beMlNmHhAIf.KBLza1cLkXe0blWVjfWfgPHW9OTPapY-1772659798-1.0.1.1-EhH.hdy8UOuhWlhM0m_UigSLn2GuPwkQt3oe5E_40T0PCIuasB4rBgt2WER76k3Qd22uVKbGKbfBg50y0pO2mKb4Dxc6Iwhz3Eo7oY5DWx4;
+        path=/; expires=Wed, 04-Mar-26 21:59:58 GMT; domain=.w3.org; HttpOnly; Secure;
+        SameSite=None
+      Vary:
+      - Accept-Encoding
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      base64_string: |
+        ewogICAgInBhZ2UiOiAxLAogICAgImxpbWl0IjogMTAwLAogICAgInBhZ2Vz
+        IjogMSwKICAgICJ0b3RhbCI6IDEsCiAgICAiX2xpbmtzIjogewogICAgICAg
+        ICJ1cCI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMu
+        b3JnL3NwZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI0MTAwOCIK
+        ICAgICAgICB9LAogICAgICAgICJzdWNjZXNzb3ItdmVyc2lvbiI6IFsKICAg
+        ICAgICAgICAgewogICAgICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9h
+        cGkudzMub3JnL3NwZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI1
+        MDMxMyIsCiAgICAgICAgICAgICAgICAidGl0bGUiOiAiUmVjb21tZW5kYXRp
+        b24iCiAgICAgICAgICAgIH0KICAgICAgICBdLAogICAgICAgICJzZWxmIjog
+        ewogICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2FwaS53My5vcmcvc3Bl
+        Y2lmaWNhdGlvbnMvd2VicnRjL3ZlcnNpb25zLzIwMjQxMDA4L3N1Y2Nlc3Nv
+        cnM/cGFnZT0xJml0ZW1zPTEwMCIKICAgICAgICB9LAogICAgICAgICJmaXJz
+        dCI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMub3Jn
+        L3NwZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI0MTAwOC9zdWNj
+        ZXNzb3JzP3BhZ2U9MSZpdGVtcz0xMDAiCiAgICAgICAgfSwKICAgICAgICAi
+        bGFzdCI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMu
+        b3JnL3NwZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI0MTAwOC9z
+        dWNjZXNzb3JzP3BhZ2U9MSZpdGVtcz0xMDAiCiAgICAgICAgfQogICAgfQp9
+  recorded_at: Wed, 04 Mar 2026 21:29:58 GMT
+- request:
+    method: get
+    uri: https://api.w3.org/specifications/webrtc/versions/20250313
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Mar 2026 21:29:58 GMT
+      Content-Type:
+      - application/hal+json;version=1.0
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 9d73fabd7d6fe61b-IAD
+      Cache-Control:
+      - public, s-maxage=900
+      Access-Control-Allow-Origin:
+      - "*"
+      Cf-Cache-Status:
+      - EXPIRED
+      Last-Modified:
+      - Wed, 04 Mar 2026 21:29:58 GMT
+      Set-Cookie:
+      - __cf_bm=63s2ZQ45u57MEyh7ivV0p5HEvPLKL0_Zf0i_QPtWqtE-1772659798-1.0.1.1-yae.qJ9KQKM7.Q4RM2pTpfJv61DCACVHO4cPdzg.Z4H9YggEojGZGFYYixwIKLYUyvygjOCmh44eEDy3Th8RMyT10xa_0NSTABqV.LtYKmQ;
+        path=/; expires=Wed, 04-Mar-26 21:59:58 GMT; domain=.w3.org; HttpOnly; Secure;
+        SameSite=None
+      Vary:
+      - Accept-Encoding
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      base64_string: |
+        ewogICAgInN0YXR1cyI6ICJSZWNvbW1lbmRhdGlvbiIsCiAgICAicmVjLXRy
+        YWNrIjogdHJ1ZSwKICAgICJlZGl0b3ItZHJhZnQiOiAiaHR0cHM6Ly93M2Mu
+        Z2l0aHViLmlvL3dlYnJ0Yy1wYy8iLAogICAgInVyaSI6ICJodHRwczovL3d3
+        dy53My5vcmcvVFIvMjAyNS9SRUMtd2VicnRjLTIwMjUwMzEzLyIsCiAgICAi
+        ZGF0ZSI6ICIyMDI1LTAzLTEzIiwKICAgICJpbmZvcm1hdGl2ZSI6IGZhbHNl
+        LAogICAgInRpdGxlIjogIldlYlJUQzogUmVhbC1UaW1lIENvbW11bmljYXRp
+        b24gaW4gQnJvd3NlcnMiLAogICAgInNob3J0bGluayI6ICJodHRwczovL3d3
+        dy53My5vcmcvVFIvd2VicnRjLyIsCiAgICAicHJvY2Vzcy1ydWxlcyI6ICJo
+        dHRwczovL3d3dy53My5vcmcvcG9saWNpZXMvcHJvY2Vzcy8yMDIzMTEwMy8i
+        LAogICAgIl9saW5rcyI6IHsKICAgICAgICAic2VsZiI6IHsKICAgICAgICAg
+        ICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMub3JnL3NwZWNpZmljYXRpb25z
+        L3dlYnJ0Yy92ZXJzaW9ucy8yMDI1MDMxMyIKICAgICAgICB9LAogICAgICAg
+        ICJlZGl0b3JzIjogewogICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2Fw
+        aS53My5vcmcvc3BlY2lmaWNhdGlvbnMvd2VicnRjL3ZlcnNpb25zLzIwMjUw
+        MzEzL2VkaXRvcnMiCiAgICAgICAgfSwKICAgICAgICAiZGVsaXZlcmVycyI6
+        IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMub3JnL3Nw
+        ZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI1MDMxMy9kZWxpdmVy
+        ZXJzIgogICAgICAgIH0sCiAgICAgICAgInNwZWNpZmljYXRpb24iOiB7CiAg
+        ICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9yZy9zcGVjaWZp
+        Y2F0aW9ucy93ZWJydGMiCiAgICAgICAgfSwKICAgICAgICAicHJlZGVjZXNz
+        b3ItdmVyc2lvbiI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9h
+        cGkudzMub3JnL3NwZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI1
+        MDMxMy9wcmVkZWNlc3NvcnMiCiAgICAgICAgfQogICAgfQp9
+  recorded_at: Wed, 04 Mar 2026 21:29:58 GMT
+- request:
+    method: get
+    uri: https://api.w3.org/specifications/webrtc/versions/20241008/editors
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Mar 2026 21:29:58 GMT
+      Content-Type:
+      - application/hal+json;version=1.0
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 9d73fabed83ada37-IAD
+      Cache-Control:
+      - public, s-maxage=900
+      Access-Control-Allow-Origin:
+      - "*"
+      Cf-Cache-Status:
+      - EXPIRED
+      Last-Modified:
+      - Wed, 04 Mar 2026 21:29:58 GMT
+      Set-Cookie:
+      - __cf_bm=_E1_I77V0x8vB5Fhk_0xUBmu7FFlUdid31VipdVo1Fk-1772659798-1.0.1.1-nAZ0SImnCdwb4GwS1OzLJgesgBFsNpAx42_tfUqeJCOcRDyFKjzGpjiFIN57yYq.Z004YQbCQuLJmwyvJU9ow93ilKZ9_vF4q9OZs.QaAU0;
+        path=/; expires=Wed, 04-Mar-26 21:59:58 GMT; domain=.w3.org; HttpOnly; Secure;
+        SameSite=None
+      Vary:
+      - Accept-Encoding
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        ewogICAgInBhZ2UiOiAxLAogICAgImxpbWl0IjogMTAwLAogICAgInBhZ2Vz
+        IjogMSwKICAgICJ0b3RhbCI6IDQsCiAgICAiX2xpbmtzIjogewogICAgICAg
+        ICJ1cCI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMu
+        b3JnL3NwZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI0MTAwOCIK
+        ICAgICAgICB9LAogICAgICAgICJlZGl0b3JzIjogWwogICAgICAgICAgICB7
+        CiAgICAgICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2FwaS53My5vcmcv
+        dXNlcnMvYnpiNXcyMGVnNjhrNDBnYzh3MHdnMG9razRrODRvcyIsCiAgICAg
+        ICAgICAgICAgICAidGl0bGUiOiAiQ3VsbGVuIEplbm5pbmdzIgogICAgICAg
+        ICAgICB9LAogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAiaHJlZiI6
+        ICJodHRwczovL2FwaS53My5vcmcvdXNlcnMvZjUyMXlyMW02ZzBra3M4ODBz
+        OG9jd3Nnd3NrZ3NzNCIsCiAgICAgICAgICAgICAgICAidGl0bGUiOiAiSmFu
+        LUl2YXIgQnJ1YXJvZXkiCiAgICAgICAgICAgIH0sCiAgICAgICAgICAgIHsK
+        ICAgICAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9yZy91
+        c2Vycy8xZHNnZHNpNHpyajRnb280azQwMGM4c2N3NGs0Z2drIiwKICAgICAg
+        ICAgICAgICAgICJ0aXRsZSI6ICJIZW5yaWsgQm9zdHLDtm0iCiAgICAgICAg
+        ICAgIH0sCiAgICAgICAgICAgIHsKICAgICAgICAgICAgICAgICJocmVmIjog
+        Imh0dHBzOi8vYXBpLnczLm9yZy91c2Vycy9ubHlmczNxOHMyczBnazBvd29n
+        Z2tjbzBzZzB3d3NvIiwKICAgICAgICAgICAgICAgICJ0aXRsZSI6ICJGbG9y
+        ZW50IENhc3RlbGxpIgogICAgICAgICAgICB9CiAgICAgICAgXSwKICAgICAg
+        ICAic2VsZiI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGku
+        dzMub3JnL3NwZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI0MTAw
+        OC9lZGl0b3JzP3BhZ2U9MSZpdGVtcz0xMDAiCiAgICAgICAgfSwKICAgICAg
+        ICAiZmlyc3QiOiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBp
+        LnczLm9yZy9zcGVjaWZpY2F0aW9ucy93ZWJydGMvdmVyc2lvbnMvMjAyNDEw
+        MDgvZWRpdG9ycz9wYWdlPTEmaXRlbXM9MTAwIgogICAgICAgIH0sCiAgICAg
+        ICAgImxhc3QiOiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBp
+        LnczLm9yZy9zcGVjaWZpY2F0aW9ucy93ZWJydGMvdmVyc2lvbnMvMjAyNDEw
+        MDgvZWRpdG9ycz9wYWdlPTEmaXRlbXM9MTAwIgogICAgICAgIH0KICAgIH0K
+        fQ==
+  recorded_at: Wed, 04 Mar 2026 21:29:58 GMT
+- request:
+    method: get
+    uri: https://api.w3.org/users/bzb5w20eg68k40gc8w0wg0okk4k84os
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Mar 2026 21:29:59 GMT
+      Content-Type:
+      - application/json;version=1.0
+      Content-Length:
+      - '2284'
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 9d73fac01a687000-IAD
+      Cache-Control:
+      - max-age=900, public, s-maxage=900
+      Last-Modified:
+      - Fri, 15 Sep 2023 11:45:13 GMT
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Accept-Ranges:
+      - bytes
+      Cf-Cache-Status:
+      - REVALIDATED
+      Set-Cookie:
+      - __cf_bm=EVAoj6._LNau8rRmeQ_P4K.hKNrXVi4EXE9iwIr41A8-1772659799-1.0.1.1-cOrqHRQlA4Vg0gRrH_GbuH3f0JvRclNzrPMOw7CC7V6V1ClJJ1FKl2pA32TbdalpzkuxQ0_YdYpwIR5oqkR6_jKn__sKLuarzFp1Wt_.E8s;
+        path=/; expires=Wed, 04-Mar-26 21:59:59 GMT; domain=.w3.org; HttpOnly; Secure;
+        SameSite=None
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        ewogICAgImlkIjogMjUyNTQsCiAgICAibmFtZSI6ICJDdWxsZW4gSmVubmlu
+        Z3MiLAogICAgImdpdmVuIjogIkN1bGxlbiIsCiAgICAiZmFtaWx5IjogIkpl
+        bm5pbmdzIiwKICAgICJ3b3JrLXRpdGxlIjogIkNUTyIsCiAgICAiY291bnRy
+        eS1jb2RlIjogIkNBIiwKICAgICJjb3VudHJ5LWRpdmlzaW9uIjogIkFsYmVy
+        dGEiLAogICAgImNvbm5lY3RlZC1hY2NvdW50cyI6IFsKICAgICAgICB7CiAg
+        ICAgICAgICAgICJjcmVhdGVkIjogIjIwMjAtMTAtMTVUMTM6NDk6MTMrMDA6
+        MDAiLAogICAgICAgICAgICAidXBkYXRlZCI6ICIyMDIxLTAxLTIxVDEwOjUy
+        OjE0KzAwOjAwIiwKICAgICAgICAgICAgInNlcnZpY2UiOiAiZ2l0aHViIiwK
+        ICAgICAgICAgICAgImlkZW50aWZpZXIiOiAiMjE3MjAwIiwKICAgICAgICAg
+        ICAgIm5pY2tuYW1lIjogImZsdWZmeSIsCiAgICAgICAgICAgICJwcm9maWxl
+        LXBpY3R1cmUiOiAiaHR0cHM6Ly9hdmF0YXJzLmdpdGh1YnVzZXJjb250ZW50
+        LmNvbS91LzIxNzIwMD92PTQiLAogICAgICAgICAgICAiaHJlZiI6ICJodHRw
+        czovL2dpdGh1Yi5jb20vZmx1ZmZ5IiwKICAgICAgICAgICAgIl9saW5rcyI6
+        IHsKICAgICAgICAgICAgICAgICJ1c2VyIjogewogICAgICAgICAgICAgICAg
+        ICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9yZy91c2Vycy9iemI1dzIw
+        ZWc2OGs0MGdjOHcwd2cwb2trNGs4NG9zIgogICAgICAgICAgICAgICAgfQog
+        ICAgICAgICAgICB9CiAgICAgICAgfQogICAgXSwKICAgICJkaXNjciI6ICJ1
+        c2VyIiwKICAgICJfbGlua3MiOiB7CiAgICAgICAgInNlbGYiOiB7CiAgICAg
+        ICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9yZy91c2Vycy9iemI1
+        dzIwZWc2OGs0MGdjOHcwd2cwb2trNGs4NG9zIgogICAgICAgIH0sCiAgICAg
+        ICAgImFmZmlsaWF0aW9ucyI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0
+        cHM6Ly9hcGkudzMub3JnL3VzZXJzL2J6YjV3MjBlZzY4azQwZ2M4dzB3ZzBv
+        a2s0azg0b3MvYWZmaWxpYXRpb25zIgogICAgICAgIH0sCiAgICAgICAgImdy
+        b3VwcyI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMu
+        b3JnL3VzZXJzL2J6YjV3MjBlZzY4azQwZ2M4dzB3ZzBva2s0azg0b3MvZ3Jv
+        dXBzIgogICAgICAgIH0sCiAgICAgICAgInNwZWNpZmljYXRpb25zIjogewog
+        ICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2FwaS53My5vcmcvdXNlcnMv
+        YnpiNXcyMGVnNjhrNDBnYzh3MHdnMG9razRrODRvcy9zcGVjaWZpY2F0aW9u
+        cyIKICAgICAgICB9LAogICAgICAgICJwaG90b3MiOiBbCiAgICAgICAgICAg
+        IHsKICAgICAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vd3d3LnczLm9y
+        Zy90aHVtYm5haWxzLzM2MC9hdmF0YXItaW1hZ2VzL2J6YjV3MjBlZzY4azQw
+        Z2M4dzB3ZzBva2s0azg0b3Mud2VicD94LXZlcnNpb249MSIsCiAgICAgICAg
+        ICAgICAgICAibmFtZSI6ICJsYXJnZSIKICAgICAgICAgICAgfSwKICAgICAg
+        ICAgICAgewogICAgICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly93d3cu
+        dzMub3JnL3RodW1ibmFpbHMvMTAwL2F2YXRhci1pbWFnZXMvYnpiNXcyMGVn
+        NjhrNDBnYzh3MHdnMG9razRrODRvcy53ZWJwP3gtdmVyc2lvbj0xIiwKICAg
+        ICAgICAgICAgICAgICJuYW1lIjogInRodW1ibmFpbCIKICAgICAgICAgICAg
+        fSwKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgImhyZWYiOiAiaHR0
+        cHM6Ly93d3cudzMub3JnL3RodW1ibmFpbHMvNDgvYXZhdGFyLWltYWdlcy9i
+        emI1dzIwZWc2OGs0MGdjOHcwd2cwb2trNGs4NG9zLndlYnA/eC12ZXJzaW9u
+        PTEiLAogICAgICAgICAgICAgICAgIm5hbWUiOiAidGlueSIKICAgICAgICAg
+        ICAgfQogICAgICAgIF0sCiAgICAgICAgInBhcnRpY2lwYXRpb25zIjogewog
+        ICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2FwaS53My5vcmcvdXNlcnMv
+        YnpiNXcyMGVnNjhrNDBnYzh3MHdnMG9razRrODRvcy9wYXJ0aWNpcGF0aW9u
+        cyIKICAgICAgICB9LAogICAgICAgICJjaGFpcl9vZl9ncm91cHMiOiB7CiAg
+        ICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9yZy91c2Vycy9i
+        emI1dzIwZWc2OGs0MGdjOHcwd2cwb2trNGs4NG9zL2NoYWlyLW9mLWdyb3Vw
+        cyIKICAgICAgICB9LAogICAgICAgICJ0ZWFtX2NvbnRhY3Rfb2ZfZ3JvdXBz
+        IjogewogICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2FwaS53My5vcmcv
+        dXNlcnMvYnpiNXcyMGVnNjhrNDBnYzh3MHdnMG9razRrODRvcy90ZWFtLWNv
+        bnRhY3Qtb2YtZ3JvdXBzIgogICAgICAgIH0KICAgIH0KfQ==
+  recorded_at: Wed, 04 Mar 2026 21:29:59 GMT
+- request:
+    method: get
+    uri: https://api.w3.org/users/f521yr1m6g0kks880s8ocwsgwskgss4
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Mar 2026 21:29:59 GMT
+      Content-Type:
+      - application/json;version=1.0
+      Content-Length:
+      - '2208'
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 9d73fac1a833392e-IAD
+      Cache-Control:
+      - max-age=900, public, s-maxage=900
+      Last-Modified:
+      - Mon, 15 Mar 2021 13:53:26 GMT
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Accept-Ranges:
+      - bytes
+      Cf-Cache-Status:
+      - REVALIDATED
+      Set-Cookie:
+      - __cf_bm=QHoQkWQQXlDjLGUs5Z134X1YzjdtQilMM40WIb327LI-1772659799-1.0.1.1-ySNweQNXdMLa9lWh.Ev5neyNBVFGCyXGyZhp8qkIApBxzVELbW4rTV8ckUeeqJvP4IWsBk2eF1LZSFg6_XwqnDT4GulnDWG_XAsyGMW_XTM;
+        path=/; expires=Wed, 04-Mar-26 21:59:59 GMT; domain=.w3.org; HttpOnly; Secure;
+        SameSite=None
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        ewogICAgImlkIjogNzkxNTIsCiAgICAibmFtZSI6ICJKYW4tSXZhciBCcnVh
+        cm9leSIsCiAgICAiZ2l2ZW4iOiAiSmFuLUl2YXIiLAogICAgImZhbWlseSI6
+        ICJCcnVhcm9leSIsCiAgICAiY29ubmVjdGVkLWFjY291bnRzIjogWwogICAg
+        ICAgIHsKICAgICAgICAgICAgImNyZWF0ZWQiOiAiMjAxOS0wMy0xM1QyMDoy
+        MToxOSswMDowMCIsCiAgICAgICAgICAgICJ1cGRhdGVkIjogIjIwMjEtMDEt
+        MjFUMTA6NDY6MzYrMDA6MDAiLAogICAgICAgICAgICAic2VydmljZSI6ICJn
+        aXRodWIiLAogICAgICAgICAgICAiaWRlbnRpZmllciI6ICIzMTM2MjI2IiwK
+        ICAgICAgICAgICAgIm5pY2tuYW1lIjogImphbi1pdmFyIiwKICAgICAgICAg
+        ICAgInByb2ZpbGUtcGljdHVyZSI6ICJodHRwczovL2F2YXRhcnMuZ2l0aHVi
+        dXNlcmNvbnRlbnQuY29tL3UvMzEzNjIyNj92PTQiLAogICAgICAgICAgICAi
+        aHJlZiI6ICJodHRwczovL2dpdGh1Yi5jb20vamFuLWl2YXIiLAogICAgICAg
+        ICAgICAiX2xpbmtzIjogewogICAgICAgICAgICAgICAgInVzZXIiOiB7CiAg
+        ICAgICAgICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMub3Jn
+        L3VzZXJzL2Y1MjF5cjFtNmcwa2tzODgwczhvY3dzZ3dza2dzczQiCiAgICAg
+        ICAgICAgICAgICB9CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICBdLAog
+        ICAgImRpc2NyIjogInVzZXIiLAogICAgIl9saW5rcyI6IHsKICAgICAgICAi
+        c2VsZiI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMu
+        b3JnL3VzZXJzL2Y1MjF5cjFtNmcwa2tzODgwczhvY3dzZ3dza2dzczQiCiAg
+        ICAgICAgfSwKICAgICAgICAiYWZmaWxpYXRpb25zIjogewogICAgICAgICAg
+        ICAiaHJlZiI6ICJodHRwczovL2FwaS53My5vcmcvdXNlcnMvZjUyMXlyMW02
+        ZzBra3M4ODBzOG9jd3Nnd3NrZ3NzNC9hZmZpbGlhdGlvbnMiCiAgICAgICAg
+        fSwKICAgICAgICAiZ3JvdXBzIjogewogICAgICAgICAgICAiaHJlZiI6ICJo
+        dHRwczovL2FwaS53My5vcmcvdXNlcnMvZjUyMXlyMW02ZzBra3M4ODBzOG9j
+        d3Nnd3NrZ3NzNC9ncm91cHMiCiAgICAgICAgfSwKICAgICAgICAic3BlY2lm
+        aWNhdGlvbnMiOiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBp
+        LnczLm9yZy91c2Vycy9mNTIxeXIxbTZnMGtrczg4MHM4b2N3c2d3c2tnc3M0
+        L3NwZWNpZmljYXRpb25zIgogICAgICAgIH0sCiAgICAgICAgInBob3RvcyI6
+        IFsKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgImhyZWYiOiAiaHR0
+        cHM6Ly93d3cudzMub3JnL3RodW1ibmFpbHMvMzYwL2F2YXRhci1pbWFnZXMv
+        ZjUyMXlyMW02ZzBra3M4ODBzOG9jd3Nnd3NrZ3NzNC53ZWJwP3gtdmVyc2lv
+        bj0xIiwKICAgICAgICAgICAgICAgICJuYW1lIjogImxhcmdlIgogICAgICAg
+        ICAgICB9LAogICAgICAgICAgICB7CiAgICAgICAgICAgICAgICAiaHJlZiI6
+        ICJodHRwczovL3d3dy53My5vcmcvdGh1bWJuYWlscy8xMDAvYXZhdGFyLWlt
+        YWdlcy9mNTIxeXIxbTZnMGtrczg4MHM4b2N3c2d3c2tnc3M0LndlYnA/eC12
+        ZXJzaW9uPTEiLAogICAgICAgICAgICAgICAgIm5hbWUiOiAidGh1bWJuYWls
+        IgogICAgICAgICAgICB9LAogICAgICAgICAgICB7CiAgICAgICAgICAgICAg
+        ICAiaHJlZiI6ICJodHRwczovL3d3dy53My5vcmcvdGh1bWJuYWlscy80OC9h
+        dmF0YXItaW1hZ2VzL2Y1MjF5cjFtNmcwa2tzODgwczhvY3dzZ3dza2dzczQu
+        d2VicD94LXZlcnNpb249MSIsCiAgICAgICAgICAgICAgICAibmFtZSI6ICJ0
+        aW55IgogICAgICAgICAgICB9CiAgICAgICAgXSwKICAgICAgICAicGFydGlj
+        aXBhdGlvbnMiOiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBp
+        LnczLm9yZy91c2Vycy9mNTIxeXIxbTZnMGtrczg4MHM4b2N3c2d3c2tnc3M0
+        L3BhcnRpY2lwYXRpb25zIgogICAgICAgIH0sCiAgICAgICAgImNoYWlyX29m
+        X2dyb3VwcyI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGku
+        dzMub3JnL3VzZXJzL2Y1MjF5cjFtNmcwa2tzODgwczhvY3dzZ3dza2dzczQv
+        Y2hhaXItb2YtZ3JvdXBzIgogICAgICAgIH0sCiAgICAgICAgInRlYW1fY29u
+        dGFjdF9vZl9ncm91cHMiOiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBz
+        Oi8vYXBpLnczLm9yZy91c2Vycy9mNTIxeXIxbTZnMGtrczg4MHM4b2N3c2d3
+        c2tnc3M0L3RlYW0tY29udGFjdC1vZi1ncm91cHMiCiAgICAgICAgfQogICAg
+        fQp9
+  recorded_at: Wed, 04 Mar 2026 21:29:59 GMT
+- request:
+    method: get
+    uri: https://api.w3.org/users/1dsgdsi4zrj4goo4k400c8scw4k4ggk
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Mar 2026 21:29:59 GMT
+      Content-Type:
+      - application/hal+json;version=1.0
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 9d73fac36bf9ee0d-IAD
+      Cache-Control:
+      - max-age=900, public, s-maxage=900
+      Last-Modified:
+      - Mon, 15 Mar 2021 13:54:25 GMT
+      Access-Control-Allow-Origin:
+      - "*"
+      Cf-Cache-Status:
+      - REVALIDATED
+      Set-Cookie:
+      - __cf_bm=zlWFmw3qIsYxDlpKgjqzpKTACsHUVOPBPYf7XmnwcGw-1772659799-1.0.1.1-uZumArOVHPN0XiU.agZPjsHcrWxSqddNldysk7eKzKvIK_8fAx7a3NaVwQfEY0oX5lLYKIN9AnqZQL9R1K6HdmTvMMibqV2u.HydDu4.gNU;
+        path=/; expires=Wed, 04-Mar-26 21:59:59 GMT; domain=.w3.org; HttpOnly; Secure;
+        SameSite=None
+      Vary:
+      - Accept-Encoding
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        ewogICAgImlkIjogOTY5MzYsCiAgICAibmFtZSI6ICJIZW5yaWsgQm9zdHLD
+        tm0iLAogICAgImdpdmVuIjogIkhlbnJpayIsCiAgICAiZmFtaWx5IjogIkJv
+        c3Ryw7ZtIiwKICAgICJiaW9ncmFwaHkiOiAiSSdtIGhlbmJvcyBvbiBnaXRo
+        dWIuY29tIiwKICAgICJjb25uZWN0ZWQtYWNjb3VudHMiOiBbXSwKICAgICJk
+        aXNjciI6ICJ1c2VyIiwKICAgICJfbGlua3MiOiB7CiAgICAgICAgInNlbGYi
+        OiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9yZy91
+        c2Vycy8xZHNnZHNpNHpyajRnb280azQwMGM4c2N3NGs0Z2drIgogICAgICAg
+        IH0sCiAgICAgICAgImFmZmlsaWF0aW9ucyI6IHsKICAgICAgICAgICAgImhy
+        ZWYiOiAiaHR0cHM6Ly9hcGkudzMub3JnL3VzZXJzLzFkc2dkc2k0enJqNGdv
+        bzRrNDAwYzhzY3c0azRnZ2svYWZmaWxpYXRpb25zIgogICAgICAgIH0sCiAg
+        ICAgICAgImdyb3VwcyI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6
+        Ly9hcGkudzMub3JnL3VzZXJzLzFkc2dkc2k0enJqNGdvbzRrNDAwYzhzY3c0
+        azRnZ2svZ3JvdXBzIgogICAgICAgIH0sCiAgICAgICAgInNwZWNpZmljYXRp
+        b25zIjogewogICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2FwaS53My5v
+        cmcvdXNlcnMvMWRzZ2RzaTR6cmo0Z29vNGs0MDBjOHNjdzRrNGdnay9zcGVj
+        aWZpY2F0aW9ucyIKICAgICAgICB9LAogICAgICAgICJwaG90b3MiOiBbCiAg
+        ICAgICAgICAgIHsKICAgICAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8v
+        d3d3LnczLm9yZy90aHVtYm5haWxzLzM2MC9hdmF0YXItaW1hZ2VzLzFkc2dk
+        c2k0enJqNGdvbzRrNDAwYzhzY3c0azRnZ2sud2VicD94LXZlcnNpb249MSIs
+        CiAgICAgICAgICAgICAgICAibmFtZSI6ICJsYXJnZSIKICAgICAgICAgICAg
+        fSwKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgImhyZWYiOiAiaHR0
+        cHM6Ly93d3cudzMub3JnL3RodW1ibmFpbHMvMTAwL2F2YXRhci1pbWFnZXMv
+        MWRzZ2RzaTR6cmo0Z29vNGs0MDBjOHNjdzRrNGdnay53ZWJwP3gtdmVyc2lv
+        bj0xIiwKICAgICAgICAgICAgICAgICJuYW1lIjogInRodW1ibmFpbCIKICAg
+        ICAgICAgICAgfSwKICAgICAgICAgICAgewogICAgICAgICAgICAgICAgImhy
+        ZWYiOiAiaHR0cHM6Ly93d3cudzMub3JnL3RodW1ibmFpbHMvNDgvYXZhdGFy
+        LWltYWdlcy8xZHNnZHNpNHpyajRnb280azQwMGM4c2N3NGs0Z2drLndlYnA/
+        eC12ZXJzaW9uPTEiLAogICAgICAgICAgICAgICAgIm5hbWUiOiAidGlueSIK
+        ICAgICAgICAgICAgfQogICAgICAgIF0sCiAgICAgICAgInBhcnRpY2lwYXRp
+        b25zIjogewogICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2FwaS53My5v
+        cmcvdXNlcnMvMWRzZ2RzaTR6cmo0Z29vNGs0MDBjOHNjdzRrNGdnay9wYXJ0
+        aWNpcGF0aW9ucyIKICAgICAgICB9LAogICAgICAgICJjaGFpcl9vZl9ncm91
+        cHMiOiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9y
+        Zy91c2Vycy8xZHNnZHNpNHpyajRnb280azQwMGM4c2N3NGs0Z2drL2NoYWly
+        LW9mLWdyb3VwcyIKICAgICAgICB9LAogICAgICAgICJ0ZWFtX2NvbnRhY3Rf
+        b2ZfZ3JvdXBzIjogewogICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2Fw
+        aS53My5vcmcvdXNlcnMvMWRzZ2RzaTR6cmo0Z29vNGs0MDBjOHNjdzRrNGdn
+        ay90ZWFtLWNvbnRhY3Qtb2YtZ3JvdXBzIgogICAgICAgIH0KICAgIH0KfQ==
+  recorded_at: Wed, 04 Mar 2026 21:29:59 GMT
+- request:
+    method: get
+    uri: https://api.w3.org/users/nlyfs3q8s2s0gk0owoggkco0sg0wwso
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Mar 2026 21:29:59 GMT
+      Content-Type:
+      - application/json;version=1.0
+      Content-Length:
+      - '1702'
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 9d73fac49a1e277b-IAD
+      Cache-Control:
+      - max-age=900, public, s-maxage=900
+      Last-Modified:
+      - Fri, 14 Mar 2025 19:22:31 GMT
+      Vary:
+      - Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cf-Cache-Status:
+      - REVALIDATED
+      Accept-Ranges:
+      - bytes
+      Set-Cookie:
+      - __cf_bm=TKO3_lfPVk5n68UgDziMBTe0wBFMZr8SrTqnsofnYEg-1772659799-1.0.1.1-YdnB_YDgcTY9c1w14xHOInubQizZIOC4CbBHL7tLmeranQkoFbgW4s6QL2tOhBKX8TFxKwbsK5SafIi_tBAH9hK.8xkN1PT29FpBOyPD3qQ;
+        path=/; expires=Wed, 04-Mar-26 21:59:59 GMT; domain=.w3.org; HttpOnly; Secure;
+        SameSite=None
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        ewogICAgImlkIjogMTA1NzI1LAogICAgIm5hbWUiOiAiRmxvcmVudCBDYXN0
+        ZWxsaSIsCiAgICAiZ2l2ZW4iOiAiRmxvcmVudCIsCiAgICAiZmFtaWx5Ijog
+        IkNhc3RlbGxpIiwKICAgICJjb3VudHJ5LWNvZGUiOiAiU0UiLAogICAgImNv
+        dW50cnktZGl2aXNpb24iOiAiU3RvY2tob2xtIiwKICAgICJjaXR5IjogIlN0
+        b2NraG9sbSIsCiAgICAiY29ubmVjdGVkLWFjY291bnRzIjogWwogICAgICAg
+        IHsKICAgICAgICAgICAgImNyZWF0ZWQiOiAiMjAxOC0wMy0wNVQxNTo0Mjow
+        MiswMDowMCIsCiAgICAgICAgICAgICJ1cGRhdGVkIjogIjIwMjEtMDEtMjFU
+        MDk6NDg6MjMrMDA6MDAiLAogICAgICAgICAgICAic2VydmljZSI6ICJnaXRo
+        dWIiLAogICAgICAgICAgICAiaWRlbnRpZmllciI6ICIzMDA0MzAiLAogICAg
+        ICAgICAgICAibmlja25hbWUiOiAiT3JwaGlzIiwKICAgICAgICAgICAgInBy
+        b2ZpbGUtcGljdHVyZSI6ICJodHRwczovL2F2YXRhcnMuZ2l0aHVidXNlcmNv
+        bnRlbnQuY29tL3UvMzAwNDMwP3Y9NCIsCiAgICAgICAgICAgICJocmVmIjog
+        Imh0dHBzOi8vZ2l0aHViLmNvbS9PcnBoaXMiLAogICAgICAgICAgICAiX2xp
+        bmtzIjogewogICAgICAgICAgICAgICAgInVzZXIiOiB7CiAgICAgICAgICAg
+        ICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMub3JnL3VzZXJzL25s
+        eWZzM3E4czJzMGdrMG93b2dna2NvMHNnMHd3c28iCiAgICAgICAgICAgICAg
+        ICB9CiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICBdLAogICAgImRpc2Ny
+        IjogInVzZXIiLAogICAgIl9saW5rcyI6IHsKICAgICAgICAic2VsZiI6IHsK
+        ICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMub3JnL3VzZXJz
+        L25seWZzM3E4czJzMGdrMG93b2dna2NvMHNnMHd3c28iCiAgICAgICAgfSwK
+        ICAgICAgICAiYWZmaWxpYXRpb25zIjogewogICAgICAgICAgICAiaHJlZiI6
+        ICJodHRwczovL2FwaS53My5vcmcvdXNlcnMvbmx5ZnMzcThzMnMwZ2swb3dv
+        Z2drY28wc2cwd3dzby9hZmZpbGlhdGlvbnMiCiAgICAgICAgfSwKICAgICAg
+        ICAiZ3JvdXBzIjogewogICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2Fw
+        aS53My5vcmcvdXNlcnMvbmx5ZnMzcThzMnMwZ2swb3dvZ2drY28wc2cwd3dz
+        by9ncm91cHMiCiAgICAgICAgfSwKICAgICAgICAic3BlY2lmaWNhdGlvbnMi
+        OiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9yZy91
+        c2Vycy9ubHlmczNxOHMyczBnazBvd29nZ2tjbzBzZzB3d3NvL3NwZWNpZmlj
+        YXRpb25zIgogICAgICAgIH0sCiAgICAgICAgInBhcnRpY2lwYXRpb25zIjog
+        ewogICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2FwaS53My5vcmcvdXNl
+        cnMvbmx5ZnMzcThzMnMwZ2swb3dvZ2drY28wc2cwd3dzby9wYXJ0aWNpcGF0
+        aW9ucyIKICAgICAgICB9LAogICAgICAgICJjaGFpcl9vZl9ncm91cHMiOiB7
+        CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9yZy91c2Vy
+        cy9ubHlmczNxOHMyczBnazBvd29nZ2tjbzBzZzB3d3NvL2NoYWlyLW9mLWdy
+        b3VwcyIKICAgICAgICB9LAogICAgICAgICJ0ZWFtX2NvbnRhY3Rfb2ZfZ3Jv
+        dXBzIjogewogICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2FwaS53My5v
+        cmcvdXNlcnMvbmx5ZnMzcThzMnMwZ2swb3dvZ2drY28wc2cwd3dzby90ZWFt
+        LWNvbnRhY3Qtb2YtZ3JvdXBzIgogICAgICAgIH0KICAgIH0KfQ==
+  recorded_at: Wed, 04 Mar 2026 21:29:59 GMT
+- request:
+    method: get
+    uri: https://api.w3.org/specifications/webrtc/versions/20241008/deliverers
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.14.1
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Mar 2026 21:30:00 GMT
+      Content-Type:
+      - application/hal+json;version=1.0
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cf-Ray:
+      - 9d73fac679478de7-IAD
+      Cache-Control:
+      - public, s-maxage=900
+      Access-Control-Allow-Origin:
+      - "*"
+      Cf-Cache-Status:
+      - EXPIRED
+      Last-Modified:
+      - Wed, 04 Mar 2026 21:30:00 GMT
+      Set-Cookie:
+      - __cf_bm=jfwXteJS2Wm2fDBEA6tEFXf_FlUsFtaI7tvx1I2ZYlo-1772659800-1.0.1.1-eeTcVLxRwnd9sNUpE_XIipxdwND58wMdQ6WCZaajC5vMJtF5ybRAFnkik5Qz29dunX2W7EN2d14Jb.5eJU2K.JRfAXU6.FSMI0W16.XEttI;
+        path=/; expires=Wed, 04-Mar-26 22:00:00 GMT; domain=.w3.org; HttpOnly; Secure;
+        SameSite=None
+      Vary:
+      - Accept-Encoding
+      Server:
+      - cloudflare
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: UTF-8
+      base64_string: |
+        ewogICAgInBhZ2UiOiAxLAogICAgImxpbWl0IjogMTAwLAogICAgInBhZ2Vz
+        IjogMSwKICAgICJ0b3RhbCI6IDEsCiAgICAiX2xpbmtzIjogewogICAgICAg
+        ICJ1cCI6IHsKICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMu
+        b3JnL3NwZWNpZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI0MTAwOCIK
+        ICAgICAgICB9LAogICAgICAgICJkZWxpdmVyZXJzIjogWwogICAgICAgICAg
+        ICB7CiAgICAgICAgICAgICAgICAiaHJlZiI6ICJodHRwczovL2FwaS53My5v
+        cmcvZ3JvdXBzL3dnL3dlYnJ0YyIsCiAgICAgICAgICAgICAgICAidGl0bGUi
+        OiAiV2ViIFJlYWwtVGltZSBDb21tdW5pY2F0aW9ucyBXb3JraW5nIEdyb3Vw
+        IgogICAgICAgICAgICB9CiAgICAgICAgXSwKICAgICAgICAic2VsZiI6IHsK
+        ICAgICAgICAgICAgImhyZWYiOiAiaHR0cHM6Ly9hcGkudzMub3JnL3NwZWNp
+        ZmljYXRpb25zL3dlYnJ0Yy92ZXJzaW9ucy8yMDI0MTAwOC9kZWxpdmVyZXJz
+        P3BhZ2U9MSZpdGVtcz0xMDAiCiAgICAgICAgfSwKICAgICAgICAiZmlyc3Qi
+        OiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9yZy9z
+        cGVjaWZpY2F0aW9ucy93ZWJydGMvdmVyc2lvbnMvMjAyNDEwMDgvZGVsaXZl
+        cmVycz9wYWdlPTEmaXRlbXM9MTAwIgogICAgICAgIH0sCiAgICAgICAgImxh
+        c3QiOiB7CiAgICAgICAgICAgICJocmVmIjogImh0dHBzOi8vYXBpLnczLm9y
+        Zy9zcGVjaWZpY2F0aW9ucy93ZWJydGMvdmVyc2lvbnMvMjAyNDEwMDgvZGVs
+        aXZlcmVycz9wYWdlPTEmaXRlbXM9MTAwIgogICAgICAgIH0KICAgIH0KfQ==
+  recorded_at: Wed, 04 Mar 2026 21:30:00 GMT
+recorded_with: VCR 6.4.0

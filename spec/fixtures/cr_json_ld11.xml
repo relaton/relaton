@@ -1,26 +1,27 @@
-<bibdata type="standard" schema-version="v1.2.9">
-  <fetched>2024-10-08</fetched>
-  <title format="text/plain">JSON-LD 1.1</title>
-  <uri type="src">https://www.w3.org/TR/2020/REC-json-ld11-20200716/</uri>
-  <uri type="current">https://w3c.github.io/json-ld-syntax/</uri>
-  <docidentifier type="W3C" primary="true">W3C REC-json-ld11-20200716</docidentifier>
-  <docnumber>REC-json-ld11-20200716</docnumber>
+<bibdata type="standard" schema-version="v1.4.1">
+  <fetched>2026-03-04</fetched>
+  <formattedref>W3C CR-json-ld11-20200316</formattedref>
+  <title language="en" script="Latn">JSON-LD 1.1</title>
+  <uri type="src">https://www.w3.org/TR/2020/CR-json-ld11-20200316/</uri>
+  <docidentifier type="W3C" primary="true">W3C CR-json-ld11-20200316</docidentifier>
+  <docnumber>CR-json-ld11-20200316</docnumber>
   <date type="published">
-    <on>2020-07-16</on>
+    <on>2020-03-16</on>
   </date>
   <contributor>
     <role type="publisher"/>
     <organization>
       <name>World Wide Web Consortium</name>
       <abbreviation>W3C</abbreviation>
-      <uri>https://www.w3.org/</uri>
+      <uri>https://www.w3.org</uri>
     </organization>
   </contributor>
   <contributor>
     <role type="editor"/>
     <person>
       <name>
-        <completename language="en" script="Latn">Dave Longley</completename>
+        <forename language="en" script="Latn">Gregg</forename>
+        <surname language="en" script="Latn">Kellogg</surname>
       </name>
     </person>
   </contributor>
@@ -28,7 +29,8 @@
     <role type="editor"/>
     <person>
       <name>
-        <completename language="en" script="Latn">Gregg Kellogg</completename>
+        <forename language="en" script="Latn">Pierre-Antoine</forename>
+        <surname language="en" script="Latn">Champin</surname>
       </name>
     </person>
   </contributor>
@@ -36,38 +38,57 @@
     <role type="editor"/>
     <person>
       <name>
-        <completename language="en" script="Latn">Pierre-Antoine Champin</completename>
+        <forename language="en" script="Latn">Dave</forename>
+        <surname language="en" script="Latn">Longley</surname>
       </name>
     </person>
+  </contributor>
+  <contributor>
+    <role type="author">
+      <description>committee</description>
+    </role>
+    <organization>
+      <name>World Wide Web Consortium</name>
+      <subdivision type="technical-committee">
+        <name>JSON-LD Working Group</name>
+      </subdivision>
+      <abbreviation>W3C</abbreviation>
+      <uri>https://www.w3.org</uri>
+    </organization>
   </contributor>
   <language>en</language>
   <script>Latn</script>
   <status>
-    <stage>Recommendation</stage>
+    <stage>Candidate Recommendation Snapshot</stage>
   </status>
+  <relation type="editionOf">
+    <bibitem>
+      <title language="en" script="Latn">JSON-LD 1.1</title>
+      <uri type="src">https://www.w3.org/TR/json-ld11/</uri>
+      <docidentifier type="W3C" primary="true">W3C json-ld11</docidentifier>
+    </bibitem>
+  </relation>
   <relation type="obsoletes">
     <bibitem>
-      <formattedref format="text/plain">W3C PR-json-ld11-20200507</formattedref>
-      <uri type="src">https://www.w3.org/TR/2020/PR-json-ld11-20200507/</uri>
-      <docidentifier type="W3C" primary="true">W3C PR-json-ld11-20200507</docidentifier>
+      <title language="en" script="Latn">JSON-LD 1.1</title>
+      <uri type="src">https://www.w3.org/TR/2020/CR-json-ld11-20200305/</uri>
+      <docidentifier type="W3C" primary="true">W3C CR-json-ld11-20200305</docidentifier>
     </bibitem>
   </relation>
   <relation type="updatedBy">
-    <description format="text/plain">errata</description>
+    <description>errata</description>
     <bibitem>
-      <formattedref format="text/plain">W3C json-ld-syntax/errata</formattedref>
-      <uri type="src">https://w3c.github.io/json-ld-syntax/errata/</uri>
-      <docidentifier type="W3C" primary="true">W3C json-ld-syntax/errata</docidentifier>
+      <title language="en" script="Latn">JSON-LD 1.1</title>
+      <uri type="src">https://www.w3.org/TR/2020/CR-json-ld11-20200417/</uri>
+      <docidentifier type="W3C" primary="true">W3C CR-json-ld11-20200417</docidentifier>
     </bibitem>
   </relation>
   <series>
-    <title format="text/plain">W3C REC</title>
-    <number>REC-json-ld11-20200716</number>
+    <title language="en" script="Latn">W3C Candidate Recommendation Snapshot</title>
+    <number>CR-json-ld11-20200316</number>
   </series>
   <ext schema-version="v1.0.0">
     <doctype>technicalReport</doctype>
-    <editorialgroup>
-      <technical-committee>JSON-LD Working Group</technical-committee>
-    </editorialgroup>
+    <flavor>w3c</flavor>
   </ext>
 </bibdata>
