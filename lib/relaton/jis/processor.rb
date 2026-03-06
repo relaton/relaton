@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "relaton/core/processor"
+
 module Relaton
   module Jis
     class Processor < Relaton::Core::Processor
@@ -34,8 +36,7 @@ module Relaton
       end
 
       def grammar_hash
-        require "relaton/bib/version"
-        require_relative "version"
+        require_relative "../jis"
         Digest::MD5.hexdigest Relaton::Jis::VERSION + Relaton::Bib::VERSION
       end
 
@@ -44,6 +45,7 @@ module Relaton
       end
 
       def remove_index_file
+        require_relative "../jis"
         Relaton::Index.find_or_create(
           :jis, url: true, file: "#{INDEXFILE}.yaml"
         ).remove_file
