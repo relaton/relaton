@@ -84,6 +84,7 @@ module Relaton
           hash_to_relation hash
           hash_to_copyrigh hash
           hash_to_keyword hash
+          hash_to_editorialgroup hash
           hash_to_ext hash
           ItemData.new(**hash)
         end
@@ -221,7 +222,6 @@ module Relaton
           return unless hash[:ext]
 
           hash_to_doctype hash[:ext]
-          hash_to_editorialgroup hash
           hash[:ext] = Ext.new(flavor: "calconnect", **hash.delete(:ext))
         end
 
@@ -232,17 +232,20 @@ module Relaton
         end
 
         def hash_to_editorialgroup(hash)
-          editorialgroup = hash[:ext].delete(:editorialgroup)
-          array(editorialgroup).each do |eg|
-            subdiv_name = Bib::TypedLocalizedString.new content: eg[:name]
-            subdivision = Bib::Subdivision.new(type: "technical-committee", name: [subdiv_name])
-            org_name = Bib::TypedLocalizedString.new content: "CalConnect"
-            org = Bib::Organization.new name: [org_name], subdivision: [subdivision]
-            description = Bib::LocalizedMarkedUpString.new content: "committee"
-            role = Bib::Contributor::Role.new type: "author", description: [description]
-            hash[:contributor] ||= []
-            hash[:contributor] << Bib::Contributor.new(organization: org, role: [role])
-          end
+          eg = hash.delete(:editorialgroup) || (hash[:ext] && hash[:ext].delete(:editorialgroup))
+          return unless eg
+
+          # Handle old format: { technical_committee: { name: "X" } }
+          eg = eg[:technical_committee] if eg[:technical_committee]
+
+          subdiv_name = Bib::TypedLocalizedString.new content: eg[:name]
+          subdivision = Bib::Subdivision.new(type: "technical-committee", name: [subdiv_name])
+          org_name = Bib::TypedLocalizedString.new content: "CalConnect"
+          org = Bib::Organization.new name: [org_name], subdivision: [subdivision]
+          description = Bib::LocalizedMarkedUpString.new content: "committee"
+          role = Bib::Contributor::Role.new type: "author", description: [description]
+          hash[:contributor] ||= []
+          hash[:contributor] << Bib::Contributor.new(organization: org, role: [role])
         end
 
         def update_links(bib, links)

@@ -85,7 +85,8 @@ describe Relaton::Calconnect::Scraper do
       copyright: [{ owner: [{ name: { content: "CalConnect" } }] }],
       keyword: [{ content: "push" }],
       relation: [{ type: "derivedFrom", bibitem: { docid: { type: "CC", id: "CC/OldDoc-2000" } } }],
-      ext: { doctype: { type: "directive", abbreviation: "D" }, editorialgroup: { name: "CALCONNECT" } },
+      editorialgroup: { name: "CALCONNECT" },
+      ext: { doctype: { type: "directive", abbreviation: "D" } },
     }
     item = described_class.send(:hash_to_item, doc)
     expect(item).to be_instance_of Relaton::Calconnect::ItemData
