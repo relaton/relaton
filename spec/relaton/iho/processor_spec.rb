@@ -36,11 +36,11 @@ describe Relaton::Iho::Processor do
     end
   end
 
-  describe "#hash_to_bib" do
+  describe "#from_yaml" do
     it "delegates to Item.from_yaml" do
       yaml = "---\ntitle: Test"
       expect(Relaton::Iho::Item).to receive(:from_yaml).with(yaml)
-      processor.hash_to_bib(yaml)
+      processor.from_yaml(yaml)
     end
   end
 
