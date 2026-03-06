@@ -52,6 +52,10 @@ module Relaton
         @grammar_hash ||= ::Relaton::Doi.grammar_hash
       end
 
+      def remove_index_file
+        Util.info "This processor does not support index file. No action taken."
+      end
+
       # Returns number of threads
       # @return [Integer]
       def threads = 2
