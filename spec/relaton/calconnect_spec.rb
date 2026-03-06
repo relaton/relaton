@@ -86,7 +86,7 @@ RSpec.describe Relaton::Calconnect do
       end
     end
 
-    xit "not found" do
+    it "not found" do
       VCR.use_cassette "data", match_requests_on: [:path] do
         expect do
           Relaton::Calconnect::Bibliography.get "CC/DIR 123456"

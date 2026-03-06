@@ -63,27 +63,24 @@ RSpec.describe Relaton::Calconnect::DataFetcher do
       end
     end
 
-    context "#serialize" do
-      let(:bib) { instance_double Relaton::Calconnect::ItemData }
+    context "serialize" do
+      let(:bib) { Relaton::Calconnect::ItemData.new(docnumber: "CC/DIR 10005:2019") }
 
-      it "yaml" do
-        expect(bib).to receive(:to_yaml).with(no_args).and_return :yaml
-        expect(subject.send(:serialize, bib)).to eq :yaml
+      it "#to_yaml" do
+        expect(subject.send(:to_yaml, bib)).to include "docnumber: CC/DIR 10005:2019"
       end
 
       context "xml" do
         before { subject.instance_variable_set :@ext, "xml" }
 
-        it "xml" do
+        it "#to_xml" do
           subject.instance_variable_set :@format, "xml"
-          expect(bib).to receive(:to_xml).with(bibdata: true).and_return :xml
-          expect(subject.send(:serialize, bib)).to eq :xml
+          expect(subject.send(:to_xml, bib)).to include "<bibdata"
         end
 
-        xit "bibxml" do
+        it "#to_bibxml" do
           subject.instance_variable_set :@format, "bibxml"
-          expect(bib).to receive(:to_bibxml).and_return :xml
-          subject.send(:write_doc, "1234", bib)
+          expect(subject.send(:to_bibxml, bib)).to include 'anchor="CC/DIR 10005:2019"'
         end
       end
     end

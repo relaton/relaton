@@ -62,7 +62,7 @@ module Relaton::Calconnect
     end
 
     def write_doc(docid, bib) # rubocop:disable Metrics/MethodLength
-      file = File.join @output, "#{docid.upcase.gsub(%r{[/\s:]}, '_')}.#{@ext}"
+      file = output_file docid
       if @files.include? file
         Util.warn "#{file} exist"
       else
@@ -72,13 +72,9 @@ module Relaton::Calconnect
       File.write file, serialize(bib), encoding: "UTF-8"
     end
 
-    def serialize(bib)
-      case @format
-      when "xml" then bib.to_xml(bibdata: true)
-      # when "bibxml" then bib.to_bibxml
-      else bib.to_yaml
-      end
-    end
+    def to_yaml(bib) = bib.to_yaml
+    def to_xml(bib) = bib.to_xml(bibdata: true)
+    def to_bibxml(bib) = bib.to_rfcxml
 
     #
     # Read ETag from file
