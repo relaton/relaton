@@ -1,3 +1,5 @@
+require "relaton/core/processor"
+
 module Relaton
   module Etsi
     class Processor < Relaton::Core::Processor

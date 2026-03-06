@@ -13,10 +13,6 @@ module Relaton
       ]
 
       xml do
-        map_attribute "schema-version", to: :schema_version
-        map_element "doctype", to: :doctype
-        map_element "subdoctype", to: :subdoctype
-        map_element "editorialgroup", to: :editorialgroup
         map_element "marker", to: :marker
         map_element "frequency", to: :frequency
         map_element "mandate", to: :mandate
