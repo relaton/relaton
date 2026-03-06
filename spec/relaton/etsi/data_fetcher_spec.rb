@@ -112,9 +112,9 @@ describe Relaton::Etsi::DataFetcher do
         expect(subject.serialize(item)).to include "content: ETSI A/12 ed.1 (2019-10)"
       end
 
-      xit "bibxml" do
+      it "bibxml" do
         subject.instance_variable_set :@format, "bibxml"
-        expect(subject.serialize(item)).to eq :bibxml
+        expect(subject.serialize(item)).to include "<reference>"
       end
     end
   end

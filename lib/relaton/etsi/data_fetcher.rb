@@ -77,7 +77,7 @@ module Relaton
       end
 
       def to_bibxml(bib)
-        bib.to_bibxml
+        bib.to_rfcxml
       end
     end
   end
