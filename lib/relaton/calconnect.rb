@@ -12,7 +12,7 @@ require_relative "calconnect/scraper"
 
 module Relaton
   module Calconnect
-    class Error < StandardError; end
+    INDEXFILE = "index-v1".freeze
 
     # Returns hash of XML reammar
     # @return [String]

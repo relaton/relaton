@@ -10,7 +10,6 @@ module Relaton::Calconnect
     # DATAFILE = File.expand_path "bibliography.yml", DATADIR
     # ETAGFILE = File.expand_path "etag.txt", DATADIR
     GHURL = "https://raw.githubusercontent.com/relaton/relaton-data-calconnect/refs/heads/data-v2/".freeze
-    INDEX_FILE = "index-v1.yaml".freeze
 
     # @param ref [Strig]
     # @param year [String]
@@ -20,7 +19,7 @@ module Relaton::Calconnect
       # @array = from_yaml(ref).sort_by do |hit|
       #   hit.hit["revdate"] ? Date.parse(hit.hit["revdate"]) : Date.new
       # end.reverse
-      index = Relaton::Index.find_or_create :CC, url: "#{GHURL}index-v1.zip", file: INDEX_FILE
+      index = Relaton::Index.find_or_create :CC, url: "#{GHURL}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml"
       @array = index.search(ref).map do |row|
         Hit.new(row, self)
       end

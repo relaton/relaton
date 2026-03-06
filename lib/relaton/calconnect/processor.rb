@@ -1,4 +1,4 @@
-require "relaton/processor"
+require "relaton/core/processor"
 
 module Relaton::Calconnect
   class Processor < Relaton::Core::Processor
@@ -38,10 +38,7 @@ module Relaton::Calconnect
     # @return [Relaton::Calconnect::ItemData]
     def from_xml(xml)
       require_relative "../calconnect"
-      case xml
-      when /<bibitem/ then Bibitem.from_xml xml
-      when /<bibdata/ then Bibdata.from_xml xml
-      end
+      Item.from_xml xml
     end
 
     # @param hash [Hash]
@@ -63,7 +60,7 @@ module Relaton::Calconnect
     #
     def remove_index_file
       require_relative "hit_collection"
-      Relaton::Index.find_or_create(:CC, url: true, file: HitCollection::INDEX_FILE).remove_file
+      Relaton::Index.find_or_create(:CC, url: true, file: "#{INDEXFILE}.yaml").remove_file
     end
   end
 end
