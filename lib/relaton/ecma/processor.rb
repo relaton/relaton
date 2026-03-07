@@ -49,6 +49,7 @@ module Relaton
       # Returns hash of XML grammar
       # @return [String]
       def grammar_hash
+        require_relative "../ecma"
         @grammar_hash ||= Ecma.grammar_hash
       end
 
@@ -56,6 +57,7 @@ module Relaton
       # Remove index file
       #
       def remove_index_file
+        require_relative "../ecma"
         Relaton::Index.find_or_create(:ECMA, url: true, file: "#{INDEXFILE}.yaml").remove_file
       end
     end
