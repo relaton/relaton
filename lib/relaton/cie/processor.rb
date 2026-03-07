@@ -16,6 +16,7 @@ module Relaton
       # @param opts [Hash]
       # @return [Relaton::Cie::ItemData, nil]
       def get(code, date, opts)
+        require_relative "../cie"
         Bibliography.get(code, date, opts)
       end
 
@@ -28,24 +29,28 @@ module Relaton
       # @option opts [String] :format
       #
       def fetch_data(_source, opts)
+        require_relative "data_fetcher"
         DataFetcher.fetch(**opts)
       end
 
       # @param xml [String]
       # @return [Relaton::Cie::ItemData]
       def from_xml(xml)
+        require_relative "../cie"
         Item.from_xml xml
       end
 
       # @param hash [String]
       # @return [Relaton::Cie::ItemData]
       def from_yaml(yaml)
+        require_relative "../cie"
         Item.from_yaml yaml
       end
 
       # Returns hash of XML grammar
       # @return [String]
       def grammar_hash
+        require_relative "../cie"
         @grammar_hash ||= Cie.grammar_hash
       end
 
@@ -53,7 +58,8 @@ module Relaton
       # Remove index file
       #
       def remove_index_file
-        Relaton::Index.find_or_create(:cie, url: true, file: Scrapper::INDEX_FILE).remove_file
+        require_relative "../cie"
+        Relaton::Index.find_or_create(:cie, url: true, file: "#{INDEXFILE}.yaml").remove_file
       end
     end
   end

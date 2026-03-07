@@ -4,13 +4,12 @@ module Relaton
   module Cie
     module Scrapper
       ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-cie/refs/heads/data-v2/".freeze
-      INDEX_FILE = "index-v1.yaml".freeze
 
       class << self
         # @param code [String]
         # @return [Relaton::Cie::ItemData]
         def scrape_page(code)
-          index = Index.find_or_create :cie, url: "#{ENDPOINT}index-v1.zip", file: INDEX_FILE
+          index = Index.find_or_create :cie, url: "#{ENDPOINT}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml"
           row = index.search(code).min_by { |r| r[:id] }
           return unless row
 

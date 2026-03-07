@@ -11,10 +11,11 @@ require_relative "cie/bibitem"
 require_relative "cie/bibdata"
 require_relative "cie/bibliography"
 require_relative "cie/scrapper"
-# require "relaton_cie/data_fetcher"
 
 module Relaton
   module Cie
+    INDEXFILE = "index-v1".freeze
+
     # Returns hash of XML reammar
     # @return [String]
     def self.grammar_hash
