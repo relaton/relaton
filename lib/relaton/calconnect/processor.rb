@@ -59,7 +59,7 @@ module Relaton::Calconnect
     # Remove index file
     #
     def remove_index_file
-      require_relative "hit_collection"
+      require_relative "../calconnect"
       Relaton::Index.find_or_create(:CC, url: true, file: "#{INDEXFILE}.yaml").remove_file
     end
   end
