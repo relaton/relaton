@@ -1,5 +1,6 @@
 require "zip"
 require_relative "../ieee"
+require_relative "converter/bibxml"
 require_relative "idams_parser"
 require_relative "rawbib_id_parser"
 
@@ -146,13 +147,10 @@ module Relaton
         File.write output_file(bib.docnumber), serialize(bib), encoding: "UTF-8"
       end
 
-      def to_yaml(bib)
-        bib.to_yaml
-      end
+      def to_yaml(bib) = bib.to_yaml
+      def to_xml(bib) = bib.to_xml(bibdata: true)
+      def to_bibxml(bib) = bib.to_rfcxml
 
-      def to_xml(bib)
-        bib.to_xml bibdata: true
-      end
       #
       # Update unresoverd relations
       #
@@ -185,7 +183,7 @@ module Relaton
         c = File.read output_file(docnumber), encoding: "UTF-8"
         case @format
         when "xml" then Item.from_xml c
-        # when "bibxml" then BibXMLParser.parse c
+        when "bibxml" then Converter::BibXml.to_item c
         else Item.from_yaml c
         end
       end

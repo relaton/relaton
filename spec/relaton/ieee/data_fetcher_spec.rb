@@ -145,11 +145,12 @@ RSpec.describe Relaton::Ieee::DataFetcher do
         expect(df.send(:read_bib, "5678")).to be_instance_of Relaton::Ieee::ItemData
       end
 
-      xit "in BibXML format" do
+      it "in BibXML format" do
         xml = <<~XML
           <reference anchor="IEEEStdP802.11ma/D3.0">
             <front>
               <title>Title</title>
+              <date year="2021" month="January"/>
             </front>
           </reference>
         XML
