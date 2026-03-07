@@ -21,19 +21,23 @@ module Relaton
       end
 
       # @param bib [Relaton::Ecma::ItemData]
-      def write_file(bib) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-        id = bib.docidentifier[0].content.gsub(%r{[/\s]}, "_")
-        id += "-#{bib.edition.content.gsub('.', '_')}" if bib.edition
-        locality = locality_with_volume bib
-        id += "-#{locality.reference_from}" if locality
-        file = "#{@output}/#{id}.#{@ext}"
+      def write_file(bib)
+        file = filename bib
         if @files.include? file
           Util.warn "Duplicate file #{file}"
         else
           @files << file
-          File.write file, render_doc(bib), encoding: "UTF-8"
+          File.write file, serialize(bib), encoding: "UTF-8"
           index.add_or_update index_id(bib), file
         end
+      end
+
+      def filename(bib)
+        id = bib.docidentifier[0].content
+        id += " #{bib.edition.content}" if bib.edition
+        locality = locality_with_volume bib
+        id += " #{locality.reference_from}" if locality
+        output_file id
       end
 
       def index_id(bib)
@@ -52,13 +56,9 @@ module Relaton
         nil
       end
 
-      def render_doc(bib)
-        case @format
-        when "yaml" then bib.to_yaml
-        when "xml" then bib.to_xml bibdata: true
-        when "bibxml" then bib.to_bibxml
-        end
-      end
+      def to_xml(bib) = bib.to_xml(bibdata: true)
+      def to_yaml(bib) = bib.to_yaml
+      def to_bibxml(bib) = bib.to_rfcxml
 
       # @param hit [Nokogiri::XML::Element]
       def parse_page(hit) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength

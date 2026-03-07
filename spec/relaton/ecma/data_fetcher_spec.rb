@@ -68,35 +68,35 @@ describe Relaton::Ecma::DataFetcher do
       ed = Relaton::Bib::Edition.new content: "1.2"
       locality = Relaton::Bib::Locality.new type: "volume", reference_from: "1"
       extent = Relaton::Bib::Extent.new locality: [locality]
-      Relaton::Ecma::ItemData.new docidentifier: [docid], edition: ed, extent: [extent]
+      Relaton::Ecma::ItemData.new docnumber: "TR/27", docidentifier: [docid], edition: ed, extent: [extent]
     end
 
     it "default output dir & YAML format" do
-      expect(File).to receive(:write).with("data/ECMA_TR_27-1_2-1.yaml", match(/ECMA TR\/27/), encoding: "UTF-8")
+      expect(File).to receive(:write).with("data/ecma-tr-27-1-2-1.yaml", match(/ECMA TR\/27/), encoding: "UTF-8")
       expect(subject.index).to receive(:add_or_update)
-        .with({ ed: "1.2", id: "ECMA TR/27", vol: "1" }, "data/ECMA_TR_27-1_2-1.yaml")
+        .with({ ed: "1.2", id: "ECMA TR/27", vol: "1" }, "data/ecma-tr-27-1-2-1.yaml")
       subject.write_file bib
     end
 
     it "custom output dir & XML format" do
       expect(bib).to receive(:to_xml).with(bibdata: true).and_return :xml
       df = described_class.new "dir", "xml"
-      expect(File).to receive(:write).with("dir/ECMA_TR_27-1_2-1.xml", :xml, encoding: "UTF-8")
+      expect(File).to receive(:write).with("dir/ecma-tr-27-1-2-1.xml", :xml, encoding: "UTF-8")
       df.write_file bib
     end
 
-    xit "BibXML format" do
-      df = described_class.new format: "bibxml"
-      expect(File).to receive(:write).with("data/ECMA_TR_27-1_2-1.xml", :bibxml, encoding: "UTF-8")
+    it "BibXML format" do
+      df = described_class.new "data", "bibxml"
+      expect(File).to receive(:write).with("data/ecma-tr-27-1-2-1.xml", /anchor="TR\/27"/, encoding: "UTF-8")
       df.write_file bib
     end
 
     it "warns if file exists" do
-      subject.instance_variable_set :@files, ["data/ECMA_TR_27-1_2-1.yaml"]
-      expect(File).not_to receive(:write).with("data/ECMA_TR_27-1_2-1.yaml", :yaml, encoding: "UTF-8")
+      subject.instance_variable_set :@files, ["data/ecma-tr-27-1-2-1.yaml"]
+      expect(File).not_to receive(:write).with("data/ecma-tr-27-1-2-1.yaml", :yaml, encoding: "UTF-8")
       expect do
         subject.write_file bib
-      end.to output(/Duplicate file data\/ECMA_TR_27-1_2-1.yaml/).to_stderr_from_any_process
+      end.to output(/Duplicate file data\/ecma-tr-27-1-2-1.yaml/).to_stderr_from_any_process
     end
   end
 end
