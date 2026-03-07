@@ -192,12 +192,11 @@ RSpec.describe Relaton::Ieee::DataFetcher do
         df.send :save_doc, bib
       end
 
-      xit "in BibXML format" do
+      it "in BibXML format" do
         df.instance_variable_set :@format, "bibxml"
         df.instance_variable_set :@ext, "xml"
-        expect(bib).to receive(:to_bibxml).and_return "<bibxml/>"
-        expect(File).to receive(:write).with("data/5678.xml", "<bibxml/>", encoding: "UTF-8")
-        df.save_doc bib
+        expect(File).to receive(:write).with("data/5678.xml", /anchor="5678"/, encoding: "UTF-8")
+        df.send :save_doc, bib
       end
     end
   end
