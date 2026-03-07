@@ -255,7 +255,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::ArticleParser do
       expect(date.size).to eq 1
       expect(date[0]).to be_instance_of Relaton::Bib::Date
       expect(date[0].type).to eq "published"
-      expect(date[0].at).to eq "2012-03-16"
+      expect(date[0].at.to_s).to eq "2012-03-16"
     end
 
     it "parse_copyright" do
