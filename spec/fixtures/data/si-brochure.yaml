@@ -46,6 +46,24 @@ contributor:
     - content: Bureau international des poids et mesures
     abbreviation:
       content: BIPM
+- role:
+  - type: author
+    description:
+    - content: committee
+  organization:
+    name:
+    - content: BIPM
+    subdivision:
+    - type: committee
+      name:
+      - language: en
+        script: Latn
+        content: International Bureau of Weights and Measures
+      - language: fr
+        script: Latn
+        content: Bureau International des Poids et Mesures
+      abbreviation:
+        content: BIPM
 edition:
   content: '9'
 version:
@@ -71,16 +89,6 @@ ext:
   schema_version: v1.0.1
   doctype:
     content: brochure
-  editorialgroup:
-    committee:
-    - language: en
-      script: Latn
-      content: International Bureau of Weights and Measures
-      acronym: BIPM
-    - language: fr
-      script: Latn
-      content: Bureau International des Poids et Mesures
-      acronym: BIPM
   si_aspect: full
   structuredidentifier:
     docnumber: Brochure

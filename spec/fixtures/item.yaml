@@ -93,6 +93,41 @@ contributor:
         - content: "223322"
     role:
       type: author
+  - organization:
+      name:
+        - content: BIPM
+      subdivision:
+        - type: committee
+          name:
+            - content: General Conference on Weights and Measures
+              language: en
+              script: Latn
+          abbreviation:
+            content: CGPM
+      identifier:
+        - type: workgroup
+    role:
+      type: author
+      description:
+        content: committee
+  - organization:
+      name:
+        - content: BIPM
+      subdivision:
+        - type: committee
+          name:
+            - content: Joint Committee for Guides in Metrology
+          abbreviation:
+            content: JCGM
+      identifier:
+        - type: workgroup
+          content: Work group
+        - type: workgroup
+          content: Workgroup
+    role:
+      type: author
+      description:
+        content: committee
 
 copyright:
   owner:
@@ -224,20 +259,6 @@ ext:
     content: brochure
   subdoctype: Draft Agenda
   flavor: bipm
-  editorialgroup:
-    committee:
-      - acronym: CGPM
-        content: General Conference on Weights and Measures
-        language: en
-        script: Latn
-        locale: en-US
-      - acronym: JCGM
-        content: Joint Committee for Guides in Metrology
-    workgroup:
-      - content: Work group
-      - acronym: ACRN
-        content: Workgroup
-
   comment_period:
     from: "2011-01-01"
     to: "2011-12-31"
