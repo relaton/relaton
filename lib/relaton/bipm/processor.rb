@@ -1,4 +1,5 @@
 require "relaton/core/processor"
+
 module Relaton
   module Bipm
     class Processor < Relaton::Core::Processor
@@ -17,6 +18,7 @@ module Relaton
       # @param opts [Hash]
       # @return [RelatonBipm::BipmBibliographicItem]
       def get(code, date, opts)
+        require_relative "../bipm"
         Bibliography.get(code, date, opts)
       end
 
@@ -38,12 +40,12 @@ module Relaton
       # @param xml [String]
       # @return [RelatonBipm::BipmBibliographicItem]
       def from_xml(xml)
-        require "relaton/bipm"
+        require_relative "../bipm"
         Item.from_xml xml
       end
 
       def from_yaml(yaml)
-        require "relaton/bipm"
+        require_relative "../bipm"
         Item.from_yaml yaml
       end
 
@@ -51,6 +53,7 @@ module Relaton
       # Returns hash of XML grammar
       # @return [String]
       def grammar_hash
+        require_relative "../bipm"
         @grammar_hash ||= Relaton::Bipm.grammar_hash
       end
 
@@ -58,6 +61,7 @@ module Relaton
       # Remove index file
       #
       def remove_index_file
+        require_relative "../bipm"
         Relaton::Index.find_or_create(:bipm, url: true, file: Bibliography::INDEX_FILE).remove_file
       end
     end
