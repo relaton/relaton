@@ -1,3 +1,5 @@
+require_relative "converter/asciibib"
+
 module Relaton
   module Bipm
     class ItemData < Bib::ItemData
@@ -25,6 +27,10 @@ module Relaton
         add_notes opts[:note] do
           Item.to_json(self)
         end
+      end
+
+      def to_asciibib
+        Converter::Asciibib.from_item(self)
       end
 
       # private

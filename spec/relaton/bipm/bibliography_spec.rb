@@ -41,7 +41,7 @@ RSpec.describe Relaton::Bipm::Bibliography do
       expect(hash).to eq YAML.load_file file
     end
 
-    xit "returns AsciiBib" do
+    it "returns AsciiBib" do
       bib = subject.to_asciibib
       file = "spec/fixtures/asciibib.adoc"
       File.write file, bib, encoding: "UTF-8" unless File.exist? file
