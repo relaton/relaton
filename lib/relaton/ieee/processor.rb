@@ -1,5 +1,4 @@
 require "relaton/core/processor"
-require_relative "../ieee"
 
 module Relaton
   module Ieee
@@ -19,6 +18,7 @@ module Relaton
       # @param opts [Hash]
       # @return [Relaton::Ieee::ItemData, nil]
       def get(code, date, opts)
+        require_relative "../ieee"
         Bibliography.get(code, date, opts)
       end
 
@@ -38,18 +38,21 @@ module Relaton
       # @param xml [String]
       # @return [Relaton::Ieee::ItemData]
       def from_xml(xml)
+        require_relative "../ieee"
         Item.from_xml xml
       end
 
       # @param yaml [String]
       # @return [Relaton::Ieee::ItemData]
       def hash_to_bib(yaml)
+        require_relative "../ieee"
         Item.from_yaml yaml
       end
 
       # Returns hash of XML grammar
       # @return [String]
       def grammar_hash
+        require_relative "../ieee"
         @grammar_hash ||= Ieee.grammar_hash
       end
 
@@ -57,6 +60,7 @@ module Relaton
       # Remove index file
       #
       def remove_index_file
+        require_relative "../ieee"
         Relaton::Index.find_or_create(:ieee, url: true, file: "#{INDEXFILE}.yaml").remove_file
       end
     end

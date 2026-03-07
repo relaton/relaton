@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 9286:AB896:F388D:124884:697CFEA0
+      - 3844:116C31:27976C:30A459:69AB8C83
       Accept-Ranges:
       - bytes
       Date:
-      - Fri, 30 Jan 2026 18:55:52 GMT
+      - Sat, 07 Mar 2026 02:25:09 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-pdk-kpdk2140029-PDK
+      - cache-pdk-kpdk2140061-PDK
       X-Cache:
       - HIT
       X-Cache-Hits:
       - '1'
       X-Timer:
-      - S1769799353.679931,VS0,VE1
+      - S1772850310.866702,VS0,VE3
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -63,11 +63,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 2841f056a5baa59b8d64ca2aa4cdfb06026c00ae
+      - a9944da2008dd9331fb1a8c8c5655219982ce476
       Expires:
-      - Fri, 30 Jan 2026 19:00:52 GMT
+      - Sat, 07 Mar 2026 02:30:09 GMT
       Source-Age:
-      - '24'
+      - '2'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -2615,7 +2615,7 @@ http_interactions:
         y/3o8c9/fPTFL99+9/T2Hdk/fr68qn/fpP//UEsBAh4DFAAAAAgAVG4+XIZ1
         zfx9vgEA9ekNAA0AGAAAAAAAAQAAAKSBAAAAAGluZGV4LXYxLnlhbWxVVAUA
         A3/9fGl1eAsAAQT1AQAABBQAAABQSwUGAAAAAAEAAQBTAAAAxL4BAAAA
-  recorded_at: Fri, 30 Jan 2026 18:55:52 GMT
+  recorded_at: Sat, 07 Mar 2026 02:25:09 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-ieee/refs/heads/data-v2/data/ieee-std-p802-16-2004-d-5-cor1-2005.yaml
@@ -2655,21 +2655,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - D51E:2B6168:E0C58:111F8C:697CFEB8
+      - BE62:36DC3F:25737B:2E815D:69AB8C85
       Accept-Ranges:
       - bytes
       Date:
-      - Fri, 30 Jan 2026 18:55:53 GMT
+      - Sat, 07 Mar 2026 02:25:10 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-pdk-kpdk2140038-PDK
+      - cache-pdk-kpdk2140053-PDK
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1769799353.034163,VS0,VE68
+      - S1772850310.452720,VS0,VE74
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -2677,9 +2677,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - f23a72840fead57e786ca8180548e6e0c68438f4
+      - 1bb78925bbc89bea58ea9e76c7311b7ca9ea59db
       Expires:
-      - Fri, 30 Jan 2026 19:00:53 GMT
+      - Sat, 07 Mar 2026 02:30:10 GMT
       Source-Age:
       - '0'
     body:
@@ -2759,5 +2759,5 @@ http_interactions:
         aWNhbCBsYXllcgogIHN0YW5kYXJkX3N0YXR1czogSW5hY3RpdmUKICBzdGFu
         ZGFyZF9tb2RpZmllZDogRHJhZnQKICBwdWJzdGF0dXM6IEFjdGl2ZQogIGhv
         bGRzdGF0dXM6IEhvbGQK
-  recorded_at: Fri, 30 Jan 2026 18:55:53 GMT
+  recorded_at: Sat, 07 Mar 2026 02:25:10 GMT
 recorded_with: VCR 6.4.0
