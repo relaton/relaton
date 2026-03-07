@@ -29,7 +29,7 @@ http_interactions:
       Content-Type:
       - application/zip
       Etag:
-      - W/"69836347e62c959fc78bd02ac9eae2ea461b06e5dd6839e1f8b889f3600f24de"
+      - W/"4a9c9603db7966a64f53aeee5fb1f1fcce228b3a32c734451743e0d11b16dfcb"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -39,21 +39,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - F9D7:338A74:1B49004:23AA696:68D9FE5A
+      - B43E:33E2D4:69774A:7F4BE2:69AC4C85
       Accept-Ranges:
       - bytes
       Date:
-      - Mon, 29 Sep 2025 03:35:27 GMT
+      - Sat, 07 Mar 2026 16:04:47 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100134-IAD
+      - cache-pdk-kpdk2140030-PDK
       X-Cache:
       - HIT
       X-Cache-Hits:
       - '1'
       X-Timer:
-      - S1759116927.322732,VS0,VE1
+      - S1772899487.042064,VS0,VE2
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -61,16 +61,16 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 20eee92f9693df288d7ead9ff1bddb4b5ccde46e
+      - e8722f0dc72c2a731de374c147dc8a1b9a979fc2
       Expires:
-      - Mon, 29 Sep 2025 03:40:27 GMT
+      - Sat, 07 Mar 2026 16:09:47 GMT
       Source-Age:
-      - '34'
+      - '24'
     body:
       encoding: ASCII-8BIT
       base64_string: |
-        UEsDBBQAAAAIAIJaPFsbwdanUOsAAGwQDAANABwAaW5kZXgtdjEueWFtbFVU
-        CQADI1LZaCVS2Wh1eAsAAQT1AQAABBQAAAC1/V2zZLmRnQnfz684d7yKt0/s
+        UEsDBBQAAAAIAMNpRFsbwdanUOsAAGwQDAANABwAaW5kZXgtdjEueWFtbFVU
+        CQAD3VXhaN5V4Wh1eAsAAQT1AQAABBQAAAC1/V2zZLmRnQnfz684d7yKt0/s
         7913LYrT1pqkrFUl6b66WOKUJotsVhZlpvn1Awfi4Hwgji/g8XiVZm2mYuZa
         CGy4w+FwX7hcLv/H5ekff/7TP/4fT+n//eOff/3r3//9H59+//v/+n+W//Db
         //73n/7x6Y8//fTbz3/5c/lPf/n7L//206//+PS76/K78l/+908/5P//eZ72
@@ -1409,10 +1409,10 @@ http_interactions:
         /uePf/7lH9LfvUzeBnMX/zqAfwX400f86/VT/OkyeYvyLv7SjP/8FH+x8X/u
         /O/ib834p0/xNxv/50vyDv702fdN/+XHv/6a/stvv/79p/t80+17X+wvPoTU
         IQnifzppBX9o0v75v/3xsn3An54/wf/z33+xx3m8++q7DJ+iDcD893/542W+
-        D/S/fv7lcnPv/x9QSwECHgMUAAAACACCWjxbG8HWp1DrAABsEAwADQAYAAAA
-        AAABAAAApIEAAAAAaW5kZXgtdjEueWFtbFVUBQADI1LZaHV4CwABBPUBAAAE
+        D/S/fv7lcnPv/x9QSwECHgMUAAAACADDaURbG8HWp1DrAABsEAwADQAYAAAA
+        AAABAAAApIEAAAAAaW5kZXgtdjEueWFtbFVUBQAD3VXhaHV4CwABBPUBAAAE
         FAAAAFBLBQYAAAAAAQABAFMAAACX6wAAAAA=
-  recorded_at: Mon, 29 Sep 2025 03:35:27 GMT
+  recorded_at: Sat, 07 Mar 2026 16:04:47 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/data-v2/static/jcgm/gum-6-2020.yaml
@@ -1425,7 +1425,7 @@ http_interactions:
       Accept:
       - "*/*"
       User-Agent:
-      - Mechanize/2.14.0 Ruby/3.3.3p89 (http://github.com/sparklemotion/mechanize/)
+      - Mechanize/2.14.0 Ruby/3.4.7p58 (http://github.com/sparklemotion/mechanize/)
       Accept-Language:
       - en-us,en;q=0.5
       Host:
@@ -1460,23 +1460,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - E9C1:6C58C:1A5427D:2126933:68D9FE80
+      - ED91:5C119:6665F5:7C3F7F:69AC4C9F
       Content-Encoding:
       - gzip
       Accept-Ranges:
       - bytes
       Date:
-      - Mon, 29 Sep 2025 03:35:28 GMT
+      - Sat, 07 Mar 2026 16:04:47 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100089-IAD
+      - cache-pdk-kpdk2140037-PDK
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1759116929.798662,VS0,VE49
+      - S1772899488.851598,VS0,VE62
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -1484,9 +1484,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 86243e55333848c10525552da720342e4db2485e
+      - 81f06e195a82dd6256664ff5b0b7a4da08f44fe2
       Expires:
-      - Mon, 29 Sep 2025 03:40:28 GMT
+      - Sat, 07 Mar 2026 16:09:47 GMT
       Source-Age:
       - '0'
     body:
@@ -1516,5 +1516,5 @@ http_interactions:
         rLdG1V0w19pCv8VctKl+GZun/J7qOOaLEGp6/ZRBniZGOb02Qncga+FQMHxS
         ZLm8JfkR4d4bXlDk/q3I7vn/8gggMYRRcpmVNerBixnaYhXAOVm9DiGvSekc
         JMserwevigPKK05Y50O59mLAD6wVzqFmbv0DWjeQYksSAAA=
-  recorded_at: Mon, 29 Sep 2025 03:35:28 GMT
+  recorded_at: Sat, 07 Mar 2026 16:04:47 GMT
 recorded_with: VCR 6.3.1

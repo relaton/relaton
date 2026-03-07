@@ -39,21 +39,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - AF42:1E8309:3DD77F:5109A6:68E157A9
+      - B43E:33E2D4:69774A:7F4BE2:69AC4C85
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 04 Oct 2025 17:26:01 GMT
+      - Sat, 07 Mar 2026 16:04:42 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100065-IAD
+      - cache-pdk-kpdk2140040-PDK
       X-Cache:
       - HIT
       X-Cache-Hits:
-      - '0'
+      - '1'
       X-Timer:
-      - S1759598761.477937,VS0,VE1
+      - S1772899483.854274,VS0,VE2
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -61,11 +61,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 39213e6d64b32ead41693b292e7dac2ff6760943
+      - baf90c6cfe1e0a35cba8c3c3beb1bf4da028c1fb
       Expires:
-      - Sat, 04 Oct 2025 17:31:01 GMT
+      - Sat, 07 Mar 2026 16:09:42 GMT
       Source-Age:
-      - '255'
+      - '20'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -1412,7 +1412,7 @@ http_interactions:
         D/S/fv7lcnPv/x9QSwECHgMUAAAACADDaURbG8HWp1DrAABsEAwADQAYAAAA
         AAABAAAApIEAAAAAaW5kZXgtdjEueWFtbFVUBQAD3VXhaHV4CwABBPUBAAAE
         FAAAAFBLBQYAAAAAAQABAFMAAACX6wAAAAA=
-  recorded_at: Sat, 04 Oct 2025 17:26:01 GMT
+  recorded_at: Sat, 07 Mar 2026 16:04:42 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/data-v2/data/metrologia-50-4-385.yaml
@@ -1425,7 +1425,7 @@ http_interactions:
       Accept:
       - "*/*"
       User-Agent:
-      - Mechanize/2.14.0 Ruby/3.3.3p89 (http://github.com/sparklemotion/mechanize/)
+      - Mechanize/2.14.0 Ruby/3.4.7p58 (http://github.com/sparklemotion/mechanize/)
       Accept-Language:
       - en-us,en;q=0.5
       Host:
@@ -1460,23 +1460,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - BBCE:314C15:20A12B:2A0D30:68E158AA
+      - B31F:3A33BC:615AB0:77323D:69AC4C9A
       Content-Encoding:
       - gzip
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 04 Oct 2025 17:26:03 GMT
+      - Sat, 07 Mar 2026 16:04:43 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100157-IAD
+      - cache-pdk-kpdk2140091-PDK
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1759598763.024951,VS0,VE60
+      - S1772899484.655863,VS0,VE70
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -1484,9 +1484,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 29b12a8c81c4b9475c934914bfc3b840ce87b721
+      - 72abc8beadf4aed264b9fd452c5b0b1511221b47
       Expires:
-      - Sat, 04 Oct 2025 17:31:03 GMT
+      - Sat, 07 Mar 2026 16:09:43 GMT
       Source-Age:
       - '0'
     body:
@@ -1539,5 +1539,5 @@ http_interactions:
         RZJ4ISxd3KCyWx5vOL5suXolff7kCgUIkJsvURcqr4rwARR7GzIWSfqpTrS9
         aKsxUhhT3TGw3xxXAuHmYbujva0bT6xy9/dhADAdrg0n1VE3xoNUJd7+dT+X
         B9z/BjDWRzzzHgAA
-  recorded_at: Sat, 04 Oct 2025 17:26:02 GMT
+  recorded_at: Sat, 07 Mar 2026 16:04:43 GMT
 recorded_with: VCR 6.3.1
