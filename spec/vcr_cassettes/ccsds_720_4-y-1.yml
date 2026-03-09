@@ -1,0 +1,98 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ccsds/refs/heads/data-v2/data/CCSDS-720-4-Y-1.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Mechanize/2.14.0 Ruby/3.4.7p58 (http://github.com/sparklemotion/mechanize/)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - raw.githubusercontent.com
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '638'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"01169b8673a4cd4ec84ab8136bbb3d34f0ee81ffda64d06059b8bcfd025687db"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - B4E8:5F161:1378C61:179D81D:69AEF58B
+      Content-Encoding:
+      - gzip
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Mon, 09 Mar 2026 16:30:05 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-pdk-kpdk2140084-PDK
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1773073805.189005,VS0,VE118
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - 1a6ba3514f4bd5c0adb4a9b3e5fce76ae91a4fef
+      Expires:
+      - Mon, 09 Mar 2026 16:35:05 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        H4sIAAAAAAAAA8VU22rcMBB991cMeUkL8Wq98W4SEwJhQyBQSuiGlkAhaKVZ
+        W8QrGWm8ifvUj+gX9ks68l7TPpQ+9c2ay5mjozlO0zQxuoDpdHYzOxsN88cs
+        CarCpXxaoQ/G2QJW2SAfZAkZqrFIUqilLVtZYgFoE4CgvGmogA+S4lE5S2hp
+        Awm3pka4wdowXAf33pFTroZ309ub+/c/v//46Ajnzj2DW8DULZfOwh0D+PS6
+        RKs6eMBAgWEBFs5zhccIolC3HkP6xXkNn9dEk+Bar3qG1DXMLnh1yKciakIh
+        hFJBh4HzpWjaeW2UJG4O67Csaw4GwQ2+E6fZeCJ2cNr9Be6lSTdZ0Ta1kzqI
+        0suVoe6JuS+DGKd5fo7nYzXJz05PM32h5nIxmajhxSQfn8+1HovRcDQWw0wI
+        fovXvMsGceqWQaMX/4FBnMosjGZYszDoo8K/vTLXDvL0Mc2Y35prH+dT481S
+        +q4A8i0mWtLBA/X6hwo110nGGg2HZ+nwIong3sxbcv0s7+LeAWzbZEuV8/1O
+        aFxvX9zTPnDATPE2GSJETrA40ppvcl9o5RL/aNmS5qVu59qsTDgA3ne86Znd
+        zdLp3cMmsWZIqCrLm1WnexKozXb6rvc4O07kPJCXiv7BWUeXzdVDZcJG/E+o
+        og34LMFu7WRirUYN5KDCugHWLCA0PMIaW55AIz0ZZRrWxJY9e2NPQFot2Ge4
+        knXbZ3qgnRuJ3RiDbFaqEKKJd54eXIrm6qs9SgJJakO8KH+VG8125PePjq8U
+        c7xbvWpvy3x/qbhOUUtXu7J7kh4lC95IheufhEV6cf45MpqhXxmFAa65KPkF
+        zBN9itcEAAA=
+  recorded_at: Mon, 09 Mar 2026 16:30:05 GMT
+recorded_with: VCR 6.4.0

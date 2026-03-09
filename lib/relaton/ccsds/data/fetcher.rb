@@ -71,10 +71,6 @@ module Relaton
         save_bib bibitem
       end
 
-      def get_output_file(id)
-        File.join @output, "#{id.gsub(/[.\s-]+/, '-')}.#{@ext}"
-      end
-
       #
       # Save bibitem to file
       #
@@ -84,9 +80,9 @@ module Relaton
       #
       def save_bib(bib) # rubocop:disable Metrics/AbcSize
         search_instance_translation bib
-        file = get_output_file(bib.docidentifier.first.content)
+        file = output_file(bib.docidentifier.first.content)
         merge_links bib, file
-        File.write file, content(bib), encoding: "UTF-8"
+        File.write file, serialize(bib), encoding: "UTF-8"
         index.add_or_update Pubid::Ccsds::Identifier.parse(bib.docidentifier.first.content), file
       rescue StandardError => e
         puts "Failed to save #{bib.docidentifier.first.content}: #{e.message}\n#{e.backtrace[0..5].join("\n")}"
@@ -149,7 +145,7 @@ module Relaton
         type1, type2 = translation_relation_types(inst)
         create_relation(inst, type1) { |rel| bib.relation << rel }
         create_relation(bib, type2) { |rel| inst.relation << rel }
-        File.write file, content(inst), encoding: "UTF-8"
+        File.write file, serialize(inst), encoding: "UTF-8"
       end
 
       def parse_file(file)
@@ -188,7 +184,7 @@ module Relaton
         inst = parse_file file
         create_relation(inst, "hasInstance") { |rel| bib.relation << rel }
         create_relation(bib, "instanceOf") { |rel| inst.relation << rel }
-        File.write file, content(inst), encoding: "UTF-8"
+        File.write file, serialize(inst), encoding: "UTF-8"
       end
 
       #
@@ -234,20 +230,9 @@ module Relaton
         Util.info "links are merged.", key: file
       end
 
-      #
-      # Srerialize bibliographic item
-      #
-      # @param [Relaton::Ccsds::Item] bib bibliographic item
-      #
-      # @return [String] serialized bibliographic item
-      #
-      def content(bib)
-        case @format
-        when "yaml" then bib.to_yaml
-        when "xml" then bib.to_xml(bibdata: true)
-        else bib.send "to_#{@format}"
-        end
-      end
+      def to_yaml(bib) = bib.to_yaml
+      def to_xml(bib) = bib.to_xml(bibdata: true)
+      def to_bibxml(bib) = bib.to_rfcxml
     end
   end
 end

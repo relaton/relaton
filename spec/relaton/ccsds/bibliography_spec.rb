@@ -81,13 +81,13 @@ describe Relaton::Ccsds::TestBibliography do
     end
 
     context "doc by code with format" do
-      xit "success", vcr: "ccsds_720_4-y-1" do
+      it "success", vcr: "ccsds_720_4-y-1" do
         doc = described_class.get "CCSDS 720.4-Y-1 (DOC)"
         expect(doc.source.size).to be 1
         expect(doc.source.first.type).to eq "doc"
       end
 
-      xit "not found", vcr: "ccsds_230_2-g-1" do
+      it "not found", vcr: "ccsds_230_2-g-1" do
         doc = described_class.get "CCSDS 230.2-G-1 (DOC)"
         expect(doc).to be_nil
       end

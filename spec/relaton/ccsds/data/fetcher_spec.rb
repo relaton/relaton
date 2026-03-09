@@ -58,9 +58,9 @@ describe Relaton::Ccsds::DataFetcher do
     end
 
     describe "#get_output_file" do
-      subject { described_class.new("data", "yaml").get_output_file(identifier) }
+      subject { described_class.new("data", "yaml").output_file(identifier) }
 
-      it { expect(subject).to eq("data/CCSDS-123-0-B-1.yaml") }
+      it { expect(subject).to eq("data/ccsds-123-0-b-1.yaml") }
     end
 
     context "#save_bib" do
@@ -79,12 +79,6 @@ describe Relaton::Ccsds::DataFetcher do
         subject.save_bib(bib)
         id_from_index = subject.index.search(id).first[:id]
         expect(id_from_index).to eq(id)
-      end
-
-      xit "adds identifier as string to old index" do
-        subject.save_bib(bib)
-        id_from_index = subject.old_index.search(identifier).first[:id]
-        expect(id_from_index).to eq(identifier)
       end
 
       context "when have related translations" do
@@ -123,22 +117,23 @@ describe Relaton::Ccsds::DataFetcher do
       end
     end
 
-    context "#content" do
+    context "#serialize" do
       let(:bib) { Relaton::Ccsds::ItemData.new(docidentifier: [Relaton::Bib::Docidentifier.new(content: identifier)]) }
 
-      xit "bibxml" do
-        expect(subject.content(bib)).to eq :bibxml
+      it "bibxml" do
+        subject.instance_variable_set(:@format, "bibxml")
+        expect(subject.serialize(bib)).to include "<reference"
       end
 
       it "yaml" do
         subject.instance_variable_set(:@format, "yaml")
-        expect(subject.content(bib)).to include "content: CCSDS 123.0-B-1\n"
+        expect(subject.serialize(bib)).to include "content: CCSDS 123.0-B-1\n"
       end
 
       it "xml" do
         subject.instance_variable_set(:@format, "xml")
         expect(bib).to receive(:to_xml).with(bibdata: true).and_return :xml
-        expect(subject.content(bib)).to eq :xml
+        expect(subject.serialize(bib)).to eq :xml
       end
     end
 
