@@ -49,8 +49,9 @@ RSpec.describe Relaton::Iana::DataFetcher do
         subject.send :save_doc, nil
       end
 
-      xit "bibxml" do
-        expect(File).to receive(:write).with("dir/bib.xml", "<xml/>", encoding: "UTF-8")
+      it "bibxml" do
+        subject = described_class.new("dir", "bibxml")
+        expect(File).to receive(:write).with("dir/bib.xml", /anchor=/, encoding: "UTF-8")
         subject.send :save_doc, bib
         expect(index.index).to eq [{ id: "BIB", file: "dir/bib.xml" }]
       end
