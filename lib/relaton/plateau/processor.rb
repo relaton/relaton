@@ -1,4 +1,4 @@
-require "relaton/core"
+require "relaton/core/processor"
 
 module Relaton
   module Plateau
@@ -38,14 +38,11 @@ module Relaton
         @grammar_hash ||= ::Relaton::Plateau.grammar_hash
       end
 
-      def threads
-        3
-      end
+      def threads = 3
 
       def remove_index_file
-        Relaton::Index.find_or_create(
-          :plateau, url: true, file: "#{INDEXFILE}.yaml"
-        ).remove_file
+        require_relative "../plateau"
+        Relaton::Index.find_or_create(:plateau, url: true, file: "#{INDEXFILE}.yaml").remove_file
       end
     end
   end

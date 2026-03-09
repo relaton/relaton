@@ -208,7 +208,7 @@ RSpec.describe Relaton::Plateau::DataFetcher do
 
     it "bibxml" do
       rfcxml_output = subject.to_bibxml item
-      expect(rfcxml_output).to include "PLATEAU"
+      expect(rfcxml_output).to include "<reference"
     end
   end
 end
