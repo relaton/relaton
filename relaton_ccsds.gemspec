@@ -25,7 +25,6 @@ Gem::Specification.new do |spec|
 
   # Uncomment to register a new dependency of your gem
   spec.add_dependency "csv", "~> 3.3"
-  spec.add_dependency "logger", "~> 1.6.0"
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "openssl", "~> 3.3.2"
   spec.add_dependency "pubid-ccsds", "~> 1.15.2"
