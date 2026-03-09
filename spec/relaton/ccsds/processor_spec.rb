@@ -46,7 +46,7 @@ describe Relaton::Ccsds::Processor do
     require "relaton/index"
     index = instance_double(Relaton::Index::Type)
     expect(Relaton::Index).to receive(:find_or_create)
-      .with(:ccsds, url: true, file: Relaton::Ccsds::INDEX_FILE).and_return(index)
+      .with(:ccsds, url: true, file: "#{Relaton::Ccsds::INDEXFILE}.yaml").and_return(index)
     expect(index).to receive(:remove_file)
     subject.remove_index_file
   end

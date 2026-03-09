@@ -20,7 +20,7 @@ module Relaton
 
       def index
         @index ||= Relaton::Index.find_or_create(
-          "CCSDS", file: INDEX_FILE, pubid_class: Pubid::Ccsds::Identifier
+          :ccsds, file: "#{INDEXFILE}.yaml", pubid_class: Pubid::Ccsds::Identifier
         )
       end
 

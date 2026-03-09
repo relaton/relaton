@@ -19,7 +19,7 @@ module Relaton
 
       def index
         @index ||= Relaton::Index.find_or_create(
-          :ccsds, url: "#{GHURL}index-v1.zip", file: INDEX_FILE, pubid_class: Pubid::Ccsds::Identifier
+          :ccsds, url: "#{GHURL}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml", pubid_class: Pubid::Ccsds::Identifier
         )
       end
 

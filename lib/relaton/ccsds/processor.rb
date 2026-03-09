@@ -18,7 +18,7 @@ module Relaton
       # @param opts [Hash]
       # @return [Relaton::Ccsds::ItemData, nil]
       def get(code, date, opts)
-        require_relative "bibliography"
+        require_relative "../ccsds"
         Bibliography.get(code, date, opts)
       end
 
@@ -38,14 +38,14 @@ module Relaton
       # @param xml [String]
       # @return [Relaton::Ccsds::ItemData]
       def from_xml(xml)
-        require_relative "model/item"
+        require_relative "../ccsds"
         Item.from_xml xml
       end
 
       # @param yaml [String]
       # @return [Relaton::Ccsds::ItemData]
       def from_yaml(yaml)
-        require_relative "model/item"
+        require_relative "../ccsds"
         Item.from_yaml yaml
       end
 
@@ -60,7 +60,8 @@ module Relaton
       # Remove index file
       #
       def remove_index_file
-        Relaton::Index.find_or_create(:ccsds, url: true, file: INDEX_FILE).remove_file
+        require_relative "../ccsds"
+        Relaton::Index.find_or_create(:ccsds, url: true, file: "#{INDEXFILE}.yaml").remove_file
       end
     end
   end

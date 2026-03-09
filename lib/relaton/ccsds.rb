@@ -15,7 +15,7 @@ require_relative "ccsds/bibliography"
 
 module Relaton
   module Ccsds
-    INDEX_FILE = "index-v1.yaml".freeze
+    INDEXFILE = "index-v1"
 
     class Error < StandardError; end
     # Your code goes here...
