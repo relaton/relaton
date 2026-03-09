@@ -15,7 +15,7 @@ require_relative "iana/bibliography"
 
 module Relaton
   module Iana
-    INDEX_FILE = "index-v1"
+    INDEXFILE = "index-v1"
 
     # Returns hash of XML reammar
     # @return [String]

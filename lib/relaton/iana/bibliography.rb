@@ -9,7 +9,7 @@ module Relaton
       # @param text [String]
       # @return [Relaton::Iana::ItemData, nil]
       def search(text) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
-        index = Relaton::Index.find_or_create :iana, url: "#{SOURCE}#{INDEX_FILE}.zip", file: "#{INDEX_FILE}.yaml"
+        index = Relaton::Index.find_or_create :iana, url: "#{SOURCE}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml"
         id = text.sub(/^IANA\s/, "")
         row = index.search(id).min_by { |i| i[:id] }
         return unless row

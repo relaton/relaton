@@ -21,7 +21,7 @@ module Relaton
       private
 
       def index
-        @index ||= Relaton::Index.find_or_create :iana, file: "#{INDEX_FILE}.yaml"
+        @index ||= Relaton::Index.find_or_create :iana, file: "#{INDEXFILE}.yaml"
       end
 
       def parse(content)
