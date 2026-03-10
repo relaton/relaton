@@ -101,7 +101,6 @@ module Relaton::Bsi
           doctype: fetch_doctype(hit),
           flavor: "bsi",
           ics: fetch_ics(hit.hit[:ics]),
-          # editorialgroup: fetch_editorialgroup(data),
           structuredidentifier: fetch_structuredid(hit),
         )
       end
@@ -148,17 +147,6 @@ module Relaton::Bsi
         stage = Relaton::Bib::Status::Stage.new(content: status)
         Relaton::Bib::Status.new(stage: stage)
       end
-
-      # Fetch workgroup.
-      # @param data [Hash]
-      # @return [Relaton::Iso::ISOProjectGroup, nil]
-      # def fetch_editorialgroup(data)
-      #   wg = data["committee"]&.fetch("value")
-      #   return unless wg
-
-      #   tc = Relaton::Bib::WorkGroup.new content: wg
-      #   Relaton::Iso::ISOProjectGroup.new technical_committee: [tc]
-      # end
 
       # @param hit [Relaton::Bsi::Hit]
       # @return [Relaton::Iso::StructuredIdentifier]
@@ -242,8 +230,14 @@ module Relaton::Bsi
 
         wg = data["committee"]&.fetch("value")
         if wg
-          desc = Relaton::Bib::LocalizedMarkedUpString.new(content: wg, language: "en", script: "Latn")
-          contribs << create_contributor({ type: "author", description: [desc] }, bsi_org)
+          subdivision = Relaton::Bib::Subdivision.new(
+            type: "technical-committee",
+            name: [Relaton::Bib::TypedLocalizedString.new(content: wg)],
+          )
+          org = bsi_org(subdivision: [subdivision])
+          desc = Relaton::Bib::LocalizedMarkedUpString.new(content: "committee")
+          role = Relaton::Bib::Contributor::Role.new(type: "author", description: [desc])
+          contribs << Relaton::Bib::Contributor.new(role: [role], organization: org)
         end
         contribs
       end
@@ -281,13 +275,13 @@ module Relaton::Bsi
         end
       end
 
-      def bsi_org
+      def bsi_org(subdivision: [])
         abbre = Relaton::Bib::LocalizedString.new(content: "BSI", language: "en", script: "Latn")
         name = Relaton::Bib::TypedLocalizedString.new(
           content: "British Standards Institution", language: "en", script: "Latn"
         )
         uri = Relaton::Bib::Uri.new(content: "https://www.bsigroup.com/")
-        Relaton::Bib::Organization.new abbreviation: abbre, name: [name], uri: [uri]
+        Relaton::Bib::Organization.new abbreviation: abbre, name: [name], uri: [uri], subdivision: subdivision
       end
     end
   end
