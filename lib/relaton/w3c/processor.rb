@@ -24,7 +24,7 @@ module Relaton
       end
 
       def from_xml(xml)
-        Bibdata.from_xml(xml)
+        Item.from_xml(xml)
       end
 
       def from_yaml(yaml)

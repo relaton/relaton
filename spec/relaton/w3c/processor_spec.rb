@@ -43,17 +43,13 @@ describe Relaton::W3c::Processor do
 
   describe "#from_xml" do
     it "delegates to Bibdata.from_xml" do
-      expect(Relaton::W3c::Bibdata).to receive(:from_xml)
-        .with("<xml/>").and_return(:item)
-      expect(processor.from_xml("<xml/>")).to eq :item
+      expect(processor.from_xml("<bibitem/>")).to be_instance_of Relaton::W3c::ItemData
     end
   end
 
   describe "#from_yaml" do
     it "delegates to Item.from_yaml" do
-      expect(Relaton::W3c::Item).to receive(:from_yaml)
-        .with("yaml_content").and_return(:item)
-      expect(processor.from_yaml("yaml_content")).to eq :item
+      expect(processor.from_yaml({ id: '123' }.to_yaml)).to be_instance_of Relaton::W3c::ItemData
     end
   end
 
