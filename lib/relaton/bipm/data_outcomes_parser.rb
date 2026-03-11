@@ -86,7 +86,7 @@ module Relaton::Bipm
       path = File.join dir, file
       hash = meeting_bibitem body: body, type: type, en: en_md, fr: fr_md, num: num, src: src, pdf: en["pdf"]
       if @data_fetcher.files.include?(path) && part
-        add_part hash, part
+        add_part hash, body, type, num, part
         item = ItemData.new(**hash)
         has_part_item = parse_file path
         has_part_item.relation << Relaton::Bib::Relation.new(type: "partOf", bibitem: item)
@@ -95,7 +95,7 @@ module Relaton::Bipm
       elsif part
         hash[:title].each { |t| t.content.sub!(/\s\(.+\)$/, "") }
         h = meeting_bibitem body: body, type: type, en: en_md, fr: fr_md, num: num, src: src, pdf: en["pdf"]
-        add_part h, part
+        add_part h, body, type, num, part
         part_item = ItemData.new(**h)
         part_item_path = File.join dir, "#{num}-#{part}.#{@data_fetcher.ext}"
         @data_fetcher.write_file part_item_path, part_item
@@ -184,7 +184,7 @@ module Relaton::Bipm
         num_justed = num.rjust 2, "0"
         type = r["type"].capitalize
         docnum = create_resolution_docnum args[:body], type, num, date
-        hash[:id] = create_id(args[:body], type, num_justed, date)
+        hash[:id] = create_id(body: args[:body], type: type, num: num_justed, date: date)
         hash[:docidentifier] = create_resolution_docids args[:body], type, num, date
         hash[:docnumber] = docnum
         hash[:language] = %w[en fr]
@@ -393,9 +393,10 @@ module Relaton::Bipm
     # @param [Hash] hash Hash of BIPM meeting
     # @param [String] session number of meeting
     #
-    def add_part(hash, part)
+    def add_part(hash, body, type, num, part)
       regex = /(\p{L}+\s(?:\w+\/)?\d+)(?![\d-])/
-      hash[:id] += "-#{part}"
+      date = hash[:date].first.at.to_s
+      hash[:id] = create_id(body: body, type: type, num: num, part: part, date: date) # += "#{part}"
       hash[:docnumber].sub!(regex) { |m| "#{m}-#{part}" }
       hash[:docidentifier].select { |id| id.type == "BIPM" }.each do |did|
         did.content.sub!(regex) { "#{$1}-#{part}" }
@@ -430,7 +431,7 @@ module Relaton::Bipm
       hash[:date] = [Relaton::Bib::Date.new(type: "published", at: args[:en]["date"])]
       hash[:docidentifier] = create_meeting_docids docnum
       hash[:docnumber] = docnum # .sub(" --", "").sub(/\s\(\d{4}\)/, "")
-      hash[:id] = create_id(args[:body], args[:type], args[:num], args[:en]["date"])
+      hash[:id] = create_id(body: args[:body], type: args[:type], num: args[:num], date: args[:en]["date"])
       hash[:source] = create_links(**args)
       hash[:language] = %w[en fr]
       hash[:script] = ["Latn"]
@@ -505,9 +506,9 @@ module Relaton::Bipm
     #
     # @return [String] ID
     #
-    def create_id(body, type, num, date)
+    def create_id(body:, type:, num:, part: nil, date:)
       year = ::Date.parse(date).year
-      [body, SHORTTYPE[type.capitalize], year, num].compact.join("-")
+      [body, SHORTTYPE[type.capitalize] || type, num, part, year].compact.join.gsub("-", "")
     end
 
     #
