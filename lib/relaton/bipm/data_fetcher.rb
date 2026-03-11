@@ -43,12 +43,10 @@ module Relaton::Bipm
       File.write path, content, encoding: "UTF-8"
     end
 
-    def serialize(item)
-      case @format
-      when "xml" then item.to_xml bibdata: true
-      when "yaml" then item.to_yaml
-      # when "bibxml" then item.to_bibxml # not implemented in Relaton::Bib yet
-      end
-    end
+    def to_xml(item) = item.to_xml bibdata: true
+
+    def to_yaml(item) = item.to_yaml
+
+    def to_bibxml(item) = item.to_rfcxml
   end
 end

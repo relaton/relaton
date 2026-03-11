@@ -88,9 +88,9 @@ describe Relaton::Bipm::DataFetcher do
         expect(subject.serialize(item)).to include "type: BIPM"
       end
 
-      xit "bibxml" do
+      it "bibxml" do
         subject.instance_variable_set(:@format, "bibxml")
-        expect(subject.serialize(item)).to eq "<bibxml/>"
+        expect(subject.serialize(item)).to include "<reference>"
       end
     end
   end
