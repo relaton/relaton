@@ -28,7 +28,6 @@ module Relaton
       @db&.clear
       @local_db&.clear
       @registry.processors.each_value do |p|
-        require p.short.to_s
         p.remove_index_file if p.respond_to? :remove_index_file
       end
     end
@@ -115,7 +114,7 @@ module Relaton
           threads = ENV["RELATON_FETCH_PARALLEL"]&.to_i || processor.threads
           wp = WorkersPool.new(threads) do |args|
             args[3].call fetch(*args[0..2])
-          rescue RelatonBib::RequestError => e
+          rescue Relaton::RequestError => e
             args[3].call e
           rescue StandardError => e
             Util.error "`#{args[0]}` -- #{e.message}"
@@ -238,7 +237,7 @@ module Relaton
     # @param year [Integer, nil] year to filter
     # @return [BibliographicItem, nil]
     def search_xml(file, xml, text, edition, year)
-      return unless text.nil? || match_xml_text(xml, text)
+      return unless text.nil? || match_xml_text?(xml, text)
 
       search_edition_year(file, xml, edition, year)
     end
@@ -251,10 +250,10 @@ module Relaton
     def search_edition_year(file, content, edition, year) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       processor = @registry.processor_by_ref(file.split("/")[-2])
       item = if file.match?(/xml$/) then processor.from_xml(content)
-             else processor.hash_to_bib(YAML.safe_load(content))
+             else processor.from_yaml(content)
              end
       item if (edition.nil? || item.edition.content == edition) && (year.nil? ||
-        item.date.detect { |d| d.type == "published" && d.on(:year).to_s == year.to_s })
+        item.date.detect { |d| d.type == "published" && d.at.to_date.year.to_s == year.to_s })
     end
 
     #
@@ -265,7 +264,7 @@ module Relaton
     #
     # @return [Boolean]
     #
-    def match_xml_text(xml, text)
+    def match_xml_text?(xml, text)
       %r{((?<attr>=((?<apstr>')|"))|>).*?#{text}.*?(?(<attr>)(?(<apstr>)'|")|<)}mi.match?(xml)
     end
 
@@ -279,14 +278,8 @@ module Relaton
     #   actual reference with year
     # @option opts [Integer] :retries (1) Number of network retries
     #
-    # @return [nil, RelatonBib::BibliographicItem,
-    #   RelatonIsoBib::IsoBibliographicItem, RelatonItu::ItuBibliographicItem,
-    #   RelatonIetf::IetfBibliographicItem, RelatonIec::IecBibliographicItem,
-    #   RelatonIeee::IeeeBibliographicItem, RelatonNist::NistBibliongraphicItem,
-    #   RelatonGb::GbbibliographicItem, RelatonOgc::OgcBibliographicItem,
-    #   RelatonCalconnect::CcBibliographicItem, RelatinUn::UnBibliographicItem,
-    #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
-    #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
+    # @return [nil, Relaton::Bib::ItemData
+    #
     def combine_doc(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       return if stdclass == :relaton_bipm
 
@@ -295,21 +288,21 @@ module Relaton
         reldesc = nil
       elsif (refs = code.split ", ").size > 1
         reltype = "complements"
-        reldesc = RelatonBib::FormattedString.new content: "amendment"
+        reldesc = Bib::LocalizedMarkedUpString.new content: "amendment"
       else return
       end
 
-      doc = @registry[stdclass].hash_to_bib docid: { id: code }
+      doc = @registry[stdclass].from_yaml({ docidentifier: [{ content: code }] }.to_yaml)
       ref = refs[0]
       updates = check_bibliocache(refs[0], year, opts, stdclass)
       if updates
-        doc.relation << RelatonBib::DocumentRelation.new(bibitem: updates, type: "updates")
+        doc.relation << Bib::Relation.new(bibitem: updates, type: "updates")
       end
       divider = stdclass == :relaton_itu ? " " : "/"
       refs[1..].each_with_object(doc) do |c, d|
         bib = check_bibliocache(ref + divider + c, year, opts, stdclass)
         if bib
-          d.relation << RelatonBib::DocumentRelation.new(
+          d.relation << Bib::Relation.new(
             type: reltype, description: reldesc, bibitem: bib,
           )
         end
@@ -349,7 +342,11 @@ module Relaton
     # @return [Array]
     def strip_id_wrapper(code, stdclass)
       prefix = @registry[stdclass].prefix
-      code = code.sub(/\u2013/, "-").sub(/^#{prefix}\((.+)\)$/, "\\1")
+      code =
+        if code.is_a?(String)
+          code.sub(/\u2013/, "-").sub(/^#{prefix}\((.+)\)$/, "\\1")
+        else code.to_s
+        end
       [prefix, code]
     end
 
@@ -493,11 +490,11 @@ module Relaton
     # @return [<Type>] <description>
     #
     def check_entry(bib, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-      bib_id = bib&.docidentifier&.first&.id
+      bib_id = bib && bib.docidentifier.first&.content
 
       # when ref isn't equal to bib's id then return a redirection to bib's id
       if args[:db] && args[:id] && bib_id && args[:id] !~ %r{#{Regexp.quote("(#{bib_id})")}}
-        bid = std_id(bib.docidentifier.first.id, nil, {}, stdclass).first
+        bid = std_id(bib.docidentifier.first.content, nil, {}, stdclass).first
         @semaphore.synchronize { args[:db][bid] ||= bib_entry bib }
         "redirection #{bid}"
       else bib_entry bib
@@ -521,7 +518,7 @@ module Relaton
     #
     def net_retry(code, year, opts, processor, retries)
       fetch_doc code, year, opts, processor
-    rescue RelatonBib::RequestError => e
+    rescue Relaton::RequestError => e
       raise e unless retries > 1
 
       net_retry(code, year, opts, processor, retries - 1)

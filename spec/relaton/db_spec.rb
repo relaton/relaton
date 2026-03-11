@@ -17,10 +17,8 @@ RSpec.describe Relaton::Db do
     context "#search_edition_year" do
       it "create bibitem from YAML content" do
         h = { "docid" => [{ "id" => "ISO 123", type: "ISO", "primary" => true }] }
-        expect(YAML).to receive(:safe_load).with(:content).and_return h
-        allow(YAML).to receive(:safe_load).and_call_original
-        item = subject.send :search_edition_year, "iso/item.yaml", :content, nil, nil
-        expect(item).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+        item = subject.send :search_edition_year, "iso/item.yaml", h.to_yaml, nil, nil
+        expect(item).to be_instance_of Relaton::Iso::ItemData
       end
     end
 
@@ -62,7 +60,7 @@ RSpec.describe Relaton::Db do
       let(:db_cache) { double "db_cache" }
 
       before do
-        expect(subject).to receive(:net_retry).with("ISO 123", nil, {}, kind_of(RelatonIso::Processor), 1).and_return :bib
+        expect(subject).to receive(:net_retry).with("ISO 123", nil, {}, kind_of(Relaton::Iso::Processor), 1).and_return :bib
       end
 
       it "using cache" do
@@ -269,9 +267,7 @@ RSpec.describe Relaton::Db do
         { publication_date_after: "2019-01-01",
           fetch_db: true }, :relaton_iso
       )
-      expect(item).to be_instance_of(
-        RelatonIsoBib::IsoBibliographicItem
-      )
+      expect(item).to be_instance_of(Relaton::Iso::ItemData)
     end
 
     it "does not return base cached entry when date does not match" do
@@ -362,14 +358,14 @@ RSpec.describe Relaton::Db do
       item = db.fetch_db "ISO((ISO 124)"
       expect(item).to be_nil
       item = db.fetch_db "ISO(ISO 123)"
-      expect(item).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      expect(item).to be_instance_of Relaton::Iso::ItemData
     end
 
     it "all documents" do
       items = db.fetch_all
       expect(items.size).to be 2
-      expect(items[0]).to be_instance_of RelatonIec::IecBibliographicItem
-      expect(items[1]).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      expect(items[0]).to be_instance_of Relaton::Iec::ItemData
+      expect(items[1]).to be_instance_of Relaton::Iso::ItemData
     end
 
     context "search for text" do
@@ -415,23 +411,23 @@ RSpec.describe Relaton::Db do
 
   context "#fetch" do
     it "doesn't use cache" do
-      docid = RelatonBib::DocumentIdentifier.new id: "ISO 19115-1", type: "ISO"
-      item = RelatonIsoBib::IsoBibliographicItem.new docid: [docid]
-      expect(RelatonIso::IsoBibliography).to receive(:get).with("ISO 19115-1", nil, {}).and_return item
+      docid = Relaton::Bib::Docidentifier.new content: "ISO 19115-1", type: "ISO"
+      item = Relaton::Iso::ItemData.new docid: [docid]
+      expect(Relaton::Iso::Bibliography).to receive(:get).with("ISO 19115-1", nil, {}).and_return item
       bib = subject.fetch("ISO 19115-1", nil, {})
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      expect(bib).to be_instance_of Relaton::Iso::ItemData
     end
 
     it "when no local db", vcr: "iso_19115_1" do
       db = Relaton::Db.new "testcache", nil
       bib = db.fetch("ISO 19115-1", nil, {})
-      expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+      expect(bib).to be_instance_of Relaton::Iso::ItemData
     end
 
     it "document with net retries" do
       expect(subject.instance_variable_get(:@registry).processors[:relaton_ietf]).to receive(:get)
-        .and_raise(RelatonBib::RequestError).exactly(3).times
-      expect { subject.fetch "RFC 8341", nil, retries: 3 }.to raise_error RelatonBib::RequestError
+        .and_raise(Relaton::RequestError).exactly(3).times
+      expect { subject.fetch "RFC 8341", nil, retries: 3 }.to raise_error Relaton::RequestError
     end
 
     it "strip reference" do
@@ -441,14 +437,14 @@ RSpec.describe Relaton::Db do
 
     it "BIPM Meeting", vcr: "cipm_meeting_43" do
       bib = subject.fetch("CIPM Meeting 43")
-      expect(bib).to be_instance_of RelatonBipm::BipmBibliographicItem
+      expect(bib).to be_instance_of Relaton::Bipm::ItemData
     end
   end
 
   it "fetch std", vcr: "iso_19115_1_std" do
     db = Relaton::Db.new "testcache", nil
     bib = db.fetch_std("ISO 19115-1", nil, :relaton_iso, {})
-    expect(bib).to be_instance_of RelatonIsoBib::IsoBibliographicItem
+    expect(bib).to be_instance_of Relaton::Iso::ItemData
   end
 
   context "async fetch" do
@@ -491,10 +487,10 @@ RSpec.describe Relaton::Db do
     end
 
     it "handle HTTP request error" do
-      expect(subject).to receive(:fetch).and_raise RelatonBib::RequestError
+      expect(subject).to receive(:fetch).and_raise Relaton::RequestError
       subject.fetch_async("ISO REF") { |r| queue << r }
       result = Timeout.timeout(5) { queue.pop }
-      expect(result).to be_instance_of RelatonBib::RequestError
+      expect(result).to be_instance_of Relaton::RequestError
     end
 
     it "handle other errors" do
