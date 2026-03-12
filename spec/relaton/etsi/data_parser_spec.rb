@@ -132,11 +132,6 @@ describe Relaton::Etsi::DataParser do
       end
     end
 
-    it "#id" do
-      expect(row).to receive(:[]).with("ETSI deliverable").and_return "ETSI EN 319 532-4 V1.3.0 (2023-10)"
-      expect(subject.id).to eq "ETSIEN319532-4V1.3.02023-10"
-    end
-
     it "#pubid" do
       expect(row).to receive(:[]).with("ETSI deliverable").and_return "ETSI EN 319 532-4 V1.3.0 (2023-10)"
       pubid = subject.pubid

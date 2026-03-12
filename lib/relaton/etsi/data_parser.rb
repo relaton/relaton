@@ -3,7 +3,7 @@ module Relaton
   module Etsi
     class DataParser
       ATTRS = %i[
-        id title docnumber source date docidentifier version status contributor
+        title docnumber source date docidentifier version status contributor
         keyword ext abstract language script
       ].freeze
 
@@ -20,10 +20,6 @@ module Relaton
 
       def pubid
         @pubid ||= PubId.parse(@row["ETSI deliverable"])
-      end
-
-      def id
-        @row["ETSI deliverable"].gsub(/[\s()]/, "")
       end
 
       def title
