@@ -1,4 +1,4 @@
-require "relaton/core"
+require "relaton/core/processor"
 
 module Relaton
   module Iho

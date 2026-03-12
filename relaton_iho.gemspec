@@ -23,5 +23,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency "base64"
   s.add_dependency "relaton-bib", "~> 2.0.0-alpha.2"
+  s.add_dependency "relaton-core", "~> 0.0.7"
   s.add_dependency "relaton-index", "~> 0.2.0"
 end

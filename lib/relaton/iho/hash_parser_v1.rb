@@ -5,6 +5,7 @@ module Relaton
   module Iho
     module HashParserV1
       include Core::ArrayWrapper
+      include Core::DateParser
       include Bib::HashParserV1
       extend self
 
