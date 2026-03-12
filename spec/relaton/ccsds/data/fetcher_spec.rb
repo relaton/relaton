@@ -168,7 +168,7 @@ describe Relaton::Ccsds::DataFetcher do
       context "when new item have different link type" do
         let(:yaml) do
           {
-            "docidentifier" => [{ "type" => "CCSDS", "id" => "CCSDS 123.0-B-1" }],
+            "docidentifier" => [{ "type" => "CCSDS", "content" => "CCSDS 123.0-B-1" }],
             "source" => [{ "type" => "doc", "content" => "http://www.example.com/CCSDS-123-0-B-1.pdf" }],
         }.to_yaml
         end
