@@ -130,7 +130,7 @@ RSpec.describe Relaton::Cli::SubcommandDb do
 
       context "return BibTex" do
         it do
-          out = "@manual{ISOTC211, tile = {Geographic information}}"
+          out = "@manual{ISO55000, tile = {Geographic information}}"
           bib = double "BibItem", to_bibtex: out
           expect(io).to receive(:puts).with(out)
           expect(db).to receive(:fetch_all) do |arg|

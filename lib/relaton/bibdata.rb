@@ -13,7 +13,7 @@ module Relaton
     end
 
     def docidentifier
-      @bibitem.docidentifier.first&.content
+      @bibitem.docidentifier.first&.content&.to_s
     end
 
     # def doctype

@@ -95,6 +95,8 @@ RSpec.describe "Relaton Fetch" do
 
     context do
       let(:io) { double "IO" }
+      let(:tmpdir) { Dir.mktmpdir("relaton_test_cache") }
+
       before (:each) do
         RSpec::Mocks.space.proxy_for(IO).reset
         expect(IO).to receive(:new) do |arg1, arg2, &block|
@@ -103,10 +105,19 @@ RSpec.describe "Relaton Fetch" do
           end
         end.at_most(2).times
 
+        # Isolate from global cache by using a fresh DB in a temp directory
+        Relaton::Cli::RelatonDb.instance.instance_variable_set(:@db, nil)
+        Relaton::Cli.relaton(tmpdir)
+
         # Force to download index file
         require "relaton/index"
         allow_any_instance_of(Relaton::Index::Type).to receive(:actual?).and_return(false)
         allow_any_instance_of(Relaton::Index::FileIO).to receive(:check_file).and_return(nil)
+      end
+
+      after(:each) do
+        Relaton::Cli::RelatonDb.instance.instance_variable_set(:@db, nil)
+        FileUtils.remove_entry(tmpdir)
       end
 
       it "calls fetch and return XML" do
