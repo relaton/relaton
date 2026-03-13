@@ -90,7 +90,7 @@ describe Relaton::Bipm::DataFetcher do
 
       it "bibxml" do
         subject.instance_variable_set(:@format, "bibxml")
-        expect(subject.serialize(item)).to include "<reference>"
+        expect(subject.serialize(item)).to include '<reference anchor="1234">'
       end
     end
   end
