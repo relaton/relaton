@@ -114,7 +114,7 @@ describe Relaton::Etsi::DataFetcher do
 
       it "bibxml" do
         subject.instance_variable_set :@format, "bibxml"
-        expect(subject.serialize(item)).to include "<reference>"
+        expect(subject.serialize(item)).to include '<reference anchor="ETSI.A/12.ed.1.(2019-10)">'
       end
     end
   end
