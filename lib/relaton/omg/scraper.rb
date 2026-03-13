@@ -40,7 +40,6 @@ module Relaton
 
       def item
         {
-          id: fetch_id,
           fetched: ::Date.today.to_s,
           docidentifier: fetch_docid,
           title: fetch_title,
@@ -53,10 +52,6 @@ module Relaton
           keyword: fetch_keyword,
           license: fetch_license,
         }
-      end
-
-      def fetch_id
-        "#{@acronym}#{doc_version}#{@spec}"
       end
 
       def fetch_title
