@@ -12,7 +12,7 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
                        "bibliographic use using the BibliographicItem model"
   spec.homepage      = "https://github.com/relaton/relaton-bipm"
   spec.license       = "BSD-2-Clause"
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.7.0")
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.2.0")
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
 
@@ -35,8 +35,8 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   spec.add_dependency "faraday", "~> 2.7.0"
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "parslet", "~> 2.0.0"
-  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.2"
+  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.4"
   spec.add_dependency "relaton-index", "~> 0.2.2"
-  spec.add_dependency "relaton-core", "~> 0.0.4"
+  spec.add_dependency "relaton-core", "~> 0.0.8"
   spec.add_dependency "rubyzip", "~> 2.3.0"
 end
