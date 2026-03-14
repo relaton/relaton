@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
                        "use using the BibliographicItem model"
   spec.homepage      = "https://github.com/metanorma/relaton-bsi"
   spec.license       = "BSD-2-Clause"
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.7.0")
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.2.0")
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
@@ -33,6 +33,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "faraday-net_http_persistent", "~> 2.0"
   spec.add_dependency "graphql", "~> 2.3"
   spec.add_dependency "graphql-client", "~> 0.23"
-  spec.add_dependency "relaton-core", "~> 0.0.6"
-  spec.add_dependency "relaton-iso", "~> 2.0.0-alpha.1"
+  spec.add_dependency "relaton-core", "~> 0.0.9"
+  spec.add_dependency "relaton-iso", "~> 2.0.0-alpha.2"
 end
