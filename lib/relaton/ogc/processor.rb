@@ -1,3 +1,5 @@
+require "relaton/core/processor"
+
 module Relaton
   module Ogc
     class Processor < Core::Processor
