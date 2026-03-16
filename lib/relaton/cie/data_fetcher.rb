@@ -55,7 +55,7 @@ module Relaton
       end
 
       def primary_code(code, doc = nil)
-        /^(?<code1>[^(]+)(?:\((?<code2>\w+\d+,(?:\sPages)?[^)]+))?/ =~ code
+        /^(?<code1>[^(]+)(?:\((?<code2>[a-zA-Z]+\d+,(?:\sPages)?[^)]+))?/ =~ code
         if code1&.match?(/^CIE/)
           parse_cie_code code1, code2, doc
         elsif (pcode = doc&.at('//h3[.="Product Code(s):"]/following-sibling::span'))
