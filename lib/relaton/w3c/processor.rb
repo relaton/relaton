@@ -1,5 +1,4 @@
-require "relaton/core"
-require_relative "../w3c"
+require "relaton/core/processor"
 
 module Relaton
   module W3c
@@ -15,6 +14,7 @@ module Relaton
       end
 
       def get(code, date, opts)
+        require_relative "../w3c"
         Bibliography.get(code, date, opts)
       end
 
@@ -24,18 +24,22 @@ module Relaton
       end
 
       def from_xml(xml)
+        require_relative "../w3c"
         Item.from_xml(xml)
       end
 
       def from_yaml(yaml)
+        require_relative "../w3c"
         Item.from_yaml(yaml)
       end
 
       def grammar_hash
+        require_relative "../w3c"
         @grammar_hash ||= Relaton::W3c.grammar_hash
       end
 
       def remove_index_file
+        require_relative "../w3c"
         Relaton::Index.find_or_create(
           :W3C, url: true, file: "#{INDEXFILE}.yaml"
         ).remove_file
