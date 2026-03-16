@@ -467,7 +467,7 @@ RSpec.describe Relaton::Cie::DataFetcher do
 
       it "retry" do
         block = spy "block"
-        expect(block).to receive(:call).and_raise Socket::ResolutionError
+        expect(block).to receive(:call).and_raise SocketError
         expect(block).to receive(:call).and_return :result
         result = subject.time_req { block.call }
         expect(result).to eq :result
@@ -475,8 +475,8 @@ RSpec.describe Relaton::Cie::DataFetcher do
 
       it "raise error" do
         expect do
-          subject.time_req { raise Socket::ResolutionError }
-        end.to raise_error(Socket::ResolutionError)
+          subject.time_req { raise SocketError }
+        end.to raise_error(SocketError)
       end
     end
   end

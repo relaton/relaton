@@ -245,7 +245,7 @@ module Relaton
           tries += 1
           sleep [4 - (Time.now - @last_request_time).to_i, 0].max if @last_request_time
           yield
-        rescue Socket::ResolutionError => e
+        rescue SocketError => e
           retry if tries < 4
           raise e
         ensure
