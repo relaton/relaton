@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
   DESCRIPTION
   spec.homepage      = "https://github.com/metanorma/relaton-cie"
   spec.license       = "BSD-2-Clause"
-  spec.required_ruby_version = Gem::Requirement.new(">= 2.7.0")
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.2.0")
 
   spec.metadata["homepage_uri"] = spec.homepage
 
@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "parslet", "~> 2.0.0"
-  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.2"
-  spec.add_dependency "relaton-core", "~> 0.0.6"
+  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.4"
+  spec.add_dependency "relaton-core", "~> 0.0.9"
   spec.add_dependency "relaton-index", "~> 0.2.0"
 end
