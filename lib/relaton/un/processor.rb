@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../un"
+require "relaton/core/processor"
 
 module Relaton
   module Un
@@ -15,18 +15,22 @@ module Relaton
       end
 
       def get(code, date, opts)
+        require_relative "../un"
         Bibliography.get(code, date, opts)
       end
 
       def from_xml(xml)
+        require_relative "../un"
         Bibdata.from_xml(xml)
       end
 
       def from_yaml(yaml)
+        require_relative "../un"
         Item.from_yaml(yaml)
       end
 
       def grammar_hash
+        require_relative "../un"
         @grammar_hash ||= Relaton::Un.grammar_hash
       end
     end

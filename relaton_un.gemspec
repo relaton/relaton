@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
                        "use using the IsoBibliographicItem model"
   spec.homepage      = "https://github.com/relaton/relaton-un"
   spec.license       = "BSD-2-Clause"
-  spec.required_ruby_version = Gem::Requirement.new(">= 3.1.0")
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.2.0")
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
@@ -34,8 +34,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "addressable", "~> 2.8.0"
   spec.add_dependency "faraday", "~> 2.7"
-  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.1"
+  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.4"
+  spec.add_dependency "relaton-core", "~> 0.0.9"
   spec.add_dependency "wasmtime", "~> 41.0"
-  # spec.add_dependency "unf_ext", ">= 0.0.7.7"
 end
 # rubocop:enable Metrics/BlockLength
