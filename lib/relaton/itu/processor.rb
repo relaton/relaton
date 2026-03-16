@@ -16,6 +16,7 @@ module Relaton
       # @param opts [Hash]
       # @return [Relaton::Itu::ItemData, nil]
       def get(code, date, opts)
+        require_relative "../itu"
         Bibliography.get(code, date, opts)
       end
 
@@ -35,18 +36,21 @@ module Relaton
       # @param xml [String]
       # @return [Relaton::Itu::ItemData]
       def from_xml(xml)
+        require_relative "../itu"
         Item.from_xml xml
       end
 
       # @param yaml [Hash]
       # @return [Relaton::Itu::ItemData]
       def from_yaml(yaml)
+        require_relative "../itu"
         Item.from_yaml yaml
       end
 
       # Returns hash of XML grammar
       # @return [String]
       def grammar_hash
+        require_relative "../itu"
         @grammar_hash ||= Itu.grammar_hash
       end
 
@@ -54,6 +58,7 @@ module Relaton
       # Remove index file
       #
       def remove_index_file
+        require_relative "../itu"
         Relaton::Index.find_or_create(:itu, url: true, file: "#{INDEXFILE}.yaml").remove_file
       end
     end
