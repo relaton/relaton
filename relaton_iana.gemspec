@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description   = "Relaton::Iana: Ruby XMLDOC impementation."
   spec.homepage      = "https://github.com/relaton/relaton-iana"
   spec.license       = "BSD-2-Clause"
-  spec.required_ruby_version = ">= 3.1.0"
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.2.0")
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to 'https://mygemserver.com'"
 
@@ -31,8 +31,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "faraday", "~> 2.7.0"
-  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.1"
-  spec.add_dependency "relaton-core", "~> 0.0.7"
+  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.4"
+  spec.add_dependency "relaton-core", "~> 0.0.9"
   spec.add_dependency "relaton-index", "~> 0.2.0"
 
   # Uncomment to register a new dependency of your gem
