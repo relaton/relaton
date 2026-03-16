@@ -1,6 +1,14 @@
 # frozen_string_literal: true
 
 RSpec.describe Relaton::Oasis do
+  before do |example|
+    next unless example.metadata[:vcr]
+
+    # Force to download index file
+    allow_any_instance_of(Relaton::Index::Type).to receive(:actual?).and_return(false)
+    allow_any_instance_of(Relaton::Index::FileIO).to receive(:check_file).and_return(nil)
+  end
+
   it "has a version number" do
     expect(Relaton::Oasis::VERSION).not_to be_nil
   end
