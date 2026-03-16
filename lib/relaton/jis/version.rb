@@ -2,6 +2,6 @@
 
 module Relaton
   module Jis
-    VERSION = "2.0.0.aplha.1"
+    VERSION = "2.0.0-alpha.1"
   end
 end
