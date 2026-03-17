@@ -18,7 +18,10 @@ module Relaton
       # Tokens are cached per-minute since the WASM output changes each minute.
       # @return [String] decimal string representation of the i64 token
       def self.generate
-        raise LoadError, "wasmtime gem is not available on this platform" unless WASMTIME_AVAILABLE
+        unless WASMTIME_AVAILABLE
+          warn "[relaton-un] wasmtime gem is not available on this platform. Token generation is disabled."
+          return nil
+        end
 
         now = Time.now.utc
         key = [now.year, now.month, now.day, now.hour, now.min]
