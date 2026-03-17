@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
-require "wasmtime"
+begin
+  require "wasmtime"
+  WASMTIME_LOADED = true
+rescue LoadError
+  WASMTIME_LOADED = false
+end
 
 module Relaton
   module Un
     module TokenGenerator
+      WASMTIME_AVAILABLE = WASMTIME_LOADED
       WASM_PATH = File.join(__dir__, "wasm_v_bg.wasm")
       DOMAIN = "documents.un.org"
 
@@ -12,6 +18,8 @@ module Relaton
       # Tokens are cached per-minute since the WASM output changes each minute.
       # @return [String] decimal string representation of the i64 token
       def self.generate
+        raise LoadError, "wasmtime gem is not available on this platform" unless WASMTIME_AVAILABLE
+
         now = Time.now.utc
         key = [now.year, now.month, now.day, now.hour, now.min]
         return @cached_token if @cached_key == key && @cached_token

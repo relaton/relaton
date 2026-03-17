@@ -2,7 +2,10 @@ require "relaton/un/token_generator"
 
 describe Relaton::Un::TokenGenerator do
   describe ".generate" do
-    before { described_class.instance_variable_set(:@cached_token, nil) }
+    before do
+      skip "wasmtime not available" unless Relaton::Un::TokenGenerator::WASMTIME_AVAILABLE
+      described_class.instance_variable_set(:@cached_token, nil)
+    end
 
     it "returns a decimal string" do
       token = described_class.generate
