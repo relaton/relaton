@@ -248,6 +248,7 @@ RSpec.describe Relaton::Db do
   # end
 
   it "get W3C reference" do
+    require "relaton/w3c"
     docid = Relaton::Bib::Docidentifier.new(content: "W3C REC-json-ld11-20200716", type: "W3C")
     item = Relaton::W3c::ItemData.new docidentifier: [docid]
     expect(Relaton::W3c::Bibliography).to receive(:get).with("W3C REC-json-ld11-20200716", nil, {}).and_return item
@@ -362,6 +363,7 @@ RSpec.describe Relaton::Db do
   end
 
   it "get XSF reference" do
+    require "relaton/xsf"
     docid = Relaton::Bib::Docidentifier.new(content: "XEP 0001", type: "XSF")
     item = Relaton::Bib::ItemData.new docidentifier: [docid]
     expect(Relaton::Xsf::Bibliography).to receive(:get).with("XEP 0001", nil, {}).and_return item

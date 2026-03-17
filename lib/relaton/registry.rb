@@ -27,7 +27,7 @@ module Relaton
 
       SUPPORTED_GEMS.each do |b|
         require "#{b}/processor"
-        register Kernel.const_get "#{camel_case(b)}::Processor"
+        register Kernel.const_get "#{gem_to_module_path(b)}::Processor"
       rescue LoadError => e
         Util.error "backend #{b} not present\n#{e.message}\n#{e.backtrace.join "\n"}"
       end
@@ -106,9 +106,9 @@ module Relaton
 
     private
 
-    def camel_case(gem_name)
+    def gem_to_module_path(gem_name)
       gem_name.split("/").map do |part|
-        part.split("_").map(&:capitalize).join.sub("3gpp", "ThreeGpp")
+        part.capitalize.sub("3gpp", "ThreeGpp")
       end.join("::")
     end
   end
