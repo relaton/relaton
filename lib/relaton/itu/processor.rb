@@ -1,4 +1,4 @@
-require_relative "../itu"
+require "relaton/core/processor"
 
 module Relaton
   module Itu
