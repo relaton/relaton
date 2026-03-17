@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
                      "using the IsoBibliographicItem model"
   spec.homepage = "https://github.com/relaton/relaton-xsf"
   spec.license = "BSD-2-Clause"
-  spec.required_ruby_version = ">= 3.1.0"
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.2.0")
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
@@ -37,8 +37,8 @@ Gem::Specification.new do |spec|
   # spec.add_dependency "example-gem", "~> 1.0"
 
   spec.add_dependency "mechanize", "~> 2.10"
-  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.2"
-  spec.add_dependency "relaton-core", "~> 0.0.7"
+  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.4"
+  spec.add_dependency "relaton-core", "~> 0.0.9"
   spec.add_dependency "relaton-index", "~> 0.2.0"
 
   # For more information and examples about making a new gem, check out our

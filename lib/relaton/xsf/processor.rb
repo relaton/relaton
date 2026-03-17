@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require_relative "../xsf"
+require "relaton/core/processor"
 
 module Relaton
   module Xsf
@@ -15,6 +15,7 @@ module Relaton
       end
 
       def get(code, date, opts)
+        require_relative "../xsf"
         Relaton::Xsf::Bibliography.get(code, date, opts)
       end
 
@@ -24,18 +25,22 @@ module Relaton
       end
 
       def from_xml(xml)
+        require_relative "../xsf"
         Relaton::Bib::Item.from_xml(xml)
       end
 
       def from_yaml(yaml)
+        require_relative "../xsf"
         Relaton::Bib::Item.from_yaml(yaml)
       end
 
       def grammar_hash
+        require_relative "../xsf"
         Relaton::Xsf.grammar_hash
       end
 
       def remove_index_file
+        require_relative "../xsf"
         Relaton::Index.find_or_create(
           :xsf, url: true, file: "#{INDEXFILE}.yaml"
         ).remove_file
