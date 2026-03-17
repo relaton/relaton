@@ -13,6 +13,8 @@ http_interactions:
       - "*/*"
       User-Agent:
       - Ruby
+      Host:
+      - raw.githubusercontent.com
   response:
     status:
       code: 200
@@ -39,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - B43E:33E2D4:69774A:7F4BE2:69AC4C85
+      - AFFC:98DF1:76482:8C2CF:69B9B043
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 07 Mar 2026 16:04:48 GMT
+      - Tue, 17 Mar 2026 19:49:39 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-pdk-kpdk2140088-PDK
+      - cache-iad-kjyo7100123-IAD
       X-Cache:
       - HIT
       X-Cache-Hits:
       - '1'
       X-Timer:
-      - S1772899488.066620,VS0,VE6
+      - S1773776980.887444,VS0,VE1
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -61,11 +63,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 631d4c4341ce12693ad9cc6b57f1a4b80e9b0ed5
+      - 8f96b2b92b52a0389644e3a9ffdb852ba3e0166c
       Expires:
-      - Sat, 07 Mar 2026 16:09:48 GMT
+      - Tue, 17 Mar 2026 19:54:39 GMT
       Source-Age:
-      - '25'
+      - '16'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -1412,7 +1414,7 @@ http_interactions:
         D/S/fv7lcnPv/x9QSwECHgMUAAAACADDaURbG8HWp1DrAABsEAwADQAYAAAA
         AAABAAAApIEAAAAAaW5kZXgtdjEueWFtbFVUBQAD3VXhaHV4CwABBPUBAAAE
         FAAAAFBLBQYAAAAAAQABAFMAAACX6wAAAAA=
-  recorded_at: Sat, 07 Mar 2026 16:04:48 GMT
+  recorded_at: Tue, 17 Mar 2026 19:49:40 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/data-v2/static/jcgm/gum.yaml
@@ -1460,23 +1462,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 8E2D:39BFCF:12C1CE:16954D:69AC4CA0
+      - AC48:3B5C16:77F31:8D8B8:69B9B053
       Content-Encoding:
       - gzip
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 07 Mar 2026 16:04:49 GMT
+      - Tue, 17 Mar 2026 19:49:40 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-pdk-kpdk2140072-PDK
+      - cache-iad-kcgs7200068-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1772899489.947560,VS0,VE56
+      - S1773776980.458168,VS0,VE65
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -1484,9 +1486,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 95b96c2122216d0a7224c220c42a5ff23707a434
+      - 16147705319b122c02d4ad309b57189482b9e6e2
       Expires:
-      - Sat, 07 Mar 2026 16:09:49 GMT
+      - Tue, 17 Mar 2026 19:54:40 GMT
       Source-Age:
       - '0'
     body:
@@ -1514,5 +1516,5 @@ http_interactions:
         c4tFB366gEZlXQnX2fJ+i7nopcJlLJX8B9VxLBQh1Az6aYtcLqz25hmE7kDO
         waFg+KoJubolhRHlvbd8fFCEpw+75//7I4DEEFarZV4VpwcvZujWq9I5r+qH
         FWR1URkHxfLN9eCoOKC84oXzIZQbxX8Y2KiYQ7H8L5VBWqapEQAA
-  recorded_at: Sat, 07 Mar 2026 16:04:49 GMT
-recorded_with: VCR 6.3.1
+  recorded_at: Tue, 17 Mar 2026 19:49:40 GMT
+recorded_with: VCR 6.4.0
