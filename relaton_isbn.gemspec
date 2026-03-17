@@ -12,7 +12,7 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
                       "bibliographic use using the BibliographicItem model"
   spec.homepage = "https://github.com/relaton/relaton-isbn"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 3.1.0"
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.2.0")
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
@@ -35,8 +35,8 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   # Uncomment to register a new dependency of your gem
   spec.add_dependency "isoics", "~> 0.1.0"
   # spec.add_dependency "psych", "~> 5.2.0"
-  spec.add_dependency "relaton-bib", "~> 2.0.0.alpha.1"
-  spec.add_dependency "relaton-core", ">= 0"
+  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.4"
+  spec.add_dependency "relaton-core", "~> 0.0.9"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
