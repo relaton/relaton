@@ -33,7 +33,8 @@ module Relaton
     end
 
     ##
-    # The class of reference requested is determined by the prefix of the reference:
+    # The class of reference requested is determined by the prefix
+    # of the reference:
     # GB Standard for gbbib, IETF for ietfbib, ISO for isobib, IEC or IEV for
     #   iecbib,
     #
@@ -103,8 +104,10 @@ module Relaton
     # @param [String] year document yer
     # @param [Hash] opts options
     #
-    # @return [RelatonBib::BibliographicItem, RelatonBib::RequestError, nil] bibitem if document is found,
-    #   request error if server doesn't answer, nil if document not found
+    # @return [RelatonBib::BibliographicItem,
+    #   RelatonBib::RequestError, nil] bibitem if document is
+    #   found, request error if server doesn't answer,
+    #   nil if document not found
     #
     def fetch_async(ref, year = nil, opts = {}, &block) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       stdclass = @registry.class_by_ref ref
@@ -120,7 +123,8 @@ module Relaton
             Util.error "`#{args[0]}` -- #{e.message}"
             args[3].call nil
           end
-          @queues[stdclass] = { queue: SizedQueue.new(threads * 2), workers_pool: wp }
+          @queues[stdclass] =
+            { queue: SizedQueue.new(threads * 2), workers_pool: wp }
           Thread.new { process_queue @queues[stdclass] }
         end
         @queues[stdclass][:queue] << [ref, year, opts, block]
@@ -193,7 +197,8 @@ module Relaton
     # @param (see #fetch_api)
     # @return (see #fetch_api)
     def fetch_doc(code, year, opts, processor)
-      if Relaton.configuration.use_api then fetch_api(code, year, opts, processor)
+      if Relaton.configuration.use_api then fetch_api(code, year, opts,
+                                                      processor)
       else processor.get(code, year, opts)
       end
     end
@@ -210,7 +215,8 @@ module Relaton
     # @param processor [Relaton::Processor]
     # @return [RelatonBib::BibliographicItem, nil]
     def fetch_api(code, year, opts, processor)
-      url = "#{Relaton.configuration.api_host}/api/v1/document?#{params(code, year, opts)}"
+      url = "#{Relaton.configuration.api_host}" \
+            "/api/v1/document?#{params(code, year, opts)}"
       rsp = Net::HTTP.get_response URI(url)
       processor.from_xml rsp.body if rsp.code == "200"
     rescue Errno::ECONNREFUSED
@@ -253,7 +259,9 @@ module Relaton
              else processor.from_yaml(content)
              end
       item if (edition.nil? || item.edition.content == edition) && (year.nil? ||
-        item.date.detect { |d| d.type == "published" && d.at.to_date.year.to_s == year.to_s })
+        item.date.detect do |d|
+          d.type == "published" && d.at.to_date.year.to_s == year.to_s
+        end)
     end
 
     #
@@ -265,7 +273,11 @@ module Relaton
     # @return [Boolean]
     #
     def match_xml_text?(xml, text)
-      %r{((?<attr>=((?<apstr>')|"))|>).*?#{text}.*?(?(<attr>)(?(<apstr>)'|")|<)}mi.match?(xml)
+      pattern = /
+        ((?<attr>=((?<apstr>')|"))|>).*?#{text}
+        .*?(?(<attr>)(?(<apstr>)'|")|<)
+      /mix
+      pattern.match?(xml)
     end
 
     # @param code [String]
@@ -292,7 +304,8 @@ module Relaton
       else return
       end
 
-      doc = @registry[stdclass].from_yaml({ docidentifier: [{ content: code }] }.to_yaml)
+      yaml = { docidentifier: [{ content: code }] }.to_yaml
+      doc = @registry[stdclass].from_yaml(yaml)
       ref = refs[0]
       updates = check_bibliocache(refs[0], year, opts, stdclass)
       if updates
@@ -327,12 +340,10 @@ module Relaton
       ret = code
       ret += (stdclass == :relaton_gb ? "-" : ":") + year if year
       ret += " (all parts)" if opts[:all_parts]
-      if opts[:publication_date_after]
-        ret += " after-#{opts[:publication_date_after]}"
-      end
-      if opts[:publication_date_before]
-        ret += " before-#{opts[:publication_date_before]}"
-      end
+      after = opts[:publication_date_after]
+      ret += " after-#{after}" if after
+      before = opts[:publication_date_before]
+      ret += " before-#{before}" if before
       ["#{prefix}(#{ret.strip})", code]
     end
 
@@ -458,7 +469,9 @@ module Relaton
     #
     def new_bib_entry(code, year, opts, stdclass, **args)
       entry = @semaphore.synchronize { args[:db] && args[:db][args[:id]] }
-      return fetch_entry(code, year, opts, stdclass, **args) if !entry || opts[:no_cache]
+      if !entry || opts[:no_cache]
+        return fetch_entry(code, year, opts, stdclass, **args)
+      end
 
       if entry&.match?(/^not_found/)
         Util.info "not found in cache, if you wish to " \
@@ -481,7 +494,8 @@ module Relaton
 
     #
     # If the reference isn't equal to the document identifier
-    # then store the document in the cache and create for the reference a redirection to the document
+    # then store the document in the cache and create
+    # for the reference a redirection to the document
     #
     # @param [<Type>] bib <description>
     # @param [<Type>] stdclass <description>
@@ -493,7 +507,9 @@ module Relaton
       bib_id = bib && bib.docidentifier.first&.content
 
       # when ref isn't equal to bib's id then return a redirection to bib's id
-      if args[:db] && args[:id] && bib_id && args[:id] !~ %r{#{Regexp.quote("(#{bib_id})")}}
+      quoted = Regexp.quote("(#{bib_id})")
+      if args[:db] && args[:id] && bib_id &&
+          args[:id] !~ /#{quoted}/
         bid = std_id(bib.docidentifier.first.content, nil, {}, stdclass).first
         @semaphore.synchronize { args[:db][bid] ||= bib_entry bib }
         "redirection #{bid}"
@@ -534,7 +550,11 @@ module Relaton
     #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     # @return [String] XML or "not_found mm-dd-yyyy"
     def bib_entry(bib)
-      bib.respond_to?(:to_xml) ? bib.to_xml(bibdata: true) : "not_found #{Date.today}"
+      if bib.respond_to?(:to_xml)
+        bib.to_xml(bibdata: true)
+      else
+        "not_found #{Date.today}"
+      end
     end
 
     # Check if an XML entry's published date falls within the requested range.

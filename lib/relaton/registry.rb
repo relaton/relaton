@@ -6,11 +6,13 @@ require "singleton"
 module Relaton
   class Registry
     SUPPORTED_GEMS = %w[
-      relaton/gb relaton/iec relaton/ietf relaton/iso relaton/itu relaton/nist
-      relaton/ogc relaton/calconnect relaton/omg relaton/un relaton/w3c
-      relaton/ieee relaton/iho relaton/bipm relaton/ecma relaton/cie relaton/bsi
-      relaton/cen relaton/iana relaton/3gpp relaton/oasis relaton/doi relaton/jis
-      relaton/xsf relaton/ccsds relaton/etsi relaton/isbn relaton/plateau
+      relaton/gb relaton/iec relaton/ietf relaton/iso
+      relaton/itu relaton/nist relaton/ogc relaton/calconnect
+      relaton/omg relaton/un relaton/w3c relaton/ieee
+      relaton/iho relaton/bipm relaton/ecma relaton/cie
+      relaton/bsi relaton/cen relaton/iana relaton/3gpp
+      relaton/oasis relaton/doi relaton/jis relaton/xsf
+      relaton/ccsds relaton/etsi relaton/isbn relaton/plateau
     ].freeze
 
     include Singleton
@@ -29,7 +31,8 @@ module Relaton
         require "#{b}/processor"
         register Kernel.const_get "#{gem_to_module_path(b)}::Processor"
       rescue LoadError => e
-        Util.error "backend #{b} not present\n#{e.message}\n#{e.backtrace.join "\n"}"
+        Util.error "backend #{b} not present\n" \
+                   "#{e.message}\n#{e.backtrace.join "\n"}"
       end
     end
 
@@ -95,7 +98,7 @@ module Relaton
     # @return [Symbol, nil] standard class name
     #
     def class_by_ref(ref)
-      ref = ref =~ /^\w+\((.*)\)$/ ? Regexp.last_match(1) : ref
+      ref = Regexp.last_match(1) if ref =~ /^\w+\((.*)\)$/
       @processors.each do |class_name, processor|
         return class_name if /^(urn:)?#{processor.prefix}\b/i.match?(ref) ||
           processor.defaultprefix.match(ref)

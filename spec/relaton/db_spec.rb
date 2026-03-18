@@ -6,8 +6,10 @@ RSpec.describe Relaton::Db do
     if example.metadata[:vcr]
       # Force to download index file
       require "relaton/index"
-      allow_any_instance_of(Relaton::Index::Type).to receive(:actual?).and_return(false)
-      allow_any_instance_of(Relaton::Index::FileIO).to receive(:check_file).and_return(nil)
+      allow_any_instance_of(Relaton::Index::Type)
+        .to receive(:actual?).and_return(false)
+      allow_any_instance_of(Relaton::Index::FileIO)
+        .to receive(:check_file).and_return(nil)
     end
   end
 
@@ -16,8 +18,10 @@ RSpec.describe Relaton::Db do
   context "instance methods" do
     context "#search_edition_year" do
       it "create bibitem from YAML content" do
-        h = { "docid" => [{ "id" => "ISO 123", type: "ISO", "primary" => true }] }
-        item = subject.send :search_edition_year, "iso/item.yaml", h.to_yaml, nil, nil
+        h = { "docid" => [{ "id" => "ISO 123", type: "ISO",
+                            "primary" => true }] }
+        item = subject.send :search_edition_year, "iso/item.yaml", h.to_yaml,
+                            nil, nil
         expect(item).to be_instance_of Relaton::Iso::ItemData
       end
     end
@@ -31,18 +35,24 @@ RSpec.describe Relaton::Db do
       it "warn if cached entry is not_found" do
         expect do
           expect(subject).to_not receive(:fetch_entry)
-          entry = subject.send :new_bib_entry, "ISO 123", nil, {}, :relaton_iso, db: db, id: "ISO(ISO 123)"
+          entry = subject.send :new_bib_entry, "ISO 123", nil, {},
+                               :relaton_iso, db: db, id: "ISO(ISO 123)"
           expect(entry).to be_nil
-        end.to output("[relaton] INFO: (ISO 123) not found in cache, if you wish " \
-                      "to ignore cache please use `no-cache` option.\n").to_stderr_from_any_process
+        end.to output(
+          "[relaton] INFO: (ISO 123) not found in cache, " \
+          "if you wish to ignore cache please use " \
+          "`no-cache` option.\n",
+        ).to_stderr_from_any_process
       end
 
       it "ignore cache" do
         expect(subject).to receive(:fetch_entry).with(
-          "ISO 123", nil, { no_cache: true }, :relaton_iso, db: db, id: "ISO(ISO 123)",
+          "ISO 123", nil, { no_cache: true }, :relaton_iso,
+          db: db, id: "ISO(ISO 123)"
         ).and_return :entry
         entry = subject.send(
-          :new_bib_entry, "ISO 123", nil, { no_cache: true }, :relaton_iso, db: db, id: "ISO(ISO 123)"
+          :new_bib_entry, "ISO 123", nil, { no_cache: true },
+          :relaton_iso, db: db, id: "ISO(ISO 123)"
         )
         expect(entry).to be :entry
       end
@@ -52,7 +62,8 @@ RSpec.describe Relaton::Db do
       it "retrun nil for BIPM documents" do
         code = double "code"
         expect(code).not_to receive(:split)
-        expect(subject.send(:combine_doc, code, nil, {}, :relaton_bipm)).to be_nil
+        expect(subject.send(:combine_doc, code, nil, {},
+                            :relaton_bipm)).to be_nil
       end
     end
 
@@ -60,19 +71,29 @@ RSpec.describe Relaton::Db do
       let(:db_cache) { double "db_cache" }
 
       before do
-        expect(subject).to receive(:net_retry).with("ISO 123", nil, {}, kind_of(Relaton::Iso::Processor), 1).and_return :bib
+        expect(subject).to receive(:net_retry).with(
+          "ISO 123", nil, {},
+          kind_of(Relaton::Iso::Processor), 1
+        ).and_return :bib
       end
 
       it "using cache" do
-        expect(db_cache).to receive(:[]).with("ISO(ISO 123)").and_return nil
-        expect(db_cache).to receive(:[]=).with("ISO(ISO 123)", :entry)
-        expect(subject).to receive(:check_entry).with(:bib, :relaton_iso, db: db_cache, id: "ISO(ISO 123)").and_return :entry
-        entry = subject.send :fetch_entry, "ISO 123", nil, {}, :relaton_iso, db: db_cache, id: "ISO(ISO 123)"
+        expect(db_cache).to receive(:[]).with("ISO(ISO 123)")
+          .and_return nil
+        expect(db_cache).to receive(:[]=)
+          .with("ISO(ISO 123)", :entry)
+        expect(subject).to receive(:check_entry).with(
+          :bib, :relaton_iso,
+          db: db_cache, id: "ISO(ISO 123)"
+        ).and_return :entry
+        entry = subject.send :fetch_entry, "ISO 123", nil, {}, :relaton_iso,
+                             db: db_cache, id: "ISO(ISO 123)"
         expect(entry).to be :entry
       end
 
       it "DbCache is undefined" do
-        expect(subject).to receive(:check_entry).with(:bib, :relaton_iso, **{}).and_return :entry
+        expect(subject).to receive(:check_entry).with(:bib, :relaton_iso,
+                                                      **{}).and_return :entry
         entry = subject.send :fetch_entry, "ISO 123", nil, {}, :relaton_iso
         expect(entry).to be :entry
       end
@@ -83,7 +104,8 @@ RSpec.describe Relaton::Db do
           :bib, :relaton_iso, db: db_cache, id: "ISO(ISO 123)", no_cache: true
         ).and_return :entry
         expect(db_cache).to receive(:[]).with("ISO(ISO 123)").and_return :entry
-        entry = subject.send :fetch_entry, "ISO 123", nil, {}, :relaton_iso, db: db_cache, id: "ISO(ISO 123)", no_cache: true
+        entry = subject.send :fetch_entry, "ISO 123", nil, {}, :relaton_iso,
+                             db: db_cache, id: "ISO(ISO 123)", no_cache: true
         expect(entry).to be :entry
       end
     end
@@ -142,7 +164,8 @@ RSpec.describe Relaton::Db do
       expect(result).to be false
     end
 
-    it "returns false when date is on or after :publication_date_before (exclusive)" do
+    it "returns false when date is on or after " \
+       ":publication_date_before (exclusive)" do
       result = subject.send(
         :pub_date_in_range?, xml_with_date,
         publication_date_before: "2019-06-15"
@@ -222,7 +245,7 @@ RSpec.describe Relaton::Db do
         :relaton_iso
       )
       expect(id).to eq(
-        "ISO(ISO 19115-1 after-2018-01-01 before-2020-12-31)"
+        "ISO(ISO 19115-1 after-2018-01-01 before-2020-12-31)",
       )
       expect(code).to eq "ISO 19115-1"
     end
@@ -241,7 +264,7 @@ RSpec.describe Relaton::Db do
         :relaton_iso
       )
       expect(id).to eq(
-        "ISO(ISO 19115-1:2014 (all parts) after-2014-01-01)"
+        "ISO(ISO 19115-1:2014 (all parts) after-2014-01-01)",
       )
     end
   end
@@ -284,8 +307,10 @@ RSpec.describe Relaton::Db do
     it "::init_bib_caches" do
       expect(FileUtils).to receive(:rm_rf).with(/\/\.relaton\/cache$/)
       expect(FileUtils).to receive(:rm_rf).with(/testcache\/cache$/)
-      expect(Relaton::Db).to receive(:new).with(/\/\.relaton\/cache$/, /testcache\/cache$/)
-      Relaton::Db.init_bib_caches(global_cache: true, local_cache: "testcache", flush_caches: true)
+      expect(Relaton::Db).to receive(:new).with(/\/\.relaton\/cache$/,
+                                                /testcache\/cache$/)
+      Relaton::Db.init_bib_caches(global_cache: true, local_cache: "testcache",
+                                  flush_caches: true)
     end
   end
 
@@ -324,7 +349,9 @@ RSpec.describe Relaton::Db do
       allow(File).to receive(:exist?).and_call_original
       expect do
         expect(db.mv("new_cache_dir")).to be_nil
-      end.to output(/\[relaton\] INFO: target directory exists/).to_stderr_from_any_process
+      end.to output(
+        /\[relaton\] INFO: target directory exists/,
+      ).to_stderr_from_any_process
     end
 
     it "clear" do
@@ -411,9 +438,11 @@ RSpec.describe Relaton::Db do
 
   context "#fetch" do
     it "doesn't use cache" do
-      docid = Relaton::Bib::Docidentifier.new content: "ISO 19115-1", type: "ISO"
+      docid = Relaton::Bib::Docidentifier.new content: "ISO 19115-1",
+                                              type: "ISO"
       item = Relaton::Iso::ItemData.new docid: [docid]
-      expect(Relaton::Iso::Bibliography).to receive(:get).with("ISO 19115-1", nil, {}).and_return item
+      expect(Relaton::Iso::Bibliography).to receive(:get)
+        .with("ISO 19115-1", nil, {}).and_return item
       bib = subject.fetch("ISO 19115-1", nil, {})
       expect(bib).to be_instance_of Relaton::Iso::ItemData
     end
@@ -425,13 +454,18 @@ RSpec.describe Relaton::Db do
     end
 
     it "document with net retries" do
-      expect(subject.instance_variable_get(:@registry).processors[:relaton_ietf]).to receive(:get)
+      registry = subject.instance_variable_get(:@registry)
+      expect(registry.processors[:relaton_ietf]).to receive(:get)
         .and_raise(Relaton::RequestError).exactly(3).times
-      expect { subject.fetch "RFC 8341", nil, retries: 3 }.to raise_error Relaton::RequestError
+      expect do
+        subject.fetch "RFC 8341", nil, retries: 3
+      end.to raise_error Relaton::RequestError
     end
 
     it "strip reference" do
-      expect(subject).to receive(:combine_doc).with("ISO 19115-1", nil, {}, :relaton_iso).and_return :doc
+      expect(subject).to receive(:combine_doc)
+        .with("ISO 19115-1", nil, {}, :relaton_iso)
+        .and_return :doc
       expect(subject.fetch(" ISO 19115-1 ", nil, {})).to be :doc
     end
 
@@ -496,7 +530,9 @@ RSpec.describe Relaton::Db do
     it "handle other errors" do
       expect(subject).to receive(:fetch).and_raise Errno::EACCES
       log_io = Relaton.logger_pool[:default].instance_variable_get(:@logdev)
-      expect(log_io).to receive(:write).with("[relaton] ERROR: `ISO REF` -- Permission denied\n")
+      expect(log_io).to receive(:write).with(
+        "[relaton] ERROR: `ISO REF` -- Permission denied\n",
+      )
       subject.fetch_async("ISO REF") { |r| queue << r }
       result = Timeout.timeout(5) { queue.pop }
       expect(result).to be_nil

@@ -57,4 +57,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "relaton-un", "~> 2.0.0-alpha.1"
   spec.add_dependency "relaton-w3c", "~> 2.0.0-alpha.2"
   spec.add_dependency "relaton-xsf", "~> 2.0.0-alpha.1"
+  spec.metadata["rubygems_mfa_required"] = "true"
 end

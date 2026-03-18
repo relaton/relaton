@@ -14,7 +14,8 @@ RSpec.describe Relaton::Registry do
   end
 
   it "returns supported processors" do
-    expect(Relaton::Registry.instance.supported_processors).to include :relaton_iso
+    processors = Relaton::Registry.instance.supported_processors
+    expect(processors).to include :relaton_iso
   end
 
   context "finds processor by type" do
@@ -72,7 +73,8 @@ RSpec.describe Relaton::Registry do
 
     it "BIPM" do
       expect(Relaton::Registry.instance.by_type("BIPM")).to be_instance_of Relaton::Bipm::Processor
-      expect(Relaton::Registry.instance.processor_by_ref("CCTF")).to be_instance_of Relaton::Bipm::Processor
+      expect(Relaton::Registry.instance.processor_by_ref("CCTF"))
+        .to be_instance_of Relaton::Bipm::Processor
     end
 
     it "ECMA" do
@@ -105,7 +107,8 @@ RSpec.describe Relaton::Registry do
 
     it "DOI" do
       expect(Relaton::Registry.instance.by_type("DOI")).to be_instance_of Relaton::Doi::Processor
-      expect(Relaton::Registry.instance.processor_by_ref("doi:10.1000/182")).to be_instance_of Relaton::Doi::Processor
+      expect(Relaton::Registry.instance.processor_by_ref("doi:10.1000/182"))
+        .to be_instance_of Relaton::Doi::Processor
     end
 
     it "JIS" do
