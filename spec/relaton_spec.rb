@@ -383,6 +383,7 @@ RSpec.describe Relaton::Db do
   end
 
   it "get ISBN reference" do
+    require "relaton/isbn"
     docid = Relaton::Bib::Docidentifier.new(content: "ISBN 978-0-580-50101-4", type: "ISBN")
     item = Relaton::Bib::ItemData.new docidentifier: [docid]
     expect(Relaton::Isbn::OpenLibrary).to receive(:get).with("ISBN 978-0-580-50101-4", nil, {}).and_return item

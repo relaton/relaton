@@ -344,7 +344,7 @@ module Relaton
       prefix = @registry[stdclass].prefix
       code =
         if code.is_a?(String)
-          code.sub(/\u2013/, "-").sub(/^#{prefix}\((.+)\)$/, "\\1")
+          code.sub("\u2013", "-").sub(/^#{prefix}\((.+)\)$/, "\\1")
         else code.to_s
         end
       [prefix, code]
