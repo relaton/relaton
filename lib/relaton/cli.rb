@@ -1,3 +1,4 @@
+require "fileutils"
 require "thor"
 require "thor/hollaback"
 require_relative "cli/version"
@@ -19,6 +20,7 @@ module Relaton
       # @return [Relaton::Db]
       def db(dir)
         if dir
+          FileUtils.mkdir_p File.dirname(DBCONF)
           File.write DBCONF, dir, encoding: "UTF-8"
           @db = Relaton::Db.new dir, nil
         else
