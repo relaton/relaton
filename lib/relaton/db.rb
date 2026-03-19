@@ -273,11 +273,12 @@ module Relaton
     # @return [Boolean]
     #
     def match_xml_text?(xml, text)
-      pattern = /
-        ((?<attr>=((?<apstr>')|"))|>).*?#{text}
-        .*?(?(<attr>)(?(<apstr>)'|")|<)
-      /mix
-      pattern.match?(xml)
+      esc = Regexp.escape(text)
+      pat = "((?<attr>=((?<apstr>')|\"" \
+            "))|>).*?#{esc}" \
+            ".*?(?(<attr>)(?(<apstr>)'|\")|<)"
+      Regexp.new(pat, Regexp::MULTILINE | Regexp::IGNORECASE)
+        .match?(xml)
     end
 
     # @param code [String]

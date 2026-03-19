@@ -8,7 +8,6 @@ module Relaton
       @configuration ||= self::Configuration.new
     end
   end
-  extend Config
 
   # < RelatonBib::Configuration
   class Configuration

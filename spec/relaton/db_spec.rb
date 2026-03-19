@@ -404,6 +404,12 @@ RSpec.describe Relaton::Db do
         expect(items[0].id).to eq "ISO123"
       end
 
+      it "with spaces in text" do
+        items = db.fetch_all "first test"
+        expect(items.size).to eq 1
+        expect(items[0].id).to eq "ISO123"
+      end
+
       it "in attributes" do
         items = db.fetch_all "123"
         expect(items.size).to eq 2

@@ -505,6 +505,7 @@ RSpec.describe Relaton::Db do
 
     context "IEC" do
       it "included" do
+        require "relaton/iec"
         docid = Relaton::Iec::Docidentifier.new(
           content: "IEC 60027-1", type: "IEC",
         )
@@ -555,6 +556,7 @@ RSpec.describe Relaton::Db do
 
     context "ITU" do
       it "included" do
+        require "relaton/itu"
         docid = Relaton::Bib::Docidentifier.new(content: "ITU-T G.989.2",
                                                 type: "ITU")
         org = Relaton::Bib::Organization.new(
