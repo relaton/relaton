@@ -295,9 +295,49 @@ module Relaton::Bipm
       # @return [Array<Relaton::Bib::Relation>] array of document relations
       #
       def parse_relation
-        dates do |d, t|
+        rels = dates do |d, t|
           Relaton::Bib::Relation.new(type: "hasManifestation", bibitem: bibitem(d, t))
         end
+        rels + parse_references
+      end
+
+      #
+      # Parse back/ref-list references as "cites" relations
+      #
+      # @return [Array<Relaton::Bib::Relation>] array of "cites" relations
+      #
+      def parse_references
+        @doc.xpath("./back/ref-list/ref").filter_map do |ref|
+          citation = ref.at("./element-citation")
+          next unless citation
+
+          Relaton::Bib::Relation.new(type: "cites", bibitem: citation_bibitem(citation))
+        end
+      end
+
+      #
+      # Build bibitem from an element-citation
+      #
+      # @param [Nokogiri::XML::Element] citation element-citation node
+      #
+      # @return [Relaton::Bipm::ItemData] bibitem
+      #
+      def citation_bibitem(citation)
+        attrs = {}
+        doi = citation.at("./pub-id[@pub-id-type='doi']")
+        if doi
+          attrs[:docidentifier] = [Relaton::Bib::Docidentifier.new(content: doi.text, type: "doi")]
+          attrs[:source] = [Relaton::Bib::Uri.new(content: "https://doi.org/#{doi.text}", type: "doi")]
+        end
+        source = citation.at("./source")
+        if source
+          attrs[:title] = [Relaton::Bib::Title.new(content: source.text)]
+        end
+        year = citation.at("./year")
+        if year
+          attrs[:date] = [Relaton::Bib::Date.new(type: "published", at: year.text)]
+        end
+        ItemData.new(**attrs)
       end
 
       #

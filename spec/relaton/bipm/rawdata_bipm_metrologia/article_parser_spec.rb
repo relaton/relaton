@@ -303,8 +303,41 @@ describe Relaton::Bipm::RawdataBipmMetrologia::ArticleParser do
     context "parse_relation" do
       let(:rels) { subject.parse_relation }
       it { expect(rels).to be_instance_of Array }
-      it { expect(rels.size).to eq 2 }
+      it { expect(rels.size).to eq 5 }
       it { expect(rels[0]).to be_instance_of Relaton::Bib::Relation }
+      it { expect(rels[0].type).to eq "hasManifestation" }
+      it { expect(rels[2].type).to eq "cites" }
+    end
+
+    context "parse_references" do
+      let(:refs) { subject.parse_references }
+
+      it { expect(refs.size).to eq 3 }
+      it { expect(refs[0].type).to eq "cites" }
+
+      it "parses DOI and source" do
+        bibitem = refs[0].bibitem
+        expect(bibitem.docidentifier[0].content).to eq "10.1088/0026-1394/32/6/52"
+        expect(bibitem.docidentifier[0].type).to eq "doi"
+        expect(bibitem.source[0].content.to_s).to eq "https://doi.org/10.1088/0026-1394/32/6/52"
+        expect(bibitem.source[0].type).to eq "doi"
+      end
+
+      it "parses title from source element" do
+        expect(refs[0].bibitem.title[0].content).to eq "Metrologia"
+      end
+
+      it "parses year" do
+        expect(refs[0].bibitem.date[0].type).to eq "published"
+        expect(refs[0].bibitem.date[0].at.to_s).to eq "1995"
+      end
+
+      it "parses ref without DOI" do
+        bibitem = refs[2].bibitem
+        expect(bibitem.docidentifier).to be_empty
+        expect(bibitem.title[0].content).to eq "CIE Publication No. 84"
+        expect(bibitem.date[0].at.to_s).to eq "1989"
+      end
     end
 
     context "parse_series" do

@@ -1,4 +1,5 @@
 require "relaton/bipm/rawdata_bipm_metrologia/fetcher"
+require "relaton/bipm/data_fetcher"
 
 describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
   it "create instance and fetch" do
@@ -67,14 +68,30 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
       subject.fetch_issues
     end
 
-    it "fetch_articles" do
-      expect(Dir).to receive(:[]).with("rawdata-bipm-metrologia/data/*content/0026-1394/**/*.xml").and_return [:path]
+    it "fetch_articles sorted by archive date" do
+      path_old = "rawdata-bipm-metrologia/data/2021-01-01T00_00_00_content/0026-1394/art.xml"
+      path_new = "rawdata-bipm-metrologia/data/2022-06-29T03_01_46_content/0026-1394/art.xml"
+      expect(Dir).to receive(:[]).with("rawdata-bipm-metrologia/data/*content/0026-1394/**/*.xml")
+        .and_return [path_new, path_old]
       docid = Relaton::Bib::Docidentifier.new(content: "Metrologia", type: "BIPM", primary: true)
       item = Relaton::Bipm::ItemData.new(docidentifier: [docid])
-      expect(Relaton::Bipm::RawdataBipmMetrologia::ArticleParser).to receive(:parse).with(:path).and_return item
-      expect(data_fetcher).to receive(:write_file).with("output/metrologia.yaml", item)
-      expect(index).to receive(:add_or_update).with({ group: "Metrologia" }, "output/metrologia.yaml")
+      # Expect parse to be called in sorted order: old first, then new
+      expect(Relaton::Bipm::RawdataBipmMetrologia::ArticleParser).to receive(:parse)
+        .with(path_old).ordered.and_return item
+      expect(Relaton::Bipm::RawdataBipmMetrologia::ArticleParser).to receive(:parse)
+        .with(path_new).ordered.and_return item
+      expect(data_fetcher).to receive(:write_file).with("output/metrologia.yaml", item).twice
+      expect(index).to receive(:add_or_update).with({ group: "Metrologia" }, "output/metrologia.yaml").twice
       subject.fetch_articles
+    end
+
+    it "archive_date extracts date from path" do
+      path = "rawdata-bipm-metrologia/data/2022-06-29T03_01_46_content/0026-1394/art.xml"
+      expect(subject.send(:archive_date, path)).to eq "2022-06-29T03_01_46"
+    end
+
+    it "archive_date returns empty string for non-matching path" do
+      expect(subject.send(:archive_date, "some/other/path.xml")).to eq ""
     end
 
     it "docidentifier" do

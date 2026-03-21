@@ -33,7 +33,7 @@ module Relaton::Bipm
       #
       def fetch_articles # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         # aff = Affiliations.parse DIR
-        Dir["#{DIR}/**/*.xml"].each do |path|
+        Dir["#{DIR}/**/*.xml"].sort_by { |p| archive_date(p) }.each do |path|
           item = ArticleParser.parse path # , aff
           file = "#{item.docidentifier.first.content.downcase.tr(' ', '-')}.#{@data_fetcher.ext}"
           out_path = File.join(@data_fetcher.output, file)
@@ -148,6 +148,17 @@ module Relaton::Bipm
 
       def typed_uri(*args)
         [Relaton::Bib::Uri.new(type: "src", content: link(*args))]
+      end
+
+      #
+      # Extract archive date from path for sorting
+      #
+      # @param [String] path file path
+      #
+      # @return [String] date string for sorting
+      #
+      def archive_date(path)
+        path[%r{/data/(\d{4}-\d{2}-\d{2}T[\d_]+)_content/}, 1].to_s
       end
 
       def link(*args)
