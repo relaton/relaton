@@ -9,7 +9,7 @@ module Relaton::Bipm
     attr_reader :output, :format, :ext, :files, :index
 
     def index
-      @index ||= Relaton::Index.find_or_create :bipm, file: Bibliography::INDEX_FILE
+      @index ||= Relaton::Index.find_or_create :bipm, file: INDEXFILE
     end
 
     #

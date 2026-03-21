@@ -4,7 +4,6 @@ require_relative "id_parser"
 module Relaton::Bipm
   class Bibliography
     GH_ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/data-v2/".freeze
-    INDEX_FILE = "index-v1.yaml".freeze
 
     class << self
       # @param text [String]
@@ -63,7 +62,7 @@ module Relaton::Bipm
 
       def index
         Relaton::Index.find_or_create(
-          :bipm, url: "#{GH_ENDPOINT}index-v1.zip", file: INDEX_FILE, id_keys: %i[group type number year corr part append]
+          :bipm, url: "#{GH_ENDPOINT}index-v1.zip", file: INDEXFILE, id_keys: %i[group type number year corr part append]
         )
       end
 

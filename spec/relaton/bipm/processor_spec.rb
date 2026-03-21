@@ -38,7 +38,7 @@ describe Relaton::Bipm::Processor do
   it "#remove_index_file" do
     index = instance_double Relaton::Index::Type
     expect(Relaton::Index).to receive(:find_or_create)
-      .with(:bipm, url: true, file: Relaton::Bipm::Bibliography::INDEX_FILE)
+      .with(:bipm, url: true, file: Relaton::Bipm::INDEXFILE)
       .and_return index
     expect(index).to receive(:remove_file)
     subject.remove_index_file

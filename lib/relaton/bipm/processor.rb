@@ -62,7 +62,7 @@ module Relaton
       #
       def remove_index_file
         require_relative "../bipm"
-        Relaton::Index.find_or_create(:bipm, url: true, file: Bibliography::INDEX_FILE).remove_file
+        Relaton::Index.find_or_create(:bipm, url: true, file: INDEXFILE).remove_file
       end
     end
   end
