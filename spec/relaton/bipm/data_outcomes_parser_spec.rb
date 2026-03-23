@@ -60,9 +60,12 @@ describe Relaton::Bipm::DataOutcomesParser do
               fr = "Comité consultatif du temps et des fréquences"
             end
             expect(contribs[1].role[0].type).to eq "author"
-            expect(contribs[1].organization.abbreviation.content).to eq abbr
-            expect(contribs[1].organization.name[0].content).to eq en
-            expect(contribs[1].organization.name[1].content).to eq fr
+            expect(contribs[1].role[0].description[0].content).to eq "committee"
+            expect(contribs[1].organization.name[0].content).to eq "BIPM"
+            expect(contribs[1].organization.subdivision[0].type).to eq "committee"
+            expect(contribs[1].organization.subdivision[0].abbreviation.content).to eq abbr
+            expect(contribs[1].organization.subdivision[0].name[0].content).to eq en
+            expect(contribs[1].organization.subdivision[0].name[1].content).to eq fr
           end
         end
       end

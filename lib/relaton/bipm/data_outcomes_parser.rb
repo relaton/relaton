@@ -268,26 +268,29 @@ module Relaton::Bipm
     #
     def contributors(date, body)
       contribs = [bipm_contrib]
-      author = author_org date, body
-      return contribs unless author
+      subdiv = committee_subdivision date, body
+      return contribs unless subdiv
 
-      role = Relaton::Bib::Contributor::Role.new(type: "author")
-      contribs << Relaton::Bib::Contributor.new(organization: author, role: [role])
+      bipm_name = [Relaton::Bib::TypedLocalizedString.new(content: "BIPM", script: "Latn")]
+      org = Relaton::Bib::Organization.new(name: bipm_name, subdivision: [subdiv])
+      desc = Relaton::Bib::LocalizedMarkedUpString.new(content: "committee")
+      role = Relaton::Bib::Contributor::Role.new(type: "author", description: [desc])
+      contribs << Relaton::Bib::Contributor.new(organization: org, role: [role])
     end
 
     #
-    # Create author organization
+    # Create committee subdivision
     #
     # @param [String] date date of publication
     # @param [String] body organization abbreviation (CCTF, CIPM, CGPM)
     #
-    # @return [Hash, nil] author organization
+    # @return [Relaton::Bib::Subdivision, nil] committee subdivision
     #
-    def author_org(date, body)
+    def committee_subdivision(date, body)
       case body
-      when "CCTF" then cctf_org date
-      when "CGPM" then cgpm_org
-      when "CIPM" then cipm_org
+      when "CCTF" then cctf_subdivision date
+      when "CGPM" then cgpm_subdivision
+      when "CIPM" then cipm_subdivision
       end
     end
 
@@ -307,25 +310,25 @@ module Relaton::Bipm
     end
 
     #
-    # Create CCTF organization
+    # Create CCTF subdivision
     #
     # @param [String] date date of meeting
     #
-    # @return [Hash] CCTF organization
+    # @return [Relaton::Bib::Subdivision] CCTF subdivision
     #
-    def cctf_org(date) # rubocop:disable Metrics/MethodLength
+    def cctf_subdivision(date) # rubocop:disable Metrics/MethodLength
       if ::Date.parse(date).year < 1999
         nms = [
           { content: "Consultative Committee for the Definition of the Second", language: "en" },
           { content: "Comité Consultatif pour la Définition de la Seconde", language: "fr" },
         ]
-        organization nms, "CCDS"
+        subdivision nms, "CCDS"
       else
         nms = [
           { content: "Consultative Committee for Time and Frequency", language: "en" },
           { content: "Comité consultatif du temps et des fréquences", language: "fr" },
         ]
-        organization nms, "CCTF"
+        subdivision nms, "CCTF"
       end
     end
 
@@ -347,29 +350,44 @@ module Relaton::Bipm
     end
 
     #
-    # Create CGPM organization
+    # Create subdivision
     #
-    # @return [Hash] CGPM organization
+    # @param [Array<Hash>] names subdivision names in different languages
+    # @param [String] abbr abbreviation
+    # @param [String] abbr_lang language of abbreviation
     #
-    def cgpm_org
+    # @return [Relaton::Bib::Subdivision] subdivision
+    #
+    def subdivision(names, abbr, abbr_lang: "en")
+      name = names.map { |n| Relaton::Bib::TypedLocalizedString.new(**n, script: "Latn") }
+      abbreviation = Relaton::Bib::LocalizedString.new(content: abbr, language: abbr_lang, script: "Latn")
+      Relaton::Bib::Subdivision.new(type: "committee", name: name, abbreviation: abbreviation)
+    end
+
+    #
+    # Create CGPM subdivision
+    #
+    # @return [Relaton::Bib::Subdivision] CGPM subdivision
+    #
+    def cgpm_subdivision
       nms = [
         { content: "General Conference on Weights and Measures", language: "en" },
         { content: "Conférence Générale des Poids et Mesures", language: "fr" },
       ]
-      organization nms, "CGPM", abbr_lang: "fr"
+      subdivision nms, "CGPM", abbr_lang: "fr"
     end
 
     #
-    # Create CIPM organization
+    # Create CIPM subdivision
     #
-    # @return [Array<Hash>] CIPM organization
+    # @return [Relaton::Bib::Subdivision] CIPM subdivision
     #
-    def cipm_org
+    def cipm_subdivision
       names = [
         { content: "International Committee for Weights and Measures", language: "en" },
         { content: "Comité international des poids et mesures", language: "fr" },
       ]
-      organization names, "CIPM", abbr_lang: "fr"
+      subdivision names, "CIPM", abbr_lang: "fr"
     end
 
     #

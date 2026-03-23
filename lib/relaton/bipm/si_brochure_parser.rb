@@ -1,3 +1,4 @@
+require "nokogiri"
 require_relative "id_parser"
 
 module Relaton::Bipm
@@ -34,6 +35,9 @@ module Relaton::Bipm
         xml = File.read(f, encoding: "UTF-8")
         xml = xml.force_encoding("UTF-8") if xml.encoding != Encoding::UTF_8
         item1 = Bibdata.from_xml(xml)
+        unless has_committee_contributor?(item1)
+          extract_editorialgroup(xml).each { |c| item1.contributor << c }
+        end
         fix_si_brochure_id item1
         basename = File.join @data_fetcher.output, File.basename(f).sub(/(?:-(?:en|fr))?\.rxl$/, "")
         outfile = "#{basename}.#{@data_fetcher.ext}"
@@ -91,6 +95,33 @@ module Relaton::Bipm
       item.docidentifier.detect do |id|
         id.primary && (id.language == "en" || id.language.nil?)
       end.content
+    end
+
+    def has_committee_contributor?(item)
+      item.contributor.any? do |c|
+        c.role.any? { |r| r.description.any? { |d| d.content == "committee" } }
+      end
+    end
+
+    def extract_editorialgroup(xml)
+      doc = Nokogiri::XML(xml)
+      doc.xpath("//editorialgroup/committee").map do |committee|
+        acronym = committee["acronym"]
+        names = committee.xpath("variant").map do |v|
+          Relaton::Bib::TypedLocalizedString.new(
+            content: v.text, language: v["language"], script: v["script"],
+          )
+        end
+        subdiv = Relaton::Bib::Subdivision.new(
+          type: "committee", name: names,
+          abbreviation: Relaton::Bib::LocalizedString.new(content: acronym),
+        )
+        bipm_name = [Relaton::Bib::TypedLocalizedString.new(content: acronym)]
+        org = Relaton::Bib::Organization.new(name: bipm_name, subdivision: [subdiv])
+        desc = Relaton::Bib::LocalizedMarkedUpString.new(content: "committee")
+        role = Relaton::Bib::Contributor::Role.new(type: "author", description: [desc])
+        Relaton::Bib::Contributor.new(organization: org, role: [role])
+      end
     end
 
     #
