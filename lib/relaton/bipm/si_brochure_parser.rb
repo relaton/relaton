@@ -75,7 +75,7 @@ module Relaton::Bipm
       else
         item.docnumber = prid.sub(/^BIPM\s/, "")
       end
-      item.id = prid.gsub(/[,\s]/, "")
+      item.id = prid.gsub(/[,\s-]/, "")
     end
 
     def update_id(item)
