@@ -57,7 +57,7 @@ describe Relaton::Ecma::DataFetcher do
     it "with href" do
       parser = double :parser
       expect(parser).to receive(:parse).with(no_args).and_return [:item]
-      expect(Relaton::Ecma::DataParser).to receive(:new).with(hit).and_return parser
+      expect(Relaton::Ecma::DataParser).to receive(:new).with(hit, kind_of(Hash)).and_return parser
       subject.parse_page hit
     end
   end

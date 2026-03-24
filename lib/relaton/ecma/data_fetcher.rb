@@ -4,6 +4,11 @@ require "English"
 require "mechanize"
 require "relaton/core"
 require_relative "../ecma"
+require_relative "parser_common"
+require_relative "page_fetcher"
+require_relative "standard_parser"
+require_relative "memento_parser"
+require_relative "edition_parser"
 require_relative "data_parser"
 
 module Relaton
@@ -14,6 +19,14 @@ module Relaton
 
       def index
         @index ||= Relaton::Index.find_or_create :ecma, file: "#{INDEXFILE}.yaml"
+      end
+
+      def gh_issue_channel
+        ["relaton/relaton-ecma", "Error fetching ECMA documents"]
+      end
+
+      def log_error(msg)
+        Util.error msg
       end
 
       def agent
@@ -62,7 +75,7 @@ module Relaton
 
       # @param hit [Nokogiri::XML::Element]
       def parse_page(hit) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-        DataParser.new(hit).parse.each { |item| write_file item }
+        DataParser.new(hit, @errors).parse.each { |item| write_file item }
       end
 
       # @param type [String]
@@ -87,6 +100,7 @@ module Relaton
       def fetch(_ = nil)
         SOURCES.each { |source| html_index source }
         index.save
+        repot_errors
       end
     end
   end
