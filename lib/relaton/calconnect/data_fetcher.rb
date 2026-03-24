@@ -50,7 +50,7 @@ module Relaton::Calconnect
     # @param [Hash] doc
     #
     def parse_page(doc)
-      bib = Scraper.parse_page doc
+      bib = Scraper.new.parse_page doc
       # bib.link.each { |l| l.content.merge!(scheme: SCHEME, host: HOST) unless l.content.host }
       write_doc doc["docid"][0]["id"], bib
       true

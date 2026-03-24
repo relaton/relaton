@@ -31,13 +31,13 @@ RSpec.describe Relaton::Calconnect::DataFetcher do
 
     context "#parse_page" do
       it do
-        expect(Relaton::Calconnect::Scraper).to receive(:parse_page).with(kind_of(Hash)).and_return :bib
+        expect_any_instance_of(Relaton::Calconnect::Scraper).to receive(:parse_page).with(kind_of(Hash)).and_return :bib
         expect(subject).to receive(:write_doc).with("1234", :bib)
         expect(subject.send(:parse_page, { "docid" => [{ "id" => "1234" }] })).to be true
       end
 
       it "log error" do
-        expect(Relaton::Calconnect::Scraper).to receive(:parse_page).and_raise StandardError
+        expect_any_instance_of(Relaton::Calconnect::Scraper).to receive(:parse_page).and_raise StandardError
         doc = { "docid" => [{ "id" => "1234" }] }
         expect { subject.send(:parse_page, doc) }.to output(/Document: 1234/).to_stderr_from_any_process
       end

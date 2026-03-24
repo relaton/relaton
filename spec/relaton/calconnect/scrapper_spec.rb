@@ -1,7 +1,9 @@
 describe Relaton::Calconnect::Scraper do
+  let(:scraper) { described_class.new }
+
   it "remove fetched" do
     hit = { "fetched" => "2019-12-12", "link" => [] }
-    item = described_class.parse_page hit
+    item = scraper.parse_page hit
     expect(item.fetched).to be_nil
   end
 
@@ -9,9 +11,9 @@ describe Relaton::Calconnect::Scraper do
     link = { "type" => "rxl", "content" => "csd/cc-0707.rxl" }
     hit = { "link" => [link] }
     bib = Relaton::Calconnect::ItemData.new source: [Relaton::Bib::Uri.new(type: "rxl", content: "csd/cc-0707.rxl")]
-    expect(described_class).to receive(:fetch_bib_xml).with("csd/cc-0707.rxl").and_return bib
-    # expect(described_class).to receive(:update_links).with(bib, hit[:link])
-    expect(described_class.parse_page(hit)).to be bib
+    expect(scraper).to receive(:fetch_bib_xml).with("csd/cc-0707.rxl").and_return bib
+    # expect(scraper).to receive(:update_links).with(bib, hit[:link])
+    expect(scraper.parse_page(hit)).to be bib
     expect(bib.source.first.content.to_s).to eq "https://standards.calconnect.org/csd/cc-0707.rxl"
   end
 
@@ -31,10 +33,10 @@ describe Relaton::Calconnect::Scraper do
         </bibdata>
       XML
 
-      expect(described_class).to receive(:get_rxl).with(:url).and_return rxl1
-      expect(described_class).to receive(:get_rxl).with("csd/cc-0707.rxl").and_return rxl2
+      expect(scraper).to receive(:get_rxl).with(:url).and_return rxl1
+      expect(scraper).to receive(:get_rxl).with("csd/cc-0707.rxl").and_return rxl2
 
-      bib = described_class.send(:fetch_bib_xml, :url)
+      bib = scraper.send(:fetch_bib_xml, :url)
 
       expect(bib).to be_instance_of Relaton::Calconnect::ItemData
       expect(bib.docidentifier.first.content).to eq "CC/Adm0812-2008"
@@ -47,7 +49,7 @@ describe Relaton::Calconnect::Scraper do
     resp = double "response", body: "body"
     expect(Faraday).to receive(:get).with("https://standards.calconnect.org/csd/cc-0707.rxl").and_return resp
     expect(Nokogiri).to receive(:XML).with("body").and_return "xml"
-    expect(described_class.send(:get_rxl, "csd/cc-0707.rxl")).to eq "xml"
+    expect(scraper.send(:get_rxl, "csd/cc-0707.rxl")).to eq "xml"
   end
 
   it "hash_to_item" do
@@ -88,7 +90,7 @@ describe Relaton::Calconnect::Scraper do
       editorialgroup: { name: "CALCONNECT" },
       ext: { doctype: { type: "directive", abbreviation: "D" } },
     }
-    item = described_class.send(:hash_to_item, doc)
+    item = scraper.send(:hash_to_item, doc)
     expect(item).to be_instance_of Relaton::Calconnect::ItemData
     expect(item.title.first).to be_instance_of Relaton::Bib::Title
     expect(item.docidentifier.first).to be_instance_of Relaton::Bib::Docidentifier
@@ -167,7 +169,7 @@ describe Relaton::Calconnect::Scraper do
     ]
     xml_link = Relaton::Bib::Uri.new(type: "xml", content: "csd/cc-0707.xml")
     bib = Relaton::Calconnect::ItemData.new source: [xml_link]
-    described_class.send(:update_links, bib, links)
+    scraper.send(:update_links, bib, links)
     expect(bib.source.size).to eq 2
     expect(bib.source.last).to be_instance_of Relaton::Bib::Uri
     expect(bib.source.last.type).to eq "src"
