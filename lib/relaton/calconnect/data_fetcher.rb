@@ -27,6 +27,14 @@ module Relaton::Calconnect
       @index = Relaton::Index.find_or_create :CC, file: "index-v1.yaml"
     end
 
+    def gh_issue_channel
+      ["relaton/relaton-calconnect", "Error fetching CalConnect documents"]
+    end
+
+    def log_error(msg)
+      Util.error msg
+    end
+
     #
     # fetch data form server and save it to file.
     #
@@ -40,6 +48,7 @@ module Relaton::Calconnect
       data["root"]["items"].each { |doc| all_success &&= parse_page doc }
       self.etag = resp[:etag] if all_success
       index.save
+      repot_errors
     end
 
     private
@@ -50,7 +59,7 @@ module Relaton::Calconnect
     # @param [Hash] doc
     #
     def parse_page(doc)
-      bib = Scraper.new.parse_page doc
+      bib = Scraper.new(@errors).parse_page doc
       # bib.link.each { |l| l.content.merge!(scheme: SCHEME, host: HOST) unless l.content.host }
       write_doc doc["docid"][0]["id"], bib
       true

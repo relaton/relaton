@@ -11,6 +11,11 @@ module Relaton
       SCHEME, HOST = DOMAIN.split(%r{:?/?/})
       # DOMAIN = "http://127.0.0.1:4000/".freeze
 
+      # @param errors [Hash] error tracking hash
+      def initialize(errors = {})
+        @errors = errors
+      end
+
       #
       # Parse document page
       #
@@ -95,14 +100,17 @@ module Relaton
           t.delete :format
           Bib::Title.new(**t)
         end
+        @errors[:title] &&= hash[:title].empty?
       end
 
       def hash_to_source(hash)
         hash[:source] = array(hash[:link]).map { |link| Bib::Uri.new(type: "src", **link) }
+        @errors[:source] &&= hash[:source].empty?
       end
 
       def hash_to_docid(hash)
         docid = hash.delete(:docid)
+        @errors[:docid] &&= docid.nil?
         return unless docid
 
         docid_types = %w[CC CSD]
@@ -118,6 +126,7 @@ module Relaton
           d[:at] = d.delete(:value) if d[:value]
           Bib::Date.new(**d)
         end
+        @errors[:date] &&= hash[:date].empty?
       end
 
       def hash_to_contributor(hash)
@@ -135,6 +144,7 @@ module Relaton
           end
           Bib::Contributor.new(**contrib)
         end
+        @errors[:contributor] &&= hash[:contributor].empty?
       end
 
       def create_organization(org_hash)
@@ -169,6 +179,7 @@ module Relaton
 
       def hash_to_edition(hash)
         number = hash.dig(:edition, :content)
+        @errors[:edition] &&= number.nil?
         hash[:edition] = Bib::Edition.new(number: number) if number
       end
 
@@ -182,10 +193,12 @@ module Relaton
         hash[:abstract] = array(hash[:abstract]).map do |abs|
           Bib::LocalizedMarkedUpString.new(**abs)
         end
+        @errors[:abstract] &&= hash[:abstract].empty?
       end
 
       def hash_to_status(hash)
         docstatus = hash.delete(:docstatus)
+        @errors[:status] &&= docstatus.nil?
         return unless docstatus
 
         stage = Bib::Status::Stage.new content: docstatus.dig(:stage, :value)
@@ -196,6 +209,7 @@ module Relaton
         hash[:relation] = array(hash[:relation]).map do |rel|
           Bib::Relation.new(type: rel[:type], bibitem: hash_to_item(rel[:bibitem]))
         end
+        @errors[:relation] &&= hash[:relation].empty?
       end
 
       def hash_to_copyrigh(hash)
@@ -208,6 +222,7 @@ module Relaton
           end
           Bib::Copyright.new(**cr)
         end
+        @errors[:copyright] &&= hash[:copyright].empty?
       end
 
       def hash_to_keyword(hash)
@@ -215,6 +230,7 @@ module Relaton
           taxon = Bib::LocalizedString.new(**kw)
           Bib::Keyword.new(taxon: taxon)
         end
+        @errors[:keyword] &&= hash[:keyword].empty?
       end
 
       def hash_to_ext(hash)
@@ -225,6 +241,7 @@ module Relaton
       end
 
       def hash_to_doctype(ext)
+        @errors[:doctype] &&= ext[:doctype].nil?
         return unless ext[:doctype]
 
         ext[:doctype] = Doctype.new content: ext.dig(:doctype, :type), abbreviation: ext.dig(:doctype, :abbreviation)
@@ -232,6 +249,7 @@ module Relaton
 
       def hash_to_editorialgroup(hash)
         eg = hash.delete(:editorialgroup) || (hash[:ext] && hash[:ext].delete(:editorialgroup))
+        @errors[:editorialgroup] &&= eg.nil?
         return unless eg
 
         # Handle old format: { technical_committee: { name: "X" } }

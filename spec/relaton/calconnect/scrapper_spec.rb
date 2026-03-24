@@ -1,5 +1,6 @@
 describe Relaton::Calconnect::Scraper do
-  let(:scraper) { described_class.new }
+  let(:errors) { {} }
+  let(:scraper) { described_class.new(errors) }
 
   it "remove fetched" do
     hit = { "fetched" => "2019-12-12", "link" => [] }
