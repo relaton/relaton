@@ -6,9 +6,10 @@ module Relaton
       #
       # @param [Nokogiri::XML::Element] xml
       #
-      def initialize(xml, rootdoc)
+      def initialize(xml, rootdoc, errors = {})
         @xml = xml
         @rootdoc = rootdoc
+        @errors = errors
       end
 
       #
@@ -18,8 +19,8 @@ module Relaton
       #
       # @return [Relaton::Iana::ItemData, nil] bibliographic item
       #
-      def self.parse(xml, rootdoc = nil)
-        new(xml, rootdoc).parse
+      def self.parse(xml, rootdoc = nil, errors = {})
+        new(xml, rootdoc, errors).parse
       end
 
       #
@@ -50,7 +51,9 @@ module Relaton
       #
       def parse_title
         content = @xml.at("./xmlns:title")&.text || @xml[:id]
-        [Bib::Title.new(content: content, language: "en", script: "Latn")]
+        result = [Bib::Title.new(content: content, language: "en", script: "Latn")]
+        @errors[:title] &&= result.empty?
+        result
       end
 
       #
@@ -59,11 +62,15 @@ module Relaton
       # @return [Array<Relaton::Bib::Uri>] link
       #
       def parse_source
-        if @rootdoc then @rootdoc.source
-        else
-          uri = URI.join "https://www.iana.org/assignments/", @xml[:id]
-          [Bib::Uri.new(type: "src", content: uri.to_s)]
-        end
+        result = if @rootdoc then @rootdoc.source
+                 elsif @xml[:id]
+                   uri = URI.join "https://www.iana.org/assignments/", @xml[:id]
+                   [Bib::Uri.new(type: "src", content: uri.to_s)]
+                 else
+                   []
+                 end
+        @errors[:source] &&= result.empty?
+        result
       end
 
       #
@@ -72,7 +79,9 @@ module Relaton
       # @return [Arra<RelatonBib::DocumentIdentifier>] docidentifier
       #
       def parse_docid
-        [Bib::Docidentifier.new(type: "IANA", content: pub_id, primary: true)]
+        result = [Bib::Docidentifier.new(type: "IANA", content: pub_id, primary: true)]
+        @errors[:docid] &&= result.empty?
+        result
       end
 
       #
@@ -101,7 +110,9 @@ module Relaton
       def docnumber
         dn = ""
         dn += "#{@rootdoc.docnumber}/" if @rootdoc
-        dn + @xml["id"]
+        id = @xml["id"].to_s
+        @errors[:docnumber] &&= id.empty?
+        dn + id
       end
 
       #
@@ -110,10 +121,12 @@ module Relaton
       # @return [Array<Relaton::Bib::Date>] date
       #
       def parse_date
-        d = @xml.xpath("./xmlns:created|./xmlns:published|./xmlns:updated").map do |d|
-          Bib::Date.new(type: d.name, at: d.text)
+        d = @xml.xpath("./xmlns:created|./xmlns:published|./xmlns:updated").map do |dt|
+          Bib::Date.new(type: dt.name, at: dt.text)
         end
-        d.none? && @rootdoc ? @rootdoc.date : d
+        result = d.none? && @rootdoc ? @rootdoc.date : d
+        @errors[:date] &&= result.empty?
+        result
       end
 
       #

@@ -34,9 +34,9 @@ RSpec.describe Relaton::Iana::DataFetcher do
 
     it "parse" do
       content = File.read "spec/fixtures/rpki.xml", encoding: "UTF-8"
-      expect(Relaton::Iana::Parser).to receive(:parse).with(Nokogiri::XML::Element).and_return :doc
+      expect(Relaton::Iana::Parser).to receive(:parse).with(Nokogiri::XML::Element, nil, kind_of(Hash)).and_return :doc
       expect(subject).to receive(:save_doc).with(:doc)
-      expect(Relaton::Iana::Parser).to receive(:parse).with(Nokogiri::XML::Element, :doc).and_return(:doc2).exactly(7).times
+      expect(Relaton::Iana::Parser).to receive(:parse).with(Nokogiri::XML::Element, :doc, kind_of(Hash)).and_return(:doc2).exactly(7).times
       expect(subject).to receive(:save_doc).with(:doc2).exactly(7).times
       subject.send :parse, content
     end

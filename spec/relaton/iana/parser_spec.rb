@@ -2,7 +2,7 @@ require "relaton/iana/data_fetcher"
 
 RSpec.describe Relaton::Iana::Parser do
   it "initialize" do
-    expect(described_class).to receive(:new).with(nil, nil).and_call_original
+    expect(described_class).to receive(:new).with(nil, nil, {}).and_call_original
     expect(described_class.parse(nil)).to be_nil
   end
 

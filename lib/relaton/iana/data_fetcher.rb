@@ -8,6 +8,14 @@ module Relaton
       #
       # Parse documents
       #
+      def gh_issue_channel
+        ["relaton/relaton-iana", "Error fetching IANA documents"]
+      end
+
+      def log_error(msg)
+        Util.error msg
+      end
+
       def fetch(_source = nil)
         Dir["iana-registries/**/*.xml"].each do |file|
           content = File.read file, encoding: "UTF-8"
@@ -16,6 +24,7 @@ module Relaton
           Util.error "Error: #{e.message}. File: #{file}"
         end
         index.save
+        repot_errors
       end
 
       private
@@ -27,9 +36,9 @@ module Relaton
       def parse(content)
         xml = Nokogiri::XML(content)
         registry = xml.at("/xmlns:registry")
-        doc = Parser.parse registry
+        doc = Parser.parse registry, nil, @errors
         save_doc doc
-        registry.xpath("./xmlns:registry").each { |r| save_doc Parser.parse(r, doc) }
+        registry.xpath("./xmlns:registry").each { |r| save_doc Parser.parse(r, doc, @errors) }
       end
 
       #
