@@ -133,13 +133,15 @@ describe Relaton::Etsi::DataParser do
     end
 
     it "#pubid" do
-      expect(row).to receive(:[]).with("ETSI deliverable").and_return "ETSI EN 319 532-4 V1.3.0 (2023-10)"
+      id = "ETSI EN 319 532-4 V1.3.0 (2023-10)"
+      expect(row).to receive(:[]).with("ETSI deliverable")
+        .and_return(id).twice
       pubid = subject.pubid
       expect(pubid).to be_instance_of Relaton::Etsi::PubId
     end
 
     it "#title" do
-      expect(row).to receive(:[]).with("title").and_return "Title"
+      expect(row).to receive(:[]).with("title").and_return("Title").twice
       title = subject.title
       expect(title).to be_instance_of Array
       expect(title.first).to be_instance_of Relaton::Bib::Title
@@ -152,8 +154,10 @@ describe Relaton::Etsi::DataParser do
     end
 
     it "#source" do
-      expect(row).to receive(:[]).with("Details link").and_return "https://www.etsi.org/src"
-      expect(row).to receive(:[]).with("PDF link").and_return "https://www.etsi.org/pdf"
+      expect(row).to receive(:[]).with("Details link")
+        .and_return("https://www.etsi.org/src").twice
+      expect(row).to receive(:[]).with("PDF link")
+        .and_return("https://www.etsi.org/pdf").twice
       source = subject.source
       expect(source).to be_instance_of Array
       expect(source.first).to be_instance_of Relaton::Bib::Uri
@@ -164,7 +168,9 @@ describe Relaton::Etsi::DataParser do
     end
 
     it "#date" do
-      expect(row).to receive(:[]).with("ETSI deliverable").and_return "ETSI EN 319 532-4 V1.3.0 (2023-10)"
+      id = "ETSI EN 319 532-4 V1.3.0 (2023-10)"
+      expect(row).to receive(:[]).with("ETSI deliverable")
+        .and_return(id).at_least(:once)
       date = subject.date
       expect(date).to be_instance_of Array
       expect(date.first).to be_instance_of Relaton::Bib::Date
@@ -172,7 +178,9 @@ describe Relaton::Etsi::DataParser do
     end
 
     it "#docidentifier" do
-      expect(row).to receive(:[]).with("ETSI deliverable").and_return "ETSI EN 319 532-4 V1.3.0 (2023-10)"
+      id = "ETSI EN 319 532-4 V1.3.0 (2023-10)"
+      expect(row).to receive(:[]).with("ETSI deliverable")
+        .and_return(id).twice
       docid = subject.docidentifier
       expect(docid).to be_instance_of Array
       expect(docid.first).to be_instance_of Relaton::Bib::Docidentifier
@@ -180,7 +188,9 @@ describe Relaton::Etsi::DataParser do
     end
 
     it "#version" do
-      expect(row).to receive(:[]).with("ETSI deliverable").and_return "ETSI EN 319 532-4 V1.3.0 (2023-10)"
+      id = "ETSI EN 319 532-4 V1.3.0 (2023-10)"
+      expect(row).to receive(:[]).with("ETSI deliverable")
+        .and_return(id).at_least(:once)
       version = subject.version
       expect(version).to be_instance_of Array
       expect(version.first).to be_instance_of Relaton::Bib::Version
@@ -190,23 +200,30 @@ describe Relaton::Etsi::DataParser do
     context "#status" do
       context "approved" do
         before do
-          expect(row).to receive(:[]).with("Status").and_return "On Approval"
+          expect(row).to receive(:[]).with("Status")
+            .and_return("On Approval").twice
         end
 
         it "EN" do
-          expect(row).to receive(:[]).with("ETSI deliverable").and_return "ETSI EN 319 532-4 V1.3.0 (2023-10)"
+          id = "ETSI EN 319 532-4 V1.3.0 (2023-10)"
+          expect(row).to receive(:[]).with("ETSI deliverable")
+            .and_return(id).at_least(:once)
           status = subject.status
           expect(status.stage).to eq "EN approval"
         end
 
         it "SG" do
-          expect(row).to receive(:[]).with("ETSI deliverable").and_return "ETSI SG 319 532-4 V1.3.0 (2023-10)"
+          id = "ETSI SG 319 532-4 V1.3.0 (2023-10)"
+          expect(row).to receive(:[]).with("ETSI deliverable")
+            .and_return(id).at_least(:once)
           status = subject.status
           expect(status.stage).to eq "SG approval"
         end
 
         it "ES" do
-          expect(row).to receive(:[]).with("ETSI deliverable").and_return "ETSI ES 319 532-4 V1.3.0 (2023-10)"
+          id = "ETSI ES 319 532-4 V1.3.0 (2023-10)"
+          expect(row).to receive(:[]).with("ETSI deliverable")
+            .and_return(id).at_least(:once)
           status = subject.status
           expect(status.stage).to eq "ES approval"
         end
@@ -232,7 +249,8 @@ describe Relaton::Etsi::DataParser do
     end
 
     it "#keyword" do
-      expect(row).to receive(:[]).with("Keywords").and_return "Keyword 1,Keyword 2"
+      expect(row).to receive(:[]).with("Keywords")
+        .and_return("Keyword 1,Keyword 2").twice
       expect(subject.keyword.first.taxon.map(&:content)).to eq ["Keyword 1", "Keyword 2"]
     end
 
@@ -250,12 +268,16 @@ describe Relaton::Etsi::DataParser do
 
     context "#doctype" do
       it "EN" do
-        expect(row).to receive(:[]).with("ETSI deliverable").and_return "ETSI EN 319 532-4 V1.3.0 (2023-10)"
+        id = "ETSI EN 319 532-4 V1.3.0 (2023-10)"
+        expect(row).to receive(:[]).with("ETSI deliverable")
+          .and_return(id).at_least(:once)
         expect(subject.doctype.content).to eq "European Standard"
       end
 
       it "ES" do
-        expect(row).to receive(:[]).with("ETSI deliverable").and_return "ETSI ES 319 532-4 V1.3.0 (2023-10)"
+        id = "ETSI ES 319 532-4 V1.3.0 (2023-10)"
+        expect(row).to receive(:[]).with("ETSI deliverable")
+          .and_return(id).at_least(:once)
         expect(subject.doctype.content).to eq "ETSI Standard"
       end
     end

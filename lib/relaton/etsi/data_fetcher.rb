@@ -18,6 +18,14 @@ module Relaton
         @index ||= Relaton::Index.find_or_create :etsi, file: INDEX_FILE
       end
 
+      def gh_issue_channel
+        ["relaton/relaton-etsi", "Error fetching ETSI documents"]
+      end
+
+      def log_error(msg)
+        Util.error msg
+      end
+
       #
       # Fetch all ETSI documents from the ETSI website.
       #
@@ -30,9 +38,10 @@ module Relaton
         url = format(SOURCEURL, date: date, timestamp: timestamp)
         csv = fetch_with_retry(url)
         CSV.parse(csv, headers: true, col_sep: ";", skip_lines: /sep=;/).each do |row|
-          save DataParser.new(row).parse
+          save DataParser.new(row, @errors).parse
         end
         index.save
+        repot_errors
       end
 
       NETWORK_ERRORS = [

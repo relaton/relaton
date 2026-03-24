@@ -7,8 +7,9 @@ module Relaton
         keyword ext abstract language script
       ].freeze
 
-      def initialize(row)
+      def initialize(row, errors = {})
         @row = row
+        @errors = errors
       end
 
       def parse
@@ -19,11 +20,28 @@ module Relaton
       end
 
       def pubid
-        @pubid ||= PubId.parse(@row["ETSI deliverable"])
+        return @pubid if defined?(@pubid)
+
+        unless @row["ETSI deliverable"]
+          @errors[:pubid] &&= true
+          @pubid = nil
+          return @pubid
+        end
+
+        @errors[:pubid] &&= false
+        @pubid = PubId.parse(@row["ETSI deliverable"])
       end
 
       def title
-        [Bib::Title.new(content: @row["title"], language: "en", script: "Latn")]
+        result = if @row["title"]
+                   [Bib::Title.new(
+                     content: @row["title"], language: "en", script: "Latn",
+                   )]
+                 else
+                   []
+                 end
+        @errors[:title] &&= result.empty?
+        result
       end
 
       def docnumber
@@ -32,28 +50,57 @@ module Relaton
 
       def source
         urls = []
-        urls << Bib::Uri.new(content: @row["Details link"], type: "src")
-        urls << Bib::Uri.new(content: @row["PDF link"], type: "pdf")
+        if @row["Details link"]
+          urls << Bib::Uri.new(content: @row["Details link"], type: "src")
+        end
+        if @row["PDF link"]
+          urls << Bib::Uri.new(content: @row["PDF link"], type: "pdf")
+        end
+        @errors[:source] &&= urls.empty?
+        urls
       end
 
       def date
-        return [] unless pubid.date
-
-        [Bib::Date.new(type: "published", at: pubid.date)]
+        result = if pubid&.date
+                   [Bib::Date.new(type: "published", at: pubid.date)]
+                 else
+                   []
+                 end
+        @errors[:date] &&= result.empty?
+        result
       end
 
       def docidentifier
-        [Bib::Docidentifier.new(content: @row["ETSI deliverable"], type: "ETSI", primary: true)]
+        result = if @row["ETSI deliverable"]
+                   [Bib::Docidentifier.new(
+                     content: @row["ETSI deliverable"],
+                     type: "ETSI",
+                     primary: true,
+                   )]
+                 else
+                   []
+                 end
+        @errors[:docidentifier] &&= result.empty?
+        result
       end
 
       def version
-        return [] unless pubid.version
+        return [] unless pubid&.version
 
         [Bib::Version.new(draft: pubid.version)]
       end
 
       def status
-        stage = @row["Status"] == "On Approval" ? "#{pubid.type} approval" : @row["Status"]
+        unless @row["Status"]
+          @errors[:status] &&= true
+          return
+        end
+
+        stage = @row["Status"]
+        if stage == "On Approval"
+          stage = "#{pubid&.type} approval"
+        end
+        @errors[:status] &&= false
         Status.new(stage: stage)
       end
 
@@ -119,12 +166,23 @@ module Relaton
       end
 
       def keyword
-        taxon = @row["Keywords"].split(",").map do |kw|
-          Bib::LocalizedString.new(content: kw.strip, language: "en", script: "Latn")
+        unless @row["Keywords"]
+          @errors[:keyword] &&= true
+          return []
         end
-        return [] if taxon.empty?
 
-        [Bib::Keyword.new(taxon: taxon)]
+        taxon = parse_keyword_taxon
+        result = taxon.empty? ? [] : [Bib::Keyword.new(taxon: taxon)]
+        @errors[:keyword] &&= result.empty?
+        result
+      end
+
+      def parse_keyword_taxon
+        @row["Keywords"].split(",").map do |kw|
+          Bib::LocalizedString.new(
+            content: kw.strip, language: "en", script: "Latn",
+          )
+        end
       end
 
       def ext
@@ -132,13 +190,19 @@ module Relaton
       end
 
       def doctype
+        return unless pubid
+
         Doctype.create_from_abbreviation pubid.type
       end
 
       def abstract
-        return [] unless @row["Scope"]
-
-        [Bib::LocalizedMarkedUpString.new(content: @row["Scope"], language: "en", script: "Latn")]
+        result = if @row["Scope"]
+                   [Bib::LocalizedMarkedUpString.new(content: @row["Scope"], language: "en", script: "Latn")]
+                 else
+                   []
+                 end
+        @errors[:abstract] &&= result.empty?
+        result
       end
 
       def language

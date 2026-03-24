@@ -32,7 +32,7 @@ describe Relaton::Etsi::DataFetcher do
       expect(agent).to receive(:get).with(kind_of(String)).and_return double("page", body: "sep=;\r\n\"id\";\r\n\"12\";\r\n")
       data_parser = double "data_parser"
       expect(data_parser).to receive(:parse).and_return :bibitem
-      expect(Relaton::Etsi::DataParser).to receive(:new).with(kind_of(CSV::Row)).and_return data_parser
+      expect(Relaton::Etsi::DataParser).to receive(:new).with(kind_of(CSV::Row), kind_of(Hash)).and_return data_parser
       expect(subject).to receive(:save).with(:bibitem)
       expect(subject.index).to receive(:save)
       subject.fetch
