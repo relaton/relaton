@@ -10,10 +10,10 @@ module Relaton::Bipm
       #
       # @return [Relaton::Bipm::ItemDate] document
       #
-      def self.parse(path)
+      def self.parse(path, errors = {})
         doc = Nokogiri::XML(File.read(path, encoding: "UTF-8"))
         journal, volume, article = path.split("/")[-2].split("_")[1..]
-        new(doc, journal, volume, article).parse
+        new(doc, journal, volume, article, errors).parse
       end
 
       #
@@ -23,13 +23,15 @@ module Relaton::Bipm
       # @param [String] journal journal
       # @param [String] volume volume
       # @param [String] article article
+      # @param [Hash] errors errors hash
       #
-      def initialize(doc, journal, volume, article)
+      def initialize(doc, journal, volume, article, errors = {})
         @doc = doc.at "/article"
         @journal = journal
         @volume = volume
         @article = article
         @meta = doc.at("/article/front/article-meta")
+        @errors = errors
       end
 
       #
@@ -50,9 +52,11 @@ module Relaton::Bipm
       def parse_docidentifier
         pubid = "#{journal_title} #{volume_issue_article}"
         primary_id = create_docidentifier pubid, "BIPM", true
-        @meta.xpath("./article-id[@pub-id-type='doi']").each_with_object([primary_id]) do |id, m|
+        result = @meta.xpath("./article-id[@pub-id-type='doi']").each_with_object([primary_id]) do |id, m|
           m << create_docidentifier(id.text, id["pub-id-type"])
         end
+        @errors[:docidentifier] &&= result.empty?
+        result
       end
 
       #
@@ -96,11 +100,13 @@ module Relaton::Bipm
       # @return [Array<Relaton::Bib::TypedTitleString>] array of title strings
       #
       def parse_title
-        @meta.xpath("./title-group/article-title").map do |t|
+        result = @meta.xpath("./title-group/article-title").map do |t|
           next if t.text.empty?
 
           Relaton::Bib::Title.new(content: t.inner_html, language: t[:"xml:lang"], script: "Latn")
         end.compact
+        @errors[:title] &&= result.empty?
+        result
       end
 
       #
@@ -109,11 +115,13 @@ module Relaton::Bipm
       # @return [Array<Relaton::Bib::Contributor>] array of contributors
       #
       def parse_contributor
-        @meta.xpath("./contrib-group/contrib").map do |c|
+        result = @meta.xpath("./contrib-group/contrib").map do |c|
           role = Relaton::Bib::Contributor::Role.new(type: c[:"contrib-type"])
           attrs = { person: create_person(c), organization: create_organization(c), role: [role] }
           Relaton::Bib::Contributor.new(**attrs)
         end
+        @errors[:contributor] &&= result.empty?
+        result
       end
 
       def create_person(contrib)
@@ -230,6 +238,7 @@ module Relaton::Bipm
       #
       def parse_date
         at = dates.min
+        @errors[:date] &&= at.nil?
         [Relaton::Bib::Date.new(type: "published", at: at)]
       end
 
@@ -262,7 +271,7 @@ module Relaton::Bipm
       # @return [Array<Relaton::Bib::Copyright>] array of copyright associations
       #
       def parse_copyright
-        @meta.xpath("./permissions").each_with_object([]) do |l, m|
+        result = @meta.xpath("./permissions").each_with_object([]) do |l, m|
           from = l.at("./copyright-year")
           next unless from
 
@@ -274,6 +283,8 @@ module Relaton::Bipm
           end
           m << Relaton::Bib::Copyright.new(owner: owner, from: from.text)
         end
+        @errors[:copyright] &&= result.empty?
+        result
       end
 
       #
@@ -282,11 +293,13 @@ module Relaton::Bipm
       # @return [Array<Relaton::Bib::LocalizedMarkedUpString>] array of abstracts
       #
       def parse_abstract
-        @meta.xpath("./abstract").map do |a|
+        result = @meta.xpath("./abstract").map do |a|
           Relaton::Bib::LocalizedMarkedUpString.new(
             content: a.inner_html, language: a[:"xml:lang"], script: "Latn",
           )
         end
+        @errors[:abstract] &&= result.empty?
+        result
       end
 
       #
@@ -298,7 +311,9 @@ module Relaton::Bipm
         rels = dates do |d, t|
           Relaton::Bib::Relation.new(type: "hasManifestation", bibitem: bibitem(d, t))
         end
-        rels + parse_references
+        result = rels + parse_references
+        @errors[:relation] &&= result.empty?
+        result
       end
 
       #
@@ -395,11 +410,13 @@ module Relaton::Bipm
       end
 
       def parse_source
-        @meta.xpath("./article-id[@pub-id-type='doi']").each_with_object([]) do |l, a|
+        result = @meta.xpath("./article-id[@pub-id-type='doi']").each_with_object([]) do |l, a|
           url = "https://doi.org/#{l.text}"
           a << Relaton::Bib::Uri.new(content: url, type: "src")
           a << Relaton::Bib::Uri.new(content: url, type: "doi")
         end
+        @errors[:source] &&= result.empty?
+        result
       end
 
       def parse_ext

@@ -11,7 +11,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::ArticleParser do
     expect(Nokogiri).to receive(:XML).with(:xml).and_return :doc
     parser = double "parser"
     expect(parser).to receive(:parse)
-    expect(described_class).to receive(:new).with(:doc, "55", "1", "L13").and_return parser
+    expect(described_class).to receive(:new).with(:doc, "55", "1", "L13", {}).and_return parser
     described_class.parse path
   end
 

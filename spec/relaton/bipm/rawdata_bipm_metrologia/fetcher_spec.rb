@@ -11,7 +11,8 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
 
   context "instance methods" do
     let(:index) { double "index" }
-    let(:data_fetcher) { instance_double Relaton::Bipm::DataFetcher, output: "output", ext: "yaml", index: index }
+    let(:errors) { Hash.new(true) }
+    let(:data_fetcher) { instance_double Relaton::Bipm::DataFetcher, output: "output", ext: "yaml", index: index, errors: errors }
     subject { described_class.new data_fetcher }
 
     context "fetch_metrologia" do
@@ -77,9 +78,9 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
       item = Relaton::Bipm::ItemData.new(docidentifier: [docid])
       # Expect parse to be called in sorted order: old first, then new
       expect(Relaton::Bipm::RawdataBipmMetrologia::ArticleParser).to receive(:parse)
-        .with(path_old).ordered.and_return item
+        .with(path_old, errors).ordered.and_return item
       expect(Relaton::Bipm::RawdataBipmMetrologia::ArticleParser).to receive(:parse)
-        .with(path_new).ordered.and_return item
+        .with(path_new, errors).ordered.and_return item
       expect(data_fetcher).to receive(:write_file).with("output/metrologia.yaml", item).twice
       expect(index).to receive(:add_or_update).with({ group: "Metrologia" }, "output/metrologia.yaml").twice
       subject.fetch_articles

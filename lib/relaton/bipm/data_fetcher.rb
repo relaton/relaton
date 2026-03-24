@@ -6,10 +6,18 @@ require_relative "rawdata_bipm_metrologia/fetcher"
 
 module Relaton::Bipm
   class DataFetcher < Relaton::Core::DataFetcher
-    attr_reader :output, :format, :ext, :files, :index
+    attr_reader :output, :format, :ext, :files, :index, :errors
 
     def index
       @index ||= Relaton::Index.find_or_create :bipm, file: INDEXFILE
+    end
+
+    def gh_issue_channel
+      ["relaton/relaton-bipm", "Error fetching BIPM documents"]
+    end
+
+    def log_error(msg)
+      Util.error msg
     end
 
     #
@@ -24,6 +32,7 @@ module Relaton::Bipm
       when "rawdata-bipm-metrologia" then RawdataBipmMetrologia::Fetcher.fetch(self)
       end
       index.save
+      repot_errors
     end
 
     #

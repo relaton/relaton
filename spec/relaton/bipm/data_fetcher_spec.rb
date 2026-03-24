@@ -30,9 +30,24 @@ describe Relaton::Bipm::DataFetcher do
     #   allow(File).to receive(:exist?).and_call_original
     # end
 
+    it "#gh_issue_channel" do
+      expect(subject.gh_issue_channel).to eq ["relaton/relaton-bipm", "Error fetching BIPM documents"]
+    end
+
+    it "#repot_errors" do
+      errors = subject.instance_variable_get(:@errors)
+      errors[:title] = false
+      errors[:date] = true
+      expect(subject.gh_issue).to receive(:create_issue)
+      expect do
+        subject.repot_errors
+      end.to output(/\[relaton-bipm\] ERROR: Failed to fetch date/).to_stderr_from_any_process
+    end
+
     context "#fetch" do
       before(:each) do
         expect(subject.index).to receive(:save)
+        expect(subject).to receive(:repot_errors)
       end
 
       it "bipm-datata-outcomes" do
