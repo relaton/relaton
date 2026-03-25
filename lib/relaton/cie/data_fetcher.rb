@@ -32,18 +32,40 @@ module Relaton
         @index ||= Index.find_or_create :cie, file: "index-v1.yaml"
       end
 
+      def gh_issue_channel
+        ["relaton/relaton-cie", "Error fetching CIE documents"]
+      end
+
+      def log_error(msg)
+        Util.error msg
+      end
+
       # @param hit [Nokogiri::HTML::Document]
       # @param doc [Mechanize::Page]
       # @return [Array<Relaton::Bib::Docidentifier>]
       def fetch_docid(hit, doc)
         code, code2 = parse_code hit, doc
-        docid = [Bib::Docidentifier.new(type: "CIE", content: code, primary: true)]
-        if code2
+        docid = []
+        if code && !code.strip.empty?
+          docid << Bib::Docidentifier.new(type: "CIE", content: code, primary: true)
+          @errors[:docid_1] &&= false
+        else
+          @errors[:docid_1] &&= true
+        end
+        if code2 && !code2.strip.empty?
           type2 = code2.match(/\w+/).to_s
           docid << Relaton::Bib::Docidentifier.new(type: type2, content: code2.strip)
+          @errors[:docid_2] &&= false
+        else
+          @errors[:docid_2] &&= true
         end
-        isbn = doc.at('//h3[contains(.,"ISBN")]/following-sibling::span')
-        docid << Bib::Docidentifier.new(type: "ISBN", content: isbn.text.strip) if isbn
+        isbn = doc.at('//h3[contains(.,"ISBN")]/following-sibling::span')&.text
+        if isbn && !isbn.strip.empty?
+          docid << Bib::Docidentifier.new(type: "ISBN", content: isbn)
+          @errors[:docid_isbn] &&= false
+        else
+          @errors[:docid_isbn] &&= true
+        end
         docid
       end
 
@@ -82,35 +104,46 @@ module Relaton
       # @return [Array<Relaton::Bib::Title>]
       def fetch_title(doc)
         t = doc.at("//hgroup/h2/text()", "//hgroup/h1/text()")
-        return [] unless t
+        unless t && !t.text.strip.empty?
+          @errors[:title] &&= true
+          return []
+        end
 
-        Bib::Title.from_string t.text.strip
+        result = Bib::Title.from_string t.text.strip
+        @errors[:title] &&= result.empty?
+        result
       end
 
       # @param doc [Mechanize::Page]
       # @return [Array<Relaton::Bib::Date>]
       def fetch_date(doc)
-        doc.xpath("//h3[.='Published:']/following-sibling::span").map do |d|
+        result = doc.xpath("//h3[.='Published:']/following-sibling::span").map do |d|
           pd = d.text.strip
           on = pd.match?(/^\d{4}(?:[^-]|$)/) ? pd : Date.strptime(pd, "%m/%d/%Y").strftime("%Y-%m-%d")
           Bib::Date.new(type: "published", at: on)
         end
+        @errors[:date] &&= result.empty?
+        result
       end
 
       # @param doc [Mechanize::Page]
       # @return [String]
       def fetch_edition(doc)
         ed = doc.at("//h3[.='Edition:']/following-sibling::span")
+        @errors[:edition] &&= true
         return unless ed
 
         content = ed.text.slice(/^\d+(?=(st|nd|rd|th))/)
-        Bib::Edition.new(content: content) if content
+        if content
+          @errors[:edition] = false
+          Bib::Edition.new(content: content)
+        end
       end
 
       # @param doc [Mechanize::Page]
       # @return [Array<Relaton::Cie::Relation>]
       def fetch_relation(doc) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-        doc.xpath('//section[@class="history"]/ol/li[not(contains(@class,"selected-product"))]').map do |rel|
+        rels = doc.xpath('//section[@class="history"]/ol/li[not(contains(@class,"selected-product"))]').map do |rel|
           ref = rel.at("a")
           url = "https://www.techstreet.com#{ref[:href]}"
           title = Bib::Title.from_string ref.at('p/span[@class="title"]').text
@@ -123,11 +156,16 @@ module Relaton
           type = ref.at('//li/i[contains(@class,"historical")]') ? "updates" : "updatedBy"
           Bib::Relation.new(type: type, bibitem: bibitem)
         end
+        @errors[:relation] &&= rels.empty?
+        rels
       end
 
       # @param url [String]
       # @return [Array<Relaton::Bib::Uri>]
       def fetch_source(url)
+        @errors[:source] &&= url.nil? || url.empty?
+        return [] if url.nil? || url.empty?
+
         [Bib::Uri.new(type: "src", content: url)]
       end
 
@@ -135,9 +173,14 @@ module Relaton
       # @return [Array<Relaton::Bib::LocalizedMarkedUpString>]
       def fetch_abstract(doc)
         content = doc.at('//div[contains(@class,"description")]')&.text&.strip
-        return [] if content.nil? || content.empty?
+        if content.nil? || content.empty?
+          @errors[:abstract] &&= true
+          return []
+        end
 
-        [Bib::LocalizedMarkedUpString.new(content: content, language: "en", script: "Latn")]
+        result = [Bib::LocalizedMarkedUpString.new(content: content, language: "en", script: "Latn")]
+        @errors[:abstract] &&= result.empty?
+        result
       end
 
       # @param doc [Mechanize::Page]
@@ -165,6 +208,7 @@ module Relaton
           person = Bib::Person.new name: fullname
           role = Bib::Contributor::Role.new type: "author"
           contribs << Bib::Contributor.new(person: person, role: [role])
+          @errors[:contributor_author] &&= contribs.empty?
         end
         org_name = Bib::TypedLocalizedString.new(content: "Commission Internationale de L'Eclairage")
         abbrev = Bib::LocalizedString.new content: "CIE"
@@ -226,6 +270,7 @@ module Relaton
 
       def fetch(_source = nil)
         fetch_doc
+        repot_errors
       end
 
       def fetch_doc(url = URL)
