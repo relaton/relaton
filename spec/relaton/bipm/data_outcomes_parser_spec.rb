@@ -12,7 +12,8 @@ describe Relaton::Bipm::DataOutcomesParser do
 
   context "instance methods" do
     let(:index) { double "index" }
-    let(:data_fetcher) { double "data_fetcher", output: "data", format: "yaml", ext: "yaml", files: [], index: index }
+    let(:errors) { Hash.new(true) }
+    let(:data_fetcher) { double "data_fetcher", output: "data", format: "yaml", ext: "yaml", files: [], index: index, errors: errors }
     subject { described_class.new data_fetcher }
 
     it "#parse" do
@@ -161,7 +162,7 @@ describe Relaton::Bipm::DataOutcomesParser do
     end
 
     context "#parse_file" do
-      let(:data_fetcher) { double "data_fetcher", output: "data", format: "xml", ext: "xml", files: [], index: index }
+      let(:data_fetcher) { double "data_fetcher", output: "data", format: "xml", ext: "xml", files: [], index: index, errors: errors }
       it "xml" do
         expect(File).to receive(:read).with("file.xml", encoding: "UTF-8").and_return "xml"
         expect(Relaton::Bipm::Item).to receive(:from_xml).with("xml").and_return "item"

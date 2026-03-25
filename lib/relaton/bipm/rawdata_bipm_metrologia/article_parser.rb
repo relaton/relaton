@@ -55,7 +55,7 @@ module Relaton::Bipm
         result = @meta.xpath("./article-id[@pub-id-type='doi']").each_with_object([primary_id]) do |id, m|
           m << create_docidentifier(id.text, id["pub-id-type"])
         end
-        @errors[:docidentifier] &&= result.empty?
+        @errors[:article_docidentifier] &&= result.empty?
         result
       end
 
@@ -109,7 +109,7 @@ module Relaton::Bipm
 
           Relaton::Bib::Title.new(content: t.inner_html, language: t[:"xml:lang"], script: "Latn")
         end.compact
-        @errors[:title] &&= result.empty?
+        @errors[:article_title] &&= result.empty?
         result
       end
 
@@ -124,13 +124,13 @@ module Relaton::Bipm
           attrs = { person: create_person(c), organization: create_organization(c), role: [role] }
           Relaton::Bib::Contributor.new(**attrs)
         end
-        @errors[:contributor] &&= result.empty?
+        @errors[:article_contributor] &&= result.empty?
         result
       end
 
       def create_person(contrib)
         name = contrib.at("./name")
-        @errors[:contributor_person] &&= name.nil? || name.text.empty?
+        @errors[:article_contributor_person] &&= name.nil? || name.text.empty?
         return if name.nil? || name.text.empty?
 
         Relaton::Bib::Person.new name: fullname(name), affiliation: affiliation(contrib)
@@ -138,7 +138,7 @@ module Relaton::Bipm
 
       def create_organization(contrib)
         org = contrib.at("./collab")
-        @errors[:contributor_organization] &&= org.nil? || org.text.empty?
+        @errors[:article_contributor_organization] &&= org.nil? || org.text.empty?
         return if org.nil? || org.text.empty?
 
         name = Relaton::Bib::TypedLocalizedString.new(content: org.text)
@@ -157,7 +157,7 @@ module Relaton::Bipm
           a = @meta.at("./contrib-group/aff[@id='#{x[:rid]}']") # /label/following-sibling::node()")
             parse_affiliation a
         end.compact
-        @errors[:affiliation] &&= aff.empty?
+        @errors[:article_affiliation] &&= aff.empty?
         aff
       end
 
@@ -186,7 +186,7 @@ module Relaton::Bipm
 
       def parse_division(aff)
         div = aff.xpath("text()[following-sibling::institution]").text.gsub(/^\W*|\W*$/, "")
-        @errors[:affiliation_division] &&= div.empty?
+        @errors[:article_affiliation_division] &&= div.empty?
         return [] if div.empty?
 
         name = Relaton::Bib::TypedLocalizedString.new(content: div, language: "en", script: "Latn")
@@ -200,7 +200,7 @@ module Relaton::Bipm
         country = aff.at('country')
         address << country.text if country && !country.text.empty?
         address = address.join(", ")
-        @errors[:affiliation_address] &&= address.empty?
+        @errors[:article_affiliation_address] &&= address.empty?
         return [] if address.empty?
 
         [Relaton::Bib::Address.new(formatted_address: address)]
@@ -215,7 +215,7 @@ module Relaton::Bipm
       #
       def fullname(name)
         cname = [name.at("./given-names"), name.at("./surname")].compact.map(&:text).join(" ")
-        @errors[:fullname] &&= cname.empty?
+        @errors[:article_fullname] &&= cname.empty?
         return if cname.empty?
 
         completename = Relaton::Bib::LocalizedString.new content: cname, language: "en", script: "Latn"
@@ -251,7 +251,7 @@ module Relaton::Bipm
       #
       def parse_date
         at = dates.min
-        @errors[:date] &&= at.nil?
+        @errors[:article_date] &&= at.nil?
         return [] unless at
 
         [Relaton::Bib::Date.new(type: "published", at: at)]
@@ -298,7 +298,7 @@ module Relaton::Bipm
           end
           m << Relaton::Bib::Copyright.new(owner: owner, from: from.text)
         end
-        @errors[:copyright] &&= result.empty?
+        @errors[:article_copyright] &&= result.empty?
         result
       end
 
@@ -313,7 +313,7 @@ module Relaton::Bipm
             content: a.inner_html, language: a[:"xml:lang"], script: "Latn",
           )
         end
-        @errors[:abstract] &&= result.empty?
+        @errors[:article_abstract] &&= result.empty?
         result
       end
 
@@ -326,7 +326,7 @@ module Relaton::Bipm
         rels = dates do |d, t|
           Relaton::Bib::Relation.new(type: "hasManifestation", bibitem: bibitem(d, t))
         end
-        @errors[:relation] &&= refs.empty?
+        @errors[:article_relation] &&= refs.empty?
         rels + parse_references
       end
 
@@ -342,7 +342,7 @@ module Relaton::Bipm
 
           Relaton::Bib::Relation.new(type: "cites", bibitem: citation_bibitem(citation))
         end
-        @errors[:references] &&= refs.empty?
+        @errors[:article_references] &&= refs.empty?
         refs
       end
 
@@ -355,27 +355,27 @@ module Relaton::Bipm
       #
       def citation_bibitem(citation)
         attrs = {}
-        doi = citation.at("./pub-id[@pub-id-type='doi']")
-        if doi
-          @errors[:citation_doi] &&= false
-          attrs[:docidentifier] = [Relaton::Bib::Docidentifier.new(content: doi.text, type: "doi")]
-          attrs[:source] = [Relaton::Bib::Uri.new(content: "https://doi.org/#{doi.text}", type: "doi")]
+        doi = citation.at("./pub-id[@pub-id-type='doi']")&.text
+        if doi && !doi.empty?
+          @errors[:article_citation_doi] &&= false
+          attrs[:docidentifier] = [Relaton::Bib::Docidentifier.new(content: doi, type: "doi")]
+          attrs[:source] = [Relaton::Bib::Uri.new(content: "https://doi.org/#{doi}", type: "doi")]
         else
-          @errors[:citation_doi] &&= true
+          @errors[:article_citation_doi] &&= true
         end
-        source = citation.at("./source")
-        if source
-          @errors[:citation_title] &&= false
-          attrs[:title] = [Relaton::Bib::Title.new(content: source.text)]
+        source = citation.at("./source")&.text
+        if source && !source.empty?
+          @errors[:article_citation_title] &&= false
+          attrs[:title] = [Relaton::Bib::Title.new(content: source)]
         else
-          @errors[:citation_title] &&= true
+          @errors[:article_citation_title] &&= true
         end
-        year = citation.at("./year")
-        if year
-          @errors[:citation_date] &&= false
-          attrs[:date] = [Relaton::Bib::Date.new(type: "published", at: year.text)]
+        year = citation.at("./year")&.text
+        if year && !year.empty?
+          @errors[:article_citation_date] &&= false
+          attrs[:date] = [Relaton::Bib::Date.new(type: "published", at: year)]
         else
-          @errors[:citation_date] &&= true
+          @errors[:article_citation_date] &&= true
         end
         ItemData.new(**attrs)
       end
@@ -420,7 +420,7 @@ module Relaton::Bipm
           end
           Relaton::Bib::Locality.new type: type, reference_from: e.text, reference_to: to
         end
-        @errors[:extent] &&= locs.empty?
+        @errors[:article_extent] &&= locs.empty?
         return [] if locs.empty?
 
         [Relaton::Bib::Extent.new(locality: locs)]
@@ -434,7 +434,7 @@ module Relaton::Bipm
           a << Relaton::Bib::Uri.new(content: url, type: "src")
           a << Relaton::Bib::Uri.new(content: url, type: "doi")
         end
-        @errors[:source] &&= result.empty?
+        @errors[:article_source] &&= result.empty?
         result
       end
 

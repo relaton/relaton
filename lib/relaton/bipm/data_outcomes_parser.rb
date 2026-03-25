@@ -167,6 +167,7 @@ module Relaton::Bipm
       args[:en]["resolutions"].each.with_index do |r, i| # rubocop:disable Metrics/BlockLength
         num = r["identifier"].to_s # .split("-").last
         date = r["dates"].first.to_s
+        @data_fetcher.errors[:resolution_date] &&= date.nil? || date.empty?
         year = date.split("-").first
         num = "0" if num == year
 
@@ -179,8 +180,8 @@ module Relaton::Bipm
 
         fr_r = args.dig(:fr, "resolutions", i) # @TODO: create a GH issue when fr is missing
         hash[:title] = resolution_title r, fr_r
-        hash[:source] = resolution_link r, fr_r, args[:src]
-        hash[:date] = [Relaton::Bib::Date.new(type: "published", at: date)]
+        hash[:source] = resolution_source r, fr_r, args[:src]
+        hash[:date] = create_date(type: "published", at: date)
         num_justed = num.rjust 2, "0"
         type = r["type"].capitalize
         docnum = create_resolution_docnum args[:body], type, num, date
@@ -190,6 +191,7 @@ module Relaton::Bipm
         hash[:language] = %w[en fr]
         hash[:script] = ["Latn"]
         hash[:contributor] = contributors date, args[:body]
+        @data_fetcher.errors[:resolution_contributor] &&= hash[:contributor].size < 2 # BIPM + committee
         item = ItemData.new(**hash)
         file = "#{year}-#{num_justed}.#{@data_fetcher.ext}"
         out_dir = File.join args[:dir], r["type"].downcase
@@ -225,6 +227,7 @@ module Relaton::Bipm
       title = []
       title << create_title(en_r["title"], "en") if en_r["title"] && !en_r["title"].empty?
       title << create_title(fr_r["title"], "fr") if fr_r && fr_r["title"] && !fr_r["title"].empty?
+      @data_fetcher.errors[:resolution_title] &&= title.empty?
       title
     end
 
@@ -237,14 +240,28 @@ module Relaton::Bipm
     #
     # @return [Array<Hash>] links
     #
-    def resolution_link(en_r, fr_r, src)
-      link = [Relaton::Bib::Uri.new(type: "citation", content: en_r["url"], language: "en", script: "Latn")]
-      if fr_r
-        link << Relaton::Bib::Uri.new(type: "citation", content: fr_r["url"], language: "fr", script: "Latn")
+    def resolution_source(en_r, fr_r, src)
+      source = []
+      if en_r["url"] && !en_r["url"].empty?
+        source << Relaton::Bib::Uri.new(type: "citation", content: en_r["url"], language: "en", script: "Latn")
+        @data_fetcher.errors[:resolution_source_citation_en] = false
+      else
+        @data_fetcher.errors[:resolution_source_citation] &&= true
       end
-      link += src
-      link << Relaton::Bib::Uri.new(type: "pdf", content: en_r["reference"]) if en_r["reference"]
-      link
+      if fr_r && fr_r["url"] && !fr_r["url"].empty?
+        source << Relaton::Bib::Uri.new(type: "citation", content: fr_r["url"], language: "fr", script: "Latn")
+        @data_fetcher.errors[:resolution_source_citation_fr] = false
+      else
+        @data_fetcher.errors[:resolution_source_citation_fr] &&= true
+      end
+      source += src if src
+      if en_r["reference"]
+        source << Relaton::Bib::Uri.new(type: "pdf", content: en_r["reference"])
+        @data_fetcher.errors[:resolution_source_pdf] = false
+      else
+        @data_fetcher.errors[:resolution_source_pdf] &&= true
+      end
+      source
     end
 
     #
@@ -446,21 +463,32 @@ module Relaton::Bipm
         ext: create_ext(args[:type], args[:num]),
       }
       hash[:title] = create_titles args.slice(:en, :fr)
-      hash[:date] = [Relaton::Bib::Date.new(type: "published", at: args[:en]["date"])]
+      hash[:date] = create_date(type: "published", at: args[:en]["date"])
+      @data_fetcher.errors[:meeting_date] &&= hash[:date].empty?
       hash[:docidentifier] = create_meeting_docids docnum
       hash[:docnumber] = docnum # .sub(" --", "").sub(/\s\(\d{4}\)/, "")
       hash[:id] = create_id(body: args[:body], type: args[:type], num: args[:num], date: args[:en]["date"])
       hash[:source] = create_links(**args)
+      @data_fetcher.errors[:meeting_source] &&= hash[:source].empty?
       hash[:language] = %w[en fr]
       hash[:script] = ["Latn"]
       hash[:contributor] = contributors args[:en]["date"], args[:body]
+      @data_fetcher.errors[:meeting_contributor] &&= hash[:contributor].size < 2 # BIPM + committee
       hash
     end
 
+    def create_date(**args)
+      return [] if args[:at].nil? || args[:at].empty?
+
+      [Relaton::Bib::Date.new(**args)]
+    end
+
     def create_titles(data)
-      data.each_with_object([]) do |(lang, md), mem|
+      result = data.each_with_object([]) do |(lang, md), mem|
         mem << create_title(md["title"], lang.to_s) if md && md["title"]
       end
+      @data_fetcher.errors[:meeting_title] &&= result.empty?
+      result
     end
 
     #
@@ -555,6 +583,8 @@ module Relaton::Bipm
       ids = []
       resolution_short_ids(body, type, num, year) { |id| ids << id }
       resolution_long_ids(body, type, num, year) { |id| ids << id }
+      @data_fetcher.errors[:resolution_docidentifier] &&= ids.empty?
+      ids
     end
 
     def resolution_short_ids(body, type, num, year, &_block)
@@ -600,11 +630,13 @@ module Relaton::Bipm
     def create_meeting_docids(en_id)
       fr_id = en_id.sub(/(\d+)(?:st|nd|rd|th)/, '\1e').sub("Meeting", "réunion")
       fr_id_sup = fr_id.sub(/(\d+)(e)/, '\1<sup>\2</sup>')
-      [
+      result = [
         make_docid(content: en_id, type: "BIPM", primary: true, language: "en", script: "Latn"),
         make_docid(content: fr_id_sup, type: "BIPM", primary: true, language: "fr", script: "Latn"),
         make_docid(content: "#{en_id} / #{fr_id_sup}", type: "BIPM", primary: true),
       ]
+      @data_fetcher.errors[:meeting_docidentifier] &&= result.empty?
+      result
     end
 
     #

@@ -35,8 +35,11 @@ module Relaton::Bipm
         xml = File.read(f, encoding: "UTF-8")
         xml = xml.force_encoding("UTF-8") if xml.encoding != Encoding::UTF_8
         item1 = Bibdata.from_xml(xml)
+        @data_fetcher.errors[:si_brochure_title] &&= item1.title.empty?
+        @data_fetcher.errors[:si_brochure_docidentifier] &&= item1.docidentifier.empty?
         unless has_committee_contributor?(item1)
-          extract_editorialgroup(xml).each { |c| item1.contributor << c }
+          contribs = extract_editorialgroup(xml)
+          contribs.each { |c| item1.contributor << c }
         end
         fix_si_brochure_id item1
         basename = File.join @data_fetcher.output, File.basename(f).sub(/(?:-(?:en|fr))?\.rxl$/, "")

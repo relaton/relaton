@@ -16,7 +16,6 @@ module Relaton::Bipm
       # @param data_fetcher [Relaton::Bipm::DataFetcher]
       def initialize(data_fetcher)
         @data_fetcher = WeakRef.new data_fetcher
-        @errors = data_fetcher.errors
       end
 
       #
@@ -35,7 +34,7 @@ module Relaton::Bipm
       def fetch_articles # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         # aff = Affiliations.parse DIR
         Dir["#{DIR}/**/*.xml"].sort_by { |p| archive_date(p) }.each do |path|
-          item = ArticleParser.parse path, @errors
+          item = ArticleParser.parse path, @data_fetcher.errors
           file = "#{item.docidentifier.first.content.downcase.tr(' ', '-')}.#{@data_fetcher.ext}"
           out_path = File.join(@data_fetcher.output, file)
           key = Relaton::Bipm::Id.new.parse(item.docidentifier.first.content).to_hash

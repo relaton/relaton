@@ -12,7 +12,8 @@ describe Relaton::Bipm::SiBrochureParser do
 
   context "instance methods" do
     let(:index) { double "index" }
-    let(:data_fetcher) { double "data_fetcher", output: "data", ext: "yaml", files: [], index: index }
+    let(:errors) { Hash.new(true) }
+    let(:data_fetcher) { double "data_fetcher", output: "data", ext: "yaml", files: [], index: index, errors: errors }
     subject { described_class.new data_fetcher }
 
     it "#parse_si_brochure" do
