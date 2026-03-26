@@ -15,9 +15,10 @@ module Relaton
       DATETYPES = { "発行年月日" => "issued", "確認年月日" => "confirmed" }.freeze
       STATUSES = { "有効" => "valid", "廃止" => "withdrawn" }.freeze
 
-      def initialize(url)
+      def initialize(url, errors = {})
         @url = url
         @agent = Mechanize.new
+        @errors = errors
       end
 
       def fetch # rubocop:disable Metrics/MethodLength
@@ -25,18 +26,18 @@ module Relaton
         contributors = fetch_contributor
         eg_contributor = fetch_editorialgroup_contributor
         contributors << eg_contributor if eg_contributor
-        attrs = ATTRS.each_with_object({}) do |attr, hash|
-          hash[attr] = send "fetch_#{attr}"
-        end
+        attrs = ATTRS.to_h { |attr| [attr, send("fetch_#{attr}")] }
         attrs[:contributor] = contributors
         Bib::ItemData.new(**attrs)
       end
 
       def fetch_title
-        { "ja" => "Jpan", "en" => "Latn" }.map.with_index do |(lang, script), i|
+        result = { "ja" => "Jpan", "en" => "Latn" }.map.with_index do |(lang, script), i|
           content = @doc.at("./h2/text()[#{i + 2}]").text.strip
           Bib::Title.new content: content, language: lang, script: script
         end
+        @errors[:title] &&= result.empty?
+        result
       end
 
       def fetch_source # rubocop:disable Metrics/MethodLength
@@ -44,45 +45,60 @@ module Relaton
         uri = URI @url
         domain = "#{uri.scheme}://#{uri.host}"
         xpath = "./dl/dt[.='プレビュー']/following-sibling::dd[1]/a"
-        @doc.xpath(xpath).reduce([src]) do |mem, node|
+        result = @doc.xpath(xpath).reduce([src]) do |mem, node|
           href = "#{domain}#{node[:href]}"
           mem << Bib::Uri.new(content: href, type: "pdf")
         end
+        @errors[:source] &&= result.empty?
+        result
       end
 
       def fetch_abstract
-        @doc.xpath("//div[@id='honbun']").map do |node|
+        result = @doc.xpath("//div[@id='honbun']").map do |node|
           Bib::LocalizedMarkedUpString.new(
             content: node.text.strip,
             language: "ja", script: "Jpan"
           )
         end
+        @errors[:abstract] &&= result.empty?
+        result
       end
 
       def fetch_docidentifier
         docid = document_id
+        @errors[:docidentifier] &&= docid.nil? || docid.empty?
+        return [] if docid.nil? || docid.empty?
+
         [Docidentifier.new(
           content: docid, type: "JIS", primary: true,
         )]
       end
 
       def fetch_docnumber
-        match = document_id.match(/^\w+\s(\w)\s?(\d+)/)
+        docid = document_id
+        match = docid&.match(/^\w+\s(\w)\s?(\d+)/)
+        @errors[:docnumber] &&= match.nil?
+        return unless match
+
         "#{match[1]}#{match[2]}"
       end
 
       def document_id
-        @document_id ||= @doc.at("./h2/text()[1]").text.strip
+        @document_id ||= @doc.at("./h2/text()[1]")&.text&.strip
       end
 
       def fetch_date
-        DATETYPES.each_with_object([]) do |(key, type), a|
+        result = DATETYPES.each_with_object([]) do |(key, type), a|
           node = @doc.at("./div/div/div/p/text()[contains(.,'#{key}')]")
           next unless node
 
           at = node.text.match(/\d{4}-\d{2}-\d{2}/).to_s
+          next if at.empty?
+
           a << Bib::Date.new(type: type, at: at)
         end
+        @errors[:date] &&= result.empty?
+        result
       end
 
       def fetch_type
@@ -97,15 +113,19 @@ module Relaton
         langs_scripts.map { |l| l[:script] }
       end
 
-      def langs_scripts
-        @langs_scripts ||= LANGS.each_with_object([]) do |(key, lang), a|
-          l = @doc.at(
-            "./div/div/div[@class='blockContentFile']/div/div/p[1]" \
-            "/span[contains(.,'#{key}')]/following-sibling::span",
-          )
-          next if l.nil? || l.text.strip == "-"
+      def langs_scripts # rubocop:disable Metrics/MethodLength
+        @langs_scripts ||= begin
+          result = LANGS.each_with_object([]) do |(key, lang), a|
+            l = @doc.at(
+              "./div/div/div[@class='blockContentFile']/div/div/p[1]" \
+              "/span[contains(.,'#{key}')]/following-sibling::span",
+            )
+            next if l.nil? || l.text.strip == "-"
 
-          a << lang
+            a << lang
+          end
+          @errors[:language] &&= result.empty?
+          result
         end
       end
 
@@ -113,24 +133,30 @@ module Relaton
         xpath = "./div/div/div/p/text()[contains(.,'状態')]" \
                 "/following-sibling::span"
         st = @doc.at(xpath)
-        return unless st
+        status_val = STATUSES[st&.text&.strip]
+        @errors[:status] &&= status_val.nil?
+        return unless status_val
 
-        stage = Bib::Status::Stage.new(content: STATUSES[st.text.strip])
+        stage = Bib::Status::Stage.new(content: status_val)
         Bib::Status.new(stage: stage)
       end
 
-      def fetch_doctype
+      def fetch_doctype # rubocop:disable Metrics/CyclomaticComplexity
         type = case document_id
                when /JIS\s[A-Z]\s[\w-]+:\d{4}\/AMENDMENT/ then "amendment"
                when /JIS\s[A-Z]\s[\w-]+/ then "japanese-industrial-standard"
                when /TR[\s\/][\w-]+/ then "technical-report"
                when /TS[\s\/][\w-]+/ then "technical-specification"
                end
+        @errors[:doctype] &&= type.nil?
+        return unless type
+
         Doctype.new content: type
       end
 
       def fetch_ics
         td = @doc.at("./table/tr[th[.='ICS']]/td")
+        @errors[:ics] &&= td.nil?
         return [] unless td
 
         td.text.strip.split.map { |code| Bib::ICS.new code: code }
@@ -141,10 +167,12 @@ module Relaton
           "一般財団法人　日本規格協会", "authorizer"
         )
         xpath = "./table/tr[th[.='原案作成団体']]/td"
-        @doc.xpath(xpath).reduce([authorizer]) do |a, node|
+        result = @doc.xpath(xpath).reduce([authorizer]) do |a, node|
           a << create_contrib(node.text.strip, "author")
           a << create_contrib(node.text.strip, "publisher")
         end
+        @errors[:contributor] &&= result.empty?
+        result
       end
 
       def create_contrib(name, role)
@@ -167,6 +195,7 @@ module Relaton
 
       def fetch_editorialgroup_contributor # rubocop:disable Metrics/MethodLength
         node = @doc.at("./table/tr[th[.='原案作成団体']]/td")
+        @errors[:editorialgroup] &&= node.nil?
         return unless node
 
         subdivision = Bib::Subdivision.new(

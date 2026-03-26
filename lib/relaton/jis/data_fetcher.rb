@@ -52,7 +52,7 @@ module Relaton
       def fetch_doc(url) # rubocop:disable Metrics/MethodLength
         attempts = 0
         begin
-          bib = Scraper.new(url).fetch
+          bib = Scraper.new(url, @errors).fetch
         rescue StandardError => e
           attempts += 1
           if attempts < 5
@@ -73,6 +73,7 @@ module Relaton
         resp = agent.get "#{URL}W11M0070/index"
         parse_page resp
         index.save
+        repot_errors
       end
 
       def initial_post

@@ -174,7 +174,7 @@ describe Relaton::Jis::DataFetcher do # rubocop:disable Metrics/BlockLength
       let(:scraper) { double "scraper" }
       before do
         allow(Relaton::Jis::Scraper).to receive(:new)
-          .with("url").and_return scraper
+          .with("url", kind_of(Hash)).and_return scraper
       end
 
       it "success" do
