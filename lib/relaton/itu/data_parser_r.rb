@@ -18,7 +18,8 @@ module Relaton
       #
       # @return [Relaton::Itu::ItemData] bibliographic item
       #
-      def parse(result)
+      def parse(result, errors = {})
+        @errors = errors
         doctype = fetch_doctype(result)
         return unless doctype
 
@@ -35,10 +36,12 @@ module Relaton
       def fetch_docid(result)
         title = result["Title"].to_s
         id = title.match(/^(ITU-R\s+\S+)/)&.captures&.first
-        return [] unless id
+        return(@errors[:docid] &&= true; []) unless id
 
         id = id.sub(/\s*\(.*/, "")
-        [Docidentifier.new(type: "ITU", content: id, primary: true)]
+        result_ids = [Docidentifier.new(type: "ITU", content: id, primary: true)]
+        @errors[:docid] &&= result_ids.empty?
+        result_ids
       end
 
       # @param result [Hash]
@@ -47,31 +50,49 @@ module Relaton
         title = result["Title"].to_s
         content = title.sub(/^[^:]+:\s*/, "").strip
         content = title unless content.length > 0
-        [Relaton::Bib::Title.new(type: "main", content: content, language: "en", script: "Latn")]
+        r = [Relaton::Bib::Title.new(type: "main", content: content, language: "en", script: "Latn")]
+        @errors[:title] &&= r.empty?
+        r
       end
 
       # @param result [Hash]
       # @return [Array<Relaton::Bib::Date>]
       def fetch_date(result)
         prop = property(result, "Publication date")
-        return [] unless prop
+        unless prop
+          @errors[:date] &&= true
+          return []
+        end
 
         date = parse_pub_date(prop)
-        return [] unless date
+        unless date
+          @errors[:date] &&= true
+          return []
+        end
 
-        [Relaton::Bib::Date.new(type: "published", at: date)]
+        r = [Relaton::Bib::Date.new(type: "published", at: date)]
+        @errors[:date] &&= r.empty?
+        r
       end
 
       # @param result [Hash]
       # @return [Array<Relaton::Bib::Uri>]
       def fetch_source(result)
         locations = result["Locations"]
-        return [] unless locations.is_a?(Array)
+        unless locations.is_a?(Array)
+          @errors[:source] &&= true
+          return []
+        end
 
         pdf = locations.find { |l| l["Type"] == "pdf" }
-        return [] unless pdf && pdf["RawHref"]
+        unless pdf && pdf["RawHref"]
+          @errors[:source] &&= true
+          return []
+        end
 
-        [Relaton::Bib::Uri.new(type: "pdf", content: pdf["RawHref"])]
+        r = [Relaton::Bib::Uri.new(type: "pdf", content: pdf["RawHref"])]
+        @errors[:source] &&= r.empty?
+        r
       end
 
       # @param result [Hash]
@@ -79,8 +100,12 @@ module Relaton
       def fetch_doctype(result)
         type_value = property(result, "Type")
         mapped = TYPE_MAP[type_value]
-        return unless mapped
+        unless mapped
+          @errors[:doctype] &&= true
+          return
+        end
 
+        @errors[:doctype] &&= false
         Doctype.new(content: mapped)
       end
 

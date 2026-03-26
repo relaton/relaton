@@ -15,6 +15,14 @@ module Relaton
         @index ||= Relaton::Index.find_or_create :itu, file: "index-v1.yaml"
       end
 
+      def gh_issue_channel
+        ["relaton/relaton-itu", "Error fetching ITU documents"]
+      end
+
+      def log_error(msg)
+        Util.error msg
+      end
+
       def fetch(_source = nil)
         start = 0
         empty_pages = 0
@@ -30,7 +38,7 @@ module Relaton
 
           empty_pages = 0
           results.each do |result|
-            bib = DataParserR.parse(result)
+            bib = DataParserR.parse(result, @errors)
             write_file(bib) if bib
           rescue => e # rubocop:disable Style/RescueStandardError
             Util.error "#{e.message}\n#{e.backtrace}"
@@ -39,6 +47,7 @@ module Relaton
           start += ROWS
         end
         index.save
+        repot_errors
       end
 
       # @param bib [Relaton::Itu::ItemData]

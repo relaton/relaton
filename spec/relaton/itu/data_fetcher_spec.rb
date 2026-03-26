@@ -34,8 +34,8 @@ describe Relaton::Itu::DataFetcher do
         expect(subject).to receive(:search_request).with(200).and_return []
         expect(subject).to receive(:search_request).with(300).and_return []
 
-        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result1).and_return bib
-        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result2).and_return nil
+        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result1, kind_of(Hash)).and_return bib
+        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result2, kind_of(Hash)).and_return nil
 
         expect(subject).to receive(:write_file).with(bib).once
         expect(subject.index).to receive(:save)
@@ -55,8 +55,8 @@ describe Relaton::Itu::DataFetcher do
         expect(subject).to receive(:search_request).with(400).and_return []
         expect(subject).to receive(:search_request).with(500).and_return []
 
-        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result1).and_return bib
-        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result2).and_return bib
+        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result1, kind_of(Hash)).and_return bib
+        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result2, kind_of(Hash)).and_return bib
 
         expect(subject).to receive(:write_file).with(bib).twice
         expect(subject.index).to receive(:save)
@@ -70,7 +70,7 @@ describe Relaton::Itu::DataFetcher do
         expect(subject).to receive(:search_request).with(100).and_return []
         expect(subject).to receive(:search_request).with(200).and_return []
         expect(subject).to receive(:search_request).with(300).and_return []
-        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result).and_raise "parse error"
+        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result, kind_of(Hash)).and_raise "parse error"
         expect(subject.index).to receive(:save)
 
         expect { subject.fetch }.to output(/parse error/).to_stderr_from_any_process
