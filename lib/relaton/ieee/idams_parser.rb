@@ -10,9 +10,10 @@ module Relaton
         relation source keyword ext
       ].freeze
 
-      def initialize(doc, fetcher)
+      def initialize(doc, fetcher, errors = {})
         @doc = doc
         @fetcher = fetcher
+        @errors = errors
       end
 
       #
@@ -27,7 +28,9 @@ module Relaton
       end
 
       def parse_docnumber
-        docnumber
+        result = docnumber
+        @errors[:docnumber] &&= result.nil?
+        result
       end
 
       #
@@ -58,7 +61,9 @@ module Relaton
       # @return [Array<Relaton::Bib::Title>]
       #
       def parse_title
-        @doc.btitle.map { |args| Bib::Title.new(**args) }
+        result = @doc.btitle.map { |args| Bib::Title.new(**args) }
+        @errors[:title] &&= result.empty?
+        result
       end
 
       #
@@ -67,7 +72,9 @@ module Relaton
       # @return [Array<Relaton::Bib::Date>]
       #
       def parse_date
-        @doc.bdate.map { |args| Bib::Date.new(type: args[:type], at: args[:on]) }
+        result = @doc.bdate.map { |args| Bib::Date.new(type: args[:type], at: args[:on]) }
+        @errors[:date] &&= result.empty?
+        result
       end
 
       #
@@ -81,7 +88,9 @@ module Relaton
         ids.unshift(content: pubid.to_s(trademark: true), scope: "trademark", type: "IEEE", primary: true)
         ids.unshift(content: pubid.to_s, type: "IEEE", primary: true)
 
-        ids.map { |dcid| Bib::Docidentifier.new(**dcid) }
+        result = ids.map { |dcid| Bib::Docidentifier.new(**dcid) }
+        @errors[:docidentifier] &&= result.empty?
+        result
       end
 
       #
@@ -99,7 +108,9 @@ module Relaton
         contributors << Relaton::Bib::Contributor.new(organization: org, role: [role])
 
         # Add committee contributors from editorial group
-        contributors + parse_committee_contributors
+        result = contributors + parse_committee_contributors
+        @errors[:contributor] &&= result.empty?
+        result
       end
 
       #
@@ -111,9 +122,11 @@ module Relaton
         committees = @doc.editorialgroup
         return [] unless committees
 
-        committees.map do |committee|
+        result = committees.map do |committee|
           create_committee_contributor(committee)
         end
+        @errors[:committee] &&= result.empty?
+        result
       end
 
       #
@@ -147,11 +160,13 @@ module Relaton
       # @return [Array<Relaton::Bib::LocalizedMarkedUpString>]
       #
       def parse_abstract
-        @doc.volume.article.articleinfo.abstract.each_with_object([]) do |abs, acc|
+        result = @doc.volume.article.articleinfo.abstract.each_with_object([]) do |abs, acc|
           next unless abs.abstract_type == "Standard"
 
           acc << Bib::LocalizedMarkedUpString.new(content: abs.value, language: "en", script: "Latn")
         end
+        @errors[:abstract] &&= result.empty?
+        result
       end
 
       #
@@ -160,10 +175,12 @@ module Relaton
       # @return [Array<Relaton::Bib::Copyright>]
       #
       def parse_copyright
-        @doc.copyright.map do |owner, year|
+        result = @doc.copyright.map do |owner, year|
           contrib = owner.map { |own| Bib::ContributionInfo.new organization: create_org(own) }
           Bib::Copyright.new(owner: contrib, from: year)
         end
+        @errors[:copyright] &&= result.empty?
+        result
       end
 
       #
@@ -174,6 +191,7 @@ module Relaton
       def parse_status
         return if @doc.docstatus.nil? || @doc.docstatus.empty?
 
+        @errors[:status] &&= @doc.docstatus[:stage].nil?
         stage = Bib::Status::Stage.new content: @doc.docstatus[:stage]
         Bib::Status.new stage: stage
       end
@@ -184,7 +202,7 @@ module Relaton
       # @return [Array<Relaton::Bib::Relation>]
       #
       def parse_relation # rubocop:disable Metrics/AbcSize
-        array(@doc.publicationinfo.standard_relationship).each_with_object([]) do |relation, acc|
+        result = array(@doc.publicationinfo.standard_relationship).each_with_object([]) do |relation, acc|
           if (ref = @fetcher.backrefs[relation.date_string])
             rel = @fetcher.create_relation(relation.type, ref)
             acc << rel if rel
@@ -192,6 +210,8 @@ module Relaton
             @fetcher.add_crossref(docnumber, relation)
           end
         end
+        @errors[:relation] &&= result.empty?
+        result
       end
 
       #
@@ -200,7 +220,9 @@ module Relaton
       # @return [Array<Relaton::Bib::Uri>]
       #
       def parse_source
-        @doc.link { |url| Bib::Uri.new(content: url, type: "src") }
+        result = @doc.link { |url| Bib::Uri.new(content: url, type: "src") }
+        @errors[:source] &&= result.empty?
+        result
       end
 
       #
@@ -212,9 +234,9 @@ module Relaton
         taxon = @doc.keyword.map do |kw|
           Bib::LocalizedString.new(content: kw, language: "en", script: "Latn")
         end
-        return [] if taxon.empty?
-
-        [Bib::Keyword.new(taxon: taxon)]
+        result = taxon.empty? ? [] : [Bib::Keyword.new(taxon: taxon)]
+        @errors[:keyword] &&= result.empty?
+        result
       end
 
       private
@@ -247,14 +269,22 @@ module Relaton
       end
 
       def parse_ext
+        standard_status = @doc.publicationinfo.standard_status
+        standard_modified = @doc.standard_modifier
+        pubstatus = @doc.publicationinfo.pubstatus
+        holdstatus = @doc.publicationinfo.holdstatus
+        @errors[:standard_status] &&= standard_status.nil?
+        @errors[:standard_modified] &&= standard_modified.nil?
+        @errors[:pubstatus] &&= pubstatus.nil?
+        @errors[:holdstatus] &&= holdstatus.nil?
         Ext.new(
           doctype: parse_doctype,
           flavor: "ieee",
           ics: parse_ics,
-          standard_status: @doc.publicationinfo.standard_status,
-          standard_modified: @doc.standard_modifier, # @TODO check value
-          pubstatus: @doc.publicationinfo.pubstatus,
-          holdstatus: @doc.publicationinfo.holdstatus,
+          standard_status: standard_status,
+          standard_modified: standard_modified,
+          pubstatus: pubstatus,
+          holdstatus: holdstatus,
         )
       end
 
@@ -273,9 +303,11 @@ module Relaton
       # @return [Array<Relaton::Bib::ICS>]
       #
       def parse_ics
-        @doc.ics.each_with_object([]) do |ics, acc|
+        result = @doc.ics.each_with_object([]) do |ics, acc|
           acc << Bib::ICS.new(**ics) if ics[:code] && !ics[:code].empty?
         end
+        @errors[:ics] &&= result.empty?
+        result
       end
     end
   end

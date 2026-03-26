@@ -22,6 +22,14 @@ module Relaton
       #
       # Convert documents from `ieee-rawbib` dir (IEEE dataset) to BibYAML/BibXML
       #
+      def gh_issue_channel
+        ["relaton/relaton-ieee", "Error fetching IEEE documents"]
+      end
+
+      def log_error(msg)
+        Util.error msg
+      end
+
       def fetch(_source = nil) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
         Dir["ieee-rawbib/**/*.{xml,zip}"].reject { |f| f["Deleted_"] }.each do |f|
           xml = case File.extname(f)
@@ -34,6 +42,7 @@ module Relaton
         end
         # File.write "normtitles.txt", @normtitles.join("\n")
         update_relations
+        repot_errors
       end
 
       # @return [Hash] list of AMSID => PubID
@@ -118,7 +127,7 @@ module Relaton
         end
         return if doc.publicationinfo&.standard_id == "0"
 
-        bib = IdamsParser.new(doc, self).parse
+        bib = IdamsParser.new(doc, self, @errors).parse
         if bib.docnumber.nil?
           Util.warn "PubID parse error. Normtitle: `#{doc.normtitle}`, file: `#{filename}`"
           return

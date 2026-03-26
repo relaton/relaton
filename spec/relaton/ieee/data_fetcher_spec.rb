@@ -169,7 +169,7 @@ RSpec.describe Relaton::Ieee::DataFetcher do
       XML
       bib = double "bib", docnumber: nil
       dp = double "dp", parse: bib
-      expect(Relaton::Ieee::IdamsParser).to receive(:new).with(kind_of(::Ieee::Idams::PubModel), df).and_return dp
+      expect(Relaton::Ieee::IdamsParser).to receive(:new).with(kind_of(::Ieee::Idams::PubModel), df, kind_of(Hash)).and_return dp
       expect do
         expect(df.send(:fetch_doc, xml, "filename")).to be_nil
       end.to output(
