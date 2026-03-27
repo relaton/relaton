@@ -535,6 +535,64 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
     )
   end
 
+  context "errors guards" do # rubocop:disable Metrics/BlockLength
+    let(:errors) { Hash.new(true) }
+
+    it "sets @errors[:title] to false on success" do
+      parser = described_class.new(node.at("//details"), errors)
+      parser.parse_title
+      expect(errors[:title]).to be false
+    end
+
+    it "sets @errors[:date] to false on success" do
+      parser = described_class.new(node.at("//details"), errors)
+      parser.parse_date
+      expect(errors[:date]).to be false
+    end
+
+    it "sets @errors[:abstract] to false on success" do
+      parser = described_class.new(node.at("//details"), errors)
+      parser.parse_abstract
+      expect(errors[:abstract]).to be false
+    end
+
+    it "sets @errors[:editorialgroup_contributor] to false on success" do
+      parser = described_class.new(node.at("//details"), errors)
+      parser.parse_editorialgroup_contributor
+      expect(errors[:editorialgroup_contributor]).to be false
+    end
+
+    it "sets @errors[:authorizer] to false on success" do
+      parser = described_class.new(node.at("//details"), errors)
+      parser.parse_authorizer
+      expect(errors[:authorizer]).to be false
+    end
+
+    it "sets @errors[:relation] to false on success" do
+      parser = described_class.new(node.at("//details"), errors)
+      parser.parse_relation
+      expect(errors[:relation]).to be false
+    end
+
+    it "sets @errors[:link] to false on success" do
+      parser = described_class.new(mqtt_v50, errors)
+      parser.parse_link
+      expect(errors[:link]).to be false
+    end
+
+    it "sets @errors[:docnumber] to false on success" do
+      parser = described_class.new(node.at("//details"), errors)
+      parser.parse_docnumber
+      expect(errors[:docnumber]).to be false
+    end
+
+    it "sets @errors[:technology_area] to false on success" do
+      parser = described_class.new(node.at("//details"), errors)
+      parser.parse_technology_area
+      expect(errors[:technology_area]).to be false
+    end
+  end
+
   it "get editors from node if there is no link" do
     doc = Nokogiri::HTML File.read(
       "spec/fixtures/ciq-v10.html", encoding: "UTF-8"

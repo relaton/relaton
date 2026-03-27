@@ -7,15 +7,24 @@ require_relative "data_part_parser"
 module Relaton
   module Oasis
     class DataFetcher < Core::DataFetcher
+      def gh_issue_channel
+        ["relaton/relaton-oasis", "Error fetching OASIS documents"]
+      end
+
+      def log_error(msg)
+        Util.error msg
+      end
+
       def fetch(_source = nil)
         agent = Mechanize.new
         resp = agent.get "https://www.oasis-open.org/standards/"
         doc = Nokogiri::HTML resp.body
         doc.xpath("//details").map do |item|
-          save_doc DataParser.new(item).parse
+          save_doc DataParser.new(item, @errors).parse
           fetch_parts item
         end
         index.save
+        repot_errors
       end
 
       private
@@ -33,7 +42,7 @@ module Relaton
         parts = item.xpath(xpath)
         return unless parts.size > 1
 
-        parts.each { |part| save_doc DataPartParser.new(part).parse }
+        parts.each { |part| save_doc DataPartParser.new(part, @errors).parse }
       end
 
       def save_doc(doc) # rubocop:disable Metrics/AbcSize

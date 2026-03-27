@@ -8,9 +8,11 @@ module Relaton
       # @return [Array<Bib::Contributor>] contributors
       #
       def parse_contributor
-        publisher_oasis + parse_authorizer +
+        result = publisher_oasis + parse_authorizer +
           parse_editorialgroup_contributor +
           parse_chairs + parse_editors
+        @errors[:contributor] &&= result.empty?
+        result
       end
 
       def publisher_oasis
@@ -30,14 +32,19 @@ module Relaton
         [Bib::Contributor.new(organization: org, role: role)]
       end
 
-      def parse_editors_from_text
-        return [] unless text
-
-        text.match(/(?<=Edited\sby\s)[^.]+/).to_s
-          .split(/,?\sand\s|,\s/).map do |c|
-          role = [Bib::Contributor::Role.new(type: "editor")]
-          Bib::Contributor.new(role: role, person: create_person(c))
-        end
+      def parse_editors_from_text # rubocop:disable Metrics/MethodLength
+        result = if text
+                   text.match(/(?<=Edited\sby\s)[^.]+/).to_s
+                     .split(/,?\sand\s|,\s/).map do |c|
+                     role = [Bib::Contributor::Role.new(type: "editor")]
+                     Bib::Contributor.new(role: role,
+                                          person: create_person(c))
+                   end
+                 else
+                   []
+                 end
+        @errors[:editors] &&= result.empty?
+        result
       end
 
       def page
@@ -69,25 +76,37 @@ module Relaton
         nil
       end
 
-      def parse_chairs
-        return [] unless page
-
-        xpath = "//p[preceding-sibling::p[starts-with(., 'Chair')]]" \
-                "[following-sibling::p[starts-with(., 'Editor')]]"
-        page.xpath(xpath).map do |p|
-          create_contribution_info(p, "editor", ["Chair"])
-        end
+      def parse_chairs # rubocop:disable Metrics/MethodLength
+        result = if page
+                   xpath = "//p[preceding-sibling::p" \
+                           "[starts-with(., 'Chair')]]" \
+                           "[following-sibling::p" \
+                           "[starts-with(., 'Editor')]]"
+                   page.xpath(xpath).map do |p|
+                     create_contribution_info(p, "editor", ["Chair"])
+                   end
+                 else
+                   []
+                 end
+        @errors[:chairs] &&= result.empty?
+        result
       end
 
-      def parse_editors
-        return parse_editors_from_text unless page
-
-        xpath = "//p[contains(@class, 'Contributor')]" \
-                "[preceding-sibling::p[starts-with(., 'Editor')]]" \
-                "[following-sibling::p[contains(@class, 'Title')]]"
-        page.xpath(xpath).map do |p|
-          create_contribution_info(p, "editor")
-        end
+      def parse_editors # rubocop:disable Metrics/MethodLength
+        result = if page
+                   xpath = "//p[contains(@class, 'Contributor')]" \
+                           "[preceding-sibling::p" \
+                           "[starts-with(., 'Editor')]]" \
+                           "[following-sibling::p" \
+                           "[contains(@class, 'Title')]]"
+                   page.xpath(xpath).map do |p|
+                     create_contribution_info(p, "editor")
+                   end
+                 else
+                   parse_editors_from_text
+                 end
+        @errors[:editors] &&= result.empty?
+        result
       end
 
       def create_contribution_info(person_node, type, description = [])
@@ -182,7 +201,10 @@ module Relaton
       #
       def parse_docid
         id = "OASIS #{parse_docnumber}"
-        [Bib::Docidentifier.new(type: "OASIS", content: id, primary: true)]
+        result = [Bib::Docidentifier.new(type: "OASIS", content: id,
+                                         primary: true)]
+        @errors[:docid] &&= result.empty?
+        result
       end
 
       #
@@ -198,7 +220,9 @@ module Relaton
                when /Technical Resolution/ then "resolution"
                else "standard"
                end
-        Doctype.new(content: type)
+        result = Doctype.new(content: type)
+        @errors[:doctype] &&= result.nil?
+        result
       end
 
       #
@@ -209,10 +233,12 @@ module Relaton
       def parse_technology_area(node)
         xpath = "./summary/div/div" \
                 "/ul[@class='technology-areas__list']/li/a"
-        node.xpath(xpath).map do |ta|
+        result = node.xpath(xpath).map do |ta|
           ta.text.strip.gsub(/\s/, "-")
             .sub("development", "Development")
         end
+        @errors[:technology_area] &&= result.empty?
+        result
       end
 
       def create_ext

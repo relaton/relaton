@@ -9,8 +9,9 @@ module Relaton
       #
       # @param [Nokogiri::HTML::Element] node document node
       #
-      def initialize(node)
+      def initialize(node, errors = {})
         @node = node
+        @errors = errors
       end
 
       def text
@@ -69,8 +70,10 @@ module Relaton
       # @return [Array<Bib::Title>] title
       #
       def parse_title
-        [Bib::Title.new(type: "main", content: title, language: "en",
-                        script: "Latn")]
+        result = [Bib::Title.new(type: "main", content: title,
+                                 language: "en", script: "Latn")]
+        @errors[:part_title] &&= result.empty?
+        result
       end
 
       #
@@ -85,7 +88,9 @@ module Relaton
         # some part refs need "Pt" to distinguish from root doc
         id += "-Pt" if %w[CMIS-v1.1 DocBook-5.0 XACML-V3.0 mqtt-v3.1.1
                           OData-JSON-Format-v4.0].include?(id)
-        parse_part parse_spec id
+        result = parse_part parse_spec id
+        @errors[:part_docnumber] &&= result.nil?
+        result
       end
 
       #
@@ -94,7 +99,9 @@ module Relaton
       # @return [Array<Bib::Uri>] link
       #
       def parse_link
-        [Bib::Uri.new(type: "src", content: link_node[:href])]
+        result = [Bib::Uri.new(type: "src", content: link_node[:href])]
+        @errors[:part_link] &&= result.empty?
+        result
       end
 
       #
@@ -104,19 +111,26 @@ module Relaton
       #
       def parse_date
         /(?<on>\d{1,2}\s\w+\s\d{4})/ =~ text
-        [Bib::Date.new(at: Date.parse(on).to_s, type: "issued")]
+        result = [Bib::Date.new(at: Date.parse(on).to_s, type: "issued")]
+        @errors[:part_date] &&= result.empty?
+        result
       end
 
-      def parse_abstract
-        return [] unless page
-
-        xpath = "//p[preceding-sibling::p" \
-                "[starts-with(., 'Abstract')]][1]"
-        page.xpath(xpath).map do |p|
-          cnt = p.text.gsub(/[\r\n]+/, " ").strip
-          Bib::LocalizedMarkedUpString.new(content: cnt, language: "en",
-                                           script: "Latn")
-        end
+      def parse_abstract # rubocop:disable Metrics/MethodLength
+        result = if page
+                   xpath = "//p[preceding-sibling::p" \
+                           "[starts-with(., 'Abstract')]][1]"
+                   page.xpath(xpath).map do |p|
+                     cnt = p.text.gsub(/[\r\n]+/, " ").strip
+                     Bib::LocalizedMarkedUpString.new(
+                       content: cnt, language: "en", script: "Latn",
+                     )
+                   end
+                 else
+                   []
+                 end
+        @errors[:part_abstract] &&= result.empty?
+        result
       end
 
       #
@@ -125,25 +139,41 @@ module Relaton
       # @return [Array<Bib::Contributor>] editorial group contributors
       #
       def parse_editorialgroup_contributor # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-        return [] unless page
-
-        xpath = "//p[preceding-sibling::p" \
-                "[starts-with(., 'Technical')]][1]//a"
-        tcs = page.xpath(xpath)
-        return [] if tcs.empty?
-
-        subdivisions = tcs.map do |a|
-          name = [Bib::TypedLocalizedString.new(content: a.text.strip)]
-          Bib::Subdivision.new(type: "technical-committee",
-                               name: name)
-        end
-        org = Bib::Organization.new(
-          name: [Bib::TypedLocalizedString.new(content: "OASIS")],
-          subdivision: subdivisions,
-        )
-        desc = [Bib::LocalizedMarkedUpString.new(content: "committee")]
-        role = Bib::Contributor::Role.new(type: "author", description: desc)
-        [Bib::Contributor.new(organization: org, role: [role])]
+        result = if page
+                   xpath = "//p[preceding-sibling::p" \
+                           "[starts-with(., 'Technical')]][1]//a"
+                   tcs = page.xpath(xpath)
+                   if tcs.empty?
+                     []
+                   else
+                     subdivisions = tcs.map do |a|
+                       name = [Bib::TypedLocalizedString.new(
+                         content: a.text.strip,
+                       )]
+                       Bib::Subdivision.new(
+                         type: "technical-committee", name: name,
+                       )
+                     end
+                     org = Bib::Organization.new(
+                       name: [Bib::TypedLocalizedString.new(
+                         content: "OASIS",
+                       )],
+                       subdivision: subdivisions,
+                     )
+                     desc = [Bib::LocalizedMarkedUpString.new(
+                       content: "committee",
+                     )]
+                     role = Bib::Contributor::Role.new(
+                       type: "author", description: desc,
+                     )
+                     [Bib::Contributor.new(organization: org,
+                                           role: [role])]
+                   end
+                 else
+                   []
+                 end
+        @errors[:part_editorialgroup_contributor] &&= result.empty?
+        result
       end
 
       #
@@ -155,25 +185,38 @@ module Relaton
         parser = DataParser.new @node.at("./ancestor::details")
         fref = parser.parse_docid[0].content
         bib = ItemData.new(formattedref: fref)
-        [Bib::Relation.new(type: "partOf", bibitem: bib)]
+        result = [Bib::Relation.new(type: "partOf", bibitem: bib)]
+        @errors[:part_relation] &&= result.empty?
+        result
       end
 
       def parse_authorizer # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-        return [] unless page
-
-        xpath = "//p[preceding-sibling::p" \
-                "[starts-with(., 'Technical')]][1]//a"
-        page.xpath(xpath).map do |a|
-          org_name = a.text.gsub(/[\r\n]+/, " ").strip
-          org = Bib::Organization.new(
-            name: [Bib::TypedLocalizedString.new(content: org_name)],
-            uri: [Bib::Uri.new(type: "uri", content: a[:href])],
-          )
-          desc = [Bib::LocalizedMarkedUpString.new(content: "Committee")]
-          role = Bib::Contributor::Role.new(type: "authorizer",
-                                            description: desc)
-          Bib::Contributor.new(organization: org, role: [role])
-        end
+        result = if page
+                   xpath = "//p[preceding-sibling::p" \
+                           "[starts-with(., 'Technical')]][1]//a"
+                   page.xpath(xpath).map do |a|
+                     org_name = a.text.gsub(/[\r\n]+/, " ").strip
+                     org = Bib::Organization.new(
+                       name: [Bib::TypedLocalizedString.new(
+                         content: org_name,
+                       )],
+                       uri: [Bib::Uri.new(type: "uri",
+                                          content: a[:href])],
+                     )
+                     desc = [Bib::LocalizedMarkedUpString.new(
+                       content: "Committee",
+                     )]
+                     role = Bib::Contributor::Role.new(
+                       type: "authorizer", description: desc,
+                     )
+                     Bib::Contributor.new(organization: org,
+                                          role: [role])
+                   end
+                 else
+                   []
+                 end
+        @errors[:part_authorizer] &&= result.empty?
+        result
       end
 
       def link_node
@@ -186,7 +229,9 @@ module Relaton
       # @return [Array<String>] technology areas
       #
       def parse_technology_area
-        super @node.at("./ancestor::details")
+        result = super(@node.at("./ancestor::details"))
+        @errors[:part_technology_area] &&= result.empty?
+        result
       end
     end
   end

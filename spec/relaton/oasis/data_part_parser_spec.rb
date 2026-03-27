@@ -73,6 +73,83 @@ describe Relaton::Oasis::DataPartParser do
     end
   end
 
+  context "errors guards" do # rubocop:disable Metrics/BlockLength
+    let(:errors) { Hash.new(true) }
+    let(:part_node) do
+      doc = Nokogiri::HTML <<-EOHTML
+        <details>
+          <summary>
+            <div class="standard__preview">
+              <h2>Some Standard v1.0</h2>
+            </div>
+          </summary>
+          <div class="standard__details">
+            <div class="standard__grid">
+              <div class="standard__grid--cite-as">
+                <p>
+                  <strong>[some-std-v1.0]</strong>
+                  <em>Test Doc Title</em>
+                  Edited by John Doe. 15 March 2020.
+                  <a href="http://example.com/doc.html">link</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </details>
+      EOHTML
+      doc.at("//p")
+    end
+
+    subject { described_class.new(part_node, errors) }
+
+    before { allow(subject).to receive(:page).and_return(nil) }
+
+    it "sets @errors[:part_title] to false on success" do
+      subject.parse_title
+      expect(errors[:part_title]).to be false
+    end
+
+    it "sets @errors[:part_date] to false on success" do
+      subject.parse_date
+      expect(errors[:part_date]).to be false
+    end
+
+    it "sets @errors[:part_docnumber] to false on success" do
+      subject.parse_docnumber
+      expect(errors[:part_docnumber]).to be false
+    end
+
+    it "sets @errors[:part_link] to false on success" do
+      subject.parse_link
+      expect(errors[:part_link]).to be false
+    end
+
+    it "keeps @errors[:part_abstract] true when page is nil" do
+      subject.parse_abstract
+      expect(errors[:part_abstract]).to be true
+    end
+
+    it "sets @errors[:part_editorialgroup_contributor] true when page is nil" do
+      subject.parse_editorialgroup_contributor
+      expect(errors[:part_editorialgroup_contributor]).to be true
+    end
+
+    it "sets @errors[:part_relation] to false on success" do
+      subject.parse_relation
+      expect(errors[:part_relation]).to be false
+    end
+
+    it "keeps @errors[:part_authorizer] true when page is nil" do
+      subject.parse_authorizer
+      expect(errors[:part_authorizer]).to be true
+    end
+
+    it "keeps @errors[:part_technology_area] true when no areas" do
+      subject.parse_technology_area
+      expect(errors[:part_technology_area]).to be true
+    end
+  end
+
   context "#parse_editorialgroup_contributor" do
     it "returns empty array when page is nil" do
       allow(subject).to receive(:page).and_return(nil)

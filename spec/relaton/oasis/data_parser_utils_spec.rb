@@ -11,6 +11,90 @@ RSpec.describe Relaton::Oasis::DataParserUtils do
   let(:agent) { instance_double(Mechanize) }
   let(:url) { "https://example.com/doc.html" }
 
+  describe "errors guards" do # rubocop:disable Metrics/BlockLength
+    let(:errors) { Hash.new(true) }
+
+    it "sets @errors[:contributor] to false on success" do
+      dp = Relaton::Oasis::DataParser.new(node, errors)
+      allow(dp).to receive(:publisher_oasis).and_return([:oasis])
+      allow(dp).to receive(:parse_authorizer).and_return([])
+      allow(dp).to receive(:parse_editorialgroup_contributor).and_return([])
+      allow(dp).to receive(:parse_chairs).and_return([])
+      allow(dp).to receive(:parse_editors).and_return([])
+      dp.parse_contributor
+      expect(errors[:contributor]).to be false
+    end
+
+    it "sets @errors[:editors] to false via parse_editors_from_text" do
+      html = <<~HTML
+        <details>
+          <summary><div><h2>Title</h2></div></summary>
+          <div><div><div class="standard__grid--cite-as">
+            <p><em>Edited by John Doe.</em></p>
+          </div></div></div>
+        </details>
+      HTML
+      dp = Relaton::Oasis::DataParser.new(
+        Nokogiri::HTML(html).at("//details"), errors,
+      )
+      allow(dp).to receive(:page).and_return(nil)
+      dp.send(:parse_editors_from_text)
+      expect(errors[:editors]).to be false
+    end
+
+    it "keeps @errors[:chairs] true when page is nil" do
+      dp = Relaton::Oasis::DataParser.new(node, errors)
+      allow(dp).to receive(:page).and_return(nil)
+      dp.send(:parse_chairs)
+      expect(errors[:chairs]).to be true
+    end
+
+    it "keeps @errors[:editors] true when page is nil and no text" do
+      dp = Relaton::Oasis::DataParser.new(node, errors)
+      allow(dp).to receive(:page).and_return(nil)
+      dp.send(:parse_editors)
+      expect(errors[:editors]).to be true
+    end
+
+    it "sets @errors[:docid] to false on success" do
+      dp = Relaton::Oasis::DataParser.new(node, errors)
+      dp.parse_docid
+      expect(errors[:docid]).to be false
+    end
+
+    it "sets @errors[:doctype] to false on success" do
+      dp = Relaton::Oasis::DataParser.new(node, errors)
+      dp.parse_doctype
+      expect(errors[:doctype]).to be false
+    end
+
+    it "sets @errors[:technology_area] true when no areas" do
+      test_obj = Object.new
+      test_obj.instance_variable_set(:@errors, errors)
+      test_obj.extend Relaton::Oasis::DataParserUtils
+      test_obj.send(:parse_technology_area, node)
+      expect(errors[:technology_area]).to be true
+    end
+
+    it "sets @errors[:technology_area] to false on success" do
+      html = <<~HTML
+        <details>
+          <summary><div><div>
+            <ul class="technology-areas__list">
+              <li><a href="#">Cloud</a></li>
+            </ul>
+          </div><h2>Title</h2></div></summary>
+        </details>
+      HTML
+      n = Nokogiri::HTML(html).at("//details")
+      test_obj = Object.new
+      test_obj.instance_variable_set(:@errors, errors)
+      test_obj.extend Relaton::Oasis::DataParserUtils
+      test_obj.send(:parse_technology_area, n)
+      expect(errors[:technology_area]).to be false
+    end
+  end
+
   describe "#retry_page" do
     it "returns page on success" do
       page = double("page")

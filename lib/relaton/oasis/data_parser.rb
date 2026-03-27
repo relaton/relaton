@@ -9,8 +9,9 @@ module Relaton
       #
       # @param [Nokogiri::HTML::Element] node document node
       #
-      def initialize(node)
+      def initialize(node, errors = {})
         @node = node
+        @errors = errors
       end
 
       def title
@@ -52,8 +53,10 @@ module Relaton
       # @return [Array<Bib::Title>] title
       #
       def parse_title
-        [Bib::Title.new(type: "main", content: title, language: "en",
-                        script: "Latn")]
+        result = [Bib::Title.new(type: "main", content: title, language: "en",
+                                 script: "Latn")]
+        @errors[:title] &&= result.empty?
+        result
       end
 
       #
@@ -62,11 +65,14 @@ module Relaton
       # @return [Array<Bib::Date>] date
       #
       def parse_date
-        @node.xpath("./summary/div/time[@class='standard__date']").map do |d|
+        xpath = "./summary/div/time[@class='standard__date']"
+        result = @node.xpath(xpath).map do |d|
           date_str = d.text.match(/\d{2}\s\w+\s\d{4}/).to_s
           date = Date.parse(date_str).to_s
           Bib::Date.new(at: date, type: "issued")
         end
+        @errors[:date] &&= result.empty?
+        result
       end
 
       #
@@ -78,10 +84,15 @@ module Relaton
         c = @node.xpath(
           "./summary/div/div[@class='standard__description']/p",
         ).map { |a| a.text.gsub(/[\n\t]+/, " ").strip }.join("\n")
-        return [] if c.empty?
-
-        [Bib::LocalizedMarkedUpString.new(content: c, language: "en",
-                                          script: "Latn")]
+        result = if c.empty?
+                   []
+                 else
+                   [Bib::LocalizedMarkedUpString.new(
+                     content: c, language: "en", script: "Latn",
+                   )]
+                 end
+        @errors[:abstract] &&= result.empty?
+        result
       end
 
       #
@@ -89,28 +100,32 @@ module Relaton
       #
       # @return [Array<Bib::Contributor>] editorial group contributors
       #
-      def parse_editorialgroup_contributor # rubocop:disable Metrics/MethodLength
+      def parse_editorialgroup_contributor # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         tcs = @node.xpath("./div[@class='standard__details']/a")
-        return [] if tcs.empty?
-
-        subdivisions = tcs.map do |a|
-          name = [Bib::TypedLocalizedString.new(content: a.text.strip)]
-          Bib::Subdivision.new(type: "technical-committee",
-                               name: name)
+        if tcs.empty?
+          result = []
+        else
+          subdivisions = tcs.map do |a|
+            name = [Bib::TypedLocalizedString.new(content: a.text.strip)]
+            Bib::Subdivision.new(type: "technical-committee",
+                                 name: name)
+          end
+          org = Bib::Organization.new(
+            name: [Bib::TypedLocalizedString.new(content: "OASIS")],
+            subdivision: subdivisions,
+          )
+          desc = [Bib::LocalizedMarkedUpString.new(content: "committee")]
+          role = Bib::Contributor::Role.new(
+            type: "author", description: desc,
+          )
+          result = [Bib::Contributor.new(organization: org, role: [role])]
         end
-        org = Bib::Organization.new(
-          name: [Bib::TypedLocalizedString.new(content: "OASIS")],
-          subdivision: subdivisions,
-        )
-        desc = [Bib::LocalizedMarkedUpString.new(content: "committee")]
-        role = Bib::Contributor::Role.new(
-          type: "author", description: desc,
-        )
-        [Bib::Contributor.new(organization: org, role: [role])]
+        @errors[:editorialgroup_contributor] &&= result.empty?
+        result
       end
 
-      def parse_authorizer
-        @node.xpath("./div[@class='standard__details']/a").map do |a|
+      def parse_authorizer # rubocop:disable Metrics/MethodLength
+        result = @node.xpath("./div[@class='standard__details']/a").map do |a|
           org = Bib::Organization.new(
             name: [Bib::TypedLocalizedString.new(content: a.text.strip)],
             uri: [Bib::Uri.new(type: "uri", content: a[:href])],
@@ -120,6 +135,8 @@ module Relaton
                                             description: desc)
           Bib::Contributor.new(organization: org, role: [role])
         end
+        @errors[:authorizer] &&= result.empty?
+        result
       end
 
       def link_node
@@ -134,18 +151,22 @@ module Relaton
       #
       # @return [Array<Bib::Relation>] relation
       #
-      def parse_relation
+      def parse_relation # rubocop:disable Metrics/MethodLength
         xpath = "./div/div/div[contains(@class, " \
                 "'standard__grid--cite-as')]" \
                 "/p[strong or span/strong or b/span]"
         rels = @node.xpath(xpath)
-        return [] unless rels.size > 1
-
-        rels.map do |r|
-          docid = DataPartParser.new(r).parse_docid
-          bib = ItemData.new(formattedref: docid[0].content)
-          Bib::Relation.new(type: "hasPart", bibitem: bib)
-        end
+        result = if rels.size > 1
+                   rels.map do |r|
+                     docid = DataPartParser.new(r).parse_docid
+                     bib = ItemData.new(formattedref: docid[0].content)
+                     Bib::Relation.new(type: "hasPart", bibitem: bib)
+                   end
+                 else
+                   []
+                 end
+        @errors[:relation] &&= result.empty?
+        result
       end
 
       #
@@ -160,16 +181,20 @@ module Relaton
         ).map { |p| p.text.gsub(/^\[{1,2}|\]$/, "").strip }
       end
 
-      def parse_link
-        return [] if parts.size > 1
-
-        links.map do |l|
-          type = l[:href].match(/\.(\w+)$/)&.captures&.first
-          type ||= "src"
-          type.sub!("docx", "doc")
-          type.sub!("html", "src")
-          Bib::Uri.new(type: type, content: l[:href])
-        end
+      def parse_link # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+        result = if parts.size > 1
+                   []
+                 else
+                   links.map do |l|
+                     type = l[:href].match(/\.(\w+)$/)&.captures&.first
+                     type ||= "src"
+                     type.sub!("docx", "doc")
+                     type.sub!("html", "src")
+                     Bib::Uri.new(type: type, content: l[:href])
+                   end
+                 end
+        @errors[:link] &&= result.empty?
+        result
       end
 
       def parts
@@ -192,11 +217,15 @@ module Relaton
       #
       def parse_docnumber
         parts = document_part_refs
-        case parts.size
-        when 0 then parse_spec title_to_docid(@node.at("./summary/div/h2").text)
-        when 1 then parse_part parse_spec(parts[0])
-        else parts_to_docid parts
-        end
+        result = case parts.size
+                 when 0
+                   txt = @node.at("./summary/div/h2").text
+                   parse_spec title_to_docid(txt)
+                 when 1 then parse_part parse_spec(parts[0])
+                 else parts_to_docid parts
+                 end
+        @errors[:docnumber] &&= result.nil?
+        result
       end
 
       #
@@ -266,7 +295,9 @@ module Relaton
       # @return [Array<String>] technology areas
       #
       def parse_technology_area
-        super @node
+        result = super(@node)
+        @errors[:technology_area] &&= result.empty?
+        result
       end
     end
   end
