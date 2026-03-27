@@ -68,7 +68,7 @@ RSpec.describe Relaton::W3c::DataFetcher do
 
       before do
         allow(subject).to receive(:realize).with(unrealized_spec).and_return(spec)
-        allow(Relaton::W3c::DataParser).to receive(:parse).with(spec).and_return(bib)
+        allow(Relaton::W3c::DataParser).to receive(:parse).with(spec, kind_of(Hash)).and_return(bib)
         allow(subject).to receive(:save_doc)
       end
 
@@ -78,7 +78,7 @@ RSpec.describe Relaton::W3c::DataFetcher do
         subject.fetch_spec(unrealized_spec)
 
         expect(subject).to have_received(:realize).with(unrealized_spec)
-        expect(Relaton::W3c::DataParser).to have_received(:parse).with(spec)
+        expect(Relaton::W3c::DataParser).to have_received(:parse).with(spec, kind_of(Hash))
         expect(subject).to have_received(:save_doc).with(bib).once
       end
 

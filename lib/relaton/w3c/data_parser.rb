@@ -27,8 +27,13 @@ module Relaton
       #
       # @param [W3cApi::Models::SpecVersion] spec
       #
-      def initialize(spec)
+      ERROR_KEYS = %i[status title doc_uri formattedref series date
+                      relation contributor doctype].freeze
+
+      def initialize(spec, errors = {})
         @spec = spec
+        @errors = errors
+        ERROR_KEYS.each { |k| @errors[k] = true unless @errors.key?(k) }
       end
 
       #
@@ -38,8 +43,8 @@ module Relaton
       #
       # @return [Relaton::W3c::ItemData, nil] bibliographic item
       #
-      def self.parse(spec)
-        new(spec).parse
+      def self.parse(spec, errors = {})
+        new(spec, errors).parse
       end
 
       #
@@ -52,9 +57,9 @@ module Relaton
           type: "standard",
           language: ["en"],
           script: ["Latn"],
-          status: parse_docstatus,
+          status: parse_status,
           title: parse_title,
-          source: parse_link,
+          source: parse_source,
           docidentifier: parse_docid,
           formattedref: parse_formattedref,
           docnumber: identifier,
@@ -73,7 +78,8 @@ module Relaton
       #
       def parse_ext
         dt = parse_doctype
-        Ext.new(doctype: dt, flavor: "w3c")
+        result = Ext.new(doctype: dt, flavor: "w3c")
+        result
       end
 
       #
@@ -81,10 +87,12 @@ module Relaton
       #
       # @return [Bib::Status, nil] document status
       #
-      def parse_docstatus
-        return unless @spec.respond_to?(:status) && @spec.status
-
-        Bib::Status.new(stage: Bib::Status::Stage.new(content: @spec.status))
+      def parse_status
+        result = if @spec.respond_to?(:status) && @spec.status
+                   Bib::Status.new(stage: Bib::Status::Stage.new(content: @spec.status))
+                 end
+        @errors[:status] &&= result.nil?
+        result
       end
 
       #
@@ -93,11 +101,17 @@ module Relaton
       # @return [Array<Bib::Title>] title
       #
       def parse_title(spec = @spec)
-        [Bib::Title.new(content: spec.title, language: "en", script: "Latn")]
+        return [] unless spec&.title && spec.title.strip != ""
+
+        result = [Bib::Title.new(content: spec.title, language: "en", script: "Latn")]
+        @errors[:title] &&= result.empty?
+        result
       end
 
       def doc_uri(spec = @spec)
-        spec.respond_to?(:uri) ? spec.uri : spec.shortlink
+        result = spec.respond_to?(:uri) ? spec.uri : spec.shortlink
+        @errors[:doc_uri] &&= result.nil?
+        result
       end
 
       #
@@ -105,7 +119,7 @@ module Relaton
       #
       # @return [Array<Bib::Uri>] link
       #
-      def parse_link
+      def parse_source
         [Bib::Uri.new(type: "src", content: doc_uri)]
       end
 
@@ -159,10 +173,14 @@ module Relaton
       # @return [Array<Bib::Series>] series
       #
       def parse_series
-        return [] unless type
-
-        title = Bib::Title.new(content: "W3C #{type}", language: "en", script: "Latn")
-        [Bib::Series.new(title: [title], number: identifier)]
+        result = if type
+                   title = Bib::Title.new(content: "W3C #{type}", language: "en", script: "Latn")
+                   [Bib::Series.new(title: [title], number: identifier)]
+                 else
+                   []
+                 end
+        @errors[:series] &&= result.empty?
+        result
       end
 
       #
@@ -181,7 +199,9 @@ module Relaton
       #
       def parse_doctype
         t = DOCTYPES[type] || DOCTYPES[type_from_link]
-        Doctype.new(content: t) if t
+        result = Doctype.new(content: t) if t
+        @errors[:doctype] &&= result.nil?
+        result
       end
 
       #
@@ -199,9 +219,13 @@ module Relaton
       # @return [Array<Bib::Date>] date
       #
       def parse_date
-        return [] unless @spec.respond_to?(:date)
-
-        [Bib::Date.new(type: "published", at: @spec.date.to_date.to_s)]
+        result = if @spec.respond_to?(:date)
+                   [Bib::Date.new(type: "published", at: @spec.date.to_date.to_s)]
+                 else
+                   []
+                 end
+        @errors[:date] &&= result.empty?
+        result
       end
 
       #
@@ -210,12 +234,14 @@ module Relaton
       # @return [Array<Bib::Relation>] relation
       #
       def parse_relation
-        if @spec.links.respond_to?(:version_history)
-          version_history = realize @spec.links.version_history
-          version_history.links.spec_versions.map { |version| create_relation(version, "hasEdition") }
-        else
-          relations
-        end
+        result = if @spec.links.respond_to?(:version_history)
+                   version_history = realize @spec.links.version_history
+                   version_history.links.spec_versions.map { |version| create_relation(version, "hasEdition") }
+                 else
+                   relations
+                 end
+        @errors[:relation] &&= result.empty?
+        result
       end
 
       #
@@ -268,9 +294,11 @@ module Relaton
       # @return [String, nil] formattedref
       #
       def parse_formattedref
-        return unless @spec.respond_to?(:uri)
-
-        pub_id(@spec.uri)
+        result = if @spec.respond_to?(:uri)
+                   pub_id(@spec.uri)
+                 end
+        @errors[:formattedref] &&= result.nil?
+        result
       end
 
       #
@@ -292,7 +320,9 @@ module Relaton
           end
         end
 
-        contribs + parse_deliverers
+        result = contribs + parse_deliverers
+        @errors[:contributor] &&= result.empty?
+        result
       end
 
       def create_editor(unrealized_editor)

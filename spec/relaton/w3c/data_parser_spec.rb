@@ -13,7 +13,7 @@ RSpec.describe Relaton::W3c::DataParser do
   it "create instance and run parsing" do
     parser = double "parser"
     expect(parser).to receive(:parse)
-    expect(described_class).to receive(:new).with(:spec).and_return(parser)
+    expect(described_class).to receive(:new).with(:spec, kind_of(Hash)).and_return(parser)
     described_class.parse :spec
   end
 
@@ -64,6 +64,50 @@ RSpec.describe Relaton::W3c::DataParser do
       expect(doc.contributor[1].person.name.forename[0].language).to eq "en"
       expect(doc.contributor[1].person.name.forename[0].script).to eq "Latn"
       expect(doc.contributor[1].role[0].type).to eq "editor"
+    end
+  end
+
+  describe "@errors guards" do
+    let(:errors) { {} }
+
+    subject { described_class.new(specification, errors) }
+
+    context "versioned spec with full data", vcr: "webrtc-20241008" do
+      let(:specification) { client.specification_version("webrtc", "20241008") }
+
+      before { doc }
+
+      it "clears errors for present fields" do
+        expect(errors[:status]).to be false
+        expect(errors[:title]).to be false
+        expect(errors[:doc_uri]).to be false
+        expect(errors[:series]).to be false
+        expect(errors[:date]).to be false
+        expect(errors[:relation]).to be false
+        expect(errors[:contributor]).to be false
+      end
+
+      it "clears error for formattedref" do
+        expect(errors[:formattedref]).to be false
+      end
+    end
+
+    context "unversioned spec with missing fields", vcr: "webrtc" do
+      let(:specification) { client.specification("webrtc") }
+
+      before { doc }
+
+      it "retains errors for missing fields" do
+        expect(errors[:status]).to be true
+        expect(errors[:date]).to be true
+      end
+
+      it "clears errors for present fields" do
+        expect(errors[:title]).to be false
+        expect(errors[:doc_uri]).to be false
+        expect(errors[:series]).to be false
+        expect(errors[:contributor]).to be false
+      end
     end
   end
 
