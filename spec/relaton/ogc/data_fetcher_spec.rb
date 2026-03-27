@@ -59,7 +59,7 @@ RSpec.describe Relaton::Ogc::DataFetcher do
     context "#fetch_doc" do
       it "no errors" do
         hit = { "type" => "BP" }
-        expect(Relaton::Ogc::Scraper).to receive(:parse_page).with(hit).and_return :doc
+        expect(Relaton::Ogc::Scraper).to receive(:parse_page).with(hit, kind_of(Hash)).and_return :doc
         expect(subject).to receive(:write_document).with(:doc)
         expect(subject.fetch_doc(hit)).to be true
       end

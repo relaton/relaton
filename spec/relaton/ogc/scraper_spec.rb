@@ -176,4 +176,102 @@ describe Relaton::Ogc::Scraper do
       expect(described_class.send(:fetch_date, nil)).to eq []
     end
   end
+
+  context "errors guards" do
+    before do
+      described_class.instance_variable_set(:@errors, Hash.new(true))
+    end
+
+    let(:errors) { described_class.instance_variable_get(:@errors) }
+
+    it "fetch_title clears error on success" do
+      described_class.send :fetch_title, "Title"
+      expect(errors[:title]).to be false
+    end
+
+    it "fetch_title clears error even with empty string" do
+      described_class.send :fetch_title, ""
+      expect(errors[:title]).to be false
+    end
+
+    it "fetch_docid clears error on success" do
+      described_class.send :fetch_docid, "OGC-01"
+      expect(errors[:docid]).to be false
+    end
+
+    it "fetch_docid keeps error on empty identifier" do
+      described_class.send :fetch_docid, ""
+      expect(errors[:docid]).to be true
+    end
+
+    it "fetch_docid keeps error on nil identifier" do
+      described_class.send :fetch_docid, nil
+      expect(errors[:docid]).to be true
+    end
+
+    it "fetch_link clears error when links present" do
+      described_class.send :fetch_link, { "URI" => "http://example.com" }
+      expect(errors[:link]).to be false
+    end
+
+    it "fetch_link keeps error when no links" do
+      described_class.send :fetch_link, {}
+      expect(errors[:link]).to be true
+    end
+
+    it "fetch_status clears error on success" do
+      described_class.send :fetch_status, "draft"
+      expect(errors[:status]).to be false
+    end
+
+    it "fetch_status keeps error on nil stage" do
+      described_class.send :fetch_status, nil
+      expect(errors[:status]).to be true
+    end
+
+    it "fetch_edition clears error on success" do
+      described_class.send :fetch_edition, "r5"
+      expect(errors[:edition]).to be false
+    end
+
+    it "fetch_edition keeps error when no edition" do
+      described_class.send :fetch_edition, "nope"
+      expect(errors[:edition]).to be true
+    end
+
+    it "fetch_abstract clears error on success" do
+      described_class.send :fetch_abstract, "Some description"
+      expect(errors[:abstract]).to be false
+    end
+
+    it "fetch_abstract keeps error on empty description" do
+      described_class.send :fetch_abstract, ""
+      expect(errors[:abstract]).to be true
+    end
+
+    it "fetch_abstract keeps error on nil description" do
+      described_class.send :fetch_abstract, nil
+      expect(errors[:abstract]).to be true
+    end
+
+    it "fetch_contributor clears error on success" do
+      described_class.send :fetch_contributor, { "creator" => "Person" }
+      expect(errors[:contributor]).to be false
+    end
+
+    it "fetch_contributor keeps error when no contributors" do
+      described_class.send :fetch_contributor, {}
+      expect(errors[:contributor]).to be true
+    end
+
+    it "fetch_date clears error on success" do
+      described_class.send :fetch_date, "2019-01-01"
+      expect(errors[:date]).to be false
+    end
+
+    it "fetch_date keeps error on nil date" do
+      described_class.send :fetch_date, nil
+      expect(errors[:date]).to be true
+    end
+  end
 end

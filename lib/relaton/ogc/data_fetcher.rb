@@ -39,13 +39,14 @@ module Relaton
           end
           self.etag = etag if no_errors
           index.save
+          repot_errors
         end
       end
 
       def fetch_doc(hit)
         return if hit["type"] == "CC"
 
-        bib = Scraper.parse_page hit
+        bib = Scraper.parse_page hit, @errors
         write_document bib
         true
       rescue StandardError => e

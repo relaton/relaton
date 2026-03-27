@@ -33,7 +33,8 @@ module Relaton
       class << self
         # @param hit [Hash]
         # @return [Relaton::Ogc::Item]
-        def parse_page(hit) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+        def parse_page(hit, errors = {}) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+          @errors = errors
           type = fetch_type(hit["type"])
           contribs = fetch_contributor(hit)
           contribs << fetch_editorialgroup_contributor
@@ -79,12 +80,15 @@ module Relaton
         # @param title [String]
         # @return [Array<Bib::Title>]
         def fetch_title(title)
-          Bib::Title.from_string title, "en", "Latn"
+          result = Bib::Title.from_string title, "en", "Latn"
+          @errors[:title] &&= result.empty?
+          result
         end
 
         # @param identifier [String]
         # @return [Array<Bib::Docidentifier>]
         def fetch_docid(identifier)
+          @errors[:docid] &&= identifier.to_s.strip.empty?
           id = Docidentifier.new(
             content: identifier, type: "OGC", primary: true,
           )
@@ -103,6 +107,8 @@ module Relaton
 
           type = link_type(hit["URL"])
           link << Bib::Uri.new(type: type, content: hit["URL"].strip)
+        ensure
+          @errors[:link] &&= link.empty?
         end
 
         def link_type(url)
@@ -132,6 +138,7 @@ module Relaton
         # @param stage [String, nil]
         # @return [Bib::Status, nil]
         def fetch_status(stage)
+          @errors[:status] &&= stage.nil?
           return unless stage
 
           stg = Bib::Status::Stage.new(content: stage)
@@ -142,12 +149,14 @@ module Relaton
         # @return [String, nil]
         def fetch_edition(identifier)
           %r{(?<=r)(?<edition>\d+)$} =~ identifier
+          @errors[:edition] &&= edition.nil?
           edition && Bib::Edition.new(content: edition)
         end
 
         # @param description [String]
         # @return [Array<Bib::LocalizedMarkedUpString>]
         def fetch_abstract(description)
+          @errors[:abstract] &&= description.to_s.strip.empty?
           abs = Bib::LocalizedMarkedUpString.new(
             content: description, language: "en", script: "Latn",
           )
@@ -161,6 +170,7 @@ module Relaton
             person_contrib name
           end
           contribs << org_contrib(doc["publisher"]) if doc["publisher"]
+          @errors[:contributor] &&= contribs.empty?
           contribs
         end
 
@@ -191,10 +201,15 @@ module Relaton
         # @param date [String, nil]
         # @return [Array<Bib::Date>]
         def fetch_date(date)
-          return [] unless date
-
-          [Bib::Date.new(type: "published", at: date)]
+          result = if date
+                     [Bib::Date.new(type: "published", at: date)]
+                   else
+                     []
+                   end
+          @errors[:date] &&= result.empty?
+          result
         rescue Date::Error
+          @errors[:date] &&= true
           []
         end
       end
