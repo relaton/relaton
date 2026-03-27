@@ -3,10 +3,10 @@
 module Relaton
   module Plateau
     class HandbookParser < Parser
-      def initialize(version:, entry:, doctype:)
+      def initialize(version:, entry:, doctype:, errors: {})
         @version = version
         @entry = entry
-        super entry["handbook"]
+        super(entry["handbook"], errors)
         @doctype = doctype
       end
 
@@ -17,36 +17,58 @@ module Relaton
       end
 
       def parse_docnumber
-        "Handbook ##{@entry["slug"]} #{edition}"
+        @errors[:hb_docnumber] &&= @entry["slug"].nil? || @entry["slug"].to_s.empty?
+        ["Handbook ##{@entry["slug"]}", edition].compact.join(" ")
       end
 
       def parse_abstract
-        return [] unless @item["description"]
+        unless @item["description"]
+          @errors[:hb_abstract] &&= true
+          return []
+        end
 
-        @item["description"].split("<br />").filter_map do |part|
+        result = @item["description"].split("<br />").filter_map do |part|
           text = part.strip
           next if text.empty?
 
           lang, script = detect_lang(text)
           create_abstract(text, lang, script)
         end
+        @errors[:hb_abstract] &&= result.empty?
+        result
       end
 
       def parse_edition
+        if edition.nil? || edition.empty?
+          @errors[:hb_edition] &&= true
+          return
+        end
+
         number = edition.match(/\d\.\d/)[0]
-        Bib::Edition.new(content: edition, number: number)
+        result = Bib::Edition.new(content: edition, number: number)
+        @errors[:hb_edition] &&= result.nil?
+        result
       end
 
       def parse_date
-        super << create_date(@version["date"].gsub(".", "-"))
+        if @version["date"].nil? || @version["date"].empty?
+          @errors[:hb_date] &&= true
+          return super
+        end
+
+        result = super << create_date(@version["date"].gsub(".", "-"))
+        @errors[:hb_date] &&= result.empty?
+        result
       end
 
       def parse_source
-        %w[pdf html].map do |type|
+        result = %w[pdf html].map do |type|
           next unless @version[type]
 
           create_link(@version[type], type)
         end.compact
+        @errors[:hb_source] &&= result.empty?
+        result
       end
 
       def parse_ext
@@ -57,8 +79,12 @@ module Relaton
           doctype: Doctype.new(content: @doctype),
           flavor: "plateau",
           structuredidentifier: [strid],
-          filesize: @version["filesize"].to_i
+          filesize: filesize
         )
+      end
+      def filesize
+        @errors[:hb_filesize] &&= @version["filesize"].nil?
+        @version["filesize"].to_i
       end
     end
   end

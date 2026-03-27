@@ -181,4 +181,102 @@ RSpec.describe Relaton::Plateau::HandbookParser do
     expect(ext.structuredidentifier[0].docnumber).to eq "09"
     expect(ext.structuredidentifier[0].edition).to eq "3.0"
   end
+
+  context "@errors guards" do
+    let(:errors) do
+      {
+        hb_docnumber: true, hb_abstract: true, hb_edition: true,
+        hb_date: true, hb_source: true, hb_filesize: true
+      }
+    end
+    subject do
+      described_class.new(
+        version: version, entry: entry, doctype: doctype, errors: errors
+      )
+    end
+
+    context "with valid data" do
+      it "sets :hb_docnumber to false" do
+        subject.send(:parse_docnumber)
+        expect(errors[:hb_docnumber]).to be false
+      end
+
+      it "sets :hb_abstract to false" do
+        subject.send(:parse_abstract)
+        expect(errors[:hb_abstract]).to be false
+      end
+
+      it "sets :hb_edition to false" do
+        subject.send(:parse_edition)
+        expect(errors[:hb_edition]).to be false
+      end
+
+      it "sets :hb_date to false" do
+        subject.send(:parse_date)
+        expect(errors[:hb_date]).to be false
+      end
+
+      it "sets :hb_source to false" do
+        subject.send(:parse_source)
+        expect(errors[:hb_source]).to be false
+      end
+
+      it "sets :hb_filesize to false" do
+        subject.send(:filesize)
+        expect(errors[:hb_filesize]).to be false
+      end
+    end
+
+    context "with missing data" do
+      it "keeps :hb_docnumber as true when slug is nil" do
+        entry["slug"] = nil
+        subject.send(:parse_docnumber)
+        expect(errors[:hb_docnumber]).to be true
+      end
+
+      it "keeps :hb_abstract as true when description is nil" do
+        entry["handbook"]["description"] = nil
+        subject.send(:parse_abstract)
+        expect(errors[:hb_abstract]).to be true
+      end
+
+      it "keeps :hb_edition as true when edition is empty" do
+        version["title"] = "no version here"
+        subject.send(:parse_edition)
+        expect(errors[:hb_edition]).to be true
+      end
+
+      it "keeps :hb_date as true when date is nil" do
+        version["date"] = nil
+        subject.send(:parse_date)
+        expect(errors[:hb_date]).to be true
+      end
+
+      it "keeps :hb_source as true when no links" do
+        version["pdf"] = nil
+        version["html"] = nil
+        subject.send(:parse_source)
+        expect(errors[:hb_source]).to be true
+      end
+
+      it "keeps :hb_filesize as true when filesize is nil" do
+        version["filesize"] = nil
+        subject.send(:filesize)
+        expect(errors[:hb_filesize]).to be true
+      end
+    end
+
+    context "when errors key is not pre-set" do
+      let(:errors) { {} }
+
+      it "does not create error keys" do
+        subject.send(:parse_docnumber)
+        subject.send(:parse_abstract)
+        subject.send(:parse_date)
+        subject.send(:parse_source)
+        subject.send(:filesize)
+        expect(errors).to be_empty
+      end
+    end
+  end
 end

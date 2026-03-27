@@ -120,4 +120,45 @@ RSpec.describe Relaton::Plateau::Parser do
   it "parse_ext" do
     expect { subject.send(:parse_ext) }.to raise_error "Not implemented"
   end
+
+  context "@errors guards" do
+    let(:errors) do
+      { parse_docidentifier: true, title: true, parse_depiction: true, parse_contributor: true }
+    end
+    subject { described_class.new item, errors }
+
+    context "with valid data" do
+      it "sets :parse_docidentifier to false" do
+        subject.send(:parse_docidentifier)
+        expect(errors[:parse_docidentifier]).to be false
+      end
+
+      it "sets :title to false" do
+        subject.send(:parse_title)
+        expect(errors[:title]).to be false
+      end
+
+      it "sets :parse_depiction to false" do
+        subject.send(:parse_depiction)
+        expect(errors[:parse_depiction]).to be false
+      end
+
+      it "sets :parse_contributor to false" do
+        subject.send(:parse_contributor)
+        expect(errors[:parse_contributor]).to be false
+      end
+    end
+
+    context "when errors key is not pre-set" do
+      let(:errors) { {} }
+
+      it "does not create error keys" do
+        subject.send(:parse_docidentifier)
+        subject.send(:parse_title)
+        subject.send(:parse_depiction)
+        subject.send(:parse_contributor)
+        expect(errors).to be_empty
+      end
+    end
+  end
 end

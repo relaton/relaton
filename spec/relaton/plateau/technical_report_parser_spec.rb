@@ -128,4 +128,111 @@ RSpec.describe Relaton::Plateau::TechnicalReportParser do
     expect(ext.structuredidentifier[0].agency).to eq ["PLATEAU"]
     expect(ext.structuredidentifier[0].docnumber).to eq "93"
   end
+
+  context "@errors guards" do
+    let(:errors) do
+      {
+        tr_docnumber: true, tr_abstract: true, tr_date: true,
+        tr_source: true, tr_keyword: true, tr_subdoctype: true,
+        tr_filesize: true
+      }
+    end
+    subject { described_class.new entry, errors }
+
+    context "with valid data" do
+      it "sets :tr_docnumber to false" do
+        subject.send(:parse_docnumber)
+        expect(errors[:tr_docnumber]).to be false
+      end
+
+      it "sets :tr_abstract to false" do
+        subject.send(:parse_abstract)
+        expect(errors[:tr_abstract]).to be false
+      end
+
+      it "sets :tr_date to false" do
+        subject.send(:parse_date)
+        expect(errors[:tr_date]).to be false
+      end
+
+      it "sets :tr_source to false" do
+        subject.send(:parse_source)
+        expect(errors[:tr_source]).to be false
+      end
+
+      it "sets :tr_keyword to false" do
+        subject.send(:parse_keyword)
+        expect(errors[:tr_keyword]).to be false
+      end
+
+      it "sets :tr_subdoctype to false" do
+        subject.send(:parse_subdoctype)
+        expect(errors[:tr_subdoctype]).to be false
+      end
+
+      it "sets :tr_filesize to false" do
+        subject.send(:filesize)
+        expect(errors[:tr_filesize]).to be false
+      end
+    end
+
+    context "with missing data" do
+      it "keeps :tr_docnumber as true when slug is nil" do
+        entry["slug"] = nil
+        subject.send(:parse_docnumber)
+        expect(errors[:tr_docnumber]).to be true
+      end
+
+      it "keeps :tr_abstract as true when subtitle is nil" do
+        entry["technicalReport"]["subtitle"] = nil
+        subject.send(:parse_abstract)
+        expect(errors[:tr_abstract]).to be true
+      end
+
+      it "keeps :tr_date as true when date is nil" do
+        entry["date"] = nil
+        subject.send(:parse_date)
+        expect(errors[:tr_date]).to be true
+      end
+
+      it "keeps :tr_source as true when pdf is nil" do
+        entry["technicalReport"]["pdf"] = nil
+        subject.send(:parse_source)
+        expect(errors[:tr_source]).to be true
+      end
+
+      it "keeps :tr_keyword as true when tags are empty" do
+        entry["globalTags"]["nodes"] = []
+        subject.send(:parse_keyword)
+        expect(errors[:tr_keyword]).to be true
+      end
+
+      it "keeps :tr_subdoctype as true when categories are empty" do
+        entry["technicalReportCategories"]["nodes"] = []
+        subject.send(:parse_subdoctype)
+        expect(errors[:tr_subdoctype]).to be true
+      end
+
+      it "keeps :tr_filesize as true when filesize is nil" do
+        entry["technicalReport"]["filesize"] = nil
+        subject.send(:filesize)
+        expect(errors[:tr_filesize]).to be true
+      end
+    end
+
+    context "when errors key is not pre-set" do
+      let(:errors) { {} }
+
+      it "does not create error keys" do
+        subject.send(:parse_docnumber)
+        subject.send(:parse_abstract)
+        subject.send(:parse_date)
+        subject.send(:parse_source)
+        subject.send(:parse_keyword)
+        subject.send(:parse_subdoctype)
+        subject.send(:filesize)
+        expect(errors).to be_empty
+      end
+    end
+  end
 end

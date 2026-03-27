@@ -16,6 +16,14 @@ module Relaton
         @index ||= Relaton::Index.find_or_create :plateau, file: "#{INDEXFILE}.yaml"
       end
 
+      def gh_issue_channel
+        ["relaton/relaton-plateau", "Error fetching PLATEAU documents"]
+      end
+
+      def log_error(msg)
+        Util.error msg
+      end
+
       def fetch(source)
         case source
         when "plateau-handbooks" then extract_handbooks_data
@@ -90,11 +98,12 @@ module Relaton
           doctype = entry["slug"].match("-") ? "annex" : "handbook"
 
           handbook["versions"].each do |version|
-            item = HandbookParser.new(version: version, entry: entry, doctype: doctype).parse
+            item = HandbookParser.new(version: version, entry: entry, doctype: doctype, errors: @errors).parse
             save_document(item)
           end
         end
         index.save
+        repot_errors
       end
 
       #
@@ -104,9 +113,10 @@ module Relaton
         data = fetch_json_data(TECHNICAL_REPORTS_URL)
         Util.info "Extracting technical reports data..."
         data["pageProps"]["nodes"].map do |entry|
-          save_document(TechnicalReportParser.new(entry).parse)
+          save_document(TechnicalReportParser.new(entry, @errors).parse)
         end
         index.save
+        repot_errors
       end
 
       def save_document(item)

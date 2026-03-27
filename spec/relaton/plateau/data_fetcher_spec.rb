@@ -125,7 +125,7 @@ RSpec.describe Relaton::Plateau::DataFetcher do
           "https://www.mlit.go.jp/plateau/_next/data/1.3.0/libraries/handbooks.json"
         ).and_return data
         expect(Relaton::Plateau::HandbookParser).to receive(:new).with(
-          version: version, entry: entry, doctype: "handbook"
+          version: version, entry: entry, doctype: "handbook", errors: {}
         ).and_return double(parse: :bibitem)
         expect(subject).to receive(:save_document).with(:bibitem)
         subject.extract_handbooks_data
@@ -137,7 +137,7 @@ RSpec.describe Relaton::Plateau::DataFetcher do
           "https://www.mlit.go.jp/plateau/_next/data/1.3.0/libraries/handbooks.json"
         ).and_return data
         expect(Relaton::Plateau::HandbookParser).to receive(:new).with(
-          version: version, entry: entry, doctype: "annex"
+          version: version, entry: entry, doctype: "annex", errors: {}
         ).and_return double(parse: :bibitem)
         expect(subject).to receive(:save_document).with(:bibitem)
         subject.extract_handbooks_data
@@ -149,7 +149,7 @@ RSpec.describe Relaton::Plateau::DataFetcher do
       expect(subject).to receive(:fetch_json_data).with(
         "https://www.mlit.go.jp/plateau/_next/data/1.3.0/libraries/technical-reports.json"
       ).and_return data
-      expect(Relaton::Plateau::TechnicalReportParser).to receive(:new).with(:entry)
+      expect(Relaton::Plateau::TechnicalReportParser).to receive(:new).with(:entry, kind_of(Hash))
         .and_return double(parse: :bibitem)
       expect(subject).to receive(:save_document).with(:bibitem)
       subject.extract_technical_reports_data

@@ -5,8 +5,9 @@ module Relaton
       ATTRIS = %i[docidentifier docnumber title abstract depiction edition type
                   date source contributor keyword ext].freeze
 
-      def initialize(item)
+      def initialize(item, errors = {})
         @item = item
+        @errors = errors
       end
 
       def parse
@@ -19,7 +20,9 @@ module Relaton
       private
 
       def parse_docidentifier
-        [create_docid("PLATEAU #{parse_docnumber}")]
+        result = [create_docid("PLATEAU #{parse_docnumber}")]
+        @errors[:parse_docidentifier] &&= result.empty?
+        result
       end
 
       def parse_docnumber; end
@@ -42,7 +45,9 @@ module Relaton
 
       def parse_title
         lang, script = detect_lang(@item["title"])
-        [create_title(@item["title"], lang, script)]
+        result = [create_title(@item["title"], lang, script)]
+        @errors[:title] &&= result.empty?
+        result
       end
 
       def create_title(title, lang, script)
@@ -57,7 +62,9 @@ module Relaton
         mimetype += image_ext == "jpg" ? "jpeg" : image_ext
         src = "https://www.mlit.go.jp/#{@item["thumbnail"]["mediaItemUrl"]}"
         image = Bib::Image.new(src: src, mimetype: mimetype)
-        Bib::Depiction.new(scope: "cover", image: [image])
+        result = Bib::Depiction.new(scope: "cover", image: [image])
+        @errors[:parse_depiction] &&= result.nil?
+        result
       end
 
       def parse_edition; raise "Not implemented" end
@@ -74,7 +81,9 @@ module Relaton
           ),
         ]
         org = Bib::Organization.new(name: name, abbreviation: Bib::LocalizedString.new(content: "MLIT"))
-        [Bib::Contributor.new(organization: org, role: [Bib::Contributor::Role.new(type: "publisher")])]
+        result = [Bib::Contributor.new(organization: org, role: [Bib::Contributor::Role.new(type: "publisher")])]
+        @errors[:parse_contributor] &&= result.empty?
+        result
       end
 
       def create_date(date, type = "published")
