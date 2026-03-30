@@ -26,7 +26,7 @@ RSpec.describe Relaton::Calconnect::DataFetcher do
       expect(subject).to receive(:parse_page).with(kind_of(Hash)).and_return(true).exactly(3).times
       expect(subject).to receive(:etag=).with("1234")
       expect(subject.index).to receive(:save)
-      expect(subject).to receive(:repot_errors)
+      expect(subject).to receive(:report_errors)
       subject.fetch
     end
 
@@ -104,18 +104,12 @@ RSpec.describe Relaton::Calconnect::DataFetcher do
       subject.send(:etag=, "1234")
     end
 
-    it "#gh_issue_channel" do
-      expect(subject.gh_issue_channel).to eq ["relaton/relaton-calconnect", "Error fetching CalConnect documents"]
-    end
-
-    it "#repot_errors" do
+    it "#report_errors" do
       errors = subject.instance_variable_get(:@errors)
       errors[:title] = false
       errors[:date] = true
-      expect(subject.gh_issue).to receive(:create_issue)
-      expect do
-        subject.repot_errors
-      end.to output(/ERROR: Failed to fetch date/).to_stderr_from_any_process
+      expect(subject).to receive(:report_errors)
+      subject.report_errors
     end
   end
 end
