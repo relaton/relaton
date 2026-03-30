@@ -32,10 +32,6 @@ module Relaton
         @index ||= Index.find_or_create :cie, file: "index-v1.yaml"
       end
 
-      def gh_issue_channel
-        ["relaton/relaton-cie", "Error fetching CIE documents"]
-      end
-
       def log_error(msg)
         Util.error msg
       end
@@ -270,7 +266,7 @@ module Relaton
 
       def fetch(_source = nil)
         fetch_doc
-        repot_errors
+        report_errors
       end
 
       def fetch_doc(url = URL)
