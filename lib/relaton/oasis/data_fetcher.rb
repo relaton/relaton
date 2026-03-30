@@ -7,10 +7,6 @@ require_relative "data_part_parser"
 module Relaton
   module Oasis
     class DataFetcher < Core::DataFetcher
-      def gh_issue_channel
-        ["relaton/relaton-oasis", "Error fetching OASIS documents"]
-      end
-
       def log_error(msg)
         Util.error msg
       end
@@ -24,7 +20,7 @@ module Relaton
           fetch_parts item
         end
         index.save
-        repot_errors
+        report_errors
       end
 
       private
