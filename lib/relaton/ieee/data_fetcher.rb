@@ -22,10 +22,6 @@ module Relaton
       #
       # Convert documents from `ieee-rawbib` dir (IEEE dataset) to BibYAML/BibXML
       #
-      def gh_issue_channel
-        ["relaton/relaton-ieee", "Error fetching IEEE documents"]
-      end
-
       def log_error(msg)
         Util.error msg
       end
@@ -42,7 +38,7 @@ module Relaton
         end
         # File.write "normtitles.txt", @normtitles.join("\n")
         update_relations
-        repot_errors
+        report_errors
       end
 
       # @return [Hash] list of AMSID => PubID
