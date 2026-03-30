@@ -15,10 +15,6 @@ module Relaton
         @mutex = Mutex.new
       end
 
-      def gh_issue_channel
-        ["relaton/relaton-jis", "Error fetching JIS documents"]
-      end
-
       def log_error(msg)
         Util.error msg
       end
@@ -73,7 +69,7 @@ module Relaton
         resp = agent.get "#{URL}W11M0070/index"
         parse_page resp
         index.save
-        repot_errors
+        report_errors
       end
 
       def initial_post
