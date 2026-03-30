@@ -8,10 +8,6 @@ module Relaton
       #
       # Parse documents
       #
-      def gh_issue_channel
-        ["relaton/relaton-iana", "Error fetching IANA documents"]
-      end
-
       def log_error(msg)
         Util.error msg
       end
@@ -24,7 +20,7 @@ module Relaton
           Util.error "Error: #{e.message}. File: #{file}"
         end
         index.save
-        repot_errors
+        report_errors
       end
 
       private
