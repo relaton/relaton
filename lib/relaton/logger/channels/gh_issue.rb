@@ -43,7 +43,7 @@ module Relaton
           if responce.code.to_i == 201
             puts "Issue created!"
           else
-            puts "Failed to create issue: #{responce.code} #{responce.message}"
+            puts "Failed to create issue: #{responce.code} #{responce.message}\n#{responce.body}"
           end
         end
 

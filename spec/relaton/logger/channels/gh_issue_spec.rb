@@ -43,8 +43,8 @@ describe Relaton::Logger::Channels::GhIssue do
       end
 
       it "failed" do
-        expect(subject).to receive(:post_issue).and_return double(code: "400", message: "message")
-        expect { subject.create_issue }.to output("Failed to create issue: 400 message\n").to_stdout
+        expect(subject).to receive(:post_issue).and_return double(code: "400", message: "message", body: "body")
+        expect { subject.create_issue }.to output("Failed to create issue: 400 message\nbody\n").to_stdout
       end
     end
   end
