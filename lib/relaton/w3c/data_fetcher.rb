@@ -14,10 +14,6 @@ module Relaton
         @index ||= Relaton::Index.find_or_create(:W3C, file: "#{INDEXFILE}.yaml")
       end
 
-      def gh_issue_channel
-        ["relaton/relaton-w3c", "Error fetching W3C documents"]
-      end
-
       def log_error(msg)
         Util.error msg
       end
@@ -41,7 +37,7 @@ module Relaton
           specs = specs.next
         end
         index.save
-        repot_errors
+        report_errors
       end
 
       def fetch_spec(unrealized_spec)
