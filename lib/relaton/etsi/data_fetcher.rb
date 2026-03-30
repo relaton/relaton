@@ -18,10 +18,6 @@ module Relaton
         @index ||= Relaton::Index.find_or_create :etsi, file: INDEX_FILE
       end
 
-      def gh_issue_channel
-        ["relaton/relaton-etsi", "Error fetching ETSI documents"]
-      end
-
       def log_error(msg)
         Util.error msg
       end
@@ -41,7 +37,7 @@ module Relaton
           save DataParser.new(row, @errors).parse
         end
         index.save
-        repot_errors
+        report_errors
       end
 
       NETWORK_ERRORS = [
