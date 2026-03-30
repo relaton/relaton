@@ -21,10 +21,6 @@ module Relaton
         @index ||= Relaton::Index.find_or_create :ecma, file: "#{INDEXFILE}.yaml"
       end
 
-      def gh_issue_channel
-        ["relaton/relaton-ecma", "Error fetching ECMA documents"]
-      end
-
       def log_error(msg)
         Util.error msg
       end
@@ -100,7 +96,7 @@ module Relaton
       def fetch(_ = nil)
         SOURCES.each { |source| html_index source }
         index.save
-        repot_errors
+        report_errors
       end
     end
   end
