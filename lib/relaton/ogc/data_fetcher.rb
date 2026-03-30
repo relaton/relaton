@@ -18,10 +18,6 @@ module Relaton
         @dupids = Set.new
       end
 
-      def gh_issue_channel
-        ["relaton/relaton-ogc", "Error fetching OGC documents"]
-      end
-
       def log_error(msg)
         Util.error msg
       end
@@ -39,7 +35,7 @@ module Relaton
           end
           self.etag = etag if no_errors
           index.save
-          repot_errors
+          report_errors
         end
       end
 
