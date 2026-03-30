@@ -15,10 +15,6 @@ module Relaton
         @index ||= Relaton::Index.find_or_create :itu, file: "index-v1.yaml"
       end
 
-      def gh_issue_channel
-        ["relaton/relaton-itu", "Error fetching ITU documents"]
-      end
-
       def log_error(msg)
         Util.error msg
       end
@@ -47,7 +43,7 @@ module Relaton
           start += ROWS
         end
         index.save
-        repot_errors
+        report_errors
       end
 
       # @param bib [Relaton::Itu::ItemData]
