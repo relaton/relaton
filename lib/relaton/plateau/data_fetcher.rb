@@ -16,10 +16,6 @@ module Relaton
         @index ||= Relaton::Index.find_or_create :plateau, file: "#{INDEXFILE}.yaml"
       end
 
-      def gh_issue_channel
-        ["relaton/relaton-plateau", "Error fetching PLATEAU documents"]
-      end
-
       def log_error(msg)
         Util.error msg
       end
@@ -103,7 +99,7 @@ module Relaton
           end
         end
         index.save
-        repot_errors
+        report_errors
       end
 
       #
@@ -116,7 +112,7 @@ module Relaton
           save_document(TechnicalReportParser.new(entry, @errors).parse)
         end
         index.save
-        repot_errors
+        report_errors
       end
 
       def save_document(item)
