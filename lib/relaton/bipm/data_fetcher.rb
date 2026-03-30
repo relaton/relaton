@@ -12,10 +12,6 @@ module Relaton::Bipm
       @index ||= Relaton::Index.find_or_create :bipm, file: INDEXFILE
     end
 
-    def gh_issue_channel
-      ["relaton/relaton-bipm", "Error fetching BIPM documents"]
-    end
-
     def log_error(msg)
       Util.error msg
     end
@@ -32,7 +28,7 @@ module Relaton::Bipm
       when "rawdata-bipm-metrologia" then RawdataBipmMetrologia::Fetcher.fetch(self)
       end
       index.save
-      repot_errors
+      report_errors
     end
 
     #
