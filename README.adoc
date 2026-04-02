@@ -108,7 +108,7 @@ Relaton::Ecma::Bibliography.get '1111'
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="ECMA6" type="standard" schema-version="v1.4.1">
+=> "<bibitem id="ECMA6" type="standard" schema-version="v1.5.6">
       <fetched>2025-12-29</fetched>
       <title language="en" script="Latn">7-bit coded character set</title>
       <uri type="src">https://ecma-international.org/publications-and-standards/standards/ecma-6/</uri>
@@ -122,7 +122,7 @@ With `bibdata: true` option XML output wrapped with `bibdata` element and `ext` 
 [source,ruby]
 ----
 item.to_xml bibdata: true
-=> "<bibdata type="standard" schema-version="v1.4.1">
+=> "<bibdata type="standard" schema-version="v1.5.6">
       <fetched>2025-12-29</fetched>
       <title language="en" script="Latn">7-bit coded character set</title>
       <uri type="src">https://ecma-international.org/publications-and-standards/standards/ecma-6/</uri>

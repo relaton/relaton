@@ -123,7 +123,7 @@ describe Relaton::Ecma::StandardParser do
     abstract = parser.fetch_abstract
 
     expect(abstract).to be_instance_of Array
-    expect(abstract.first).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
+    expect(abstract.first).to be_instance_of Relaton::Bib::Abstract
     expect(abstract.first.content).to eq "Abstract 1\nabstract 2"
   end
 

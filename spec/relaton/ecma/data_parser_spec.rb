@@ -33,7 +33,7 @@ describe Relaton::Ecma::DataParser do
         expect(items.first.place.first).to be_instance_of Relaton::Bib::Place
         expect(items.first.docidentifier.first).to be_instance_of Relaton::Bib::Docidentifier
         expect(items.first.title.first).to be_instance_of Relaton::Bib::Title
-        expect(items.first.abstract.first).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
+        expect(items.first.abstract.first).to be_instance_of Relaton::Bib::Abstract
         expect(items.first.date.first).to be_instance_of Relaton::Bib::Date
         expect(items.first.source.first).to be_instance_of Relaton::Bib::Uri
         expect(items.first.relation.first).to be_instance_of Relaton::Bib::Relation

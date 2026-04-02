@@ -1,5 +1,7 @@
 # frozen_string_literal:true
 
+require "mechanize"
+
 module Relaton
   module Ecma
     # IETF bibliography module

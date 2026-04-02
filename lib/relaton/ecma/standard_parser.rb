@@ -49,7 +49,7 @@ module Relaton
         end.join "\n"
         return [] if content.empty?
 
-        result = [Bib::LocalizedMarkedUpString.new(content: content, language: "en", script: "Latn")]
+        result = [Bib::Abstract.new(content: content, language: "en", script: "Latn")]
         @errors[:standard_abstract] &&= result.empty?
         result
       end
@@ -89,7 +89,7 @@ module Relaton
           extent = edition_parser.create_extent(vol)
           @errors[:standard_relation_extent] &&= extent.nil?
           bibitem = ItemData.new(
-            docidentifier: [docid], formattedref: ref, date: date, edition: edition,
+            docidentifier: [docid], formattedref: Bib::Formattedref.new(content: ref), date: date, edition: edition,
             source: source, extent: extent
           )
           Bib::Relation.new(type: "updates", bibitem: bibitem)
