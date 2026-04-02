@@ -37,8 +37,8 @@ RSpec.describe Relaton::Plateau::TechnicalReportParser do
     it { expect(bibitem.docidentifier[0]).to be_instance_of Relaton::Bib::Docidentifier }
     it { expect(bibitem.docnumber).to eq "Technical Report #93 1.0" }
     it { expect(bibitem.title[0]).to be_instance_of Relaton::Bib::Title }
-    it { expect(bibitem.abstract[0]).to be_instance_of Relaton::Bib::LocalizedMarkedUpString }
-    it { expect(bibitem.depiction).to be_instance_of Relaton::Bib::Depiction }
+    it { expect(bibitem.abstract[0]).to be_instance_of Relaton::Bib::Abstract }
+    it { expect(bibitem.depiction[0]).to be_instance_of Relaton::Bib::Depiction }
     it { expect(bibitem.edition).to be_instance_of Relaton::Bib::Edition }
     it { expect(bibitem.type).to eq "standard" }
     it { expect(bibitem.ext).to be_instance_of Relaton::Plateau::Ext }
@@ -71,7 +71,7 @@ RSpec.describe Relaton::Plateau::TechnicalReportParser do
     abstract = subject.send :parse_abstract
     expect(abstract).to be_instance_of Array
     expect(abstract.size).to eq 1
-    expect(abstract[0]).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
+    expect(abstract[0]).to be_instance_of Relaton::Bib::Abstract
     expect(abstract[0].content).to eq "歴史・文化・営みを継承するメタバース体験の構築の技術資料 (2023年度)"
   end
 
@@ -111,7 +111,7 @@ RSpec.describe Relaton::Plateau::TechnicalReportParser do
     expect(keyword).to be_instance_of Array
     expect(keyword.size).to eq 4
     expect(keyword[0]).to be_instance_of Relaton::Bib::Keyword
-    expect(keyword[0].taxon[0].content).to eq "Unreal Engine"
+    expect(keyword[0].vocab.content).to eq "Unreal Engine"
   end
 
   it "parse_ext" do

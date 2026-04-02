@@ -32,7 +32,7 @@ module Relaton
       end
 
       def create_abstract(content, lang = "ja", script = "Jpan")
-        Bib::LocalizedMarkedUpString.new(content: content, language: lang, script: script)
+        Bib::Abstract.new(content: content, language: lang, script: script)
       end
 
       def detect_lang(text)
@@ -64,7 +64,7 @@ module Relaton
         image = Bib::Image.new(src: src, mimetype: mimetype)
         result = Bib::Depiction.new(scope: "cover", image: [image])
         @errors[:parse_depiction] &&= result.nil?
-        result
+        [result]
       end
 
       def parse_edition; raise "Not implemented" end

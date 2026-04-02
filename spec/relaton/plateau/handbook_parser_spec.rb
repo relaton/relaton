@@ -45,7 +45,7 @@ RSpec.describe Relaton::Plateau::HandbookParser do
     it { expect(bibitem.docidentifier[0]).to be_instance_of Relaton::Bib::Docidentifier }
     it { expect(bibitem.docnumber).to eq "Handbook #09 3.0" }
     it { expect(bibitem.title[0]).to be_instance_of Relaton::Bib::Title }
-    it { expect(bibitem.abstract[0]).to be_instance_of Relaton::Bib::LocalizedMarkedUpString }
+    it { expect(bibitem.abstract[0]).to be_instance_of Relaton::Bib::Abstract }
     it { expect(bibitem.edition).to be_instance_of Relaton::Bib::Edition }
     it { expect(bibitem.ext).to be_instance_of Relaton::Plateau::Ext }
     it { expect(bibitem.ext.doctype).to be_instance_of Relaton::Plateau::Doctype }
@@ -118,11 +118,11 @@ RSpec.describe Relaton::Plateau::HandbookParser do
     abstract = subject.send :parse_abstract
     expect(abstract).to be_instance_of Array
     expect(abstract.size).to eq 2
-    expect(abstract[0]).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
+    expect(abstract[0]).to be_instance_of Relaton::Bib::Abstract
     expect(abstract[0].content).to eq "3D City Model Demonstration Manual"
     expect(abstract[0].language).to eq "en"
     expect(abstract[0].script).to eq "Latn"
-    expect(abstract[1]).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
+    expect(abstract[0]).to be_instance_of Relaton::Bib::Abstract
     expect(abstract[1].content).to eq "3D都市モデルの可視化環境構築及びデータ重畳のための仕様・手順等のマニュアル"
     expect(abstract[1].language).to eq "ja"
     expect(abstract[1].script).to eq "Jpan"

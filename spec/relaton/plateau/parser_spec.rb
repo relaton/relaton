@@ -28,7 +28,7 @@ RSpec.describe Relaton::Plateau::Parser do
 
   it "create_abstract" do
     fs = subject.send(:create_abstract, "content", "en", "Latn")
-    expect(fs).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
+    expect(fs).to be_instance_of Relaton::Bib::Abstract
     expect(fs.content).to eq "content"
     expect(fs.language).to eq "en"
     expect(fs.script).to eq "Latn"
@@ -59,11 +59,11 @@ RSpec.describe Relaton::Plateau::Parser do
 
   it "parse_depiction" do
     depiction = subject.send(:parse_depiction)
-    expect(depiction).to be_instance_of Relaton::Bib::Depiction
-    expect(depiction.scope).to eq "cover"
-    expect(depiction.image[0]).to be_instance_of Relaton::Bib::Image
-    expect(depiction.image[0].src).to eq "https://www.mlit.go.jp//plateau/uploads/2022/06/1@2x.jpg"
-    expect(depiction.image[0].mimetype).to eq "image/jpeg"
+    expect(depiction[0]).to be_instance_of Relaton::Bib::Depiction
+    expect(depiction[0].scope).to eq "cover"
+    expect(depiction[0].image[0]).to be_instance_of Relaton::Bib::Image
+    expect(depiction[0].image[0].src).to eq "https://www.mlit.go.jp//plateau/uploads/2022/06/1@2x.jpg"
+    expect(depiction[0].image[0].mimetype).to eq "image/jpeg"
   end
 
   it "parse_edition" do

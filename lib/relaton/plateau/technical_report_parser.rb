@@ -56,7 +56,7 @@ module Relaton
 
       def parse_keyword
         result = @entry["globalTags"]["nodes"].map do |tag|
-          Bib::Keyword.new(taxon: [Bib::LocalizedString.new(content: tag["name"])])
+          Bib::Keyword.new(vocab: Bib::LocalizedString.new(content: tag["name"]))
         end
         @errors[:tr_keyword] &&= result.empty?
         result
