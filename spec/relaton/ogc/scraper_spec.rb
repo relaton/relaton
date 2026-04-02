@@ -3,32 +3,35 @@
 require "relaton/ogc/data_fetcher"
 
 describe Relaton::Ogc::Scraper do
+  let(:scraper) { described_class.new({}) }
+
   it "parse_page" do
     hit = { "type" => :type, "title" => :title, "identifier" => :identifier,
             "date" => :date, "description" => :description }
-    expect(described_class).to receive(:fetch_type).with(:type)
+    scraper = described_class.new(hit)
+    expect(scraper).to receive(:fetch_type).with(:type)
       .and_return(type: :doctype, subtype: :subdoctype, stage: :draft)
-    expect(described_class).to receive(:fetch_title).with(:title).and_return("Title")
-    expect(described_class).to receive(:fetch_docid).with(:identifier).and_return(:docid)
-    expect(described_class).to receive(:fetch_link).with(hit).and_return(:link)
-    expect(described_class).to receive(:fetch_date).with(:date).and_return(:date)
-    expect(described_class).to receive(:fetch_abstract).with(:description).and_return(:abstract)
-    expect(described_class).to receive(:fetch_contributor).with(hit).and_return([])
-    expect(described_class).to receive(:fetch_editorialgroup_contributor).and_return(:eg_contrib)
-    expect(described_class).to receive(:fetch_edition).with(:identifier).and_return(:edition)
-    expect(described_class).to receive(:fetch_status).with(:draft).and_return(:status)
-    expect(described_class).to receive(:fetch_doctype).with(:doctype).and_return(:doctype)
+    expect(scraper).to receive(:fetch_title).with(:title).and_return("Title")
+    expect(scraper).to receive(:fetch_docid).with(:identifier).and_return(:docid)
+    expect(scraper).to receive(:fetch_link).with(hit).and_return(:link)
+    expect(scraper).to receive(:fetch_date).with(:date).and_return(:date)
+    expect(scraper).to receive(:fetch_abstract).with(:description).and_return(:abstract)
+    expect(scraper).to receive(:fetch_contributor).with(hit).and_return([])
+    expect(scraper).to receive(:fetch_editorialgroup_contributor).and_return(:eg_contrib)
+    expect(scraper).to receive(:fetch_edition).with(:identifier).and_return(:edition)
+    expect(scraper).to receive(:fetch_status).with(:draft).and_return(:status)
+    expect(scraper).to receive(:fetch_doctype).with(:doctype).and_return(:doctype)
     expect(Relaton::Ogc::ItemData).to receive(:new).with(
       type: "standard", title: "Title", docidentifier: :docid, source: :link,
       status: :status, edition: :edition, abstract: :abstract,
       contributor: [:eg_contrib], language: ["en"], script: ["Latn"],
       date: :date, ext: an_instance_of(Relaton::Ogc::Ext),
     )
-    described_class.parse_page hit
+    scraper.parse
   end
 
   it "fetch_editorialgroup_contributor" do
-    contrib = described_class.send :fetch_editorialgroup_contributor
+    contrib = scraper.send :fetch_editorialgroup_contributor
     expect(contrib).to be_instance_of Relaton::Bib::Contributor
     expect(contrib.role.first.type).to eq "author"
     expect(contrib.role.first.description.first.content).to eq "committee"
@@ -39,7 +42,7 @@ describe Relaton::Ogc::Scraper do
   end
 
   it "fetch_title" do
-    title = described_class.send :fetch_title, "Title"
+    title = scraper.send :fetch_title, "Title"
     expect(title).to be_instance_of Array
     expect(title.first.content).to eq "Title"
     expect(title.first.language).to eq "en"
@@ -47,7 +50,7 @@ describe Relaton::Ogc::Scraper do
   end
 
   it "fetch_docid" do
-    docid = described_class.send :fetch_docid, "identifier"
+    docid = scraper.send :fetch_docid, "identifier"
     expect(docid).to be_instance_of Array
     expect(docid.first).to be_instance_of Relaton::Ogc::Docidentifier
     expect(docid.first.content).to eq "identifier"
@@ -58,7 +61,7 @@ describe Relaton::Ogc::Scraper do
   context "fetch_link" do
     it "URI and URL pdf type" do
       hit = { "URI" => "uri", "URL" => "portal.ogc.org" }
-      link = described_class.send :fetch_link, hit
+      link = scraper.send :fetch_link, hit
       expect(link).to be_instance_of Array
       expect(link.size).to eq 2
       expect(link.first).to be_instance_of Relaton::Bib::Uri
@@ -71,14 +74,14 @@ describe Relaton::Ogc::Scraper do
 
     it "URI is empty & URL type is html" do
       hit = { "URI" => "", "URL" => "www.w3.org" }
-      link = described_class.send :fetch_link, hit
+      link = scraper.send :fetch_link, hit
       expect(link.first.type).to eq "html"
       expect(link.first.content.to_s).to eq "www.w3.org"
     end
 
     it "URI only" do
       hit = { "URI" => "uri" }
-      link = described_class.send :fetch_link, hit
+      link = scraper.send :fetch_link, hit
       expect(link).to be_instance_of Array
       expect(link.size).to eq 1
       expect(link.first).to be_instance_of Relaton::Bib::Uri
@@ -88,7 +91,7 @@ describe Relaton::Ogc::Scraper do
 
     it "URL only" do
       hit = { "URL" => "url.doc" }
-      link = described_class.send :fetch_link, hit
+      link = scraper.send :fetch_link, hit
       expect(link).to be_instance_of Array
       expect(link.size).to eq 1
       expect(link.first).to be_instance_of Relaton::Bib::Uri
@@ -98,42 +101,42 @@ describe Relaton::Ogc::Scraper do
   end
 
   it "fetch_type" do
-    type = described_class.send :fetch_type, "D-CAN"
+    type = scraper.send :fetch_type, "D-CAN"
     expect(type).to eq type: "standard", subtype: "general", stage: "draft"
   end
 
   it "fetch_doctype" do
-    doctype = described_class.send :fetch_doctype, "standard"
+    doctype = scraper.send :fetch_doctype, "standard"
     expect(doctype).to be_instance_of Relaton::Ogc::Doctype
     expect(doctype.content).to eq "standard"
   end
 
   context "fetch_status" do
     it do
-      status = described_class.send :fetch_status, "draft"
+      status = scraper.send :fetch_status, "draft"
       expect(status).to be_instance_of Relaton::Bib::Status
       expect(status.stage.content).to eq "draft"
     end
 
     it "nil" do
-      expect(described_class.send(:fetch_status, nil)).to be_nil
+      expect(scraper.send(:fetch_status, nil)).to be_nil
     end
   end
 
   it "fetch_edition" do
-    edition = described_class.send(:fetch_edition, "r5")
+    edition = scraper.send(:fetch_edition, "r5")
     expect(edition).to be_instance_of Relaton::Bib::Edition
     expect(edition.content).to eq "5"
   end
 
   it "fetch_edition nil" do
-    expect(described_class.send(:fetch_edition, "nope")).to be_nil
+    expect(scraper.send(:fetch_edition, "nope")).to be_nil
   end
 
   it "fetch_abstract" do
-    abstract = described_class.send :fetch_abstract, "description"
+    abstract = scraper.send :fetch_abstract, "description"
     expect(abstract).to be_instance_of Array
-    expect(abstract.first).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
+    expect(abstract.first).to be_instance_of Relaton::Bib::Abstract
     expect(abstract.first.content).to eq "description"
     expect(abstract.first.language).to eq "en"
     expect(abstract.first.script).to eq "Latn"
@@ -141,15 +144,15 @@ describe Relaton::Ogc::Scraper do
 
   it "fetch_contributor" do
     doc = { "creator" => "Person1, Person2", "publisher" => "Org" }
-    expect(described_class).to receive(:person_contrib).with("Person1").and_return(:person1)
-    expect(described_class).to receive(:person_contrib).with("Person2").and_return(:person2)
-    expect(described_class).to receive(:org_contrib).with("Org").and_return(:org)
-    contrib = described_class.send :fetch_contributor, doc
+    expect(scraper).to receive(:person_contrib).with("Person1").and_return(:person1)
+    expect(scraper).to receive(:person_contrib).with("Person2").and_return(:person2)
+    expect(scraper).to receive(:org_contrib).with("Org").and_return(:org)
+    contrib = scraper.send :fetch_contributor, doc
     expect(contrib).to eq %i[person1 person2 org]
   end
 
   it "person_contrib" do
-    contrib = described_class.send :person_contrib, "Person"
+    contrib = scraper.send :person_contrib, "Person"
     expect(contrib).to be_instance_of Relaton::Bib::Contributor
     expect(contrib.person).to be_instance_of Relaton::Bib::Person
     expect(contrib.person.name.completename.content).to eq "Person"
@@ -157,7 +160,7 @@ describe Relaton::Ogc::Scraper do
   end
 
   it "org_contrib" do
-    contrib = described_class.send :org_contrib, "Org"
+    contrib = scraper.send :org_contrib, "Org"
     expect(contrib).to be_instance_of Relaton::Bib::Contributor
     expect(contrib.organization).to be_instance_of Relaton::Bib::Organization
     expect(contrib.organization.name.first.content).to eq "Org"
@@ -166,111 +169,108 @@ describe Relaton::Ogc::Scraper do
 
   context "fetch_date" do
     it do
-      date = described_class.send :fetch_date, "2019-01-01"
+      date = scraper.send :fetch_date, "2019-01-01"
       expect(date).to be_instance_of Array
       expect(date.first).to be_instance_of Relaton::Bib::Date
       expect(date.first.at.to_s).to eq "2019-01-01"
     end
 
     it "no date" do
-      expect(described_class.send(:fetch_date, nil)).to eq []
+      expect(scraper.send(:fetch_date, nil)).to eq []
     end
   end
 
   context "errors guards" do
-    before do
-      described_class.instance_variable_set(:@errors, Hash.new(true))
-    end
-
-    let(:errors) { described_class.instance_variable_get(:@errors) }
+    let(:scraper) { described_class.new({}, Hash.new(true)) }
+    let(:errors) { scraper.instance_variable_get(:@errors) }
 
     it "fetch_title clears error on success" do
-      described_class.send :fetch_title, "Title"
+      scraper.send :fetch_title, "Title"
       expect(errors[:title]).to be false
     end
 
     it "fetch_title clears error even with empty string" do
-      described_class.send :fetch_title, ""
+      scraper.send :fetch_title, ""
       expect(errors[:title]).to be false
     end
 
     it "fetch_docid clears error on success" do
-      described_class.send :fetch_docid, "OGC-01"
+      scraper.send :fetch_docid, "OGC-01"
       expect(errors[:docid]).to be false
     end
 
     it "fetch_docid keeps error on empty identifier" do
-      described_class.send :fetch_docid, ""
+      scraper.send :fetch_docid, ""
       expect(errors[:docid]).to be true
     end
 
     it "fetch_docid keeps error on nil identifier" do
-      described_class.send :fetch_docid, nil
+      scraper.send :fetch_docid, nil
       expect(errors[:docid]).to be true
     end
 
     it "fetch_link clears error when links present" do
-      described_class.send :fetch_link, { "URI" => "http://example.com" }
+      scraper.send :fetch_link, { "URI" => "http://example.com" }
       expect(errors[:link]).to be false
     end
 
     it "fetch_link keeps error when no links" do
-      described_class.send :fetch_link, {}
+      scraper.send :fetch_link, {}
       expect(errors[:link]).to be true
     end
 
     it "fetch_status clears error on success" do
-      described_class.send :fetch_status, "draft"
+      scraper.send :fetch_status, "draft"
       expect(errors[:status]).to be false
     end
 
     it "fetch_status keeps error on nil stage" do
-      described_class.send :fetch_status, nil
+      scraper.send :fetch_status, nil
       expect(errors[:status]).to be true
     end
 
     it "fetch_edition clears error on success" do
-      described_class.send :fetch_edition, "r5"
+      scraper.send :fetch_edition, "r5"
       expect(errors[:edition]).to be false
     end
 
     it "fetch_edition keeps error when no edition" do
-      described_class.send :fetch_edition, "nope"
+      scraper.send :fetch_edition, "nope"
       expect(errors[:edition]).to be true
     end
 
     it "fetch_abstract clears error on success" do
-      described_class.send :fetch_abstract, "Some description"
+      scraper.send :fetch_abstract, "Some description"
       expect(errors[:abstract]).to be false
     end
 
     it "fetch_abstract keeps error on empty description" do
-      described_class.send :fetch_abstract, ""
+      scraper.send :fetch_abstract, ""
       expect(errors[:abstract]).to be true
     end
 
     it "fetch_abstract keeps error on nil description" do
-      described_class.send :fetch_abstract, nil
+      scraper.send :fetch_abstract, nil
       expect(errors[:abstract]).to be true
     end
 
     it "fetch_contributor clears error on success" do
-      described_class.send :fetch_contributor, { "creator" => "Person" }
+      scraper.send :fetch_contributor, { "creator" => "Person" }
       expect(errors[:contributor]).to be false
     end
 
     it "fetch_contributor keeps error when no contributors" do
-      described_class.send :fetch_contributor, {}
+      scraper.send :fetch_contributor, {}
       expect(errors[:contributor]).to be true
     end
 
     it "fetch_date clears error on success" do
-      described_class.send :fetch_date, "2019-01-01"
+      scraper.send :fetch_date, "2019-01-01"
       expect(errors[:date]).to be false
     end
 
     it "fetch_date keeps error on nil date" do
-      described_class.send :fetch_date, nil
+      scraper.send :fetch_date, nil
       expect(errors[:date]).to be true
     end
   end
