@@ -122,7 +122,7 @@ module Relaton
                            "[starts-with(., 'Abstract')]][1]"
                    page.xpath(xpath).map do |p|
                      cnt = p.text.gsub(/[\r\n]+/, " ").strip
-                     Bib::LocalizedMarkedUpString.new(
+                     Bib::Abstract.new(
                        content: cnt, language: "en", script: "Latn",
                      )
                    end
@@ -184,7 +184,7 @@ module Relaton
       def parse_relation
         parser = DataParser.new @node.at("./ancestor::details")
         fref = parser.parse_docid[0].content
-        bib = ItemData.new(formattedref: fref)
+        bib = ItemData.new(formattedref: Bib::Formattedref.new(content: fref))
         result = [Bib::Relation.new(type: "partOf", bibitem: bib)]
         @errors[:part_relation] &&= result.empty?
         result

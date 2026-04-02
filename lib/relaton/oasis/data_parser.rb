@@ -87,7 +87,7 @@ module Relaton
         result = if c.empty?
                    []
                  else
-                   [Bib::LocalizedMarkedUpString.new(
+                   [Bib::Abstract.new(
                      content: c, language: "en", script: "Latn",
                    )]
                  end
@@ -159,7 +159,7 @@ module Relaton
         result = if rels.size > 1
                    rels.map do |r|
                      docid = DataPartParser.new(r).parse_docid
-                     bib = ItemData.new(formattedref: docid[0].content)
+                     bib = ItemData.new(formattedref: Bib::Formattedref.new(content: docid[0].content))
                      Bib::Relation.new(type: "hasPart", bibitem: bib)
                    end
                  else

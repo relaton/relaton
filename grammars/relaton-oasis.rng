@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <grammar xmlns="http://relaxng.org/ns/structure/1.0">
   <include href="biblio-standoc.rng">
-    <define name="BibDataExtensionType">
-      <optional>
-        <attribute name="schema-version"/>
-      </optional>
-      <ref name="doctype"/>
-      <optional>
-        <ref name="docsubtype"/>
-      </optional>
-      <ref name="flavor"/>
-      <zeroOrMore>
-        <ref name="ics"/>
-      </zeroOrMore>
-      <zeroOrMore>
-        <ref name="structuredidentifier"/>
-      </zeroOrMore>
-      <zeroOrMore>
-        <ref name="technology-area"/>
-      </zeroOrMore>
-    </define>
     <define name="DocumentType">
       <choice>
         <value>specification</value>
@@ -29,6 +10,11 @@
       </choice>
     </define>
   </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <zeroOrMore>
+      <ref name="technology-area"/>
+    </zeroOrMore>
+  </define>
   <define name="technology-area">
     <element name="technology-area">
       <ref name="TechnologyArea"/>

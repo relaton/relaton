@@ -239,7 +239,7 @@ describe Relaton::Oasis::DataPartParser do
       expect(rels.size).to eq 1
       expect(rels[0]).to be_a Relaton::Bib::Relation
       expect(rels[0].type).to eq "partOf"
-      expect(rels[0].bibitem.formattedref).to eq "OASIS some-std-v1.0"
+      expect(rels[0].bibitem.formattedref.content).to eq "OASIS some-std-v1.0"
     end
   end
 
