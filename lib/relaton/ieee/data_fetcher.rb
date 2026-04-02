@@ -75,7 +75,7 @@ module Relaton
         return if RELATION_TYPES[type] == false
 
         docid = Bib::Docidentifier.new(type: "IEEE", content: fref, primary: true)
-        bib = ItemData.new formattedref: fref, docidentifier: [docid]
+        bib = ItemData.new formattedref: Bib::Formattedref.new(content: fref), docidentifier: [docid]
         description = create_relation_description type
         Bib::Relation.new(type: RELATION_TYPES[type][:type], description: description, bibitem: bib)
       end

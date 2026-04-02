@@ -34,7 +34,7 @@ RSpec.describe Relaton::Ieee::DataFetcher do
       expect(rel.bibitem.docidentifier[0].content).to eq "AIEE 15.1928-05"
       expect(rel.bibitem.docidentifier[0].type).to eq "IEEE"
       expect(rel.bibitem.docidentifier[0].primary).to be true
-      expect(rel.bibitem.formattedref).to eq "AIEE 15.1928-05"
+      expect(rel.bibitem.formattedref.content).to eq "AIEE 15.1928-05"
     end
 
     context "when ouput file exists" do
@@ -108,7 +108,7 @@ RSpec.describe Relaton::Ieee::DataFetcher do
         expect(df).to receive(:save_doc) do |arg|
           expect(arg.relation[0].type).to eq "updates"
           expect(arg.relation[0].description.content).to eq "revises"
-          expect(arg.relation[0].bibitem.formattedref).to eq "7809"
+          expect(arg.relation[0].bibitem.formattedref.content).to eq "7809"
         end
         df.send :update_relations
       end

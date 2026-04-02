@@ -163,7 +163,7 @@ module Relaton
         result = @doc.volume.article.articleinfo.abstract.each_with_object([]) do |abs, acc|
           next unless abs.abstract_type == "Standard"
 
-          acc << Bib::LocalizedMarkedUpString.new(content: abs.value, language: "en", script: "Latn")
+          acc << Bib::Abstract.new(content: abs.value, language: "en", script: "Latn")
         end
         @errors[:abstract] &&= result.empty?
         result
@@ -231,10 +231,9 @@ module Relaton
       # @return [Array<Strign>]
       #
       def parse_keyword
-        taxon = @doc.keyword.map do |kw|
-          Bib::LocalizedString.new(content: kw, language: "en", script: "Latn")
+        result = @doc.keyword.map do |kw|
+          Bib::Keyword.new(vocab: Bib::LocalizedString.new(content: kw, language: "en", script: "Latn"))
         end
-        result = taxon.empty? ? [] : [Bib::Keyword.new(taxon: taxon)]
         @errors[:keyword] &&= result.empty?
         result
       end
