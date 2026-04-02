@@ -1,6 +1,6 @@
 ---
 id: TRADECEFACT200432
-schema_version: v1.4.1
+schema_version: v1.5.6
 title:
 - type: title-main
   content: SECRETARIAT REVIEW OF UN/LOCODE, 19 DECEMBER 2003 / SUBMITTED BY THE SECRETARIAT
@@ -33,27 +33,28 @@ classification:
   type: area
 fetched: '2020-04-19'
 keyword:
-- taxon:
-  - content: TRADE DATA INTERCHANGE
-- taxon:
-  - content: CODES
-- taxon:
-  - content: PORTS
-- taxon:
-  - content: TRANSPORT TERMINALS
-- taxon:
-  - content: TRADE FACILITATION
-- taxon:
-  - content: PROJECT EVALUATION
-- taxon:
-  - content: DATABASES
-- taxon:
-  - content: WEBSITES
+- vocab:
+    content: TRADE DATA INTERCHANGE
+- vocab:
+    content: CODES
+- vocab:
+    content: PORTS
+- vocab:
+    content: TRANSPORT TERMINALS
+- vocab:
+    content: TRADE FACILITATION
+- vocab:
+    content: PROJECT EVALUATION
+- vocab:
+    content: DATABASES
+- vocab:
+    content: WEBSITES
 ext:
-  schema_version: v1.0.0
+  schema_version: v1.0.2
   doctype:
     content: addendum
   subdoctype: subdoctype
+  flavor: un
   submissionlanguage:
     - en
     - fr

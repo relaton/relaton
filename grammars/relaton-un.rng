@@ -16,33 +16,21 @@
         <value>resolution</value>
       </choice>
     </define>
-    <define name="BibDataExtensionType">
-      <optional>
-        <attribute name="schema-version"/>
-      </optional>
-      <optional>
-        <ref name="doctype"/>
-      </optional>
-      <optional>
-        <ref name="docsubtype"/>
-      </optional>
-      <zeroOrMore>
-        <ref name="submissionlanguage"/>
-      </zeroOrMore>
-      <zeroOrMore>
-        <ref name="ics"/>
-      </zeroOrMore>
-      <optional>
-        <ref name="distribution"/>
-      </optional>
-      <optional>
-        <ref name="session"/>
-      </optional>
-      <optional>
-        <ref name="job_number"/>
-      </optional>
-    </define>
   </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <zeroOrMore>
+      <ref name="submissionlanguage"/>
+    </zeroOrMore>
+    <optional>
+      <ref name="distribution"/>
+    </optional>
+    <optional>
+      <ref name="session"/>
+    </optional>
+    <optional>
+      <ref name="job_number"/>
+    </optional>
+  </define>
   <define name="session">
     <element name="session">
       <optional>

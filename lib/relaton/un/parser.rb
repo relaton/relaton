@@ -74,7 +74,7 @@ module Relaton
       def fetch_keyword
         subjects = english_data&.dig("subjects") || []
         subjects.map do |kw|
-          Bib::Keyword.new(vocab: [Bib::LocalizedString.new(content: kw)])
+          Bib::Keyword.new(vocab: Bib::LocalizedString.new(content: kw))
         end
       end
 

@@ -12,11 +12,7 @@ module Relaton
       attribute :job_number, :string
 
       xml do
-        map_attribute "schema-version", to: :schema_version
-        map_element "doctype", to: :doctype
-        map_element "subdoctype", to: :subdoctype
         map_element "submissionlanguage", to: :submissionlanguage
-        map_element "ics", to: :ics
         map_element "distribution", to: :distribution
         map_element "session", to: :session
         map_element "job_number", to: :job_number
