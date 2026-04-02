@@ -106,7 +106,7 @@ describe Relaton::Calconnect::Scraper do
     expect(item.ext.doctype).to be_instance_of Relaton::Calconnect::Doctype
     hash = YAML.load item.to_yaml
     expect(hash).to eq(
-      "schema_version" => "v1.4.1",
+      "schema_version" => "v1.5.6",
       "id" => "CCAdm08122008",
       "title" => [{ "content" => "Title", "type" => "main", "language" => "en", "script" => "Latn" }],
       "source" => [{ "content" => "https://www.ribose.com", "type" => "src" }],
@@ -148,7 +148,7 @@ describe Relaton::Calconnect::Scraper do
       "abstract" => [{ "content" => "This is an abstract." }],
       "status" => { "stage" => { "content" => "published" } },
       "copyright" => [{ "owner" => [{ "organization" => { "name" => [{ "content" => "CalConnect" }] } }] }],
-      "keyword" => [{ "taxon" => { "content" => "push" } }],
+      "keyword" => [{ "vocab" => { "content" => "push" } }],
       "relation" => [
         {
           "bibitem" => { "docidentifier" => [{ "content" => "CC/OldDoc-2000", "primary" => true, "type" => "CC" }] },
@@ -158,7 +158,7 @@ describe Relaton::Calconnect::Scraper do
       "ext" => {
         "doctype" => { "content" => "directive", "abbreviation" => "D" },
         "flavor" => "calconnect",
-        "schema_version" => "v1.0.0"
+        "schema_version" => "v1.1.2"
       },
     )
   end

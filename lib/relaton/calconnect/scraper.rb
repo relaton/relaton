@@ -191,7 +191,7 @@ module Relaton
 
       def hosh_to_abstract(hash)
         hash[:abstract] = array(hash[:abstract]).map do |abs|
-          Bib::LocalizedMarkedUpString.new(**abs)
+          Bib::Abstract.new(**abs)
         end
         @errors[:abstract] &&= hash[:abstract].empty?
       end
@@ -227,8 +227,8 @@ module Relaton
 
       def hash_to_keyword(hash)
         hash[:keyword] = array(hash[:keyword]).map do |kw|
-          taxon = Bib::LocalizedString.new(**kw)
-          Bib::Keyword.new(taxon: taxon)
+          vocab = Bib::LocalizedString.new(**kw)
+          Bib::Keyword.new(vocab: vocab)
         end
         @errors[:keyword] &&= hash[:keyword].empty?
       end
