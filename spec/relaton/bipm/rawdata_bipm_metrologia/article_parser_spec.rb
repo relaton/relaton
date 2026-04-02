@@ -84,7 +84,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::ArticleParser do
       it { expect(item.contributor[0]).to be_instance_of Relaton::Bib::Contributor }
       it { expect(item.date[0]).to be_instance_of Relaton::Bib::Date }
       it { expect(item.copyright[0]).to be_instance_of Relaton::Bib::Copyright}
-      it { expect(item.abstract[0]).to be_instance_of Relaton::Bib::LocalizedMarkedUpString }
+      it { expect(item.abstract[0]).to be_instance_of Relaton::Bib::Abstract }
       it { expect(item.relation[0]).to be_instance_of Relaton::Bib::Relation }
       it { expect(item.series[0]).to be_instance_of Relaton::Bib::Series }
       it { expect(item.extent[0]).to be_instance_of Relaton::Bib::Extent }
@@ -291,7 +291,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::ArticleParser do
       abstract = subject.parse_abstract
       expect(abstract).to be_instance_of Array
       expect(abstract.size).to eq 1
-      expect(abstract[0]).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
+      expect(abstract[0]).to be_instance_of Relaton::Bib::Abstract
       expect(abstract[0].language).to eq "en"
       expect(abstract[0].content).to be_equivalent_to <<~HTML
         <title>Main text</title>

@@ -1,7 +1,7 @@
 ---
 id: DraftAgendaNMIDirMeeting2017v10
 type: standard
-schema_version: v1.4.1
+schema_version: v1.5.6
 fetched: '2020-09-10'
 title:
 - content: 19th Meeting of the Directors of NMIs and Member State Representatives
@@ -158,9 +158,11 @@ abstract:
   content: The agenda for the first day addresses current issues relating to the BIPM
     and CIPM and also includes advanced information about plans for the 26th CGPM
     in 2018.
+  format: text/plain
 - language: fr
   script: Latn
   content: Conférence générale des poids et mesures
+  format: text/plain
 status:
   stage:
     content: in-force
@@ -266,16 +268,12 @@ classification:
 - content: Mendeley Tags
   type: mendeley
 keyword:
-- taxon:
-  - content: Keyword
-- taxon:
-  - content: Key Word
-validity:
-  begins: '2010-10-10'
-  ends: '2011-02-03'
-  revision: '2011-03-04'
+- vocab:
+    content: Keyword
+- vocab:
+    content: Key Word
 ext:
-  schema_version: v1.0.1
+  schema_version: v1.1.2
   doctype:
     content: brochure
   flavor: bipm
@@ -284,12 +282,12 @@ ext:
     text: Metrology and measurement
   - code: '1.04'
     text: Standardization and standards
+  structuredidentifier:
+    docnumber: si-brochure
+    part: '1'
+    appendix: A
   comment_period:
     from: '2011-01-01'
     to: '2011-12-31'
   si_aspect: A_e_deltanu
   meeting_note: Meeting note
-  structuredidentifier:
-    docnumber: si-brochure
-    part: '1'
-    appendix: A

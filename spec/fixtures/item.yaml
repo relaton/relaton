@@ -1,4 +1,4 @@
-schema_version: v1.4.1
+schema_version: v1.5.6
 
 id: DraftAgendaNMIDirMeeting2017v10
 
@@ -240,20 +240,15 @@ classification:
     content: Keywords
 
 keyword:
-  - taxon:
-      - content: Keyword
-  - taxon:
-      - content: Key Word
+  - vocab:
+      content: Keyword
+  - vocab:
+      content: Key Word
 
 license: License
 
-validity:
-  begins: "2010-10-10"
-  ends: "2011-02-03"
-  revision: "2011-03-04"
-
 ext:
-  schema_version: v1.0.1
+  schema_version: v1.1.2
   doctype:
     abbreviation: BRO
     content: brochure

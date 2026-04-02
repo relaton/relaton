@@ -1,4 +1,4 @@
-schema_version: v1.4.1
+schema_version: v1.5.6
 
 id: DraftAgendaNMIDirMeeting2017v10
 
@@ -292,20 +292,15 @@ classification:
     content: Mendeley Tags
 
 keyword:
-  - taxon:
-    - content: Keyword
-  - taxon:
-    - content: Key Word
+  - vocab:
+      content: Keyword
+  - vocab:
+      content: Key Word
 
 license: License
 
-validity:
-  begins: "2010-10-10 12:21"
-  ends: "2011-02-03 18:30"
-  revision: "2011-03-04 09:00"
-
 ext:
-  schema_version: v1.0.1
+  schema_version: v1.1.2
   doctype:
     content: brochure
   flavor: bipm

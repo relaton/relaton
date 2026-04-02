@@ -74,7 +74,7 @@ module Relaton::Bipm
       def fetch_metrologia(*args) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         id = identifier(*args)
         item = ItemData.new(
-          type: "article", formattedref: id, docidentifier: docidentifier(id),
+          type: "article", formattedref: Relaton::Bib::Formattedref.new(content: id), docidentifier: docidentifier(id),
           language: ["en"], script: ["Latn"], relation: relation(*args),
           source: typed_uri(*args)
         )
@@ -143,7 +143,7 @@ module Relaton::Bipm
       # @return [Relaton::Bipm::Item] bibitem
       #
       def rel_bibitem(id)
-        Relaton::Bib::ItemData.new(formattedref: id, docidentifier: docidentifier(id))
+        Relaton::Bib::ItemData.new(formattedref: Relaton::Bib::Formattedref.new(content: id), docidentifier: docidentifier(id))
       end
 
       def typed_uri(*args)

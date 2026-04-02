@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - AE2A:1EBA41:127CA5B:151FFEE:69C19A25
+      - 0A1A:2F49E5:25F036:2A2A33:69CD4DD3
       Accept-Ranges:
       - bytes
       Date:
-      - Mon, 23 Mar 2026 19:53:26 GMT
+      - Wed, 01 Apr 2026 16:54:55 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200113-IAD
+      - cache-iad-kjyo7100171-IAD
       X-Cache:
       - HIT
       X-Cache-Hits:
       - '1'
       X-Timer:
-      - S1774295607.646947,VS0,VE2
+      - S1775062496.647550,VS0,VE1
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -63,11 +63,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - '038307f357069af5f91b3220a43a9699ccead436'
+      - 6aaa6bd6572184d6b50af9fde8894f9f3e07bb9f
       Expires:
-      - Mon, 23 Mar 2026 19:58:26 GMT
+      - Wed, 01 Apr 2026 16:59:55 GMT
       Source-Age:
-      - '16'
+      - '11'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -1414,7 +1414,7 @@ http_interactions:
         fmn66xkNEWhRkkTwXpTk/wNQSwECHgMUAAAACABBt3RchVQkQlbrAABsEAwA
         DQAYAAAAAAABAAAApIEAAAAAaW5kZXgtdjEueWFtbFVUBQADOQm+aXV4CwAB
         BPUBAAAEFAAAAFBLBQYAAAAAAQABAFMAAACd6wAAAAA=
-  recorded_at: Mon, 23 Mar 2026 19:53:26 GMT
+  recorded_at: Wed, 01 Apr 2026 16:54:55 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/data-v2/data/metrologia-30-4.yaml
@@ -1462,23 +1462,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 1642:2DCFFF:284F11:2D4F17:69C19A36
+      - 0B78:85066:25F7AE:2A2722:69CD4DDF
       Content-Encoding:
       - gzip
       Accept-Ranges:
       - bytes
       Date:
-      - Mon, 23 Mar 2026 19:53:27 GMT
+      - Wed, 01 Apr 2026 16:54:56 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100098-IAD
+      - cache-iad-kcgs7200076-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1774295607.426019,VS0,VE64
+      - S1775062496.121830,VS0,VE56
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -1486,9 +1486,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 82168b3175d02301a911c524b100010ab41970e6
+      - fd9b7e49b81531447923f75c6b6a3ce9bd72cbbe
       Expires:
-      - Mon, 23 Mar 2026 19:58:27 GMT
+      - Wed, 01 Apr 2026 16:59:56 GMT
       Source-Age:
       - '0'
     body:
@@ -1506,5 +1506,5 @@ http_interactions:
         oApSTXGoVkKqlRyqQVMucUy5pCHVNIdq0JRLHFMuaaivaY6+pqFvqOb4hkK7
         AXHsBlQh2/titTIaVAYcawvVUEBrjoDWUBnUHGUA7QbEsRuoDCmDxWplNCSg
         imM3UDmElnOgFUjzWKzWRSMo14gj1wgKKHEEFJpy1V+n3He9iHONIBsAAA==
-  recorded_at: Mon, 23 Mar 2026 19:53:27 GMT
+  recorded_at: Wed, 01 Apr 2026 16:54:56 GMT
 recorded_with: VCR 6.4.0

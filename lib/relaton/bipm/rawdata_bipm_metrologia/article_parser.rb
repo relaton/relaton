@@ -309,7 +309,7 @@ module Relaton::Bipm
       #
       def parse_abstract
         result = @meta.xpath("./abstract").map do |a|
-          Relaton::Bib::LocalizedMarkedUpString.new(
+          Relaton::Bib::Abstract.new(
             content: a.inner_html, language: a[:"xml:lang"], script: "Latn",
           )
         end

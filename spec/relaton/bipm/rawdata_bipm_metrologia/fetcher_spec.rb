@@ -20,7 +20,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
         expect(data_fetcher).to receive(:write_file) do |path, item|
           expect(path).to eq "output/metrologia-1a.yaml"
           expect(item).to be_instance_of Relaton::Bipm::ItemData
-          expect(item.formattedref).to eq "Metrologia 1A"
+          expect(item.formattedref.content).to eq "Metrologia 1A"
           expect(item.docidentifier[0].content).to eq "Metrologia 1A"
           expect(item.docidentifier[0].type).to eq "BIPM"
           expect(item.docidentifier[0].primary).to be true
@@ -36,7 +36,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
         expect(data_fetcher).to receive(:write_file) do |path, item|
           expect(path).to eq "output/metrologia-1-2.yaml"
           expect(item).to be_instance_of Relaton::Bipm::ItemData
-          expect(item.formattedref).to eq "Metrologia 1 2"
+          expect(item.formattedref.content).to eq "Metrologia 1 2"
           expect(item.docidentifier[0].content).to eq "Metrologia 1 2"
           expect(item.docidentifier[0].type).to eq "BIPM"
           expect(item.docidentifier[0].primary).to be true
@@ -118,7 +118,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
       expect(rel[0].bibitem.docidentifier[0].content).to eq "Metrologia 1 2 3"
       expect(rel[0].bibitem.docidentifier[0].type).to eq "BIPM"
       expect(rel[0].bibitem.docidentifier[0].primary).to be true
-      expect(rel[0].bibitem.formattedref).to eq "Metrologia 1 2 3"
+      expect(rel[0].bibitem.formattedref.content).to eq "Metrologia 1 2 3"
     end
 
     context "typed_uri" do
