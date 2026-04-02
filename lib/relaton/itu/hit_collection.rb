@@ -38,7 +38,7 @@ module Relaton
       def request_document # rubocop:todo Metrics/MethodLength, Metrics/AbcSize
         Util.info "Fetching from Relaton repository ...", key: ref.to_s
         index = Relaton::Index.find_or_create :itu, url: "#{GH_ITU_R}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml"
-        row = index.search(ref.to_ref).min_by { |i| i[:id] }
+        row = index.search(ref.to_ref).max_by { |i| i[:id] }
         return unless row
 
         url = "#{GH_ITU_R}#{row[:file]}"
