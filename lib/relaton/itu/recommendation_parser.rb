@@ -52,7 +52,7 @@ module Relaton
       # @return [Array<Relaton::Bib::LocalizedMarkedUpString>]
       def fetch_abstract
         array(doc["summary"]).map do |content|
-          Relaton::Bib::LocalizedMarkedUpString.new(content: content, language: "en", script: "Latn")
+          Relaton::Bib::Abstract.new(content: content, language: "en", script: "Latn")
         end
       end
 
@@ -142,7 +142,7 @@ module Relaton
 
         fref = titles.empty? ? id : nil
         did = Relaton::Bib::Docidentifier.new(type: "ITU", content: id, primary: true)
-        bibitem = Relaton::Bib::ItemData.new(title: titles, formattedref: fref, docidentifier: [did])
+        bibitem = Relaton::Bib::ItemData.new(title: titles, formattedref: (fref ? Relaton::Bib::Formattedref.new(content: fref) : nil), docidentifier: [did])
         Relaton::Bib::Relation.new(type: type, bibitem: bibitem)
       end
 
