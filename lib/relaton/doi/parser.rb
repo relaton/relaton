@@ -304,7 +304,7 @@ module Relaton
         return [] unless @src["abstract"]
 
         content = @src["abstract"]
-        abstract = Bib::LocalizedMarkedUpString.new(
+        abstract = Bib::Abstract.new(
           content: content, language: "en", script: "Latn",
         )
         [abstract]
