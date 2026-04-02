@@ -295,7 +295,7 @@ module Relaton
       #
       def parse_formattedref
         result = if @spec.respond_to?(:uri)
-                   pub_id(@spec.uri)
+                   Bib::Formattedref.new(content: pub_id(@spec.uri))
                  end
         @errors[:formattedref] &&= result.nil?
         result
