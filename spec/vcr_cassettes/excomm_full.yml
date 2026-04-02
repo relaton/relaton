@@ -31,7 +31,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Tue, 10 Mar 2026 15:03:59 GMT
+      - Wed, 01 Apr 2026 17:01:46 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Transfer-Encoding:
@@ -39,7 +39,7 @@ http_interactions:
       Connection:
       - keep-alive
       X-Alg-Pt:
-      - '2'
+      - '1'
       Accept-Encoding:
       - deflate, gzip
       Cache-Control:
@@ -87,8 +87,8 @@ http_interactions:
         7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021 Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]},{"value":"<em>BS7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021
         Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]},{"value":"<em>BS7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]},{"value":"<em>BS
         7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]}],"publisher":{"value":"BSI","matchLevel":"none","matchedWords":[]},"status":{"value":"Withdrawn","matchLevel":"none","matchedWords":[]}}}}}],"nbHits":1,"page":0,"nbPages":1,"hitsPerPage":20,"exhaustiveNbHits":true,"exhaustiveTypo":true,"exhaustive":{"nbHits":true,"typo":true},"query":"BS
-        7273-4:2015+A1:2021 Ex","params":"query=BS+7273-4%3A2015%2BA1%3A2021+Ex&distinct=1&filters=NOT+tags%3Ahas-digital&filters=NOT+tags%3Anot-for-sale&filters=NOT+product_type%3Amembership","renderingContent":{},"processingTimeMS":2,"processingTimingsMS":{"_request":{"roundTrip":177},"fetch":{"query":1,"total":2},"total":2},"serverTimeMS":3}'
-  recorded_at: Tue, 10 Mar 2026 15:03:59 GMT
+        7273-4:2015+A1:2021 Ex","params":"query=BS+7273-4%3A2015%2BA1%3A2021+Ex&distinct=1&filters=NOT+tags%3Ahas-digital&filters=NOT+tags%3Anot-for-sale&filters=NOT+product_type%3Amembership","renderingContent":{},"processingTimeMS":1,"processingTimingsMS":{"_request":{"queue":1,"roundTrip":146},"fetch":{"total":1},"total":1},"serverTimeMS":3}'
+  recorded_at: Wed, 01 Apr 2026 17:01:46 GMT
 - request:
     method: post
     uri: https://shop-bsi.myshopify.com/api/2021-04/graphql.json
@@ -122,7 +122,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 10 Mar 2026 15:03:59 GMT
+      - Wed, 01 Apr 2026 17:01:46 GMT
       Content-Type:
       - application/json; charset=utf-8
       Transfer-Encoding:
@@ -136,7 +136,7 @@ http_interactions:
       Shopify-Complexity-Score:
       - '0'
       Set-Cookie:
-      - _shopify_essential=:AZzYRro8AAEA0twf5_9GQvpe5BwOc0bggTnAly8Ft16Ib4xFyYe91St2XmDzyXOzWz7vEIoevEEFH_zZweF2AchLPElnX5y0xUlOSjd4I1dBMPQFZvw_phHPKVkupN_ahG43SdM52WzMn3u5K3fAKjgASVb-fw8rKBzT3DUyc59Ss_lMBINNAHhMNf_-wiOa82xBoTTIyRdw5FG6dqcdIedoZ7drUh0LSf20Z2mX29eKOomk1WTwkUHoDWD-vXKtNnAapeHQdt70Pj01U128j8wcI7pV__L1ClPKJPyUPDjD0auFFBE:;
+      - _shopify_essential=:AZ1J_nWNAAEA02pOyu2_OkcdDdN7CqX7JsUWa61ecABTbvvbBHfYBFdE9hXwRgoxRvhg7o9RWhav85qrQS2vNkNNuhuN-upZ4Bvp8OGv4zh9L9WO2I8O4Tu5DsBpg-XEtn19zmF3wSKo44DJ1XENDIExsTg29kpMVymnbZXzzTmwa1xhdQofUbbr-3Bmf9_2Etoex1o1LwDHhDv_4zOLL43G5JEZItHAVCRMEE9ZAFNBz7Kija-z3tqSEitIJxI:;
         Max-Age=31536000; Path=/; HttpOnly; Secure; Priority=High; SameSite=Lax
       X-Frame-Options:
       - DENY
@@ -153,22 +153,22 @@ http_interactions:
       Powered-By:
       - Shopify
       Server-Timing:
-      - cfRequestDuration;dur=95.000029
+      - cfRequestDuration;dur=101.999998
       - ipv6
-      - processing;dur=39, db;dur=24, asn;desc="11426", edge;desc="ATL", country;desc="US",
-        servedBy;desc="lkb9", graphql;desc="storefront/query/Relaton__Bsi__Scraper__Query__GetProducts",
-        gqlSelectionNames;desc="sfr/productByHandle", requestID;desc="bfd8d630-9448-479e-99a2-d4a4f53ed02f-1773155039",
-        _y;desc="4ad4d39b-623e-402a-a588-83a21d8af888", _s;desc="541b5b3b-4879-4b20-bdf1-f8502693e334"
+      - processing;dur=48;desc="gc:1", db;dur=29, asn;desc="11426", edge;desc="ATL",
+        country;desc="US", servedBy;desc="w99f", graphql;desc="storefront/query/Relaton__Bsi__Scraper__Query__GetProducts",
+        gqlSelectionNames;desc="sfr/productByHandle", requestID;desc="da20e170-a801-42db-a0b9-6e520151eb6e-1775062906",
+        _y;desc="bb65e753-ec28-4331-b678-498263712a1d", _s;desc="5feb7b76-68c9-471c-89d6-ec42e4757796"
       X-Dc:
       - gcp-us-east1,gcp-us-east1,gcp-us-east1
       X-Request-Id:
-      - bfd8d630-9448-479e-99a2-d4a4f53ed02f-1773155039
+      - da20e170-a801-42db-a0b9-6e520151eb6e-1775062906
       Alt-Svc:
       - h3=":443"; ma=86400
       Cf-Cache-Status:
       - DYNAMIC
       Report-To:
-      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=pBbH0%2BMV3ItBoo3SR4JYWB3fvwe7iZubt1zSyklEH1NpflYhsCq1i3wImCxFarB7I4murTSPD8IvkJvqmshlyWBLypZ9Epf0uyBMB9QNnEc5R%2BcQ5YkpE5lk0wV5h6uf42AiMY%2FjwUQvO%2F36mP4s7ogIAIQ%3D"}],"group":"cf-nel","max_age":604800}'
+      - '{"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report\/v4?s=PVCEAPAjIqc%2BN42vioAK6KXPkP19mVDtaYrWeCZmLT4B1L%2Fxr4Z4mYRYYaDb4qxa%2FFMUE3yEeQHV8PYHwUWFBeBrgJiX2yJeuvYmQCgUCfCE8MIJgHUXiy%2BZt87cFB%2FNwg52sY7rx2KXud1RGX7pDVBkp0s%3D"}],"group":"cf-nel","max_age":604800}'
       Nel:
       - '{"success_fraction":0.01,"report_to":"cf-nel","max_age":604800}'
       X-Xss-Protection:
@@ -179,15 +179,13 @@ http_interactions:
       - none
       X-Download-Options:
       - noopen
-      X-Shopid:
-      - 55553294501, deprecation date Feb 28 2026
       Server:
       - cloudflare
       Cf-Ray:
-      - 9da3359649e98b53-ATL
+      - 9e59285b8902b030-ATL
     body:
       encoding: ASCII-8BIT
       string: '{"data":{"productByHandle":{"createdAt":"2021-08-14T08:03:52Z","publishedAt":"2025-12-13T00:55:43Z","updatedAt":"2026-02-13T04:54:21Z","productType":"publication","committee":{"value":"FSH/12/4"},"designated":{"value":"false"},"packContents":null,"summary":null,"corrigendumHandle":null,"variants":{"edges":[{"node":{"version":{"value":"basic"},"isbn":{"value":"978
         0 539 16669 9"}}}]},"description":""}}}'
-  recorded_at: Tue, 10 Mar 2026 15:03:59 GMT
+  recorded_at: Wed, 01 Apr 2026 17:01:46 GMT
 recorded_with: VCR 6.4.0

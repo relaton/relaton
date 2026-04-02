@@ -116,11 +116,11 @@ module Relaton::Bsi
 
       # Fetch abstracts.
       # @param data [Hash]
-      # @return [Array<Relaton::Bib::LocalizedMarkedUpString>]
+      # @return [Array<Relaton::Bib::Abstract>]
       def fetch_abstract(data)
         return [] unless data["description"]
 
-        [Relaton::Bib::LocalizedMarkedUpString.new(content: data["description"], language: "en", script: "Latn")]
+        [Relaton::Bib::Abstract.new(content: data["description"], language: "en", script: "Latn")]
       end
 
       # Fetch docid.

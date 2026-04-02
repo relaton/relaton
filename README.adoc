@@ -46,7 +46,7 @@ item = hit_collection[1].item
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="BSENISO88482021" type="standard" schema-version="v1.4.1">
+=> "<bibitem id="BSENISO88482021" type="standard" schema-version="v1.5.6">
       <fetched>2025-10-18</fetched>
       <title language="en" script="Latn" type="title-main">Small craft. Remote mechanical steering systems</title>
       <title language="en" script="Latn" type="main">Small craft. Remote mechanical steering systems</title>
@@ -73,11 +73,11 @@ With `bibdata: true` option XML output wrapped with `bibdata` element and `ext` 
 [source,ruby]
 ----
 item.to_xml bibdata: true
-=> "<bibdata type="standard" schema-version="v1.4.1">
+=> "<bibdata type="standard" schema-version="v1.5.6">
       <fetched>2025-10-18</fetched>
       <title language="en" script="Latn" type="title-main">Small craft. Remote mechanical steering systems</title>
       ...
-      <ext schema-version="v1.0.3">
+      <ext schema-version="v1.1.3">
         <doctype>standard</doctype>
         ...
       </ext>
