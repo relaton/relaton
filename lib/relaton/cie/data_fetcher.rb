@@ -174,7 +174,7 @@ module Relaton
           return []
         end
 
-        result = [Bib::LocalizedMarkedUpString.new(content: content, language: "en", script: "Latn")]
+        result = [Bib::Abstract.new(content: content, language: "en", script: "Latn")]
         @errors[:abstract] &&= result.empty?
         result
       end

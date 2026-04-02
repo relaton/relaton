@@ -100,7 +100,7 @@ RSpec.describe Relaton::Cie::DataFetcher do
         expect(item.docnumber).to eq "8995-1:2025"
         expect(item.docidentifier.first).to be_instance_of Relaton::Bib::Docidentifier
         expect(item.title.first).to be_instance_of Relaton::Bib::Title
-        expect(item.abstract.first).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
+        expect(item.abstract.first).to be_instance_of Relaton::Bib::Abstract
         expect(item.date.first).to be_instance_of Relaton::Bib::Date
         expect(item.edition).to be_instance_of Relaton::Bib::Edition
         expect(item.contributor.first).to be_instance_of Relaton::Bib::Contributor
@@ -221,7 +221,7 @@ RSpec.describe Relaton::Cie::DataFetcher do
         abstract = subject.fetch_abstract doc
         expect(abstract).to be_instance_of Array
         expect(abstract.size).to eq 1
-        expect(abstract.first).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
+        expect(abstract.first).to be_instance_of Relaton::Bib::Abstract
         expect(abstract.first.content).to eq "Description"
         expect(abstract.first.language).to eq "en"
         expect(abstract.first.script).to eq "Latn"
