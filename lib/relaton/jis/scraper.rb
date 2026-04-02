@@ -55,7 +55,7 @@ module Relaton
 
       def fetch_abstract
         result = @doc.xpath("//div[@id='honbun']").map do |node|
-          Bib::LocalizedMarkedUpString.new(
+          Bib::Abstract.new(
             content: node.text.strip,
             language: "ja", script: "Jpan"
           )

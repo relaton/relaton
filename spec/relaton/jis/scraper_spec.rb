@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "relaton/jis/scraper"
+
 describe Relaton::Jis::Scraper do
   context "instance methods" do
     subject { described_class.new "https://document.url" }
@@ -20,7 +22,7 @@ describe Relaton::Jis::Scraper do
         expect(item.title.first).to be_instance_of Relaton::Bib::Title
         expect(item.source.size).to eq 2
         expect(item.source.first).to be_instance_of Relaton::Bib::Uri
-        expect(item.abstract.first).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
+        expect(item.abstract.first).to be_instance_of Relaton::Bib::Abstract
         expect(item.docidentifier.first).to be_instance_of Relaton::Jis::Docidentifier
         expect(item.date.size).to eq 2
         expect(item.date.first).to be_instance_of Relaton::Bib::Date

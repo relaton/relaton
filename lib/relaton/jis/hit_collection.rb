@@ -74,7 +74,7 @@ module Relaton
           content: hit.hit[:id], type: "JIS", primary: true,
         )
         bibitem = Bib::ItemData.new(
-          formattedref: hit.hit[:id], docidentifier: [docid],
+          formattedref: Bib::Formattedref.new(content: hit.hit[:id]), docidentifier: [docid],
         )
         Bib::Relation.new(type: "instanceOf", bibitem: bibitem)
       end
