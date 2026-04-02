@@ -95,7 +95,7 @@ Relaton::Cen::Bibliography.get "CEN/CLC Guide 6"
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="CENISOTS2100372019" type="standard" schema-version="v1.4.1">
+=> "<bibitem id="CENISOTS2100372019" type="standard" schema-version="v1.5.6">
       <fetched>2025-12-15</fetched>
       <title language="en" script="Latn" type="title-main">Multilayer piping systems for hot and cold water installations inside buildings</title>
       ...
@@ -108,7 +108,7 @@ element added.
 [source,ruby]
 ----
 item.to_xml bibdata: true
-=> "<bibdata type="standard" schema-version="v1.4.1">
+=> "<bibdata type="standard" schema-version="v1.5.6">
       <fetched>2025-12-15</fetched>
       <title language="en" script="Latn" type="title-main">Multilayer piping systems for hot and cold water installations inside buildings</title>
       ...

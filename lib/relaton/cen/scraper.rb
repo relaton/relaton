@@ -54,7 +54,7 @@ module Relaton
         # @return [Array<Relaton::Bib::LocalizedMarkedUpString>]
         def fetch_abstract(doc)
           content = doc.at("//tr[th[.='Abstract/Scope']]/td")
-          [Bib::LocalizedMarkedUpString.new(content: content.text, language: "en", script: "Latn")]
+          [Bib::Abstract.new(content: content.text, language: "en", script: "Latn")]
         end
 
         # Fetch docid.
@@ -109,7 +109,7 @@ module Relaton
 
         def create_relation(rel)
           source = fetch_source HitCollection::DOMAIN + rel[:href]
-          ItemData.new(formattedref: rel.text, type: "standard", source: source)
+          ItemData.new(formattedref: Bib::Formattedref.new(content: rel.text), type: "standard", source: source)
         end
 
         # Fetch titles.
