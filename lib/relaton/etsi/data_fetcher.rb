@@ -68,11 +68,6 @@ module Relaton
         index.add_or_update id, file
       end
 
-      def output_file(docid)
-        filename = docid.gsub("/", "-").gsub(/[\s.]/, "_").gsub(/[()]/, "")
-        File.join @output, "#{filename}.#{@ext}"
-      end
-
       def to_yaml(bib)
         bib.to_yaml
       end

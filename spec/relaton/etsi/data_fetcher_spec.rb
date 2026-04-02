@@ -39,8 +39,10 @@ describe Relaton::Etsi::DataFetcher do
     end
 
     it "#save" do
-      expect(File).to receive(:write).with("dir/ETSI_A-12_ed_1_2019-10.xml", kind_of(String), encoding: "UTF-8")
-      expect(subject.index).to receive(:add_or_update).with("ETSI A/12 ed.1 (2019-10)", "dir/ETSI_A-12_ed_1_2019-10.xml")
+      expect(File).to receive(:write).with("dir/etsi-a-12-ed-1-2019-10.xml", kind_of(String), encoding: "UTF-8")
+      expect(subject.index).to receive(:add_or_update).with(
+        "ETSI A/12 ed.1 (2019-10)", "dir/etsi-a-12-ed-1-2019-10.xml"
+      )
       subject.save item
     end
 

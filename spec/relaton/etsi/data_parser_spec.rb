@@ -95,7 +95,7 @@ describe Relaton::Etsi::DataParser do
       it "has correct keyword" do
         expect(subject.keyword).to be_instance_of Array
         expect(subject.keyword.first).to be_instance_of Relaton::Bib::Keyword
-        expect(subject.keyword.first.taxon.map(&:content)).to eq ["electronic signature", "e-mail", "registered electronic mail"]
+        expect(subject.keyword.map { |k| k.vocab.content }).to eq ["electronic signature", "e-mail", "registered electronic mail"]
       end
 
       it "has committee contributor for technical body" do
@@ -119,8 +119,10 @@ describe Relaton::Etsi::DataParser do
 
       it "has correct abstract" do
         expect(subject.abstract).to be_instance_of Array
-        expect(subject.abstract.first).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
-        expect(subject.abstract.first.content).to eq "The present document specifies interoperability profiles for REM services."
+        expect(subject.abstract.first).to be_instance_of Relaton::Bib::Abstract
+        expect(subject.abstract.first.content).to eq(
+          "The present document specifies interoperability profiles for REM services.",
+        )
       end
 
       it "has correct language" do
@@ -251,7 +253,7 @@ describe Relaton::Etsi::DataParser do
     it "#keyword" do
       expect(row).to receive(:[]).with("Keywords")
         .and_return("Keyword 1,Keyword 2").twice
-      expect(subject.keyword.first.taxon.map(&:content)).to eq ["Keyword 1", "Keyword 2"]
+      expect(subject.keyword.map { |k| k.vocab.content }).to eq ["Keyword 1", "Keyword 2"]
     end
 
     it "#committee_contributor" do
@@ -286,7 +288,7 @@ describe Relaton::Etsi::DataParser do
       expect(row).to receive(:[]).with("Scope").and_return("Abstract").twice
       abstract = subject.abstract
       expect(abstract).to be_instance_of Array
-      expect(abstract.first).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
+      expect(abstract.first).to be_instance_of Relaton::Bib::Abstract
       expect(abstract.first.content).to eq "Abstract"
     end
   end

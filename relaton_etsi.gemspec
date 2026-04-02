@@ -37,7 +37,7 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   spec.add_dependency "csv", "~> 3.0"
   spec.add_dependency "mechanize", "~> 2.8"
   spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.4"
-  spec.add_dependency "relaton-core", "~> 0.0.12"
+  spec.add_dependency "relaton-core", "~> 0.0.13"
   spec.add_dependency "relaton-index", "~> 0.2.7"
 
   # For more information and examples about making a new gem, check out our

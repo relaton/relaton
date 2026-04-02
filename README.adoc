@@ -42,7 +42,7 @@ item = Relaton::Etsi::Bibliography.get("ETSI GS ZSM 012 V1.1.1")
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="ETSIGSZSM012V111202212" schema-version="v1.4.1">
+=> "<bibitem id="ETSIGSZSM012V111202212" schema-version="v1.5.6">
       <fetched>2026-01-24</fetched>
       <title language="en" script="Latn">Zero-touch network and Service Management (ZSM); Enablers for Artificial Intelligence-based Network and Service Automation</title>
       <uri type="src">http://webapp.etsi.org/workprogram/Report_WorkItem.asp?WKI_ID=62010</uri>
@@ -55,14 +55,14 @@ With argument `bibdata: true` it outputs XML wrapped by `bibdata` element and ad
 [source,ruby]
 ----
 item.to_xml bibdata: true
-=> "<bibdata schema-version="v1.4.1">
+=> "<bibdata schema-version="v1.5.6">
       <fetched>2026-01-24</fetched>
       <title language="en" script="Latn">Zero-touch network and Service Management (ZSM); Enablers for Artificial Intelligence-based Network and Service Automation</title>
       <uri type="src">http://webapp.etsi.org/workprogram/Report_WorkItem.asp?WKI_ID=62010</uri>
       <uri type="pdf">http://www.etsi.org/deliver/etsi_gs/ZSM/001_099/012/01.01.01_60/gs_ZSM012v010101p.pdf</uri>
       <docidentifier type="ETSI" primary="true">ETSI GS ZSM 012 V1.1.1 (2022-12)</docidentifier>
       ...
-      <ext schema-version="v0.0.3">
+      <ext schema-version="v0.1.2">
         <doctype abbreviation="GS">Group Specification</doctype>
       </ext>
     </bibdata>"

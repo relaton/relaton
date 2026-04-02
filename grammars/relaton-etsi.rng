@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <grammar xmlns="http://relaxng.org/ns/structure/1.0">
   <include href="biblio-standoc.rng">
-    <define name="BibDataExtensionType">
-      <optional>
-        <attribute name="schema-version"/>
-      </optional>
-      <ref name="doctype"/>
-      <optional>
-        <ref name="docsubtype"/>
-      </optional>
-      <ref name="marker"/>
-      <zeroOrMore>
-        <ref name="frequency"/>
-      </zeroOrMore>
-      <zeroOrMore>
-        <ref name="mandate"/>
-      </zeroOrMore>
-      <optional>
-        <ref name="custom-collection"/>
-      </optional>
-    </define>
     <define name="status">
       <element name="status">
         <ref name="stage"/>
@@ -60,6 +41,18 @@
       </choice>
     </define>
   </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <ref name="marker"/>
+    <zeroOrMore>
+      <ref name="frequency"/>
+    </zeroOrMore>
+    <zeroOrMore>
+      <ref name="mandate"/>
+    </zeroOrMore>
+    <optional>
+      <ref name="custom-collection"/>
+    </optional>
+  </define>
   <define name="StageType">
     <choice>
       <value>EN approval</value>

@@ -171,22 +171,15 @@ module Relaton
           return []
         end
 
-        taxon = parse_keyword_taxon
-        result = taxon.empty? ? [] : [Bib::Keyword.new(taxon: taxon)]
+        result = @row["Keywords"].split(",").map do |kw|
+          Bib::Keyword.new(vocab: Bib::LocalizedString.new(content: kw.strip, language: "en", script: "Latn"))
+        end
         @errors[:keyword] &&= result.empty?
         result
       end
 
-      def parse_keyword_taxon
-        @row["Keywords"].split(",").map do |kw|
-          Bib::LocalizedString.new(
-            content: kw.strip, language: "en", script: "Latn",
-          )
-        end
-      end
-
       def ext
-        Ext.new(doctype: doctype)
+        Ext.new(doctype: doctype, flavor: "etsi")
       end
 
       def doctype
@@ -197,7 +190,7 @@ module Relaton
 
       def abstract
         result = if @row["Scope"]
-                   [Bib::LocalizedMarkedUpString.new(content: @row["Scope"], language: "en", script: "Latn")]
+                   [Bib::Abstract.new(content: @row["Scope"], language: "en", script: "Latn")]
                  else
                    []
                  end
