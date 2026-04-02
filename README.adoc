@@ -50,7 +50,7 @@ item = Relaton::Iana::Bibliography.get "IANA service-names-port-numbers"
 [source,ruby]
 ----
 item.to_xml
-=> "<bibitem id="IANAservicenamesportnumbers" type="standard" schema-version="v1.4.1">
+=> "<bibitem id="IANAservicenamesportnumbers" type="standard" schema-version="v1.5.6">
       <fetched>2026-01-27</fetched>
       <title language="en" script="Latn">Service Name and Transport Protocol Port Number Registry</title>
       <uri type="self">https://www.iana.org/assignments/service-names-port-numbers</uri>
