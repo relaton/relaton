@@ -200,7 +200,7 @@ module Relaton
         return unless bib_docid
 
         docid = Bib::Docidentifier.from_yaml(bib_docid.to_yaml)
-        rel = Relaton::Bib::ItemData.new docidentifier: [docid], formattedref: bib_docid.content.dup
+        rel = Relaton::Bib::ItemData.new docidentifier: [docid], formattedref: Relaton::Bib::Formattedref.new(content: bib_docid.content.dup)
         yield Relaton::Bib::Relation.new(type: type, bibitem: rel)
       end
 

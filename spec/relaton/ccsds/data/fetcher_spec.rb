@@ -304,7 +304,7 @@ describe Relaton::Ccsds::DataFetcher do
         expect(rel.bibitem).to be_instance_of Relaton::Bib::ItemData
         expect(rel.bibitem.docidentifier.first.content).to eq "CCSDS 123.0-B-1"
         expect(rel.bibitem.docidentifier.first.type).to eq "CCSDS"
-        expect(rel.bibitem.formattedref).to eq "CCSDS 123.0-B-1"
+        expect(rel.bibitem.formattedref.content).to eq "CCSDS 123.0-B-1"
       end
     end
   end

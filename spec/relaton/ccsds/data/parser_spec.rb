@@ -70,7 +70,7 @@ describe Relaton::Ccsds::DataParser do
       abstract = subject.parse_abstract
       expect(abstract).to be_instance_of Array
       expect(abstract.size).to eq 1
-      expect(abstract.first).to be_instance_of Relaton::Bib::LocalizedMarkedUpString
+      expect(abstract.first).to be_instance_of Relaton::Bib::Abstract
       expect(abstract.first.content).to include "The Recommended Standard"
       expect(abstract.first.language).to eq "en"
       expect(abstract.first.script).to eq "Latn"

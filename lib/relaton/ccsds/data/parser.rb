@@ -64,7 +64,7 @@ module Relaton
 
       def parse_abstract
         a = @doc[7]
-        [Bib::LocalizedMarkedUpString.new(content: a, language: "en", script: "Latn")]
+        [Bib::Abstract.new(content: a, language: "en", script: "Latn")]
       end
 
       def parse_doctype
@@ -160,7 +160,7 @@ module Relaton
       def create_relation(type, rel_id, uri = nil, id_type = "CCSDS")
         id = Bib::Docidentifier.new content: rel_id, type: id_type, primary: true
         source = array(uri).map { |u| Bib::Uri.new(type: "src", content: u) }
-        bibitem = Bib::ItemData.new docidentifier: [id], source: source, formattedref: rel_id
+        bibitem = Bib::ItemData.new docidentifier: [id], source: source, formattedref: Bib::Formattedref.new(content: rel_id)
         Bib::Relation.new type: type, bibitem: bibitem
       end
 
