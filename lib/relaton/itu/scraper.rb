@@ -185,7 +185,8 @@ module Relaton
           uri: [Relaton::Bib::Uri.new(content: url)],
         )
         owner = Relaton::Bib::ContributionInfo.new(organization: org)
-        [Relaton::Bib::Copyright.new(from: parser.doc_date, owner: [owner])]
+        year = parser.doc_date&.match(/\d{4}/)&.to_s
+        [Relaton::Bib::Copyright.new(from: year, owner: [owner])]
       end
     end
   end
