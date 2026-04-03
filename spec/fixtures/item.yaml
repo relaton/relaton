@@ -1,5 +1,5 @@
 ---
-schema_version: v1.4.1
+schema_version: v1.5.6
 id: AMI4CCM10
 title:
 - content: Asynchronous Method Invocation for CCM
@@ -32,16 +32,16 @@ status:
     content: formal
 fetched: '2022-11-30'
 keyword:
-- taxon:
-  - content: Corba Platform
-- taxon:
-  - content: Component Architecture
-- taxon:
-  - content: Domain
+- vocab:
+    content: Corba Platform
+- vocab:
+    content: Component Architecture
+- vocab:
+    content: Domain
 license:
 - RF-Limited
 ext:
-  schema_version: v1.0.1
+  schema_version: v1.0.0
   doctype:
     content: techical specification
   flavor: omg

@@ -69,7 +69,7 @@ module Relaton
 
       def fetch_abstract
         content = @doc.at('//section[@id="document-metadata"]/div/div/p').text
-        [Bib::LocalizedMarkedUpString.new(content: content, language: "en", script: "Latn")]
+        [Bib::Abstract.new(content: content, language: "en", script: "Latn")]
       end
 
       def fetch_version
@@ -118,7 +118,7 @@ module Relaton
             acronym = row.at("td[3]/a")[:href].split("/")[4]
             id = ["OMG", acronym, ver].join(" ")
             docid = Bib::Docidentifier.new(content: id, type: "OMG")
-            bibitem = Bib::ItemBase.new(formattedref: id, docidentifier: [docid])
+            bibitem = Bib::ItemBase.new(formattedref: Bib::Formattedref.new(content: id), docidentifier: [docid])
             mem << Bib::Relation.new(type: "obsoletes", bibitem: bibitem)
           end
           mem
@@ -127,7 +127,7 @@ module Relaton
 
       def fetch_keyword
         @doc.xpath('//dt[.="Categories:"]/following-sibling::dd/ul/li/a/em').map do |kw|
-          Bib::Keyword.new(taxon: [Bib::LocalizedString.new(content: kw.text)])
+          Bib::Keyword.new(vocab: Bib::LocalizedString.new(content: kw.text))
         end
       end
 
