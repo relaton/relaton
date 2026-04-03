@@ -35,8 +35,8 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   # Uncomment to register a new dependency of your gem
   spec.add_dependency "isoics", "~> 0.1.0"
   # spec.add_dependency "psych", "~> 5.2.0"
-  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.4"
-  spec.add_dependency "relaton-core", "~> 0.0.9"
+  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.7"
+  spec.add_dependency "relaton-core", "~> 0.0.13"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
