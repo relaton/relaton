@@ -34,5 +34,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "graphql", "~> 2.3"
   spec.add_dependency "graphql-client", "~> 0.23"
   spec.add_dependency "relaton-core", "~> 0.0.9"
-  spec.add_dependency "relaton-iso", "~> 2.0.0-alpha.2"
+  spec.add_dependency "relaton-iso", "~> 2.0.0-alpha.7"
 end
