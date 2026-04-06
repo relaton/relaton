@@ -16,9 +16,13 @@ module Relaton
         @edition ||= @version["title"].split.first.match(/[\d.]+/).to_s
       end
 
+      def slug_number
+        @slug_number ||= @entry["slug"]&.to_s&.split("_")&.first
+      end
+
       def parse_docnumber
         @errors[:hb_docnumber] &&= @entry["slug"].nil? || @entry["slug"].to_s.empty?
-        ["Handbook ##{@entry["slug"]}", edition].compact.join(" ")
+        ["Handbook ##{slug_number}", edition].compact.join(" ")
       end
 
       def parse_abstract
@@ -73,7 +77,7 @@ module Relaton
 
       def parse_ext
         strid = Bib::StructuredIdentifier.new(
-          type: "Handbook", agency: ["PLATEAU"], docnumber: @entry["slug"], edition: edition
+          type: "Handbook", agency: ["PLATEAU"], docnumber: slug_number, edition: edition
         )
         Ext.new(
           doctype: Doctype.new(content: @doctype),
