@@ -252,13 +252,19 @@ module Relaton
         @errors[:editorialgroup] &&= eg.nil?
         return unless eg
 
-        # Handle old format: { technical_committee: { name: "X" } }
-        eg = eg[:technical_committee] if eg[:technical_committee]
+        # Normalize: editorialgroup can be a single hash or an array of hashes
+        groups = array(eg).map do |g|
+          g = g[:technical_committee] if g.is_a?(Hash) && g[:technical_committee]
+          g
+        end
 
-        subdiv_name = Bib::TypedLocalizedString.new content: eg[:name]
-        subdivision = Bib::Subdivision.new(type: "technical-committee", name: [subdiv_name])
+        subdivisions = groups.map do |g|
+          subdiv_name = Bib::TypedLocalizedString.new content: g[:name]
+          Bib::Subdivision.new(type: "technical-committee", name: [subdiv_name])
+        end
+
         org_name = Bib::TypedLocalizedString.new content: "CalConnect"
-        org = Bib::Organization.new name: [org_name], subdivision: [subdivision]
+        org = Bib::Organization.new name: [org_name], subdivision: subdivisions
         description = Bib::LocalizedMarkedUpString.new content: "committee"
         role = Bib::Contributor::Role.new type: "author", description: [description]
         hash[:contributor] ||= []
