@@ -50,6 +50,32 @@ describe Relaton::Iso::Docidentifier do
       expect(xml).to include("17301")
       expect(xml).not_to include("ISO 17301")
     end
+
+    it "round-trips iso-tc through Item.from_xml without ISO prefix" do
+      xml = <<~XML
+        <bibdata type="standard">
+          <docidentifier type="ISO" primary="true">ISO 17301-1:2016</docidentifier>
+          <docidentifier type="iso-tc">17301</docidentifier>
+        </bibdata>
+      XML
+      item = Relaton::Iso::Item.from_xml(xml)
+      tc_id = item.docidentifier.find { |d| d.type == "iso-tc" }
+      expect(tc_id.to_s).to eq "17301"
+      roundtrip_xml = item.to_xml(bibdata: true)
+      expect(roundtrip_xml).to include(">17301<")
+      expect(roundtrip_xml).not_to include(">ISO 17301<")
+    end
+
+    it "preserves complex TC identifier through XML round-trip" do
+      xml = <<~XML
+        <bibdata type="standard">
+          <docidentifier type="iso-tc">ISO/TC 184/SC 4 N1110</docidentifier>
+        </bibdata>
+      XML
+      item = Relaton::Iso::Item.from_xml(xml)
+      tc_id = item.docidentifier.find { |d| d.type == "iso-tc" }
+      expect(tc_id.to_s).to eq "ISO/TC 184/SC 4 N1110"
+    end
   end
 
   context "#exclude_year" do

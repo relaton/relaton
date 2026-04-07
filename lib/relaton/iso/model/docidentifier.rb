@@ -28,7 +28,8 @@ module Relaton
 
       # iso-tc identifiers are TC document numbers, not ISO standard
       # identifiers — parsing them through Pubid adds a spurious
-      # "ISO" prefix (#178)
+      # "ISO" prefix (#178). Bypass Pubid casting for iso-tc content
+      # in both direct construction and XML deserialization paths.
       def initialize(arg = nil, **kwargs)
         if arg.is_a?(Hash)
           raw_content = arg["content"] if arg["type"] == "iso-tc"
@@ -38,6 +39,17 @@ module Relaton
           super(**kwargs)
         end
         @content = raw_content if raw_content.is_a?(String)
+      end
+
+      # Capture raw iso-tc content before Pubid casting (#178).
+      # The lutaml-model setter is defined via define_method, so we
+      # wrap it with alias_method instead of super.
+      alias_method :original_content=, :content=
+      def content=(value)
+        if value.is_a?(String) && type == "iso-tc"
+          @iso_tc_raw = value
+        end
+        send(:original_content=, value)
       end
 
       def content_to_xml(model, parent, doc)
@@ -86,6 +98,7 @@ module Relaton
 
       def to_s
         return content if content.is_a? String
+        return @iso_tc_raw if @iso_tc_raw
 
         case type
         when "URN" then content.urn
