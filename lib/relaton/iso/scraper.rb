@@ -86,7 +86,7 @@ module Relaton
           copyright: fetch_copyright,
           source: fetch_source(@url),
           relation: fetch_relations,
-          place: [Bib::Place.new(content:"Geneva")],
+          place: [Bib::Place.new(city: "Geneva")],
           structuredidentifier: fetch_structuredidentifier,
           ext: parse_ext,
         )

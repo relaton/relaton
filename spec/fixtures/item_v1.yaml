@@ -209,7 +209,8 @@ series:
       language: en
       script: Latn
       format: text/plain
-    place: Serie's place
+    place:
+      city: Geneva
     organization: Serie's organization
     abbreviation:
       content: ABVR
@@ -233,7 +234,7 @@ medium:
   scale: medium scale
 
 place:
-  - bib place
+  - city: Geneva
 
 extent:
   - locality:

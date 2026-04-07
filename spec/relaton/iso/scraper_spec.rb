@@ -28,6 +28,7 @@ RSpec.describe Relaton::Iso::Scraper do
     expect(bib.source.first).to be_instance_of Relaton::Bib::Uri
     expect(bib.relation.first).to be_instance_of Relaton::Iso::Relation
     expect(bib.place.first).to be_instance_of Relaton::Bib::Place
+    expect(bib.place.first.city).to eq "Geneva"
     expect(bib.ext.doctype).to be_instance_of Relaton::Iso::Doctype
     expect(bib.ext.flavor).to eq "iso"
     eg_contrib = bib.contributor.find do |c|
