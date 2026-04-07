@@ -224,8 +224,8 @@ module Relaton
 
       # @param bib [RelatonCie::BibliographicItem]
       def write_file(bib) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-        id = bib.docidentifier[0].content.gsub(%r{[/\s\-:.]}, "_")
-        file = "#{@output}/#{id.upcase}.#{@format}"
+        id = bib.docidentifier[0].content
+        file = output_file id
         if @files.include? file
           Util.warn do
             "File #{file} exists. Docid: #{bib.docidentifier[0].content}\n" \
@@ -234,16 +234,12 @@ module Relaton
         else @files << file
         end
         index.add_or_update bib.docidentifier[0].content, file
-        File.write file, content(bib), encoding: "UTF-8"
+        File.write file, serialize(bib), encoding: "UTF-8"
       end
 
-      def content(bib)
-        case @format
-        when "xml" then bib.to_xml(bibdata: true)
-        when "yaml" then bib.to_yaml
-        when "bibxml" then bib.to_bibxml
-        end
-      end
+      def to_xml(bib) = bib.to_xml(bibdata: true)
+      def to_yaml(bib) = bib.to_yaml
+      def to_bibxml(bib) = bib.to_rfcxml
 
       # @param hit [Nokogiri::HTML::Element]
       def parse_page(hit) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength

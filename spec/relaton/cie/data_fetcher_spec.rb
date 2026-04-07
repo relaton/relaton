@@ -416,45 +416,41 @@ RSpec.describe Relaton::Cie::DataFetcher do
 
     context "#write_file" do
       let(:bib) do
-        docid = double "docid", content: "CIE 001-1980", type: "CIE", primary: true
-        source = double "source", type: "src", content: "https://www.techstreet.com/cie/standards/001-1980"
-        double "bibliographic item", docidentifier: [docid], source: [source]
+        docid = Relaton::Bib::Docidentifier.new(content: "CIE 001-1980", type: "CIE", primary: true)
+        source = Relaton::Bib::Uri.new(type: "src", content: "https://www.techstreet.com/cie/standards/001-1980")
+        Relaton::Cie::ItemData.new(docidentifier: [docid], source: [source])
       end
 
       before do
-        expect(subject).to receive(:content).with(bib).and_return "content"
-        expect(subject.index).to receive(:add_or_update).with("CIE 001-1980", "data/CIE_001_1980.yaml")
-        expect(File).to receive(:write).with("data/CIE_001_1980.yaml", "content", encoding: "UTF-8")
+        expect(subject).to receive(:serialize).with(bib).and_return "content"
+        expect(subject.index).to receive(:add_or_update).with("CIE 001-1980", "data/cie-001-1980.yaml")
+        expect(File).to receive(:write).with("data/cie-001-1980.yaml", "content", encoding: "UTF-8")
       end
 
       it do
         subject.write_file bib
-        expect(subject.instance_variable_get(:@files)).to include "data/CIE_001_1980.yaml"
+        expect(subject.instance_variable_get(:@files)).to include "data/cie-001-1980.yaml"
       end
 
       it "file exists" do
-        subject.instance_variable_get(:@files) << "data/CIE_001_1980.yaml"
-        expect { subject.write_file bib }.to output(/File data\/CIE_001_1980.yaml exists/).to_stderr_from_any_process
+        subject.instance_variable_get(:@files) << "data/cie-001-1980.yaml"
+        expect { subject.write_file bib }.to output(/File data\/cie-001-1980.yaml exists/).to_stderr_from_any_process
       end
     end
 
-    context "#content" do
-      let(:bib) { Relaton::Cie::ItemData.new }
+    it "#to_xml" do
+      bib = Relaton::Cie::ItemData.new
+      expect(subject.to_xml(bib)).to include "<bibdata schema-version="
+    end
 
-      it "xml" do
-        subject.instance_variable_set :@format, "xml"
-        expect(subject.content(bib)).to include "<bibdata schema-version="
-      end
+    it "#to_yaml" do
+      bib = Relaton::Cie::ItemData.new
+      expect(subject.to_yaml(bib)).to include "---\nschema_version:"
+    end
 
-      it "yaml" do
-        expect(subject.content(bib)).to include "---\nschema_version:"
-      end
-
-      it "bibxml" do
-        subject.instance_variable_set :@format, "bibxml"
-        expect(bib).to receive(:to_bibxml).and_return "bibxml"
-        expect(subject.content(bib)).to eq "bibxml"
-      end
+    it "#to_bibxml" do
+      bib = Relaton::Cie::ItemData.new
+      expect(subject.to_bibxml(bib)).to include "<reference"
     end
 
     context "#time_req" do
