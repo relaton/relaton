@@ -132,7 +132,21 @@ module Relaton
       def person_email(email)
         return [] unless email
 
-        [email[:href].split(":")[1]]
+        href = email[:href]
+        if href.start_with?("mailto:")
+          [href.split(":")[1]]
+        elsif (cf_email = email.at(".//span[@data-cfemail]"))
+          decoded = decode_cf_email(cf_email["data-cfemail"])
+          decoded.empty? ? [] : [decoded]
+        else
+          []
+        end
+      end
+
+      def decode_cf_email(encoded)
+        bytes = [encoded].pack("H*").bytes
+        key = bytes.first
+        bytes[1..].map { |b| (b ^ key).chr }.join
       end
 
       def person_affiliation(org)
