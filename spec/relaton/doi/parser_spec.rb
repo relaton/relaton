@@ -8,27 +8,39 @@ RSpec.describe Relaton::Doi::Parser do
     let(:url) { "https://api.crossref.org/works?query=#{query}&filter=#{filter}" }
     let(:items) { [{ "title" => ["Test"] }] }
     let(:success_body) { { "message" => { "items" => items } }.to_json }
+    let(:agent) { instance_double(Mechanize) }
+
+    before do
+      allow(Relaton::Doi::Crossref).to receive(:agent).and_return(agent)
+    end
 
     context "when response is 2xx" do
       it "returns items array" do
-        resp = double(status: 200, body: success_body)
-        expect(Faraday).to receive(:get).with(url).and_return(resp)
+        page = double(body: success_body)
+        expect(agent).to receive(:get).with(url).and_return(page)
         expect(parser.fetch_crossref(query: query, filter: filter)).to eq items
       end
     end
 
     context "when response is 4xx" do
       it "returns nil" do
-        resp = double(status: 404, body: "Not found")
-        expect(Faraday).to receive(:get).with(url).and_return(resp)
+        error = Mechanize::ResponseCodeError.new(
+          double(code: "404", body: "Not found"),
+        )
+        expect(agent).to receive(:get).with(url).and_raise(error)
         expect(parser.fetch_crossref(query: query, filter: filter)).to be_nil
       end
     end
 
     context "when response is 5xx" do
       it "raises RequestError" do
-        resp = double(status: 500, body: "Internal Server Error")
-        expect(Faraday).to receive(:get).with(url).and_return(resp)
+        error = Mechanize::ResponseCodeError.new(
+          double(code: "500", body: "Internal Server Error"),
+        )
+        allow(error).to receive(:page).and_return(
+          double(body: "Internal Server Error"),
+        )
+        expect(agent).to receive(:get).with(url).and_raise(error)
         expect do
           parser.fetch_crossref(query: query, filter: filter)
         end.to raise_error(Relaton::RequestError, /Crossref request failed: 500/)
@@ -37,21 +49,22 @@ RSpec.describe Relaton::Doi::Parser do
 
     context "when network error occurs" do
       it "retries MAX_RETRIES times then raises RequestError" do
-        expect(Faraday).to receive(:get).with(url)
+        expect(agent).to receive(:get).with(url)
           .exactly(Relaton::Doi::Parser::MAX_RETRIES + 1).times
-          .and_raise(Faraday::ConnectionFailed.new("Connection refused"))
+          .and_raise(Errno::ECONNREFUSED.new("Connection refused"))
         expect do
           parser.fetch_crossref(query: query, filter: filter)
         end.to raise_error(Relaton::RequestError, /Crossref network error after 3 retries/)
       end
 
       it "returns result if succeeds after retry" do
-        resp = double(status: 200, body: success_body)
+        page = double(body: success_body)
         call_count = 0
-        allow(Faraday).to receive(:get).with(url) do
+        allow(agent).to receive(:get).with(url) do
           call_count += 1
-          raise Faraday::ConnectionFailed, "Connection refused" if call_count < 3
-          resp
+          raise Errno::ECONNREFUSED, "Connection refused" if call_count < 3
+
+          page
         end
         expect(parser.fetch_crossref(query: query, filter: filter)).to eq items
       end
@@ -59,8 +72,8 @@ RSpec.describe Relaton::Doi::Parser do
 
     context "when JSON parsing fails" do
       it "raises RequestError" do
-        resp = double(status: 200, body: "invalid json")
-        expect(Faraday).to receive(:get).with(url).and_return(resp)
+        page = double(body: "invalid json")
+        expect(agent).to receive(:get).with(url).and_return(page)
         expect do
           parser.fetch_crossref(query: query, filter: filter)
         end.to raise_error(Relaton::RequestError, /Crossref JSON parsing error/)

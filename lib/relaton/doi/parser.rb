@@ -805,16 +805,13 @@ module Relaton
         url = format(CROSSREF_API_URL, query: query, filter: filter)
         retries = 0
         begin
-          resp = Faraday.get url
-          case resp.status
-          when 200..299
-            JSON.parse(resp.body).dig("message", "items")
-          when 400..499
-            nil
-          else
-            raise Relaton::RequestError, "Crossref request failed: #{resp.status} #{resp.body}"
-          end
-        rescue Faraday::Error => e
+          resp = Crossref.agent.get url
+          JSON.parse(resp.body).dig("message", "items")
+        rescue Mechanize::ResponseCodeError => e
+          return nil if e.response_code.start_with?("4")
+
+          raise Relaton::RequestError, "Crossref request failed: #{e.response_code} #{e.page.body}"
+        rescue Net::HTTP::Persistent::Error, Net::HTTPError, Errno::ECONNREFUSED => e
           retries += 1
           retry if retries <= MAX_RETRIES
           raise Relaton::RequestError, "Crossref network error after #{MAX_RETRIES} retries: #{e.message}"

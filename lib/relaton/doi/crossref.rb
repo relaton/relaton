@@ -1,13 +1,11 @@
-require "faraday"
+require "mechanize"
 
 module Relaton
   module Doi
     module Crossref
       extend self
 
-      HEADER = {
-        "User-Agent" => "Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)"
-      }.freeze
+      USER_AGENT = "Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)"
 
       #
       # Get a document by DOI from the CrossRef API.
@@ -39,24 +37,34 @@ module Relaton
       # @return [Hash] The document.
       #
       def get_by_id(id) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-        # resp = Serrano.works ids: id
         n = 0
         url = "https://api.crossref.org/works/#{CGI.escape(id)}"
         loop do
-          resp = Faraday.get url, nil, HEADER
-          case resp.status
-          when 200
-            work = JSON.parse resp.body
-            return work["message"] if work["status"] == "ok"
-          when 404 then return nil
-          end
+          resp = agent.get url
+          work = JSON.parse resp.body
+          return work["message"] if work["status"] == "ok"
 
           if n > 1
             raise Relaton::RequestError, "Crossref error: #{resp.body}"
           end
 
           n += 1
-          sleep resp.headers["x-rate-limit-interval"].to_i * n
+          sleep resp.response["x-rate-limit-interval"].to_i * n
+        rescue Mechanize::ResponseCodeError => e
+          return nil if e.response_code == "404"
+
+          if n > 1
+            raise Relaton::RequestError, "Crossref error: #{e.page.body}"
+          end
+
+          n += 1
+          sleep e.page.response["x-rate-limit-interval"].to_i * n
+        end
+      end
+
+      def agent
+        @agent ||= Mechanize.new do |a|
+          a.user_agent = USER_AGENT
         end
       end
     end
