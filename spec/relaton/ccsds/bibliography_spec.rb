@@ -31,10 +31,10 @@ module Relaton::Ccsds::TestBibliography
   extend self
   def search(ref)
     hit_collection = Relaton::Ccsds::TestHitCollection.new(ref)
-    hit_collection.add_to_index(Pubid::Ccsds::Identifier.parse("CCSDS 230.2-G-1"), "data/CCSDS-230-2-G-1.yaml")
-    hit_collection.add_to_index(Pubid::Ccsds::Identifier.parse("CCSDS 720.4-Y-1"), "data/CCSDS-720-4-Y-1.yaml")
-    hit_collection.add_to_index(Pubid::Ccsds::Identifier.parse("CCSDS 650.0-M-2"), "data/CCSDS-650-0-M-2.yaml")
-    hit_collection.add_to_index(Pubid::Ccsds::Identifier.parse("CCSDS 650.0-M-2 - French Translated"), "data/CCSDS-650-0-M-2-French-Translated.yaml")
+    hit_collection.add_to_index(Pubid::Ccsds::Identifier.parse("CCSDS 230.2-G-1"), "data/ccsds-230-2-g-1.yaml")
+    hit_collection.add_to_index(Pubid::Ccsds::Identifier.parse("CCSDS 720.4-Y-1"), "data/ccsds-720-4-y-1.yaml")
+    hit_collection.add_to_index(Pubid::Ccsds::Identifier.parse("CCSDS 650.0-M-2"), "data/ccsds-650-0-m-2.yaml")
+    hit_collection.add_to_index(Pubid::Ccsds::Identifier.parse("CCSDS 650.0-M-2 - French Translated"), "data/ccsds-650-0-m-2-french-translated.yaml")
 
     hit_collection.fetch
   end

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-ccsds/refs/heads/data-v2/data/CCSDS-720-4-Y-1.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ccsds/refs/heads/data-v2/data/ccsds-720-4-y-1.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -37,7 +37,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"01169b8673a4cd4ec84ab8136bbb3d34f0ee81ffda64d06059b8bcfd025687db"
+      - W/"9d77da1295bde1f0e14bbf52724a66ba16e803db6b2bcf3f8b6011159ff8e07a"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -47,23 +47,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - E8E4:1FD4DA:2C0045:30E4FA:69CD52D0
+      - D4D4:1DCFB4:116B61:13F965:69D6AEBB
       Content-Encoding:
       - gzip
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 01 Apr 2026 17:16:00 GMT
+      - Wed, 08 Apr 2026 19:38:35 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200175-IAD
+      - cache-iad-kjyo7100081-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1775063761.501877,VS0,VE119
+      - S1775677116.909106,VS0,VE66
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -71,28 +71,28 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 9ac7a557fecddedda3b34646614c57a3eb028a68
+      - 1dda40a522f413f086ea269f7675450a43e6b3e4
       Expires:
-      - Wed, 01 Apr 2026 17:21:00 GMT
+      - Wed, 08 Apr 2026 19:43:35 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
-        H4sIAAAAAAAAA8VU22rcMBB991cMeUkL8Wq98W4SEwJhQyBQSuiGlkAhaKVZ
-        W8QrGWm8ifvUj+gX9ks68l7TPpQ+9c2ay5mjozlO0zQxuoDpdHYzOxsN88cs
-        CarCpXxaoQ/G2QJW2SAfZAkZqrFIUqilLVtZYgFoE4CgvGmogA+S4lE5S2hp
-        Awm3pka4wdowXAf33pFTroZ309ub+/c/v//46Ajnzj2DW8DULZfOwh0D+PS6
-        RKs6eMBAgWEBFs5zhccIolC3HkP6xXkNn9dEk+Bar3qG1DXMLnh1yKciakIh
-        hFJBh4HzpWjaeW2UJG4O67Csaw4GwQ2+E6fZeCJ2cNr9Be6lSTdZ0Ta1kzqI
-        0suVoe6JuS+DGKd5fo7nYzXJz05PM32h5nIxmajhxSQfn8+1HovRcDQWw0wI
-        fovXvMsGceqWQaMX/4FBnMosjGZYszDoo8K/vTLXDvL0Mc2Y35prH+dT481S
-        +q4A8i0mWtLBA/X6hwo110nGGg2HZ+nwIong3sxbcv0s7+LeAWzbZEuV8/1O
-        aFxvX9zTPnDATPE2GSJETrA40ppvcl9o5RL/aNmS5qVu59qsTDgA3ne86Znd
-        zdLp3cMmsWZIqCrLm1WnexKozXb6rvc4O07kPJCXiv7BWUeXzdVDZcJG/E+o
-        og34LMFu7WRirUYN5KDCugHWLCA0PMIaW55AIz0ZZRrWxJY9e2NPQFot2Ge4
-        knXbZ3qgnRuJ3RiDbFaqEKKJd54eXIrm6qs9SgJJakO8KH+VG8125PePjq8U
-        c7xbvWpvy3x/qbhOUUtXu7J7kh4lC95IheufhEV6cf45MpqhXxmFAa65KPkF
-        zBN9itcEAAA=
-  recorded_at: Wed, 01 Apr 2026 17:16:00 GMT
+        H4sIAAAAAAAAA8VU22obMRB9368Y8pIWspbXsZ3EhEBwCARKCXVoCRSCLI13
+        RdaSkGadbJ/6Ef3CfklH62vah9Knvq3mcuboaM7meZ4ZPYHpdHYzOxv0h49F
+        FlWFS/m0whCNsxNYFb1Rb5yRoRonWQ61tGUjS5wA2gwgqmA8TeCDpHRUzhJa
+        2kDCrakRbrA2DNfCfXDklKvh3fT25v79z+8/PjrCuXPP4BYwdculs3DHACG/
+        LtGqFh4wUmRYgIULXBEwgSjUTcCYf3FBw+c10Sy6JqiOIbWe2cWgDvlURD5O
+        hFAq6thzoRS+mddGSeLmuA7LuuZgFNwQWnFajMZiB6fdX+BefL7JisbXTuoo
+        yiBXhton5r6MYpQPh+d4PlLj4dnpaaEv1FwuxmPVvxgPR+dzrUdi0B+MRL8Q
+        gt/iddgWvTR1y8DrxX9gkKYyC6MZ1iwMhqTwb6/Mtb1h/pgXzG/NtYvzyQez
+        lKGdAIUGMy3p4IE6/WOFmuskYw36/bO8f5El8GDmDbluVnBp7wC2bbKhyoVu
+        JzSuty/taRc4YKZ4mwwRIidYHGnNN7kvtHKJf7RsSfNSN3NtViYeAO873vTM
+        7mb59O5hk1gzJFSV5c2q8z0J1GY7fdd7XBxnch4pSEX/4KyjS3/1UJm4Ef8T
+        qmQDPkuwWzuZVKtRAzmosPbAmkUEzyOsseUJeBnIKONZE1t27I09AWm1YJ/h
+        StZNl+mAdm4kdmMKslmpQkgm3nm6dyn81Vd7lEWS1MR0Uf4qN5rtyO8fHV8p
+        5Xi3OtXeloXuUmmdkpaudmX7JANKFtxLheufhEV6ceE5MZphWBmFEa65KPsF
+        +IBN1dcEAAA=
+  recorded_at: Wed, 08 Apr 2026 19:38:35 GMT
 recorded_with: VCR 6.4.0
