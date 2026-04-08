@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "parslet", "~> 2.0.0"
-  spec.add_dependency "relaton-bib", "~> 2.0.0-alpha.7"
+  spec.add_dependency "relaton-bib", "~> 2.0.0"
   spec.add_dependency "relaton-core", "~> 0.0.12"
   spec.add_dependency "relaton-index", "~> 0.2.0"
 end
