@@ -2,6 +2,6 @@
 
 module Relaton
   module Etsi
-    VERSION = "2.0.0-alpha.3"
+    VERSION = "2.0.0"
   end
 end
