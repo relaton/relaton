@@ -2,6 +2,6 @@
 
 module Relaton
   module Iso
-    VERSION = "2.0.0-alpha.8"
+    VERSION = "2.0.0"
   end
 end
