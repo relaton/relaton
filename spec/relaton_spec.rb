@@ -75,7 +75,9 @@ RSpec.describe Relaton::Db do
   context "IEC" do
     before do
       require "relaton/iec"
-      docid = Relaton::Iec::Docidentifier.new(content: "IEC 60050-102:2007", type: "IEC")
+      docid = Relaton::Iec::Docidentifier.new(
+        content: "IEC 60050-102:2007", type: "IEC",
+      )
       item = Relaton::Iec::ItemData.new docidentifier: [docid]
       expect(Relaton::Iec::Bibliography).to receive(:get).with(
         "IEC 60050-102:2007", nil, {}
