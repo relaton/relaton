@@ -1,27 +1,25 @@
 require "webmock/rspec"
+require "zip"
+require "yaml"
 
 INDEX_ZIP_PATH = File.join(__dir__, "..", "fixtures", "index-v1.zip")
 
-INDEX_STUB = proc do
-  WebMock.stub_request(:get, /index-v1\.zip/)
-    .to_return(lambda { |_req|
-      { status: 200, body: File.binread(INDEX_ZIP_PATH), headers: { "Content-Type" => "application/zip" } }
-    })
-end
-
 RSpec.configure do |config|
   config.before(:suite) do
-    Relaton::Index.configure do |c|
-      c.storage_dir = Dir.mktmpdir("relaton-iso-test")
+    yaml = Zip::File.open(INDEX_ZIP_PATH) do |zip|
+      zip.first.get_input_stream.read
     end
-    Relaton::Index.close(:iso)
+    index_data = YAML.safe_load(yaml, permitted_classes: [Symbol])
 
-    INDEX_STUB.call
+    type = Relaton::Index::Type.new(:iso, nil, "index-v1.yaml")
+    type.instance_variable_set(:@index, index_data)
+    type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
+
+    Relaton::Index.pool.instance_variable_get(:@pool)[:ISO] = type
   end
 
   config.before(:each) do
     WebMock.reset!
     WebMock.disable_net_connect!
-    INDEX_STUB.call
   end
 end

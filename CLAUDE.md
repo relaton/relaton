@@ -29,5 +29,5 @@ Key dependency: `pubid-iso` gem handles ISO publication identifier parsing and c
 
 - **Framework:** RSpec with VCR cassettes and WebMock
 - **Network access:** fully blocked via `WebMock.disable_net_connect!`
-- **Index fixture:** `spec/fixtures/index-v1.zip` is served by WebMock stub (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh when upstream data changes.
-- **VCR:** cassettes in `spec/vcr_cassettes/`, record mode `:once`, re-record interval 7 days. Index download requests are ignored by VCR (handled by WebMock stub instead).
+- **Index fixture:** `spec/fixtures/index-v1.zip` is pre-loaded into `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-iso.
+- **VCR:** cassettes in `spec/vcr_cassettes/`, record mode `:once`, re-record interval 7 days. Index download requests are ignored by VCR (handled by fixture instead).
