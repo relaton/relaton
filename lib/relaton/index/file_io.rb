@@ -122,7 +122,7 @@ module Relaton
         @sorted = true
         prev_number = nil
         index.map do |r|
-          id = @pubid_class.create(**r[:id])
+          id = @pubid_class.create(**(r[:id] || {}))
           num = get_id_number id
           @sorted = false if prev_number && prev_number > num
           prev_number = num
