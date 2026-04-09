@@ -12,7 +12,7 @@ RSpec.describe Relaton::Cli::YAMLConvertor do
         buffer = stub_file_write_to_io(sample_yaml_file)
         Relaton::Cli::YAMLConvertor.to_xml(sample_yaml_file)
         expect(buffer).to be_equivalent_to <<~OUTPUT
-          <bibdata type="standard" schema-version="v1.4.1">
+          <bibdata type="standard" schema-version="v1.5.6">
             <title>Standardization documents - Vocabulary</title>
             <docidentifier type="CC" primary="true">CC 36000</docidentifier>
             <date type="issued">
@@ -29,7 +29,7 @@ RSpec.describe Relaton::Cli::YAMLConvertor do
         buffer = stub_file_write_to_io(sample_yaml_file_no_type)
         Relaton::Cli::YAMLConvertor.to_xml(sample_yaml_file_no_type)
         expect(buffer).to be_equivalent_to <<~OUTPUT
-          <bibdata schema-version="v1.4.1">
+          <bibdata schema-version="v1.5.6">
             <title type="title-main">Geographic information</title>
             <title type="main">Geographic information</title>
             <title language="fr" script="Latn">Information géographique</title>
@@ -71,7 +71,7 @@ RSpec.describe Relaton::Cli::YAMLConvertor do
         )
 
         expect(buffer).to be_equivalent_to <<~OUTPUT
-          <bibdata type="standard" schema-version="v1.4.1">
+          <bibdata type="standard" schema-version="v1.5.6">
             <title>Standardization documents - Vocabulary</title>
             <docidentifier type="CC" primary="true">CC 36000</docidentifier>
             <date type="issued">
@@ -94,7 +94,7 @@ RSpec.describe Relaton::Cli::YAMLConvertor do
 
         expect(buffer.count).to eq(6)
         expect(buffer.last).to be_equivalent_to <<~OUTPUT
-          <bibdata type="specification" schema-version="v1.4.1">
+          <bibdata type="specification" schema-version="v1.5.6">
             <fetched>2018-11-09</fetched>
             <title>Date and time -- Calendars -- Chinese calendar</title>
             <docidentifier type="CC" primary="true">CC/S 34006</docidentifier>
@@ -111,7 +111,7 @@ RSpec.describe Relaton::Cli::YAMLConvertor do
       it "don't write" do
         xml = Relaton::Cli::YAMLConvertor.to_xml(sample_yaml_file, write: false)
         expect(xml).to be_equivalent_to <<~OUTPUT
-          <bibdata type="standard" schema-version="v1.4.1">
+          <bibdata type="standard" schema-version="v1.5.6">
             <title>Standardization documents - Vocabulary</title>
             <docidentifier type="CC" primary="true">CC 36000</docidentifier>
             <date type="issued">
