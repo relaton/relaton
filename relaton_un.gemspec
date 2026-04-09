@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "addressable", "~> 2.8.0"
+  spec.add_dependency "addressable", "~> 2.8"
   spec.add_dependency "faraday", "~> 2.7"
   spec.add_dependency "relaton-bib", "~> 2.0.0"
   spec.add_dependency "relaton-core", "~> 0.0.13"
