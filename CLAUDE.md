@@ -39,6 +39,7 @@ The gem fetches from three external datasets:
 
 ### Testing
 
+- **Index fixture:** `spec/fixtures/index-v1.zip` is pre-loaded into `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-bipm.
 Tests use RSpec with VCR cassettes (`spec/vcr_cassettes/`) to record/replay HTTP interactions. WebMock is used to prevent real HTTP requests during tests. Test fixtures are in `spec/fixtures/`.
 
 ### Dependencies
