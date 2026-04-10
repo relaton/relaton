@@ -51,6 +51,7 @@ All model classes use `Lutaml::Model::Serializable` for XML/YAML serialization:
 
 ## Testing
 
+- **Index fixture:** `spec/fixtures/index-v1.zip` is pre-loaded into `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-itu-r.
 - **Framework:** RSpec with VCR cassettes for HTTP mocking and WebMock
 - **Fixtures:** `spec/fixtures/` contains sample YAML/XML documents for round-trip tests
 - **VCR cassettes:** `spec/vcr_cassettes/` — 22 cassettes recording real HTTP responses
