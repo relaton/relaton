@@ -64,3 +64,7 @@ In `item.rb`, `require_relative "relation"` is placed **after** the `Item` class
 ### IHO-Specific Document Types
 
 policy-and-procedures, best-practices, supporting-document, report, legal, directives, proposal, standard
+
+## Testing
+
+- **Index fixture:** `spec/fixtures/index-v1.zip` is pre-loaded into `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-iho.
