@@ -55,3 +55,7 @@ All classes live under `lib/relaton/jis/`:
 - All files use `# frozen_string_literal: true`
 - Linting follows [Ribose OSS style](https://github.com/riboseinc/oss-guides); target Ruby 3.1
 - Ruby >= 3.1.0 required
+
+## Testing
+
+- **Index fixture:** `spec/fixtures/index-v1.zip` is pre-loaded into `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-jis.

@@ -12,7 +12,7 @@ describe Relaton::Jis::Bibliography do
     end
   end
 
-  it "searches JIS", vcr: { cassette_name: "search" } do
+  it "searches JIS" do
     result = described_class.search "JIS X 0208"
     expect(result).to be_instance_of(Relaton::Jis::HitCollection)
     expect(result.size).to eq(2)
