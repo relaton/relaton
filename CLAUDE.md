@@ -53,3 +53,7 @@ Tests are round-trip based: parse a fixture file, serialize back, and compare ou
 ## Style
 
 RuboCop config inherits from the Ribose OSS style guide. Target Ruby version: 3.4. Rails cops are required but disabled.
+
+## Testing
+
+- **Index fixture:** `spec/fixtures/index-v1.zip` is pre-loaded into `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-oasis.
