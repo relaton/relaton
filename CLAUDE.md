@@ -37,6 +37,7 @@ Constants: `INDEXFILE = "index-v1"`, `GHDATA_URL` points to relaton-data-xsf `da
 
 ## Testing
 
+- **Index fixture:** `spec/fixtures/index-v1.zip` is pre-loaded into `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-xsf.
 - RSpec with VCR cassettes (`spec/vcr_cassettes/`) for HTTP interactions
 - WebMock disables all external network connections
 - Fixtures in `spec/fixtures/` (item.yaml, bibdata.xml, bibitem.xml)
