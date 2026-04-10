@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-plateau/data-v2/index-v1.zip
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-plateau/data-v2/data/plateau-handbook-00-60.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -23,15 +23,15 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1182'
+      - '1341'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
       - default-src 'none'; style-src 'unsafe-inline'; sandbox
       Content-Type:
-      - application/zip
+      - text/plain; charset=utf-8
       Etag:
-      - W/"2a306fdc109c8b43985b4f2968db2aeefeafa6ef9d12ac1163c15ad1f465c125"
+      - W/"5f2c8c8ee5554aaaf6ed6efa599d8956e16eaf9b90009eba756dc69c87d30152"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 5E9C:2FFFDB:165E2B:19346F:69CDAD73
+      - 3A7C:1E94A9:62C0D2:777E5E:69D91DA0
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 01 Apr 2026 23:42:44 GMT
+      - Fri, 10 Apr 2026 15:56:17 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100127-IAD
+      - cache-iad-kcgs7200175-IAD
       X-Cache:
-      - HIT
+      - MISS
       X-Cache-Hits:
-      - '1'
+      - '0'
       X-Timer:
-      - S1775086964.250373,VS0,VE3
+      - S1775836577.109963,VS0,VE62
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -63,42 +63,45 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 706e5fdca043bb045408c933099e605c6bf0862e
+      - d23a200947d23302c5d44795ac59a366a3595260
       Expires:
-      - Wed, 01 Apr 2026 23:47:44 GMT
+      - Fri, 10 Apr 2026 16:01:17 GMT
       Source-Age:
-      - '1'
+      - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
-        UEsDBBQAAAAIAIJ8YlwPG8AN7gMAAMI0AAANABwAaW5kZXgtdjEueWFtbFVU
-        CQADtPSlabT0pWl1eAsAAQT1AQAABBQAAACVmr1uFEEQhHM/xUoEjvbY7vm/
-        zAESAQFCJkaLfZYtDtuyjoC35w6BhOS5ob58t9RbU11dszPzPF/M0/bhdjtd
-        fvxwdf3u6vP0fn28/fr09G16syxT2iyXF9O0vXvY77bT7XpY3z7v18Nu/THf
-        /3luXpY5LZuf6/f9GCtqWFHBChpWULBcw3IFyzQs+z+Wadybwr0duTcFK5qA
-        FTZJwQpJwPJNULA8CFgS96Zw7xr3rnDvGveucO8a965w70fuXcFyF7Ak7l3h
-        Pmg+ERSfCJpPBMUnguYTQfGJoPEVJL5mU7/SpO+cTf1Sk751FjvzhCd8b9J0
-        mxTdJq2ypNRVtFUoyhoUbQWKwn/RvrEo31i1uqpSV9XqqkpdTfPrpvh10/yn
-        Kf7TNE00RRNN474p3DeN+yZwb1quMyXXmZbrTMl1puU6U3KdabnOlFx3ekhG
-        U/C0nGhKTjTT1tKUtdSmkikzybSJZMo8MpF9iXvX6nKlLi1D2fkMdb27uX98
-        uFn306fd89PL4YgZhkHj8PeF+eX3C/PxeYQ+LLmDzmofLlQH/fyKddDHW7XX
-        6IM9Wwfdhgb7Gt3OO20PPUL0iNCHoaiDfj4d9dCHcaSDfj6X9FYV6n2QsF+j
-        N1Z6Q5WPbanDC1K7ZYieEfowynXQz2e63ppCZgY7/B46rH2QRzuKYbQ3xPp4
-        092pHLnvAj1mQR4z3nh10JHHjONtB525L5wcg1TYQ4eryvLAAn1gYYqE3j7Y
-        c/aYgd5uxNsLs4FCXKCwwgupu7I2raRLK6u7orqZAVTS/5kNjEzmRWUNVEn/
-        ZGZbmbhWZnVnUndh2IVgN7aWjaxlYXwXwndjQ6KRGZFY3YnUXZiFF+Lgha1l
-        QX3J/LsS/86Mk4w4Yf5diH8XFiUKSRKF+Xch/t1Y3Y3UnRl2JtiNzcuG5iXT
-        YCUazMyrMvGqyrArwc6M70z4zsxPMsqDjJOC+GYeW5HHst6ppHcS4zsRvhPr
-        nUR6JzENJqLBxGZDIrMhscyWSGaLbC0j+hsEt/Yk+yTWO4n0TsxfGPrpBYLP
-        5nEk8zgyv4rErwLrzYB6k3GSCCeJcZIIJ5FpPBKNH2XFXPz0AsFnfhiJH0ZY
-        OaobdifpzcB0GIgO4REcOoFz5uNOfNyZTpzoxBknjjhhOnF0FgF/zqJ/s/CH
-        OzvTgz9mic+ytUyo59nsiWT2RJbdIslugc2HQOZDYD0fSM8Hpu9A9B0Y3wHx
-        zbwK3aGAlxzQHYfAMkogGcWZBp1o0FlfOulLZxp0okFnHuvEY53p24m+nenE
-        0XkmPF5He0F43IhOG+HxN+EbXlJBd1TgpQB0JwBexED3MOB1rH9uY/0CUEsB
-        Ah4DFAAAAAgAgnxiXA8bwA3uAwAAwjQAAA0AGAAAAAAAAQAAAKSBAAAAAGlu
-        ZGV4LXYxLnlhbWxVVAUAA7T0pWl1eAsAAQT1AQAABBQAAABQSwUGAAAAAAEA
-        AQBTAAAANQQAAAAA
-  recorded_at: Wed, 01 Apr 2026 23:42:44 GMT
+        LS0tCmlkOiBQTEFURUFVSGFuZGJvb2swMDYwCnR5cGU6IHN0YW5kYXJkCnNj
+        aGVtYV92ZXJzaW9uOiB2MS41LjYKdGl0bGU6Ci0gbGFuZ3VhZ2U6IGVuCiAg
+        c2NyaXB0OiBMYXRuCiAgY29udGVudDogUExBVEVBVSBHdWlkZWJvb2sKICB0
+        eXBlOiBtYWluCnNvdXJjZToKLSB0eXBlOiBwZGYKICBjb250ZW50OiBodHRw
+        czovL3d3dy5tbGl0LmdvLmpwL3BsYXRlYXUvZmlsZS9saWJyYXJpZXMvZG9j
+        L3BsYXRlYXVfZG9jXzAwMDBfdmVyMDYucGRmCmRvY2lkZW50aWZpZXI6Ci0g
+        Y29udGVudDogJ1BMQVRFQVUgSGFuZGJvb2sgIzAwIDYuMCcKICB0eXBlOiBQ
+        TEFURUFVCiAgcHJpbWFyeTogdHJ1ZQpkb2NudW1iZXI6ICdIYW5kYm9vayAj
+        MDAgNi4wJwpkYXRlOgotIHR5cGU6IHB1Ymxpc2hlZAogIGF0OiAnMjAyNi0w
+        My0zMScKY29udHJpYnV0b3I6Ci0gcm9sZToKICAtIHR5cGU6IHB1Ymxpc2hl
+        cgogIG9yZ2FuaXphdGlvbjoKICAgIG5hbWU6CiAgICAtIGxhbmd1YWdlOiBq
+        YQogICAgICBzY3JpcHQ6IEpwYW4KICAgICAgY29udGVudDog5Zu95Zyf5Lqk
+        6YCa55yBCiAgICAtIGxhbmd1YWdlOiBlbgogICAgICBzY3JpcHQ6IExhdG4K
+        ICAgICAgY29udGVudDogSmFwYW5lc2UgTWluaXN0cnkgb2YgTGFuZCwgSW5m
+        cmFzdHJ1Y3R1cmUsIFRyYW5zcG9ydCBhbmQgVG91cmlzbQogICAgYWJicmV2
+        aWF0aW9uOgogICAgICBjb250ZW50OiBNTElUCmVkaXRpb246CiAgbnVtYmVy
+        OiAnNi4wJwogIGNvbnRlbnQ6ICc2LjAnCmFic3RyYWN0OgotIGxhbmd1YWdl
+        OiBlbgogIHNjcmlwdDogTGF0bgogIGNvbnRlbnQ6IEd1aWRhbmNlIG9uIHRo
+        ZSBJbnN0YWxsYXRpb24gZm9yIDNEIENpdHkgTW9kZWwKLSBsYW5ndWFnZTog
+        amEKICBzY3JpcHQ6IEpwYW4KICBjb250ZW50OiDlnLDmlrnoh6rmsrvkvZPm
+        i4XlvZPogIXjgoTmsJHplpPkuovmpa3ogIXnrYnjgavlkJHjgZHjgZ8gM0Tp
+        g73luILjg6Ljg4fjg6vlsI7lhaXjga7jgZ/jgoHjga7jgqzjgqTjg4Djg7Pj
+        grkKZGVwaWN0aW9uOgotIHNjb3BlOiBjb3ZlcgogIGltYWdlOgogIC0gc3Jj
+        OiBodHRwczovL3d3dy5tbGl0LmdvLmpwLy9wbGF0ZWF1L3VwbG9hZHMvMjAy
+        NC8wNC9oYW5kYm9va18wMF9pbWctLXNjYWxlZC5qcGcKICAgIG1pbWV0eXBl
+        OiBpbWFnZS9qcGVnCmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjAuMS4wCiAg
+        ZG9jdHlwZToKICAgIGNvbnRlbnQ6IGhhbmRib29rCiAgZmxhdm9yOiBwbGF0
+        ZWF1CiAgc3RydWN0dXJlZGlkZW50aWZpZXI6CiAgLSB0eXBlOiBIYW5kYm9v
+        awogICAgYWdlbmN5OgogICAgLSBQTEFURUFVCiAgICBkb2NudW1iZXI6ICcw
+        MCcKICAgIGVkaXRpb246ICc2LjAnCiAgZmlsZXNpemU6IDEK
+  recorded_at: Fri, 10 Apr 2026 15:56:17 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-plateau/data-v2/data/plateau-handbook-00-50.yaml
@@ -130,7 +133,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"09c985630e80f28066c0360037999126bfdf8c96bc5cb30f7556ae4459c4b486"
+      - W/"5c62cba16cbb242c58ebd4ddcd0cc60e966e48202a7a5a7d12ee971005f9fd1d"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -140,21 +143,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 3FB6:2DAF38:153092:1806B4:69CDAD73
+      - 7F5E:216C36:8293C3:9DCC4C:69D91DA0
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 01 Apr 2026 23:42:44 GMT
+      - Fri, 10 Apr 2026 15:56:17 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200112-IAD
+      - cache-iad-kjyo7100147-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1775086964.370739,VS0,VE65
+      - S1775836577.305569,VS0,VE59
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -162,16 +165,16 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - a38364e3a107f4dc3a2eb5eaa7deb4562b333916
+      - c2b97e720984b4e78b9b7d0fa7d82c67c0ed178c
       Expires:
-      - Wed, 01 Apr 2026 23:47:44 GMT
+      - Fri, 10 Apr 2026 16:01:17 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
         LS0tCmlkOiBQTEFURUFVSGFuZGJvb2swMDUwCnR5cGU6IHN0YW5kYXJkCnNj
-        aGVtYV92ZXJzaW9uOiB2MS40LjEKdGl0bGU6Ci0gbGFuZ3VhZ2U6IGVuCiAg
+        aGVtYV92ZXJzaW9uOiB2MS41LjYKdGl0bGU6Ci0gbGFuZ3VhZ2U6IGVuCiAg
         c2NyaXB0OiBMYXRuCiAgY29udGVudDogUExBVEVBVSBHdWlkZWJvb2sKICB0
         eXBlOiBtYWluCnNvdXJjZToKLSB0eXBlOiBwZGYKICBjb250ZW50OiBodHRw
         czovL3d3dy5tbGl0LmdvLmpwL3BsYXRlYXUvZmlsZS9saWJyYXJpZXMvZG9j
@@ -192,15 +195,15 @@ http_interactions:
         amEKICBzY3JpcHQ6IEpwYW4KICBjb250ZW50OiDlnLDmlrnoh6rmsrvkvZPm
         i4XlvZPogIXjgoTmsJHplpPkuovmpa3ogIXnrYnjgavlkJHjgZHjgZ8gM0Tp
         g73luILjg6Ljg4fjg6vlsI7lhaXjga7jgZ/jgoHjga7jgqzjgqTjg4Djg7Pj
-        grkKZGVwaWN0aW9uOgogIHNjb3BlOiBjb3ZlcgogIGltYWdlOgogIC0gc3Jj
+        grkKZGVwaWN0aW9uOgotIHNjb3BlOiBjb3ZlcgogIGltYWdlOgogIC0gc3Jj
         OiBodHRwczovL3d3dy5tbGl0LmdvLmpwLy9wbGF0ZWF1L3VwbG9hZHMvMjAy
         NC8wNC9oYW5kYm9va18wMF9pbWctLXNjYWxlZC5qcGcKICAgIG1pbWV0eXBl
-        OiBpbWFnZS9qcGVnCmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjAuMC4yCiAg
+        OiBpbWFnZS9qcGVnCmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjAuMS4wCiAg
         ZG9jdHlwZToKICAgIGNvbnRlbnQ6IGhhbmRib29rCiAgZmxhdm9yOiBwbGF0
         ZWF1CiAgc3RydWN0dXJlZGlkZW50aWZpZXI6CiAgLSB0eXBlOiBIYW5kYm9v
         awogICAgYWdlbmN5OgogICAgLSBQTEFURUFVCiAgICBkb2NudW1iZXI6ICcw
         MCcKICAgIGVkaXRpb246ICc1LjAnCiAgZmlsZXNpemU6IDc4MjYzNDAK
-  recorded_at: Wed, 01 Apr 2026 23:42:44 GMT
+  recorded_at: Fri, 10 Apr 2026 15:56:17 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-plateau/data-v2/data/plateau-handbook-00-40.yaml
@@ -232,7 +235,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"ca2da6dfcca3bf98fa66a329d0c7d70712ac5bc08ecc8c13d23b66f729e352d0"
+      - W/"17558ca089f0955dfa5e77823fdbbad0f49480b90c8c84b15e0d32623de9fef5"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -242,21 +245,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 53CA:353FEE:20EA2:25E0C:69CDAD74
+      - DA9A:2CD4C4:79664:90154:69D91DA0
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 01 Apr 2026 23:42:44 GMT
+      - Fri, 10 Apr 2026 15:56:17 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200032-IAD
+      - cache-iad-kcgs7200152-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1775086965.557424,VS0,VE66
+      - S1775836578.604278,VS0,VE61
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -264,16 +267,16 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - f3b7e25347df7fe5578b8892021f27cf42f1335d
+      - c20ea1a6efd288a3d8969f141ab94b04e36061fd
       Expires:
-      - Wed, 01 Apr 2026 23:47:44 GMT
+      - Fri, 10 Apr 2026 16:01:17 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
         LS0tCmlkOiBQTEFURUFVSGFuZGJvb2swMDQwCnR5cGU6IHN0YW5kYXJkCnNj
-        aGVtYV92ZXJzaW9uOiB2MS40LjEKdGl0bGU6Ci0gbGFuZ3VhZ2U6IGVuCiAg
+        aGVtYV92ZXJzaW9uOiB2MS41LjYKdGl0bGU6Ci0gbGFuZ3VhZ2U6IGVuCiAg
         c2NyaXB0OiBMYXRuCiAgY29udGVudDogUExBVEVBVSBHdWlkZWJvb2sKICB0
         eXBlOiBtYWluCnNvdXJjZToKLSB0eXBlOiBwZGYKICBjb250ZW50OiBodHRw
         czovL3d3dy5tbGl0LmdvLmpwL3BsYXRlYXUvZmlsZS9saWJyYXJpZXMvZG9j
@@ -294,15 +297,15 @@ http_interactions:
         amEKICBzY3JpcHQ6IEpwYW4KICBjb250ZW50OiDlnLDmlrnoh6rmsrvkvZPm
         i4XlvZPogIXjgoTmsJHplpPkuovmpa3ogIXnrYnjgavlkJHjgZHjgZ8gM0Tp
         g73luILjg6Ljg4fjg6vlsI7lhaXjga7jgZ/jgoHjga7jgqzjgqTjg4Djg7Pj
-        grkKZGVwaWN0aW9uOgogIHNjb3BlOiBjb3ZlcgogIGltYWdlOgogIC0gc3Jj
+        grkKZGVwaWN0aW9uOgotIHNjb3BlOiBjb3ZlcgogIGltYWdlOgogIC0gc3Jj
         OiBodHRwczovL3d3dy5tbGl0LmdvLmpwLy9wbGF0ZWF1L3VwbG9hZHMvMjAy
         NC8wNC9oYW5kYm9va18wMF9pbWctLXNjYWxlZC5qcGcKICAgIG1pbWV0eXBl
-        OiBpbWFnZS9qcGVnCmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjAuMC4yCiAg
+        OiBpbWFnZS9qcGVnCmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjAuMS4wCiAg
         ZG9jdHlwZToKICAgIGNvbnRlbnQ6IGhhbmRib29rCiAgZmxhdm9yOiBwbGF0
         ZWF1CiAgc3RydWN0dXJlZGlkZW50aWZpZXI6CiAgLSB0eXBlOiBIYW5kYm9v
         awogICAgYWdlbmN5OgogICAgLSBQTEFURUFVCiAgICBkb2NudW1iZXI6ICcw
         MCcKICAgIGVkaXRpb246ICc0LjAnCiAgZmlsZXNpemU6IDIyNDcxODY0Cg==
-  recorded_at: Wed, 01 Apr 2026 23:42:44 GMT
+  recorded_at: Fri, 10 Apr 2026 15:56:17 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-plateau/data-v2/data/plateau-handbook-00-30.yaml
@@ -334,7 +337,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"a6bb1ee4beb9dd7307b3b4b983b0d08279c16c4501331a7d88541d018a938158"
+      - W/"2b2211491c454cb008b9908edb0f2032572bb612cbc8b89461dfc58494fd54d5"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -344,21 +347,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 7EDE:2EFF2D:2144D:26367:69CDAD62
+      - 1BA2:29A375:643844:78F8A7:69D91DA1
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 01 Apr 2026 23:42:44 GMT
+      - Fri, 10 Apr 2026 15:56:17 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100109-IAD
+      - cache-iad-kcgs7200065-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1775086965.754689,VS0,VE88
+      - S1775836578.796297,VS0,VE81
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -366,16 +369,16 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - b2e6e31bbdda13303da8af324861123985d9901c
+      - 819cb320a5bfbd92c1316ad74bd2d49a3d74cb38
       Expires:
-      - Wed, 01 Apr 2026 23:47:44 GMT
+      - Fri, 10 Apr 2026 16:01:17 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
         LS0tCmlkOiBQTEFURUFVSGFuZGJvb2swMDMwCnR5cGU6IHN0YW5kYXJkCnNj
-        aGVtYV92ZXJzaW9uOiB2MS40LjEKdGl0bGU6Ci0gbGFuZ3VhZ2U6IGVuCiAg
+        aGVtYV92ZXJzaW9uOiB2MS41LjYKdGl0bGU6Ci0gbGFuZ3VhZ2U6IGVuCiAg
         c2NyaXB0OiBMYXRuCiAgY29udGVudDogUExBVEVBVSBHdWlkZWJvb2sKICB0
         eXBlOiBtYWluCnNvdXJjZToKLSB0eXBlOiBwZGYKICBjb250ZW50OiBodHRw
         czovL3d3dy5tbGl0LmdvLmpwL3BsYXRlYXUvZmlsZS9saWJyYXJpZXMvZG9j
@@ -396,15 +399,15 @@ http_interactions:
         amEKICBzY3JpcHQ6IEpwYW4KICBjb250ZW50OiDlnLDmlrnoh6rmsrvkvZPm
         i4XlvZPogIXjgoTmsJHplpPkuovmpa3ogIXnrYnjgavlkJHjgZHjgZ8gM0Tp
         g73luILjg6Ljg4fjg6vlsI7lhaXjga7jgZ/jgoHjga7jgqzjgqTjg4Djg7Pj
-        grkKZGVwaWN0aW9uOgogIHNjb3BlOiBjb3ZlcgogIGltYWdlOgogIC0gc3Jj
+        grkKZGVwaWN0aW9uOgotIHNjb3BlOiBjb3ZlcgogIGltYWdlOgogIC0gc3Jj
         OiBodHRwczovL3d3dy5tbGl0LmdvLmpwLy9wbGF0ZWF1L3VwbG9hZHMvMjAy
         NC8wNC9oYW5kYm9va18wMF9pbWctLXNjYWxlZC5qcGcKICAgIG1pbWV0eXBl
-        OiBpbWFnZS9qcGVnCmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjAuMC4yCiAg
+        OiBpbWFnZS9qcGVnCmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjAuMS4wCiAg
         ZG9jdHlwZToKICAgIGNvbnRlbnQ6IGhhbmRib29rCiAgZmxhdm9yOiBwbGF0
         ZWF1CiAgc3RydWN0dXJlZGlkZW50aWZpZXI6CiAgLSB0eXBlOiBIYW5kYm9v
         awogICAgYWdlbmN5OgogICAgLSBQTEFURUFVCiAgICBkb2NudW1iZXI6ICcw
         MCcKICAgIGVkaXRpb246ICczLjAnCiAgZmlsZXNpemU6IDMyMDg4MDAwCg==
-  recorded_at: Wed, 01 Apr 2026 23:42:44 GMT
+  recorded_at: Fri, 10 Apr 2026 15:56:17 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-plateau/data-v2/data/plateau-handbook-00-20.yaml
@@ -436,7 +439,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"28ced8434d9281b374db1348c5c8bba4fd96ee0ca636e5c541f4107e66a67a5f"
+      - W/"6a4ca7d4f5ed57fb1ab042dd8eaacb834b2c466a62c59aaa30b31e595f4a7bf0"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -446,21 +449,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 1AD4:26EE96:1FF1A:24EFC:69CDAD73
+      - 9F1C:22BF:679EB3:7C7584:69D91DA1
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 01 Apr 2026 23:42:44 GMT
+      - Fri, 10 Apr 2026 15:56:18 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100071-IAD
+      - cache-iad-kcgs7200125-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1775086965.935667,VS0,VE64
+      - S1775836578.142633,VS0,VE49
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -468,16 +471,16 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - fe78570940109e4a31249079799e2914041dfdf0
+      - d103dc42e39fd29aa1c46ff495c22b7517338c17
       Expires:
-      - Wed, 01 Apr 2026 23:47:44 GMT
+      - Fri, 10 Apr 2026 16:01:18 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
         LS0tCmlkOiBQTEFURUFVSGFuZGJvb2swMDIwCnR5cGU6IHN0YW5kYXJkCnNj
-        aGVtYV92ZXJzaW9uOiB2MS40LjEKdGl0bGU6Ci0gbGFuZ3VhZ2U6IGVuCiAg
+        aGVtYV92ZXJzaW9uOiB2MS41LjYKdGl0bGU6Ci0gbGFuZ3VhZ2U6IGVuCiAg
         c2NyaXB0OiBMYXRuCiAgY29udGVudDogUExBVEVBVSBHdWlkZWJvb2sKICB0
         eXBlOiBtYWluCnNvdXJjZToKLSB0eXBlOiBwZGYKICBjb250ZW50OiBodHRw
         czovL3d3dy5tbGl0LmdvLmpwL3BsYXRlYXUvZmlsZS9saWJyYXJpZXMvZG9j
@@ -498,15 +501,15 @@ http_interactions:
         amEKICBzY3JpcHQ6IEpwYW4KICBjb250ZW50OiDlnLDmlrnoh6rmsrvkvZPm
         i4XlvZPogIXjgoTmsJHplpPkuovmpa3ogIXnrYnjgavlkJHjgZHjgZ8gM0Tp
         g73luILjg6Ljg4fjg6vlsI7lhaXjga7jgZ/jgoHjga7jgqzjgqTjg4Djg7Pj
-        grkKZGVwaWN0aW9uOgogIHNjb3BlOiBjb3ZlcgogIGltYWdlOgogIC0gc3Jj
+        grkKZGVwaWN0aW9uOgotIHNjb3BlOiBjb3ZlcgogIGltYWdlOgogIC0gc3Jj
         OiBodHRwczovL3d3dy5tbGl0LmdvLmpwLy9wbGF0ZWF1L3VwbG9hZHMvMjAy
         NC8wNC9oYW5kYm9va18wMF9pbWctLXNjYWxlZC5qcGcKICAgIG1pbWV0eXBl
-        OiBpbWFnZS9qcGVnCmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjAuMC4yCiAg
+        OiBpbWFnZS9qcGVnCmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjAuMS4wCiAg
         ZG9jdHlwZToKICAgIGNvbnRlbnQ6IGhhbmRib29rCiAgZmxhdm9yOiBwbGF0
         ZWF1CiAgc3RydWN0dXJlZGlkZW50aWZpZXI6CiAgLSB0eXBlOiBIYW5kYm9v
         awogICAgYWdlbmN5OgogICAgLSBQTEFURUFVCiAgICBkb2NudW1iZXI6ICcw
         MCcKICAgIGVkaXRpb246ICcyLjAnCiAgZmlsZXNpemU6IDI3MDE3MTI3Cg==
-  recorded_at: Wed, 01 Apr 2026 23:42:45 GMT
+  recorded_at: Fri, 10 Apr 2026 15:56:18 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-plateau/data-v2/data/plateau-handbook-00-10.yaml
@@ -538,7 +541,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"ce520d229e104c242e23fb08efc38147073a3be66f7db3c86e7f3c753d8a12b3"
+      - W/"07873b11a9d3da2a7c81030181df56c8d49f5a632212c2e2657f1bf353c4324d"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -548,21 +551,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - DE26:2DBEB3:20A90:25974:69CDAD73
+      - B1C8:154E26:68787A:7D4CD3:69D91DA0
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 01 Apr 2026 23:42:45 GMT
+      - Fri, 10 Apr 2026 15:56:18 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200037-IAD
+      - cache-iad-kjyo7100146-IAD
       X-Cache:
       - HIT
       X-Cache-Hits:
       - '1'
       X-Timer:
-      - S1775086965.199882,VS0,VE1
+      - S1775836578.309074,VS0,VE2
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -570,16 +573,16 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 906b48b548a04f1f060f2fa3a1e5154890713a7b
+      - 2aaf37c7f28eb48410e254fe87b591b107f3d53e
       Expires:
-      - Wed, 01 Apr 2026 23:47:45 GMT
+      - Fri, 10 Apr 2026 16:01:18 GMT
       Source-Age:
       - '2'
     body:
       encoding: ASCII-8BIT
       base64_string: |
         LS0tCmlkOiBQTEFURUFVSGFuZGJvb2swMDEwCnR5cGU6IHN0YW5kYXJkCnNj
-        aGVtYV92ZXJzaW9uOiB2MS40LjEKdGl0bGU6Ci0gbGFuZ3VhZ2U6IGVuCiAg
+        aGVtYV92ZXJzaW9uOiB2MS41LjYKdGl0bGU6Ci0gbGFuZ3VhZ2U6IGVuCiAg
         c2NyaXB0OiBMYXRuCiAgY29udGVudDogUExBVEVBVSBHdWlkZWJvb2sKICB0
         eXBlOiBtYWluCnNvdXJjZToKLSB0eXBlOiBwZGYKICBjb250ZW50OiBodHRw
         czovL3d3dy5tbGl0LmdvLmpwL3BsYXRlYXUvZmlsZS9saWJyYXJpZXMvZG9j
@@ -600,13 +603,13 @@ http_interactions:
         amEKICBzY3JpcHQ6IEpwYW4KICBjb250ZW50OiDlnLDmlrnoh6rmsrvkvZPm
         i4XlvZPogIXjgoTmsJHplpPkuovmpa3ogIXnrYnjgavlkJHjgZHjgZ8gM0Tp
         g73luILjg6Ljg4fjg6vlsI7lhaXjga7jgZ/jgoHjga7jgqzjgqTjg4Djg7Pj
-        grkKZGVwaWN0aW9uOgogIHNjb3BlOiBjb3ZlcgogIGltYWdlOgogIC0gc3Jj
+        grkKZGVwaWN0aW9uOgotIHNjb3BlOiBjb3ZlcgogIGltYWdlOgogIC0gc3Jj
         OiBodHRwczovL3d3dy5tbGl0LmdvLmpwLy9wbGF0ZWF1L3VwbG9hZHMvMjAy
         NC8wNC9oYW5kYm9va18wMF9pbWctLXNjYWxlZC5qcGcKICAgIG1pbWV0eXBl
-        OiBpbWFnZS9qcGVnCmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjAuMC4yCiAg
+        OiBpbWFnZS9qcGVnCmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjAuMS4wCiAg
         ZG9jdHlwZToKICAgIGNvbnRlbnQ6IGhhbmRib29rCiAgZmxhdm9yOiBwbGF0
         ZWF1CiAgc3RydWN0dXJlZGlkZW50aWZpZXI6CiAgLSB0eXBlOiBIYW5kYm9v
         awogICAgYWdlbmN5OgogICAgLSBQTEFURUFVCiAgICBkb2NudW1iZXI6ICcw
         MCcKICAgIGVkaXRpb246ICcxLjAnCiAgZmlsZXNpemU6IDE4MzgxODgwCg==
-  recorded_at: Wed, 01 Apr 2026 23:42:45 GMT
+  recorded_at: Fri, 10 Apr 2026 15:56:18 GMT
 recorded_with: VCR 6.4.0

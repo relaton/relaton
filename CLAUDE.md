@@ -64,6 +64,7 @@ RNG grammar files in `grammars/` define the XML schema. Tests validate fixtures 
 
 ## Testing
 
+- **Index fixture:** `spec/fixtures/index-v1.zip` is pre-loaded into `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-plateau.
 - RSpec with `expect` syntax (no monkey-patching)
 - VCR cassettes record HTTP interactions (in `spec/fixtures/vcr_cassettes/`)
 - `equivalent-xml` for XML comparison assertions

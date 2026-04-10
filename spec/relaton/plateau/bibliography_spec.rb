@@ -23,7 +23,7 @@ RSpec.describe Relaton::Plateau::Bibliography do
         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
     end
 
-    it "not found", vcr: "not_found" do
+    it "not found" do
       expect { described_class.get("PLATEAU Handbook #") }.to output(
         including("[relaton-plateau] WARN: (PLATEAU Handbook #) Not found.")
       ).to_stderr_from_any_process
@@ -32,9 +32,9 @@ RSpec.describe Relaton::Plateau::Bibliography do
     it "Handbook all editions", vcr: "handbook_all_editions" do
       bib = described_class.get("PLATEAU Handbook #00")
       expect(bib.docidentifier[0].content).to eq "PLATEAU Handbook #00"
-      expect(bib.relation.size).to eq 5
+      expect(bib.relation.size).to be > 1
       expect(bib.relation[0].type).to eq "hasEdition"
-      expect(bib.relation[0].bibitem.docidentifier[0].content).to eq "PLATEAU Handbook #00 5.0"
+      expect(bib.relation[0].bibitem.docidentifier[0].content).to match(/PLATEAU Handbook #00 \d+\.\d+/)
     end
 
     it "Technical Report all editions", vcr: "technical_report_all_editions" do

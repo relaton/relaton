@@ -153,6 +153,8 @@ RelatonPlateau uses https://github.com/relaton/relaton-logger[relaton-logger] fo
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `bundle exec rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
+To update the index test fixture (used by tests), run `rake spec:update_index`. This downloads the latest `index-v1.zip` from the https://github.com/relaton/relaton-data-plateau[relaton-data-plateau] repository.
+
 == Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/relaton/relaton-plateau
