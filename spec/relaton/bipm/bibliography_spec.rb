@@ -275,7 +275,7 @@ RSpec.describe Relaton::Bipm::Bibliography do
           end
         end
 
-        it "wrong page", vcr: "not_found" do
+        it "wrong page" do
           expect do
             result = Relaton::Bipm::Bibliography.get "BIPM Metrologia 34 3 999"
             expect(result).to be_nil
