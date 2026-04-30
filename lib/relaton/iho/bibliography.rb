@@ -84,7 +84,7 @@ module Relaton
             :iho,
             url: "#{ENDPOINT}#{INDEXFILE}.zip",
             file: "#{INDEXFILE}.yaml",
-            id_keys: %i[publisher number type version part annex supplement],
+            id_keys: %i[publisher number type version part appendix annex supplement],
             pubid_class: ::Pubid::Iho::Identifier,
           )
         end
@@ -94,13 +94,19 @@ module Relaton
           return false unless row_attrs
 
           query_attrs = query.to_h
+          # Subdivision keys (part/appendix/annex/supplement) use strict
+          # equality — a nil query must match a nil row (the umbrella),
+          # not an arbitrary subdivision under the same (number, version).
+          # Only :version stays nil-tolerant: an unqualified `IHO B-11`
+          # query is expected to find the latest edition.
           row_attrs[:publisher] == query_attrs[:publisher] &&
             row_attrs[:type] == query_attrs[:type] &&
             row_attrs[:number] == query_attrs[:number] &&
             (query_attrs[:version].nil? || row_attrs[:version].to_s == query_attrs[:version].to_s) &&
-            (query_attrs[:part].nil? || row_attrs[:part].to_s == query_attrs[:part].to_s) &&
-            (query_attrs[:annex].nil? || row_attrs[:annex].to_s == query_attrs[:annex].to_s) &&
-            (query_attrs[:supplement].nil? || row_attrs[:supplement].to_s == query_attrs[:supplement].to_s)
+            row_attrs[:part].to_s == query_attrs[:part].to_s &&
+            row_attrs[:appendix].to_s == query_attrs[:appendix].to_s &&
+            row_attrs[:annex].to_s == query_attrs[:annex].to_s &&
+            row_attrs[:supplement].to_s == query_attrs[:supplement].to_s
         end
 
         def row_attributes(row_id)
