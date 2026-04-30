@@ -42,8 +42,8 @@ module Relaton
         # Populate ext.structuredidentifier from the parsed Pubid when the
         # fetched record doesn't already provide one. Maps `pubid.number`
         # (with type prefix, e.g. `S-100`) -> docnumber, `pubid.part` -> part,
-        # `pubid.appendix` -> appendixid. annexid/supplementid stay
-        # unpopulated until pubid-iho exposes them.
+        # `pubid.appendix` -> appendixid, `pubid.annex` -> annexid,
+        # `pubid.supplement` -> supplementid.
         def enrich_with_pubid(item, pubid)
           return if item.ext&.structuredidentifier&.any?
 
@@ -51,6 +51,8 @@ module Relaton
             docnumber: pubid_docnumber(pubid),
             part: pubid.part,
             appendixid: (pubid.appendix if pubid.respond_to?(:appendix)),
+            annexid: (pubid.annex if pubid.respond_to?(:annex)),
+            supplementid: (pubid.supplement if pubid.respond_to?(:supplement)),
           )
           item.ext ||= Ext.new
           item.ext.structuredidentifier = [sid]
@@ -82,7 +84,7 @@ module Relaton
             :iho,
             url: "#{ENDPOINT}#{INDEXFILE}.zip",
             file: "#{INDEXFILE}.yaml",
-            id_keys: %i[publisher number type version],
+            id_keys: %i[publisher number type version part annex supplement],
             pubid_class: ::Pubid::Iho::Identifier,
           )
         end
@@ -95,7 +97,10 @@ module Relaton
           row_attrs[:publisher] == query_attrs[:publisher] &&
             row_attrs[:type] == query_attrs[:type] &&
             row_attrs[:number] == query_attrs[:number] &&
-            (query_attrs[:version].nil? || row_attrs[:version].to_s == query_attrs[:version].to_s)
+            (query_attrs[:version].nil? || row_attrs[:version].to_s == query_attrs[:version].to_s) &&
+            (query_attrs[:part].nil? || row_attrs[:part].to_s == query_attrs[:part].to_s) &&
+            (query_attrs[:annex].nil? || row_attrs[:annex].to_s == query_attrs[:annex].to_s) &&
+            (query_attrs[:supplement].nil? || row_attrs[:supplement].to_s == query_attrs[:supplement].to_s)
         end
 
         def row_attributes(row_id)
