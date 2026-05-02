@@ -10,9 +10,9 @@ module Relaton
       attribute :structuredidentifier, StructuredIdentifier,
                 collection: true, initialize_empty: true
 
-      xml do
-        map_element "commentperiod", to: :commentperiod
-      end
+      xml { map_element "commentperiod", to: :commentperiod }
+
+      key_value { map_element "commentperiod", to: :commentperiod }
 
       def schema_version
         Relaton.schema_versions["relaton-model-iho"]
