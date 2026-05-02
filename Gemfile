@@ -6,12 +6,15 @@ source "https://rubygems.org"
 gemspec
 
 gem "rake", "~> 13.0"
-
 gem "rspec", "~> 3.0"
 
 gem "rubocop", "~> 1.48"
 gem "rubocop-performance", "~> 1.11"
 gem "rubocop-rails", "~> 2.12"
+
+gem "lutaml-model", github: "lutaml/lutaml-model", branch: "main"
+gem "relaton-bib", github: "relaton/relaton-bib", branch: "upd-lutaml-model-to-0-8-0"
+gem "relaton-iso", github: "relaton/relaton-iso", branch: "upd-lutaml-model-to-0.8.0"
 
 gem "equivalent-xml", "~> 0.6"
 gem "ruby-jing"

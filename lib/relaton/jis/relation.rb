@@ -4,7 +4,7 @@ require_relative "item_base"
 
 module Relaton
   module Jis
-    class Relation < Bib::Relation
+    class Relation
       attribute :bibitem, ItemBase
     end
   end
