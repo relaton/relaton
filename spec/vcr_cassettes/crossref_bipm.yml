@@ -7,23 +7,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:06 GMT
+      - Sat, 18 Apr 2026 01:18:02 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '3506'
+      - '1184'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -35,6 +43,8 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
@@ -49,21 +59,9 @@ http_interactions:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2022,4,3]],"date-time":"2022-04-03T02:06:56Z","timestamp":1648951616851},"reference-count":9,"publisher":"IOP
-        Publishing","issue":"6","content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":["Metrologia"],"published-print":{"date-parts":[[1993,1,1]]},"DOI":"10.1088\/0026-1394\/29\/6\/001","type":"journal-article","created":{"date-parts":[[2005,2,1]],"date-time":"2005-02-01T04:33:05Z","timestamp":1107232385000},"page":"373-377","source":"Crossref","is-referenced-by-count":10,"title":["Decade
-        Designs for Weighings of Non-uniform Variance"],"prefix":"10.1088","volume":"29","author":[{"given":"E
-        C","family":"Morris","sequence":"first","affiliation":[]}],"member":"266","published-online":{"date-parts":[[2005,2,1]]},"reference":[{"key":"1","first-page":"625
-        p","author":"Rao C R","year":"1973","journal-title":"Linear Statistical Inference
-        and Its Applications"},{"key":"2","doi-asserted-by":"crossref","first-page":"123","DOI":"10.1088\/0026-1394\/10\/4\/002","volume":"10","author":"Prowse
-        D B","year":"1974","journal-title":"Metrologia","ISSN":"http:\/\/id.crossref.org\/issn\/0026-1394","issn-type":"print"},{"key":"3","first-page":"233","volume":"87","author":"Grabe
-        M","year":"1977","journal-title":"PTB-Mitt.","ISSN":"http:\/\/id.crossref.org\/issn\/0030-834X","issn-type":"print"},{"key":"4","doi-asserted-by":"crossref","first-page":"143","DOI":"10.1088\/0026-1394\/14\/4\/002","volume":"14","author":"Grabe
-        M","year":"1978","journal-title":"Metrologia","ISSN":"http:\/\/id.crossref.org\/issn\/0026-1394","issn-type":"print"},{"key":"5","doi-asserted-by":"crossref","first-page":"51","DOI":"10.1088\/0026-1394\/16\/1\/007","volume":"16","author":"Zuker
-        M","year":"1980","journal-title":"Metrologia","ISSN":"http:\/\/id.crossref.org\/issn\/0026-1394","issn-type":"print"},{"key":"6","first-page":"33","author":"Prowse
-        D B","year":"1984","journal-title":"Modern Techniques in Metrology"},{"key":"7","first-page":"459","volume":"7","author":"Chaudri
-        M A","year":"1988","journal-title":"Pakistan J. Sci. Ind. Res."},{"key":"8","doi-asserted-by":"crossref","first-page":"17","DOI":"10.1088\/0026-1394\/27\/1\/004","volume":"27","author":"Mihailov
-        G","year":"1990","journal-title":"Metrologia","ISSN":"http:\/\/id.crossref.org\/issn\/0026-1394","issn-type":"print"},{"key":"9","doi-asserted-by":"crossref","first-page":"111","DOI":"10.1088\/0026-1394\/27\/3\/001","volume":"27","author":"Bich
-        W","year":"1990","journal-title":"Metrologia","ISSN":"http:\/\/id.crossref.org\/issn\/0026-1394","issn-type":"print"}],"container-title":["Metrologia"],"original-title":[],"link":[{"URL":"http:\/\/stacks.iop.org\/0026-1394\/29\/i=6\/a=001\/pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2020,4,10]],"date-time":"2020-04-10T22:04:49Z","timestamp":1586556289000},"score":1,"resource":{"primary":{"URL":"https:\/\/iopscience.iop.org\/article\/10.1088\/0026-1394\/29\/6\/001"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[1993,1,1]]},"references-count":9,"journal-issue":{"issue":"6","published-print":{"date-parts":[[1992,1,1]]}},"URL":"https:\/\/doi.org\/10.1088\/0026-1394\/29\/6\/001","relation":{},"ISSN":["0026-1394","1681-7575"],"issn-type":[{"value":"0026-1394","type":"print"},{"value":"1681-7575","type":"electronic"}],"subject":[],"published":{"date-parts":[[1993,1,1]]}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:06 GMT
+      string: !binary |-
+        H4sIAAAAAAAA/8VXTXPiOBD9KyqfMUj+NlVzmCRbU9kaZlJJdmdrgINiC9BgJK9kM0NR/Pdt2Sa2WUI2l+zNbpnu9/p124+9pQtalNoaW3JtDawN05oumV3scgaxn1J1o1umNJcCDsgQD3F7Yo33Fhcp+8VSc5nSgtk5VQXknU4d7DgDb+DO54P6pOAbk9zEbezZ2H3EzhgHYz/4DinNKYDa5NaYBF4U+yQgQeSTw8BSbMEUEwmzE1mKwhrHAysvnzKuV0xBxtuvd+iuvudiCbm41qUpFcB1IkXBRGGnckO5qGA2V1MAliip9Yaqta2guuJJURFd0EwzqKxXUhW2SQG/YAooFBkknloTViiZySWn1rwFk9q54gbgaS9IHLsDMiDzOSS9+XprWomHBEfRbISxE9jEjb3ZyIlno8BEiGlIrcUPWSpBMxtS8QSKG8wMkp/tOPYHjqly2nHs2xiaTh6xN3bdMfZPO05w6LiOG/kYY4CYV+JabujabhjCsxpQJCZ0bRoGglRdtp+VSe2n3VEdgk3uplE3LKEpQzdM86XQaCEV+sb40gilkVygL1LYpeAQ36A/qeIUklUthdT8V9snqLeVWVnzieGOlgWIAyX21pJvmZnO39A1HCzohmc7uJ1Ipbg24NnfpQEJsQVXujC/Xix4xmmt9nR+mJuZ3jxV4+QEZm5aTaXIQPxL7e7OaIVozQwAo2JV0G76GTg+yjvYrXsq0TW6h9COURMgcejC3VH0po3WZwBAFXqApeUa5oBm6FY0BREVKbotNPqY5xkcGU7aOgyOKBzIl0puU62ZKiqlIJq0OvYgEsfUf3lECZ6NvCrSVYTgLqs7JX9q0Bxd9Yh5Z4h19mhg3T48fIHYqijy8Ww0G/F0eIQ5lGoJAa1FB0296eL41qp3ryXunnJzXLcLOgq7oD8p+sTQpIc4PIP47vHKnvCiGL4FsIvtyPX+egWw9zalvFeU8s4q5b1GOnpnmfw3sfbJZdLw+iQmEvZIB13S38s1U33SEX5n0sEpr2o0X9mg6OwGyZQpgR5ZshIc3nMacYGO0HedkuFpSc+Pu03qbcP1ipap4miCPvYQnBuOO7qGlxIV6Pchekj4EF5N6RDdMz3sVI/eNtvhRZWdsFHZ630WegwmfEV5JrfoU5dA/N5Cx2/jTS6PtyHuHg3CC8SveLJC3/4P0vPabV20SlLxJe/gMCYMPq/r6rP5x/3nLgoYqmSth1zmNYgTp8Q/wLLTD9CM2ShPFx2v18Aqhc5ZwhcczFJ72LrZLfQLiJhwCsrQ9vsJh5qDjQBDUoCvWbFkbZylYZiyXGr+gv9yMDhegs9YXmwsL8GPDlheb+zFpwbMjwLfD5worg2YTqSCXxJjLI7ea2/6DF51Zy7bVulaMZnrhBs/0ParsYzmo33Rax5MwfKpo0jtezuBylGfodwzts8eSHeM+nHuGk++75nz/2KcnSY/FDglDYtVM33VTCuWNcLuD8dxn1rdeYY/G8QO/dC35r3hhrHc0qxC3H38X+t+fKjN8/wQy1gCOyB4Uk0QtPoHBOrGPnfgYm8Ph38AUq50Z7INAAA=
+  recorded_at: Sat, 18 Apr 2026 01:18:02 GMT
 - request:
     method: get
     uri: https://api.crossref.org/works?filter=type:book-chapter,type:book-part,type:book-section,type:book-track&query=Decade%2BDesigns%2Bfor%2BWeighings%2Bof%2BNon-uniform%2BVariance%2B1993%2BIOP%2BPublishing
@@ -71,23 +69,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Faraday v2.7.12
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:07 GMT
+      - Sat, 18 Apr 2026 01:18:03 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '61100'
+      - '14001'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -99,378 +105,23 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
-      - '5'
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
       X-Concurrency-Limit:
-      - '1'
+      - '3'
       X-Api-Pool:
-      - public
+      - polite
       Permissions-Policy:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":356748,"items":[{"indexed":{"date-parts":[[2024,5,11]],"date-time":"2024-05-11T04:45:46Z","timestamp":1715402746282},"edition-number":"0","reference-count":0,"publisher":"Chapman
-        and Hall\/CRC","isbn-type":[{"value":"9780429209833","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,11,29]]},"DOI":"10.1201\/9780203496817-10","type":"book-chapter","created":{"date-parts":[[2020,11,12]],"date-time":"2020-11-12T21:31:25Z","timestamp":1605216685000},"page":"171-190","source":"Crossref","is-referenced-by-count":0,"title":["Uniform
-        and isotropic uniform designs"],"prefix":"10.1201","member":"301","container-title":["Stereology
-        for Statisticians"],"language":"en","deposited":{"date-parts":[[2020,12,23]],"date-time":"2020-12-23T16:25:28Z","timestamp":1608740728000},"score":23.243252,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9780203496817\/chapters\/10.1201\/9780203496817-10"}},"issued":{"date-parts":[[2004,11,29]]},"ISBN":["9780429209833"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9780203496817-10","published":{"date-parts":[[2004,11,29]]}},{"indexed":{"date-parts":[[2024,9,6]],"date-time":"2024-09-06T14:07:02Z","timestamp":1725631622375},"publisher-location":"Boston,
-        MA","reference-count":80,"publisher":"Springer US","isbn-type":[{"type":"print","value":"9781461362746"},{"type":"electronic","value":"9781461529347"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1993]]},"DOI":"10.1007\/978-1-4615-2934-7_36","type":"book-chapter","created":{"date-parts":[[2011,11,8]],"date-time":"2011-11-08T13:37:38Z","timestamp":1320759458000},"page":"411-425","source":"Crossref","is-referenced-by-count":0,"title":["New
-        Free Energy Model for Non-Uniform Fluids"],"prefix":"10.1007","author":[{"given":"Yaakov","family":"Rosenfeld","sequence":"first","affiliation":[]}],"member":"297","reference":[{"key":"36_CR1","doi-asserted-by":"publisher","first-page":"143","DOI":"10.1080\/00018737900101365","volume":"28","author":"R
-        Evans","year":"1979","unstructured":"R. Evans, Adv.Phys. 28:143 (1979).","journal-title":"Adv.Phys."},{"key":"36_CR2","volume-title":"Molecular
-        Theory of Capilarity","author":"JS Rowlinson","year":"1982","unstructured":"J.S.
-        Rowlinson and B. Widom, \u201cMolecular Theory of Capilarity\u201d, Clarendon
-        Press, Oxford (1982)."},{"key":"36_CR3","volume-title":"Computer Simulation
-        and the Statistical Mechanics of Adsorption","author":"D Nicholson","year":"1982","unstructured":"D.
-        Nicholson and N.G. Parsonage, \u201cComputer Simulation and the Statistical
-        Mechanics of Adsorption\u201d, Academic, NewYork (1982)."},{"key":"36_CR4","volume-title":"Fluid
-        Interfacial Phenomena","author":"DE Sullivan","year":"1989","unstructured":"D.E.
-        Sullivan and M.N. Telo da Gama, in: \u201cFluid Interfacial Phenomena\u201d,
-        edited by C.A. Croxton, Wiley, Justin, Elsevier, New York (1989)."},{"key":"36_CR5","doi-asserted-by":"publisher","first-page":"8989","DOI":"10.1088\/0953-8984\/2\/46\/001","volume":"2","author":"R
-        Evans","year":"1990","unstructured":"R. Evans, J.Phys.Condens.Matter 2: 8989
-        (1990).","journal-title":"J.Phys.Condens.Matter"},{"unstructured":"(a) J.K.
-        Percus, in: \u201cThe Liquid State of Matter: Fluids Simple and Complex\u201d,
-        edited by E.W. Montroll and J.L. Lebowitz, North-Holland (1982).","key":"36_CR6"},{"key":"36_CR7","doi-asserted-by":"publisher","first-page":"2111","DOI":"10.1088\/0953-8984\/2\/9\/001","volume":"2","author":"M
-        Baus","year":"1990","unstructured":"M. Baus, J.Phys.Condens.Matter 2:2111
-        (1990).","journal-title":"J.Phys.Condens.Matter"},{"key":"36_CR8","first-page":"1129","volume":"48","author":"M
-        Baus","year":"1987","unstructured":"M. Baus, J.StatPhys. 48: 1129 (1987).","journal-title":"J.StatPhys."},{"key":"36_CR9","doi-asserted-by":"publisher","first-page":"89","DOI":"10.1146\/annurev.pc.38.100187.000513","volume":"38","author":"ADJ
-        Haymet","year":"1987","unstructured":"A.D.J. Haymet, Ann.Rev.Phys.Chem. 38:89
-        (1987).","journal-title":"Ann.Rev.Phys.Chem."},{"key":"36_CR10","first-page":"1157","volume":"52","author":"JK
-        Percus","year":"1988","unstructured":"J.K. Percus, J.StatPhys. 52:1157 (1988).","journal-title":"J.StatPhys."},{"key":"36_CR11","volume-title":"Liquids,
-        Freezing and the Glass Transition","author":"DW Oxtoby","year":"1990","unstructured":"David
-        W. Oxtoby, in: \u201cLiquids, Freezing and the Glass Transition\u201d, Les
-        Houches Session 51, edited by J.P. Hansen, D. Levesque, and J. Zinn-Justin,
-        Elsevier, New York (1990)."},{"key":"36_CR12","doi-asserted-by":"publisher","first-page":"505","DOI":"10.1007\/BF01020803","volume":"15","author":"JK
-        Percus","year":"1976","unstructured":"J.K. Percus, J.Stat.Phys. 15:505 (1976).","journal-title":"J.Stat.Phys."},{"key":"36_CR13","doi-asserted-by":"publisher","first-page":"1701","DOI":"10.1063\/1.439281","volume":"72","author":"A
-        Robledo","year":"1980","unstructured":"A. Robledo, J.Chem.Phys. 72:1701 (1980).","journal-title":"J.Chem.Phys."},{"key":"36_CR14","doi-asserted-by":"publisher","first-page":"1316","DOI":"10.1063\/1.442136","volume":"75","author":"JK
-        Percus","year":"1981","unstructured":"J.K. Percus, J.Chem.Phys. 75:1316 (1981).","journal-title":"J.Chem.Phys."},{"key":"36_CR15","first-page":"513","volume":"26","author":"A
-        Robledo","year":"1981","unstructured":"A. Robledo and C. Varea, J.StatPhys.
-        26:513 (1981).","journal-title":"J.StatPhys."},{"key":"36_CR16","doi-asserted-by":"publisher","first-page":"1909","DOI":"10.1063\/1.454114","volume":"88","author":"J
-        Fischer","year":"1988","unstructured":"J. Fischer and U. Heinbuch, J.Chem.Phys.
-        88:1909 (1988).","journal-title":"J.Chem.Phys."},{"key":"36_CR17","doi-asserted-by":"publisher","first-page":"2139","DOI":"10.1071\/CH9802139","volume":"33","author":"S
-        Nordholm","year":"1980","unstructured":"S. Nordholm, M. Johnson, and B.C.
-        Freasier, AustJ.Chem. 33:2139 (1980).","journal-title":"AustJ.Chem."},{"key":"36_CR18","doi-asserted-by":"publisher","first-page":"4431","DOI":"10.1063\/1.446328","volume":"79","author":"BC
-        Freasier","year":"1983","unstructured":"B.C. Freasier and S. Nordholm, J.Chem.Phys.
-        79:4431 (1983).","journal-title":"J.Chem.Phys."},{"key":"36_CR19","doi-asserted-by":"publisher","first-page":"33","DOI":"10.1080\/00268978500100031","volume":"54","author":"BC
-        Freasier","year":"1986","unstructured":"B.C. Freasier and S. Nordholm, Mol.Phys.
-        54:33 (1986).","journal-title":"Mol.Phys."},{"key":"36_CR20","doi-asserted-by":"publisher","first-page":"81","DOI":"10.1080\/00268978400101071","volume":"52","author":"P
-        Tarazona","year":"1984","unstructured":"P. Tarazona, Mol.Phys. 52:81 (1984).","journal-title":"Mol.Phys."},{"key":"36_CR21","doi-asserted-by":"publisher","first-page":"847","DOI":"10.1080\/00268978400101601","volume":"52","author":"P
-        Tarazona","year":"1984","unstructured":"P. Tarazona and R. Evans, Mol.Phys.
-        52:847 (1984).","journal-title":"Mol.Phys."},{"key":"36_CR22","doi-asserted-by":"publisher","first-page":"2672","DOI":"10.1103\/PhysRevA.31.2672","volume":"31","author":"P
-        Tarazona","year":"1985","unstructured":"P. Tarazona, Phys.Rev.A 31:2672 (1985).","journal-title":"Phys.Rev.A"},{"key":"36_CR23","doi-asserted-by":"publisher","first-page":"573","DOI":"10.1080\/00268978700100381","volume":"60","author":"P
-        Tarazona","year":"1987","unstructured":"P. Tarazona, U. Marini Bettolo Marconi,
-        and R. Evans, Mol.Phys. 60:573 (1987).","journal-title":"Mol.Phys."},{"key":"36_CR24","doi-asserted-by":"publisher","first-page":"4055","DOI":"10.1103\/PhysRevA.31.4055","volume":"31","author":"TF
-        Meister","year":"1985","unstructured":"T.F. Meister and D.M. Kroll, Phys.Rev.
-        A 31:4055 (1985).","journal-title":"Phys.Rev. A"},{"key":"36_CR25","doi-asserted-by":"publisher","first-page":"4356","DOI":"10.1103\/PhysRevA.36.4356","volume":"36","author":"RD
-        Groot","year":"1987","unstructured":"R.D. Groot and J.P. van der Eerden, Phys.Rev.A
-        36:4356 (1987).","journal-title":"Phys.Rev.A"},{"key":"36_CR26","doi-asserted-by":"publisher","first-page":"647","DOI":"10.1080\/00268978900102431","volume":"68","author":"S
-        Sokolowski","year":"1989","unstructured":"S. Sokolowski and J. Fischer, Mol.Phys.
-        68:647 (1989).","journal-title":"Mol.Phys."},{"key":"36_CR27","doi-asserted-by":"publisher","first-page":"2909","DOI":"10.1103\/PhysRevA.32.2909","volume":"32","author":"WA
-        Curtin","year":"1985","unstructured":"W.A. Curtin and N.W. Ashcroft, Phys.Rev.
-        A 32:2909 (1985).","journal-title":"Phys.Rev. A"},{"key":"36_CR28","doi-asserted-by":"publisher","first-page":"426","DOI":"10.1103\/PhysRevA.39.426","volume":"39","author":"AR
-        Denton","year":"1989","unstructured":"A.R. Denton and N.W. Ashcroft, Phys.Rev.A
-        39:426, 4701 (1989).","journal-title":"Phys.Rev.A"},{"key":"36_CR29","doi-asserted-by":"publisher","first-page":"2422","DOI":"10.1063\/1.455985","volume":"90","author":"TK
-        Vanderlich","year":"1989","unstructured":"T.K. Vanderlich, L.E. Scriven, and
-        H.T. Davis, J.Chem.Phys. 90:2422 (1989).","journal-title":"J.Chem.Phys."},{"key":"36_CR30","doi-asserted-by":"publisher","first-page":"4806","DOI":"10.1103\/PhysRevA.42.4806","volume":"42","author":"DM
-        Kroll","year":"1990","unstructured":"D.M. Kroll and B.B. Laird, Phys.Rev.A
-        42:4806 (1990).","journal-title":"Phys.Rev.A"},{"key":"36_CR31","doi-asserted-by":"publisher","first-page":"761","DOI":"10.1103\/PhysRevLett.64.761","volume":"64","author":"JF
-        Lutsko","year":"1990","unstructured":"J.F. Lutsko and M. Baus, Phys.Rev.Lett.
-        64:761(1990).","journal-title":"Phys.Rev.Lett."},{"key":"36_CR32","doi-asserted-by":"publisher","first-page":"7094","DOI":"10.1103\/PhysRevA.41.7094","volume":"41","author":"XC
-        Zeng","year":"1990","unstructured":"X.C. Zeng and D.W. Oxtoby, Phys.Rev.A
-        41:7094 (1990).","journal-title":"Phys.Rev.A"},{"key":"36_CR33","doi-asserted-by":"publisher","first-page":"587","DOI":"10.1103\/RevModPhys.48.587","volume":"48","author":"JA
-        Barker","year":"1976","unstructured":"J.A. Barker and D. Henderson, Rev.Mod.Phys.
-        48:587 (1976).","journal-title":"Rev.Mod.Phys."},{"key":"36_CR34","volume-title":"Theory
-        of Simple Liquids","author":"JP Hansen","year":"1986","unstructured":"J.P.
-        Hansen and I.R. McDonald, \u201cTheory of Simple Liquids\u201d, 2nd edition,
-        Academic Press, London (1986).","edition":"2"},{"key":"36_CR35","doi-asserted-by":"publisher","first-page":"1208","DOI":"10.1103\/PhysRevA.20.1208","volume":"20","author":"Y
-        Rosenfeld","year":"1979","unstructured":"Y. Rosenfeld and N.W. Ashcroft, Phys.Rev.A
-        20:1208 (1979).","journal-title":"Phys.Rev.A"},{"key":"36_CR36","doi-asserted-by":"publisher","first-page":"2187","DOI":"10.1063\/1.451112","volume":"85","author":"J
-        Talbot","year":"1986","unstructured":"and see J. Talbot, J.L. Lebowitz, E.M.
-        Weisman, D. Levesque, and J.J. Weis, J.Chem.Phys. 85:2187 (1986).","journal-title":"J.Chem.Phys."},{"key":"36_CR37","doi-asserted-by":"publisher","first-page":"1834","DOI":"10.1103\/PhysRevA.32.1834","volume":"32","author":"Y
-        Rosenfeld","year":"1985","unstructured":"Y. Rosenfeld, Phys.Rev.A 32:1834
-        (1985).","journal-title":"Phys.Rev.A"},{"key":"36_CR38","doi-asserted-by":"publisher","first-page":"2025","DOI":"10.1103\/PhysRevA.33.2025","volume":"33","author":"Y
-        Rosenfeld","year":"1986","unstructured":"Y. Rosenfeld, Phys.Rev.A 33:2025
-        (1986).","journal-title":"Phys.Rev.A"},{"key":"36_CR39","doi-asserted-by":"publisher","first-page":"369","DOI":"10.1063\/1.1730361","volume":"31","author":"H
-        Reiss","year":"1959","unstructured":"H. Reiss, H. Frisch, and J.L. Lebowitz,
-        J.Chem.Phys. 31:369 (1959).","journal-title":"J.Chem.Phys."},{"key":"36_CR40","volume-title":"Statistical
-        Mechanics and Statistical Methods in Theory and Applications","author":"H
-        Reiss","year":"1976","unstructured":"H. Reiss, in: \u201cStatistical Mechanics
-        and Statistical Methods in Theory and Applications\u201d, edited by U. Landman,
-        Plenum, New-York (1976)."},{"key":"36_CR41","doi-asserted-by":"publisher","first-page":"2520","DOI":"10.1063\/1.457011","volume":"91","author":"H
-        Reiss","year":"1989","unstructured":"For more recent applications, see e.g.
-        H. Reiss and P. Schaaf, J.Chem.Phys. 91:2520 (1989).","journal-title":"J.Chem.Phys."},{"key":"36_CR42","doi-asserted-by":"publisher","first-page":"1258","DOI":"10.1063\/1.458135","volume":"92","author":"P
-        Schaaf","year":"1990","unstructured":"P. Schaaf and H. Reiss, J.Chem.Phys.
-        92:1258 (1990).","journal-title":"J.Chem.Phys."},{"key":"36_CR43","doi-asserted-by":"publisher","first-page":"1","DOI":"10.1103\/PhysRev.110.1","volume":"110","author":"JK
-        Percus","year":"1958","unstructured":"J.K. Percus and G.J. Yevick, Phys.Rev.
-        110:1 (1958).","journal-title":"Phys.Rev."},{"key":"36_CR44","doi-asserted-by":"publisher","first-page":"321","DOI":"10.1103\/PhysRevLett.10.321","volume":"10","author":"MS
-        Wertheim","year":"1963","unstructured":"M.S. Wertheim, Phys.Rev.Lett. 10:321
-        (1963).","journal-title":"Phys.Rev.Lett."},{"key":"36_CR45","first-page":"474","volume":"39","author":"E
-        Thiele","year":"1963","unstructured":"E. Thiele, J.ChemPhys. 39:474 (1963).","journal-title":"J.ChemPhys."},{"key":"36_CR46","doi-asserted-by":"crossref","first-page":"895","DOI":"10.1103\/PhysRev.133.A895","volume":"133","author":"JL
-        Lebowitz","year":"1964","unstructured":"J.L. Lebowitz, Phys.Rev.A 133:895
-        (1964).","journal-title":"Phys.Rev.A"},{"key":"36_CR47","doi-asserted-by":"publisher","first-page":"133","DOI":"10.1063\/1.1725611","volume":"41","author":"JL
-        Lebowitz","year":"1964","unstructured":"J.L. Lebowitz and J.S. Rowlinson,
-        J.Chem.Phys. 41:133 (1964).","journal-title":"J.Chem.Phys."},{"key":"36_CR48","first-page":"4272","volume":"89","author":"Y
-        Rosenfeld","year":"1988","unstructured":"Y. Rosenfeld, J.ChemPhys. 89:4272
-        (1988).","journal-title":"J.ChemPhys."},{"key":"36_CR49","doi-asserted-by":"publisher","first-page":"938","DOI":"10.1103\/PhysRevA.35.938","volume":"35","author":"Y
-        Rosenfeld","year":"1987","unstructured":"Y. Rosenfeld, Phys.Rev.A 35:938 (1987).","journal-title":"Phys.Rev.A"},{"key":"36_CR50","doi-asserted-by":"publisher","first-page":"3403","DOI":"10.1103\/PhysRevA.37.3403","volume":"37","author":"Y
-        Rosenfeld","year":"1988","unstructured":"Y. Rosenfeld, Phys.Rev.A, 37:3403
-        (1988).","journal-title":"Phys.Rev.A"},{"key":"36_CR51","doi-asserted-by":"publisher","first-page":"3079","DOI":"10.1103\/PhysRevA.39.3079","volume":"39","author":"Y
-        Rosenfeld","year":"1989","unstructured":"Y. Rosenfeld, D. Levesque and J.J.
-        Weis, Phys.Rev.A 39:3079 (1989).","journal-title":"Phys.Rev.A"},{"key":"36_CR52","volume-title":"International
-        School of Physics Enrico Fermi","author":"Y Rosenfeld","year":"1989","unstructured":"see
-        the review, Y. Rosenfeld, in: \u201cHigh-Pressure Equation of State: Theory
-        and Applications\u201d, edited by S. Eliezer and R. Rici, International School
-        of Physics Enrico Fermi, Course CXIII (1989), North-Holland, Amsterdam (1991)."},{"key":"36_CR53","doi-asserted-by":"publisher","first-page":"4574","DOI":"10.1063\/1.447388","volume":"81","author":"Y
-        Rosenfeld","year":"1985","unstructured":"Y. Rosenfeld and W.M. Gelbart, J.Chem.Phys.
-        81:4574 (1985).","journal-title":"J.Chem.Phys."},{"key":"36_CR54","doi-asserted-by":"publisher","first-page":"1556","DOI":"10.1063\/1.451197","volume":"85","author":"Y
-        Rosenfeld","year":"1986","unstructured":"Y. Rosenfeld and L. Blum, J.Chem.Phys.
-        85:1556 (1986).","journal-title":"J.Chem.Phys."},{"key":"36_CR55","first-page":"1177","volume":"63","author":"L
-        Blum","year":"1991","unstructured":"L. Blum and Y. Rosenfeld, J.StatPhys.
-        63:1177(1991).","journal-title":"J.StatPhys."},{"key":"36_CR56","doi-asserted-by":"publisher","first-page":"980","DOI":"10.1103\/PhysRevLett.63.980","volume":"63","author":"Y
-        Rosenfeld","year":"1989","unstructured":"Y. Rosenfeld, Phys.Rev.Lett. 63:980
-        (1989).","journal-title":"Phys.Rev.Lett."},{"key":"36_CR57","doi-asserted-by":"publisher","first-page":"6818","DOI":"10.1063\/1.458268","volume":"92","author":"Y
-        Rosenfeld","year":"1990","unstructured":"Y. Rosenfeld, D. Levesque and J.J.
-        Weis, J.Chem.Phys. 92:6818 (1990).","journal-title":"J.Chem.Phys."},{"key":"36_CR58","doi-asserted-by":"publisher","first-page":"5978","DOI":"10.1103\/PhysRevA.42.5978","volume":"42","author":"Y
-        Rosenfeld","year":"1990","unstructured":"Y. Rosenfeld, Phys.Rev.A 42:5978
-        (1990).","journal-title":"Phys.Rev.A"},{"key":"36_CR59","doi-asserted-by":"publisher","first-page":"4305","DOI":"10.1063\/1.458712","volume":"93","author":"Y
-        Rosenfeld","year":"1990","unstructured":"Y. Rosenfeld, J.Chem.Phys. 93:4305
-        (1990).","journal-title":"J.Chem.Phys."},{"key":"36_CR60","doi-asserted-by":"publisher","first-page":"3382","DOI":"10.1103\/PhysRevA.42.3382","volume":"42","author":"E
-        Kierlik","year":"1990","unstructured":"E. Kierlik and M.L. Rosinberg, Phys.Rev.A
-        42:3382 (1990).","journal-title":"Phys.Rev.A"},{"key":"36_CR61","doi-asserted-by":"publisher","first-page":"5025","DOI":"10.1103\/PhysRevA.44.5025","volume":"44","author":"E
-        Kierlik","year":"1991","unstructured":"E. Kierlik and M.L. Rosinberg, Phys.Rev.A
-        44:5025 (1991).","journal-title":"Phys.Rev.A"},{"unstructured":"Y. Rosenfeld,
-        to be published;","key":"#cr-split#-36_CR62.1"},{"unstructured":"Y. Rosenfeld
-        and L. Blum, to be published.","key":"#cr-split#-36_CR62.2"},{"key":"36_CR63","doi-asserted-by":"publisher","first-page":"1919","DOI":"10.1063\/1.459069","volume":"93","author":"WA
-        Curtin","year":"1990","unstructured":"W.A. Curtin, J.Chem.Phys. 93:1919 (1990).","journal-title":"J.Chem.Phys."},{"key":"36_CR64","doi-asserted-by":"publisher","first-page":"6487","DOI":"10.1063\/1.454434","volume":"88","author":"BK
-        Peterson","year":"1988","unstructured":"B.K. Peterson, K. Gubbins, G.S. Heffelfinger,
-        U. Marini Bettolo Marconi, and F. van Swol, J.Chem.Phys. 88:6487 (1988).","journal-title":"J.Chem.Phys."},{"key":"36_CR65","doi-asserted-by":"publisher","first-page":"8242","DOI":"10.1103\/PhysRevA.44.8242","volume":"44","author":"AR
-        Denton","year":"1991","unstructured":"A.R. Denton and N.W. Ashcroft, Phys.Rev.A
-        44:8242 (1991).","journal-title":"Phys.Rev.A"},{"key":"36_CR66","doi-asserted-by":"publisher","first-page":"3704","DOI":"10.1063\/1.455828","volume":"90","author":"Z
-        Tan","year":"1989","unstructured":"Z. Tan, U. Marini Bettolo Marconi, F. van
-        Swol, and K.E. Gubbins, J.Chem.Phys. 90:3704 (1989).","journal-title":"J.Chem.Phys."},{"key":"36_CR67","doi-asserted-by":"publisher","first-page":"5424","DOI":"10.1103\/PhysRevA.43.5424","volume":"43","author":"Y
-        Rosenfeld","year":"1991","unstructured":"Y. Rosenfeld, Phys.Rev.A 43:5424
-        (1991).","journal-title":"Phys.Rev.A"},{"key":"36_CR68","doi-asserted-by":"publisher","first-page":"2434","DOI":"10.1103\/PhysRevA.42.2434","volume":"42","author":"SJ
-        Smithline","year":"1990","unstructured":"S.J. Smithline and Y. Rosenfeld,
-        Phys.Rev.A 42:2434 (1990).","journal-title":"Phys.Rev.A"},{"key":"36_CR69","doi-asserted-by":"publisher","first-page":"3594","DOI":"10.1063\/1.442469","volume":"75","author":"SM
-        Foiles","year":"1981","unstructured":"S.M. Foiles and N.W. Ashcroft, J.Chem.Phys.
-        75:3594 (1981).","journal-title":"J.Chem.Phys."},{"key":"36_CR70","doi-asserted-by":"publisher","first-page":"15","DOI":"10.1016\/0378-4371(89)90108-8","volume":"156","author":"JS
-        Rowlinson","year":"1989","unstructured":"The Yukawa potential is reviewed
-        by J.S. Rowlinson, Physica A 156:15 (1989).","journal-title":"Physica A"},{"unstructured":"Y.
-        Rosenfeld, submitted to Phys.Rev.Lett. (1992).","key":"36_CR71"},{"key":"36_CR72","doi-asserted-by":"publisher","first-page":"45","DOI":"10.1080\/00268977300100061","volume":"25","author":"E
-        Waisman","year":"1973","unstructured":"E. Waisman, Mol.Phys. 25:45 (1973).","journal-title":"Mol.Phys."},{"key":"36_CR73","first-page":"300","volume":"16","author":"JS
-        Hoye","year":"1977","unstructured":"J.S. Hoye and L. Blum, J.StatPhys. 16:300
-        (1977).","journal-title":"J.StatPhys."},{"key":"36_CR74","first-page":"317","volume":"19","author":"L
-        Blum","year":"1977","unstructured":"L. Blum and J.S. Hoye, J.StatPhys. 19:317
-        (1977).","journal-title":"J.StatPhys."},{"key":"36_CR75","first-page":"251","volume":"43","author":"K
-        Nizeki","year":"1981","unstructured":"K. Nizeki, MolPhys. 43:251 (1981).","journal-title":"MolPhys."},{"key":"36_CR76","first-page":"5087","volume":"92","author":"L
-        Mier-y-Teran","year":"1990","unstructured":"L. Mier-y-Teran, S.H. Suh, H.S.
-        White, and H.T. Davis, J.ChemPhys. 92:5087 (1990).","journal-title":"J.ChemPhys."},{"key":"36_CR77","doi-asserted-by":"publisher","first-page":"2659","DOI":"10.1063\/1.460918","volume":"95","author":"Z
-        Tang","year":"1991","unstructured":"Z. Tang, L.E. Scriven, and H.T. Davis,
-        J.Chem.Phys. 95:2659 (1991).","journal-title":"J.Chem.Phys."},{"key":"36_CR78","doi-asserted-by":"publisher","first-page":"2197","DOI":"10.1063\/1.451113","volume":"85","author":"Y
-        Rosenfeld","year":"1986","unstructured":"Y. Rosenfeld and L. Blum, J.Chem.Phys.
-        85:2197 (1986).","journal-title":"J.Chem.Phys."},{"unstructured":"A recent
-        verification by simulations for the Lennard-Jones system is presented by M.
-        Llano-Restrepo and W.G. Chapman, submitted to J.ChemPhys. (1992).","key":"36_CR79"}],"container-title":["Condensed
-        Matter Theories"],"language":"en","link":[{"URL":"http:\/\/link.springer.com\/content\/pdf\/10.1007\/978-1-4615-2934-7_36.pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2021,5,1]],"date-time":"2021-05-01T10:47:54Z","timestamp":1619866074000},"score":22.781738,"resource":{"primary":{"URL":"http:\/\/link.springer.com\/10.1007\/978-1-4615-2934-7_36"}},"issued":{"date-parts":[[1993]]},"ISBN":["9781461362746","9781461529347"],"references-count":80,"URL":"https:\/\/doi.org\/10.1007\/978-1-4615-2934-7_36","published":{"date-parts":[[1993]]}},{"indexed":{"date-parts":[[2024,9,8]],"date-time":"2024-09-08T03:49:55Z","timestamp":1725767395677},"publisher-location":"Basel","reference-count":0,"publisher":"Birkh\u00e4user
-        Basel","isbn-type":[{"type":"print","value":"9783034863407"},{"type":"electronic","value":"9783034863384"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1993]]},"DOI":"10.1007\/978-3-0348-6338-4_7","type":"book-chapter","created":{"date-parts":[[2013,12,29]],"date-time":"2013-12-29T16:57:26Z","timestamp":1388336246000},"page":"77-89","source":"Crossref","is-referenced-by-count":2,"title":["Integrating
-        Singularities using Non-uniform Subdivision and Extrapolation"],"prefix":"10.1007","author":[{"given":"Terje
-        O.","family":"Espelid","sequence":"first","affiliation":[]}],"member":"297","container-title":["Numerical
-        Integration IV"],"link":[{"URL":"http:\/\/link.springer.com\/content\/pdf\/10.1007\/978-3-0348-6338-4_7","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2013,12,29]],"date-time":"2013-12-29T16:57:36Z","timestamp":1388336256000},"score":22.523968,"resource":{"primary":{"URL":"http:\/\/link.springer.com\/10.1007\/978-3-0348-6338-4_7"}},"issued":{"date-parts":[[1993]]},"ISBN":["9783034863407","9783034863384"],"references-count":0,"URL":"https:\/\/doi.org\/10.1007\/978-3-0348-6338-4_7","published":{"date-parts":[[1993]]}},{"indexed":{"date-parts":[[2024,9,6]],"date-time":"2024-09-06T04:08:51Z","timestamp":1725595731432},"publisher-location":"2455
-        Teller Road,\u00a0Newbury Park\u00a0California\u00a091320\u00a0United States
-        of America\u00a0","reference-count":0,"publisher":"SAGE Publications, Inc.","isbn-type":[{"type":"print","value":"9780803923102"},{"type":"electronic","value":"9781412985222"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1985]]},"DOI":"10.4135\/9781412985222.n5","type":"book-chapter","created":{"date-parts":[[2011,7,15]],"date-time":"2011-07-15T19:48:50Z","timestamp":1310759330000},"page":"69-71","source":"Crossref","is-referenced-by-count":0,"title":["Complex
-        Designs"],"prefix":"10.4135","member":"179","container-title":["Multivariate
-        Analysis of Variance"],"link":[{"URL":"http:\/\/journals.sagepub.com\/doi\/pdf\/10.4135\/9781412985222.n5","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2022,4,26]],"date-time":"2022-04-26T19:06:20Z","timestamp":1650999980000},"score":22.233109,"resource":{"primary":{"URL":"https:\/\/methods.sagepub.com\/book\/multivariate-analysis-of-variance\/n5.xml"}},"issued":{"date-parts":[[1985]]},"ISBN":["9780803923102","9781412985222"],"references-count":0,"alternative-id":["10.4135\/9781412985222"],"URL":"https:\/\/doi.org\/10.4135\/9781412985222.n5","published":{"date-parts":[[1985]]}},{"indexed":{"date-parts":[[2024,5,4]],"date-time":"2024-05-04T01:33:51Z","timestamp":1714786431733},"reference-count":7,"publisher":"Elsevier","isbn-type":[{"value":"9780444899958","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1993]]},"DOI":"10.1016\/b978-0-444-89995-8.50051-5","type":"book-chapter","created":{"date-parts":[[2013,12,19]],"date-time":"2013-12-19T07:28:02Z","timestamp":1387438082000},"page":"297-301","source":"Crossref","is-referenced-by-count":0,"title":["PLASMA
-        FACING SURFACES UNDER A POLOIDALLY NON-UNIFORM HEAT INPUT"],"prefix":"10.1016","author":[{"given":"Panayiotis
-        J.","family":"Karditsas","sequence":"first","affiliation":[]}],"member":"78","reference":[{"key":"10.1016\/B978-0-444-89995-8.50051-5_bib1","unstructured":"R.
-        Siegel, J. R. Howell, Thermal Radiation Heat Transfer, Hemisphere, p. 203."},{"key":"10.1016\/B978-0-444-89995-8.50051-5_bib2","series-title":"The
-        Mathematics of Diffusion","first-page":"12","author":"Crank","year":"1975"},{"key":"10.1016\/B978-0-444-89995-8.50051-5_bib3","series-title":"A
-        DEMO Tokamak Reactor","author":"Cooke","year":"1985"},{"key":"10.1016\/B978-0-444-89995-8.50051-5_bib4","unstructured":"M.
-        Dalle-Donne, Ed., DEMO\u2013relevant Test Blankets for NET\/ITER, vol. 2,
-        KfK\u20134929. Karlsruhe, 1991."},{"key":"10.1016\/B978-0-444-89995-8.50051-5_bib5","first-page":"1991","article-title":"Three\u2013Dimensional
-        Monte Carlo Calculations of Nuclear Heating in CIT and Comparisons with Results
-        from Simpler Models","volume":"19","author":"Liew","year":"1853","journal-title":"Fusion
-        Technology"},{"key":"10.1016\/B978-0-444-89995-8.50051-5_bib6","first-page":"1244","article-title":"3\u2013D
-        Monte Carlo analysis of the NET Shielding System","volume":"2","author":"Gallina","year":"1988","journal-title":"Fusion
-        Technology"},{"key":"10.1016\/B978-0-444-89995-8.50051-5_bib7","series-title":"Design
-        Technology of Fusion Reactors","first-page":"490","author":"Akiyama","year":"1991"}],"container-title":["Fusion
-        Technology 1992"],"language":"en","deposited":{"date-parts":[[2018,10,8]],"date-time":"2018-10-08T00:58:27Z","timestamp":1538960307000},"score":22.21103,"resource":{"primary":{"URL":"https:\/\/linkinghub.elsevier.com\/retrieve\/pii\/B9780444899958500515"}},"issued":{"date-parts":[[1993]]},"ISBN":["9780444899958"],"references-count":7,"URL":"https:\/\/doi.org\/10.1016\/b978-0-444-89995-8.50051-5","published":{"date-parts":[[1993]]}},{"indexed":{"date-parts":[[2024,9,7]],"date-time":"2024-09-07T07:11:05Z","timestamp":1725693065462},"publisher-location":"Wiesbaden","reference-count":7,"publisher":"Vieweg+Teubner
-        Verlag","isbn-type":[{"type":"print","value":"9783528076443"},{"type":"electronic","value":"9783322878816"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1993]]},"DOI":"10.1007\/978-3-322-87881-6_9","type":"book-chapter","created":{"date-parts":[[2012,7,28]],"date-time":"2012-07-28T20:31:48Z","timestamp":1343507508000},"page":"55-62","source":"Crossref","is-referenced-by-count":0,"title":["Surface
-        Modelling Using Coons Multipatch and Non-Uniform Rational Surface"],"prefix":"10.1007","author":[{"given":"E.","family":"Chaput","sequence":"first","affiliation":[]}],"member":"297","reference":[{"doi-asserted-by":"crossref","unstructured":"COONS
-        S.A. (1967) - Surfaces for computer. Aided Design of Space Forms MAC-TR41
-        M.I.T.","key":"9_CR1","DOI":"10.21236\/AD0663504"},{"key":"9_CR2","first-page":"4","volume":"13","author":"DJ
-        Conalogue","year":"1970","unstructured":"Mc CONALOGUE D.J. (1970) - A Quasi-Intrinsic
-        Scheme for Passing a Smooth Curve throught a Discrete Set of Points.- The
-        Computer Journal Vol. 13 no 4, November 1970.","journal-title":"The Computer
-        Journal"},{"key":"9_CR3","volume-title":"Numerical generation of boundary-fitted
-        coordinate systems with optimal control of orthogonality","author":"P Morice","year":"1983","unstructured":"MORICE
-        Ph. (1983) - Numerical generation of boundary-fitted coordinate systems with
-        optimal control of orthogonality.- ASME Fluids Engineering Conference, Houston."},{"key":"9_CR4","volume-title":"Surface
-        Mesh Generation and Optimization - Third International Conference on Numerical
-        Grid Generation in Computational Fluids Dynamics, Barcelona","author":"F Desbois","year":"1991","unstructured":"DESBOIS
-        F. and JACQUOTTE O.-P. (1991) - Surface Mesh Generation and Optimization -
-        Third International Conference on Numerical Grid Generation in Computational
-        Fluids Dynamics, Barcelona, June 1991."},{"doi-asserted-by":"crossref","unstructured":"PIEGL
-        L. (1988) - Hermite and Coons like Interpolants using Rational Bezier Approximation
-        Form with Infinite Control Points. Computer-Aided Design Vol. 20 n\u00b0 1.","key":"9_CR5","DOI":"10.1016\/0010-4485(88)90135-2"},{"doi-asserted-by":"crossref","unstructured":"THOMPSON
-        J.F. (1987) - A composite grid generation code for general 3D regions - AIAA
-        paper 87\u20130275.","key":"9_CR6","DOI":"10.2514\/6.1987-275"},{"unstructured":"DING
-        QIULIN and DAVIES B.J. (1987) - Surface engineering geometry for computed-aided
-        design and manufacture, Ellis Horwood Series in Mechanical Engineering, 1987.","key":"9_CR7"}],"container-title":["Multiblock
-        Grid Generation"],"link":[{"URL":"http:\/\/link.springer.com\/content\/pdf\/10.1007\/978-3-322-87881-6_9.pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2021,5,2]],"date-time":"2021-05-02T18:54:45Z","timestamp":1619981685000},"score":22.188906,"resource":{"primary":{"URL":"http:\/\/link.springer.com\/10.1007\/978-3-322-87881-6_9"}},"issued":{"date-parts":[[1993]]},"ISBN":["9783528076443","9783322878816"],"references-count":7,"URL":"https:\/\/doi.org\/10.1007\/978-3-322-87881-6_9","published":{"date-parts":[[1993]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:59:00Z","timestamp":1726077540825},"edition-number":"0","reference-count":0,"publisher":"CRC
-        Press","isbn-type":[{"type":"electronic","value":"9780429085857"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1992,2,28]]},"DOI":"10.1201\/9781482277142-21","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T11:58:48Z","timestamp":1594295928000},"page":"133-135","source":"Crossref","is-referenced-by-count":0,"title":["Crossed
-        Random Designs"],"prefix":"10.1201","member":"301","container-title":["Confidence
-        Intervals on Variance Components"],"language":"en","deposited":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T11:59:04Z","timestamp":1594295944000},"score":21.84193,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781482277142\/chapters\/10.1201\/9781482277142-21"}},"issued":{"date-parts":[[1992,2,28]]},"ISBN":["9780429085857"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781482277142-21","published":{"date-parts":[[1992,2,28]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T02:31:19Z","timestamp":1726021879538},"edition-number":"0","reference-count":0,"publisher":"Chapman
-        and Hall\/CRC","isbn-type":[{"type":"electronic","value":"9780429119194"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2000,5,12]]},"DOI":"10.1201\/9781420035926-11","type":"book-chapter","created":{"date-parts":[[2020,12,22]],"date-time":"2020-12-22T19:16:15Z","timestamp":1608664575000},"page":"187-192","source":"Crossref","is-referenced-by-count":0,"title":["EQUALITY
-        OF VARIANCE"],"prefix":"10.1201","member":"301","container-title":["Analysis
-        of Pretest-Posttest Designs"],"language":"en","deposited":{"date-parts":[[2021,4,10]],"date-time":"2021-04-10T18:51:37Z","timestamp":1618080697000},"score":21.836414,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781420035926\/chapters\/10.1201\/9781420035926-11"}},"issued":{"date-parts":[[2000,5,12]]},"ISBN":["9780429119194"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781420035926-11","published":{"date-parts":[[2000,5,12]]}},{"indexed":{"date-parts":[[2026,2,28]],"date-time":"2026-02-28T01:28:58Z","timestamp":1772242138365,"version":"3.50.1"},"reference-count":0,"publisher":"Princeton
-        University Press","isbn-type":[{"value":"9780691164038","type":"print"},{"value":"9781400881338","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2015,12,29]]},"abstract":"<p>This
-        chapter presents solutions to generalizations of Konstantin Knop''s puzzle
-        for any number of minutes and any number of parallel scales. It first describes
-        the similarity of the original puzzle with a multiple-pans problem: a coin-weighing
-        puzzle involving balance scales with not two, but any number of pans. The
-        notion of a coin''s potential is defined next. The chapter then provides a
-        solution to the parallel weighing problem in case there is an unlimited supply
-        of real coins. Afterward, the chapter offers a solution to the original puzzle
-        and its generalization for any number of minutes, and generalizes these results
-        to the use of more than two scales in parallel. In addition, the find-and-label
-        variation of this problem for any number of minutes is discussed, before the
-        chapter concludes with a comparison of the find-and-label problem with the
-        just-find problem.<\/p>","DOI":"10.23943\/princeton\/9780691164038.003.0007","type":"book-chapter","created":{"date-parts":[[2017,11,21]],"date-time":"2017-11-21T08:41:44Z","timestamp":1511253704000},"source":"Crossref","is-referenced-by-count":0,"title":["Parallel
-        Weighings of Coins"],"prefix":"10.23943","author":[{"given":"Tanya","family":"Khovanova","sequence":"first","affiliation":[]}],"member":"10341","published-online":{"date-parts":[[2017,10,19]]},"container-title":["The
-        Mathematics of Various Entertaining Subjects"],"original-title":["Parallel
-        Weighings of Coins"],"language":"en","deposited":{"date-parts":[[2022,7,28]],"date-time":"2022-07-28T10:42:50Z","timestamp":1659004970000},"score":21.780336,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/princeton-scholarship-online\/book\/18317\/chapter\/176351687"}},"issued":{"date-parts":[[2015,12,29]]},"ISBN":["9780691164038","9781400881338"],"references-count":0,"URL":"https:\/\/doi.org\/10.23943\/princeton\/9780691164038.003.0007","relation":{"is-identical-to":[{"id-type":"doi","id":"10.2307\/j.ctt1dr36bb.11","asserted-by":"object"}]},"published":{"date-parts":[[2015,12,29]]}},{"indexed":{"date-parts":[[2022,6,14]],"date-time":"2022-06-14T16:13:48Z","timestamp":1655223228647},"edition-number":"1","reference-count":0,"publisher":"Cambridge
-        University Press","license":[{"start":{"date-parts":[[2012,6,5]],"date-time":"2012-06-05T00:00:00Z","timestamp":1338854400000},"content-version":"unspecified","delay-in-days":1373,"URL":"https:\/\/www.cambridge.org\/core\/terms"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2008,9,1]]},"DOI":"10.1017\/cbo9780511801648.018","type":"book-chapter","created":{"date-parts":[[2012,6,15]],"date-time":"2012-06-15T18:15:54Z","timestamp":1339784154000},"page":"488-498","source":"Crossref","is-referenced-by-count":0,"title":["ADVANCED
-        TOPICS IN ANALYSIS OF VARIANCE"],"prefix":"10.1017","member":"56","container-title":["Analysis
-        of Variance Designs"],"link":[{"URL":"https:\/\/www.cambridge.org\/core\/services\/aop-cambridge-core\/content\/view\/B6E641D4B67343BEE5BFB281C0206479","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2022,6,14]],"date-time":"2022-06-14T15:46:58Z","timestamp":1655221618000},"score":21.728823,"resource":{"primary":{"URL":"https:\/\/www.cambridge.org\/core\/product\/identifier\/CBO9780511801648A261\/type\/book_part"}},"issued":{"date-parts":[[2008,9,1]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1017\/cbo9780511801648.018","published":{"date-parts":[[2008,9,1]]}},{"indexed":{"date-parts":[[2024,9,10]],"date-time":"2024-09-10T22:55:57Z","timestamp":1726008957249},"edition-number":"1","reference-count":0,"publisher":"Auerbach
-        Publications","isbn-type":[{"type":"electronic","value":"9780429108037"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2011,12,14]]},"DOI":"10.1201\/b11692-8","type":"book-chapter","created":{"date-parts":[[2016,9,10]],"date-time":"2016-09-10T00:51:52Z","timestamp":1473468712000},"page":"135-148","source":"Crossref","is-referenced-by-count":0,"title":["What
-        Is Time Variance?"],"prefix":"10.1201","author":[{"given":"Fon","family":"Silvers","sequence":"first","affiliation":[]}],"member":"301","container-title":["Data
-        Warehouse Designs"],"language":"en","link":[{"URL":"http:\/\/www.crcnetbase.com\/doi\/pdf\/10.1201\/b11692-8","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2021,4,4]],"date-time":"2021-04-04T18:51:27Z","timestamp":1617562287000},"score":21.707447,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439870778\/chapters\/10.1201\/b11692-8"}},"issued":{"date-parts":[[2011,12,14]]},"ISBN":["9780429108037"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/b11692-8","published":{"date-parts":[[2011,12,14]]}},{"indexed":{"date-parts":[[2024,9,10]],"date-time":"2024-09-10T22:55:57Z","timestamp":1726008957795},"edition-number":"1","reference-count":0,"publisher":"Auerbach
-        Publications","isbn-type":[{"type":"electronic","value":"9780429108037"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2011,12,14]]},"DOI":"10.1201\/b11692-10","type":"book-chapter","created":{"date-parts":[[2016,9,10]],"date-time":"2016-09-10T00:51:52Z","timestamp":1473468712000},"page":"155-162","source":"Crossref","is-referenced-by-count":0,"title":["Why
-        Is Time Variance Difficult?"],"prefix":"10.1201","author":[{"given":"Fon","family":"Silvers","sequence":"first","affiliation":[]}],"member":"301","container-title":["Data
-        Warehouse Designs"],"language":"en","link":[{"URL":"http:\/\/www.crcnetbase.com\/doi\/pdf\/10.1201\/b11692-10","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2021,4,4]],"date-time":"2021-04-04T18:51:29Z","timestamp":1617562289000},"score":21.61819,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439870778\/chapters\/10.1201\/b11692-10"}},"issued":{"date-parts":[[2011,12,14]]},"ISBN":["9780429108037"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/b11692-10","published":{"date-parts":[[2011,12,14]]}},{"indexed":{"date-parts":[[2022,4,27]],"date-time":"2022-04-27T07:10:06Z","timestamp":1651043406814},"publisher-location":"1
-        Oliver''s Yard,\u00a055 City Road,\u00a0London\u00a0England\u00a0EC1Y 1SP\u00a0United
-        Kingdom\u00a0","reference-count":0,"publisher":"SAGE Publications, Ltd","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004]]},"DOI":"10.4135\/9781849208598.n7","type":"book-chapter","created":{"date-parts":[[2011,7,15]],"date-time":"2011-07-15T19:48:50Z","timestamp":1310759330000},"page":"147-172","source":"Crossref","is-referenced-by-count":0,"title":["Mixed
-        Designs"],"prefix":"10.4135","member":"179","container-title":["Analysis of
-        Variance via Confidence Intervals"],"link":[{"URL":"http:\/\/journals.sagepub.com\/doi\/pdf\/10.4135\/9781849208598.n7","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2022,4,26]],"date-time":"2022-04-26T09:15:32Z","timestamp":1650964532000},"score":21.558636,"resource":{"primary":{"URL":"https:\/\/methods.sagepub.com\/book\/analysis-of-variance-via-confidence-intervals\/n7.xml"}},"issued":{"date-parts":[[2004]]},"references-count":0,"alternative-id":["10.4135\/9781849208598"],"URL":"https:\/\/doi.org\/10.4135\/9781849208598.n7","published":{"date-parts":[[2004]]}},{"indexed":{"date-parts":[[2024,9,7]],"date-time":"2024-09-07T02:53:56Z","timestamp":1725677636382},"publisher-location":"2455
-        Teller Road,\u00a0Thousand Oaks\u00a0California\u00a091320\u00a0United States
-        of America\u00a0","reference-count":0,"publisher":"SAGE Publications, Inc.","isbn-type":[{"type":"print","value":"9780761912217"},{"type":"electronic","value":"9781412984508"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1998]]},"DOI":"10.4135\/9781412984508.n4","type":"book-chapter","created":{"date-parts":[[2012,4,30]],"date-time":"2012-04-30T15:59:49Z","timestamp":1335801589000},"page":"62-81","source":"Crossref","is-referenced-by-count":0,"title":["Designs
-        With More Than Two Levels and Higher Order Designs"],"prefix":"10.4135","member":"179","container-title":["Interaction
-        Effects in Factorial Analysis of Variance"],"link":[{"URL":"http:\/\/journals.sagepub.com\/doi\/pdf\/10.4135\/9781412984508.n4","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2022,4,26]],"date-time":"2022-04-26T18:46:51Z","timestamp":1650998811000},"score":21.533262,"resource":{"primary":{"URL":"https:\/\/methods.sagepub.com\/book\/interaction-effects-in-factorial-analysis-of-variance\/n4.xml"}},"issued":{"date-parts":[[1998]]},"ISBN":["9780761912217","9781412984508"],"references-count":0,"alternative-id":["10.4135\/9781412984508"],"URL":"https:\/\/doi.org\/10.4135\/9781412984508.n4","published":{"date-parts":[[1998]]}},{"indexed":{"date-parts":[[2024,9,8]],"date-time":"2024-09-08T09:10:00Z","timestamp":1725786600480},"edition-number":"0","reference-count":0,"publisher":"Psychology
-        Press","isbn-type":[{"type":"electronic","value":"9781410607676"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2003,6,20]]},"DOI":"10.4324\/9781410607676-16","type":"book-chapter","created":{"date-parts":[[2021,3,6]],"date-time":"2021-03-06T02:01:55Z","timestamp":1614996115000},"page":"157-177","source":"Crossref","is-referenced-by-count":0,"title":["Multivariate
-        Analysis of Variance: Designs With Multiple Dependent Variables Tested Simultaneously"],"prefix":"10.4324","member":"301","container-title":["Levine''s
-        Guide to SPSS for Analysis of Variance"],"language":"en","deposited":{"date-parts":[[2021,4,9]],"date-time":"2021-04-09T04:01:29Z","timestamp":1617940889000},"score":21.5107,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781135674403\/chapters\/10.4324\/9781410607676-16"}},"issued":{"date-parts":[[2003,6,20]]},"ISBN":["9781410607676"],"references-count":0,"URL":"https:\/\/doi.org\/10.4324\/9781410607676-16","published":{"date-parts":[[2003,6,20]]}},{"indexed":{"date-parts":[[2024,5,5]],"date-time":"2024-05-05T05:16:13Z","timestamp":1714886173156},"reference-count":2,"publisher":"Elsevier","isbn-type":[{"value":"9780444899910","type":"print"}],"license":[{"start":{"date-parts":[[1993,1,1]],"date-time":"1993-01-01T00:00:00Z","timestamp":725846400000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.elsevier.com\/tdm\/userlicense\/1.0\/"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1993]]},"DOI":"10.1016\/b978-0-444-89991-0.50043-3","type":"book-chapter","created":{"date-parts":[[2014,8,15]],"date-time":"2014-08-15T19:37:00Z","timestamp":1408131420000},"page":"309-314","source":"Crossref","is-referenced-by-count":0,"title":["THERMOELASTIC-PLASTIC
-        DEFORMATIONS OF ANISOTROPIC MATERIALS WITH NON-UNIFORM TEMPERATURE"],"prefix":"10.1016","author":[{"given":"A.J.M.","family":"Spencer","sequence":"first","affiliation":[]}],"member":"78","reference":[{"key":"10.1016\/B978-0-444-89991-0.50043-3_bib1","series-title":"\u2018Anisotropy
-        and localisation of plastic deformation\u2019","first-page":"28","author":"Spencer","year":"1991"},{"key":"10.1016\/B978-0-444-89991-0.50043-3_bib2","first-page":"67","volume":"2","author":"O''Neill","year":"1988","journal-title":"Math.
-        Engng. Ind."}],"container-title":["Advances in Engineering Plasticity and
-        its Applications"],"language":"en","link":[{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9780444899910500433?httpAccept=text\/xml","content-type":"text\/xml","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9780444899910500433?httpAccept=text\/plain","content-type":"text\/plain","content-version":"vor","intended-application":"text-mining"}],"deposited":{"date-parts":[[2018,9,30]],"date-time":"2018-09-30T10:21:35Z","timestamp":1538302895000},"score":21.3574,"resource":{"primary":{"URL":"https:\/\/linkinghub.elsevier.com\/retrieve\/pii\/B9780444899910500433"}},"issued":{"date-parts":[[1993]]},"ISBN":["9780444899910"],"references-count":2,"URL":"https:\/\/doi.org\/10.1016\/b978-0-444-89991-0.50043-3","published":{"date-parts":[[1993]]}},{"indexed":{"date-parts":[[2024,9,7]],"date-time":"2024-09-07T14:35:18Z","timestamp":1725719718017},"publisher-location":"Dordrecht","reference-count":33,"publisher":"Springer
-        Netherlands","isbn-type":[{"type":"print","value":"9789048143344"},{"type":"electronic","value":"9789401728232"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1993]]},"DOI":"10.1007\/978-94-017-2823-2_7","type":"book-chapter","created":{"date-parts":[[2013,3,17]],"date-time":"2013-03-17T01:03:39Z","timestamp":1363482219000},"page":"93-111","source":"Crossref","is-referenced-by-count":0,"title":["Optimal
-        Two\u2014Uniform Convexity and Fermion Hypercontractivity"],"prefix":"10.1007","author":[{"given":"Eric
-        A.","family":"Carlen","sequence":"first","affiliation":[]},{"given":"Elliott
-        H.","family":"Lieb","sequence":"additional","affiliation":[]}],"member":"297","reference":[{"key":"7_CR1","doi-asserted-by":"publisher","first-page":"173","DOI":"10.1007\/BF01611502","volume":"56","author":"Albeverio,
-        S., Hoegh-Krohn, Dirichlet forms and Markov semigroups on C\u2019-algebras,
-        Commun","year":"1977","unstructured":"Albeverio, S., Hoegh-Krohn, Dirichlet
-        forms and Markov semigroups on C*-algebras, Commun. Math. Phys., 56 (1977)
-        173\u2013187.","journal-title":"Math. Phys"},{"key":"7_CR2","doi-asserted-by":"publisher","first-page":"89","DOI":"10.1007\/BF01941801","volume":"81","author":"H
-        Araki","year":"1981","unstructured":"Araki, H.: Yamagami, S.: An inequality
-        for the Hilbert-Schmidt norm, Commun. Math. Phys., 81 (1981) 89\u201396.","journal-title":"Commun.
-        Math. Phys"},{"key":"7_CR3","volume-title":"E.H.: preprint","author":"K Ball","year":"1992","unstructured":"Ball,
-        K., Carlen, E.A., Lieb, E.H.: preprint 1992."},{"key":"7_CR4","doi-asserted-by":"publisher","first-page":"425","DOI":"10.2307\/2371218","volume":"57","author":"R
-        Brauer","year":"1935","unstructured":"Brauer, R., Weyl, H.: Spinors in n dimensions,
-        Am. Jour. Math., 57 (1935) 425\u2013449.","journal-title":"Am. Jour. Math"},{"key":"7_CR5","unstructured":"Carlen,
-        E. A., Lieb, E. H.: Optimal Hypercontractivity for Fermi fields and related
-        non-commutative integration inequalities, Commun. Math. Phys. (issue dedicated
-        to Araki), in press (1992)."},{"key":"7_CR6","doi-asserted-by":"crossref","first-page":"437","DOI":"10.1016\/0022-1236(90)90114-Z","volume":"88","author":"E.A.
-        Carlen","year":"1991","unstructured":"Carlen, E.A., Loss, M.: Extremals of
-        functionals with competing symmetries, Jour. Func. Analysis 88 (1991) 437\u2013456","journal-title":"Jour.
-        Func. Analysis"},{"key":"7_CR7","volume-title":"Quantum Theory of Open Systems","author":"EB
-        Davies","year":"1976","unstructured":"Davies, E.B.: Quantum Theory of Open
-        Systems, Academic Press, New York, 1976."},{"key":"7_CR8","first-page":"222","volume":"81","author":"J.
-        Dixmier","year":"1953","unstructured":"Dixmier, J.: Formes lin\u00e9aires
-        sur un anneau d\u2019op\u00e9rateurs, Bull. Soc. Math. France 81 (1953) 222\u2013245.","journal-title":"Bull.
-        Soc. Math. France"},{"key":"7_CR9","doi-asserted-by":"publisher","first-page":"50","DOI":"10.1063\/1.1664760","volume":"10","author":"P
-        Federbush","year":"1969","unstructured":"Federbush, P.: A partially alternate
-        derivation of a result of Nelson, Jour. Math. Phys., 10 (1969) 50\u201352.","journal-title":"Math.
-        Phys"},{"key":"7_CR10","doi-asserted-by":"publisher","first-page":"52","DOI":"10.1016\/0022-1236(72)90057-2","volume":"10","author":"L
-        Gross","year":"1972","unstructured":"Gross, L.: Existence and uniqueness of
-        physical ground states, Jour. Funct. Analysis, 10 (1972) 52\u2013109.","journal-title":"Funct.
-        Analysis"},{"key":"7_CR11","first-page":"383","volume":"43","author":"L Gross","year":"1975","unstructured":"Gross,
-        L.: Hypercontractivity and logarithmic Sobolev inequalities for the Clifford-Dirichlet
-        form, Duke Math. J., 43 (1975) 383\u2013396.","journal-title":"Math. J"},{"key":"7_CR12","volume-title":"Mathematics
-        and Applications","author":"L Gross","year":"1990","unstructured":"Gross,
-        L.: Logarithmic Sobolev inequalities for the heat kernel on a Lie group and
-        a bibliography on logarithmic Sobolev inequalities and hypercontractivity,
-        pp. 108130 in White Noise Analysis, Mathematics and Applications, eds. Hida
-        et al., World Scientific, Singapore 1990."},{"key":"7_CR13","doi-asserted-by":"publisher","first-page":"301","DOI":"10.1007\/BF01258530","volume":"93","author":"R
-        Hudson","year":"1984","unstructured":"Hudson, R, Parthasarathy, K.R.: Quantum
-        It\u00f3\u2019s formula and stochastic evolutions, Commun. Math. Phys., 93
-        (1984) 301\u2013323.","journal-title":"Math. Phys"},{"key":"7_CR14","doi-asserted-by":"publisher","first-page":"751","DOI":"10.1007\/BF01329553","volume":"45","author":"P
-        Jordan","year":"1927","unstructured":"Jordan, P., Klein, O.: Zim Mehrk\u00f3rperproblem
-        der Quantentheorie, Zeits. fir Phys., 45 (1927) 751\u2013765.","journal-title":"Zeits.
-        fir Phys"},{"key":"7_CR15","doi-asserted-by":"publisher","first-page":"631","DOI":"10.1007\/BF01331938","volume":"47","author":"P
-        Jordan","year":"1928","unstructured":"Jordan, P., Wigner, E.P.: fiber das
-        Paulische Aquivalenzverbot, Zeits. fir Phys., 47 (1928) 631\u2013651.","journal-title":"Zeits.
-        fir Phys"},{"key":"7_CR16","first-page":"174","volume":"20","author":"EH Lieb","year":"1976","unstructured":"Lieb,
-        E.H.: Inequalities for some operator and matrix functions, Adv. Math. 20 (1976)
-        174\u2013178","journal-title":"Math"},{"key":"7_CR17","first-page":"179","volume":"102","author":"EH
-        Lieb","year":"1990","unstructured":"Lieb, E.H.: Gaussian kernels have only
-        Gaussian maximizers, Invent. Math. 102 (1990) 179\u2013208","journal-title":"Math"},{"key":"7_CR18","doi-asserted-by":"publisher","first-page":"313","DOI":"10.1016\/0022-1236(90)90053-N","volume":"92","author":"M
-        Lindsay","year":"1990","unstructured":"Lindsay, M.: Gaussian hypercontractivity
-        revisited, Jour. Funct. Analysis 92 (1990) 313\u2013324.","journal-title":"Funct.
-        Analysis"},{"key":"7_CR19","volume-title":"P.A.: preprint","author":"M Lindsay","year":"1991","unstructured":"Lindsay,
-        M., Meyer, P.A.: preprint, 1991."},{"key":"7_CR20","doi-asserted-by":"publisher","first-page":"442","DOI":"10.1016\/0021-8693(75)90057-5","volume":"35","author":"Merris,
-        R.,Dias da Silva,J.A.","year":"1975","unstructured":"Merris, R.,Dias da Silva,J.A.:
-        Generalized Schur functions, Jour. Lin. Algebra 35 (1975) 442\u2013448.","journal-title":"Lin.
-        Algebra"},{"key":"7_CR21","volume-title":"Lecture notes in Math","author":"PA
-        Meyer","year":"1985","unstructured":"Meyer, P.A.: El\u00e9ments de probabilit\u00e9s
-        quantiques, expos\u00e9s I-V, pp.186\u2013312 in Sem. de Prob. XX, Lecture
-        notes in Math. 1204, Springer, New York, 1985."},{"key":"7_CR22","volume-title":"Lecture
-        notes in Math","author":"PA Meyer","year":"1986","unstructured":"Meyer, P.A.:
-        El\u00e9ments de probabilit\u00e9s quantiques, expos\u00e9s VI-VIII, pp. 27\u201380
-        in Sem. de Prob. XXI, Lecture notes in Math. 1247, Springer, New York, 1986."},{"key":"7_CR23","volume-title":"Mathematical
-        Theory of Elementary Particles","author":"E Nelson","year":"1966","unstructured":"Nelson,
-        E.: A quartic interaction in two dimensions, in Mathematical Theory of Elementary
-        Particles, R. Goodman ans I. Segal eds., MIT Press, Cambridge Mass., 1966."},{"key":"7_CR24","doi-asserted-by":"publisher","first-page":"211","DOI":"10.1016\/0022-1236(73)90025-6","volume":"12","author":"E
-        Nelson","year":"1973","unstructured":"Nelson, E.: The free Markov field, Jour.
-        Funct. Analysis, 12 (1973) 211\u2013227.","journal-title":"Funct. Analysis"},{"key":"7_CR25","doi-asserted-by":"publisher","first-page":"103","DOI":"10.1016\/0022-1236(74)90014-7","volume":"15","author":"E
-        Nelson","year":"1974","unstructured":"Nelson, E.: Notes on non-commutative
-        integration, Jour. Funct. Analysis, 15 (1974) 103\u2013116.","journal-title":"Funct.
-        Analysis"},{"key":"7_CR26","first-page":"105","volume":"12","author":"J Neveu","year":"1976","unstructured":"Neveu,
-        J.: Sur l\u2019esperance conditionelle par rapport \u00e0 un mouvement Brownien,
-        Ann. Inst. H. Poincar\u00e9 Sect. B. (N.S.) 12 (1976) 105\u2013109","journal-title":"Ann.
-        Inst. H. Poincar\u00e9 Sect. B. (N.S.)"},{"key":"7_CR27","doi-asserted-by":"publisher","first-page":"280","DOI":"10.1007\/BF01645523","volume":"26","author":"MB
-        Ruskai","year":"1972","unstructured":"Ruskai, M.B.: Inequalities for traces
-        on Von Neumann algebras, Commun. Math. Phys., 26 (1972) 280\u2013289.","journal-title":"Math.
-        Phys"},{"key":"7_CR28","doi-asserted-by":"publisher","first-page":"856","DOI":"10.1103\/RevModPhys.36.856","volume":"36","author":"TD
-        Schultz","year":"1964","unstructured":"Schultz, T.D., Mattis, D.C., Lieb,
-        E.H.: Two dimensional Ising model as a soluble problem of many fermions, Rev.
-        Mod. Phys. 36 (1964) 856\u2013871.","journal-title":"Rev. Mod. Phys"},{"key":"7_CR29","doi-asserted-by":"publisher","first-page":"401","DOI":"10.2307\/1969729","volume":"57","author":"IE
-        Segal","year":"1953","unstructured":"Segal, I.E.: A non-commutative extension
-        of abstract integration, Annals of Math., 57 (1953) 401\u2013457.","journal-title":"Annals
-        of Math"},{"key":"7_CR30","doi-asserted-by":"crossref","first-page":"160175","DOI":"10.2307\/1969994","volume":"63","author":"I.E.
-        Segal","year":"1956","unstructured":"Segal, I.E.: Tensor algebras over Hilbert
-        spaces II, Annals of Math., 63 (1956) 160175.","journal-title":"Annals of
-        Math."},{"key":"7_CR31","doi-asserted-by":"publisher","first-page":"462","DOI":"10.2307\/1970628","volume":"92","author":"IE
-        Segal","year":"1970","unstructured":"Segal, I.E.: Construction of non-linear
-        local quantum processes: I, Annal of Math., 92 (1970) 462\u2013481.","journal-title":"Annal
-        of Math"},{"key":"7_CR32","first-page":"163","volume":"50","author":"N Tomczak-Jaegermann","year":"1974","unstructured":"Tomczak-Jaegermann,
-        N.: The moduli of smoothness and convexity and Rademacher averages of trace
-        classes Sp(1 \u2264 p < \u221e), Studia Mathematica 50 (1974) 163\u2013182.","journal-title":"Studia
-        Mathematica"},{"key":"7_CR33","first-page":"177","volume":"6","author":"H
-        Umegaki","year":"1954","unstructured":"Umegaki, H.: Conditional expectation
-        in operator algebras I, Tohoku Math. J., 6 (1954) 177\u2013181.","journal-title":"Math.
-        J"}],"container-title":["Quantum and Non-Commutative Analysis"],"language":"en","link":[{"URL":"http:\/\/link.springer.com\/content\/pdf\/10.1007\/978-94-017-2823-2_7","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2019,5,11]],"date-time":"2019-05-11T16:28:13Z","timestamp":1557592093000},"score":21.31365,"resource":{"primary":{"URL":"http:\/\/link.springer.com\/10.1007\/978-94-017-2823-2_7"}},"issued":{"date-parts":[[1993]]},"ISBN":["9789048143344","9789401728232"],"references-count":33,"URL":"https:\/\/doi.org\/10.1007\/978-94-017-2823-2_7","published":{"date-parts":[[1993]]}},{"indexed":{"date-parts":[[2024,9,10]],"date-time":"2024-09-10T22:55:57Z","timestamp":1726008957189},"edition-number":"1","reference-count":0,"publisher":"Auerbach
-        Publications","isbn-type":[{"type":"electronic","value":"9780429108037"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2011,12,14]]},"DOI":"10.1201\/b11692-9","type":"book-chapter","created":{"date-parts":[[2016,9,10]],"date-time":"2016-09-10T00:51:52Z","timestamp":1473468712000},"page":"149-154","source":"Crossref","is-referenced-by-count":0,"title":["How
-        Does Time Variance Produce ROI?"],"prefix":"10.1201","author":[{"given":"Fon","family":"Silvers","sequence":"first","affiliation":[]}],"member":"301","container-title":["Data
-        Warehouse Designs"],"language":"en","link":[{"URL":"http:\/\/www.crcnetbase.com\/doi\/pdf\/10.1201\/b11692-9","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2021,4,4]],"date-time":"2021-04-04T18:51:28Z","timestamp":1617562288000},"score":21.19519,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439870778\/chapters\/10.1201\/b11692-9"}},"issued":{"date-parts":[[2011,12,14]]},"ISBN":["9780429108037"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/b11692-9","published":{"date-parts":[[2011,12,14]]}},{"indexed":{"date-parts":[[2022,4,27]],"date-time":"2022-04-27T19:12:33Z","timestamp":1651086753595},"publisher-location":"1
-        Oliver''s Yard,\u00a055 City Road,\u00a0London\u00a0England\u00a0EC1Y 1SP\u00a0United
-        Kingdom\u00a0","reference-count":0,"publisher":"SAGE Publications, Ltd","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004]]},"DOI":"10.4135\/9781849208598.n4","type":"book-chapter","created":{"date-parts":[[2011,7,15]],"date-time":"2011-07-15T19:48:50Z","timestamp":1310759330000},"page":"67-91","source":"Crossref","is-referenced-by-count":0,"title":["Simple
-        Factorial Designs"],"prefix":"10.4135","member":"179","container-title":["Analysis
-        of Variance via Confidence Intervals"],"link":[{"URL":"http:\/\/journals.sagepub.com\/doi\/pdf\/10.4135\/9781849208598.n4","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2022,4,26]],"date-time":"2022-04-26T09:15:29Z","timestamp":1650964529000},"score":21.180532,"resource":{"primary":{"URL":"https:\/\/methods.sagepub.com\/book\/analysis-of-variance-via-confidence-intervals\/n4.xml"}},"issued":{"date-parts":[[2004]]},"references-count":0,"alternative-id":["10.4135\/9781849208598"],"URL":"https:\/\/doi.org\/10.4135\/9781849208598.n4","published":{"date-parts":[[2004]]}},{"indexed":{"date-parts":[[2024,9,7]],"date-time":"2024-09-07T07:27:32Z","timestamp":1725694052507},"publisher-location":"Berlin,
-        Heidelberg","reference-count":0,"publisher":"Springer Berlin Heidelberg","isbn-type":[{"type":"print","value":"9783642778698"},{"type":"electronic","value":"9783642778674"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1993]]},"DOI":"10.1007\/978-3-642-77867-4_4","type":"book-chapter","created":{"date-parts":[[2012,7,28]],"date-time":"2012-07-28T20:40:42Z","timestamp":1343508042000},"page":"74-82","source":"Crossref","is-referenced-by-count":0,"title":["Propagation
-        of Electromagnetic Waves in a Non-Uniform Cold Magnetoplasma"],"prefix":"10.1007","author":[{"given":"A.
-        D. M.","family":"Walker","sequence":"first","affiliation":[]}],"member":"297","container-title":["Plasma
-        Waves in the Magnetosphere"],"link":[{"URL":"http:\/\/link.springer.com\/content\/pdf\/10.1007\/978-3-642-77867-4_4.pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2020,11,26]],"date-time":"2020-11-26T17:27:19Z","timestamp":1606411639000},"score":21.180325,"resource":{"primary":{"URL":"http:\/\/link.springer.com\/10.1007\/978-3-642-77867-4_4"}},"issued":{"date-parts":[[1993]]},"ISBN":["9783642778698","9783642778674"],"references-count":0,"URL":"https:\/\/doi.org\/10.1007\/978-3-642-77867-4_4","published":{"date-parts":[[1993]]}}],"items-per-page":20,"query":{"start-index":0,"search-terms":"Decade+Designs+for+Weighings+of+Non-uniform+Variance+1993+IOP+Publishing"}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:07 GMT
+      string: !binary |-
+        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
+  recorded_at: Sat, 18 Apr 2026 01:18:03 GMT
 recorded_with: VCR 6.4.0

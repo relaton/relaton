@@ -7,23 +7,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:19 GMT
+      - Sat, 18 Apr 2026 01:18:08 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1119'
+      - '554'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -35,6 +43,8 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
@@ -49,9 +59,9 @@ http_interactions:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2026,2,27]],"date-time":"2026-02-27T08:41:58Z","timestamp":1772181718352,"version":"3.50.1"},"reference-count":0,"publisher":"Public
-        Library of Science (PLoS)","content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"DOI":"10.1371\/journal.pone.0020476.s005","type":"component","created":{"date-parts":[[2013,1,28]],"date-time":"2013-01-28T15:38:16Z","timestamp":1359387496000},"source":"Crossref","is-referenced-by-count":0,"title":[],"prefix":"10.1371","member":"340","container-title":[],"original-title":[],"deposited":{"date-parts":[[2018,10,19]],"date-time":"2018-10-19T19:11:42Z","timestamp":1539976302000},"score":1,"resource":{"primary":{"URL":"https:\/\/dx.plos.org\/10.1371\/journal.pone.0020476.s005"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1371\/journal.pone.0020476.s005","relation":{"is-component-of":[{"id-type":"doi","id":"10.1371\/journal.pone.0020476","asserted-by":"object"}]},"subject":[]}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:19 GMT
+      string: !binary |-
+        H4sIAAAAAAAA/41Uy47aMBT9FeRVK9nBD0Ie23ZTCamjDt0UssjDgGeSOLKdFoT4914nM0M0UHV2zn2ec+6BM7Iud71FKdLPCKNGWpvvJXGnTkLsjzbT6G9prNItJFhAA3rNoPSMVFvJo6z8s8qdJF1uHMzdbDjlS8wxj7IMjymnGj/dJwjlhEdrGqcLlobxL5jps4Cq6VDKooizmEUsFiHH6LpfBCENGLpgZOROGtmWkpS6bx1KKUZdX9TKHqSBygf/LmcrVZjcnGZ6N3ssla+ffXpY6cfPsLDUrZOtI5VuctUOBF5eG0BcGm1tk5tnYgCWUaUbIOzy2krYbw/aOOJHQIc0wM3Vcuz8+v2blwqAioht50+6N21eB51uZUApp4toGVhKQ8951LvUjc8CDb9XglZ39WQCM8zjWz2ZIJQRHq9ZmIo4Zcv3eoowEXG0SJaUUg8eIJW+9YsnCVJCubLkTdOKFKeJrhNuHdSo45Xe4IWmGCQXC/qi6o0k2qi9AhGmsUp22qp/UY0xo5gld7jGhFHCkjVLUsbSBX/PNRRJEi0FCD1yLbWBTuYt88r7DDwU3Pbknz9/rGDwwbnOptv5dl4dg67WNtBmv51/4IoXv6QvJsxGb0wCytr+Hs+2r+ssm7rZTmS/AabVh0H5kXU+Wvbsb/tmMaJ3sBpi1euvHeb6+1f/My0U5dZK4wZ/+L+O4kmWDl2yUYHhA/heLn8BES1vel8EAAA=
+  recorded_at: Sat, 18 Apr 2026 01:18:08 GMT
 - request:
     method: get
     uri: https://api.crossref.org/works?filter=type:book-chapter,type:book-part,type:book-section,type:book-track&query=2013%2BPublic%2BLibrary%2Bof%2BScience%2B(PLoS)
@@ -59,460 +69,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Faraday v2.7.12
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Wed, 08 Apr 2026 19:51:19 GMT
-      Content-Type:
-      - application/json
-      Content-Length:
-      - '68005'
-      Connection:
-      - keep-alive
-      Access-Control-Expose-Headers:
-      - Link
-      Access-Control-Allow-Headers:
-      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
-        Accept-Ranges, Cache-Control
-      Access-Control-Allow-Origin:
-      - "*"
-      Vary:
-      - Accept-Encoding
-      Server:
-      - Jetty(9.4.40.v20210413)
-      X-Rate-Limit-Limit:
-      - '5'
-      X-Rate-Limit-Interval:
-      - 1s
-      X-Concurrency-Limit:
-      - '1'
-      X-Api-Pool:
-      - public
-      Permissions-Policy:
-      - interest-cohort=()
-    body:
-      encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":2491927,"items":[{"indexed":{"date-parts":[[2024,9,8]],"date-time":"2024-09-08T07:54:49Z","timestamp":1725782089490},"edition-number":"0","reference-count":0,"publisher":"Routledge","isbn-type":[{"type":"electronic","value":"9780203584033"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,5,29]]},"DOI":"10.4324\/9780203584033-20","type":"book-chapter","created":{"date-parts":[[2021,4,11]],"date-time":"2021-04-11T03:16:54Z","timestamp":1618111014000},"page":"118-159","source":"Crossref","is-referenced-by-count":0,"title":["Public
-        library case studies"],"prefix":"10.4324","member":"301","container-title":["Contemporary
-        Library Architecture"],"language":"en","deposited":{"date-parts":[[2021,4,11]],"date-time":"2021-04-11T03:17:04Z","timestamp":1618111024000},"score":20.847958,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781136660627\/chapters\/10.4324\/9780203584033-20"}},"issued":{"date-parts":[[2013,5,29]]},"ISBN":["9780203584033"],"references-count":0,"URL":"https:\/\/doi.org\/10.4324\/9780203584033-20","published":{"date-parts":[[2013,5,29]]}},{"indexed":{"date-parts":[[2024,5,4]],"date-time":"2024-05-04T12:53:35Z","timestamp":1714827215456},"edition-number":"0","reference-count":0,"publisher":"Routledge","isbn-type":[{"value":"9781315879710","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,8,21]]},"DOI":"10.4324\/9781315879710-8","type":"book-chapter","created":{"date-parts":[[2021,3,6]],"date-time":"2021-03-06T00:58:24Z","timestamp":1614992304000},"page":"71-76","source":"Crossref","is-referenced-by-count":0,"title":["Spaced
-        Out Library: Toronto Public Library\u2019s Spaced Out Collection"],"prefix":"10.4324","member":"301","container-title":["Science\/Fiction
-        Collections"],"language":"en","deposited":{"date-parts":[[2021,3,6]],"date-time":"2021-03-06T00:59:16Z","timestamp":1614992356000},"score":20.395662,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781134754625\/chapters\/10.4324\/9781315879710-8"}},"issued":{"date-parts":[[2013,8,21]]},"ISBN":["9781315879710"],"references-count":0,"URL":"https:\/\/doi.org\/10.4324\/9781315879710-8","published":{"date-parts":[[2013,8,21]]}},{"indexed":{"date-parts":[[2025,11,22]],"date-time":"2025-11-22T16:55:39Z","timestamp":1763830539152},"reference-count":13,"publisher":"IGI
-        Global","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013]]},"abstract":"<jats:p>The
-        authors discuss their experience with using artificial intelligence and chatbots
-        to enhance their existing web sites and information services in public library
-        settings. The chapter describes their budget driven motivations for embarking
-        on this project and outlines the development and implementation of the bots
-        in their library settings. They show how the bots are positioned to enhance
-        existing services and describe the various reactions to the bots from their
-        patron base, and staff. Different implementations of the bots are highlighted
-        (text only, animated talking avatar, mobile site, desktop help icon) as well
-        as the differing levels of complexity of these different implementations.
-        They address the oft posed question \u201cDoes AI spell the end of Reference?\u201d
-        and describe the InfoTabby code sharing project.<\/jats:p>","DOI":"10.4018\/978-1-4666-3938-6.ch006","type":"book-chapter","created":{"date-parts":[[2013,4,22]],"date-time":"2013-04-22T19:06:37Z","timestamp":1366657597000},"page":"101-114","source":"Crossref","is-referenced-by-count":6,"title":["Chatbots"],"prefix":"10.4018","author":[{"given":"Michele","family":"McNeal","sequence":"first","affiliation":[{"name":"Akron-Summit
-        County Public Library, USA"}]},{"given":"David","family":"Newyear","sequence":"additional","affiliation":[{"name":"Lakeland
-        Community College, USA"}]}],"member":"2432","reference":[{"issue":"1","key":"978-1-4666-3938-6.ch006.-1","doi-asserted-by":"crossref","first-page":"54","DOI":"10.5860\/rusq.48n1.54","article-title":"Reference
-        desk staffing trends: A survey.","volume":"48","author":"J.Banks","year":"2008","journal-title":"Reference
-        and User Services Quarterly"},{"key":"978-1-4666-3938-6.ch006.-2","doi-asserted-by":"crossref","unstructured":"Bohle,
-        S. (2010). The Neil A. Armstrong Library and Archives: That\u2019s one small
-        step for a virtual world library, one giant leap for education! Journal of
-        Virtual Worlds Research, 3(1). Retrieved January 23, 2012, from http:\/\/journals.tdl.org\/jvwr\/article\/view\/1600","DOI":"10.4101\/jvwr.v3i1.1600"},{"key":"978-1-4666-3938-6.ch006.-3","unstructured":"Christensen,
-        A. (2007, August 28). A trend from Germany: Library chatbots in digital reference.
-        Paper presented at the International Ticer School, Digital Libraries \u00e0
-        la Carte, Module 2: Technological Developments: Threats and Opportunities
-        for libraries. Tilburg, Netherlands. Retrieved March 2, 2012 from http:\/\/www.slideshare.net\/xenzen\/a-trend-from-germany-library-chatbots-in-electronic-reference-presentation"},{"key":"978-1-4666-3938-6.ch006.-4","unstructured":"De
-        Angeli, A., Johnson, G. I., & Coventry, L. (2001). The unfriendly user: Exploring
-        social reactions to chatterbots. In M.G. Helander, H.M. Kalid, & T. Ming Po
-        (Eds.), Proceedings of the International Conference on Affective Human Factor
-        Design, London: ASEA. Retrieved from http:\/\/disi.unitn.it\/~deangeli\/homepage\/lib\/exe\/fetch.php?media=references:deangeli:theunfriendlyuser.pdf"},{"key":"978-1-4666-3938-6.ch006.-5","doi-asserted-by":"crossref","unstructured":"Mentor
-        Public Library Board of Trustees. (2009, September 16). Board of trustees
-        meeting minutes. Resolution #09-104.","DOI":"10.1016\/S1553-4650(09)00366-5"},{"key":"978-1-4666-3938-6.ch006.-6","unstructured":"Office
-        of the Governor. State of Ohio. (2009). Governor Strickland\u2019s proposed
-        framework to balance FYs 10\/11. Retrieved from http:\/\/obm.ohio.gov\/document.aspx?ID=d9f88041-a555-4840-a211-23f69bbf1829"},{"key":"978-1-4666-3938-6.ch006.-7","unstructured":"Radford,
-        M., et al. (2010, July). Taking the library with you: VR going mobile. Paper
-        presented at the ALA Virtual Conference. Retrieved from http:\/\/www.amandaclaypowers.com\/2010\/06\/28\/taking-the-library-with-you-vr-going-mobile\/"},{"key":"978-1-4666-3938-6.ch006.-8","unstructured":"Sitepal.
-        (2008, May). Virtual meeting with Kathleen improved sales productivity by
-        50%. Retrieved January 23, 2012 from http:\/\/www.sitepal.com\/pdf\/casestudy\/loftusphotography.pdf"},{"key":"978-1-4666-3938-6.ch006.-9","unstructured":"Sitepal.
-        (2010, February). Daughter nature increased online sales by 40%. Retrieved
-        January 23, 2012, from http:\/\/www.sitepal.com\/ccs2\/oddcast\/casestudy\/14.pdf"},{"key":"978-1-4666-3938-6.ch006.-10","unstructured":"Sun
-        News Staff. (2009, June 24). Governor Ted Strickland''s proposed budget cuts
-        endanger future of public libraries. Sun News. Retrieved March 13, 2011, from
-        http:\/\/blog.cleveland.com\/garfieldmaplesun\/2009\/06\/governor_ted_stricklands_propo.html"},{"key":"978-1-4666-3938-6.ch006.-11","unstructured":"VirtuOz
-        Inc. (2011, May 10). VirtuOz\/CCM benchmark group study predicts a 400 percent
-        increase in ecommerce adoption of intelligent virtual agents by 2014. Retrieved
-        January 23, 2012, from http:\/\/www.virtuoz.com\/company\/news-events\/press-releases\/virtuoz-ccm-benchmark-group-study-predicts-a-400-percent-increase-in-ecomme\/"},{"key":"978-1-4666-3938-6.ch006.-12","doi-asserted-by":"publisher","DOI":"10.1017\/S0261444800012970"},{"issue":"1","key":"978-1-4666-3938-6.ch006.-13","first-page":"7","article-title":"Trends
-        in reference and public services librarianship and the role of rusa part one.","volume":"45","author":"D.Zabel","year":"2005","journal-title":"Reference
-        and User Services Quarterly"}],"container-title":["Advances in Library and
-        Information Science","Robots in Academic Libraries"],"link":[{"URL":"https:\/\/www.igi-global.com\/viewtitle.aspx?TitleId=76461","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2022,2,14]],"date-time":"2022-02-14T16:33:37Z","timestamp":1644856417000},"score":20.271845,"resource":{"primary":{"URL":"http:\/\/services.igi-global.com\/resolvedoi\/resolve.aspx?doi=10.4018\/978-1-4666-3938-6.ch006"}},"subtitle":["Automating
-        Reference in Public Libraries"],"issued":{"date-parts":[[2013]]},"references-count":13,"URL":"https:\/\/doi.org\/10.4018\/978-1-4666-3938-6.ch006","ISSN":["2326-4136","2326-4144"],"issn-type":[{"value":"2326-4136","type":"print"},{"value":"2326-4144","type":"electronic"}],"published":{"date-parts":[[2013]]}},{"indexed":{"date-parts":[[2024,5,3]],"date-time":"2024-05-03T05:54:19Z","timestamp":1714715659724},"reference-count":0,"publisher":"Elsevier","isbn-type":[{"value":"9781843347071","type":"print"}],"license":[{"start":{"date-parts":[[2013,1,1]],"date-time":"2013-01-01T00:00:00Z","timestamp":1356998400000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.elsevier.com\/tdm\/userlicense\/1.0\/"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013]]},"DOI":"10.1016\/b978-1-84334-707-1.50006-9","type":"book-chapter","created":{"date-parts":[[2014,3,28]],"date-time":"2014-03-28T04:33:11Z","timestamp":1395981191000},"page":"63-83","source":"Crossref","is-referenced-by-count":0,"title":["Public
-        library: the silhouette of China\u2019s social public service"],"prefix":"10.1016","author":[{"given":"Conghui","family":"Fang","sequence":"first","affiliation":[]}],"member":"78","container-title":["Chinese
-        Librarianship in the Digital Era"],"language":"en","link":[{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843347071500069?httpAccept=text\/xml","content-type":"text\/xml","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843347071500069?httpAccept=text\/plain","content-type":"text\/plain","content-version":"vor","intended-application":"text-mining"}],"deposited":{"date-parts":[[2018,10,5]],"date-time":"2018-10-05T13:23:00Z","timestamp":1538745780000},"score":20.263405,"resource":{"primary":{"URL":"https:\/\/linkinghub.elsevier.com\/retrieve\/pii\/B9781843347071500069"}},"issued":{"date-parts":[[2013]]},"ISBN":["9781843347071"],"references-count":0,"URL":"https:\/\/doi.org\/10.1016\/b978-1-84334-707-1.50006-9","published":{"date-parts":[[2013]]}},{"indexed":{"date-parts":[[2024,5,3]],"date-time":"2024-05-03T14:13:29Z","timestamp":1714745609225},"reference-count":0,"publisher":"Elsevier","isbn-type":[{"value":"9781843347606","type":"print"}],"license":[{"start":{"date-parts":[[2013,1,1]],"date-time":"2013-01-01T00:00:00Z","timestamp":1356998400000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.elsevier.com\/tdm\/userlicense\/1.0\/"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013]]},"DOI":"10.1016\/b978-1-84334-760-6.50016-3","type":"book-chapter","created":{"date-parts":[[2014,3,28]],"date-time":"2014-03-28T09:32:08Z","timestamp":1395999128000},"page":"159-178","source":"Crossref","is-referenced-by-count":0,"title":["Appendix
-        A: Public library collection management policy"],"prefix":"10.1016","member":"78","container-title":["Making
-        a Collection Count"],"language":"en","link":[{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843347606500163?httpAccept=text\/xml","content-type":"text\/xml","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843347606500163?httpAccept=text\/plain","content-type":"text\/plain","content-version":"vor","intended-application":"text-mining"}],"deposited":{"date-parts":[[2018,10,5]],"date-time":"2018-10-05T11:28:10Z","timestamp":1538738890000},"score":19.987823,"resource":{"primary":{"URL":"https:\/\/linkinghub.elsevier.com\/retrieve\/pii\/B9781843347606500163"}},"issued":{"date-parts":[[2013]]},"ISBN":["9781843347606"],"references-count":0,"URL":"https:\/\/doi.org\/10.1016\/b978-1-84334-760-6.50016-3","published":{"date-parts":[[2013]]}},{"indexed":{"date-parts":[[2024,5,3]],"date-time":"2024-05-03T09:38:26Z","timestamp":1714729106518},"reference-count":0,"publisher":"Elsevier","isbn-type":[{"value":"9781843346968","type":"print"}],"license":[{"start":{"date-parts":[[2013,1,1]],"date-time":"2013-01-01T00:00:00Z","timestamp":1356998400000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.elsevier.com\/tdm\/userlicense\/1.0\/"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013]]},"DOI":"10.1016\/b978-1-84334-696-8.50008-5","type":"book-chapter","created":{"date-parts":[[2014,3,28]],"date-time":"2014-03-28T05:09:41Z","timestamp":1395983381000},"page":"105-118","source":"Crossref","is-referenced-by-count":0,"title":["Santa
-        Cruz Public Library: learning and using Library 2.0"],"prefix":"10.1016","author":[{"given":"Hui-Lan
-        H.","family":"Titangos","sequence":"first","affiliation":[]}],"member":"78","container-title":["Local
-        Community in the Era of Social Media Technologies"],"language":"en","link":[{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843346968500085?httpAccept=text\/xml","content-type":"text\/xml","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843346968500085?httpAccept=text\/plain","content-type":"text\/plain","content-version":"vor","intended-application":"text-mining"}],"deposited":{"date-parts":[[2018,10,5]],"date-time":"2018-10-05T13:20:05Z","timestamp":1538745605000},"score":19.838444,"resource":{"primary":{"URL":"https:\/\/linkinghub.elsevier.com\/retrieve\/pii\/B9781843346968500085"}},"issued":{"date-parts":[[2013]]},"ISBN":["9781843346968"],"references-count":0,"URL":"https:\/\/doi.org\/10.1016\/b978-1-84334-696-8.50008-5","published":{"date-parts":[[2013]]}},{"indexed":{"date-parts":[[2024,9,10]],"date-time":"2024-09-10T17:15:08Z","timestamp":1725988508254},"edition-number":"0","reference-count":0,"publisher":"CRC
-        Press","isbn-type":[{"type":"electronic","value":"9781466552609"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2017,3,15]]},"DOI":"10.1081\/e-elis4-120044414","type":"book-chapter","created":{"date-parts":[[2020,12,18]],"date-time":"2020-12-18T03:52:50Z","timestamp":1608263570000},"page":"3801-3805","source":"Crossref","is-referenced-by-count":0,"title":["Public
-        Library Association (PLA)"],"prefix":"10.1081","member":"301","container-title":["Encyclopedia
-        of Library and Information Science, Fourth Edition"],"language":"en","deposited":{"date-parts":[[2021,2,10]],"date-time":"2021-02-10T19:20:30Z","timestamp":1612984830000},"score":19.455978,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781000031546\/chapters\/10.1081\/E-ELIS4-120044414"}},"issued":{"date-parts":[[2017,3,15]]},"ISBN":["9781466552609"],"references-count":0,"URL":"https:\/\/doi.org\/10.1081\/e-elis4-120044414","published":{"date-parts":[[2017,3,15]]}},{"indexed":{"date-parts":[[2023,9,1]],"date-time":"2023-09-01T12:12:29Z","timestamp":1693570349440},"reference-count":0,"publisher":"University
-        of Alberta Press","isbn-type":[{"value":"9780888648150","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,12,31]]},"DOI":"10.1515\/9780888648150-044","type":"book-chapter","created":{"date-parts":[[2023,8,31]],"date-time":"2023-08-31T04:04:01Z","timestamp":1693454641000},"page":"313-326","source":"Crossref","is-referenced-by-count":0,"title":["A
-        Timeline of the Edmonton Public Library"],"prefix":"10.1515","member":"374","container-title":["Just
-        Getting Started"],"link":[{"URL":"https:\/\/www.degruyter.com\/document\/doi\/10.1515\/9780888648150-044\/xml","content-type":"application\/xml","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.degruyter.com\/document\/doi\/10.1515\/9780888648150-044\/pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2023,8,31]],"date-time":"2023-08-31T04:04:30Z","timestamp":1693454670000},"score":19.177889,"resource":{"primary":{"URL":"https:\/\/www.degruyter.com\/document\/doi\/10.1515\/9780888648150-044\/html"}},"issued":{"date-parts":[[2013,12,31]]},"ISBN":["9780888648150"],"references-count":0,"alternative-id":["10.1515\/9780888648150-044","10.1515\/9780888648150"],"URL":"https:\/\/doi.org\/10.1515\/9780888648150-044","published":{"date-parts":[[2013,12,31]]}},{"indexed":{"date-parts":[[2024,5,3]],"date-time":"2024-05-03T13:31:02Z","timestamp":1714743062861},"reference-count":0,"publisher":"Elsevier","isbn-type":[{"value":"9781843346906","type":"print"}],"license":[{"start":{"date-parts":[[2013,1,1]],"date-time":"2013-01-01T00:00:00Z","timestamp":1356998400000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.elsevier.com\/tdm\/userlicense\/1.0\/"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013]]},"DOI":"10.1016\/b978-1-84334-690-6.50007-9","type":"book-chapter","created":{"date-parts":[[2014,3,28]],"date-time":"2014-03-28T02:35:20Z","timestamp":1395974120000},"page":"99-106","source":"Crossref","is-referenced-by-count":0,"title":["Changes
-        in the management of a library"],"prefix":"10.1016","author":[{"given":"Petra","family":"D\u00fcren","sequence":"first","affiliation":[]}],"member":"78","container-title":["Leadership
-        in Academic and Public Libraries"],"language":"en","link":[{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843346906500079?httpAccept=text\/xml","content-type":"text\/xml","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843346906500079?httpAccept=text\/plain","content-type":"text\/plain","content-version":"vor","intended-application":"text-mining"}],"deposited":{"date-parts":[[2018,10,5]],"date-time":"2018-10-05T08:27:49Z","timestamp":1538728069000},"score":19.04435,"resource":{"primary":{"URL":"https:\/\/linkinghub.elsevier.com\/retrieve\/pii\/B9781843346906500079"}},"issued":{"date-parts":[[2013]]},"ISBN":["9781843346906"],"references-count":0,"URL":"https:\/\/doi.org\/10.1016\/b978-1-84334-690-6.50007-9","published":{"date-parts":[[2013]]}},{"indexed":{"date-parts":[[2024,5,3]],"date-time":"2024-05-03T13:31:01Z","timestamp":1714743061622},"reference-count":0,"publisher":"Elsevier","isbn-type":[{"value":"9781843346906","type":"print"}],"license":[{"start":{"date-parts":[[2013,1,1]],"date-time":"2013-01-01T00:00:00Z","timestamp":1356998400000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.elsevier.com\/tdm\/userlicense\/1.0\/"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013]]},"DOI":"10.1016\/b978-1-84334-690-6.50004-3","type":"book-chapter","created":{"date-parts":[[2014,3,28]],"date-time":"2014-03-28T02:35:20Z","timestamp":1395974120000},"page":"27-43","source":"Crossref","is-referenced-by-count":0,"title":["Implementation
-        of a library RFID management system"],"prefix":"10.1016","author":[{"given":"Petra","family":"D\u00fcren","sequence":"first","affiliation":[]}],"member":"78","container-title":["Leadership
-        in Academic and Public Libraries"],"language":"en","link":[{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843346906500043?httpAccept=text\/xml","content-type":"text\/xml","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843346906500043?httpAccept=text\/plain","content-type":"text\/plain","content-version":"vor","intended-application":"text-mining"}],"deposited":{"date-parts":[[2018,10,5]],"date-time":"2018-10-05T08:27:50Z","timestamp":1538728070000},"score":19.018658,"resource":{"primary":{"URL":"https:\/\/linkinghub.elsevier.com\/retrieve\/pii\/B9781843346906500043"}},"issued":{"date-parts":[[2013]]},"ISBN":["9781843346906"],"references-count":0,"URL":"https:\/\/doi.org\/10.1016\/b978-1-84334-690-6.50004-3","published":{"date-parts":[[2013]]}},{"indexed":{"date-parts":[[2022,4,5]],"date-time":"2022-04-05T11:22:33Z","timestamp":1649157753789},"reference-count":0,"publisher":"IGI
-        Global","content-domain":{"domain":[],"crossmark-restriction":false},"abstract":"<jats:p>In
-        New York City, over five thousand young adults are taken in to custody by
-        the city\u2019s department of juvenile justice. (Fenster-Sparber, 2008). While
-        in detention, they do not have easy access to books, and literacy is not always
-        a priority. Although attempts have been made to incorporate library sites
-        throughout New York City\u2019s juvenile correctional facilities, students
-        there have limited access to educational materials. Research shows that a
-        higher literacy rate in such facilities can play a vital role in an incarcerated
-        teen\u2019s rehabilitation process. The New York Public Library (NYPL) saw
-        an opportunity to reach students who might otherwise not be able to get access
-        to information and build a long-lasting outreach program with Passages Academy,
-        a multi-site correctional school run by New York City\u2019s Department of
-        Education and the Department of Juvenile Justice. This case study describes
-        New York Public Library\u2019s mission at Passages Academy, which started
-        shortly after Passages was established in 1998 and continues to be a strong
-        community partner today. The author, who also participated in the project,
-        interviewed NYPL librarians and Passages Academy librarians and educators
-        to gain a better understanding of their challenges.<\/jats:p>","DOI":"10.4018\/978-1-61350-387-4.ch011","type":"book-chapter","created":{"date-parts":[[2012,1,11]],"date-time":"2012-01-11T10:38:30Z","timestamp":1326278310000},"page":"140-147","source":"Crossref","is-referenced-by-count":0,"title":["A
-        Rite of Passage"],"prefix":"10.4018","author":[{"given":"Lindsy D.","family":"Serrano","sequence":"first","affiliation":[{"name":"New
-        York Public Library, USA"}]}],"member":"2432","container-title":["Advances
-        in Library and Information Science","Partnerships and Collaborations in Public
-        Library Communities"],"link":[{"URL":"https:\/\/www.igi-global.com\/viewtitle.aspx?TitleId=62330","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2018,11,18]],"date-time":"2018-11-18T22:34:49Z","timestamp":1542580489000},"score":18.88404,"resource":{"primary":{"URL":"http:\/\/services.igi-global.com\/resolvedoi\/resolve.aspx?doi=10.4018\/978-1-61350-387-4.ch011"}},"subtitle":["New
-        York Public Library Passages Academy"],"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.4018\/978-1-61350-387-4.ch011","ISSN":["2326-4136","2326-4144"],"issn-type":[{"value":"2326-4136","type":"print"},{"value":"2326-4144","type":"electronic"}]},{"indexed":{"date-parts":[[2023,5,11]],"date-time":"2023-05-11T11:19:48Z","timestamp":1683803988756},"edition-number":"1","reference-count":0,"publisher":"Cambridge
-        University Press","license":[{"start":{"date-parts":[[2013,5,5]],"date-time":"2013-05-05T00:00:00Z","timestamp":1367712000000},"content-version":"unspecified","delay-in-days":10,"URL":"https:\/\/www.cambridge.org\/core\/terms"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,4,25]]},"DOI":"10.1017\/cbo9780511998386.021","type":"book-chapter","created":{"date-parts":[[2013,5,5]],"date-time":"2013-05-05T04:04:03Z","timestamp":1367726643000},"page":"332-346","source":"Crossref","is-referenced-by-count":2,"title":["Visual
-        supplementation and metonymy in the Roman public library"],"prefix":"10.1017","author":[{"given":"David","family":"Petrain","sequence":"first","affiliation":[]}],"member":"56","container-title":["Ancient
-        Libraries"],"link":[{"URL":"https:\/\/www.cambridge.org\/core\/services\/aop-cambridge-core\/content\/view\/9ECD5CA575433D4702D1C96EBA5DCD01","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2022,6,12]],"date-time":"2022-06-12T09:55:06Z","timestamp":1655027706000},"score":18.771385,"resource":{"primary":{"URL":"https:\/\/www.cambridge.org\/core\/product\/identifier\/9780511998386%23c01256-4196\/type\/book_part"}},"issued":{"date-parts":[[2013,4,25]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1017\/cbo9780511998386.021","published":{"date-parts":[[2013,4,25]]}},{"indexed":{"date-parts":[[2022,4,5]],"date-time":"2022-04-05T22:33:34Z","timestamp":1649198014167},"reference-count":0,"publisher":"Emerald
-        Group Publishing Limited","license":[{"start":{"date-parts":[[2013,7,8]],"date-time":"2013-07-08T00:00:00Z","timestamp":1373241600000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.emerald.com\/insight\/site-policies"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,7,8]]},"DOI":"10.1108\/s1876-0562(2013)0000007019","type":"book-chapter","created":{"date-parts":[[2013,7,8]],"date-time":"2013-07-08T12:56:50Z","timestamp":1373288210000},"page":"ii","source":"Crossref","is-referenced-by-count":0,"title":["Library
-        and Information Science"],"prefix":"10.1108","member":"140","container-title":["Library
-        and Information Science","New Directions in Information Organization"],"link":[{"URL":"http:\/\/www.emeraldinsight.com\/doi\/full-xml\/10.1108\/S1876-0562(2013)0000007019","content-type":"unspecified","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.emerald.com\/insight\/content\/doi\/10.1108\/S1876-0562(2013)0000007019\/full\/xml","content-type":"application\/xml","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.emerald.com\/insight\/content\/doi\/10.1108\/S1876-0562(2013)0000007019\/full\/html","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2019,11,7]],"date-time":"2019-11-07T23:40:26Z","timestamp":1573170026000},"score":18.76448,"resource":{"primary":{"URL":"https:\/\/www.emerald.com\/insight\/content\/doi\/10.1108\/S1876-0562(2013)0000007019\/full\/html"}},"issued":{"date-parts":[[2013,7,8]]},"references-count":0,"alternative-id":["10.1108\/S1876-0562(2013)0000007019","10.1108\/lis","10.1108\/S1876-0562(2013)7"],"URL":"https:\/\/doi.org\/10.1108\/s1876-0562(2013)0000007019","ISSN":["1876-0562"],"issn-type":[{"value":"1876-0562","type":"print"}],"published":{"date-parts":[[2013,7,8]]}},{"indexed":{"date-parts":[[2022,8,5]],"date-time":"2022-08-05T23:12:25Z","timestamp":1659741145814},"reference-count":12,"publisher":"IGI
-        Global","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2018]]},"abstract":"<jats:p>It
-        is a known fact that Chennai city has a well-defined place when talking about
-        landmark buildings, which have gone down the annals of history- Connemara
-        library, certainly a pride of Madras is not only heaven for book lovers and
-        research Scholars, the building by its sheer architectural beauty and marvel
-        acquires a special significance as part of the history of Madras City. Public
-        library is largely regarded as the People''s University. It has tremendous
-        developments in India from the early period to till date at various stages.
-        Most of the Indian states now have free public library services to develop
-        the people of India at different levels, which can be stated as below briefly.
-        Majority of the users prefer to search documents directly from the stack room.
-        The main purpose of visiting the library by the users is to prepare for completive
-        examinations and some other purposes are to study in the library and to update
-        their subject knowledge. The general book services provided by the library
-        are highly useful. The Reference services provided by the library are highly
-        useful. The users are satisfied with the information provided in the library.
-        All the services available on the library except latest collections are found
-        to be at satisfactory level. Nearly 7.5 lakhs of collection of books are available
-        in the library. Selection of books is done by book selection committee. Nearly
-        four hundred books are issued daily to the public. The uses can retain the
-        book for a maximum of 14 days. The users can renew the books for another three
-        times either through phone or in person. A minimum amount of Rupees two per
-        week is charged as overdue charge.<\/jats:p>","DOI":"10.4018\/978-1-5225-3914-8.ch037","type":"book-chapter","created":{"date-parts":[[2017,10,31]],"date-time":"2017-10-31T13:43:10Z","timestamp":1509457390000},"page":"780-809","source":"Crossref","is-referenced-by-count":0,"title":["Library
-        Resources and Services in Tamilnadu State Central Library (Connemara Public
-        Library)"],"prefix":"10.4018","author":[{"given":"K. S.","family":"ABU","sequence":"first","affiliation":[{"name":"Alagappa
-        University, Karaikudi, India"}]}],"member":"2432","reference":[{"issue":"1
-        & 2","key":"978-1-5225-3914-8.ch037.-1","first-page":"139","article-title":"Rural
-        libraries in India: As community information centres.","volume":"5","author":"M.Aslam","year":"1998","journal-title":"Granthana"},{"key":"978-1-5225-3914-8.ch037.-2","unstructured":"Gomati,
-        P. (2012). A Study on User Satisfaction of Sources and Services: Special Reference
-        to Public Library in Chidambaram. Journal of Advances in Library and Information
-        Science, 1(4), 157-159."},{"key":"978-1-5225-3914-8.ch037.-3","doi-asserted-by":"crossref","unstructured":"Ilangovan,
-        M., & Higgins, S.E. (2003, March). Library provision to the Tamil community
-        in Singapore. Library and Information Science Research Electronic Journal,
-        13(1) Retrieved from http:\/\/libres.curtin.edu.au\/libres13n1","DOI":"10.32655\/LIBRES.2003.1.2"},{"key":"978-1-5225-3914-8.ch037.-4","unstructured":"Iwhiwhu,
-        B., & Okorodudu, P. (2012, May 1). Public Library Information Resources, Facilities
-        and Services: User Satisfaction with the Edo State Central Library. Benin-City,
-        Nigeria."},{"key":"978-1-5225-3914-8.ch037.-5","doi-asserted-by":"publisher","DOI":"10.1086\/523908"},{"issue":"2","key":"978-1-5225-3914-8.ch037.-6","first-page":"89","article-title":"Use
-        and usage of information sources and services in T.S. Central State Library,
-        Chandigarh: A user study.","volume":"3","author":"S.Lata","year":"2013","journal-title":"International
-        Journal of Information Dissemination and Technology"},{"key":"978-1-5225-3914-8.ch037.-7","unstructured":"Padmamma,
-        S., et al. (2001, July-December). Public library service for women. Indian
-        Journal of Information and Library Science, 14(3-4), 177-181."},{"key":"978-1-5225-3914-8.ch037.-8","unstructured":"Saleh,
-        A. (2011). An Assessment of Public library services in North Eastern Libraries
-        in Nigeria."},{"issue":"2","key":"978-1-5225-3914-8.ch037.-9","first-page":"133","article-title":"The
-        contributions of rural library services to literacy development in Nigeria:
-        A review of the past century and prospect of the new millennium.","volume":"23","author":"N.N.Sule","year":"2003","journal-title":"Library
-        Progress (International)"},{"key":"978-1-5225-3914-8.ch037.-10","unstructured":"Tyagi,
-        S. (2011). Use of Information Resources and Services at Delhi Public Library."},{"issue":"2","key":"978-1-5225-3914-8.ch037.-11","first-page":"165","article-title":"Problems
-        and prospects of rural libraries.","volume":"38","author":"M.Vijayakumar","year":"2001","journal-title":"SRELS
-        Journal of Information Management."},{"key":"978-1-5225-3914-8.ch037.-12","author":"S.
-        P.Whelan","year":"2002","journal-title":"Public Libraries and Youth Development:
-        A guide to practice and policy"}],"container-title":["Library Science and
-        Administration"],"link":[{"URL":"https:\/\/www.igi-global.com\/viewtitle.aspx?TitleId=191541","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2022,8,5]],"date-time":"2022-08-05T22:56:50Z","timestamp":1659740210000},"score":18.738634,"resource":{"primary":{"URL":"http:\/\/services.igi-global.com\/resolvedoi\/resolve.aspx?doi=10.4018\/978-1-5225-3914-8.ch037"}},"subtitle":["A
-        Study"],"issued":{"date-parts":[[2018]]},"references-count":12,"URL":"https:\/\/doi.org\/10.4018\/978-1-5225-3914-8.ch037","published":{"date-parts":[[2018]]}},{"indexed":{"date-parts":[[2022,4,1]],"date-time":"2022-04-01T18:17:19Z","timestamp":1648837039057},"edition-number":"1","reference-count":0,"publisher":"Facet","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.29085\/9781856047951.013","type":"book-chapter","created":{"date-parts":[[2018,7,5]],"date-time":"2018-07-05T14:04:42Z","timestamp":1530799482000},"page":"197-206","source":"Crossref","is-referenced-by-count":0,"title":["Conclusion:
-        the public library of tomorrow"],"prefix":"10.29085","member":"11627","container-title":["The
-        Public Library"],"deposited":{"date-parts":[[2018,7,5]],"date-time":"2018-07-05T14:10:59Z","timestamp":1530799859000},"score":18.654587,"resource":{"primary":{"URL":"https:\/\/www.cambridge.org\/core\/product\/identifier\/CBO9781856047951A124\/type\/book_part"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.29085\/9781856047951.013"},{"indexed":{"date-parts":[[2024,5,3]],"date-time":"2024-05-03T13:32:20Z","timestamp":1714743140106},"reference-count":0,"publisher":"Elsevier","isbn-type":[{"value":"9781843346821","type":"print"}],"license":[{"start":{"date-parts":[[2013,1,1]],"date-time":"2013-01-01T00:00:00Z","timestamp":1356998400000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.elsevier.com\/tdm\/userlicense\/1.0\/"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013]]},"DOI":"10.1016\/b978-1-84334-682-1.50008-7","type":"book-chapter","created":{"date-parts":[[2014,3,18]],"date-time":"2014-03-18T08:01:01Z","timestamp":1395129661000},"page":"177-210","source":"Crossref","is-referenced-by-count":0,"title":["Employability,
-        informal learning and the role of the public library"],"prefix":"10.1016","author":[{"given":"John","family":"Crawford","sequence":"first","affiliation":[]}],"member":"78","container-title":["Information
-        Literacy and Lifelong Learning"],"language":"en","link":[{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843346821500087?httpAccept=text\/xml","content-type":"text\/xml","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843346821500087?httpAccept=text\/plain","content-type":"text\/plain","content-version":"vor","intended-application":"text-mining"}],"deposited":{"date-parts":[[2018,10,6]],"date-time":"2018-10-06T01:24:37Z","timestamp":1538789077000},"score":18.52921,"resource":{"primary":{"URL":"https:\/\/linkinghub.elsevier.com\/retrieve\/pii\/B9781843346821500087"}},"issued":{"date-parts":[[2013]]},"ISBN":["9781843346821"],"references-count":0,"URL":"https:\/\/doi.org\/10.1016\/b978-1-84334-682-1.50008-7","published":{"date-parts":[[2013]]}},{"indexed":{"date-parts":[[2025,5,14]],"date-time":"2025-05-14T10:21:26Z","timestamp":1747218086079,"version":"3.40.5"},"reference-count":0,"publisher":"Russian
-        National Public Library for Science and Technology","isbn-type":[{"type":"print","value":"9785856382654"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2023]]},"abstract":"<jats:p>\u0423\u0440\u043e\u0432\u0435\u043d\u044c
-        \u0440\u0430\u0437\u0432\u0438\u0442\u0438\u044f \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0442\u0438\u0437\u0430\u0446\u0438\u0438
-        \u043f\u0440\u0435\u0434\u044a\u044f\u0432\u043b\u044f\u0435\u0442 \u0432\u044b\u0441\u043e\u043a\u0438\u0435
-        \u0442\u0440\u0435\u0431\u043e\u0432\u0430\u043d\u0438\u044f \u043a \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u043e\u043d\u043d\u043e-\u043f\u043e\u0438\u0441\u043a\u043e\u0432\u044b\u043c
-        \u0441\u0438\u0441\u0442\u0435\u043c\u0430\u043c \u0432 \u0446\u0435\u043b\u043e\u043c
-        \u0438 \u0431\u0438\u0431\u043b\u0438\u043e\u0442\u0435\u0447\u043d\u044b\u043c
-        \u043a\u0430\u0442\u0430\u043b\u043e\u0433\u0430\u043c \u0432 \u0447\u0430\u0441\u0442\u043d\u043e\u0441\u0442\u0438.
-        \u042d\u043b\u0435\u043a\u0442\u0440\u043e\u043d\u043d\u044b\u0439 \u043a\u0430\u0442\u0430\u043b\u043e\u0433
-        \u0431\u0438\u0431\u043b\u0438\u043e\u0442\u0435\u043a\u0438 \u0434\u043e\u043b\u0436\u0435\u043d
-        \u043e\u0431\u043b\u0430\u0434\u0430\u0442\u044c \u044d\u0444\u0444\u0435\u043a\u0442\u0438\u0432\u043d\u044b\u043c\u0438
-        \u043f\u043e\u0438\u0441\u043a\u043e\u0432\u044b\u043c\u0438 \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u044f\u043c\u0438
-        \u0438 \u0431\u044b\u0442\u044c \u0443\u0434\u043e\u0431\u043d\u044b\u043c
-        \u0434\u043b\u044f \u0447\u0438\u0442\u0430\u0442\u0435\u043b\u0435\u0439,
-        \u043f\u0440\u0438\u0432\u044b\u043a\u0448\u0438\u0445 \u0440\u0430\u0431\u043e\u0442\u0430\u0442\u044c
-        \u0441 \u043f\u043e\u0438\u0441\u043a\u043e\u0432\u044b\u043c\u0438 \u0441\u0438\u0441\u0442\u0435\u043c\u0430\u043c\u0438
-        \u0438\u043d\u0442\u0435\u0440\u043d\u0435\u0442\u0430. \u0412 \u0441\u0442\u0430\u0442\u044c\u0435
-        \u0440\u0430\u0441\u0441\u043c\u0430\u0442\u0440\u0438\u0432\u0430\u044e\u0442\u0441\u044f
-        \u0441\u043f\u043e\u0441\u043e\u0431\u044b \u0440\u0430\u0441\u043a\u0440\u044b\u0442\u0438\u044f
-        \u0441\u043e\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f \u0438\u0437\u0434\u0430\u043d\u0438\u0439
-        \u0432 \u044d\u043b\u0435\u043a\u0442\u0440\u043e\u043d\u043d\u044b\u0445
-        \u043a\u0430\u0442\u0430\u043b\u043e\u0433\u0430\u0445 \u043d\u0435\u0441\u043a\u043e\u043b\u044c\u043a\u0438\u0445
-        \u0432\u0435\u0434\u0443\u0449\u0438\u0445 \u0431\u0438\u0431\u043b\u0438\u043e\u0442\u0435\u043a
-        \u0420\u043e\u0441\u0441\u0438\u0438 \u0438 \u0437\u0430\u0440\u0443\u0431\u0435\u0436\u044c\u044f,
-        \u0441\u0432\u043e\u0434\u043d\u044b\u0445 \u043a\u0430\u0442\u0430\u043b\u043e\u0433\u0430\u0445,
-        \u0440\u043e\u0441\u0441\u0438\u0439\u0441\u043a\u0438\u0445 \u044d\u043b\u0435\u043a\u0442\u0440\u043e\u043d\u043d\u044b\u0445
-        \u0431\u0438\u0431\u043b\u0438\u043e\u0442\u0435\u043a\u0430\u0445 \u0438
-        \u044d\u043b\u0435\u043a\u0442\u0440\u043e\u043d\u043d\u043e-\u0431\u0438\u0431\u043b\u0438\u043e\u0442\u0435\u0447\u043d\u044b\u0445
-        \u0441\u0438\u0441\u0442\u0435\u043c\u0430\u0445 \u0438\u0437 \u043f\u043e\u0434\u043f\u0438\u0441\u043a\u0438
-        \u0413\u041f\u041d\u0422\u0411 \u0420\u043e\u0441\u0441\u0438\u0438. \u041f\u0440\u0438\u0432\u043e\u0434\u044f\u0442\u0441\u044f
-        \u043e\u0441\u043e\u0431\u0435\u043d\u043d\u043e\u0441\u0442\u0438 \u0441\u043f\u043e\u0441\u043e\u0431\u043e\u0432
-        \u0440\u0430\u0441\u043a\u0440\u044b\u0442\u0438\u044f \u0441\u043e\u0434\u0435\u0440\u0436\u0430\u043d\u0438\u044f
-        \u043a\u043e\u043b\u043b\u0435\u043a\u0446\u0438\u0439 \u0438 \u0444\u043e\u043d\u0434\u043e\u0432
-        \u0432 \u044d\u0442\u0438\u0445 \u0442\u0438\u043f\u0430\u0445 \u043e\u0440\u0433\u0430\u043d\u0438\u0437\u0430\u0446\u0438\u0439
-        \u043a\u0430\u043a \u0441 \u0442\u043e\u0447\u043a\u0438 \u0437\u0440\u0435\u043d\u0438\u044f
-        \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u043e\u043d\u043d\u043e\u0433\u043e
-        \u043d\u0430\u043f\u043e\u043b\u043d\u0435\u043d\u0438\u044f \u0431\u0438\u0431\u043b\u0438\u043e\u0433\u0440\u0430\u0444\u0438\u0447\u0435\u0441\u043a\u043e\u0439
-        \u0437\u0430\u043f\u0438\u0441\u0438, \u0442\u0430\u043a \u0438 \u0432 \u0447\u0430\u0441\u0442\u0438
-        \u0444\u0443\u043d\u043a\u0446\u0438\u043e\u043d\u0430\u043b\u044c\u043d\u044b\u0445
-        \u0432\u043e\u0437\u043c\u043e\u0436\u043d\u043e\u0441\u0442\u0435\u0439 \u043a\u0430\u0442\u0430\u043b\u043e\u0433\u0430.
-        \u041e\u0442\u043c\u0435\u0447\u0430\u044e\u0442\u0441\u044f \u0440\u0430\u0437\u043b\u0438\u0447\u0438\u044f
-        \u0432 \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u043e\u043d\u043d\u044b\u0445
-        \u0441\u0435\u0440\u0432\u0438\u0441\u0430\u0445, \u0441 \u043e\u0434\u043d\u043e\u0439
-        \u0441\u0442\u043e\u0440\u043e\u043d\u044b, \u0438, \u0441 \u0434\u0440\u0443\u0433\u043e\u0439
-        \u0441\u0442\u043e\u0440\u043e\u043d\u044b, \u0432\u0441\u0435\u043e\u0431\u0449\u0435\u0435
-        \u043f\u043e\u043d\u0438\u043c\u0430\u043d\u0438\u0435 \u0432\u0430\u0436\u043d\u043e\u0441\u0442\u0438
-        \u0437\u0430\u0434\u0430\u0447\u0438 \u043f\u0440\u0435\u0434\u043e\u0441\u0442\u0430\u0432\u043b\u0435\u043d\u0438\u044f
-        \u043f\u043e\u043b\u043d\u043e\u0439 \u0441\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u043e\u0439
-        \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u0438 \u043e \u043a\u043d\u0438\u0436\u043d\u044b\u0445
-        \u0441\u043e\u0431\u0440\u0430\u043d\u0438\u044f\u0445 \u0447\u0435\u0440\u0435\u0437
-        \u044d\u043b\u0435\u043a\u0442\u0440\u043e\u043d\u043d\u044b\u0435 \u043a\u0430\u0442\u0430\u043b\u043e\u0433\u0438
-        \u0441 \u043f\u0440\u043e\u0441\u0442\u044b\u043c\u0438 \u0438 \u0443\u0434\u043e\u0431\u043d\u044b\u043c\u0438
-        \u043f\u043e\u0438\u0441\u043a\u043e\u0432\u044b\u043c\u0438 \u0441\u0435\u0440\u0432\u0438\u0441\u0430\u043c\u0438.<\/jats:p>","DOI":"10.33186\/978-5-85638-265-4-2023-36-56","type":"book-chapter","created":{"date-parts":[[2024,4,9]],"date-time":"2024-04-09T13:25:06Z","timestamp":1712669106000},"page":"36-56","source":"Crossref","is-referenced-by-count":0,"title":["\u0420\u0430\u0441\u043a\u0440\u044b\u0442\u0438\u0435
-        \u0444\u043e\u043d\u0434\u043e\u0432 \u0431\u0438\u0431\u043b\u0438\u043e\u0442\u0435\u043a
-        \u0438 \u044d\u043b\u0435\u043a\u0442\u0440\u043e\u043d\u043d\u043e-\u0431\u0438\u0431\u043b\u0438\u043e\u0442\u0435\u0447\u043d\u044b\u0445
-        \u0441\u0438\u0441\u0442\u0435\u043c \u0432 \u0446\u0438\u0444\u0440\u043e\u0432\u043e\u0439
-        \u0441\u0440\u0435\u0434\u0435"],"prefix":"10.33186","author":[{"name":"Russian
-        National Public Library for Science and Technology","sequence":"first","affiliation":[]},{"given":"\u0413.
-        \u0410.","family":"\u0415\u0432\u0441\u0442\u0438\u0433\u043d\u0435\u0435\u0432\u0430","sequence":"first","affiliation":[]},{"ORCID":"https:\/\/orcid.org\/0000-0002-0020-1318","authenticated-orcid":false,"given":"\u041e\u043b\u044c\u0433\u0430
-        \u0411.","family":"\u0423\u0448\u0430\u043a\u043e\u0432\u0430","sequence":"additional","affiliation":[]},{"name":"Russian
-        National Public Library for Science and Technology","sequence":"additional","affiliation":[]},{"given":"\u0418.
-        \u041f.","family":"\u0420\u043e\u043c\u0430\u043d\u0435\u043d\u043a\u043e","sequence":"additional","affiliation":[]},{"name":"Russian
-        National Public Library for Science and Technology","sequence":"additional","affiliation":[]}],"member":"18655","published-online":{"date-parts":[[2023]]},"container-title":["\u041f\u0440\u043e\u0434\u0432\u0438\u0436\u0435\u043d\u0438\u0435
-        \u0431\u0438\u0431\u043b\u0438\u043e\u0442\u0435\u0447\u043d\u044b\u0445 \u0444\u043e\u043d\u0434\u043e\u0432,
-        \u0431\u0438\u0431\u043b\u0438\u043e\u0442\u0435\u0447\u043d\u043e-\u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u043e\u043d\u043d\u044b\u0445
-        \u0440\u0435\u0441\u0443\u0440\u0441\u043e\u0432 \u0438 \u0443\u0441\u043b\u0443\u0433
-        : \u0435\u0436\u0435\u0433\u043e\u0434\u043d\u044b\u0439 \u043c\u0435\u0436\u0432\u0435\u0434\u043e\u043c\u0441\u0442\u0432\u0435\u043d\u043d\u044b\u0439
-        \u0441\u0431\u043e\u0440\u043d\u0438\u043a \u043d\u0430\u0443\u0447\u043d\u044b\u0445
-        \u0442\u0440\u0443\u0434\u043e\u0432"],"deposited":{"date-parts":[[2024,4,9]],"date-time":"2024-04-09T13:25:16Z","timestamp":1712669116000},"score":18.342678,"resource":{"primary":{"URL":"https:\/\/cat.gpntb.ru\/index.php?id=EC\/ShowFull&mfn=4504644&irbDb=ESVODT&fmt=GoToFT&fmtModule=EC"}},"issued":{"date-parts":[[2023]]},"ISBN":["9785856382654"],"references-count":0,"URL":"https:\/\/doi.org\/10.33186\/978-5-85638-265-4-2023-36-56","published":{"date-parts":[[2023]]}},{"indexed":{"date-parts":[[2024,5,3]],"date-time":"2024-05-03T09:38:30Z","timestamp":1714729110498},"reference-count":0,"publisher":"Elsevier","isbn-type":[{"value":"9781843346968","type":"print"}],"license":[{"start":{"date-parts":[[2013,1,1]],"date-time":"2013-01-01T00:00:00Z","timestamp":1356998400000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.elsevier.com\/tdm\/userlicense\/1.0\/"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013]]},"DOI":"10.1016\/b978-1-84334-696-8.50007-3","type":"book-chapter","created":{"date-parts":[[2014,3,28]],"date-time":"2014-03-28T01:09:45Z","timestamp":1395968985000},"page":"95-100","source":"Crossref","is-referenced-by-count":0,"title":["Oslo
-        Public Library: digital efforts"],"prefix":"10.1016","author":[{"given":"Hui-Lan
-        H.","family":"Titangos","sequence":"first","affiliation":[]}],"member":"78","container-title":["Local
-        Community in the Era of Social Media Technologies"],"language":"en","link":[{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843346968500073?httpAccept=text\/xml","content-type":"text\/xml","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843346968500073?httpAccept=text\/plain","content-type":"text\/plain","content-version":"vor","intended-application":"text-mining"}],"deposited":{"date-parts":[[2018,10,5]],"date-time":"2018-10-05T08:58:34Z","timestamp":1538729914000},"score":18.310604,"resource":{"primary":{"URL":"https:\/\/linkinghub.elsevier.com\/retrieve\/pii\/B9781843346968500073"}},"issued":{"date-parts":[[2013]]},"ISBN":["9781843346968"],"references-count":0,"URL":"https:\/\/doi.org\/10.1016\/b978-1-84334-696-8.50007-3","published":{"date-parts":[[2013]]}},{"indexed":{"date-parts":[[2024,5,3]],"date-time":"2024-05-03T09:38:24Z","timestamp":1714729104833},"reference-count":0,"publisher":"Elsevier","isbn-type":[{"value":"9781843346968","type":"print"}],"license":[{"start":{"date-parts":[[2013,1,1]],"date-time":"2013-01-01T00:00:00Z","timestamp":1356998400000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.elsevier.com\/tdm\/userlicense\/1.0\/"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013]]},"DOI":"10.1016\/b978-1-84334-696-8.50010-3","type":"book-chapter","created":{"date-parts":[[2014,3,28]],"date-time":"2014-03-28T01:09:39Z","timestamp":1395968979000},"page":"129-133","source":"Crossref","is-referenced-by-count":0,"title":["Oslo
-        Public Library: rejuvenated OPAC"],"prefix":"10.1016","author":[{"given":"Hui-Lan
-        H.","family":"Titangos","sequence":"first","affiliation":[]}],"member":"78","container-title":["Local
-        Community in the Era of Social Media Technologies"],"language":"en","link":[{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843346968500103?httpAccept=text\/xml","content-type":"text\/xml","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/api.elsevier.com\/content\/article\/PII:B9781843346968500103?httpAccept=text\/plain","content-type":"text\/plain","content-version":"vor","intended-application":"text-mining"}],"deposited":{"date-parts":[[2018,10,5]],"date-time":"2018-10-05T09:20:07Z","timestamp":1538731207000},"score":18.188347,"resource":{"primary":{"URL":"https:\/\/linkinghub.elsevier.com\/retrieve\/pii\/B9781843346968500103"}},"issued":{"date-parts":[[2013]]},"ISBN":["9781843346968"],"references-count":0,"URL":"https:\/\/doi.org\/10.1016\/b978-1-84334-696-8.50010-3","published":{"date-parts":[[2013]]}},{"indexed":{"date-parts":[[2022,4,2]],"date-time":"2022-04-02T18:41:52Z","timestamp":1648924912343},"reference-count":71,"publisher":"IGI
-        Global","content-domain":{"domain":[],"crossmark-restriction":false},"abstract":"<jats:p>Building
-        on the discussion of mission statements, goals, and objectives in Chapter
-        3, this chapter begins with long and short range planning. It is not enough
-        to complete the basic organizational documents only to shove them into a filing
-        cabinet and forget they exist. Used properly, these documents can help keep
-        library activities, staff, administration, and governing authorities on track
-        and within the library\u2019s resources. Planning activities can also have
-        an impact on the political climate in which the library exists. Political
-        realities are addressed throughout this chapter as it discusses funding methods
-        and issues, the budget process, and the purpose of written policies and procedures.
-        Because much of this information is generic to all library types, the authors
-        have tried to keep the discussion and examples specific to the public law
-        library\u2019s peculiarities.<\/jats:p>","DOI":"10.4018\/978-1-4666-2184-8.ch004","type":"book-chapter","created":{"date-parts":[[2012,8,29]],"date-time":"2012-08-29T16:45:58Z","timestamp":1346258758000},"page":"72-96","source":"Crossref","is-referenced-by-count":0,"title":["General
-        Library Management"],"prefix":"10.4018","member":"2432","reference":[{"key":"978-1-4666-2184-8.ch004.-1","unstructured":"American
-        Association of Law Libraries. (2002, June 2). Model trial court\/county law
-        library code: Draft #5. Retrieved March 27, 2012, from http:\/\/aallnet.org\/sis\/sccll\/archives\/Modcode05.pdf"},{"key":"978-1-4666-2184-8.ch004.-2","first-page":"189","article-title":"Standards
-        for Appellate Court libraries and state law libraries.","volume":"98","year":"2006","journal-title":"Law
-        Library Journal"},{"key":"978-1-4666-2184-8.ch004.-3","unstructured":"American
-        Association of Law Libraries. (2009, April). County public law library standards.
-        Retrieved March 27, 2012, from http:\/\/www.aallnet.org\/sis\/sccll\/docs\/FinalCountyStandards2009.doc"},{"key":"978-1-4666-2184-8.ch004.-4","unstructured":"American
-        Association of Law Libraries. State, Court, & County Law Libraries. (2011,
-        August 31). Toolkit: Law library policies. Retrieved March 27, 2012, from
-        http:\/\/www.aallnet.org\/sis\/sccll\/toolkit\/policies.htm"},{"key":"978-1-4666-2184-8.ch004.-5","unstructured":"Americans
-        with Disabilities Act Reg., 28 C.F.R. \u00a7 36.403 (2010)."},{"key":"978-1-4666-2184-8.ch004.-6","unstructured":"Americans
-        with Disabilities Act Reg., 28 C.F.R. \u00a7 36A.4.3.3 (2010)."},{"key":"978-1-4666-2184-8.ch004.-7","unstructured":"Americans
-        with Disabilities Act Reg., 28 C.F.R. \u00a7 36A.8.5 (2010)."},{"issue":"4","key":"978-1-4666-2184-8.ch004.-8","first-page":"5","article-title":"Budget
-        reduction at the San Diego County Public Law Library.","volume":"10","author":"P.Barbone","year":"2006","journal-title":"AALL
-        Spectrum"},{"key":"978-1-4666-2184-8.ch004.-9","first-page":"26","article-title":"The
-        reference librarian and the pro se patron.","volume":"69","author":"R. T.Begg","year":"1976","journal-title":"Law
-        Library Journal"},{"key":"978-1-4666-2184-8.ch004.-10","unstructured":"Bounds
-        v. Smith, 430 U.S. 817 (1977)."},{"key":"978-1-4666-2184-8.ch004.-11","first-page":"325","article-title":"Law
-        libraries and librarians: A revisionist history; or More than you ever wanted
-        to know.","volume":"67","author":"C. A.Brock","year":"1974","journal-title":"Law
-        Library Journal"},{"key":"978-1-4666-2184-8.ch004.-12","unstructured":"Cole,
-        H. (2009, September 21). Online research, budget squeezes threaten future
-        of court-funded law libraries in Missouri. Missouri Lawyers Weekly. Retrieved
-        June 7, 2011, from http:\/\/www.westlaw.com\/Document\/I75d37b20a81f11de8c3cd815c099f46c\/View\/FullText.html?originationContext=docHeader&rs=cblt1.0&vr=3.0&contextData=(sc.Search)&transitionType=Document"},{"key":"978-1-4666-2184-8.ch004.-13","unstructured":"Council
-        of California County Law Librarians. (n.d.). Your public law library. Retrieved
-        March 27, 2012, from http:\/\/www.publiclawlibrary.org\/"},{"key":"978-1-4666-2184-8.ch004.-14","unstructured":"Craig,
-        J. (2010, May 21). Law library falls behind on bills. The Spokesman-Review
-        [WA]. Retrieved April 25, 2011, from http:\/\/search.ebscohost.com\/login.aspx?direct=true&db=nfh&AN=2W64020594155&site=ehost-live"},{"key":"978-1-4666-2184-8.ch004.-15","first-page":"559","article-title":"Legal
-        information for the public: A public library perspective.","volume":"84","author":"J.
-        L.Crowther","year":"1992","journal-title":"Law Library Journal"},{"key":"978-1-4666-2184-8.ch004.-16","unstructured":"Dossett,
-        J. C. (2004, April 28). Budget and financial management in special libraries.
-        Retrieved March 27, 2012 from http:\/\/faculty.libsci.sc.edu\/bob\/class\/clis724\/SpecialLibrariesHandbook\/Budgets%20and%20Financial%20Management.htm"},{"key":"978-1-4666-2184-8.ch004.-17","unstructured":"Ebbinghouse,
-        C. (2002, April 30). Library outsourcing: A new look. Searcher, 10(4), 6.
-        Retrieved June 7, 2011, from http:\/\/www.westlaw.com\/Document\/I4c2912e00bc611d89b3087634a445e02\/View\/FullText.html?originationContext=docHeader&rs=cblt1.0&vr=3.0&contextData=(sc.Search)&transitionType=Document"},{"key":"978-1-4666-2184-8.ch004.-18","unstructured":"Faretta
-        v. California, 422 U.S. 806 (1975)."},{"issue":"1","key":"978-1-4666-2184-8.ch004.-19","first-page":"91","article-title":"Law
-        library budgets in hard times.","volume":"103","author":"T.Fitchett","year":"2011","journal-title":"Law
-        Library Journal"},{"key":"978-1-4666-2184-8.ch004.-20","doi-asserted-by":"crossref","unstructured":"FLA.
-        Stat. Ann. \u00a7 939.185(1)(a) (West 2011).","DOI":"10.1016\/j.juro.2010.11.027"},{"key":"978-1-4666-2184-8.ch004.-21","doi-asserted-by":"crossref","unstructured":"FLA.
-        Stat. Ann. \u00a7 939.185(1)(a)(3) (West 2011).","DOI":"10.1016\/j.juro.2010.11.027"},{"key":"978-1-4666-2184-8.ch004.-22","unstructured":"Fritschel,
-        B., & Marz, S. (2004). Funding sources for law libraries serving local jurisdictions.
-        Retrieved March 27, 2012, from http:\/\/www.aallnet.org\/sis\/sccll\/toolkit\/FundingSources.doc"},{"key":"978-1-4666-2184-8.ch004.-23","unstructured":"Georgia
-        State University plans humanites-law building. (2011, May 26). Tradeline:
-        Leading edge resources for facilities planning and management. Retrieved March
-        27, 2011, from http:\/\/www.tradelineinc.com\/news\/2B49511B-F0F0-22DA-31A33FDDD65DEC13"},{"key":"978-1-4666-2184-8.ch004.-24","unstructured":"Gonzalez,
-        J. W. (2011, January 30). Turn the page on these law libraries\u2019 books:
-        Funding problems at Bexar County facilities may lead to exodus. San Antonio
-        Express-News. Retrieved March 27, 2012, from http:\/\/www.mysanantonio.com\/default\/article\/Turn-the-page-on-these-law-libraries-books-986824.php"},{"key":"978-1-4666-2184-8.ch004.-25","unstructured":"Grayson
-        County District Attorney. Judge R.C. Vaughan County Law Library. (2006). Policy
-        and procedure manual. Unpublished manuscript."},{"key":"978-1-4666-2184-8.ch004.-26","unstructured":"Grayson
-        County District Attorney. Judge R. C. Vaughan County Law Library. (n.d.).
-        Mission statement. Retrieved March 27, 2012, from http:\/\/www.co.grayson.tx.us\/Attorney\/llinfo.htm"},{"key":"978-1-4666-2184-8.ch004.-27","unstructured":"Gregorson,
-        J. (2010, August 12). Olmsted County sued over law library funds. Post-Bulletin
-        [MN]. Retrieved April 25, 2011, from http:\/\/search.ebscohost.com\/login.aspx?direct=true&db=nfh&AN=2W62927661315&site=ehost-live"},{"key":"978-1-4666-2184-8.ch004.-28","unstructured":"Gregory,
-        V. L. (1992). Formula budgeting in academic libraries. In A. Kent (Ed.). Encyclopedia
-        of library and information science (Vol. 49, pp. 262-267). New York, NY: Marcel
-        Dekker. Retrieved March 27, 2012, from http:\/\/books.google.com\/books"},{"key":"978-1-4666-2184-8.ch004.-29","unstructured":"Hill,
-        J. M. (1983). An overview of prisoners\u2019 rights: Part I, access to the
-        courts under section 1983. St. Mary''s Law Journal, 14, 957-989. Retrieved
-        March 5, 2011, from http:\/\/web2.westlaw.com\/find\/default.wl?DB=PROFILER%2DWLD&DocName=0187994601&FindType=h&AP=&RS=WLW4.08&VR=2.0&FN=_top&SV=Split&MT=Texas&UTid=%7bD1518D07-C46D-4A86-9732-E48E86B1FAE6%7d&SPa=003137889-4000"},{"key":"978-1-4666-2184-8.ch004.-30","unstructured":"Holcomb,
-        J. (1999a, Spring). Financial management: Fact or fiction? State, Court and
-        County Law Libraries: Newsletter of the State, Court and County SIS of the
-        American Association of Law Libraries 25(3), 1, 3. Retrieved March 27, 2012,
-        from http:\/\/www.aallnet.org\/sis\/sccll\/pdfs\/news\/Vol25no3.pdf"},{"key":"978-1-4666-2184-8.ch004.-31","unstructured":"Holcomb,
-        J. (1999b, Spring). A tale of two cities: Part 2. State, Court and County
-        Law Libraries: Newsletter of the State, Court and County SIS of the American
-        Association of Law Libraries, 25(3), 3. Retrieved March 27, 2012, from http:\/\/www.aallnet.org\/sis\/sccll\/pdfs\/news\/Vol25no3.pdf"},{"key":"978-1-4666-2184-8.ch004.-32","unstructured":"Holcomb,
-        J. (2005, Winter). Crystal ball reading skills required. Law Library Journal,
-        97(1), 185-191. Retrieved March 27, 2012, from http:\/\/www.aallnet.org\/main-menu\/Publications\/llj\/LLJ-Archives\/Vol-97\/pub_llj_v97n01\/2005-10.pdf"},{"key":"978-1-4666-2184-8.ch004.-33","unstructured":"Holcomb,
-        J. M. (2003, February). Funding a new training center. Computers in Libraries,
-        23(2), 10. Retrieved January 1, 2011, from http:\/\/search.ebscohost.com\/login.aspx?direct=true&db=tfh&AN=8986798&site=ehost-live"},{"key":"978-1-4666-2184-8.ch004.-34","doi-asserted-by":"crossref","unstructured":"Johnson
-        v. Avery, 393 U.S. 483 (1969).","DOI":"10.5860\/crl_30_06_483"},{"key":"978-1-4666-2184-8.ch004.-35","unstructured":"Kelley,
-        M. (2011, January 21). Proposed budget in Texas nearly zeros out key state
-        library funds. Library Journal. Retrieved March 27, 2012, from http:\/\/www.libraryjournal.com\/lj\/home\/888925-264\/proposed_budget_in_texas_nearly.html.csp"},{"key":"978-1-4666-2184-8.ch004.-36","unstructured":"Law
-        libraries in mass, may charge fees; Some might close shop. (2003, March 24).
-        Massachusetts Lawyers Weekly. Retrieved June 7, 2011, from http:\/\/www.westlaw.com\/Document\/Ib70ce3f0f3ad11dd9ce3f0768dcf9133\/View\/FullText.html?originationContext=docHeader&rs=cblt1.0&vr=3.0&contextData=(sc.Search)&transitionType=Document"},{"key":"978-1-4666-2184-8.ch004.-37","unstructured":"Massachusetts
-        Trial Court Law Libraries. (2012, March 27). Massachusetts trial court law
-        libraries locations, services and policies. Retrieved March 27, 2012, from
-        http:\/\/www.lawlib.state.ma.us\/libraries\/services\/borrower.html"},{"key":"978-1-4666-2184-8.ch004.-38","unstructured":"McCarthy
-        wins bid for Georgia State University humanites-law building. (2011, May 18).
-        [News and Events column]. McCarthy. Retrieved March 27, 2012, from http:\/\/www.mccarthy.com\/news\/2011\/05\/18\/mccarthy-wins-bid-for-georgia\/"},{"key":"978-1-4666-2184-8.ch004.-39","unstructured":"Meadows,
-        J. (1993, Fall). The Northwest Consortium of Law Libraries. Law Library Journal,
-        85, 775-781. Retrieved June 1, 2011, from http:\/\/www.westlaw.com\/Document\/I3cdaf6915af211dbbd2dfa5ce1d08a25\/View\/FullText.html?originationContext=docHeader&rs=cblt1.0&vr=3.0&contextData=(sc.Search)&transitionType=Document"},{"key":"978-1-4666-2184-8.ch004.-40","unstructured":"Miami-Dade
-        Law Library sees an increase in usage. (2011, September 12). The Florida Bar
-        News. Retrieved March 27, 2012, from http:\/\/www.floridabar.org\/DIVCOM\/JN\/jnnews01.nsf\/8c9f13012b96736985256aa900624829\/37e4e2421b066df08525788b004661f7!OpenDocument"},{"key":"978-1-4666-2184-8.ch004.-41","doi-asserted-by":"crossref","unstructured":"Mo.
-        Ann. Stat. \u00a7 488.429 (3) (West 2011).","DOI":"10.1038\/488429a"},{"key":"978-1-4666-2184-8.ch004.-42","doi-asserted-by":"crossref","unstructured":"Mo.
-        Ann.Stat. \u00a7 488.429 (2) (West 2011).","DOI":"10.1038\/488429a"},{"key":"978-1-4666-2184-8.ch004.-43","unstructured":"Morrissey,
-        S. (2004, April 23). County may close books on law library: Miami-Dade service
-        caught in a \u2018Catch-22\u2019 of funding. ABA Journal E-Report, 16(3),
-        4. Retrieved June 4, 2011, from http:\/\/www.westlaw.com\/Document\/Ie55871c1226d11dbbab99dfb880c57ae\/View\/FullText.html?originationContext=docHeader&rs=cblt1.0&vr=3.0&contextData=(sc.Search)&transitionType=Document"},{"key":"978-1-4666-2184-8.ch004.-44","doi-asserted-by":"crossref","unstructured":"Ohio
-        Rev. Code Ann. \u00a7 307.51 (West 2011)","DOI":"10.1590\/S0034-75902011000300009"},{"key":"978-1-4666-2184-8.ch004.-45","unstructured":"Ohio
-        Rev. Code Ann. \u00a7 3375.481 (West 2011)"},{"key":"978-1-4666-2184-8.ch004.-46","unstructured":"Olszewski,
-        I. (2011, July 20). Closing courts, law libraries, and other judicial services:
-        The impact of the Connecticut budget cuts [Web log post]. Retrieved March
-        27, 2012, from http:\/\/ireneolszewski.com\/ctlawblog\/2011\/07\/20\/closing-courts-law-libraries-and-other-judicial-services-the-impact-of-the-connecticut-budget-cuts\/"},{"key":"978-1-4666-2184-8.ch004.-47","unstructured":"Op.
-        Tex. Att\u2019y Gen. No. GA-0078 (2003)."},{"key":"978-1-4666-2184-8.ch004.-48","unstructured":"Orr,
-        L. (2011, July 25). County and state law libraries: Funding and governance
-        grid. Unpublished manuscript."},{"key":"978-1-4666-2184-8.ch004.-49","unstructured":"Passamano,
-        J. A. (2002, July\/August). Committee helps county law library face challenges
-        of 21st Century. Houston Law Review, 40, 54-55. Retrieved April 27, 2011,
-        from http:\/\/web2.westlaw.com\/find\/default.wl?DB=PROFILER%2DWLD&DocName=0297519201&FindType=h&AP=&RS=WLW4.08&VR=2.0&FN=_top&SV=Split&MT=Texas&UTid=%7bD1518D07-C46D-4A86-9732-E48E86B1FAE6%7d&SPa=003137889-4000"},{"key":"978-1-4666-2184-8.ch004.-50","unstructured":"Pieters,
-        J. (2009a, January 27). Olmsted board: Changes will improve law library. Post-Bulletin
-        [MN]. Retrieved April 25, 2011, from http:\/\/search.ebscohost.com\/login.aspx?direct=true&db=nfh&AN=2W62W63742467586&site=ehost-live"},{"key":"978-1-4666-2184-8.ch004.-51","unstructured":"Pieters,
-        J. (2009b, January 27). Olmsted County''s law library falls short, some say.
-        Post-Bulletin [MN]. Retrieved April 25, 2011, from http:\/\/search.ebscohost.com\/login.aspx?direct=true&db=nfh&AN=2W62W61319244218&site=ehost-live"},{"key":"978-1-4666-2184-8.ch004.-52","unstructured":"Pieters,
-        J. (2011, February 1). BRIEF: Settlement might be near in Olmsted County law
-        library case. Post-Bulletin [MN]. Retrieved April 25, 2011, from http:\/\/search.ebscohost.com\/login.aspx?direct=true&db=nfh&AN=2W6134406594&site=ehost-live"},{"key":"978-1-4666-2184-8.ch004.-53","year":"2006","journal-title":"Law
-        library benchmarks 2006-2007 edition"},{"key":"978-1-4666-2184-8.ch004.-54","doi-asserted-by":"publisher","DOI":"10.1108\/08880450410519647"},{"key":"978-1-4666-2184-8.ch004.-55","unstructured":"Smith,
-        J. (2011, February 11). Library cuts run deeper than they appear. Austin Chronicle.
-        Retrieved March 27, 2012, from http:\/\/www.austinchronicle.com\/news\/2011-02-11\/library-cuts-run-deeper-than-they-appear\/"},{"key":"978-1-4666-2184-8.ch004.-56","unstructured":"Smith,
-        R. (2009, March\/April). Professional edge: The changing face of membership
-        law libraries. Law Librarians in the New Millennium. Retrieved March 27, 2012,
-        from http:\/\/west.thomson.com\/signup\/newsletters\/law-librarians\/mar-apr-2009\/article2.aspx"},{"key":"978-1-4666-2184-8.ch004.-57","unstructured":"State
-        Law Library of Montana. (n.d.). About us. Retrieved March 27, 2012, from http:\/\/courts.mt.gov\/library\/aboutus.mcpx"},{"key":"978-1-4666-2184-8.ch004.-58","unstructured":"State
-        Library of Massachusetts. (2009a, November 4). Save the State Library of Massachusetts
-        [Web log post]. Retrieved March 27, 2012, from http:\/\/mastatelibrary.blogspot.com\/2009\/11\/save-state-library.html"},{"key":"978-1-4666-2184-8.ch004.-59","unstructured":"State
-        Library of Massachusetts. (2009b, November 10). Save the State Library of
-        Massachusetts-follow us on Facebook. [Web log post].Retrieved March 27, 2012,
-        from http:\/\/mastatelibrary.blogspot.com\/2009\/11\/save-your-state-library-follow-us-on.html"},{"key":"978-1-4666-2184-8.ch004.-60","doi-asserted-by":"crossref","unstructured":"Tex.
-        Loc. Gov\u2019t. Code. \u00a7323.023 (Vernon 2011).","DOI":"10.1088\/1475-7516\/2011\/04\/023"},{"key":"978-1-4666-2184-8.ch004.-61","doi-asserted-by":"crossref","unstructured":"Tex.
-        Loc. Gov\u2019t. Code \u00a7323.023(a) (Vernon 2011).","DOI":"10.1088\/1475-7516\/2011\/04\/023"},{"key":"978-1-4666-2184-8.ch004.-62","doi-asserted-by":"crossref","unstructured":"Tex.
-        Loc. Gov\u2019t. Code \u00a7323.023(d) (Vernon 2011).","DOI":"10.1088\/1475-7516\/2011\/04\/023"},{"key":"978-1-4666-2184-8.ch004.-63","unstructured":"Todaro,
-        J. (Ed.). (2012). Public library advisory board handbook (Rev. ed.). Austin,
-        TX: Texas State Library and Archives Commission, Library Development Division.
-        Retrieved March 27, 2012, from https:\/\/www.tsl.state.tx.us\/ld\/pubs\/plant\/index.html"},{"key":"978-1-4666-2184-8.ch004.-64","unstructured":"Utah
-        State Library Division, Department of Community and Culture. (2008, February).
-        Orientation manual for new library directors (2nd ed.). Retrieved March 27,
-        2012, from http:\/\/library.utah.gov\/documents\/OrientationManual_2ndEd.pdf"},{"key":"978-1-4666-2184-8.ch004.-65","doi-asserted-by":"crossref","unstructured":"Va.
-        Code Ann. \u00a7 42.1-65(A) (West 2010).","DOI":"10.1111\/j.1439-0272.2009.01039.x"},{"key":"978-1-4666-2184-8.ch004.-66","doi-asserted-by":"crossref","unstructured":"Va.
-        Code Ann. \u00a7 42.1-65(C) (West 2010).","DOI":"10.1111\/j.1439-0272.2009.01039.x"},{"key":"978-1-4666-2184-8.ch004.-67","doi-asserted-by":"crossref","unstructured":"Va.
-        Code Ann. \u00a7 42.1-70 (West 2010).","DOI":"10.12968\/ftse.2010.9.10.79454"},{"key":"978-1-4666-2184-8.ch004.-68","unstructured":"Wagner,
-        D. (1998). People and libraries. In W. L. Whitesides (Ed.), Reinvention of
-        the public library for the 21st century (pp. 52-82). Englewood, Co: Libraries
-        Unlimited."},{"key":"978-1-4666-2184-8.ch004.-69","unstructured":"Wendt, N.
-        (2009, July 1). Circuit riders teach legal research skills to non-law librarians:
-        A talk with Terrye Conroy: 2009 Spirit of Law Librarianship recipient. Legal
-        Information Alert, 28(7), 6. Retrieved June 7, 2011, from http:\/\/www.westlaw.com\/Document\/I4e1b7cd03bc311dfbbf8a07322bd5b5a\/View\/FullText.html?originationContext=docHeader&rs=cblt1.0&vr=3.0&contextData=(sc.Search)&transitionType=Document"},{"key":"978-1-4666-2184-8.ch004.-70","unstructured":"Wenger,
-        J. (2007, December 5). Below are digested responses from my SCCLL-SIS question
-        posted on December 5, 2007 [Electronic mailing list message]. Retrieved March
-        27, 2012, from http:\/\/www.aallnet.org\/sis\/sccll\/pdfs\/funding_dec_07.pdf"},{"key":"978-1-4666-2184-8.ch004.-71","unstructured":"Zorza,
-        R. (2010). Public libraries and access to justice. In C. Flango, A. McDowell,
-        C. Campbell & N. Kauder (Eds.), Future trends in state courts (pp. 126-129).
-        Williamsburg, VA: National Center for State Courts. Retrieved March 27, 2012,
-        from http:\/\/contentdm.ncsconline.org\/cgi-bin\/showfile.exe?CISOROOT=\/ctadmin&CISOPTR=1605"}],"container-title":["Advances
-        in Library and Information Science","Public Law Librarianship"],"link":[{"URL":"https:\/\/www.igi-global.com\/viewtitle.aspx?TitleId=69941","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2019,7,3]],"date-time":"2019-07-03T02:10:43Z","timestamp":1562119843000},"score":18.17023,"resource":{"primary":{"URL":"http:\/\/services.igi-global.com\/resolvedoi\/resolve.aspx?doi=10.4018\/978-1-4666-2184-8.ch004"}},"subtitle":[""],"issued":{"date-parts":[[null]]},"references-count":71,"URL":"https:\/\/doi.org\/10.4018\/978-1-4666-2184-8.ch004","ISSN":["2326-4136","2326-4144"],"issn-type":[{"value":"2326-4136","type":"print"},{"value":"2326-4144","type":"electronic"}]}],"items-per-page":20,"query":{"start-index":0,"search-terms":"2013+Public+Library+of+Science+(PLoS)"}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:19 GMT
-- request:
-    method: get
-    uri: https://api.crossref.org/works/10.1371%2Fjournal.pone.0020476
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
       User-Agent:
       - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:20 GMT
+      - Sat, 18 Apr 2026 01:18:08 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '15844'
+      - '16109'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -524,6 +105,8 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
@@ -538,127 +121,69 @@ http_interactions:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2026,4,6]],"date-time":"2026-04-06T19:54:04Z","timestamp":1775505244844,"version":"3.50.1"},"reference-count":54,"publisher":"Public
-        Library of Science (PLoS)","issue":"6","license":[{"start":{"date-parts":[[2011,6,9]],"date-time":"2011-06-09T00:00:00Z","timestamp":1307577600000},"content-version":"unspecified","delay-in-days":0,"URL":"http:\/\/creativecommons.org\/licenses\/by\/4.0\/"}],"content-domain":{"domain":["www.plosone.org"],"crossmark-restriction":false},"short-container-title":["PLoS
-        ONE"],"DOI":"10.1371\/journal.pone.0020476","type":"journal-article","created":{"date-parts":[[2011,6,17]],"date-time":"2011-06-17T20:05:32Z","timestamp":1308341132000},"page":"e20476","update-policy":"https:\/\/doi.org\/10.1371\/journal.pone.corrections_policy","source":"Crossref","is-referenced-by-count":1628,"title":["Using
-        and Reporting the Delphi Method for Selecting Healthcare Quality Indicators:
-        A Systematic Review"],"prefix":"10.1371","volume":"6","author":[{"given":"Rym","family":"Boulkedid","sequence":"first","affiliation":[]},{"given":"Hendy","family":"Abdoul","sequence":"additional","affiliation":[]},{"given":"Marine","family":"Loustau","sequence":"additional","affiliation":[]},{"given":"Olivier","family":"Sibony","sequence":"additional","affiliation":[]},{"given":"Corinne","family":"Alberti","sequence":"additional","affiliation":[]}],"member":"340","published-online":{"date-parts":[[2011,6,9]]},"reference":[{"key":"ref1"},{"key":"ref2","article-title":"To
-        Err is Human, Building a Safer Health System","author":"LTC, JM Kohn","year":"1999"},{"key":"ref3","doi-asserted-by":"crossref","first-page":"209","DOI":"10.1136\/bmj.311.6999.209","article-title":"Performance
-        indicators for general practice.","volume":"311","author":"FA Majeed","year":"1995","journal-title":"Bmj"},{"key":"ref4","article-title":"Explorations
-        in quality assessment and monitoring: the definition of quality and approaches
-        to its assessment","author":"A Donabedian","year":"1980"},{"key":"ref5","doi-asserted-by":"crossref","first-page":"1120","DOI":"10.1136\/bmj.317.7166.1120","article-title":"Preventing
-        ischaemic heart disease in one general practice: from one patient, through
-        clinical audit, needs assessment, and commissioning into quality improvement.","volume":"317","author":"M
-        Pringle","year":"1998","journal-title":"Bmj"},{"key":"ref6","doi-asserted-by":"crossref","first-page":"5","DOI":"10.1046\/j.1365-2710.2001.00331.x","article-title":"Consensus
-        methods in prescribing research.","volume":"26","author":"SM Campbell","year":"2001","journal-title":"J
-        Clin Pharm Ther"},{"key":"ref7","doi-asserted-by":"crossref","first-page":"173","DOI":"10.1136\/qhc.0100173","article-title":"Expert
-        consensus on the desirable characteristics of review criteria for improvement
-        of health care quality.","volume":"10","author":"HM Hearnshaw","year":"2001","journal-title":"Qual
-        Health Care"},{"key":"ref8","doi-asserted-by":"crossref","first-page":"1008","DOI":"10.1046\/j.1365-2648.2000.t01-1-01567.x","article-title":"Research
-        guidelines for the Delphi survey technique.","volume":"32","author":"F Hasson","year":"2000","journal-title":"J
-        Adv Nurs"},{"key":"ref9","doi-asserted-by":"crossref","first-page":"425","DOI":"10.1136\/bmj.321.7258.425","article-title":"Prescribing
-        indicators for UK general practice: Delphi consultation study.","volume":"321","author":"SM
-        Campbell","year":"2000","journal-title":"Bmj"},{"key":"ref10","doi-asserted-by":"crossref","first-page":"198","DOI":"10.1046\/j.1365-2524.1999.00176.x","article-title":"Applying
-        the Delphi technique in a study of GPs&apos; information requirements.","volume":"7","author":"B
-        Green","year":"1999","journal-title":"Health Soc Care Community"},{"key":"ref11","doi-asserted-by":"crossref","first-page":"979","DOI":"10.2105\/AJPH.74.9.979","article-title":"Consensus
-        methods: characteristics and guidelines for use.","volume":"74","author":"A
-        Fink","year":"1984","journal-title":"Am J Public Health"},{"key":"ref12","doi-asserted-by":"crossref","first-page":"376","DOI":"10.1046\/j.1365-2648.2003.02537.x","article-title":"The
-        Delphi technique: myths and realities.","volume":"41","author":"C Powell","year":"2003","journal-title":"J
-        Adv Nurs"},{"key":"ref13","first-page":"29","article-title":"The Delphi methodology
-        (Part one): A useful administrative approach.","volume":"7","author":"N Jairath","year":"1994","journal-title":"Can
-        J Nurs Adm"},{"key":"ref14","article-title":"Gazing into the oracle: the delphi
-        method and its application to social policy and public health.","author":"M
-        Adler","year":"1996","journal-title":"Jessica Kingsley Publisher"},{"key":"ref15","article-title":"Quality
-        assessment for general practice: supporting clinical governance in primary
-        care groups","author":"M Roland","year":"1998"},{"key":"ref16","doi-asserted-by":"crossref","first-page":"47","DOI":"10.1136\/emj.2003.001123","article-title":"A
-        Delphi study to identify performance indicators for emergency medicine.","volume":"21","author":"E
-        Beattie","year":"2004","journal-title":"Emerg Med J"},{"key":"ref17","doi-asserted-by":"crossref","first-page":"247","DOI":"10.1093\/intqhc\/10.3.247","article-title":"Eliciting
-        expert opinion using the Delphi technique: identifying performance indicators
-        for cardiovascular disease.","volume":"10","author":"SL Normand","year":"1998","journal-title":"Int
-        J Qual Health Care"},{"key":"ref18","doi-asserted-by":"crossref","first-page":"205","DOI":"10.1111\/j.1365-2648.2006.03716.x","article-title":"Consulting
-        the oracle: ten lessons from using the Delphi technique in nursing research.","volume":"53","author":"S
-        Keeney","year":"2006","journal-title":"J Adv Nurs"},{"key":"ref19","article-title":"Quality
-        improvement research: understanding the science of change in health care.","author":"R
-        Grol","year":"2004","journal-title":"BMJ Books"},{"key":"ref20","doi-asserted-by":"crossref","first-page":"523","DOI":"10.1093\/intqhc\/mzg081","article-title":"Defining
-        and classifying clinical indicators for quality improvement.","volume":"15","author":"J
-        Mainz","year":"2003","journal-title":"Int J Qual Health Care"},{"key":"ref21","doi-asserted-by":"crossref","first-page":"446","DOI":"10.1016\/j.ygyno.2004.12.059","article-title":"Development
-        of ovarian cancer surgery quality indicators using a modified Delphi approach.","volume":"97","author":"AR
-        Gagliardi","year":"2005","journal-title":"Gynecol Oncol"},{"key":"ref22","doi-asserted-by":"crossref","first-page":"33","DOI":"10.1186\/1472-6920-8-33","article-title":"Identifying
-        outcome-based indicators and developing a curriculum for a continuing medical
-        education programme on rational prescribing using a modified Delphi process.","volume":"8","author":"HM
-        Esmaily","year":"2008","journal-title":"BMC Med Educ"},{"key":"ref23","author":"K
-        Fitch"},{"key":"ref24","doi-asserted-by":"crossref","first-page":"e1000393","DOI":"10.1371\/journal.pmed.1000393","article-title":"Using
-        the Delphi technique to determine which outcomes to measure in clinical trials:
-        recommendations for the future based on a systematic review of existing studies.","volume":"8","author":"IP
-        Sinha","journal-title":"PLoS Med"},{"key":"ref25","first-page":"37","article-title":"Delphi
-        forecasting of health care organization.","volume":"12","author":"DB Starkweather","year":"1975","journal-title":"Inquiry"},{"key":"ref26","first-page":"288","article-title":"An
-        approach to an index of hospital performance.","volume":"11","author":"RM
-        Grimes","year":"1976","journal-title":"Health Serv Res"},{"key":"ref27","first-page":"21","article-title":"How
-        do we decide whether an investigation or procedure is appropriate?,","author":"M
-        Chassin","year":"1989"},{"key":"ref28","article-title":"AHCPR Clinical Practice
-        Guideline Program.","year":"1995"},{"key":"ref29","article-title":"Clinical
-        guidelines. Using clinical guidelines to improve patient care in the NHS","author":"T
-        Mann","year":"1996"},{"key":"ref30","article-title":"Health measurement scales:
-        a pratical guide to their development and use","author":"DL Stereiner","year":"1995"},{"key":"ref31","doi-asserted-by":"crossref","first-page":"489","DOI":"10.1093\/intqhc\/13.6.489","article-title":"From
-        a process of care to a measure: the development and testing of a quality indicator.","volume":"13","author":"HR
-        Rubin","year":"2001","journal-title":"Int J Qual Health Care"},{"key":"ref32","doi-asserted-by":"crossref","first-page":"II46","DOI":"10.1097\/00005650-200108002-00003","article-title":"Successes
-        and failures in the implementation of evidence-based guidelines for clinical
-        practice.","volume":"39","author":"R Grol","year":"2001","journal-title":"Med
-        Care"},{"key":"ref33","doi-asserted-by":"crossref","first-page":"227","DOI":"10.1016\/0020-7489(93)90033-Q","article-title":"The
-        Delphi technique: a comparison of results obtained using two expert panels.","volume":"30","author":"C
-        Duffield","year":"1993","journal-title":"Int J Nurs Stud"},{"key":"ref34","doi-asserted-by":"crossref","first-page":"729","DOI":"10.1111\/j.1365-2648.1987.tb01376.x","article-title":"The
-        Delphi technique: a critique.","volume":"12","author":"CM Goodman","year":"1987","journal-title":"J
-        Adv Nurs"},{"key":"ref35","doi-asserted-by":"crossref","first-page":"964","DOI":"10.1097\/00005650-199909000-00012","article-title":"The
-        effect of panel membership and feedback on ratings in a two-round Delphi survey:
-        results of a randomized controlled trial.","volume":"37","author":"SM Campbell","year":"1999","journal-title":"Med
-        Care"},{"key":"ref36","doi-asserted-by":"crossref","first-page":"512","DOI":"10.1097\/00005650-199606000-00002","article-title":"Variations
-        by specialty in physician ratings of the appropriateness and necessity of
-        indications for procedures.","volume":"34","author":"JP Kahan","year":"1996","journal-title":"Med
-        Care"},{"key":"ref37","first-page":"577","article-title":"Impact of varying
-        panel membership on ratings of appropriateness in consensus panels: a comparison
-        of a multi- and single disciplinary panel.","volume":"30","author":"I Coulter","year":"1995","journal-title":"Health
-        Serv Res"},{"key":"ref38","first-page":"151","article-title":"Group judgments
-        of appropriateness: the effect of panel composition.","volume":"4","author":"LL
-        Leape","year":"1992","journal-title":"Qual Assur Health Care"},{"key":"ref39","doi-asserted-by":"crossref","first-page":"35","DOI":"10.2466\/pr0.1993.73.1.35","article-title":"Comprehensiveness
-        of strategic planning: the importance of heterogeneity of a top team.","volume":"73","author":"K
-        Bantel","year":"1993","journal-title":"Psychol Rep"},{"key":"ref40","doi-asserted-by":"crossref","first-page":"1107","DOI":"10.1001\/jama.2010.1287","article-title":"Relationship
-        between patient panel characteristics and primary care physician clinical
-        performance rankings.","volume":"304","author":"CS Hong","journal-title":"Jama"},{"key":"ref41","doi-asserted-by":"crossref","first-page":"4","DOI":"10.1186\/1752-4458-4-4","article-title":"Mental
-        Health First Aid guidelines for helping a suicidal person: a Delphi consensus
-        study in India.","volume":"4","author":"E Colucci","journal-title":"Int J
-        Ment Health Syst"},{"key":"ref42","doi-asserted-by":"crossref","first-page":"69","DOI":"10.1192\/bjp.bp.109.066266","article-title":"TENTS
-        guidelines: development of post-disaster psychosocial care guidelines through
-        a Delphi process.","volume":"196","author":"JI Bisson","journal-title":"Br
-        J Psychiatry"},{"key":"ref43","doi-asserted-by":"crossref","first-page":"1107","DOI":"10.1378\/chest.06-3014","article-title":"A
-        web-based Delphi study on the indications of chest radiographs for patients
-        in ICUs.","volume":"133","author":"G Hejblum","year":"2008","journal-title":"Chest"},{"key":"ref44","doi-asserted-by":"crossref","first-page":"e39","DOI":"10.2196\/jmir.6.4.e39","article-title":"Internet
-        versus mailed questionnaires: a controlled comparison (2).","volume":"6","author":"P
-        Leece","year":"2004","journal-title":"J Med Internet Res"},{"issue":"12","key":"ref45","doi-asserted-by":"crossref","first-page":"677","DOI":"10.12968\/bjtr.1996.3.12.14731","article-title":"The
-        Delphi method: a useful tool for the allied health researcher.","volume":"3","author":"A
-        Walker","year":"1996","journal-title":"nternational Journal of Therapy and
-        Rehabilitation"},{"key":"ref46","doi-asserted-by":"crossref","first-page":"337","DOI":"10.2105\/AJPH.62.3.337","article-title":"The
-        nominal group as a research instrument for exploratory health studies.","volume":"62","author":"A
-        Van de Ven","year":"1972","journal-title":"Am J Public Health"},{"key":"ref47","first-page":"181","article-title":"Decision
-        Conferencing A Unique Approach to the Behavioral Aggregation of Expert Judgment
-        Part II","author":"P Reagan-Cirincione","year":"1992","journal-title":"Decision
-        Conferencing A Unique Approach to the Behavioral Aggregation of Expert Judgment
-        Part II"},{"key":"ref48","doi-asserted-by":"crossref","first-page":"217","DOI":"10.1177\/1046496493242004","article-title":"What
-        (little) we know about formal group discussion procedures: A review of relevant
-        research.","volume":"24","author":"C Pavitt","year":"1993","journal-title":"Small
-        Group Research"},{"key":"ref49","doi-asserted-by":"crossref","first-page":"100","DOI":"10.1136\/qhc.12.2.100","article-title":"Quality
-        indicators for primary care mental health services.","volume":"12","author":"T
-        Shield","year":"2003","journal-title":"Qual Saf Health Care"},{"key":"ref50","doi-asserted-by":"crossref","first-page":"763","DOI":"10.1111\/j.1540-5915.1997.tb01330.x","article-title":"Managing
-        Delphi surveys using nonparametric statistical techniques.","volume":"28,
-        3","author":"R Schmidt","year":"1997","journal-title":"Decision Sciences"},{"key":"ref51","doi-asserted-by":"crossref","first-page":"i","DOI":"10.3310\/hta2030","article-title":"Consensus
-        development methods, and their use in clinical guideline development.","volume":"2","author":"MK
-        Murphy","year":"1998","journal-title":"Health Technol Assess"},{"key":"ref52","doi-asserted-by":"crossref","first-page":"2058","DOI":"10.1161\/hs0901.94620","article-title":"Development
-        of performance measures for acute ischemic stroke.","volume":"32","author":"RG
-        Holloway","year":"2001","journal-title":"Stroke"},{"key":"ref53","doi-asserted-by":"crossref","first-page":"1623","DOI":"10.1093\/jnci\/djj438","article-title":"Development
-        of quality indicators for patients undergoing colorectal cancer surgery.","volume":"98","author":"ML
-        McGory","year":"2006","journal-title":"J Natl Cancer Inst"},{"key":"ref54","doi-asserted-by":"crossref","first-page":"2080","DOI":"10.1542\/peds.2005-1904","article-title":"Quality-of-care
-        indicators for the neurodevelopmental follow-up of very low birth weight children:
-        results of an expert panel process.","volume":"117","author":"CJ Wang","year":"2006","journal-title":"Pediatrics"}],"container-title":["PLoS
-        ONE"],"original-title":[],"language":"en","link":[{"URL":"http:\/\/dx.plos.org\/10.1371\/journal.pone.0020476","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2024,4,7]],"date-time":"2024-04-07T17:33:37Z","timestamp":1712511217000},"score":1,"resource":{"primary":{"URL":"https:\/\/dx.plos.org\/10.1371\/journal.pone.0020476"}},"subtitle":[],"editor":[{"given":"James
-        M.","family":"Wright","sequence":"first","affiliation":[]}],"short-title":[],"issued":{"date-parts":[[2011,6,9]]},"references-count":54,"journal-issue":{"issue":"6","published-online":{"date-parts":[[2011,6,9]]}},"URL":"https:\/\/doi.org\/10.1371\/journal.pone.0020476","relation":{},"ISSN":["1932-6203"],"issn-type":[{"value":"1932-6203","type":"electronic"}],"subject":[],"published":{"date-parts":[[2011,6,9]]}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:20 GMT
+      string: !binary |-
+        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
+  recorded_at: Sat, 18 Apr 2026 01:18:08 GMT
+- request:
+    method: get
+    uri: https://api.crossref.org/works/10.1371%2Fjournal.pone.0020476
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Sat, 18 Apr 2026 01:18:08 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '4908'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Content-Encoding:
+      - gzip
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '10'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '3'
+      X-Api-Pool:
+      - polite
+      Permissions-Policy:
+      - interest-cohort=()
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        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
+  recorded_at: Sat, 18 Apr 2026 01:18:08 GMT
 recorded_with: VCR 6.4.0

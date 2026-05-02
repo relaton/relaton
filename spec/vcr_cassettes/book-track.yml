@@ -7,23 +7,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:15 GMT
+      - Sat, 18 Apr 2026 01:18:07 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1402'
+      - '762'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -35,6 +43,8 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
@@ -49,13 +59,9 @@ http_interactions:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2024,4,27]],"date-time":"2024-04-27T10:21:09Z","timestamp":1714213269309},"publisher-location":"New
-        York, USA","reference-count":0,"publisher":"Cambridge University Press","isbn-type":[{"value":"0511132972","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"DOI":"10.1017\/isbn-9780511132971.eh132-135","type":"book-track","created":{"date-parts":[[2007,3,6]],"date-time":"2007-03-06T12:18:55Z","timestamp":1173183535000},"page":"5-795-5-795","source":"Crossref","is-referenced-by-count":0,"title":["Wholesale
-        commodity price indexes in Richmond, the eastern Confederacy, New York, and
-        San Francisco: 1861-1865"],"prefix":"10.1017","member":"56","container-title":["Historical
-        Statistics of the United States"],"original-title":[],"language":"en","deposited":{"date-parts":[[2013,12,16]],"date-time":"2013-12-16T23:08:32Z","timestamp":1387235312000},"score":1,"resource":{"primary":{"URL":"http:\/\/hsus.cambridge.org\/HSUSWeb\/toc\/tableToc.do?id=Eh132-135"}},"subtitle":[],"editor":[{"given":"Roger
-        L.","family":"Ransom","sequence":"first","affiliation":[]}],"short-title":[],"issued":{"date-parts":[[null]]},"ISBN":["0511132972"],"references-count":0,"URL":"https:\/\/doi.org\/10.1017\/isbn-9780511132971.eh132-135","relation":{},"subject":[]}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:15 GMT
+      string: !binary |-
+        H4sIAAAAAAAA/41UX2/TMBD/Klae49ZOlqaNhBAM0JDQQOumCdo+OM61NUvsYjvbqmrfnXOyrWEMiRfX9fnOvz93OUTOC9+6qIjMTRRHDTgnNkD9fgd4dmfs8PQWrFNGY4CP2IgdI1FxiJSu4B6qsK2EB7oT1mPdxSJhyUl8Eif5ahX3Ia+aUD0EKDuhSX7JWZHwgs1+YM0QRVTNLip4zk8SniaTWcpmD3G0a8tauS1YWhspfI/lHO7IdwQak6v5O8y3sAYLWgKVptU+KtggEe+fiqa0qtoAudKqo+T35JtFJpisXKkf2S8O0a2o24CUZZwjjFmeBHy9NjursPgDcpJGe9CeVqYRSncCPO4WIWqNc42wNxSf8FbJHvZa1A6Qktsa62kogRlIzCtfQ5/54evnIDUbccbz5biDNsunz2D4CLa4oTzNjrBKY26ot0IG46QF1PtVT1gep/Hkb0tYTllK2eSSJwWfFln20hKep3yaZmnGGAuWdPZHGc1nGe1WvO9Ma2U4Pg3k0ZBOWfrsTEXL/cCdJ87R9dbU4EQNRJqmMVVwBnWWQPrucvhLLpTcNkZXMfFbICCcB6vJqdFrqACJ72NybAmhKzIXmnyyQkvlpCkIn044xSWLkPwOMan7o8xdTzdl1yjZJOrN/dOZ6Ew5bxCVqMkcpwf/KemIWXd4sKdQ8S4ALryANzdKi3robC30pu2FA42PVLAzTv3DKZ7GPIn5K17xlHK0f3KZpAWbFmny0qt0midoFU96r5C+xUweZuTJokNoZGzPfdheXXzBwlvvd8VyvBxvXetG8mlcRsZuluOz+dX8Gsrl2BuJiyhruDRyVJm3qnrz8bkfH8JzbTngDOimsd1YbXDswuRemA1Y8mWEqNeiUfU+nAntTBN6CH61oVfwbK2s83gk1mtVq8e5X6zC7PXjM3hGOde+pqNu63q1QlSf5+/Pg4uDmV4NPhpu0JdHOVynR2VUL8L/zqSF+hHtodfjJ0jfQX/4DXLLlth6BQAA
+  recorded_at: Sat, 18 Apr 2026 01:18:07 GMT
 - request:
     method: get
     uri: https://api.crossref.org/works?filter=type:book,type:book-set,type:edited-book,type:monograph,type:reference-book&query=Historical%20Statistics%20of%20the%20United%20States%2B2007
@@ -63,23 +69,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Faraday v2.7.12
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:16 GMT
+      - Sat, 18 Apr 2026 01:18:07 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '31972'
+      - '7149'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -91,172 +105,25 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
-      - '5'
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
       X-Concurrency-Limit:
-      - '1'
+      - '3'
       X-Api-Pool:
-      - public
+      - polite
       Permissions-Policy:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":79635,"items":[{"indexed":{"date-parts":[[2025,6,1]],"date-time":"2025-06-01T18:00:32Z","timestamp":1748800832239},"edition-number":"1","reference-count":0,"publisher":"Greenwood","isbn-type":[{"type":"electronic","value":"9798216972501"},{"type":"print","value":"9780313283093"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1993]]},"abstract":"<JATS1:p>This
-        volume is a census-focused compilation of state-level population, agriculture,
-        and manufacturing data for the fifty states and the District of Columbia.
-        It also includes population figures for the largest 1990 cities from 1790
-        to 1990. Thus it fills a gap in the historical statistics provided by the
-        government publication,Historical Statistics of the United States(1975), which
-        provides national statistics, and the county-level data compiled by the Interuniversity
-        Consortium for Political and Social Research. In addition to the statistical
-        tables, the volume includes a glossary explaining the different definitions
-        used by the Census Bureau.<\/JATS1:p>","DOI":"10.5040\/9798216972501","type":"book","created":{"date-parts":[[2024,6,24]],"date-time":"2024-06-24T15:40:04Z","timestamp":1719243604000},"source":"Crossref","is-referenced-by-count":51,"title":["Historical
-        Statistics of the States of the United States"],"prefix":"10.5040","author":[{"given":"Donald
-        B.","family":"Dodd","sequence":"first","affiliation":[]}],"member":"2984","deposited":{"date-parts":[[2024,6,24]],"date-time":"2024-06-24T16:45:45Z","timestamp":1719247545000},"score":28.2699,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/encyclopedia?docid=b-9798216972501"}},"subtitle":["Two
-        Centuries of the Census, 1790-1990"],"issued":{"date-parts":[[1993]]},"ISBN":["9798216972501","9780313283093"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9798216972501","published":{"date-parts":[[1993]]}},{"indexed":{"date-parts":[[2025,8,21]],"date-time":"2025-08-21T17:46:22Z","timestamp":1755798382511,"version":"3.44.0"},"publisher-location":"Washington,
-        D.C","reference-count":0,"publisher":"United States Department of Agriculture,
-        Agricultural Marketing Service","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1939]]},"DOI":"10.5962\/bhl.title.106635","type":"monograph","created":{"date-parts":[[2015,8,30]],"date-time":"2015-08-30T02:03:05Z","timestamp":1440900185000},"source":"Crossref","is-referenced-by-count":0,"title":["Annual
-        report on tobacco statistics"],"prefix":"10.5962","author":[{"name":"United
-        States.","sequence":"first","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2025,8,19]],"date-time":"2025-08-19T06:00:32Z","timestamp":1755583232000},"score":28.04449,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/106635"}},"issued":{"date-parts":[[1939]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.106635","published":{"date-parts":[[1939]]}},{"indexed":{"date-parts":[[2022,4,3]],"date-time":"2022-04-03T16:55:22Z","timestamp":1649004922916},"publisher-location":"Washington,
-        D.C. :","reference-count":0,"publisher":"Dept. of Commerce, National Oceanic
-        and Atmospheric Administration, National Marine Fisheries Service :","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1979]]},"DOI":"10.5962\/bhl.title.4009","type":"monograph","created":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T16:56:39Z","timestamp":1321030599000},"source":"Crossref","is-referenced-by-count":0,"title":["Fishery
-        statistics of the United States 1975 \/ prepared by Resource Statistics Division."],"prefix":"10.5962","author":[{"name":"United
-        States.","sequence":"first","affiliation":[]}],"member":"3444","deposited":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T16:56:48Z","timestamp":1321030608000},"score":27.6633,"resource":{"primary":{"URL":"http:\/\/www.biodiversitylibrary.org\/bibliography\/4009"}},"issued":{"date-parts":[[1979]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.4009","published":{"date-parts":[[1979]]}},{"indexed":{"date-parts":[[2025,11,21]],"date-time":"2025-11-21T14:09:25Z","timestamp":1763734165507,"version":"3.45.0"},"edition-number":"1","reference-count":0,"publisher":"The
-        Scarecrow Press, Inc.","isbn-type":[{"value":"9798216433422","type":"electronic"},{"value":"9780810856080","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007]]},"abstract":"<JATS1:p>The
-        most important bilateral relationship in Asia since the end of World War II
-        is assuredly between the United States and Japan. Despite the geographical
-        and cultural differences between these two nations, as well as the bitterness
-        leftover from the war, an amicable and prosperous relationship has developed
-        between the two countries boasting the world''s largest economies. As the
-        21st century progresses, the continuing goodwill between the U.S. and Japan
-        is of the utmost importance, as the peace and stability of the Asia-Pacific
-        depends on their cooperation and efforts to contain destabilizing factors
-        in the area.<\/JATS1:p>\n                  <JATS1:p>TheHistorical Dictionary
-        of United States-Japan Relationstraces this one hundred and fifty year relationship
-        through a chronology, an introduction, appendixes, a bibliography, and cross-referenced
-        dictionary entries on key persons, places, events, institutions, and organizations.
-        Covering everything from Walt Whitman''s poem,A Broadway Pageant, commemorating
-        the visit of the Shogun''s Embassy to the U.S. in 1860, tozaibatsu, this ready
-        reference is an excellent starting point for the study of Japan''s dealings
-        with the U.S.<\/JATS1:p>","DOI":"10.5040\/9798216433422","type":"book","created":{"date-parts":[[2025,11,21]],"date-time":"2025-11-21T13:17:51Z","timestamp":1763731071000},"source":"Crossref","is-referenced-by-count":0,"title":["Historical
-        Dictionary of United States-Japan Relations"],"prefix":"10.5040","author":[{"given":"John
-        Van","family":"Sant","sequence":"first","affiliation":[]},{"given":"Peter","family":"Mauch","sequence":"additional","affiliation":[]},{"given":"Yoneyuki","family":"Sugita","sequence":"additional","affiliation":[]}],"member":"2984","deposited":{"date-parts":[[2025,11,21]],"date-time":"2025-11-21T13:33:09Z","timestamp":1763731989000},"score":27.035086,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/encyclopedia?docid=b-9798216433422"}},"issued":{"date-parts":[[2007]]},"ISBN":["9798216433422","9780810856080"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9798216433422","published":{"date-parts":[[2007]]}},{"indexed":{"date-parts":[[2025,12,29]],"date-time":"2025-12-29T19:08:44Z","timestamp":1767035324850},"edition-number":"1","reference-count":0,"publisher":"ABC-CLIO,
-        Inc.","isbn-type":[{"value":"9798216015277","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007]]},"abstract":"<JATS1:p>A
-        comprehensive, contextual presentation of all aspects\u2014social, political,
-        and economic\u2014of slavery in the United States, from the first colonization
-        through Reconstruction.<\/JATS1:p>\n\t\t\t\t\t<JATS1:p>For 250 years, slavery
-        was part of the fabric of American life. The institution had an enormous economic
-        impact and was central to the wealth of the agrarian South. It had as great
-        an impact on American culture, cementing racism and other attitudes that echo
-        into the present. This encyclopedia is an ambitious examination of all the
-        issues surrounding slavery: the origins, the justifications, the controversies,
-        and the human drama.<\/JATS1:p>\n\t\t\t\t\t<JATS1:p>These volumes represent
-        the work of 75 distinguished scholars from around the world. Ten thematic
-        essays present a thorough examination of slavery and slave culture, including
-        a rare treatment of slavery from the slave''s point of view. Three hundred
-        A\u2013Z entries provide instant access to specific people, issues, and events.
-        Today, slavery''s immorality seems obvious. This encyclopedia provides the
-        student or general reader with an in-depth explanation of how the practice
-        evolved and was normalized, then anathematized and abolished.<\/JATS1:p>","DOI":"10.5040\/9798216015277","type":"book","created":{"date-parts":[[2024,9,26]],"date-time":"2024-09-26T09:22:35Z","timestamp":1727342555000},"source":"Crossref","is-referenced-by-count":10,"title":["Slavery
-        in the United States"],"prefix":"10.5040","member":"2984","deposited":{"date-parts":[[2024,9,26]],"date-time":"2024-09-26T10:32:33Z","timestamp":1727346753000},"score":26.677805,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/encyclopedia?docid=b-9798216015277"}},"subtitle":["A
-        Social, Political, and Historical Encyclopedia [2 volumes]"],"editor":[{"given":"Junius
-        P.","family":"Rodriguez","sequence":"first","affiliation":[]}],"issued":{"date-parts":[[2007]]},"ISBN":["9798216015277"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9798216015277","published":{"date-parts":[[2007]]}},{"indexed":{"date-parts":[[2024,8,8]],"date-time":"2024-08-08T05:22:28Z","timestamp":1723094548762},"publisher-location":"Washington","reference-count":0,"publisher":"Govt.
-        print. off","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1922]]},"DOI":"10.5962\/bhl.title.35558","type":"monograph","created":{"date-parts":[[2011,11,23]],"date-time":"2011-11-23T04:39:58Z","timestamp":1322023198000},"source":"Crossref","is-referenced-by-count":1,"title":["A
-        handbook of dairy statistics"],"prefix":"10.5962","author":[{"given":"Thomas
-        Ross","family":"Pirtle","sequence":"first","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T20:50:48Z","timestamp":1650055848000},"score":26.173016,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/35558"}},"issued":{"date-parts":[[1922]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.35558","published":{"date-parts":[[1922]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T04:40:48Z","timestamp":1659501648610},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2018,1,18]]},"abstract":"<p>This
-        chapter studies American historical writing. In the United States, the legacy
-        of the Progressive historians advocating a pragmatic study of the past in
-        the interests of social and political usefulness was a powerful influence
-        that continued to be evident after the Second World War. This Progressive
-        agenda had flow-on effects that shaped other characteristics of American scholarship.
-        One was recurrent but often misleading debates over conflict versus consensus
-        on the issues of American national character, ideology, and politics; another
-        was flexibility and innovation in interpretation, with receptiveness to new
-        ideas derived from the influence of other humanities and the social sciences;
-        still another was distrust of grand theory, and an instrumental and subordinate
-        attention to historiography. The chapter then offers an outsider\u2019s view
-        of American historiography from the vantage point of Australia, and with a
-        focus on the extra-academic life of American historians, including the development
-        of \u2018public history\u2019.<\/p>","DOI":"10.1093\/oso\/9780199225996.003.0024","type":"book","created":{"date-parts":[[2018,1,18]],"date-time":"2018-01-18T17:58:17Z","timestamp":1516298297000},"source":"Crossref","is-referenced-by-count":0,"title":["Historical
-        Writing in the United States"],"prefix":"10.1093","author":[{"given":"Ian","family":"Tyrrell","sequence":"first","affiliation":[]}],"member":"286","container-title":["Oxford
-        Scholarship Online"],"original-title":["Historical Writing in the United States"],"deposited":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T02:18:20Z","timestamp":1659493100000},"score":25.476746,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/26006\/chapter\/193886333"}},"issued":{"date-parts":[[2018,1,18]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/oso\/9780199225996.003.0024","published":{"date-parts":[[2018,1,18]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T04:45:13Z","timestamp":1659501913742},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2018,4,19]]},"abstract":"<p>This
-        chapter aims to re-examine the Chandlerian paradigm of the historical development
-        of modern industrial enterprises in the United States by employing an analytical
-        framework that comprehends the alternative models of corporate evolution,
-        especially that of diversified business groups. Based on the systematic examination
-        of the broad range of business groups that have historically developed in
-        the United States, the chapter focuses on the two varieties of diversified
-        business groups that historically played critical roles in that economy: those
-        centered around overseas trading and operational firms; and those organized
-        around banking institutions. It argues that diversified business groups played
-        the characteristic roles of generating and reorganizing modern industrial
-        enterprises to shape the contemporary economic landscape of oligopoly. Such
-        roles played by the diversified business groups and their contributions to
-        corporate and industrial development should be complemental to the Chandlerian
-        multidivisional enterprises to configure the whole dynamics of the US economy
-        in the long run.<\/p>","DOI":"10.1093\/oso\/9780198717973.003.0014","type":"book","created":{"date-parts":[[2018,4,19]],"date-time":"2018-04-19T08:09:52Z","timestamp":1524125392000},"source":"Crossref","is-referenced-by-count":0,"title":["The
-        United States in Historical Perspectives"],"prefix":"10.1093","author":[{"given":"Takashi","family":"Hikino","sequence":"first","affiliation":[]},{"given":"Marcelo","family":"Bucheli","sequence":"additional","affiliation":[]}],"member":"286","container-title":["Oxford
-        Scholarship Online"],"original-title":["The United States in Historical Perspectives"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T22:31:15Z","timestamp":1659479475000},"score":25.034798,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/4610\/chapter\/146741183"}},"issued":{"date-parts":[[2018,4,19]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/oso\/9780198717973.003.0014","published":{"date-parts":[[2018,4,19]]}},{"indexed":{"date-parts":[[2025,4,9]],"date-time":"2025-04-09T14:31:35Z","timestamp":1744209095386},"publisher-location":"[Boise,
-        Idaho]","reference-count":0,"publisher":"Joint Fire Science Program","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007]]},"DOI":"10.5962\/bhl.title.154495","type":"monograph","created":{"date-parts":[[2018,11,18]],"date-time":"2018-11-18T06:03:41Z","timestamp":1542521021000},"source":"Crossref","is-referenced-by-count":1,"title":["Joint
-        Fire Science Program 2006 - 2007 progress report : research supporting sound
-        decisions"],"prefix":"10.5962","author":[{"name":"Joint Fire Science Program
-        (U.S.)","sequence":"first","affiliation":[]},{"name":"Geological Survey (U.S.)","sequence":"additional","affiliation":[]},{"name":"U.S.
-        Fish and Wildlife Service","sequence":"additional","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T22:25:10Z","timestamp":1650061510000},"score":24.952703,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/154495"}},"issued":{"date-parts":[[2007]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.154495","published":{"date-parts":[[2007]]}},{"indexed":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T20:11:14Z","timestamp":1650053474574},"publisher-location":"Washington","reference-count":0,"publisher":"Govt.
-        print. off","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1895]]},"DOI":"10.5962\/bhl.title.36488","type":"monograph","created":{"date-parts":[[2011,11,23]],"date-time":"2011-11-23T04:47:04Z","timestamp":1322023624000},"source":"Crossref","is-referenced-by-count":0,"title":["Report
-        of the United States commission to the Columbian historical exposition at
-        Madrid"],"prefix":"10.5962","author":[{"name":"United States Commission to
-        the Columbian Historical Exposition at Madrid","sequence":"first","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T19:52:47Z","timestamp":1650052367000},"score":24.940205,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/36488"}},"issued":{"date-parts":[[1895]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.36488","published":{"date-parts":[[1895]]}},{"indexed":{"date-parts":[[2022,4,1]],"date-time":"2022-04-01T03:24:09Z","timestamp":1648783449862},"publisher-location":"Silver
-        Spring, Md. :","reference-count":0,"publisher":"U.S. Dept. of Commerce, National
-        Oceanic and Atmospheric Administration, National Marine Fisheries Service;","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1997]]},"DOI":"10.5962\/bhl.title.4030","type":"monograph","created":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T21:57:07Z","timestamp":1321048627000},"source":"Crossref","is-referenced-by-count":0,"title":["Fisheries
-        of the United States, 1996 \/ prepared by Fisheries Statistics Division, National
-        Marine Fisheries Service."],"prefix":"10.5962","author":[{"name":"United States.","sequence":"first","affiliation":[]}],"member":"3444","deposited":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T21:57:15Z","timestamp":1321048635000},"score":24.842468,"resource":{"primary":{"URL":"http:\/\/www.biodiversitylibrary.org\/bibliography\/4030"}},"issued":{"date-parts":[[1997]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.4030","published":{"date-parts":[[1997]]}},{"indexed":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T22:11:48Z","timestamp":1650060708392},"publisher-location":"Upper
-        Darby","reference-count":0,"publisher":"[s.n.]","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1955]]},"DOI":"10.5962\/bhl.title.114942","type":"monograph","created":{"date-parts":[[2016,4,3]],"date-time":"2016-04-03T06:10:16Z","timestamp":1459663816000},"source":"Crossref","is-referenced-by-count":0,"title":["Forest
-        statistics for New York"],"prefix":"10.5962","author":[{"name":"United States.","sequence":"first","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T21:41:04Z","timestamp":1650058864000},"score":24.644463,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/114942"}},"issued":{"date-parts":[[1955]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.114942","published":{"date-parts":[[1955]]}},{"indexed":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T21:10:48Z","timestamp":1650057048468},"publisher-location":"Wash","reference-count":0,"publisher":"[s.n.]","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1920]]},"DOI":"10.5962\/bhl.title.40887","type":"monograph","created":{"date-parts":[[2011,11,23]],"date-time":"2011-11-23T16:54:44Z","timestamp":1322067284000},"source":"Crossref","is-referenced-by-count":0,"title":["Statistics
-        of cooperative extension work"],"prefix":"10.5962","author":[{"name":"United
-        States.","sequence":"first","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T20:40:54Z","timestamp":1650055254000},"score":24.60274,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/40887"}},"issued":{"date-parts":[[1920]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.40887","published":{"date-parts":[[1920]]}},{"indexed":{"date-parts":[[2022,4,4]],"date-time":"2022-04-04T05:19:31Z","timestamp":1649049571217},"publisher-location":"Anapolis,
-        MD :","reference-count":0,"publisher":"U.S. Environmental Protection Agency,
-        Region III, Chesapeake Bay Program Office,","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007]]},"DOI":"10.5962\/bhl.title.149917","type":"monograph","created":{"date-parts":[[2018,7,15]],"date-time":"2018-07-15T05:00:34Z","timestamp":1531630834000},"source":"Crossref","is-referenced-by-count":2,"title":["Ambient
-        water quality criteria for dissolved oxygen, water clarity and chlorophyll
-        a for Chesapeake Bay and its tidal tributaries : 2007 addendum \/"],"prefix":"10.5962","author":[{"name":"United
-        States.","sequence":"first","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]}],"member":"3444","deposited":{"date-parts":[[2018,7,15]],"date-time":"2018-07-15T05:00:34Z","timestamp":1531630834000},"score":24.431623,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/149917"}},"issued":{"date-parts":[[2007]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.149917","published":{"date-parts":[[2007]]}},{"indexed":{"date-parts":[[2025,12,31]],"date-time":"2025-12-31T15:10:20Z","timestamp":1767193820957,"version":"build-2238731810"},"reference-count":0,"publisher":"OECD","isbn-type":[{"value":"9789264032712","type":"print"},{"value":"9789264032774","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007,5,29]]},"DOI":"10.1787\/eco_surveys-usa-2007-en","type":"book","created":{"date-parts":[[2009,7,9]],"date-time":"2009-07-09T07:18:25Z","timestamp":1247123905000},"source":"Crossref","is-referenced-by-count":9,"title":["OECD
-        Economic Surveys: United States 2007"],"prefix":"10.1787","author":[{"name":"OECD","sequence":"first","affiliation":[]}],"member":"1963","container-title":["OECD
-        Economic Surveys: United States"],"language":"en","deposited":{"date-parts":[[2024,12,13]],"date-time":"2024-12-13T06:51:15Z","timestamp":1734072675000},"score":24.170313,"resource":{"primary":{"URL":"https:\/\/www.oecd.org\/en\/publications\/oecd-economic-surveys-united-states-2007_eco_surveys-usa-2007-en.html"}},"issued":{"date-parts":[[2007,5,29]]},"ISBN":["9789264032712","9789264032774"],"references-count":0,"aliases":["10.1787\/eco_surveys-usa-2007-2-en","10.1787\/eco_surveys-usa-2007-graph2_8-en","10.1787\/eco_surveys-usa-2007-graph2_7-en","10.1787\/eco_surveys-usa-2007-graph3_1-en","10.1787\/eco_surveys-usa-2007-graph5_1-en","10.1787\/eco_surveys-usa-2007-graph3_4-en","10.1787\/eco_surveys-usa-2007-4-en","10.1787\/eco_surveys-usa-2007-graph1_3-en","10.1787\/eco_surveys-usa-2007-graph1_5-en","10.1787\/eco_surveys-usa-2007-graph2_4-en","10.1787\/eco_surveys-usa-2007-graph1_7-en","10.1787\/eco_surveys-usa-2007-graph6_3-en","10.1787\/eco_surveys-usa-2007-graph6_4-en","10.1787\/eco_surveys-usa-2007-graph6_8-en","10.1787\/eco_surveys-usa-2007-graph6_7-en","10.1787\/eco_surveys-usa-2007-graph1_8-en","10.1787\/eco_surveys-usa-2007-8-en","10.1787\/eco_surveys-usa-2007-graph4_1-en","10.1787\/eco_surveys-usa-2007-graph5_3-en","10.1787\/eco_surveys-usa-2007-graph6_2-en","10.1787\/eco_surveys-usa-2007-graph6_6-en","10.1787\/eco_surveys-usa-2007-7-en","10.1787\/eco_surveys-usa-2007-graph2_10-en","10.1787\/eco_surveys-usa-2007-graph2_1-en","10.1787\/eco_surveys-usa-2007-graph2_6-en","10.1787\/eco_surveys-usa-2007-graph4_2-en","10.1787\/eco_surveys-usa-2007-graph2_5-en","10.1787\/eco_surveys-usa-2007-graph4_4-en","10.1787\/eco_surveys-usa-2007-graph5_2-en","10.1787\/eco_surveys-usa-2007-3-en","10.1787\/eco_surveys-usa-2007-graph1_2-en","10.1787\/eco_surveys-usa-2007-graph1_1-en","10.1787\/eco_surveys-usa-2007-graph1_6-en","10.1787\/eco_surveys-usa-2007-graph2_2-en","10.1787\/eco_surveys-usa-2007-graph3_2-en","10.1787\/eco_surveys-usa-2007-graph4_3-en","10.1787\/eco_surveys-usa-2007-graph2_3-en","10.1787\/eco_surveys-usa-2007-graph6_5-en","10.1787\/eco_surveys-usa-2007-5-en","10.1787\/eco_surveys-usa-2007-graph2_9-en","10.1787\/eco_surveys-usa-2007-graph1_4-en","10.1787\/eco_surveys-usa-2007-6-en","10.1787\/eco_surveys-usa-2007-graph4_5-en","10.1787\/eco_surveys-usa-2007-graph6_1-en"],"URL":"https:\/\/doi.org\/10.1787\/eco_surveys-usa-2007-en","ISSN":["1999-0103"],"issn-type":[{"value":"1999-0103","type":"electronic"}],"published":{"date-parts":[[2007,5,29]]}},{"indexed":{"date-parts":[[2022,4,2]],"date-time":"2022-04-02T22:42:12Z","timestamp":1648939332854},"publisher-location":"Silver
-        Spring, Md. :","reference-count":0,"publisher":"U.S. Dept. of Commerce, National
-        Oceanic and Atmospheric Administration, National Marine Fisheries Service
-        :","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2005]]},"DOI":"10.5962\/bhl.title.4145","type":"monograph","created":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T16:58:15Z","timestamp":1321030695000},"source":"Crossref","is-referenced-by-count":0,"title":["Fisheries
-        of the United States, 2004 \/ National Marine Fisheries Service, Office of
-        Science and Technology, Fisheries Statistics Division."],"prefix":"10.5962","author":[{"name":"United
-        States.","sequence":"first","affiliation":[]}],"member":"3444","deposited":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T16:58:25Z","timestamp":1321030705000},"score":24.11356,"resource":{"primary":{"URL":"http:\/\/www.biodiversitylibrary.org\/bibliography\/4145"}},"issued":{"date-parts":[[2005]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.4145","published":{"date-parts":[[2005]]}},{"indexed":{"date-parts":[[2025,10,30]],"date-time":"2025-10-30T01:51:39Z","timestamp":1761789099927},"publisher-location":"Newtown
-        Square, Pa. :","reference-count":0,"publisher":"U.S. Dept. of Agriculture,
-        Forest Service, Northeastern Research Station,","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2000]]},"DOI":"10.5962\/bhl.title.70042","type":"monograph","created":{"date-parts":[[2013,12,8]],"date-time":"2013-12-08T07:01:10Z","timestamp":1386486070000},"source":"Crossref","is-referenced-by-count":1,"title":["Forest
-        statistics for Connecticut \/"],"prefix":"10.5962","author":[{"given":"Carol
-        L.","family":"Alerich","sequence":"first","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2013,12,8]],"date-time":"2013-12-08T07:01:11Z","timestamp":1386486071000},"score":23.861847,"resource":{"primary":{"URL":"http:\/\/www.biodiversitylibrary.org\/bibliography\/70042"}},"issued":{"date-parts":[[2000]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.70042","published":{"date-parts":[[2000]]}},{"indexed":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T19:40:31Z","timestamp":1650051631801},"publisher-location":"Washington","reference-count":0,"publisher":"Govt.
-        Print. Off","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1895]]},"DOI":"10.5962\/bhl.title.19003","type":"monograph","created":{"date-parts":[[2011,11,22]],"date-time":"2011-11-22T16:25:22Z","timestamp":1321979122000},"source":"Crossref","is-referenced-by-count":0,"title":["Report
-        of the United States Commission to the Columbian Historical Exposition at
-        Madrid. 1892-93. With special papers"],"prefix":"10.5962","author":[{"name":"United
-        States.","sequence":"first","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T19:14:20Z","timestamp":1650050060000},"score":23.561262,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/19003"}},"issued":{"date-parts":[[1895]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.19003","published":{"date-parts":[[1895]]}},{"indexed":{"date-parts":[[2024,9,8]],"date-time":"2024-09-08T18:26:25Z","timestamp":1725819985232},"reference-count":0,"publisher":"Commonwealth","isbn-type":[{"type":"electronic","value":"9781848598874"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007,4,1]]},"DOI":"10.14217\/smalst-2007-en","type":"book","created":{"date-parts":[[2015,4,8]],"date-time":"2015-04-08T06:04:56Z","timestamp":1428473096000},"source":"Crossref","is-referenced-by-count":2,"title":["Small
-        States"],"prefix":"10.14217","author":[{"name":"Commonwealth Secretariat","sequence":"first","affiliation":[]}],"member":"28689","container-title":["Small
-        States: Economic Review and Basic Statistics"],"language":"en","deposited":{"date-parts":[[2020,11,3]],"date-time":"2020-11-03T08:00:45Z","timestamp":1604390445000},"score":23.46767,"resource":{"primary":{"URL":"https:\/\/www.thecommonwealth-ilibrary.org\/commonwealth\/economics\/small-states_smalst-2007-en"}},"subtitle":["Economic
-        Review and Basic Statistics, Volume 11"],"issued":{"date-parts":[[2007,4,1]]},"ISBN":["9781848598874"],"references-count":0,"URL":"https:\/\/doi.org\/10.14217\/smalst-2007-en","ISSN":["1359-7507"],"issn-type":[{"type":"electronic","value":"1359-7507"}],"published":{"date-parts":[[2007,4,1]]}},{"indexed":{"date-parts":[[2026,2,28]],"date-time":"2026-02-28T00:49:49Z","timestamp":1772239789565,"version":"3.50.1"},"reference-count":0,"publisher":"Duke
-        University Press","isbn-type":[{"value":"9780822389811","type":"electronic"},{"value":"9780822340058","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007,7,16]]},"DOI":"10.2307\/j.ctv11hpmg2","type":"monograph","created":{"date-parts":[[2020,6,19]],"date-time":"2020-06-19T16:32:51Z","timestamp":1592584371000},"source":"Crossref","is-referenced-by-count":0,"title":["Redress
-        for Historical Injustices in the United States"],"prefix":"10.2307","member":"1121","deposited":{"date-parts":[[2020,6,19]],"date-time":"2020-06-19T16:32:52Z","timestamp":1592584372000},"score":23.15688,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv11hpmg2"}},"subtitle":["On
-        Reparations for Slavery, Jim Crow, and Their Legacies"],"editor":[{"given":"MICHAEL
-        T.","family":"MARTIN","sequence":"additional","affiliation":[]},{"given":"MARILYN","family":"YAQUINTO","sequence":"additional","affiliation":[]}],"issued":{"date-parts":[[2007,7,16]]},"ISBN":["9780822389811","9780822340058"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv11hpmg2","relation":{"is-identical-to":[{"id-type":"doi","id":"10.1215\/9780822389811","asserted-by":"subject"},{"id-type":"doi","id":"10.1515\/9780822389811","asserted-by":"object"}]},"published":{"date-parts":[[2007,7,16]]}}],"items-per-page":20,"query":{"start-index":0,"search-terms":"Historical
-        Statistics of the United States+2007"}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:16 GMT
+      string: !binary |-
+        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
+  recorded_at: Sat, 18 Apr 2026 01:18:07 GMT
 - request:
     method: get
     uri: https://api.crossref.org/works?filter=type:book,type:book-set,type:edited-book,type:monograph,type:reference-book&query=Historical%20Statistics%20of%20the%20United%20States%2B2007
@@ -264,23 +131,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Faraday v2.7.12
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:17 GMT
+      - Sat, 18 Apr 2026 01:18:07 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '32018'
+      - '7171'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -292,170 +167,23 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
-      - '5'
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
       X-Concurrency-Limit:
-      - '1'
+      - '3'
       X-Api-Pool:
-      - public
+      - polite
       Permissions-Policy:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":79635,"items":[{"indexed":{"date-parts":[[2025,6,1]],"date-time":"2025-06-01T18:00:32Z","timestamp":1748800832239},"edition-number":"1","reference-count":0,"publisher":"Greenwood","isbn-type":[{"type":"electronic","value":"9798216972501"},{"type":"print","value":"9780313283093"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1993]]},"abstract":"<JATS1:p>This
-        volume is a census-focused compilation of state-level population, agriculture,
-        and manufacturing data for the fifty states and the District of Columbia.
-        It also includes population figures for the largest 1990 cities from 1790
-        to 1990. Thus it fills a gap in the historical statistics provided by the
-        government publication,Historical Statistics of the United States(1975), which
-        provides national statistics, and the county-level data compiled by the Interuniversity
-        Consortium for Political and Social Research. In addition to the statistical
-        tables, the volume includes a glossary explaining the different definitions
-        used by the Census Bureau.<\/JATS1:p>","DOI":"10.5040\/9798216972501","type":"book","created":{"date-parts":[[2024,6,24]],"date-time":"2024-06-24T15:40:04Z","timestamp":1719243604000},"source":"Crossref","is-referenced-by-count":51,"title":["Historical
-        Statistics of the States of the United States"],"prefix":"10.5040","author":[{"given":"Donald
-        B.","family":"Dodd","sequence":"first","affiliation":[]}],"member":"2984","deposited":{"date-parts":[[2024,6,24]],"date-time":"2024-06-24T16:45:45Z","timestamp":1719247545000},"score":28.249592,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/encyclopedia?docid=b-9798216972501"}},"subtitle":["Two
-        Centuries of the Census, 1790-1990"],"issued":{"date-parts":[[1993]]},"ISBN":["9798216972501","9780313283093"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9798216972501","published":{"date-parts":[[1993]]}},{"indexed":{"date-parts":[[2025,8,21]],"date-time":"2025-08-21T17:46:22Z","timestamp":1755798382511,"version":"3.44.0"},"publisher-location":"Washington,
-        D.C","reference-count":0,"publisher":"United States Department of Agriculture,
-        Agricultural Marketing Service","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1939]]},"DOI":"10.5962\/bhl.title.106635","type":"monograph","created":{"date-parts":[[2015,8,30]],"date-time":"2015-08-30T02:03:05Z","timestamp":1440900185000},"source":"Crossref","is-referenced-by-count":0,"title":["Annual
-        report on tobacco statistics"],"prefix":"10.5962","author":[{"name":"United
-        States.","sequence":"first","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2025,8,19]],"date-time":"2025-08-19T06:00:32Z","timestamp":1755583232000},"score":28.04449,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/106635"}},"issued":{"date-parts":[[1939]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.106635","published":{"date-parts":[[1939]]}},{"indexed":{"date-parts":[[2022,4,3]],"date-time":"2022-04-03T16:55:22Z","timestamp":1649004922916},"publisher-location":"Washington,
-        D.C. :","reference-count":0,"publisher":"Dept. of Commerce, National Oceanic
-        and Atmospheric Administration, National Marine Fisheries Service :","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1979]]},"DOI":"10.5962\/bhl.title.4009","type":"monograph","created":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T16:56:39Z","timestamp":1321030599000},"source":"Crossref","is-referenced-by-count":0,"title":["Fishery
-        statistics of the United States 1975 \/ prepared by Resource Statistics Division."],"prefix":"10.5962","author":[{"name":"United
-        States.","sequence":"first","affiliation":[]}],"member":"3444","deposited":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T16:56:48Z","timestamp":1321030608000},"score":27.6633,"resource":{"primary":{"URL":"http:\/\/www.biodiversitylibrary.org\/bibliography\/4009"}},"issued":{"date-parts":[[1979]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.4009","published":{"date-parts":[[1979]]}},{"indexed":{"date-parts":[[2025,11,21]],"date-time":"2025-11-21T14:09:25Z","timestamp":1763734165507,"version":"3.45.0"},"edition-number":"1","reference-count":0,"publisher":"The
-        Scarecrow Press, Inc.","isbn-type":[{"value":"9798216433422","type":"electronic"},{"value":"9780810856080","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007]]},"abstract":"<JATS1:p>The
-        most important bilateral relationship in Asia since the end of World War II
-        is assuredly between the United States and Japan. Despite the geographical
-        and cultural differences between these two nations, as well as the bitterness
-        leftover from the war, an amicable and prosperous relationship has developed
-        between the two countries boasting the world''s largest economies. As the
-        21st century progresses, the continuing goodwill between the U.S. and Japan
-        is of the utmost importance, as the peace and stability of the Asia-Pacific
-        depends on their cooperation and efforts to contain destabilizing factors
-        in the area.<\/JATS1:p>\n                  <JATS1:p>TheHistorical Dictionary
-        of United States-Japan Relationstraces this one hundred and fifty year relationship
-        through a chronology, an introduction, appendixes, a bibliography, and cross-referenced
-        dictionary entries on key persons, places, events, institutions, and organizations.
-        Covering everything from Walt Whitman''s poem,A Broadway Pageant, commemorating
-        the visit of the Shogun''s Embassy to the U.S. in 1860, tozaibatsu, this ready
-        reference is an excellent starting point for the study of Japan''s dealings
-        with the U.S.<\/JATS1:p>","DOI":"10.5040\/9798216433422","type":"book","created":{"date-parts":[[2025,11,21]],"date-time":"2025-11-21T13:17:51Z","timestamp":1763731071000},"source":"Crossref","is-referenced-by-count":0,"title":["Historical
-        Dictionary of United States-Japan Relations"],"prefix":"10.5040","author":[{"given":"John
-        Van","family":"Sant","sequence":"first","affiliation":[]},{"given":"Peter","family":"Mauch","sequence":"additional","affiliation":[]},{"given":"Yoneyuki","family":"Sugita","sequence":"additional","affiliation":[]}],"member":"2984","deposited":{"date-parts":[[2025,11,21]],"date-time":"2025-11-21T13:33:09Z","timestamp":1763731989000},"score":27.032417,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/encyclopedia?docid=b-9798216433422"}},"issued":{"date-parts":[[2007]]},"ISBN":["9798216433422","9780810856080"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9798216433422","published":{"date-parts":[[2007]]}},{"indexed":{"date-parts":[[2025,12,29]],"date-time":"2025-12-29T19:08:44Z","timestamp":1767035324850},"edition-number":"1","reference-count":0,"publisher":"ABC-CLIO,
-        Inc.","isbn-type":[{"value":"9798216015277","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007]]},"abstract":"<JATS1:p>A
-        comprehensive, contextual presentation of all aspects\u2014social, political,
-        and economic\u2014of slavery in the United States, from the first colonization
-        through Reconstruction.<\/JATS1:p>\n\t\t\t\t\t<JATS1:p>For 250 years, slavery
-        was part of the fabric of American life. The institution had an enormous economic
-        impact and was central to the wealth of the agrarian South. It had as great
-        an impact on American culture, cementing racism and other attitudes that echo
-        into the present. This encyclopedia is an ambitious examination of all the
-        issues surrounding slavery: the origins, the justifications, the controversies,
-        and the human drama.<\/JATS1:p>\n\t\t\t\t\t<JATS1:p>These volumes represent
-        the work of 75 distinguished scholars from around the world. Ten thematic
-        essays present a thorough examination of slavery and slave culture, including
-        a rare treatment of slavery from the slave''s point of view. Three hundred
-        A\u2013Z entries provide instant access to specific people, issues, and events.
-        Today, slavery''s immorality seems obvious. This encyclopedia provides the
-        student or general reader with an in-depth explanation of how the practice
-        evolved and was normalized, then anathematized and abolished.<\/JATS1:p>","DOI":"10.5040\/9798216015277","type":"book","created":{"date-parts":[[2024,9,26]],"date-time":"2024-09-26T09:22:35Z","timestamp":1727342555000},"source":"Crossref","is-referenced-by-count":10,"title":["Slavery
-        in the United States"],"prefix":"10.5040","member":"2984","deposited":{"date-parts":[[2024,9,26]],"date-time":"2024-09-26T10:32:33Z","timestamp":1727346753000},"score":26.677805,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/encyclopedia?docid=b-9798216015277"}},"subtitle":["A
-        Social, Political, and Historical Encyclopedia [2 volumes]"],"editor":[{"given":"Junius
-        P.","family":"Rodriguez","sequence":"first","affiliation":[]}],"issued":{"date-parts":[[2007]]},"ISBN":["9798216015277"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9798216015277","published":{"date-parts":[[2007]]}},{"indexed":{"date-parts":[[2024,8,8]],"date-time":"2024-08-08T05:22:28Z","timestamp":1723094548762},"publisher-location":"Washington","reference-count":0,"publisher":"Govt.
-        print. off","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1922]]},"DOI":"10.5962\/bhl.title.35558","type":"monograph","created":{"date-parts":[[2011,11,23]],"date-time":"2011-11-23T04:39:58Z","timestamp":1322023198000},"source":"Crossref","is-referenced-by-count":1,"title":["A
-        handbook of dairy statistics"],"prefix":"10.5962","author":[{"given":"Thomas
-        Ross","family":"Pirtle","sequence":"first","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T20:50:48Z","timestamp":1650055848000},"score":26.173033,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/35558"}},"issued":{"date-parts":[[1922]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.35558","published":{"date-parts":[[1922]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T04:40:48Z","timestamp":1659501648610},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2018,1,18]]},"abstract":"<p>This
-        chapter studies American historical writing. In the United States, the legacy
-        of the Progressive historians advocating a pragmatic study of the past in
-        the interests of social and political usefulness was a powerful influence
-        that continued to be evident after the Second World War. This Progressive
-        agenda had flow-on effects that shaped other characteristics of American scholarship.
-        One was recurrent but often misleading debates over conflict versus consensus
-        on the issues of American national character, ideology, and politics; another
-        was flexibility and innovation in interpretation, with receptiveness to new
-        ideas derived from the influence of other humanities and the social sciences;
-        still another was distrust of grand theory, and an instrumental and subordinate
-        attention to historiography. The chapter then offers an outsider\u2019s view
-        of American historiography from the vantage point of Australia, and with a
-        focus on the extra-academic life of American historians, including the development
-        of \u2018public history\u2019.<\/p>","DOI":"10.1093\/oso\/9780199225996.003.0024","type":"book","created":{"date-parts":[[2018,1,18]],"date-time":"2018-01-18T17:58:17Z","timestamp":1516298297000},"source":"Crossref","is-referenced-by-count":0,"title":["Historical
-        Writing in the United States"],"prefix":"10.1093","author":[{"given":"Ian","family":"Tyrrell","sequence":"first","affiliation":[]}],"member":"286","container-title":["Oxford
-        Scholarship Online"],"original-title":["Historical Writing in the United States"],"deposited":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T02:18:20Z","timestamp":1659493100000},"score":25.476746,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/26006\/chapter\/193886333"}},"issued":{"date-parts":[[2018,1,18]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/oso\/9780199225996.003.0024","published":{"date-parts":[[2018,1,18]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T04:45:13Z","timestamp":1659501913742},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2018,4,19]]},"abstract":"<p>This
-        chapter aims to re-examine the Chandlerian paradigm of the historical development
-        of modern industrial enterprises in the United States by employing an analytical
-        framework that comprehends the alternative models of corporate evolution,
-        especially that of diversified business groups. Based on the systematic examination
-        of the broad range of business groups that have historically developed in
-        the United States, the chapter focuses on the two varieties of diversified
-        business groups that historically played critical roles in that economy: those
-        centered around overseas trading and operational firms; and those organized
-        around banking institutions. It argues that diversified business groups played
-        the characteristic roles of generating and reorganizing modern industrial
-        enterprises to shape the contemporary economic landscape of oligopoly. Such
-        roles played by the diversified business groups and their contributions to
-        corporate and industrial development should be complemental to the Chandlerian
-        multidivisional enterprises to configure the whole dynamics of the US economy
-        in the long run.<\/p>","DOI":"10.1093\/oso\/9780198717973.003.0014","type":"book","created":{"date-parts":[[2018,4,19]],"date-time":"2018-04-19T08:09:52Z","timestamp":1524125392000},"source":"Crossref","is-referenced-by-count":0,"title":["The
-        United States in Historical Perspectives"],"prefix":"10.1093","author":[{"given":"Takashi","family":"Hikino","sequence":"first","affiliation":[]},{"given":"Marcelo","family":"Bucheli","sequence":"additional","affiliation":[]}],"member":"286","container-title":["Oxford
-        Scholarship Online"],"original-title":["The United States in Historical Perspectives"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T22:31:15Z","timestamp":1659479475000},"score":25.034798,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/4610\/chapter\/146741183"}},"issued":{"date-parts":[[2018,4,19]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/oso\/9780198717973.003.0014","published":{"date-parts":[[2018,4,19]]}},{"indexed":{"date-parts":[[2025,4,9]],"date-time":"2025-04-09T14:31:35Z","timestamp":1744209095386},"publisher-location":"[Boise,
-        Idaho]","reference-count":0,"publisher":"Joint Fire Science Program","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007]]},"DOI":"10.5962\/bhl.title.154495","type":"monograph","created":{"date-parts":[[2018,11,18]],"date-time":"2018-11-18T06:03:41Z","timestamp":1542521021000},"source":"Crossref","is-referenced-by-count":1,"title":["Joint
-        Fire Science Program 2006 - 2007 progress report : research supporting sound
-        decisions"],"prefix":"10.5962","author":[{"name":"Joint Fire Science Program
-        (U.S.)","sequence":"first","affiliation":[]},{"name":"Geological Survey (U.S.)","sequence":"additional","affiliation":[]},{"name":"U.S.
-        Fish and Wildlife Service","sequence":"additional","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T22:25:10Z","timestamp":1650061510000},"score":24.952703,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/154495"}},"issued":{"date-parts":[[2007]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.154495","published":{"date-parts":[[2007]]}},{"indexed":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T20:11:14Z","timestamp":1650053474574},"publisher-location":"Washington","reference-count":0,"publisher":"Govt.
-        print. off","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1895]]},"DOI":"10.5962\/bhl.title.36488","type":"monograph","created":{"date-parts":[[2011,11,23]],"date-time":"2011-11-23T04:47:04Z","timestamp":1322023624000},"source":"Crossref","is-referenced-by-count":0,"title":["Report
-        of the United States commission to the Columbian historical exposition at
-        Madrid"],"prefix":"10.5962","author":[{"name":"United States Commission to
-        the Columbian Historical Exposition at Madrid","sequence":"first","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T19:52:47Z","timestamp":1650052367000},"score":24.940205,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/36488"}},"issued":{"date-parts":[[1895]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.36488","published":{"date-parts":[[1895]]}},{"indexed":{"date-parts":[[2022,4,1]],"date-time":"2022-04-01T03:24:09Z","timestamp":1648783449862},"publisher-location":"Silver
-        Spring, Md. :","reference-count":0,"publisher":"U.S. Dept. of Commerce, National
-        Oceanic and Atmospheric Administration, National Marine Fisheries Service;","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1997]]},"DOI":"10.5962\/bhl.title.4030","type":"monograph","created":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T21:57:07Z","timestamp":1321048627000},"source":"Crossref","is-referenced-by-count":0,"title":["Fisheries
-        of the United States, 1996 \/ prepared by Fisheries Statistics Division, National
-        Marine Fisheries Service."],"prefix":"10.5962","author":[{"name":"United States.","sequence":"first","affiliation":[]}],"member":"3444","deposited":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T21:57:15Z","timestamp":1321048635000},"score":24.805773,"resource":{"primary":{"URL":"http:\/\/www.biodiversitylibrary.org\/bibliography\/4030"}},"issued":{"date-parts":[[1997]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.4030","published":{"date-parts":[[1997]]}},{"indexed":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T22:11:48Z","timestamp":1650060708392},"publisher-location":"Upper
-        Darby","reference-count":0,"publisher":"[s.n.]","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1955]]},"DOI":"10.5962\/bhl.title.114942","type":"monograph","created":{"date-parts":[[2016,4,3]],"date-time":"2016-04-03T06:10:16Z","timestamp":1459663816000},"source":"Crossref","is-referenced-by-count":0,"title":["Forest
-        statistics for New York"],"prefix":"10.5962","author":[{"name":"United States.","sequence":"first","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T21:41:04Z","timestamp":1650058864000},"score":24.630081,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/114942"}},"issued":{"date-parts":[[1955]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.114942","published":{"date-parts":[[1955]]}},{"indexed":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T21:10:48Z","timestamp":1650057048468},"publisher-location":"Wash","reference-count":0,"publisher":"[s.n.]","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1920]]},"DOI":"10.5962\/bhl.title.40887","type":"monograph","created":{"date-parts":[[2011,11,23]],"date-time":"2011-11-23T16:54:44Z","timestamp":1322067284000},"source":"Crossref","is-referenced-by-count":0,"title":["Statistics
-        of cooperative extension work"],"prefix":"10.5962","author":[{"name":"United
-        States.","sequence":"first","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T20:40:54Z","timestamp":1650055254000},"score":24.602753,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/40887"}},"issued":{"date-parts":[[1920]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.40887","published":{"date-parts":[[1920]]}},{"indexed":{"date-parts":[[2022,4,4]],"date-time":"2022-04-04T05:19:31Z","timestamp":1649049571217},"publisher-location":"Anapolis,
-        MD :","reference-count":0,"publisher":"U.S. Environmental Protection Agency,
-        Region III, Chesapeake Bay Program Office,","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007]]},"DOI":"10.5962\/bhl.title.149917","type":"monograph","created":{"date-parts":[[2018,7,15]],"date-time":"2018-07-15T05:00:34Z","timestamp":1531630834000},"source":"Crossref","is-referenced-by-count":2,"title":["Ambient
-        water quality criteria for dissolved oxygen, water clarity and chlorophyll
-        a for Chesapeake Bay and its tidal tributaries : 2007 addendum \/"],"prefix":"10.5962","author":[{"name":"United
-        States.","sequence":"first","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]},{"name":"United States.","sequence":"additional","affiliation":[]}],"member":"3444","deposited":{"date-parts":[[2018,7,15]],"date-time":"2018-07-15T05:00:34Z","timestamp":1531630834000},"score":24.431623,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/149917"}},"issued":{"date-parts":[[2007]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.149917","published":{"date-parts":[[2007]]}},{"indexed":{"date-parts":[[2025,12,31]],"date-time":"2025-12-31T15:10:20Z","timestamp":1767193820957,"version":"build-2238731810"},"reference-count":0,"publisher":"OECD","isbn-type":[{"value":"9789264032712","type":"print"},{"value":"9789264032774","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007,5,29]]},"DOI":"10.1787\/eco_surveys-usa-2007-en","type":"book","created":{"date-parts":[[2009,7,9]],"date-time":"2009-07-09T07:18:25Z","timestamp":1247123905000},"source":"Crossref","is-referenced-by-count":9,"title":["OECD
-        Economic Surveys: United States 2007"],"prefix":"10.1787","author":[{"name":"OECD","sequence":"first","affiliation":[]}],"member":"1963","container-title":["OECD
-        Economic Surveys: United States"],"language":"en","deposited":{"date-parts":[[2024,12,13]],"date-time":"2024-12-13T06:51:15Z","timestamp":1734072675000},"score":24.170313,"resource":{"primary":{"URL":"https:\/\/www.oecd.org\/en\/publications\/oecd-economic-surveys-united-states-2007_eco_surveys-usa-2007-en.html"}},"issued":{"date-parts":[[2007,5,29]]},"ISBN":["9789264032712","9789264032774"],"references-count":0,"aliases":["10.1787\/eco_surveys-usa-2007-2-en","10.1787\/eco_surveys-usa-2007-graph2_8-en","10.1787\/eco_surveys-usa-2007-graph2_7-en","10.1787\/eco_surveys-usa-2007-graph3_1-en","10.1787\/eco_surveys-usa-2007-graph5_1-en","10.1787\/eco_surveys-usa-2007-graph3_4-en","10.1787\/eco_surveys-usa-2007-4-en","10.1787\/eco_surveys-usa-2007-graph1_3-en","10.1787\/eco_surveys-usa-2007-graph1_5-en","10.1787\/eco_surveys-usa-2007-graph2_4-en","10.1787\/eco_surveys-usa-2007-graph1_7-en","10.1787\/eco_surveys-usa-2007-graph6_3-en","10.1787\/eco_surveys-usa-2007-graph6_4-en","10.1787\/eco_surveys-usa-2007-graph6_8-en","10.1787\/eco_surveys-usa-2007-graph6_7-en","10.1787\/eco_surveys-usa-2007-graph1_8-en","10.1787\/eco_surveys-usa-2007-8-en","10.1787\/eco_surveys-usa-2007-graph4_1-en","10.1787\/eco_surveys-usa-2007-graph5_3-en","10.1787\/eco_surveys-usa-2007-graph6_2-en","10.1787\/eco_surveys-usa-2007-graph6_6-en","10.1787\/eco_surveys-usa-2007-7-en","10.1787\/eco_surveys-usa-2007-graph2_10-en","10.1787\/eco_surveys-usa-2007-graph2_1-en","10.1787\/eco_surveys-usa-2007-graph2_6-en","10.1787\/eco_surveys-usa-2007-graph4_2-en","10.1787\/eco_surveys-usa-2007-graph2_5-en","10.1787\/eco_surveys-usa-2007-graph4_4-en","10.1787\/eco_surveys-usa-2007-graph5_2-en","10.1787\/eco_surveys-usa-2007-3-en","10.1787\/eco_surveys-usa-2007-graph1_2-en","10.1787\/eco_surveys-usa-2007-graph1_1-en","10.1787\/eco_surveys-usa-2007-graph1_6-en","10.1787\/eco_surveys-usa-2007-graph2_2-en","10.1787\/eco_surveys-usa-2007-graph3_2-en","10.1787\/eco_surveys-usa-2007-graph4_3-en","10.1787\/eco_surveys-usa-2007-graph2_3-en","10.1787\/eco_surveys-usa-2007-graph6_5-en","10.1787\/eco_surveys-usa-2007-5-en","10.1787\/eco_surveys-usa-2007-graph2_9-en","10.1787\/eco_surveys-usa-2007-graph1_4-en","10.1787\/eco_surveys-usa-2007-6-en","10.1787\/eco_surveys-usa-2007-graph4_5-en","10.1787\/eco_surveys-usa-2007-graph6_1-en"],"URL":"https:\/\/doi.org\/10.1787\/eco_surveys-usa-2007-en","ISSN":["1999-0103"],"issn-type":[{"value":"1999-0103","type":"electronic"}],"published":{"date-parts":[[2007,5,29]]}},{"indexed":{"date-parts":[[2022,4,2]],"date-time":"2022-04-02T22:42:12Z","timestamp":1648939332854},"publisher-location":"Silver
-        Spring, Md. :","reference-count":0,"publisher":"U.S. Dept. of Commerce, National
-        Oceanic and Atmospheric Administration, National Marine Fisheries Service
-        :","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2005]]},"DOI":"10.5962\/bhl.title.4145","type":"monograph","created":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T16:58:15Z","timestamp":1321030695000},"source":"Crossref","is-referenced-by-count":0,"title":["Fisheries
-        of the United States, 2004 \/ National Marine Fisheries Service, Office of
-        Science and Technology, Fisheries Statistics Division."],"prefix":"10.5962","author":[{"name":"United
-        States.","sequence":"first","affiliation":[]}],"member":"3444","deposited":{"date-parts":[[2011,11,11]],"date-time":"2011-11-11T16:58:25Z","timestamp":1321030705000},"score":24.071388,"resource":{"primary":{"URL":"http:\/\/www.biodiversitylibrary.org\/bibliography\/4145"}},"issued":{"date-parts":[[2005]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.4145","published":{"date-parts":[[2005]]}},{"indexed":{"date-parts":[[2025,10,30]],"date-time":"2025-10-30T01:51:39Z","timestamp":1761789099927},"publisher-location":"Newtown
-        Square, Pa. :","reference-count":0,"publisher":"U.S. Dept. of Agriculture,
-        Forest Service, Northeastern Research Station,","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2000]]},"DOI":"10.5962\/bhl.title.70042","type":"monograph","created":{"date-parts":[[2013,12,8]],"date-time":"2013-12-08T07:01:10Z","timestamp":1386486070000},"source":"Crossref","is-referenced-by-count":1,"title":["Forest
-        statistics for Connecticut \/"],"prefix":"10.5962","author":[{"given":"Carol
-        L.","family":"Alerich","sequence":"first","affiliation":[]},{"name":"United
-        States.","sequence":"additional","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2013,12,8]],"date-time":"2013-12-08T07:01:11Z","timestamp":1386486071000},"score":23.861847,"resource":{"primary":{"URL":"http:\/\/www.biodiversitylibrary.org\/bibliography\/70042"}},"issued":{"date-parts":[[2000]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.70042","published":{"date-parts":[[2000]]}},{"indexed":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T19:40:31Z","timestamp":1650051631801},"publisher-location":"Washington","reference-count":0,"publisher":"Govt.
-        Print. Off","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1895]]},"DOI":"10.5962\/bhl.title.19003","type":"monograph","created":{"date-parts":[[2011,11,22]],"date-time":"2011-11-22T16:25:22Z","timestamp":1321979122000},"source":"Crossref","is-referenced-by-count":0,"title":["Report
-        of the United States Commission to the Columbian Historical Exposition at
-        Madrid. 1892-93. With special papers"],"prefix":"10.5962","author":[{"name":"United
-        States.","sequence":"first","affiliation":[]}],"member":"33859","deposited":{"date-parts":[[2022,4,15]],"date-time":"2022-04-15T19:14:20Z","timestamp":1650050060000},"score":23.561277,"resource":{"primary":{"URL":"https:\/\/www.biodiversitylibrary.org\/bibliography\/19003"}},"issued":{"date-parts":[[1895]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5962\/bhl.title.19003","published":{"date-parts":[[1895]]}},{"indexed":{"date-parts":[[2024,9,8]],"date-time":"2024-09-08T18:26:25Z","timestamp":1725819985232},"reference-count":0,"publisher":"Commonwealth","isbn-type":[{"type":"electronic","value":"9781848598874"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007,4,1]]},"DOI":"10.14217\/smalst-2007-en","type":"book","created":{"date-parts":[[2015,4,8]],"date-time":"2015-04-08T06:04:56Z","timestamp":1428473096000},"source":"Crossref","is-referenced-by-count":2,"title":["Small
-        States"],"prefix":"10.14217","author":[{"name":"Commonwealth Secretariat","sequence":"first","affiliation":[]}],"member":"28689","container-title":["Small
-        States: Economic Review and Basic Statistics"],"language":"en","deposited":{"date-parts":[[2020,11,3]],"date-time":"2020-11-03T08:00:45Z","timestamp":1604390445000},"score":23.46767,"resource":{"primary":{"URL":"https:\/\/www.thecommonwealth-ilibrary.org\/commonwealth\/economics\/small-states_smalst-2007-en"}},"subtitle":["Economic
-        Review and Basic Statistics, Volume 11"],"issued":{"date-parts":[[2007,4,1]]},"ISBN":["9781848598874"],"references-count":0,"URL":"https:\/\/doi.org\/10.14217\/smalst-2007-en","ISSN":["1359-7507"],"issn-type":[{"type":"electronic","value":"1359-7507"}],"published":{"date-parts":[[2007,4,1]]}},{"indexed":{"date-parts":[[2026,3,26]],"date-time":"2026-03-26T14:59:00Z","timestamp":1774537140129,"version":"3.50.1"},"reference-count":0,"publisher":"Duke
-        University Press","isbn-type":[{"value":"9780822340058","type":"print"},{"value":"9780822389811","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007]]},"DOI":"10.1215\/9780822389811","type":"edited-book","created":{"date-parts":[[2013,11,20]],"date-time":"2013-11-20T01:54:06Z","timestamp":1384912446000},"source":"Crossref","is-referenced-by-count":11,"title":["Redress
-        for Historical Injustices in the United States"],"prefix":"10.1215","member":"73","language":"en","deposited":{"date-parts":[[2020,8,31]],"date-time":"2020-08-31T09:31:05Z","timestamp":1598866265000},"score":23.260155,"resource":{"primary":{"URL":"http:\/\/read.dukeupress.edu\/books\/book\/2249\/Redress-for-Historical-Injustices-in-the-United"}},"subtitle":["On
-        Reparations for Slavery, Jim Crow, and Their Legacies"],"editor":[{"given":"Michael
-        T.","family":"Martin","sequence":"first","affiliation":[]},{"given":"Marilyn","family":"Yaquinto","sequence":"additional","affiliation":[]}],"issued":{"date-parts":[[2007]]},"ISBN":["9780822340058","9780822389811"],"references-count":0,"URL":"https:\/\/doi.org\/10.1215\/9780822389811","relation":{"is-identical-to":[{"id-type":"doi","id":"10.2307\/j.ctv11hpmg2","asserted-by":"object"},{"id-type":"doi","id":"10.1515\/9780822389811","asserted-by":"object"}]},"published":{"date-parts":[[2007]]}}],"items-per-page":20,"query":{"start-index":0,"search-terms":"Historical
-        Statistics of the United States+2007"}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:17 GMT
+      string: !binary |-
+        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
+  recorded_at: Sat, 18 Apr 2026 01:18:07 GMT
 recorded_with: VCR 6.4.0

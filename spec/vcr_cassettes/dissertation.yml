@@ -7,23 +7,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:22 GMT
+      - Sat, 18 Apr 2026 01:18:10 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '2028'
+      - '925'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -35,6 +43,8 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
@@ -49,15 +59,9 @@ http_interactions:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"institution":[{"name":"Universidade
-        de S\u00e3o Paulo","place":["S\u00e3o Paulo"],"department":["Faculdade de
-        Filosofia, Letras e Ci\u00eancias Humanas"]}],"indexed":{"date-parts":[[2022,4,3]],"date-time":"2022-04-03T01:46:08Z","timestamp":1648950368743},"reference-count":0,"publisher":"Universidade
-        de Sao Paulo, Agencia USP de Gestao da Informacao Academica (AGUIA)","content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"DOI":"10.11606\/t.8.2017.tde-08052017-100442","type":"dissertation","created":{"date-parts":[[2018,4,10]],"date-time":"2018-04-10T16:24:23Z","timestamp":1523377463000},"approved":{"date-parts":[[2017,5,8]]},"source":"Crossref","is-referenced-by-count":0,"title":["N\u00f3s
-        temos nosso direito que \u00e9 o certo: significados das lutas por reconhecimento
-        entre comunidades do Vale do Ribeira, S\u00e3o Paulo"],"prefix":"10.11606","author":[{"given":"Homero
-        Moro","family":"Martins","sequence":"first","affiliation":[]}],"member":"4873","container-title":[],"original-title":[],"link":[{"URL":"http:\/\/www.teses.usp.br\/teses\/disponiveis\/8\/8134\/tde-08052017-100442\/publico\/2017_HomeroMoroMartins_VCorr.pdf","content-type":"application\/octet-stream","content-version":"vor","intended-application":"text-mining"},{"URL":"http:\/\/www.teses.usp.br\/teses\/disponiveis\/8\/8134\/tde-08052017-100442\/publico\/2017_HomeroMoroMartins_VCorr.pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2018,4,10]],"date-time":"2018-04-10T16:24:33Z","timestamp":1523377473000},"score":1,"degree":["Doutorado
-        em Antropologia Social"],"resource":{"primary":{"URL":"http:\/\/www.teses.usp.br\/teses\/disponiveis\/8\/8134\/tde-08052017-100442\/"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.11606\/t.8.2017.tde-08052017-100442","relation":{},"subject":[]}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:22 GMT
+      string: !binary |-
+        H4sIAAAAAAAA/81UbW/bOAz+K4I/3QG2I8du4uVb0GFbge1uWNd9uCQYFJtOebVFnyT3BUH++yglW421AzYcDjggSCJSpMiHz8N9ZJ1yg40WEd1EcdSBtWoHiXvogW13ZMbWWzAWSbMjS2UqHz3RYh+htg7d4MKF1T7SqvMprjSGsFrVIPhzuR6khJzEezW0xCn6VlV8cRV959nEUQ29Mq4D7bz/laqG9muaV9iSpQZVLN6CM8oKEOcYMihdIZ/fDJ3SykabA2dCXcM91L7OWjlIfF5uerWayuk0LuJ845/zHoehbG9PZJHI/KPMFsVsIcu/uFjvZcS6Plpks6J8cSbzWTkv8kMcGWjAgK4gqWjwFUvubdi2aK/BPAeEOnUai+UOfM3i6vK997z2T5ColbjQDZlOVXxaVhzXYaXEb8vXVxfL37mairRjcJKaOoU6NHf6t+J2KkPWdsrcJIYTGqyOo2lUa4HrtddkXOJTcAQYbty1cIx8+eeFn7FMs2wmZ+uJS8t0KrN56mpIZCnP/CHJpCyKqQflSJYarQXDdPLP+OeB8XwW8qxkyDP5FPOs9Jhn8mM2W0yLxTT/HvOzaZ7P58Usl1JyD6rvDd3+4JF5fBaXm41vlQbjORade0h4UJwVbfJtYnWyfRhN7SsS0R+eT01uhYOOrNAczGNBA+hI/DOACHx7IUhU3DgthMWdxoaHVPP1mknYDo6/ezLCAEN9DRV6OpPgLwOiom7QgRF8ncQn1YL//YBbQMPUfiqJnovG+9F0uBU1OJ5lEN2OOeb1+YY6MCTekfESa1SH7QOb3zE8rFM2WeD6dQClQWOdT9M02KI6CTjIpoNuG8hblPP8RLgnbCGDO9SqHdta1DehoKsPbzn82rl+sZ6sJ3d3d6kDCzYdbJ9uDXPLn9YTJk9PXiHIh5I/WV6w8ynf1pMgqorWE2/9fOzUN3pq7vOnczIm7etmpJATRZkvHBpaXE+ocuASVgaobnT1ccndMqh+dbC5Zo6Mgtnp4N4lHWrUu+gQ/98aHbTtmWsNsjZ+uTWLTBdl0LEomLE3ocXjOiaL/1LT+Y80PT9p2lZkODLz7+0MBCG+pMGRYVUJ6MSSpUM9tbTjlXlJvDhbrwxecieZ71klyIvvwf/9D+YSHXyZw3bE9+MyHRl4Fw7PAaWHtg076dvysaPN81isDdXWhCmZ3Xry07vYQHsa4/5Y5N9QuSDnwxfTb7FD7AcAAA==
+  recorded_at: Sat, 18 Apr 2026 01:18:10 GMT
 - request:
     method: get
     uri: https://api.crossref.org/works?filter=type:book-chapter,type:book-part,type:book-section,type:book-track&query=N%C3%B3s%2Btemos%2Bnosso%2Bdireito%2Bque%2B%C3%A9%2Bo%2Bcerto:%2Bsignificados%2Bdas%2Blutas%2Bpor%2Breconhecimento%2Bentre%2Bcomunidades%2Bdo%2BVale%2Bdo%2BRibeira,%2BS%C3%A3o%2BPaulo%2B2017%2BUniversidade%2Bde%2BSao%2BPaulo,%2BAgencia%2BUSP%2Bde%2BGestao%2Bda%2BInformacao%2BAcademica%2B(AGUIA)
@@ -65,23 +69,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Faraday v2.7.12
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:23 GMT
+      - Sat, 18 Apr 2026 01:18:10 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '42244'
+      - '9681'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -93,276 +105,23 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
-      - '5'
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
       X-Concurrency-Limit:
-      - '1'
+      - '3'
       X-Api-Pool:
-      - public
+      - polite
       Permissions-Policy:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":26171,"items":[{"indexed":{"date-parts":[[2024,8,7]],"date-time":"2024-08-07T08:59:26Z","timestamp":1723021166393},"edition-number":"1","reference-count":0,"publisher":"Editora
-        Scienza","isbn-type":[{"type":"print","value":"9788559530292"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2017,10,3]]},"DOI":"10.26626\/978-85-5953-029-2.2017c0008.p.195-216","type":"book-chapter","created":{"date-parts":[[2017,10,3]],"date-time":"2017-10-03T13:54:21Z","timestamp":1507038861000},"page":"195-216","source":"Crossref","is-referenced-by-count":1,"title":["Avalia\u00e7\u00e3o
-        de Habita\u00e7\u00f5es em Sistemas Construtivos Inovadores: Apresenta\u00e7\u00e3o
-        de Metodologia e Resultados da An\u00e1lise de Documenta\u00e7\u00e3o"],"prefix":"10.26626","author":[{"name":"USP
-        - Universidade de S\u00e3o Paulo","sequence":"first","affiliation":[]},{"given":"Mena","family":"Cristina
-        Marcolino Mendes","sequence":"first","affiliation":[]},{"given":"Fabiana","family":"Lopes
-        Oliveira","sequence":"additional","affiliation":[]},{"name":"USP - Universidade
-        de S\u00e3o Paulo","sequence":"additional","affiliation":[]},{"given":"Rosaria","family":"Ono","sequence":"additional","affiliation":[]},{"name":"USP
-        - Universidade de S\u00e3o Paulo","sequence":"additional","affiliation":[]},{"given":"Sheila","family":"Walbe
-        Ornstein","sequence":"additional","affiliation":[]},{"given":"M\u00e1rcio","family":"Minto
-        Fabricio","sequence":"additional","affiliation":[]},{"name":"USP - Universidade
-        de S\u00e3o Paulo","sequence":"additional","affiliation":[]}],"member":"11172","published-online":{"date-parts":[[2017,10,3]]},"container-title":["Avalia\u00e7\u00e3o
-        de Desempenho de Tecnologias Construtivas Inovadoras: Conforto Ambiental,
-        Durabilidade e P\u00f3s-Ocupa\u00e7\u00e3o"],"deposited":{"date-parts":[[2017,10,4]],"date-time":"2017-10-04T20:20:58Z","timestamp":1507148458000},"score":68.395546,"resource":{"primary":{"URL":"http:\/\/editorascienza.com.br\/pdfs\/usp\/978_85_5953_029_2_capitulo_8.pdf"}},"issued":{"date-parts":[[2017,10,3]]},"ISBN":["9788559530292"],"references-count":0,"URL":"https:\/\/doi.org\/10.26626\/978-85-5953-029-2.2017c0008.p.195-216","published":{"date-parts":[[2017,10,3]]}},{"indexed":{"date-parts":[[2024,8,7]],"date-time":"2024-08-07T08:58:29Z","timestamp":1723021109137},"edition-number":"1","reference-count":0,"publisher":"Editora
-        Scienza","isbn-type":[{"type":"print","value":"9788559530292"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2017,10,3]]},"DOI":"10.26626\/978-85-5953-029-2.2017c0011.p.293-304","type":"book-chapter","created":{"date-parts":[[2017,10,3]],"date-time":"2017-10-03T13:54:21Z","timestamp":1507038861000},"page":"293-304","source":"Crossref","is-referenced-by-count":8,"title":["Avalia\u00e7\u00e3o
-        P\u00f3s-Ocupa\u00e7\u00e3o em Sistemas Construtivos Inovadores: Considera\u00e7\u00f5es
-        Finais"],"prefix":"10.26626","author":[{"name":"USP - Universidade de S\u00e3o
-        Paulo","sequence":"first","affiliation":[]},{"given":"Sheila","family":"Walbe
-        Ornstein","sequence":"first","affiliation":[]},{"given":"M\u00e1rcio","family":"Minto
-        Fabricio","sequence":"additional","affiliation":[]},{"name":"USP - Universidade
-        de S\u00e3o Paulo","sequence":"additional","affiliation":[]},{"given":"Rosaria","family":"Ono","sequence":"additional","affiliation":[]},{"name":"USP
-        - Universidade de S\u00e3o Paulo","sequence":"additional","affiliation":[]},{"given":"Fabiana","family":"Lopes
-        de Oliveira","sequence":"additional","affiliation":[]},{"name":"USP - Universidade
-        de S\u00e3o Paulo","sequence":"additional","affiliation":[]},{"given":"Mena","family":"Cristina
-        Marcolino Mendes","sequence":"additional","affiliation":[]},{"name":"USP -
-        Universidade de S\u00e3o Paulo","sequence":"additional","affiliation":[]},{"given":"Lucas","family":"Melchiori
-        Pereira","sequence":"additional","affiliation":[]},{"given":"Miguel","family":"Antonio
-        Buzzar","sequence":"additional","affiliation":[]}],"member":"11172","published-online":{"date-parts":[[2017,10,3]]},"container-title":["Avalia\u00e7\u00e3o
-        de Desempenho de Tecnologias Construtivas Inovadoras: Conforto Ambiental,
-        Durabilidade e P\u00f3s-Ocupa\u00e7\u00e3o"],"deposited":{"date-parts":[[2017,10,4]],"date-time":"2017-10-04T20:20:59Z","timestamp":1507148459000},"score":67.411575,"resource":{"primary":{"URL":"http:\/\/editorascienza.com.br\/pdfs\/usp\/978_85_5953_029_2_capitulo_11.pdf"}},"issued":{"date-parts":[[2017,10,3]]},"ISBN":["9788559530292"],"references-count":0,"URL":"https:\/\/doi.org\/10.26626\/978-85-5953-029-2.2017c0011.p.293-304","published":{"date-parts":[[2017,10,3]]}},{"indexed":{"date-parts":[[2024,8,7]],"date-time":"2024-08-07T17:46:10Z","timestamp":1723052770491},"edition-number":"1\u00aa","reference-count":0,"publisher":"Ludomedia","content-domain":{"domain":[],"crossmark-restriction":false},"abstract":"<jats:p>The
-        context of COVID-19 made it possible for professionals in the nursing category
-        to be in a state of alert and emotional distress, and they were afraid to
-        perform procedures on suspected or confirmed patients of COVID-19. Objective:
-        To understand the fear-generating circumstances experienced by nursing professionals
-        in the context of the COVID-19 pandemic. Method: Qualitative, exploratory
-        study, developed in the five geographic regions of Brazil, through interviews
-        in a virtual environment with 215 professionals, between April and December
-        2020. The data were processed by the IRaMuTeQ\u00ae software and analyzed
-        in the light of the theoretical-philosophical framework of Phenomenological
-        Sociology. Results: Most females mean 37.9 years old, married, white and mixed-race,
-        nursing technicians (15.5%) and nurses (84.5%), working in public institutions.
-        The textual corpus was divided by the software into 3 classes and subclasses:
-        fear of personal and family life circumstances, related to the risk of self-contamination,
-        transmission, loss of family members, co-workers and life itself; fear of
-        exposure and social distancing in the face of the feeling of loneliness arising
-        from social distancing, despite understanding that loneliness implies the
-        absence of emotional connections with the people around, and not associated
-        with physical distance; fear of subjective and objective working conditions,
-        related to insecurity in the face of precarious working conditions, such as
-        physical infrastructure, biosafety inputs, human resources, technical unpreparedness,
-        lack of training and qualifications to take on highly complex care units,
-        such as the needs to acquire and improve technical-scientific knowledge. Conclusion:
-        The circumstances that generate fear are multiple and are processed in the
-        physical, social, psychological and work dimensions, and it marks the lack
-        of knowledge about the disease. The interpretations of the everyday world
-        are based on a stock of previous experiences and transmitted by our predecessors,
-        if they didn''t have them (didn''t live a pandemic) they can hardly deal with
-        the current problem.<\/jats:p>","DOI":"10.36367\/ntqr.13.2022.e667","type":"book-chapter","created":{"date-parts":[[2022,7,8]],"date-time":"2022-07-08T17:40:23Z","timestamp":1657302023000},"source":"Crossref","is-referenced-by-count":1,"title":["Fear-Generating
-        Circumstances in Brazilian Nursing Professionals in the Context of the Covid-19
-        Pandemic"],"prefix":"10.36367","author":[{"name":"Escola de Enfermagem, Universidade
-        de S\u00e3o Paulo (USP), Brasil","sequence":"first","affiliation":[]},{"given":"Maria
-        do Perp\u00e9tuo do Socorro Sousa","family":"N\u00f3brega","sequence":"first","affiliation":[]},{"given":"Priscila
-        Maria","family":"Marcheti","sequence":"additional","affiliation":[]},{"name":"Universidade
-        Federal de Mato Grosso do Sul (UFMS), Brasil","sequence":"additional","affiliation":[]},{"given":"C\u00edntia","family":"Nasi","sequence":"additional","affiliation":[]},{"name":"Universidade
-        Federal do Rio Grande do Sul (UFGRS), Brasil","sequence":"additional","affiliation":[]},{"given":"Elda","family":"de
-        Oliveira","sequence":"additional","affiliation":[]},{"name":"Faculdade de
-        Medicina, Universidade de S\u00e3o Paulo (USP), Brasil","sequence":"additional","affiliation":[]},{"given":"Wanderson
-        Carneiro","family":"Moreira","sequence":"additional","affiliation":[]},{"name":"Escola
-        de Enfermagem, Universidade de S\u00e3o Paulo (USP), Brasil","sequence":"additional","affiliation":[]},{"given":"D\u00e1rcio
-        Tadeu","family":"Moreira","sequence":"additional","affiliation":[]},{"name":"Escola
-        de Enfermagem, Universidade de S\u00e3o Paulo (USP), Brasil","sequence":"additional","affiliation":[]},{"given":"Sonia
-        Regina","family":"Zerbetto","sequence":"additional","affiliation":[]},{"name":"Universidade
-        Federal de S\u00e3o Carlos (UFSCar), Brasil","sequence":"additional","affiliation":[]}],"member":"22117","published-online":{"date-parts":[[2022,7,8]]},"container-title":["New
-        Trends in Qualitative Research","Nurse manager\u2019s role in promoting culturally
-        competent work environments in nursing: An integrative review"],"deposited":{"date-parts":[[2022,7,8]],"date-time":"2022-07-08T17:40:29Z","timestamp":1657302029000},"score":66.33465,"resource":{"primary":{"URL":"https:\/\/publi.ludomedia.org\/index.php\/ntqr\/article\/view\/667"}},"issued":{"date-parts":[[2022,7,8]]},"references-count":0,"URL":"https:\/\/doi.org\/10.36367\/ntqr.13.2022.e667","ISSN":["2184-7770"],"issn-type":[{"type":"print","value":"2184-7770"}],"published":{"date-parts":[[2022,7,8]]}},{"indexed":{"date-parts":[[2023,6,29]],"date-time":"2023-06-29T04:28:54Z","timestamp":1688012934227},"reference-count":0,"publisher":"Agron
-        Science","isbn-type":[{"value":"9786599965821","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.53934\/9786599965821-21","type":"book-chapter","created":{"date-parts":[[2023,6,28]],"date-time":"2023-06-28T19:56:46Z","timestamp":1687982206000},"source":"Crossref","is-referenced-by-count":0,"title":["ORTHOBUNIAVIRUS:
-        VIGIL\u00c2NCIA DE INFEC\u00c7\u00d5ES EM P\u00c1SSAROS DA REGI\u00c3O DO
-        VALE DO RIBEIRA, ESTADO DE S\u00c3O PAULO, BRASIL"],"prefix":"10.53934","author":[{"given":"J\u00falia
-        Cavalcante","family":"Alexandrino","sequence":"first","affiliation":[]},{"given":"Mariana
-        Sequetin","family":"Cunha","sequence":"additional","affiliation":[]}],"member":"32105","published-online":{"date-parts":[[2023,6,28]]},"container-title":["Livro
-        da IV Mostra dos Trabalhos de Conclus\u00e3o de Curso da Especializa\u00e7\u00e3o
-        em Vigil\u00e2ncia Laboratorial em Sa\u00fade P\u00fablica"],"deposited":{"date-parts":[[2023,6,28]],"date-time":"2023-06-28T19:57:19Z","timestamp":1687982239000},"score":65.17226,"resource":{"primary":{"URL":"https:\/\/agronscience.com\/orthobuniavirus-vigilancia-de-infeccoes-em-passaros-da-regiao-do-vale-do-ribeira-estado-de-sao-paulo-brasil\/"}},"issued":{"date-parts":[[2023,6,28]]},"ISBN":["9786599965821"],"references-count":0,"URL":"https:\/\/doi.org\/10.53934\/9786599965821-21","published":{"date-parts":[[2023,6,28]]}},{"indexed":{"date-parts":[[2025,3,1]],"date-time":"2025-03-01T06:02:36Z","timestamp":1740808956843,"version":"3.38.0"},"edition-number":"1","reference-count":0,"publisher":"PONTES
-        EDITORES LTDA","isbn-type":[{"type":"electronic","value":"9786556376264"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.29327\/5190512.1-6","type":"book-chapter","created":{"date-parts":[[2023,3,6]],"date-time":"2023-03-06T18:13:11Z","timestamp":1678126391000},"page":"134-154","source":"Crossref","is-referenced-by-count":0,"title":["O
-        ensino do FOU na \u00e1rea das ci\u00eancias exatas da USP:  estrat\u00e9gias
-        para compreender o discurso nas disciplinas  de racioc\u00ednio matem\u00e1tico"],"prefix":"10.29327","author":[{"given":"Elizabeth
-        Cristina Ykuno","family":"Kawano","sequence":"first","affiliation":[]}],"member":"11875","published-online":{"date-parts":[[2022]]},"container-title":["Fos
-        e Fou na Universidade de S\u00e3o Paulo: articula\u00e7\u00e3o entre Forma\u00e7\u00e3o,
-        Ensino e Pesquisa"],"language":"pt","deposited":{"date-parts":[[2025,2,28]],"date-time":"2025-02-28T23:57:29Z","timestamp":1740787049000},"score":64.17861,"resource":{"primary":{"URL":"https:\/\/letra.fflch.usp.br\/publicacoes-dos-docentes"}},"issued":{"date-parts":[[2022]]},"ISBN":["9786556376264"],"references-count":0,"URL":"https:\/\/doi.org\/10.29327\/5190512.1-6","published":{"date-parts":[[2022]]}},{"indexed":{"date-parts":[[2024,8,7]],"date-time":"2024-08-07T08:58:26Z","timestamp":1723021106351},"edition-number":"1","reference-count":0,"publisher":"Editora
-        Scienza","isbn-type":[{"type":"print","value":"9788559530292"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2017,10,3]]},"DOI":"10.26626\/978-85-5953-029-2.2017c0007.p.169-194","type":"book-chapter","created":{"date-parts":[[2017,10,3]],"date-time":"2017-10-03T13:54:21Z","timestamp":1507038861000},"page":"169-194","source":"Crossref","is-referenced-by-count":1,"title":["Sistemas
-        Construtivos Inovadores no Contexto do SiNAT: Normativas, Produ\u00e7\u00e3o
-        e Aplica\u00e7\u00f5es de Pain\u00e9is de Veda\u00e7\u00e3o"],"prefix":"10.26626","author":[{"name":"USP
-        - Universidade de S\u00e3o Paulo","sequence":"first","affiliation":[]},{"given":"Mena","family":"Cristina
-        Marcolino Mendes","sequence":"first","affiliation":[]},{"given":"M\u00e1rcio","family":"Minto
-        Fabricio","sequence":"additional","affiliation":[]},{"name":"USP - Universidade
-        de S\u00e3o Paulo","sequence":"additional","affiliation":[]},{"given":"C\u00e9sar","family":"Imai","sequence":"additional","affiliation":[]}],"member":"11172","published-online":{"date-parts":[[2017,10,3]]},"container-title":["Avalia\u00e7\u00e3o
-        de Desempenho de Tecnologias Construtivas Inovadoras: Conforto Ambiental,
-        Durabilidade e P\u00f3s-Ocupa\u00e7\u00e3o"],"deposited":{"date-parts":[[2017,10,4]],"date-time":"2017-10-04T20:20:58Z","timestamp":1507148458000},"score":64.051956,"resource":{"primary":{"URL":"http:\/\/editorascienza.com.br\/pdfs\/usp\/978_85_5953_029_2_capitulo_7.pdf"}},"issued":{"date-parts":[[2017,10,3]]},"ISBN":["9788559530292"],"references-count":0,"URL":"https:\/\/doi.org\/10.26626\/978-85-5953-029-2.2017c0007.p.169-194","published":{"date-parts":[[2017,10,3]]}},{"indexed":{"date-parts":[[2023,4,5]],"date-time":"2023-04-05T05:25:07Z","timestamp":1680672307640},"edition-number":"1","reference-count":0,"publisher":"Pimenta
-        Cultural","isbn-type":[{"value":"9786559396962","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.31560\/pimentacultural\/2023.96962.4","type":"book-chapter","created":{"date-parts":[[2023,4,4]],"date-time":"2023-04-04T17:50:30Z","timestamp":1680630630000},"page":"65-84","source":"Crossref","is-referenced-by-count":0,"title":["REINTERPRETANDO
-        OS PAP\u00c9IS DO PROFESSOR E DO ALUNO POR MEIO DA COLABORA\u00c7\u00c3O ENTRE
-        PARES NA PLATAFORMA CGSCHOLAR"],"prefix":"10.31560","author":[{"given":"Rodrigo
-        Abrantes da","family":"Silva","sequence":"first","affiliation":[]}],"member":"16537","published-online":{"date-parts":[[2023,3,31]]},"container-title":["Cadernos
-        do V Encontro de P\u00f3s-Graduandos em Estudos Lingu\u00edsticos e Liter\u00e1rios
-        em Ingl\u00eas da Universidade de S\u00e3o Paulo"],"deposited":{"date-parts":[[2023,4,4]],"date-time":"2023-04-04T17:50:41Z","timestamp":1680630641000},"score":63.944153,"resource":{"primary":{"URL":"https:\/\/www.pimentacultural.com\/livro\/caderno-v-encontro"}},"issued":{"date-parts":[[2023,3,31]]},"ISBN":["9786559396962"],"references-count":0,"URL":"https:\/\/doi.org\/10.31560\/pimentacultural\/2023.96962.4","published":{"date-parts":[[2023,3,31]]}},{"indexed":{"date-parts":[[2024,8,7]],"date-time":"2024-08-07T17:45:06Z","timestamp":1723052706990},"edition-number":"1\u00aa","reference-count":0,"publisher":"Ludomedia","content-domain":{"domain":[],"crossmark-restriction":false},"abstract":"<jats:p>Introduction:
-        In Brazil, autoethnography has been explored as a method for a short time,
-        especially because there is great resistance to its use. Neither has autoethnography
-        been validated by scientific journals in the health area. To complicate this
-        scenario, when we think of a critical perspective, in addition to the description
-        and analysis of the empirical in question, autoenthography has suffered from
-        elements that reinforce the critical character of its reflexivity. Objectives:
-        Given this gap, the objective of this study is to review the international
-        scientific production on autoethnography as a research method and its potential
-        dialogue with the Marxist perspective. Methods: This study will be a critical
-        systematic review of the literature whose research question will be: \u201cwhat
-        does the international literature present on autoethnography in dialogue with
-        the Marxist perspective?\u201d. An exploratory search was carried out in the
-        main international journals that discuss methodological issues and are open
-        to Marxist and Marxian theory. 21 different international journals, mostly
-        European and North American journals, were identified. When performing the
-        search \u201cautoethnography\u201d AND \u201cmarx\u201d in the chosen journals,
-        134 articles were found. After the selection process, 12 articles remained,
-        considered included in this review, for full reading. Conclusions: The remainder
-        of 12 studies that approach the method of autoethnography with the perspective
-        of Marx''s social theory seems to be an important finding that justifies the
-        insistence on this path. In other words, as scarce as it is, there are studies
-        that carry out this meeting.<\/jats:p>","DOI":"10.36367\/ntqr.13.2022.e663","type":"book-chapter","created":{"date-parts":[[2022,7,8]],"date-time":"2022-07-08T17:12:15Z","timestamp":1657300335000},"source":"Crossref","is-referenced-by-count":0,"title":["A
-        critical systematic review on autoethnography and Marxism: Traces to identify
-        this (mis)encounter"],"prefix":"10.36367","author":[{"name":"UNIFESP - Universidade
-        Federal de S\u00e3o Paulo, Brasil","sequence":"first","affiliation":[]},{"given":"Leonardo","family":"Carnut","sequence":"first","affiliation":[]},{"given":"Cristhian
-        Ricardo","family":"Schieck","sequence":"additional","affiliation":[]},{"name":"USP
-        \u2013 Universidade de S\u00e3o Paulo, Brasil","sequence":"additional","affiliation":[]},{"given":"Lucia
-        Dias","family":"da Silva Guerra","sequence":"additional","affiliation":[]},{"name":"FSP-USP
-        - Faculdade de Sa\u00fade P\u00fablica da Universidade de S\u00e3o Paulo,
-        Brasil","sequence":"additional","affiliation":[]},{"given":"\u00c1quilas","family":"Mendes","sequence":"additional","affiliation":[]},{"name":"FSP-USP
-        \/ PUC-SP -Faculdade de Sa\u00fade P\u00fablica da Universidade de S\u00e3o
-        Paulo \u2013 Pontif\u00edcia Universidade Cat\u00f3lica de S\u00e3o Paulo,
-        Brasil","sequence":"additional","affiliation":[]}],"member":"22117","published-online":{"date-parts":[[2022,7,8]]},"container-title":["New
-        Trends in Qualitative Research","Document analysis of nursing training for
-        the care of cultural diversity in primary care"],"deposited":{"date-parts":[[2022,7,8]],"date-time":"2022-07-08T17:12:27Z","timestamp":1657300347000},"score":63.58718,"resource":{"primary":{"URL":"https:\/\/publi.ludomedia.org\/index.php\/ntqr\/article\/view\/663"}},"issued":{"date-parts":[[2022,7,8]]},"references-count":0,"URL":"https:\/\/doi.org\/10.36367\/ntqr.13.2022.e663","ISSN":["2184-7770"],"issn-type":[{"type":"print","value":"2184-7770"}],"published":{"date-parts":[[2022,7,8]]}},{"indexed":{"date-parts":[[2022,3,31]],"date-time":"2022-03-31T08:31:21Z","timestamp":1648715481314},"edition-number":"1","reference-count":0,"publisher":"Dial\u00e9tica","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2020]]},"DOI":"10.48021\/978-65-5956-314-2-c39","type":"book-chapter","created":{"date-parts":[[2021,4,19]],"date-time":"2021-04-19T16:39:21Z","timestamp":1618850361000},"source":"Crossref","is-referenced-by-count":0,"title":["O
-        reconhecimento do direito ao esquecimento no \u00e2mbito das rela\u00e7\u00f5es
-        familiares: uma an\u00e1lise da recente decis\u00e3o do tribunal de justi\u00e7a
-        do estado de S\u00e3o Paulo na apela\u00e7\u00e3o de n. 1008842-60.2018.8.26.0344"],"prefix":"10.48021","author":[{"given":"B.
-        G.","family":"CHALA","sequence":"first","affiliation":[]},{"given":"C.","family":"BURILLE","sequence":"additional","affiliation":[]}],"member":"28043","published-online":{"date-parts":[[2020]]},"container-title":["VI
-        semin\u00e1rio nacional tutelas \u00e0 efetiva\u00e7\u00e3o dos direitos indispon\u00edveis:
-        os desafios das novas tecnologias"],"deposited":{"date-parts":[[2021,4,19]],"date-time":"2021-04-19T16:40:04Z","timestamp":1618850404000},"score":63.042877,"resource":{"primary":{"URL":"https:\/\/loja.editoradialetica.com\/loja\/produto.php?loja=791959&IdProd=1244239851&iniSession=1&6079b1bd85ac6"}},"issued":{"date-parts":[[2020]]},"references-count":0,"URL":"https:\/\/doi.org\/10.48021\/978-65-5956-314-2-c39","published":{"date-parts":[[2020]]}},{"indexed":{"date-parts":[[2025,11,27]],"date-time":"2025-11-27T12:07:54Z","timestamp":1764245274768,"version":"3.46.0"},"edition-number":"1","reference-count":0,"publisher":"Atena
-        Editora","isbn-type":[{"value":"9786525837819","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.22533\/at.ed.81925230912","type":"book-chapter","created":{"date-parts":[[2025,11,27]],"date-time":"2025-11-27T12:04:16Z","timestamp":1764245056000},"page":"180-207","source":"Crossref","is-referenced-by-count":0,"title":["PERSPECTIVA
-        DECOLONIAL DO DIREITO A PARTIR DO RECONHECIMENTO DO DIREITO \u00c0 DIVERSIDADE"],"prefix":"10.22533","author":[{"given":"Joniel
-        Vieira de","family":"Abreu","sequence":"first","affiliation":[]},{"given":"Eduardo
-        Manuel","family":"Val","sequence":"additional","affiliation":[]},{"given":"Paulo
-        S\u00e9rgio de Almeida","family":"Corr\u00eaa","sequence":"additional","affiliation":[]}],"member":"9818","published-online":{"date-parts":[[2025,9,23]]},"container-title":["Direito
-        e desafios contempor\u00e2neos: Entre justi\u00e7a e transforma\u00e7\u00e3o
-        social 5"],"deposited":{"date-parts":[[2025,11,27]],"date-time":"2025-11-27T12:04:16Z","timestamp":1764245056000},"score":62.48851,"resource":{"primary":{"URL":"https:\/\/atenaeditora.com.br\/catalogo\/post\/perspectiva-decolonial-do-direito-a-partir-do-reconhecimento-do-direito-a-diversidade"}},"issued":{"date-parts":[[2025,9,23]]},"ISBN":["9786525837819"],"references-count":0,"URL":"https:\/\/doi.org\/10.22533\/at.ed.81925230912","published":{"date-parts":[[2025,9,23]]}},{"indexed":{"date-parts":[[2025,3,1]],"date-time":"2025-03-01T06:02:37Z","timestamp":1740808957297,"version":"3.38.0"},"edition-number":"1","reference-count":0,"publisher":"PONTES
-        EDITORES LTDA","isbn-type":[{"type":"electronic","value":"9786556376264"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.29327\/5190512.1-2","type":"book-chapter","created":{"date-parts":[[2023,3,6]],"date-time":"2023-03-06T18:13:11Z","timestamp":1678126391000},"page":"37-63","source":"Crossref","is-referenced-by-count":0,"title":["O
-        ensino do FOS no curso de Rela\u00e7\u00f5es Internacionais da USP: um  olhar
-        para as a\u00e7\u00f5es de ensino e de autoria do professor de franc\u00eas"],"prefix":"10.29327","author":[{"given":"Adalton","family":"Orefice
-        Junior","sequence":"first","affiliation":[]}],"member":"11875","published-online":{"date-parts":[[2022]]},"container-title":["Fos
-        e Fou na Universidade de S\u00e3o Paulo: articula\u00e7\u00e3o entre Forma\u00e7\u00e3o,
-        Ensino e Pesquisa"],"language":"pt","deposited":{"date-parts":[[2025,2,28]],"date-time":"2025-02-28T23:57:50Z","timestamp":1740787070000},"score":62.4375,"resource":{"primary":{"URL":"https:\/\/letra.fflch.usp.br\/publicacoes-dos-docentes"}},"issued":{"date-parts":[[2022]]},"ISBN":["9786556376264"],"references-count":0,"URL":"https:\/\/doi.org\/10.29327\/5190512.1-2","published":{"date-parts":[[2022]]}},{"indexed":{"date-parts":[[2024,11,28]],"date-time":"2024-11-28T19:10:26Z","timestamp":1732821026332,"version":"3.30.0"},"reference-count":0,"publisher":"Editora
-        Realize","isbn-type":[{"value":"9786552220158","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"abstract":"<jats:p>Percebe-se
-        que o Programa de Resid\u00eancia Pedag\u00f3gica da CAPES, tem contribu\u00eddo
-        de forma significativa e problematizadora na forma\u00e7\u00e3o inicial de
-        professores. Em cen\u00e1rios onde o tecnicismo e o modelo de desenvolvimento
-        e modernidade euroc\u00eantrico t\u00eam tomado importante espa\u00e7o nas
-        discuss\u00f5es da forma\u00e7\u00e3o de professores de Ci\u00eancias e Biologia,
-        tendo este programa de forma\u00e7\u00e3o inicial de professores se consolidado
-        em um potente espa\u00e7o de cr\u00edtica e constru\u00e7\u00e3o de identidade
-        docente. Partindo do pressuposto pedag\u00f3gico Freiriano, que se apoia na
-        indissociabilidade entre forma\u00e7\u00e3o docente e a pesquisa, assentada
-        numa constru\u00e7\u00e3o de aprendizagens a partir do di\u00e1logo e reflex\u00f5es
-        cr\u00edticas, propusemos como quest\u00e3o problematizadora: qual ci\u00eancia
-        temos discutido e propomos que os nossos licenciandos\/residentes ensinem?
-        Objetivou-se a partir do presente trabalho compreender quais as concep\u00e7\u00f5es
-        sobre o conhecimento cient\u00edfico nortearam as reflex\u00f5es e constru\u00e7\u00f5es
-        identit\u00e1rias de licenciandos participantes do Programa de Resid\u00eancia
-        Pedag\u00f3gica (CAPES \u2013 Edital N\u00b0 24\/2022) do Curso de Ci\u00eancias
-        Biol\u00f3gicas da Universidade Estadual Vale do Acara\u00fa (UVA), entre
-        estudantes participantes do Programa de Resid\u00eancia Pedag\u00f3gica. Optamos
-        pelos pressupostos metodol\u00f3gicos de grupo focal, tendo sido aplicados
-        question\u00e1rios, com o pr\u00e9vio estabelecimento do TCLE, por meio da
-        ferramenta do Google forms, com quest\u00f5es abertas, elaboradas a partir
-        da problematiza\u00e7\u00e3o e objetivos descritos pela investiga\u00e7\u00e3o.
-        Utilizou-se a hermen\u00eautica como princ\u00edpio epistemol\u00f3gico para
-        a an\u00e1lise doa resultados e interpreta\u00e7\u00e3o dos significados produzidos
-        pelo grupo. A const\u00e2ncia dos posicionamentos mencionados pelos participantes
-        acerca da forma\u00e7\u00e3o dos estudantes deve se dar a partir repert\u00f3rios
-        did\u00e1tico-pedag\u00f3gicos que estejam amparados numa perspectiva cr\u00edtica
-        e contextualizada a saberes e referenciais socioculturais dos estudantes,
-        nos encaminha a uma compreens\u00e3o de que as percep\u00e7\u00f5es cient\u00edficas
-        constru\u00eddas pelos alunos(a)s residentes estejam pautadas em: transforma\u00e7\u00e3o
-        social, vis\u00e3o cr\u00edtica e consciente de mundo, conhecer a si e o meio
-        que o cerca e a autonomia argumentativa.\n<\/jats:p>","DOI":"10.46943\/x.conedu.2024.gt16.030","type":"book-chapter","created":{"date-parts":[[2024,11,28]],"date-time":"2024-11-28T18:35:46Z","timestamp":1732818946000},"source":"Crossref","is-referenced-by-count":0,"title":["QUE
-        CONCEP\u00c7\u00c3O DE CI\u00caNCIA TEMOS PROPOSTO AOS NOSSOS LICENCIANDOS:
-        RELATOS DE RESIDENTES DO PROGRAMA DE RESIDENCIA PEDAG\u00d3GICA DA UNIVERSIDADE
-        ESTADUAL VALE DO ACARA\u00da \u2013 UVA"],"prefix":"10.46943","author":[{"given":"FILIPE","family":"GUTIERRE
-        CARVALHO DE LIMA BESSA","sequence":"first","affiliation":[]},{"given":"C\u00cdCERO","family":"MAGERBIO
-        GOMES TORRES","sequence":"additional","affiliation":[]}],"member":"16613","published-online":{"date-parts":[[2025]]},"container-title":["Ensino
-        de ci\u00eancias (Vol.3)"],"deposited":{"date-parts":[[2024,11,28]],"date-time":"2024-11-28T18:36:08Z","timestamp":1732818968000},"score":62.206375,"resource":{"primary":{"URL":"https:\/\/editorarealize.com.br\/edicao\/detalhes\/ensino-de-ciencias-vol3"}},"issued":{"date-parts":[[2025]]},"ISBN":["9786552220158"],"references-count":0,"URL":"https:\/\/doi.org\/10.46943\/x.conedu.2024.gt16.030","published":{"date-parts":[[2025]]}},{"indexed":{"date-parts":[[2025,5,14]],"date-time":"2025-05-14T11:34:42Z","timestamp":1747222482852,"version":"3.40.5"},"edition-number":"1","reference-count":0,"publisher":"Editora
-        Artemis","isbn-type":[{"type":"print","value":"9786587396514"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.37572\/edart_1812215149","type":"book-chapter","created":{"date-parts":[[2021,12,7]],"date-time":"2021-12-07T23:27:02Z","timestamp":1638919622000},"page":"96-108","source":"Crossref","is-referenced-by-count":0,"title":["SISTEMAS
-        DE PRODU\u00c7\u00c3O DE MUDAS NATIVAS NA REGI\u00c3O DO VALE DO RIBEIRA,
-        S\u00c3O PAULO: DESAFIOS E POTENCIALIDADES"],"prefix":"10.37572","author":[{"ORCID":"https:\/\/orcid.org\/0000-0002-5258-1105","authenticated-orcid":false,"given":"Lucas","family":"Flor\u00eancio
-        Mariano","sequence":"first","affiliation":[]},{"ORCID":"https:\/\/orcid.org\/0000-0003-1547-5976","authenticated-orcid":false,"given":"Bruna","family":"Schmidt
-        Gemim","sequence":"additional","affiliation":[]},{"ORCID":"https:\/\/orcid.org\/0000-0001-8664-0532","authenticated-orcid":false,"given":"Francisca","family":"Alciv\u00e2nia
-        de Melo Silva","sequence":"additional","affiliation":[]},{"ORCID":"https:\/\/orcid.org\/0000-0003-1028-5217","authenticated-orcid":false,"given":"Ocimar
-        Jos\u00e9 Baptista","family":"Bim","sequence":"additional","affiliation":[]}],"member":"23781","published-online":{"date-parts":[[2021,12]]},"container-title":["Agr\u00e1rias:
-        Pesquisa e Inova\u00e7\u00e3o nas Ci\u00eancias que Alimentam o Mundo VII"],"deposited":{"date-parts":[[2021,12,7]],"date-time":"2021-12-07T23:27:14Z","timestamp":1638919634000},"score":61.86561,"resource":{"primary":{"URL":"https:\/\/www.editoraartemis.com.br\/artigo\/32635\/"}},"issued":{"date-parts":[[2021,12]]},"ISBN":["9786587396514"],"references-count":0,"URL":"https:\/\/doi.org\/10.37572\/edart_1812215149","published":{"date-parts":[[2021,12]]}},{"indexed":{"date-parts":[[2024,8,8]],"date-time":"2024-08-08T23:12:41Z","timestamp":1723158761849},"edition-number":"1","reference-count":0,"publisher":"Pimenta
-        Cultural","isbn-type":[{"value":"9786559396962","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.31560\/pimentacultural\/2023.96962.2","type":"book-chapter","created":{"date-parts":[[2023,4,4]],"date-time":"2023-04-04T17:50:30Z","timestamp":1680630630000},"page":"32-50","source":"Crossref","is-referenced-by-count":1,"title":["ONDE
-        EST\u00c3O \u201cTODOS\u201d?: Reflex\u00f5es sobre os efeitos de sentido
-        do sujeito-aluno na trama discursiva das escolas da Prov\u00edncia de S\u00e3o
-        Paulo (1885-1895)"],"prefix":"10.31560","author":[{"given":"Patricia Helena","family":"Nero","sequence":"first","affiliation":[]}],"member":"16537","published-online":{"date-parts":[[2023,3,31]]},"container-title":["Cadernos
-        do V Encontro de P\u00f3s-Graduandos em Estudos Lingu\u00edsticos e Liter\u00e1rios
-        em Ingl\u00eas da Universidade de S\u00e3o Paulo"],"deposited":{"date-parts":[[2023,4,4]],"date-time":"2023-04-04T17:50:36Z","timestamp":1680630636000},"score":60.76247,"resource":{"primary":{"URL":"https:\/\/www.pimentacultural.com\/livro\/caderno-v-encontro"}},"issued":{"date-parts":[[2023,3,31]]},"ISBN":["9786559396962"],"references-count":0,"URL":"https:\/\/doi.org\/10.31560\/pimentacultural\/2023.96962.2","published":{"date-parts":[[2023,3,31]]}},{"indexed":{"date-parts":[[2024,8,8]],"date-time":"2024-08-08T00:18:21Z","timestamp":1723076301052},"reference-count":0,"publisher":"Funda\u00e7\u00e3o
-        Dom Cabral","isbn-type":[{"type":"print","value":"9786599459726"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.52959\/2021435372","type":"book-chapter","created":{"date-parts":[[2021,10,7]],"date-time":"2021-10-07T19:34:03Z","timestamp":1633635243000},"page":"80-94","source":"Crossref","is-referenced-by-count":0,"title":["A
-        inova\u00e7\u00e3o precisa de patentes?"],"prefix":"10.52959","author":[{"name":"Instituto
-        de Economias Sustent\u00e1veis e Direito (IESD)","sequence":"first","affiliation":[]},{"given":"Diogo","family":"Coutinho","sequence":"first","affiliation":[]},{"given":"Guilherme","family":"Carboni","sequence":"additional","affiliation":[]},{"name":"Universidade
-        de S\u00e3o Paulo (USP)","sequence":"additional","affiliation":[]}],"member":"30948","published-online":{"date-parts":[[2021,10,7]]},"container-title":["Digital:
-        a adequa\u00e7\u00e3o do ecossistema regulat\u00f3rio e de inova\u00e7\u00e3o
-        para o digital"],"link":[{"URL":"https:\/\/ci.fdc.org.br\/AcervoDigital\/E-books\/2021\/Digital%204\/DIGITAL%204_Artigo%2007.pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2021,10,7]],"date-time":"2021-10-07T19:34:05Z","timestamp":1633635245000},"score":60.64037,"resource":{"primary":{"URL":"https:\/\/www.fdc.org.br\/conhecimento\/publicacoes\/capitulo-de-livro-35372"}},"issued":{"date-parts":[[2021,10,7]]},"ISBN":["9786599459726"],"references-count":0,"URL":"https:\/\/doi.org\/10.52959\/2021435372","published":{"date-parts":[[2021,10,7]]}},{"indexed":{"date-parts":[[2024,8,7]],"date-time":"2024-08-07T08:58:27Z","timestamp":1723021107743},"edition-number":"1","reference-count":0,"publisher":"Editora
-        Scienza","isbn-type":[{"type":"print","value":"9788559530292"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2017,10,3]]},"DOI":"10.26626\/978-85-5953-029-2.2017c0009.p.217-258","type":"book-chapter","created":{"date-parts":[[2017,10,3]],"date-time":"2017-10-03T09:54:21Z","timestamp":1507024461000},"page":"217-258","source":"Crossref","is-referenced-by-count":0,"title":["Avalia\u00e7\u00e3o
-        de Desempenho em Uso e Manuten\u00e7\u00e3o de Habita\u00e7\u00f5es em Sistemas
-        Construtivos Inovadores"],"prefix":"10.26626","author":[{"name":"USP - Universidade
-        de S\u00e3o Paulo","sequence":"first","affiliation":[]},{"given":"Rosaria","family":"Ono","sequence":"first","affiliation":[]},{"given":"Mena","family":"Cristina
-        Marcolino Mendes","sequence":"additional","affiliation":[]},{"name":"USP -
-        Universidade de S\u00e3o Paulo","sequence":"additional","affiliation":[]},{"given":"M\u00e1rcio","family":"Minto
-        Fabricio","sequence":"additional","affiliation":[]},{"name":"USP - Universidade
-        de S\u00e3o Paulo","sequence":"additional","affiliation":[]},{"given":"Sheila","family":"Walbe
-        Ornstein","sequence":"additional","affiliation":[]},{"given":"Fabiana","family":"Lopes
-        de Oliveira","sequence":"additional","affiliation":[]},{"given":"Lucas","family":"Melchiori
-        Pereira","sequence":"additional","affiliation":[]}],"member":"11172","published-online":{"date-parts":[[2017,10,3]]},"container-title":["Avalia\u00e7\u00e3o
-        de Desempenho de Tecnologias Construtivas Inovadoras: Conforto Ambiental,
-        Durabilidade e P\u00f3s-Ocupa\u00e7\u00e3o"],"deposited":{"date-parts":[[2017,10,4]],"date-time":"2017-10-04T16:20:58Z","timestamp":1507134058000},"score":60.621628,"resource":{"primary":{"URL":"http:\/\/editorascienza.com.br\/pdfs\/usp\/978_85_5953_029_2_capitulo_9.pdf"}},"issued":{"date-parts":[[2017,10,3]]},"ISBN":["9788559530292"],"references-count":0,"URL":"https:\/\/doi.org\/10.26626\/978-85-5953-029-2.2017c0009.p.217-258","published":{"date-parts":[[2017,10,3]]}},{"indexed":{"date-parts":[[2024,8,7]],"date-time":"2024-08-07T08:58:29Z","timestamp":1723021109119},"edition-number":"1","reference-count":0,"publisher":"Editora
-        Scienza","isbn-type":[{"type":"print","value":"9788559530292"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2017,10,3]]},"DOI":"10.26626\/978-85-5953-029-2.2017c0010.p.259-292","type":"book-chapter","created":{"date-parts":[[2017,10,3]],"date-time":"2017-10-03T09:54:21Z","timestamp":1507024461000},"page":"259-292","source":"Crossref","is-referenced-by-count":0,"title":["Percep\u00e7\u00e3o
-        dos Usu\u00e1rios e Avalia\u00e7\u00e3o de Desempenho em Uso de Habita\u00e7\u00f5es
-        em Sistemas Construtivos Inovadores"],"prefix":"10.26626","author":[{"name":"USP
-        - Universidade de S\u00e3o Paulo","sequence":"first","affiliation":[]},{"given":"Rosaria","family":"Ono","sequence":"first","affiliation":[]},{"given":"Mena","family":"Cristina
-        Marcolino Mendes","sequence":"additional","affiliation":[]},{"name":"USP -
-        Universidade de S\u00e3o Paulo","sequence":"additional","affiliation":[]},{"given":"Lucas","family":"Melchiori
-        Pereira","sequence":"additional","affiliation":[]},{"given":"Sheila","family":"Walbe
-        Ornstein","sequence":"additional","affiliation":[]},{"given":"M\u00e1rcio","family":"Minto
-        Fabr\u00edcio","sequence":"additional","affiliation":[]},{"name":"USP - Universidade
-        de S\u00e3o Paulo","sequence":"additional","affiliation":[]},{"given":"F\u00falvio","family":"Vittorino","sequence":"additional","affiliation":[]}],"member":"11172","published-online":{"date-parts":[[2017,10,3]]},"container-title":["Avalia\u00e7\u00e3o
-        de Desempenho de Tecnologias Construtivas Inovadoras: Conforto Ambiental,
-        Durabilidade e P\u00f3s-Ocupa\u00e7\u00e3o"],"deposited":{"date-parts":[[2017,10,4]],"date-time":"2017-10-04T16:20:58Z","timestamp":1507134058000},"score":60.60584,"resource":{"primary":{"URL":"http:\/\/editorascienza.com.br\/pdfs\/usp\/978_85_5953_029_2_capitulo_10.pdf"}},"issued":{"date-parts":[[2017,10,3]]},"ISBN":["9788559530292"],"references-count":0,"URL":"https:\/\/doi.org\/10.26626\/978-85-5953-029-2.2017c0010.p.259-292","published":{"date-parts":[[2017,10,3]]}},{"indexed":{"date-parts":[[2023,6,23]],"date-time":"2023-06-23T04:29:27Z","timestamp":1687494567677},"edition-number":"1","reference-count":0,"publisher":"Editora
-        Funda\u00e7\u00e3o F\u00eanix","isbn-type":[{"value":"9786554600491","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.36592\/9786554600491-02","type":"book-chapter","created":{"date-parts":[[2023,6,22]],"date-time":"2023-06-22T21:18:35Z","timestamp":1687468715000},"page":"33-54","source":"Crossref","is-referenced-by-count":0,"title":["O
-        RECONHECIMENTO FACIAL ENTRE O DIREITO \u00c0 INOVA\u00c7\u00c3O E A DISCRIMINA\u00c7\u00c3O
-        DOS USU\u00c1RIOS DE SERVI\u00c7OS P\u00daBLICOS: O CASO DO METR\u00d4 DE
-        S\u00c3O PAULO"],"prefix":"10.36592","author":[{"given":"Eduarda","family":"Onzi","sequence":"first","affiliation":[]},{"given":"Guilherme","family":"Vieira","sequence":"additional","affiliation":[]}],"member":"22549","published-online":{"date-parts":[[2023,6,22]]},"container-title":["Tecnologia
-        &amp; Discrimina\u00e7\u00e3o - Tomo II"],"deposited":{"date-parts":[[2023,6,22]],"date-time":"2023-06-22T21:18:43Z","timestamp":1687468723000},"score":60.299736,"resource":{"primary":{"URL":"https:\/\/www.fundarfenix.com.br\/ebook\/233tecnologia"}},"issued":{"date-parts":[[2023,6,22]]},"ISBN":["9786554600491"],"references-count":0,"URL":"https:\/\/doi.org\/10.36592\/9786554600491-02","published":{"date-parts":[[2023,6,22]]}},{"indexed":{"date-parts":[[2024,9,12]],"date-time":"2024-09-12T03:30:16Z","timestamp":1726111816842},"edition-number":"1","reference-count":0,"publisher":"Editora
-        Artemis","isbn-type":[{"type":"print","value":"9786587396248"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.37572\/edart_24830122016","type":"book-chapter","created":{"date-parts":[[2020,12,31]],"date-time":"2020-12-31T01:47:39Z","timestamp":1609379259000},"page":"167-172","source":"Crossref","is-referenced-by-count":0,"title":["TERRIT\u00d3RIOS
-        QUILOMBOLAS: UMA ETNOCONSERVA\u00c7\u00c3O NA PAISAGEM RURAL DO VALE DO RIBEIRA,
-        S\u00c3O PAULO, BRASIL"],"prefix":"10.37572","author":[{"given":"Luciana","family":"Mello
-        Vieira","sequence":"first","affiliation":[]},{"given":"Marta Cristina","family":"Marjotta-Maistro","sequence":"additional","affiliation":[]}],"member":"23781","published-online":{"date-parts":[[2020,12]]},"container-title":["Agr\u00e1rias:
-        Pesquisa e Inova\u00e7\u00e3o nas Ci\u00eancias que Alimentam o Mundo III"],"deposited":{"date-parts":[[2020,12,31]],"date-time":"2020-12-31T01:47:54Z","timestamp":1609379274000},"score":59.00994,"resource":{"primary":{"URL":"https:\/\/www.editoraartemis.com.br\/artigo\/31910\/"}},"issued":{"date-parts":[[2020,12]]},"ISBN":["9786587396248"],"references-count":0,"URL":"https:\/\/doi.org\/10.37572\/edart_24830122016","published":{"date-parts":[[2020,12]]}},{"indexed":{"date-parts":[[2025,3,1]],"date-time":"2025-03-01T06:02:38Z","timestamp":1740808958881,"version":"3.38.0"},"edition-number":"1","reference-count":0,"publisher":"PONTES
-        EDITORES LTDA","isbn-type":[{"type":"electronic","value":"9786556376264"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.29327\/5190512.1-4","type":"book-chapter","created":{"date-parts":[[2023,3,6]],"date-time":"2023-03-06T18:13:11Z","timestamp":1678126391000},"page":"88-111","source":"Crossref","is-referenced-by-count":0,"title":["A
-        concep\u00e7\u00e3o de um programa FOU para o duplo diploma  PITES-Direito
-        USP-LYON no contexto  da mobilidade d\u00e9localis\u00e9e"],"prefix":"10.29327","author":[{"given":"Fabiana
-        Nassif Traldi","family":"Jorge","sequence":"first","affiliation":[]}],"member":"11875","published-online":{"date-parts":[[2022]]},"container-title":["Fos
-        e Fou na Universidade de S\u00e3o Paulo: articula\u00e7\u00e3o entre Forma\u00e7\u00e3o,
-        Ensino e Pesquisa"],"language":"pt","deposited":{"date-parts":[[2025,2,28]],"date-time":"2025-02-28T23:59:23Z","timestamp":1740787163000},"score":58.943394,"resource":{"primary":{"URL":"https:\/\/letra.fflch.usp.br\/publicacoes-dos-docentes"}},"issued":{"date-parts":[[2022]]},"ISBN":["9786556376264"],"references-count":0,"URL":"https:\/\/doi.org\/10.29327\/5190512.1-4","published":{"date-parts":[[2022]]}}],"items-per-page":20,"query":{"start-index":0,"search-terms":"N\u00f3s+temos+nosso+direito+que+\u00e9+o+certo:+significados+das+lutas+por+reconhecimento+entre+comunidades+do+Vale+do+Ribeira,+S\u00e3o+Paulo+2017+Universidade+de+Sao+Paulo,+Agencia+USP+de+Gestao+da+Informacao+Academica+(AGUIA)"}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:23 GMT
+      string: !binary |-
+        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
+  recorded_at: Sat, 18 Apr 2026 01:18:10 GMT
 recorded_with: VCR 6.4.0

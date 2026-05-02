@@ -7,23 +7,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:37 GMT
+      - Sat, 18 Apr 2026 01:18:17 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1445'
+      - '686'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -35,6 +43,8 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
@@ -49,11 +59,7 @@ http_interactions:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2022,4,3]],"date-time":"2022-04-03T01:44:59Z","timestamp":1648950299666},"publisher-location":"New
-        York, New York, USA","reference-count":0,"publisher":"ACM Press","isbn-type":[{"value":"9781450304641","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"published-print":{"date-parts":[[2011]]},"DOI":"10.1145\/1947940","type":"proceedings","created":{"date-parts":[[2011,3,4]],"date-time":"2011-03-04T13:14:52Z","timestamp":1299244492000},"source":"Crossref","is-referenced-by-count":1,"title":["Proceedings
-        of the 2011 International Conference on Communication, Computing &amp; Security
-        - ICCCS ''11"],"prefix":"10.1145","member":"320","event":{"name":"the 2011
-        International Conference","location":"Rourkela, Odisha, India","acronym":"ICCCS
-        ''11","number":"2011","start":{"date-parts":[[2011,2,12]]},"end":{"date-parts":[[2011,2,14]]}},"container-title":[],"original-title":[],"deposited":{"date-parts":[[2011,3,4]],"date-time":"2011-03-04T13:14:55Z","timestamp":1299244495000},"score":1,"resource":{"primary":{"URL":"http:\/\/portal.acm.org\/citation.cfm?doid=1947940"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[2011]]},"ISBN":["9781450304641"],"references-count":0,"URL":"https:\/\/doi.org\/10.1145\/1947940","relation":{},"subject":[],"published":{"date-parts":[[2011]]}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:37 GMT
+      string: !binary |-
+        H4sIAAAAAAAA/6VUTW/aMBj+K5YP2yUBOwTaZJqmjl2QtrYq7WEDDsYx4DWxI9tpixD/va9jOrK2aIed4s/Xz9ebHbaOucbiHOt7HOFKWMvWInbbWsDaozbd1QdhrNQKNmiP9MhxB+c7LFUhnkThhwVzIq6ZcVB3NktIkkRpNFgsorDjZOWL+/WYpDEZ3BKap2k+zH5BSb8LoKoa53SUnmdDkmTZaDTaR7hulqW0G2HiUnPmApRL8Yh+As4IHUd30wuoZMRKGKG4iLlulMM56ZSAmxfjH+jaAAM4K+1SHVjPdviBlY2HmJ2d03RIBiQdpdRjC7LURkK5PfDhWjmhXFzoiknVcj+MZn7XaGsrZu5jeMUZyQPkFSutADp2o42LfQm4AaScdKUIN19gFnF46x1RKV0soMi3q4n3g/QoIJ33aZaeZSnpYtVciEKqtafJjYAy75pEaTSI0rcmUQoOgU+3dJBTMCl5bRLYk6RpmiWEEM9KN4b7q2PPHjxo1Y3/mFHEy+2LIdRXCqTx9REo0ivkNgL5x9EEFDaqdZuVaKzVoQ7SCmZV1SgZshD5ad04qIA+ALRPaCp4Y6TbohhNxuPxFH2kFHt1AYx8OsrWBrlatqEYJF488SCC6oq1MvwTDdzpZPIGNLgXJYvQVQE2wneiCsngEINMqG0FZ46IIqyaw+v+DZiDtOaE6VES0aR1XqhTPsIRMHK/D/l8Ey5t5FoC/O5aIWpt5X9GY3gqGsNDNLg2onUd+uEQk53vJuiRrR/e3XyHwhvn6nzen/dr6A9W9hivetqs530uXatwj6+qL4WWxeeXuHuutll2CIXm6ixIa5tT9Fo9J9Ovlz6Ifzf9ovMfsZ0fyRGqbbECnADynVY0EIWQjF3A+Vtw96rRTwLb758B54L5oKUFAAA=
+  recorded_at: Sat, 18 Apr 2026 01:18:17 GMT
 recorded_with: VCR 6.4.0

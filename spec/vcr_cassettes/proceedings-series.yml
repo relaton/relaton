@@ -7,23 +7,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:37 GMT
+      - Sat, 18 Apr 2026 01:18:16 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1258'
+      - '650'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -35,6 +43,8 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
@@ -49,11 +59,9 @@ http_interactions:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2022,3,29]],"date-time":"2022-03-29T13:22:57Z","timestamp":1648560177705},"reference-count":0,"publisher":"European
-        Publisher","content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"DOI":"10.15405\/epsbs(2357-1330).2021.6.1","type":"proceedings-series","created":{"date-parts":[[2021,5,31]],"date-time":"2021-05-31T11:58:47Z","timestamp":1622462327000},"source":"Crossref","is-referenced-by-count":0,"title":["European
-        Proceedings of Social and Behavioural Sciences"],"prefix":"10.15405","member":"6078","event":{"name":"Psychosocial
-        Risks in Education and Quality Educational Processes","acronym":"CIPE 2020"},"container-title":[],"original-title":[],"deposited":{"date-parts":[[2022,1,17]],"date-time":"2022-01-17T12:55:18Z","timestamp":1642424118000},"score":1,"resource":{"primary":{"URL":"https:\/\/europeanproceedings.com\/book-series\/EpSBS\/books\/vol109-cipe-2020"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.15405\/epsbs(2357-1330).2021.6.1","relation":{},"ISSN":["2357-1330"],"issn-type":[{"value":"2357-1330","type":"print"}],"subject":[]}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:37 GMT
+      string: !binary |-
+        H4sIAAAAAAAA/41UwY7aMBT8lcinVoqDnRDC5rgth5WqdrvQS4GDSd6CS2JHtkMXIf69zwnLRl0qVVycZ3vezLwxJ2KdcK0lOdF7EpIarBVboO7YANZ+azOsHsBYqRVu8IhF7G2H5CciVQkvUPplKRzQRhiHuMtlzOI4TML4br0O+y0na4/uNyhLaHy34Ekex3ma/URMv4us6obkfDKephPGsyxj6TkkBp7BgCqAFrpVjuQsJE27qaTdgUHEWWt0A0IFj9diSAqtHChHS10LqTp+l9USCRVGW1sLs6cGuxpZuE7hs6gsYEe708ZRD4E3wCB1V0F/8/O3B+8Ei3g6ZulqBI3d2A9xkmaUJwn7GKE+Hk0i7jX1fjZGFwClVFtLLRgJ1vMzgKbcNo6HaZjwG8ZxylKa8AXneTrNx++Ni+PxJE7ijDHmZejWFP7qJy8XbcTj0tKrnyXdHAeevqocGPrGPNDPwVwXUlSBUGVwDztxkIiP3/NCejRLkHCD4PJl4FAXl3rTDWrCsil+wwF8xxNRohP2aI/FTtse/EnavQ2kCmZlWwg/lq7f91ZU0h3fqni0Y2dtZ6fAiapj7bU+PM4C9IqRc5+CdyPURm4lAgxrJTTayn8NJA55yLPbSeaUZwuOMU5zPn2f5Bh/nE8vAym0wZvcZ/p1OCf0TGIUj3754+kLAu+ca2y+GmG6LpMYRCgqdL0abbTeX8K0Gs2a+f28r+HXQVec3dFCNkB7H3zndjNQ2+d7UJDWtre0q7aq1uvhG7SDwPzNttQy0ma7Gv3f8zBQif7dnbDDw3z+1Yfvepb0vNTlb2l5IgdRtZ3x1yODNyaR1HndKf0FhfO6zuc/dEZBDeoEAAA=
+  recorded_at: Sat, 18 Apr 2026 01:18:16 GMT
 - request:
     method: get
     uri: https://api.crossref.org/works?filter=type:book-chapter,type:book-part,type:book-section,type:book-track&query=European%2BProceedings%2Bof%2BSocial%2Band%2BBehavioural%2BSciences%2B2021%2BEuropean%2BPublisher
@@ -61,23 +69,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Faraday v2.7.12
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:37 GMT
+      - Sat, 18 Apr 2026 01:18:16 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '73174'
+      - '17644'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -89,565 +105,23 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
-      - '5'
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
       X-Concurrency-Limit:
-      - '1'
+      - '3'
       X-Api-Pool:
-      - public
+      - polite
       Permissions-Policy:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":2188870,"items":[{"indexed":{"date-parts":[[2023,9,12]],"date-time":"2023-09-12T10:16:46Z","timestamp":1694513806316},"reference-count":0,"publisher":"Hart
-        Publishing","isbn-type":[{"value":"9781474203463","type":"electronic"},{"value":"9781782259480","type":"electronic"},{"value":"9781849467322","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.5040\/9781474203463.ch-002","type":"book-chapter","created":{"date-parts":[[2015,12,22]],"date-time":"2015-12-22T09:52:20Z","timestamp":1450777940000},"source":"Crossref","is-referenced-by-count":0,"title":["Behavioural
-        Sciences in Practice: Lessons for EU Rulemakers"],"prefix":"10.5040","member":"2984","container-title":["Nudge
-        and the Law : A European Perspective"],"deposited":{"date-parts":[[2023,9,11]],"date-time":"2023-09-11T23:38:47Z","timestamp":1694475527000},"score":23.76537,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/monograph-detail?docid=b-9781474203463&tocid=b-9781474203463-chapter2"}},"issued":{"date-parts":[[null]]},"ISBN":["9781474203463","9781782259480","9781849467322"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9781474203463.ch-002"},{"indexed":{"date-parts":[[2024,5,12]],"date-time":"2024-05-12T21:03:01Z","timestamp":1715547781118},"reference-count":0,"publisher":"Edward
-        Elgar Publishing","isbn-type":[{"value":"9781789903645","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2021]]},"DOI":"10.4337\/9781789903645.00011","type":"book-part","created":{"date-parts":[[2021,7,26]],"date-time":"2021-07-26T15:52:41Z","timestamp":1627314761000},"page":"1-1","source":"Crossref","is-referenced-by-count":0,"title":["GENERAL
-        ISSUES REGARDING THE EUROPEAN SOCIAL CHARTER"],"prefix":"10.4337","member":"2918","container-title":["The
-        Revised European Social Charter"],"language":"en","deposited":{"date-parts":[[2021,7,26]],"date-time":"2021-07-26T15:52:48Z","timestamp":1627314768000},"score":23.38609,"resource":{"primary":{"URL":"https:\/\/www.elgaronline.com\/view\/9781789903638\/10_partI.xhtml"}},"issued":{"date-parts":[[2021]]},"ISBN":["9781789903645"],"references-count":0,"URL":"https:\/\/doi.org\/10.4337\/9781789903645.00011","published":{"date-parts":[[2021]]}},{"indexed":{"date-parts":[[2023,9,12]],"date-time":"2023-09-12T10:16:52Z","timestamp":1694513812821},"reference-count":0,"publisher":"Hart
-        Publishing","isbn-type":[{"value":"9781474203463","type":"electronic"},{"value":"9781782259480","type":"electronic"},{"value":"9781849467322","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.5040\/9781474203463.ch-009","type":"book-chapter","created":{"date-parts":[[2015,12,22]],"date-time":"2015-12-22T09:52:20Z","timestamp":1450777940000},"source":"Crossref","is-referenced-by-count":1,"title":["EU
-        Consumer Protection and Behavioural Sciences: Revolution or Reform?"],"prefix":"10.5040","member":"2984","container-title":["Nudge
-        and the Law : A European Perspective"],"deposited":{"date-parts":[[2023,9,11]],"date-time":"2023-09-11T23:38:52Z","timestamp":1694475532000},"score":23.377085,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/monograph-detail?docid=b-9781474203463&tocid=b-9781474203463-chapter9"}},"issued":{"date-parts":[[null]]},"ISBN":["9781474203463","9781782259480","9781849467322"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9781474203463.ch-009"},{"indexed":{"date-parts":[[2023,9,12]],"date-time":"2023-09-12T10:16:56Z","timestamp":1694513816246},"reference-count":0,"publisher":"Hart
-        Publishing","isbn-type":[{"value":"9781474203463","type":"electronic"},{"value":"9781782259480","type":"electronic"},{"value":"9781849467322","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.5040\/9781474203463.ch-008","type":"book-chapter","created":{"date-parts":[[2015,12,22]],"date-time":"2015-12-22T09:52:20Z","timestamp":1450777940000},"source":"Crossref","is-referenced-by-count":2,"title":["Behavioural
-        Sciences and the Regulation of Privacy on the Internet"],"prefix":"10.5040","member":"2984","container-title":["Nudge
-        and the Law : A European Perspective"],"deposited":{"date-parts":[[2023,9,11]],"date-time":"2023-09-11T23:38:51Z","timestamp":1694475531000},"score":23.140352,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/monograph-detail?docid=b-9781474203463&tocid=b-9781474203463-chapter8"}},"issued":{"date-parts":[[null]]},"ISBN":["9781474203463","9781782259480","9781849467322"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9781474203463.ch-008"},{"indexed":{"date-parts":[[2023,9,12]],"date-time":"2023-09-12T10:16:55Z","timestamp":1694513815254},"reference-count":0,"publisher":"Hart
-        Publishing","isbn-type":[{"value":"9781474203463","type":"electronic"},{"value":"9781782259480","type":"electronic"},{"value":"9781849467322","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.5040\/9781474203463.ch-007","type":"book-chapter","created":{"date-parts":[[2015,12,22]],"date-time":"2015-12-22T09:52:20Z","timestamp":1450777940000},"source":"Crossref","is-referenced-by-count":0,"title":["Behavioural
-        Sciences and EU Data Protection Law: Challenges and Opportunities"],"prefix":"10.5040","member":"2984","container-title":["Nudge
-        and the Law : A European Perspective"],"deposited":{"date-parts":[[2023,9,11]],"date-time":"2023-09-11T23:38:51Z","timestamp":1694475531000},"score":23.063847,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/monograph-detail?docid=b-9781474203463&tocid=b-9781474203463-chapter7"}},"issued":{"date-parts":[[null]]},"ISBN":["9781474203463","9781782259480","9781849467322"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9781474203463.ch-007"},{"indexed":{"date-parts":[[2024,5,12]],"date-time":"2024-05-12T21:03:01Z","timestamp":1715547781932},"reference-count":0,"publisher":"Edward
-        Elgar Publishing","isbn-type":[{"value":"9781789903645","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2021]]},"DOI":"10.4337\/9781789903645.00014","type":"book-part","created":{"date-parts":[[2021,7,26]],"date-time":"2021-07-26T15:52:41Z","timestamp":1627314761000},"page":"25-25","source":"Crossref","is-referenced-by-count":0,"title":["SUBSTANTIVE
-        PROVISIONS OF THE REVISED EUROPEAN SOCIAL CHARTER"],"prefix":"10.4337","member":"2918","container-title":["The
-        Revised European Social Charter"],"language":"en","deposited":{"date-parts":[[2021,7,26]],"date-time":"2021-07-26T15:52:52Z","timestamp":1627314772000},"score":23.059637,"resource":{"primary":{"URL":"https:\/\/www.elgaronline.com\/view\/9781789903638\/13_partII.xhtml"}},"issued":{"date-parts":[[2021]]},"ISBN":["9781789903645"],"references-count":0,"URL":"https:\/\/doi.org\/10.4337\/9781789903645.00014","published":{"date-parts":[[2021]]}},{"indexed":{"date-parts":[[2025,6,15]],"date-time":"2025-06-15T04:00:45Z","timestamp":1749960045193,"version":"3.40.3"},"publisher-location":"Cham","reference-count":36,"publisher":"Springer
-        International Publishing","isbn-type":[{"type":"print","value":"9783319116341"},{"type":"electronic","value":"9783319116358"}],"license":[{"start":{"date-parts":[[2015,1,1]],"date-time":"2015-01-01T00:00:00Z","timestamp":1420070400000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.springernature.com\/gp\/researchers\/text-and-data-mining"},{"start":{"date-parts":[[2015,1,1]],"date-time":"2015-01-01T00:00:00Z","timestamp":1420070400000},"content-version":"vor","delay-in-days":0,"URL":"https:\/\/www.springernature.com\/gp\/researchers\/text-and-data-mining"}],"content-domain":{"domain":["link.springer.com"],"crossmark-restriction":false},"published-print":{"date-parts":[[2015]]},"DOI":"10.1007\/978-3-319-11635-8_1","type":"book-chapter","created":{"date-parts":[[2015,2,9]],"date-time":"2015-02-09T07:56:14Z","timestamp":1423468574000},"page":"3-16","update-policy":"https:\/\/doi.org\/10.1007\/springer_crossmark_policy","source":"Crossref","is-referenced-by-count":3,"title":["European
-        and American Perspectives on Behavioural Law and Economics"],"prefix":"10.1007","author":[{"given":"Thomas
-        S.","family":"Ulen","sequence":"first","affiliation":[]}],"member":"297","published-online":{"date-parts":[[2015,2,10]]},"reference":[{"key":"1_CR1","doi-asserted-by":"publisher","first-page":"1","DOI":"10.1257\/pol.6.1.1","volume":"6","author":"Alessandro
-        Barbarino","year":"2014","unstructured":"Barbarino, Alessandro, and Giovanni
-        Mastrobuoni. 2014. The incapacitation effect of incarceration: Evidence from
-        several Italian collective pardons. American Economic Journal of Economic
-        Policy 6:1\u201337.","journal-title":"American Economic Journal of Economic
-        Policy"},{"key":"1_CR2","doi-asserted-by":"publisher","first-page":"1","DOI":"10.1086\/258584","volume":"70","author":"Gary
-        S Becker","year":"1962","unstructured":"Becker, Gary S. 1962. Irrational behavior
-        and economic theory. Journal of Political Economy 70:1\u201313.","journal-title":"Journal
-        of Political Economy"},{"key":"1_CR3","doi-asserted-by":"publisher","first-page":"169","DOI":"10.1086\/259394","volume":"76","author":"Gary
-        S Becker","year":"1968","unstructured":"Becker, Gary S. 1968. Crime and punishment:
-        An economic analysis. Journal of Political Economy 76:169\u2013217.","journal-title":"Journal
-        of Political Economy"},{"key":"1_CR4","first-page":"1593","volume":"127","author":"Ryan
-        Bubb","year":"2014","unstructured":"Bubb, Ryan, and Richard H. Pildes. 2014.
-        How behavioral economics trims its sails and why. Harvard Law Review 127:1593\u20131678.","journal-title":"Harvard
-        Law Review"},{"key":"1_CR5","volume-title":"Against autonomy: Justifying coercive
-        paternalism","author":"Sarah Conly","year":"2013","unstructured":"Conly, Sarah.
-        2013. Against autonomy: Justifying coercive paternalism. Cambridge: Cambridge
-        University Press."},{"unstructured":"Cooter, Robert D. 2011. Maturing into
-        normal science: The effect of empirical legal studies on law and economics.
-        University of Illinois Law Review 2011:1475\u201383.","key":"1_CR6"},{"key":"1_CR7","volume-title":"Law
-        and economics","author":"Robert B. Cooter","year":"2012","unstructured":"Cooter,
-        Robert D., and Thomas S. Ulen. 2012. Law and economics. 6th ed. Upper Saddle
-        River: Prentice Hall.","edition":"6"},{"key":"1_CR8","doi-asserted-by":"publisher","first-page":"379","DOI":"10.1162\/00335530151144050","volume":"116","author":"John
-        J. Donohue III","year":"2001","unstructured":"Donohue III, John J., and Steven
-        D. Levitt. 2001. The impact of legalized abortion on crime. Quarterly Journal
-        of Economics 116:379\u2013420.","journal-title":"Quarterly Journal of Economics"},{"key":"1_CR9","first-page":"791","volume":"58","author":"John
-        J. Donohue III","year":"2005","unstructured":"Donohue III, John J., and Justin
-        Wolfers. 2005. Uses and abuses of emprical evidence in the death penalty debate.
-        Stanford Law Review 58:791\u2013845.","journal-title":"Stanford Law Review"},{"key":"1_CR10","first-page":"397","volume":"65","author":"Isaac
-        Ehrlich","year":"1975","unstructured":"Ehrlich, Isaac. 1975. The deterrent
-        effect of capital punishment: A question of life and death. American Economic
-        Review 65:397\u2013417.","journal-title":"American Economic Review"},{"key":"1_CR11","volume-title":"Microeconomics
-        and behavior","author":"Robert H Frank","year":"2014","unstructured":"Frank,
-        Robert H. 2014. Microeconomics and behavior. 9th ed. New York: McGraw-Hill\/Irwin.","edition":"9"},{"key":"1_CR12","first-page":"1555","volume":"59","author":"Nuno
-        Garoupa","year":"2008","unstructured":"Garoupa, Nuno, and Thomas S. Ulen.
-        2008. The market for legal innovation: Law and economics in Europe and the
-        United States. Alabama Law Review 59:1555\u20131633.","journal-title":"Alabama
-        Law Review"},{"key":"1_CR13","volume-title":"Gut feelings: The intelligence
-        of the unconscious","author":"Gerd Gigerenzer","year":"2007","unstructured":"Gigerenzer,
-        Gerd. 2007. Gut feelings: The intelligence of the unconscious. New York: Viking."},{"key":"1_CR14","volume-title":"Blink:
-        The power of thinking without thinking","author":"Malcolm Gladwell","year":"2005","unstructured":"Gladwell,
-        Malcolm. 2005. Blink: The power of thinking without thinking. Boston: Little
-        Brown."},{"key":"1_CR15","volume-title":"Thinking, Fast and Slow","author":"Daniel
-        Kahneman","year":"2011","unstructured":"Kahneman, Daniel. 2011. Thinking,
-        Fast and Slow. New York: Farrar, Straus, and Giroux."},{"key":"1_CR16","doi-asserted-by":"publisher","DOI":"10.7208\/chicago\/9780226458106.001.0001","volume-title":"The
-        structure of scientific revolutions","author":"Thomas Kuhn","year":"1996","unstructured":"Kuhn,
-        Thomas. 1996. The structure of scientific revolutions. 3rd ed. Chicago: The
-        University of Chicago Press.","edition":"3"},{"key":"1_CR17","doi-asserted-by":"publisher","first-page":"163","DOI":"10.1257\/089533004773563485","volume":"18","author":"Steven
-        D Levitt","year":"2004","unstructured":"Levitt, Steven D. 2004. Understanding
-        why crime fell in the 1990s: Four factors that explain the decline and six
-        that do not. Journal of Economic Perspectives 18:163\u2013190.","journal-title":"Journal
-        of Economic Perspectives"},{"key":"1_CR18","doi-asserted-by":"publisher","first-page":"41","DOI":"10.1162\/00335530360535144","volume":"118","author":"John
-        A List","year":"2003","unstructured":"List, John A. 2003. Does market experience
-        eliminate market anomalies? Quarterly Journal of Economics 118:41\u201371.","journal-title":"Quarterly
-        Journal of Economics"},{"key":"1_CR19","doi-asserted-by":"publisher","first-page":"1","DOI":"10.1086\/498587","volume":"114","author":"John
-        A List","year":"2006","unstructured":"List, John A. 2006. The behavioralist
-        meets the market: Measuring social preferences and reputation effects in actual
-        transactions. Journal of Political Economy 114:1\u201337.","journal-title":"Journal
-        of Political Economy"},{"key":"1_CR20","first-page":"1","volume":"8","author":"John
-        A. List","year":"2008","unstructured":"List, John A., and Daniel L. Millimet.
-        2008. The market: Catalyst for rationality and filter of irrationality. Berkeley
-        Electronic Journal of Economic Analysis and Policy 8:1\u201351.","journal-title":"Berkeley
-        Electronic Journal of Economic Analysis and Policy"},{"doi-asserted-by":"crossref","unstructured":"Mitchell,
-        Gregory. 2002a. Why law and economics\u2019 perfect rationality should not
-        be traded for behavioral law and economics\u2019 equal incompetence. Georgetown
-        Law Journal 91:67\u2013167.","key":"1_CR21","DOI":"10.2139\/ssrn.306562"},{"doi-asserted-by":"crossref","unstructured":"Mitchell,
-        Gregory. 2002b. Taking behavioralism too seriously? The unwarranted pessimism
-        of the new behavioral analysis of law. William & Mary Law Review 43:1907\u20132021.","key":"1_CR22","DOI":"10.2139\/ssrn.306560"},{"key":"1_CR23","first-page":"1245","volume":"99","author":"Gregory
-        Mitchell","year":"2005","unstructured":"Mitchell, Gregory. 2005. Libertarian
-        paternalism is an oxymoron. Northwestern Law Review 99:1245\u20131278.","journal-title":"Northwestern
-        Law Review"},{"key":"1_CR24","first-page":"687","volume":"40","author":"Gregory
-        Mitchell","year":"2009","unstructured":"Mitchell, Gregory. 2009. Second thoughts.
-        McGeorge Law Review 40:687\u2013722.","journal-title":"McGeorge Law Review"},{"key":"1_CR25","first-page":"1621","volume":"90","author":"Gregory
-        Mitchell","year":"2006","unstructured":"Mitchell, Gregory, and Jonathan Klick.
-        2006. Government regulation of irrationality: Moral and cognitive hazards.
-        Minnesota Law Review 90:1621\u20131663.","journal-title":"Minnesota Law Review"},{"key":"1_CR26","doi-asserted-by":"publisher","first-page":"712","DOI":"10.1257\/jel.44.3.712","volume":"44","author":"Wolfgang
-        Pessendorf","year":"2006","unstructured":"Pessendorf, Wolfgang. 2006. Behavioral
-        economics comes of age: A review essay of advances in behavioral economics.
-        Journal of Economic Literature 44:712\u2013721.","journal-title":"Journal
-        of Economic Literature"},{"unstructured":"Raphael, Steven, and Michael A.
-        Stoll. 2014. A new approach to reducing incarceration while maintaining low
-        rates of crime. The Hamilton Project, Discussion Paper 14-03. Washington:
-        The Brookings Institution 1\u201325.","key":"1_CR27"},{"doi-asserted-by":"crossref","unstructured":"Rebonato,
-        Riccardo. 2013. A critical assessment of libertarian paternalism. Working
-        Paper 1-68, University of Oxford and University of Edinburgh. www.ssrn.com.
-        Accessed 8 June 2014.","key":"1_CR28","DOI":"10.2139\/ssrn.2346212"},{"key":"1_CR29","doi-asserted-by":"publisher","first-page":"173","DOI":"10.1093\/ojls\/24.2.173","volume":"24","author":"Paul
-        H. Robinson","year":"2004","unstructured":"Robinson, Paul H., and John M.
-        Darley. 2004. Does criminal law deter? A behavioral science investigation.
-        Oxford Journal of Legal Studies 24:173\u2013205.","journal-title":"Oxford
-        Journal of Legal Studies"},{"key":"1_CR30","doi-asserted-by":"publisher","first-page":"1408","DOI":"10.1111\/j.1539-6924.2011.01661.x","volume":"31","author":"Lisa
-        A. Robinson","year":"2011","unstructured":"Robinson, Lisa A., and James K.
-        Hammitt. 2011. Behavioral economics and regulatory analysis. Risk Analysis
-        31:1408\u20131422.","journal-title":"Risk Analysis"},{"key":"1_CR31","first-page":"573","volume-title":"The
-        routledge companion to social and political philosophy","author":"Horacio
-        Spector","year":"2012","unstructured":"Spector, Horacio. 2012. Autonomy. In
-        The routledge companion to social and political philosophy, ed. Gerald F.
-        Gauss and Fred D\u2019Agostino, 573\u2013584. New York: Routledge."},{"key":"1_CR32","volume-title":"Simpler:
-        The future of government","author":"Cass R Sunstein","year":"2013","unstructured":"Sunstein,
-        Cass R. 2013. Simpler: The future of government. New York: Simon & Schuster."},{"key":"1_CR33","volume-title":"Nudge:
-        Improving decisions about health, wealth, and happiness (Revised ed.)","author":"Richard
-        H. Thaler","year":"2008","unstructured":"Thaler, Richard H., and Cass R. Sunstein.
-        2008. Nudge: Improving decisions about health, wealth, and happiness (Revised
-        ed.) New York: The Penguin Group."},{"key":"1_CR34","first-page":"715","volume":"95","author":"Michael
-        P. Vandenbergh","year":"2011","unstructured":"Vandenbergh, Michael P., Lisa
-        S. Bressman, and Amanda Carrico. 2011. Regulation in the behavioral era. Minnesota
-        Law Review 95:715\u2013781.","journal-title":"Minnesota Law Review"},{"key":"1_CR35","first-page":"1155","volume":"80","author":"Lauren
-        E Wills","year":"2013","unstructured":"Willis, Lauren E. 2013. When nudges
-        fail: Slippery defaults. University of Chicago Law Review 80:1155\u20131229.","journal-title":"University
-        of Chicago Law Review"},{"key":"1_CR36","volume-title":"The great American
-        crime decline","author":"Franklin E. Zimring","year":"2008","unstructured":"Zimring,
-        Franklin E. 2008. The great American crime decline. Oxford: Oxford University
-        Press."}],"container-title":["European Perspectives on Behavioural Law and
-        Economics"],"language":"en","link":[{"URL":"https:\/\/link.springer.com\/content\/pdf\/10.1007\/978-3-319-11635-8_1","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2023,2,20]],"date-time":"2023-02-20T21:19:00Z","timestamp":1676927940000},"score":22.953312,"resource":{"primary":{"URL":"https:\/\/link.springer.com\/10.1007\/978-3-319-11635-8_1"}},"issued":{"date-parts":[[2015]]},"ISBN":["9783319116341","9783319116358"],"references-count":36,"URL":"https:\/\/doi.org\/10.1007\/978-3-319-11635-8_1","published":{"date-parts":[[2015]]},"assertion":[{"value":"10
-        February 2015","order":1,"name":"first_online","label":"First Online","group":{"name":"ChapterHistory","label":"Chapter
-        History"}}]},{"indexed":{"date-parts":[[2026,1,28]],"date-time":"2026-01-28T23:00:42Z","timestamp":1769641242845,"version":"3.49.0"},"publisher-location":"Cham","reference-count":19,"publisher":"Springer
-        International Publishing","isbn-type":[{"value":"9783030782320","type":"print"},{"value":"9783030782337","type":"electronic"}],"license":[{"start":{"date-parts":[[2021,1,1]],"date-time":"2021-01-01T00:00:00Z","timestamp":1609459200000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.springer.com\/tdm"},{"start":{"date-parts":[[2021,1,1]],"date-time":"2021-01-01T00:00:00Z","timestamp":1609459200000},"content-version":"vor","delay-in-days":0,"URL":"https:\/\/www.springer.com\/tdm"}],"content-domain":{"domain":["link.springer.com"],"crossmark-restriction":false},"published-print":{"date-parts":[[2021]]},"DOI":"10.1007\/978-3-030-78233-7_7","type":"book-chapter","created":{"date-parts":[[2021,9,1]],"date-time":"2021-09-01T07:04:20Z","timestamp":1630479860000},"page":"247-278","update-policy":"https:\/\/doi.org\/10.1007\/springer_crossmark_policy","source":"Crossref","is-referenced-by-count":1,"title":["Controlling
-        the Purse: How the European Parliament Shaped Social Policy Through the European
-        Social Fund"],"prefix":"10.1007","author":[{"given":"Mechthild","family":"Roos","sequence":"first","affiliation":[]}],"member":"297","published-online":{"date-parts":[[2021,9,2]]},"reference":[{"key":"7_CR1","unstructured":"Anderson,
-        J. J. (1995). Structural funds and the social dimension of EU Policy: Springboard
-        or stumbling block? In S. Leibfried & P. Pierson (Eds.), European social policy.
-        Between fragmentation and integration (pp. 123\u2013158). The Brookings Institutions."},{"key":"7_CR2","unstructured":"Brine,
-        J. (2002). The European Social Fund and the EU. Flexibility, growth, stability.
-        Sheffield Academic Press."},{"issue":"4","key":"7_CR3","doi-asserted-by":"publisher","first-page":"777","DOI":"10.2304\/eerj.2004.3.4.4","volume":"3","author":"J
-        Brine","year":"2004","unstructured":"Brine, J. (2004). The European Social
-        Fund: The Commission, the Member State and levels of governance. European
-        Educational Research Journal, 3(4), 777\u2013789.","journal-title":"European
-        Educational Research Journal"},{"key":"7_CR4","unstructured":"Burban, J.-L.
-        (2005).Les institutions europ\u00e9ennes. Paris: Vuibert."},{"key":"7_CR5","unstructured":"Burgess,
-        M. (2000). Federalism and European Union: The building of Europe, 1950-2000.
-        Routledge."},{"key":"7_CR6","unstructured":"Doutriaux, Y., & Lequesne, C.
-        (2007). Les institutions de l\u2019Union europ\u00e9enne. La Documentation
-        fran\u00e7aise."},{"key":"7_CR19","unstructured":"Forsyth, M. (1964). Das
-        Parlament der Europ\u00e4ischen Gemeinschaften. Cologne: Europa Union Verlag."},{"key":"7_CR7","doi-asserted-by":"publisher","first-page":"171","DOI":"10.1146\/annurev-polisci-032311-110735","volume":"16","author":"S
-        Hix","year":"2013","unstructured":"Hix, S., & H\u00f8yland, B. (2013). Empowerment
-        of the European Parliament. Annual Review of Political Science, 16, 171\u2013189.","journal-title":"Annual
-        Review of Political Science"},{"key":"7_CR8","unstructured":"Kaelble, H. (2007).
-        Sozialgeschichte Europas. 1945 bis zur Gegenwart. C.H. Beck."},{"key":"7_CR9","unstructured":"Leboutte,
-        R. (2008). Histoire \u00e9conomique et sociale de la construction europ\u00e9enne.
-        P.I.E. Peter Lang."},{"key":"7_CR10","unstructured":"Murray, J. (2001). Transnational
-        Labour Regulation. The ILO and EC compared. KLUWER Law International."},{"issue":"2","key":"7_CR11","doi-asserted-by":"publisher","first-page":"79","DOI":"10.1111\/j.1468-5965.1969.tb00895.x","volume":"8","author":"C
-        O\u2019Grada","year":"1969","unstructured":"O\u2019Grada, C. (1969). The vocational
-        training policy of the EEC and the free movement of skilled labour. Journal
-        of Common Market Studies, 8(2), 79\u2013109.","journal-title":"Journal of
-        Common Market Studies"},{"key":"7_CR12","unstructured":"Priestley, J. (2008).
-        Six battles that shaped Europe\u2019s Parliament. John Harper."},{"key":"7_CR13","doi-asserted-by":"crossref","unstructured":"Shanks,
-        M. (1977). European Social Policy, today and tomorrow. Pergamon Press.","DOI":"10.1016\/B978-0-08-021444-3.50007-0"},{"issue":"4","key":"7_CR14","doi-asserted-by":"publisher","first-page":"336","DOI":"10.1108\/03090591311319762","volume":"37","author":"E
-        Tom\u00e9","year":"2013","unstructured":"Tom\u00e9, E. (2013). The European
-        Social Fund: A very specific case instrument of HRD policy. European Journal
-        of Training and Development, 37(4), 336\u2013356.","journal-title":"European
-        Journal of Training and Development"},{"key":"7_CR15","unstructured":"Varsori,
-        A. (2010). Le d\u00e9veloppement d\u2019une politique sociale europ\u00e9enne.
-        In G. Bossuat et al. (Eds.), L\u2019exp\u00e9rience europ\u00e9enne. 50 ans
-        de construction de l\u2019Europe 1957\u20132007. Des historiens en dialogue.
-        Actes du colloque international de Rome 2007 (pp. 235\u2013269). Bruylant\/L.G.D.J.\/Nomos."},{"key":"7_CR16","unstructured":"Varsori,
-        A., & Mechi, L. (2007). At the origins of the European structural policy:
-        The Community\u2019s social and regional policies from the late 1960s to the
-        mid-1970s. In J. van der Harst (Ed.), Beyond the Customs Union: The European
-        Community\u2019s Quest for deepening, widening and completion, 1969\u20131975
-        (pp. 223\u2013250). Bruylant\/L.G.D.J.\/Nomos."},{"key":"7_CR17","unstructured":"Verg\u00e8s,
-        J.-R. (1966). La participation du Parlement europ\u00e9en \u00e0 l\u2019\u00e9laboration
-        du droit communautaire dans le cadre des Trait\u00e9s de Rome. In A.-M. Houbdine
-        & J.-R. Verg\u00e8s (Eds.), Le Parlement europ\u00e9en dans la construction
-        de l\u2019Europe des Six (pp. 53\u2013180). Presses Universitaires de France."},{"key":"7_CR18","unstructured":"Westlake,
-        M. (1990). The origin and development of the question time procedure in the
-        European Parliament (EUI Working Paper No. 90\/4). EUI."}],"container-title":["Palgrave
-        Studies in European Union Politics","The Parliamentary Roots of European Social
-        Policy"],"language":"en","link":[{"URL":"https:\/\/link.springer.com\/content\/pdf\/10.1007\/978-3-030-78233-7_7","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2024,4,25]],"date-time":"2024-04-25T03:42:04Z","timestamp":1714016524000},"score":22.809172,"resource":{"primary":{"URL":"https:\/\/link.springer.com\/10.1007\/978-3-030-78233-7_7"}},"issued":{"date-parts":[[2021]]},"ISBN":["9783030782320","9783030782337"],"references-count":19,"URL":"https:\/\/doi.org\/10.1007\/978-3-030-78233-7_7","ISSN":["2662-5873","2662-5881"],"issn-type":[{"value":"2662-5873","type":"print"},{"value":"2662-5881","type":"electronic"}],"published":{"date-parts":[[2021]]},"assertion":[{"value":"2
-        September 2021","order":1,"name":"first_online","label":"First Online","group":{"name":"ChapterHistory","label":"Chapter
-        History"}}]},{"indexed":{"date-parts":[[2024,5,12]],"date-time":"2024-05-12T21:03:02Z","timestamp":1715547782308},"reference-count":0,"publisher":"Edward
-        Elgar Publishing","isbn-type":[{"value":"9781789903645","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2021]]},"DOI":"10.4337\/9781789903645.00047","type":"book-part","created":{"date-parts":[[2021,7,26]],"date-time":"2021-07-26T15:52:41Z","timestamp":1627314761000},"page":"339-339","source":"Crossref","is-referenced-by-count":0,"title":["SELECTED
-        PROCEDURAL PROVISIONS OF THE REVISED EUROPEAN SOCIAL CHARTER"],"prefix":"10.4337","member":"2918","container-title":["The
-        Revised European Social Charter"],"language":"en","deposited":{"date-parts":[[2021,7,26]],"date-time":"2021-07-26T15:53:37Z","timestamp":1627314817000},"score":22.742245,"resource":{"primary":{"URL":"https:\/\/www.elgaronline.com\/view\/9781789903638\/46_partIII.xhtml"}},"issued":{"date-parts":[[2021]]},"ISBN":["9781789903645"],"references-count":0,"URL":"https:\/\/doi.org\/10.4337\/9781789903645.00047","published":{"date-parts":[[2021]]}},{"indexed":{"date-parts":[[2024,10,23]],"date-time":"2024-10-23T04:25:18Z","timestamp":1729657518584,"version":"3.28.0"},"reference-count":0,"publisher":"Edward
-        Elgar Publishing","isbn-type":[{"type":"electronic","value":"9781800378070"},{"type":"print","value":"9781800378063"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2021,2,16]]},"DOI":"10.4337\/9781800378070.00015","type":"book-chapter","created":{"date-parts":[[2021,2,16]],"date-time":"2021-02-16T17:50:56Z","timestamp":1613497856000},"source":"Crossref","is-referenced-by-count":0,"title":["Building
-        a European home: mechanisms for the construction of a common social space
-        within the European Union"],"prefix":"10.4337","author":[{"given":"Giuseppe","family":"Moro","sequence":"first","affiliation":[]}],"member":"2918","container-title":["The
-        European Social Model and an Economy of Well-being"],"link":[{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.00015.xml","content-type":"text\/html","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.xml","content-type":"text\/html","content-version":"vor","intended-application":"syndication"}],"deposited":{"date-parts":[[2024,10,22]],"date-time":"2024-10-22T18:15:51Z","timestamp":1729620951000},"score":22.263588,"resource":{"primary":{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.00015.xml"}},"issued":{"date-parts":[[2021,2,16]]},"ISBN":["9781800378070","9781800378063"],"references-count":0,"URL":"https:\/\/doi.org\/10.4337\/9781800378070.00015","published":{"date-parts":[[2021,2,16]]}},{"indexed":{"date-parts":[[2026,1,14]],"date-time":"2026-01-14T22:42:10Z","timestamp":1768430530408,"version":"3.49.0"},"reference-count":0,"publisher":"Edward
-        Elgar Publishing","isbn-type":[{"value":"9781785366611","type":"electronic"},{"value":"9781785366604","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2018,12,28]]},"DOI":"10.4337\/9781785366611.00007","type":"book-chapter","created":{"date-parts":[[2018,12,27]],"date-time":"2018-12-27T10:27:03Z","timestamp":1545906423000},"source":"Crossref","is-referenced-by-count":6,"title":["Conceptual
-        foundations for a European consumer law and behavioural sciences scholarship"],"prefix":"10.4337","author":[{"given":"Fabrizio","family":"Esposito","sequence":"first","affiliation":[]}],"member":"2918","container-title":["Research
-        Methods in Consumer Law"],"link":[{"URL":"https:\/\/china.elgaronline.com\/view\/edcoll\/9781785366604\/9781785366604.00007.xml","content-type":"text\/html","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/china.elgaronline.com\/view\/edcoll\/9781785366604\/9781785366604.xml","content-type":"text\/html","content-version":"vor","intended-application":"syndication"}],"deposited":{"date-parts":[[2026,1,14]],"date-time":"2026-01-14T12:50:20Z","timestamp":1768395020000},"score":22.126331,"resource":{"primary":{"URL":"https:\/\/elgaronline.com\/view\/edcoll\/9781785366604\/9781785366604.00007.xml"}},"issued":{"date-parts":[[2018,12,28]]},"ISBN":["9781785366611","9781785366604"],"references-count":0,"URL":"https:\/\/doi.org\/10.4337\/9781785366611.00007","published":{"date-parts":[[2018,12,28]]}},{"indexed":{"date-parts":[[2024,10,23]],"date-time":"2024-10-23T04:24:31Z","timestamp":1729657471397,"version":"3.28.0"},"reference-count":0,"publisher":"Edward
-        Elgar Publishing","isbn-type":[{"type":"electronic","value":"9781800378070"},{"type":"print","value":"9781800378063"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2021,2,16]]},"DOI":"10.4337\/9781800378070.00009","type":"book-chapter","created":{"date-parts":[[2021,2,16]],"date-time":"2021-02-16T17:50:56Z","timestamp":1613497856000},"source":"Crossref","is-referenced-by-count":0,"title":["Is
-        there a European Social Model? Theorising the relationship between economics
-        and society"],"prefix":"10.4337","author":[{"given":"Giuseppe","family":"Moro","sequence":"first","affiliation":[]}],"member":"2918","container-title":["The
-        European Social Model and an Economy of Well-being"],"link":[{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.00009.xml","content-type":"text\/html","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.xml","content-type":"text\/html","content-version":"vor","intended-application":"syndication"}],"deposited":{"date-parts":[[2024,10,22]],"date-time":"2024-10-22T18:15:52Z","timestamp":1729620952000},"score":21.927567,"resource":{"primary":{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.00009.xml"}},"issued":{"date-parts":[[2021,2,16]]},"ISBN":["9781800378070","9781800378063"],"references-count":0,"URL":"https:\/\/doi.org\/10.4337\/9781800378070.00009","published":{"date-parts":[[2021,2,16]]}},{"indexed":{"date-parts":[[2023,9,12]],"date-time":"2023-09-12T10:16:45Z","timestamp":1694513805793},"reference-count":0,"publisher":"Hart
-        Publishing","isbn-type":[{"value":"9781474203463","type":"electronic"},{"value":"9781782259480","type":"electronic"},{"value":"9781849467322","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.5040\/9781474203463.ch-012","type":"book-chapter","created":{"date-parts":[[2015,12,22]],"date-time":"2015-12-22T09:52:20Z","timestamp":1450777940000},"source":"Crossref","is-referenced-by-count":1,"title":["Making
-        Sense of Nudge-Scepticism: Three Challenges to EU Law\u2019s Learning from
-        Behavioural Sciences"],"prefix":"10.5040","member":"2984","container-title":["Nudge
-        and the Law : A European Perspective"],"deposited":{"date-parts":[[2023,9,11]],"date-time":"2023-09-11T23:38:53Z","timestamp":1694475533000},"score":21.847645,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/monograph-detail?docid=b-9781474203463&tocid=b-9781474203463-chapter12"}},"issued":{"date-parts":[[null]]},"ISBN":["9781474203463","9781782259480","9781849467322"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9781474203463.ch-012"},{"indexed":{"date-parts":[[2024,10,23]],"date-time":"2024-10-23T04:25:18Z","timestamp":1729657518864,"version":"3.28.0"},"reference-count":0,"publisher":"Edward
-        Elgar Publishing","isbn-type":[{"type":"electronic","value":"9781800378070"},{"type":"print","value":"9781800378063"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2021,2,16]]},"DOI":"10.4337\/9781800378070.00012","type":"book-chapter","created":{"date-parts":[[2021,2,16]],"date-time":"2021-02-16T17:50:56Z","timestamp":1613497856000},"source":"Crossref","is-referenced-by-count":0,"title":["Power
-        to the people? The European Social Model and the convergence of new social
-        policies for empowerment"],"prefix":"10.4337","author":[{"given":"Giuseppe","family":"Moro","sequence":"first","affiliation":[]}],"member":"2918","container-title":["The
-        European Social Model and an Economy of Well-being"],"link":[{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.00012.xml","content-type":"text\/html","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.xml","content-type":"text\/html","content-version":"vor","intended-application":"syndication"}],"deposited":{"date-parts":[[2024,10,22]],"date-time":"2024-10-22T18:15:55Z","timestamp":1729620955000},"score":21.82542,"resource":{"primary":{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.00012.xml"}},"issued":{"date-parts":[[2021,2,16]]},"ISBN":["9781800378070","9781800378063"],"references-count":0,"URL":"https:\/\/doi.org\/10.4337\/9781800378070.00012","published":{"date-parts":[[2021,2,16]]}},{"indexed":{"date-parts":[[2025,11,20]],"date-time":"2025-11-20T12:50:22Z","timestamp":1763643022429,"version":"3.40.3"},"publisher-location":"Cham","reference-count":111,"publisher":"Springer
-        International Publishing","isbn-type":[{"type":"print","value":"9783030497903"},{"type":"electronic","value":"9783030497910"}],"license":[{"start":{"date-parts":[[2020,11,22]],"date-time":"2020-11-22T00:00:00Z","timestamp":1606003200000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.springer.com\/tdm"},{"start":{"date-parts":[[2020,11,22]],"date-time":"2020-11-22T00:00:00Z","timestamp":1606003200000},"content-version":"vor","delay-in-days":0,"URL":"https:\/\/www.springer.com\/tdm"}],"content-domain":{"domain":["link.springer.com"],"crossmark-restriction":false},"published-print":{"date-parts":[[2021]]},"DOI":"10.1007\/978-3-030-49791-0_2","type":"book-chapter","created":{"date-parts":[[2020,11,21]],"date-time":"2020-11-21T07:02:36Z","timestamp":1605942156000},"page":"7-59","update-policy":"https:\/\/doi.org\/10.1007\/springer_crossmark_policy","source":"Crossref","is-referenced-by-count":3,"title":["Pufendorf
-        and His Importance for the European Enlightenment in General"],"prefix":"10.1007","author":[{"given":"Arild","family":"S\u00e6ther","sequence":"first","affiliation":[]}],"member":"297","published-online":{"date-parts":[[2020,11,22]]},"reference":[{"key":"2_CR1","doi-asserted-by":"crossref","unstructured":"Aure
-        AH (2014) Hugo Grotius\u00a0\u2013 Individual Rights as the Core of Natural
-        Law. In G Fl\u00f8istad [Ed.] (2014), pp. 75-94","DOI":"10.1007\/978-94-017-9175-5_6"},{"key":"2_CR2","volume-title":"The
-        Educational Writings of John Locke","author":"JL Axtell","year":"1968","unstructured":"Axtell,
-        JL (1968) The Educational Writings of John Locke. Cambridge: Cambridge University
-        Press"},{"key":"2_CR3","volume-title":"The Ideological Origin of the American
-        Revolution","author":"B Bailyn","year":"1992","unstructured":"Bailyn B (1992)
-        The Ideological Origin of the American Revolution. Cambridge MA: Belknap Press
-        of Harvard University"},{"key":"2_CR4","first-page":"509","volume-title":"Montesquieu
-        and Social Theory","author":"A Baum","year":"1979","unstructured":"Baum A
-        (1979) Montesquieu and Social Theory. Pergamon Press Oxford, Pp. 509-605"},{"key":"2_CR5","volume-title":"S
-        Pufendorf (1672 [1660]) Two Books of the Elements of Universal Jurisprudence","author":"T
-        Behme","year":"2009","unstructured":"Behme T (2009) Introduction. In S Pufendorf
-        (1672 [1660]) Two Books of the Elements of Universal Jurisprudence"},{"key":"2_CR6","volume-title":"Francis
-        Hutcheson in Dublin 1719-30. The Crucible of his Thought","author":"M Brown","year":"2002","unstructured":"Brown
-        M (2002) Francis Hutcheson in Dublin 1719-30. The Crucible of his Thought.
-        Dublin: Four Courts Press LTD"},{"key":"2_CR7","doi-asserted-by":"crossref","unstructured":"Br\u00fchlmeier
-        D (1995) Natural Law and Early Economic Thought in Barbeyrac, Burlamaqui and
-        Vattel. Ch. 2, pp. 53\u201371. In JC Laursen [Ed.] (1995)","DOI":"10.1163\/9789004247147_004"},{"key":"2_CR8","unstructured":"Cannan
-        E [Ed.] (1896) Lectures on Justice, Police, Revenue and Arms, delivered in
-        the University of Glasgow by Adam Smith. Oxford"},{"key":"2_CR9","unstructured":"Carey
-        D (2000) Introduction to Hutcheson, Francis (1755)"},{"key":"2_CR10","doi-asserted-by":"crossref","unstructured":"Chappell
-        V [Ed.] (1994) The Cambridge Companion to Locke, Cambridge: Cambridge University
-        Press","DOI":"10.1017\/CCOL0521383714"},{"key":"2_CR11","unstructured":"Cohler
-        A M (1989 [1748]) Introduction. In Montesquieu (1989) The Spirit of the Laws.
-        Cambridge: Cambridge University Press"},{"key":"2_CR12","doi-asserted-by":"publisher","DOI":"10.1007\/978-94-015-0913-8","volume-title":"The
-        Changing Profile of Natural Law","author":"MB Crowe","year":"1977","unstructured":"Crowe
-        M B (1977) The Changing Profile of Natural Law. The Hague: Nijhoff"},{"key":"2_CR13","volume-title":"Pufendorf
-        (1632-94). In Klassiker des Politischen Denkens, Zweiter Band von Locke bis
-        Max Weber. Eds. H Maier, H Rausch, H Denzer","author":"H Denzer","year":"1987","unstructured":"Denzer
-        H (1987) Pufendorf (1632-94). In Klassiker des Politischen Denkens, Zweiter
-        Band von Locke bis Max Weber. Eds. H Maier, H Rausch, H Denzer. Fifth edition.
-        M\u00fcnchen: Verlag CH Beck","edition":"Fifth edition"},{"key":"2_CR14","volume-title":"Jean-Jacques
-        Rousseau et la Science politique de son temps","author":"LR Derath\u00e9","year":"1970","unstructured":"Derath\u00e9
-        L R (1970) Jean-Jacques Rousseau et la Science politique de son temps. 2nd
-        ed., Paris: VRIN","edition":"2"},{"key":"2_CR15","unstructured":"Dewey F (1986)
-        Thomas Jefferson, Lawyer. Charlottesville VA: The University Press of Virginia"},{"key":"2_CR16","unstructured":"Dreitzel
-        H (1995) Toleranz und Gewissenfreiheit im konfessionellen Zeitalter: Zur Diskussion
-        im Reich zwischen Augsburger Religionsfrieden und Aufkl\u00e4rung. In D Breuer:
-        Religion und Religiosit\u00e4t im Zeitalter des Barock. Wiesbaden:"},{"key":"2_CR17","unstructured":"Dufour
-        A (1986) Pufendorfs Ausstrahlung im franz\u00f6sischen und im anglo-amerikanischen
-        Kulturraum. In Mod\u00e9er, K\u00c5 [Ed.] (1986)"},{"key":"2_CR18","doi-asserted-by":"crossref","unstructured":"Dufour
-        A (1991) Pufendorf. In Burns JH The Cambridge History of Political Thought
-        1450-1700, pp. 561\u2013588","DOI":"10.1017\/CHOL9780521247160.021"},{"key":"2_CR19","unstructured":"Durant
-        W and A (1962\u201368) The Story of Civilization. Vol. I-XI, New York: Simon
-        & Schuster"},{"key":"2_CR21","unstructured":"Enfield W (1837) The History
-        of Philosophy from the Earliest Periods. English translation of Johann Jacob
-        Brucker\u2019s Historia Critica Philosophi\u00e6, London"},{"key":"2_CR22","volume-title":"L\u00e4rdomens
-        Lund. Lunds Universitets historia 1666-2004","author":"C Fehrman","year":"2004","unstructured":"Fehrman
-        C, H Westling, G Blomquist (2004) L\u00e4rdomens Lund. Lunds Universitets
-        historia 1666-2004. Lund: Lunds universitet"},{"key":"2_CR23","volume-title":"Moral
-        Philosophy at Seventeenth Century Harvard. A discipline in transition","author":"N
-        Fiering","year":"1981","unstructured":"Fiering N (1981) Moral Philosophy at
-        Seventeenth Century Harvard. A discipline in transition. Chappel Hill NC:
-        North Carolina University Press."},{"key":"2_CR24","volume-title":"The Origin
-        of Physiocracy. Economic Revolution and Social Order in Eighteenth Century
-        France","author":"E Fox-Genovese","year":"1976","unstructured":"Fox-Genovese
-        E (1976) The Origin of Physiocracy. Economic Revolution and Social Order in
-        Eighteenth Century France. Ithaca and London: Cornell University Press"},{"key":"2_CR25","unstructured":"Gourevitch
-        V [Ed.] (2007) Introduction. In Rousseau, The Social Contract and other later
-        political writings."},{"volume-title":"Introduction","year":"2008","key":"2_CR26","unstructured":"Gourevitch
-        V [Ed.] (2008) Introduction. In Rousseau, The Discourses and other early Political
-        writings"},{"key":"2_CR27","volume-title":"The School of Salamanca","author":"M
-        Grice-Hutchinson","year":"1952","unstructured":"Grice-Hutchinson M (1952)
-        The School of Salamanca. London: Oxford University Press"},{"key":"2_CR28","unstructured":"Grimsley
-        R (1967) Jean-Jacques Rousseau. In P Edwards [Ed.]"},{"key":"2_CR29","doi-asserted-by":"publisher","DOI":"10.1017\/CBO9781139172905","volume-title":"Natural
-        law and moral philosophy. From Grotius to the Scottish Enlightenment","author":"K
-        Haakonssen","year":"1996","unstructured":"Haakonssen K (1996) Natural law
-        and moral philosophy. From Grotius to the Scottish Enlightenment. Cambridge:
-        Cambridge University Press"},{"key":"2_CR30","doi-asserted-by":"publisher","first-page":"3","DOI":"10.1017\/CHOL9780521867429","volume-title":"The
-        History of Eighteenth-Century Philosophy: History or Philosophy? In Haakonssen,
-        K [Ed.] p","author":"K Haakonssen","year":"2006","unstructured":"Haakonssen
-        K (2006a) The History of Eighteenth-Century Philosophy: History or Philosophy?
-        In Haakonssen, K [Ed.] p.3\u201325."},{"volume-title":"The Cambridge history
-        of eighteenth\u00a0\u2013 century philosophy","year":"2006","key":"2_CR31","unstructured":"Haakonssen
-        K [Ed.] (2006b) The Cambridge history of eighteenth\u00a0\u2013 century philosophy.
-        Cambridge: Cambridge University Press"},{"key":"2_CR32","volume-title":"Naturretten,
-        Pufendorf og Holberg\u00a0\u2013 men hvilken naturrett? Hvilken Pufendorf?
-        (Natural law, Pufendorf and Holberg\u00a0\u2013 but what kind of natural law?
-        Which Pufendorf?) InVinje E and JM Sejersted (Red.): Ludvig Holbergs naturrett","author":"K
-        Haakonssen","year":"2012","unstructured":"Haakonssen K (2012) Naturretten,
-        Pufendorf og Holberg\u00a0\u2013 men hvilken naturrett? Hvilken Pufendorf?
-        (Natural law, Pufendorf and Holberg\u00a0\u2013 but what kind of natural law?
-        Which Pufendorf?) InVinje E and JM Sejersted (Red.): Ludvig Holbergs naturrett.
-        (The natural law of Ludvig Holberg), Oslo: Gyldendal Akademisk"},{"key":"2_CR33","unstructured":"Haft
-        F von (1997) Einf\u00fchrung in das juristische Lernen. Bielefeld: Verlag
-        E und W Gieseking"},{"key":"2_CR34","unstructured":"Hammerstein N (1986) Zum
-        Fortwirken von Pufendorfs Naturrechtslehre an den Universit\u00e4ten des Heiligen
-        R\u00f6misches Reiches Deutscher Nation w\u00e4hrend des 18.Jahrhunderts.
-        In K\u00c5 Mod\u00e9er [Ed.]"},{"key":"2_CR35","volume-title":"Personenlexikon
-        der Wirtschaftsgeschichte. Denker, Unternehmer und Politiker in 900 Portr\u00e4ts.
-        2 Auflage","author":"H Hesse","year":"2009","unstructured":"Hesse H (2009)
-        Personenlexikon der Wirtschaftsgeschichte. Denker, Unternehmer und Politiker
-        in 900 Portr\u00e4ts. 2 Auflage. Stuttgart: Sch\u00e4ffer-Poeschel Verlag"},{"key":"2_CR36","doi-asserted-by":"publisher","DOI":"10.1017\/CBO9780511490552","volume-title":"Natural
-        Law Theories in the Early Enlightenment","author":"TJ Hochstrasser","year":"2000","unstructured":"Hochstrasser,
-        T J (2000) Natural Law Theories in the Early Enlightenment. Cambridge UK:
-        Cambridge University Press"},{"key":"2_CR37","volume-title":"Collected Works
-        Volume IV","author":"F Hutcheson","year":"1969","unstructured":"Hutcheson
-        F (1969 [1747]) A Short Introduction to Moral Philosophy, in three books;
-        containing the Elements of Ethicks and the Law of Nature. Collected Works
-        Volume IV, Hildesheim: GOs Verlagsbuchhandlung"},{"key":"2_CR38","doi-asserted-by":"publisher","DOI":"10.1017\/CBO9780511521522","volume-title":"Two
-        texts on Human Nature","author":"F Hutcheson","year":"1993","unstructured":"Hutcheson
-        F (1993) Two texts on Human Nature. Reflections on our common systems of morality.
-        On the social nature of man. Edited by T Mautner. Cambridge UK: Cambridge
-        University Press"},{"key":"2_CR038","unstructured":"Hutcheson F (1973 [1725])
-        An Inquiry Concerning Beauty, Order, Harmony and Design. Edited with an Introduction
-        and notes by Peter Kivy, Martinus Nijhoff. The Hague."},{"key":"2_CR39","volume-title":"Before
-        Adam Smith. The Emergence of Political Economy. 1662-1776","author":"T Hutchison","year":"1988","unstructured":"Hutchison
-        T (1988) Before Adam Smith. The Emergence of Political Economy. 1662-1776.
-        Oxford: Basil Blackwell"},{"key":"2_CR40","doi-asserted-by":"publisher","DOI":"10.1093\/acprof:oso\/9780198206088.001.0001","volume-title":"Radical
-        Enlightenment. Philosophy and the Making of Maternity 1650-1750","author":"JI
-        Israel","year":"2001","unstructured":"Israel J I (2001) Radical Enlightenment.
-        Philosophy and the Making of Maternity 1650-1750. Oxford: Oxford University
-        Press"},{"key":"2_CR41","doi-asserted-by":"publisher","DOI":"10.1093\/acprof:oso\/9780199279227.001.0001","volume-title":"Enlightenment
-        Contested. Philosophy, Modernity, and the Emancipation of Man 1670-1752","author":"JI
-        Israel","year":"2006","unstructured":"Israel J I (2006) Enlightenment Contested.
-        Philosophy, Modernity, and the Emancipation of Man 1670-1752. Oxford: Oxford
-        University Press"},{"key":"2_CR42","unstructured":"Kant I (1923) Gesammelte
-        Schriften, Berlin"},{"key":"2_CR43","volume-title":"Montesquieu and the Parliament
-        of Bordeaux","author":"R Kingston","year":"1996","unstructured":"Kingston
-        R (1996) Montesquieu and the Parliament of Bordeaux. Geneva: Librairie DROZ
-        SA"},{"key":"2_CR44","unstructured":"Korkman P (2006) Introduction and extensive
-        footnotes. In J-J Burlamaqui (1763[2006])"},{"key":"2_CR45","volume-title":"The
-        German Idea of Freedom","author":"L Krieger","year":"1957","unstructured":"Krieger
-        L (1957) The German Idea of Freedom. Boston: Beacon Press"},{"key":"2_CR46","unstructured":"Laslett
-        P [Ed.] (1964) Introduction and notes. In John Locke: Two Treaties of Government.
-        Cambridge: Cambridge at the University Press"},{"key":"2_CR48","unstructured":"Leyden
-        W von [Ed.] (1954a) Introduction to John Locke. Essays on the Law of Nature."},{"key":"2_CR49","unstructured":"Leyden
-        W von [Ed.] (1954b) Locke\u2019s Valedictory Speech as Censor of Moral Philosophy.
-        In Locke J (1954 [1664])"},{"key":"2_CR50","volume-title":"Naturr\u00e4tten
-        i Uppsala 1655-1720","author":"B Lindberg","year":"1976","unstructured":"Lindberg
-        B (1976) Naturr\u00e4tten i Uppsala 1655-1720. Stockholm: Liber Tryck"},{"key":"2_CR51","first-page":"71","volume-title":"R\u00e4ttshistoriska
-        Studier pp","author":"B Lindberg","year":"1983","unstructured":"Lindberg B
-        (1983) The Doctrine of Natural Law in 17th century Sweden. In R\u00e4ttshistoriska
-        Studier pp. 71\u201380"},{"key":"2_CR54","doi-asserted-by":"crossref","unstructured":"Luig
-        K (1972) Zur Verbreitung des Naturrechts in Europa. Tijdschrift voor Rechtsgeschiedenis,","DOI":"10.1163\/157181972X00162"},{"key":"2_CR56","doi-asserted-by":"crossref","unstructured":"Lutz
-        D (1984) The Relative Influence of European Writers on Late Eighteenth-Century
-        American Political Thought. The American Political Science Review. Vol. 78.
-        No. 1","DOI":"10.2307\/1961257"},{"key":"2_CR57","volume-title":"Note on the
-        growth of political economy","author":"AL Macfie","year":"1952","unstructured":"Macfie
-        A L (1952) Note on the growth of political economy. Glasgow: In Fortuna Domus
-        University of Glasgow."},{"key":"2_CR58","unstructured":"Mautner T (1986)
-        Pufendorf and 18th century Scottish Philosophy. In K Mod\u00e9er, R\u00e4ttshistoriska
-        Studier, Nordiska Bokhandlen, Stockholm pp. 120\u2013131"},{"volume-title":"Dictionary
-        of Philosophy","year":"1999","key":"2_CR59","unstructured":"Mautner T [Ed.]
-        (1999) Dictionary of Philosophy. London: Penguin Books Ltd"},{"key":"2_CR60","volume-title":"The
-        Scottish Philosophy, Biographical, Expository, Critical, From Hutcheson to
-        Hamilton","author":"J McCosh","year":"1875","unstructured":"McCosh J (1875)
-        The Scottish Philosophy, Biographical, Expository, Critical, From Hutcheson
-        to Hamilton. London: Macmillan and Co"},{"key":"2_CR61","unstructured":"Medick
-        H (1973) Naturzustand und Naturgeschichte der b\u00fcrgerlichen Gesellschaft.
-        G\u00f6ttingen:"},{"key":"2_CR62","doi-asserted-by":"crossref","unstructured":"Meek,
-        R L and A S Skinner (1973) The Development of Adam Smith\u2019s Ideas of The
-        Division of Labour. Economic Journal. Ixxxiii","DOI":"10.2307\/2230843"},{"key":"2_CR63","volume-title":"Adam
-        Smith Lectures On Jurisprudence. It is an exact photographic reproduction
-        of the Oxford University Press edition of 1978","author":"RL Meek","year":"1982","unstructured":"Meek
-        R L, D D Raphael and P G Stein (1982) Introduction. In Adam Smith Lectures
-        On Jurisprudence. It is an exact photographic reproduction of the Oxford University
-        Press edition of 1978. Indianapolis: Liberty Press"},{"key":"2_CR64","volume-title":"Adam
-        Smith and the Virtues of Enlightenment","author":"IA Merikovski","year":"2010","unstructured":"Merikovski
-        I A (2010) Adam Smith and the Virtues of Enlightenment. Grand Rapids MI: Acton
-        Institute"},{"key":"2_CR65","volume-title":"Adam Smith\u2019s Library. A Supplement
-        to Bonar\u2019s Catalogue with a Checklist of the whole Library","author":"H
-        Mizuta","year":"1967","unstructured":"Mizuta H (1967) Adam Smith\u2019s Library.
-        A Supplement to Bonar\u2019s Catalogue with a Checklist of the whole Library.
-        London: Cambridge University Press for the Royal Society"},{"key":"2_CR66","unstructured":"Moore
-        J and M Silverthorn [Eds.] (2002) Natural Rights on the Threshold of the Scottish
-        Enlightenment. The Writings of Gershom Carmichael. Indianapolis: Liberty Press"},{"key":"2_CR67","volume-title":"Memories
-        of the Old College of Glasgow","author":"D Murray","year":"1927","unstructured":"Murray
-        D (1927) Memories of the Old College of Glasgow. Glasgow: Jackson Wylie and
-        Co., Publisher to the University"},{"key":"2_CR68","volume-title":"Common-sense
-        Moralist, Sceptical Metaphysician","author":"DF Norton","year":"1982","unstructured":"Norton
-        D F (1982) Common-sense Moralist, Sceptical Metaphysician. Princeton NJ: Princeton
-        University Press"},{"key":"2_CR69","doi-asserted-by":"publisher","DOI":"10.1515\/9783110829891","volume-title":"Berlin
-        und die Verbreitung des Naturrechts in Europa","author":"SC Othmer","year":"1970","unstructured":"Othmer
-        S C (1970) Berlin und die Verbreitung des Naturrechts in Europa. Berlin: Walter
-        de Gruyter & Co"},{"key":"2_CR70","first-page":"3","volume-title":"Aspects
-        of the Influence of Francis Hutcheson on Adam Smith. History of Political
-        Economy. Vol. 31. No","author":"E Pesciarelli","year":"1989","unstructured":"Pesciarelli
-        E (1989) Aspects of the Influence of Francis Hutcheson on Adam Smith. History
-        of Political Economy. Vol. 31. No. 3. Durham NC: Duke University Press"},{"key":"2_CR71","unstructured":"Pufendorf
-        S (1931 [1660, 1672]) Elementorum Jurisprudenti\u00e6 Universalis Libri Duo
-        (The Elements of Universal Jurisprudence), Photographic Reproduction of the
-        Edition of the 1672 Cambridge edition, with a List of Errata which refers
-        to the first edition of 1660, which was published in The Hague. The Translation
-        of the 1672 edition by WA Oldfather. Oxford: The Clarendon Press"},{"key":"2_CR72","unstructured":"Pufendorf
-        S (2007 [1667]) The Present State of Germany (De Statu Imperii Germanici).m
-        Translated by Edmund Bohun in 1696. Edited with an Introduction by MJ Seidler.
-        Indianapolis: Liberty Fund"},{"key":"2_CR73","unstructured":"Pufendorf S (1933
-        [1672, 1688]) De Jure Naturae et Gentium Libri Octo (On the Law of Nature
-        and Nations in eight books), DJNG. The translation of the edition of 1688
-        (with references to the first edition of 1672 by CH and WA Oldfather. Reprinted
-        1964, New York: Oceana Publications Inc, and London: Wiley & Sons Ltd"},{"key":"2_CR74","unstructured":"Pufendorf
-        S (1927 [1673, 1682]) De Officio Hominis et Civis Juxta Legem Naturalem Libri
-        Duo (The Duty of Man and Citizen According to the Natural Law in Two Books),
-        DOH. A Photographic Reproduction of the Edition of 1682 with a List of Errata
-        that refers to the first edition of 1673. A Translation of the Text by FG
-        Moore. New York: Oxford University Press"},{"key":"2_CR75","unstructured":"Pufendorf
-        S (2002a [1687]) Of the Nature and Qualification of Religion in Reference
-        to Civil Society. Translated from De habitu religionis christianae ad vitam
-        civilem by J Crull with an introduction by S Zurbuchen. Indianapolis: Liberty
-        Fund"},{"key":"2_CR76","volume-title":"Edited and with an introduction by
-        S Zurbuchen","author":"S Pufendorf","year":"2002","unstructured":"Pufendorf
-        S (2002b [1695]) The Divine Feudal Law: Or, Covenants with Mankind, Represented.
-        Translated from Jus feciale divinium cive de consensus et dissensu protestantium
-        by T Dorrington. Edited and with an introduction by S Zurbuchen. Indianapolis:
-        Liberty Fund"},{"key":"2_CR77","unstructured":"Rae J (1965 [1895]) Life of
-        Adam Smith. Macmillan Co. London. Reprinted with an Introduction by Jacob
-        Viner. New York: Augustus Kelley Bookseller"},{"key":"2_CR78","unstructured":"Raphael
-        DD and AL Macfie (1982[1976]) Introduction to Adam Smith\u2019s Theory of
-        Moral Sentiments. Indianapolis: Liberty Classics"},{"key":"2_CR79","volume-title":"The
-        Life of Adam Smith. Second Edition","author":"IS Ross","year":"2012","unstructured":"Ross
-        IS (2012) The Life of Adam Smith. Second Edition. Oxford: Oxford University
-        Press"},{"key":"2_CR80","doi-asserted-by":"crossref","unstructured":"Schneewind
-        JB (1987) Pufendorf\u2019s place in the History of Ethics. Synthese 72, pp.
-        123\u2013155, Berlin: D Reidel Publishing Company","DOI":"10.1007\/BF00413819"},{"key":"2_CR81","volume-title":"Vom
-        Sachsenspiegel Zum Grundgesetz. Eine deutsche Rechtsgeschichte in Lebensbildern","author":"K-P
-        Schroeder","year":"2008","unstructured":"Schroeder K-P (2008) Vom Sachsenspiegel
-        Zum Grundgesetz. Eine deutsche Rechtsgeschichte in Lebensbildern. Berlin:
-        Verlag CH Beck."},{"key":"2_CR82","unstructured":"Scott W R (1965[1937]) Adam
-        Smith as Student and Professor. Glasgow: Jackson, Son & Company"},{"key":"2_CR83","volume-title":"Francis
-        Hutcheson. His Life, Teaching and Position in the History of Philosophy","author":"WR
-        Scott","year":"1900","unstructured":"Scott W R (1900) Francis Hutcheson. His
-        Life, Teaching and Position in the History of Philosophy. Cambridge: The University
-        Press"},{"key":"2_CR84","volume-title":"Montesquieu, A Critical Bibliography","author":"R
-        Shackleton","year":"1961","unstructured":"Shackleton R (1961) Montesquieu,
-        A Critical Bibliography, Oxford: Oxford University Press"},{"key":"2_CR85","unstructured":"Simons
-        W (1934) Introduction to Samuel Pufendorf\u2019s De jure naturae et gentium
-        libri octo (On the Law of Nature and Nations), Volume two The translation
-        of the edition of 1688 (with references to the first edition of 1672), New
-        York: Oceana Publications Inc, and London: Wiley & Sons Ltd"},{"key":"2_CR86","unstructured":"Smith
-        A (1982a [1759, 1790, 1976]) The Theory of Moral Sentiments, Glasgow, sixth
-        edition, Edited by DD Raphael and AL Macfie. Oxford: Oxford University Press,
-        Reprinted by Liberty Press\/Liberty Classics, Indianapolis:"},{"key":"2_CR87","unstructured":"Smith
-        A (1982b [1762\u201363]) Lectures on Jurisprudence, Report of 1762-3 and Report
-        dated1766 together with an Appendix containing the \u201cEarly Draft\u201d
-        of The Wealth of Nations from the 1760\u2019s. Edited by R L Meek, DD Raphael
-        and PG Stein 1978, Oxford: Clarendon Press. Photographic reproduced and published
-        Indianapolis: Liberty Classic"},{"key":"2_CR88","unstructured":"Smith A (1965
-        [1937\/1763]) An early draft of part of the wealth of nations. In R W Scott
-        (1965[1937]): Adam Smith as Student and Professor, pp. 317\u2013356"},{"key":"2_CR89","unstructured":"Smith
-        A (1976 [1904 \/1789\/1776]) An Inquiry into the Nature and Causes of the
-        Wealth of Nations. Fifth edition, Edinburgh. Reprint of the 1904 Cannan edition
-        with a new Preface by G J Stigler. Chicago: The University of Chicago Press"},{"key":"2_CR90","doi-asserted-by":"crossref","unstructured":"Soper
-        P (1992) Some natural confusions about Natural Law. Michigan Law Review. Vol.
-        90. No.8, pp. 2343\u20132423","DOI":"10.2307\/1289576"},{"key":"2_CR91","first-page":"99","volume-title":"Paul
-        Edwards The Encyclopedia of Philosophy","author":"E Sprague","year":"1967","unstructured":"Sprague
-        E (1967) Francis Hutcheson. In Paul Edwards The Encyclopedia of Philosophy,
-        pp. 99\u2013101"},{"key":"2_CR92","unstructured":"Stewart D (1983 [1793]):
-        Account of the Life and Writings of Adam Smith, LLD. Edited by JS Ross. In
-        WP Wightman and JC Bryce [Eds.]"},{"key":"2_CR93","volume-title":"Declaration
-        of Independence","author":"JR Stoner Jr","year":"2011","unstructured":"Stoner
-        Jr. J R (2011) Declaration of Independence. Princeton NJ: Witherspoon Institute"},{"key":"2_CR94","doi-asserted-by":"crossref","unstructured":"S\u00e6ther
-        A (2017a) Samuel Pufendorf\u00a0\u2013 The Grandfather of Modern Political
-        Economy. Doctor Philosophy thesis. Bergen: Norwegian School of Economics","DOI":"10.4324\/9781315617350-29"},{"key":"2_CR95","volume-title":"Samuel
-        Pufendorf and the History of Economics","author":"A S\u00e6ther","year":"2017","unstructured":"S\u00e6ther
-        A (2017b) Natural Law and the Origin of Political Economy. Samuel Pufendorf
-        and the History of Economics. London and New York: Routledge. Taylor & Francis
-        Group"},{"key":"2_CR97","doi-asserted-by":"publisher","first-page":"251","DOI":"10.1111\/j.1813-6982.1955.tb01704.x","volume":"23","author":"WL
-        Taylor","year":"1955","unstructured":"Taylor W L (1955) Gershom Carmichael
-        A Neglected Figure in British Political Economy. South African Journal of
-        Economics. Vol. 23, pp. 251\u2013255","journal-title":"South African Journal
-        of Economics."},{"key":"2_CR98","volume-title":"Free Trade and Moral Philosophy.
-        Rethinking the Sources of Adam Smith\u2019s Wealth of Nations","author":"RF
-        Teichgraeber III","year":"1986","unstructured":"Teichgraeber III RF (1986)
-        Free Trade and Moral Philosophy. Rethinking the Sources of Adam Smith\u2019s
-        Wealth of Nations. Durham NC: Duke University Press"},{"key":"2_CR99","unstructured":"Thiel
-        U (1999) Locke. In Thomas Mautner [Ed.] Dictionary of Philosophy"},{"key":"2_CR100","doi-asserted-by":"crossref","unstructured":"Tuck
-        R (1987) The \u2018modern\u2019 theory of natural law. In Anthony Pagden,
-        [Ed.]","DOI":"10.1017\/CBO9780511521447.006"},{"key":"2_CR101","doi-asserted-by":"crossref","unstructured":"Tully
-        J (1980) A Discourse on Property: John Locke and His Adversaries. Cambridge:
-        Cambridge: University Press.","DOI":"10.1017\/CBO9780511558641"},{"key":"2_CR102","doi-asserted-by":"crossref","unstructured":"Tully
-        J (1991) Locke. In Burns JH, [Ed.]","DOI":"10.1017\/CHOL9780521247160.023"},{"key":"2_CR103","volume-title":"Dritter
-        Theil: Die Neuzeit","author":"F Ueberweg","year":"1868","unstructured":"Ueberweg
-        F (1868) Grundriss der Geschichte der Philosophie von Thales bis auf die Gegenwart
-        (Outline of the history of philosophy from Thales to the present) [microform].
-        Dritter Theil: Die Neuzeit, Berlin: Mittler"},{"key":"2_CR104","unstructured":"Vet
-        de JJVM (1996) Some Periodicals of the United Provinces on Pufendorf: Reconnoitring
-        the Reception of his Ideas in the Seventeenth and Eighteenth Centuries. In
-        Palladini F und G Hartung [Hg.]"},{"key":"2_CR105","doi-asserted-by":"publisher","DOI":"10.1007\/978-94-010-3238-4","volume-title":"Montesquieu
-        and the Philosophy of Natural Law","author":"MH Waddicor","year":"1970","unstructured":"Waddicor
-        MH (1970) Montesquieu and the Philosophy of Natural Law. The Hague: Niijhoff"},{"key":"2_CR106","unstructured":"Wehberg
-        H (1922) Introduction to Pufendorf (1931 [1660, 1672])"},{"key":"2_CR0106","unstructured":"West
-        EG (1976) Adam Smith the Man and His Work. Liberty Press, Indianapolis,"},{"key":"2_CR107","volume-title":"Unantastbar.
-        Die Zeit. Nr. 49. 27. November. Frankfurt: West EG (1976) Adam Smith the Man
-        and His Works","author":"v U Wesel","year":"2008","unstructured":"Wesel von
-        U (2008) Unantastbar. Die Zeit. Nr. 49. 27. November. Frankfurt: West EG (1976)
-        Adam Smith the Man and His Works. Indianapolis: Liberty Press"},{"key":"2_CR108","volume-title":"Inventing
-        America. Jeffersons Declaration of Independence. Vintage Books","author":"G
-        Wills","year":"1978","unstructured":"Wills G (1978) Inventing America. Jeffersons
-        Declaration of Independence. Vintage Books. Ann Arbor: The University of Michigan
-        Press"},{"key":"2_CR109","doi-asserted-by":"crossref","unstructured":"Winch
-        D (1978) Adam Smith\u2019s Politics: An Essay in Historiographic Revision.
-        Cambridge","DOI":"10.1017\/CBO9780511558665"},{"issue":"3","key":"2_CR110","first-page":"373","volume":"XV","author":"R
-        Wokler","year":"1994","unstructured":"Wokler R (1994) Rousseau\u2019s Pufendorf:
-        Natural law and the foundations of Commercial society. History of Political
-        Thought. Vol. XV. No. 3, pp. 373\u2013402","journal-title":"History of Political
-        Thought."},{"key":"2_CR111","unstructured":"Wokler R (2006) Rousseau on Rameau
-        and revolution. In JT Scott [Ed.]"},{"key":"2_CR113","volume-title":"Analecta:
-        Materials for a history of remarkable providence. Mostly relatively to Scotch
-        Ministers and Christians","author":"R Wodrow","year":"1843","unstructured":"Wodrow
-        R (1843) Analecta: Materials for a history of remarkable providence. Mostly
-        relatively to Scotch Ministers and Christians. Glasgow: Printed for the Maitland
-        Club"},{"key":"2_CR114","volume-title":"Locke. A Biography","author":"R Woolhouse","year":"2007","unstructured":"Woolhouse
-        R (2007) Locke. A Biography. Cambridge: Cambridge University Press"},{"key":"2_CR115","volume-title":"Natural
-        Rights and the New Republicanism","author":"MP Zuckert","year":"1994","unstructured":"Zuckert
-        MP (1994) Natural Rights and the New Republicanism. Princeton NY: Princeton
-        University Press"},{"key":"2_CR116","doi-asserted-by":"crossref","unstructured":"Zurbuchen
-        S (1998) Samuel Pufendorf and the Foundation of Modern Natural Law. An Account
-        of the State of Research and Editions. Central European History. Vol. 31,
-        No.4, pp. 413\u2013428","DOI":"10.1017\/S0008938900017076"}],"container-title":["The
-        European Heritage in Economics and the Social Sciences","Samuel Pufendorf
-        and the Emergence of Economics as a Social Science"],"language":"en","link":[{"URL":"https:\/\/link.springer.com\/content\/pdf\/10.1007\/978-3-030-49791-0_2","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2023,1,27]],"date-time":"2023-01-27T01:15:53Z","timestamp":1674782153000},"score":21.811573,"resource":{"primary":{"URL":"https:\/\/link.springer.com\/10.1007\/978-3-030-49791-0_2"}},"issued":{"date-parts":[[2020,11,22]]},"ISBN":["9783030497903","9783030497910"],"references-count":111,"URL":"https:\/\/doi.org\/10.1007\/978-3-030-49791-0_2","ISSN":["1572-1744","2197-5892"],"issn-type":[{"type":"print","value":"1572-1744"},{"type":"electronic","value":"2197-5892"}],"published":{"date-parts":[[2020,11,22]]},"assertion":[{"value":"22
-        November 2020","order":1,"name":"first_online","label":"First Online","group":{"name":"ChapterHistory","label":"Chapter
-        History"}}]},{"indexed":{"date-parts":[[2024,10,23]],"date-time":"2024-10-23T04:24:30Z","timestamp":1729657470734,"version":"3.28.0"},"reference-count":0,"publisher":"Edward
-        Elgar Publishing","isbn-type":[{"type":"electronic","value":"9781800378070"},{"type":"print","value":"9781800378063"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2021,2,16]]},"DOI":"10.4337\/9781800378070.00013","type":"book-chapter","created":{"date-parts":[[2021,2,16]],"date-time":"2021-02-16T17:50:56Z","timestamp":1613497856000},"source":"Crossref","is-referenced-by-count":0,"title":["For
-        all our futures? The European Social Model and the convergence of new social
-        policies for older people"],"prefix":"10.4337","author":[{"given":"Giovanni","family":"Bertin","sequence":"first","affiliation":[]}],"member":"2918","container-title":["The
-        European Social Model and an Economy of Well-being"],"link":[{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.00013.xml","content-type":"text\/html","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.xml","content-type":"text\/html","content-version":"vor","intended-application":"syndication"}],"deposited":{"date-parts":[[2024,10,22]],"date-time":"2024-10-22T18:15:51Z","timestamp":1729620951000},"score":21.745846,"resource":{"primary":{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.00013.xml"}},"issued":{"date-parts":[[2021,2,16]]},"ISBN":["9781800378070","9781800378063"],"references-count":0,"URL":"https:\/\/doi.org\/10.4337\/9781800378070.00013","published":{"date-parts":[[2021,2,16]]}},{"indexed":{"date-parts":[[2023,9,12]],"date-time":"2023-09-12T10:16:47Z","timestamp":1694513807901},"reference-count":0,"publisher":"Hart
-        Publishing","isbn-type":[{"value":"9781474203463","type":"electronic"},{"value":"9781782259480","type":"electronic"},{"value":"9781849467322","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.5040\/9781474203463.ch-001","type":"book-chapter","created":{"date-parts":[[2015,12,22]],"date-time":"2015-12-22T09:52:20Z","timestamp":1450777940000},"source":"Crossref","is-referenced-by-count":0,"title":["The
-        Emergence of Behavioural Policy-Making: A European Perspective"],"prefix":"10.5040","member":"2984","container-title":["Nudge
-        and the Law : A European Perspective"],"deposited":{"date-parts":[[2023,9,11]],"date-time":"2023-09-11T23:38:47Z","timestamp":1694475527000},"score":21.643509,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/monograph-detail?docid=b-9781474203463&tocid=b-9781474203463-chapter1"}},"issued":{"date-parts":[[null]]},"ISBN":["9781474203463","9781782259480","9781849467322"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9781474203463.ch-001"},{"indexed":{"date-parts":[[2023,9,12]],"date-time":"2023-09-12T10:16:47Z","timestamp":1694513807038},"reference-count":0,"publisher":"Hart
-        Publishing","isbn-type":[{"value":"9781474203463","type":"electronic"},{"value":"9781782259480","type":"electronic"},{"value":"9781849467322","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.5040\/9781474203463.ch-010","type":"book-chapter","created":{"date-parts":[[2015,12,22]],"date-time":"2015-12-22T09:52:20Z","timestamp":1450777940000},"source":"Crossref","is-referenced-by-count":0,"title":["What
-        can EU Health Law Learn from Behavioural Sciences? The Case of EU Lifestyle
-        Regulation"],"prefix":"10.5040","member":"2984","container-title":["Nudge
-        and the Law : A European Perspective"],"deposited":{"date-parts":[[2023,9,11]],"date-time":"2023-09-11T23:38:52Z","timestamp":1694475532000},"score":21.51271,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/monograph-detail?docid=b-9781474203463&tocid=b-9781474203463-chapter10"}},"issued":{"date-parts":[[null]]},"ISBN":["9781474203463","9781782259480","9781849467322"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9781474203463.ch-010"},{"indexed":{"date-parts":[[2024,10,23]],"date-time":"2024-10-23T04:25:30Z","timestamp":1729657530165,"version":"3.28.0"},"reference-count":0,"publisher":"Edward
-        Elgar Publishing","isbn-type":[{"type":"electronic","value":"9781800378070"},{"type":"print","value":"9781800378063"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2021,2,16]]},"DOI":"10.4337\/9781800378070.00016","type":"book-chapter","created":{"date-parts":[[2021,2,16]],"date-time":"2021-02-16T17:50:56Z","timestamp":1613497856000},"source":"Crossref","is-referenced-by-count":0,"title":["Conclusion:
-        towards a progressive transformation of the European economic and social model"],"prefix":"10.4337","author":[{"given":"Giovanni","family":"Bertin","sequence":"first","affiliation":[]},{"given":"Marion","family":"Ellison","sequence":"additional","affiliation":[]},{"given":"Giuseppe","family":"Moro","sequence":"additional","affiliation":[]}],"member":"2918","container-title":["The
-        European Social Model and an Economy of Well-being"],"link":[{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.00016.xml","content-type":"text\/html","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.xml","content-type":"text\/html","content-version":"vor","intended-application":"syndication"}],"deposited":{"date-parts":[[2024,10,22]],"date-time":"2024-10-22T18:15:49Z","timestamp":1729620949000},"score":21.508633,"resource":{"primary":{"URL":"https:\/\/china.elgaronline.com\/view\/9781800378063.00016.xml"}},"issued":{"date-parts":[[2021,2,16]]},"ISBN":["9781800378070","9781800378063"],"references-count":0,"URL":"https:\/\/doi.org\/10.4337\/9781800378070.00016","published":{"date-parts":[[2021,2,16]]}},{"indexed":{"date-parts":[[2025,12,22]],"date-time":"2025-12-22T18:28:03Z","timestamp":1766428083678},"edition-number":"1","reference-count":1,"publisher":"Routledge","isbn-type":[{"type":"electronic","value":"9780203086476"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2006,9,27]]},"DOI":"10.4324\/9780203086476-3","type":"book-chapter","created":{"date-parts":[[2020,10,19]],"date-time":"2020-10-19T17:10:49Z","timestamp":1603127449000},"page":"14-24","source":"Crossref","is-referenced-by-count":8,"title":["Social
-        theory and the social sciences"],"prefix":"10.4324","author":[{"given":"Patrick","family":"Baert","sequence":"first","affiliation":[]}],"member":"301","reference":[{"key":"ref2","doi-asserted-by":"crossref","unstructured":"Archer,
-        M. (1995) Realist Social Theory: the Morphogenetic Approch, Cambridge: Cambridge
-        University Press.","DOI":"10.1017\/CBO9780511557675"}],"container-title":["Handbook
-        of Contemporary European Social Theory"],"language":"en","deposited":{"date-parts":[[2020,10,31]],"date-time":"2020-10-31T18:48:24Z","timestamp":1604170104000},"score":21.488878,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781134255474\/chapters\/10.4324\/9780203086476-3"}},"issued":{"date-parts":[[2006,9,27]]},"ISBN":["9780203086476"],"references-count":1,"URL":"https:\/\/doi.org\/10.4324\/9780203086476-3","published":{"date-parts":[[2006,9,27]]}}],"items-per-page":20,"query":{"start-index":0,"search-terms":"European+Proceedings+of+Social+and+Behavioural+Sciences+2021+European+Publisher"}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:37 GMT
+      string: !binary |-
+        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
+  recorded_at: Sat, 18 Apr 2026 01:18:16 GMT
 recorded_with: VCR 6.4.0

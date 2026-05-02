@@ -7,23 +7,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:07 GMT
+      - Sat, 18 Apr 2026 01:18:03 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1512'
+      - '793'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -35,6 +43,8 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
@@ -49,9 +59,7 @@ http_interactions:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2023,5,3]],"date-time":"2023-05-03T09:43:40Z","timestamp":1683107020010},"publisher-location":"Piscataway,
-        NJ, USA","standards-body":{"name":"Software &amp; Systems Engineering Standards
-        Committee of the IEEE Computer Society","acronym":"IEEE"},"reference-count":0,"publisher":"IEEE","isbn-type":[{"value":"9780738191683","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"DOI":"10.1109\/ieeestd.2014.6835311","type":"standard","created":{"date-parts":[[2014,6,19]],"date-time":"2014-06-19T20:13:47Z","timestamp":1403208827000},"approved":{"date-parts":[[2014,3,27]]},"source":"Crossref","is-referenced-by-count":6,"title":["IEEE
-        Standard for Software Quality Assurance Processes"],"prefix":"10.1109","member":"263","container-title":[],"original-title":[],"link":[{"URL":"http:\/\/xplorestaging.ieee.org\/ielx7\/6835309\/6835310\/06835311.pdf?arnumber=6835311","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2020,10,14]],"date-time":"2020-10-14T15:36:09Z","timestamp":1602689769000},"score":1,"resource":{"primary":{"URL":"https:\/\/ieeexplore.ieee.org\/document\/6835311"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[null]]},"ISBN":["9780738191683"],"references-count":0,"URL":"https:\/\/doi.org\/10.1109\/ieeestd.2014.6835311","relation":{},"subject":[]}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:07 GMT
+      string: !binary |-
+        H4sIAAAAAAAA/4VUTXObMBD9K4wOPQGWAIOh0+n0I4d0Om1aJ5fGPsiwttWAxEgisceT/94V2DFN0ukMB80u2n167+0eiLHcdoYURN0RnzRgDN9AYPctYOxB6XH0HrQRSmKChTSk5wwpDkTICnZQuWPFLQQt1xbr3t5GNEr9xGdsufSHlBWNq+4SAU0Cxq5pVERpwbJfWNNlEVXTEgxk01mWxFlGp7lPzv3jcEpDRh590narWpgt6KBWJbdD+koYPPMHvve9b19872b+AQtjUVlxXZlgpaq9Ayp5D2Su1vaBa/DeYNe33nxvLDTGu5AbIQG0kBtvfrrrfVJNI6wF8NTas1vwLi8uLly07Sxob65KAXaP7Xipldw3WN/94bBqWIMGWUJQqk5aUtAR/tN/PhFmJY8K3B7IPa87BzLPZjSLZyxn6Sx2NA0SQQ2lxUaiJI/Ib6mkBWmDSjVcyF6M4+nWZbUypuH6LtBIsRblwNea1wYQn9kqbQNXAm8go1bYGoabn79fOtmRdEbzxUQAYIEqjChLQsQzjRk7YzoRTVxHQMVfdQVL/NRn+UtXsCSgacDy64gWLC6SF65IaBzR2SzKKKUIm7etVvf/bBL7UbZcuuepTpeuxSdHA4rRcx08qVIFq/1JmZnrOLy+l+XJAN5aOZGPhvnR8VrYvffBmE5zrOFdaVXiUIAh+K4Wa4vdmbh+YppVL3aUOhVfJVtpgc7j9ThWC3nX++Hm51e8vbW2LRaTxWTX1sqJyfHGJnS6hEpvnEL1LltMem2cYoNIdDGhR7nCtlq/51p2Ds+7s4YnBx217KRpoRRrAdUoeZ7Ee6UdjS5cIYOoRS2e5tCIRtRcI0NBuYXyDiH2Lq2gVUb8wxcR9Rl+ySvrggYMv+SaTYs4LWj+3BgpbpRZnqX5YAxTIjUYdpN3Ev+AoggcgX7+z1yankxH30DoiMlKlV2Djz5xiGvH1e5WI3WGyRkFBBritefJrq57M17OP35z5vp7rJejJWFGW+I50EqJAdz/JlJDfRTjMID+jevCQXx8/APCiLaG/AUAAA==
+  recorded_at: Sat, 18 Apr 2026 01:18:03 GMT
 recorded_with: VCR 6.4.0

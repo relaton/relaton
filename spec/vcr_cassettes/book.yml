@@ -7,23 +7,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:17 GMT
+      - Sat, 18 Apr 2026 01:18:07 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1303'
+      - '661'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -35,6 +43,8 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
@@ -49,10 +59,9 @@ http_interactions:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2026,2,6]],"date-time":"2026-02-06T21:48:38Z","timestamp":1770414518976,"version":"3.49.0"},"reference-count":0,"publisher":"Oxford
-        University Press","isbn-type":[{"value":"9780199681624","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"published-print":{"date-parts":[[2013,9,26]]},"DOI":"10.1093\/acprof:oso\/9780199681624.001.0001","type":"monograph","created":{"date-parts":[[2014,1,27]],"date-time":"2014-01-27T13:54:04Z","timestamp":1390830844000},"source":"Crossref","is-referenced-by-count":30,"title":["The
-        Nature and Origin of Language"],"prefix":"10.1093","author":[{"given":"Denis","family":"Bouchard","sequence":"first","affiliation":[]}],"member":"286","container-title":[],"original-title":[],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:39:33Z","timestamp":1659483573000},"score":1,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8112"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[2013,9,26]]},"ISBN":["9780199681624"],"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199681624.001.0001","relation":{},"subject":[],"published":{"date-parts":[[2013,9,26]]}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:17 GMT
+      string: !binary |-
+        H4sIAAAAAAAA/5VTy27bMBD8FYFnSSYpWa9jmkuAICla51LbB1qibDYSqZJUGsPwv3cp2bXiJAV6EYilODs7M3tAxjLbG1Qg9Yx81HJj2JYHdt9xqP1Welp94doIJeGChDjElxtUHJCQFX/llTtWzPKgY9oC7nJJMU186ifrtT/eWNE6cFcPMA1wsqCkiLMiyn4ApLsFUm2HCpKmOCbxnGR5mvjo0j4K4xz6H32kec01lyUPStVLiwrso67fNMLsuIY/H19rpSvvSYrhtd17XzVwhj7CbORpzuUBvbCmd6TyNMMkz5OMJDR2bEYhOi0A/AgTlEpaLm1QqZYJOUx7Oi3drVbGtEw/B9DFalHagXDNGsOBrdkpbQMHAS+4BiVsw8eXZ9JVMPb6QEYS+blPQUdAun28czbgkOA8Ws1Y2WlVF8qo1ezNCCHG4BV8LrO0SqqtZt0OOb4cmnxoGol94tP0vWskDjAJaLogUTGPCxxfuxblOItwFsfQ1w2tel26p1+cOGDYIH7w17kq2OzP7kXYQY2ioMWOew+QTs09JivvUYutkJ6qvXsmt72LndMNcMTrRQsAZ70FnQdbt2C7C8wtl8KZXrNWNHso3Ki+3DFdQc3wX73jAdVaaGMdQl2LRrDRvOXa+d7ydjMkimYJGmPwzkM1MGTNtFbxTkHuPlkM6mc+/WAxYCsy2I0FjYooL6LoWuJknsdZNE+jk8Sl0vCSuH04y31woYUo7t3x6ds9AO+s7Uyxmrm8sIq3ogxV34WlalezjVLPq1lGCEVHh9hvJkOMuZ0UhDH9J7GZhPTu+82DM/LtUq0nW2sma3vNsVIiVHq7mv1fyjVvTsYdxjl+8tJe7di/iR+PfwAo2ZZeFwUAAA==
+  recorded_at: Sat, 18 Apr 2026 01:18:07 GMT
 - request:
     method: get
     uri: https://api.crossref.org/works?filter=type:book-chapter,type:book-part,type:book-section,type:book-track&query=The%2BNature%2Band%2BOrigin%2Bof%2BLanguage%2B2013%2BOxford%2BUniversity%2BPress
@@ -60,23 +69,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Faraday v2.7.12
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:18 GMT
+      - Sat, 18 Apr 2026 01:18:08 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '25907'
+      - '3847'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -88,104 +105,23 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
-      - '5'
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
       X-Concurrency-Limit:
-      - '1'
+      - '3'
       X-Api-Pool:
-      - public
+      - polite
       Permissions-Policy:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":1799318,"items":[{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T00:15:00Z","timestamp":1659485700459},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,9,26]]},"DOI":"10.1093\/acprof:oso\/9780199681624.003.0002","type":"book-chapter","created":{"date-parts":[[2014,1,27]],"date-time":"2014-01-27T13:54:04Z","timestamp":1390830844000},"page":"62-82","source":"Crossref","is-referenced-by-count":0,"title":["Language:
-        facts and theory"],"prefix":"10.1093","author":[{"given":"Denis","family":"Bouchard","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        Nature and Origin of Language"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:39:36Z","timestamp":1659483576000},"score":28.03572,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8112\/chapter\/153571316"}},"issued":{"date-parts":[[2013,9,26]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199681624.003.0002","published":{"date-parts":[[2013,9,26]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T00:14:59Z","timestamp":1659485699121},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,9,26]]},"DOI":"10.1093\/acprof:oso\/9780199681624.003.0003","type":"book-chapter","created":{"date-parts":[[2014,1,27]],"date-time":"2014-01-27T13:54:04Z","timestamp":1390830844000},"page":"83-97","source":"Crossref","is-referenced-by-count":0,"title":["The
-        Sign Theory of Language"],"prefix":"10.1093","author":[{"given":"Denis","family":"Bouchard","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        Nature and Origin of Language"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:39:35Z","timestamp":1659483575000},"score":27.671223,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8112\/chapter\/153572611"}},"issued":{"date-parts":[[2013,9,26]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199681624.003.0003","published":{"date-parts":[[2013,9,26]]}},{"indexed":{"date-parts":[[2025,3,25]],"date-time":"2025-03-25T14:19:50Z","timestamp":1742912390274,"version":"3.40.3"},"edition-number":"1","reference-count":0,"publisher":"Cambridge
-        University Press","isbn-type":[{"type":"electronic","value":"9781139856294"},{"type":"print","value":"9781108062817"}],"license":[{"start":{"date-parts":[[2014,10,5]],"date-time":"2014-10-05T00:00:00Z","timestamp":1412467200000},"content-version":"unspecified","delay-in-days":374,"URL":"https:\/\/www.cambridge.org\/core\/terms"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,9,26]]},"DOI":"10.1017\/cbo9781139856294.015","type":"book-chapter","created":{"date-parts":[[2014,10,5]],"date-time":"2014-10-05T05:33:26Z","timestamp":1412487206000},"page":"278-309","source":"Crossref","is-referenced-by-count":0,"title":["NATURE
-        AND ORIGIN OF LANGUAGE"],"prefix":"10.1017","member":"56","container-title":["The
-        Life and Growth of Language"],"link":[{"URL":"https:\/\/www.cambridge.org\/core\/services\/aop-cambridge-core\/content\/view\/2BBDEC77543E777C20AABF1E6D54409B","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2022,10,15]],"date-time":"2022-10-15T04:18:56Z","timestamp":1665807536000},"score":27.618776,"resource":{"primary":{"URL":"https:\/\/www.cambridge.org\/core\/product\/identifier\/CBO9781139856294A019\/type\/book_part"}},"issued":{"date-parts":[[2013,9,26]]},"ISBN":["9781139856294","9781108062817"],"references-count":0,"URL":"https:\/\/doi.org\/10.1017\/cbo9781139856294.015","published":{"date-parts":[[2013,9,26]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T00:15:31Z","timestamp":1659485731512},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,9,26]]},"DOI":"10.1093\/acprof:oso\/9780199681624.003.0001","type":"book-chapter","created":{"date-parts":[[2014,1,27]],"date-time":"2014-01-27T13:54:04Z","timestamp":1390830844000},"page":"2-60","source":"Crossref","is-referenced-by-count":0,"title":["Scenarios
-        for the emergence of language"],"prefix":"10.1093","author":[{"given":"Denis","family":"Bouchard","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        Nature and Origin of Language"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:39:34Z","timestamp":1659483574000},"score":27.273808,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8112\/chapter\/153569076"}},"issued":{"date-parts":[[2013,9,26]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199681624.003.0001","published":{"date-parts":[[2013,9,26]]}},{"indexed":{"date-parts":[[2025,11,10]],"date-time":"2025-11-10T20:57:58Z","timestamp":1762808278323},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,11,14]]},"DOI":"10.1093\/acprof:oso\/9780199568406.003.0003","type":"book-chapter","created":{"date-parts":[[2014,8,21]],"date-time":"2014-08-21T09:27:24Z","timestamp":1408613244000},"page":"59-96","source":"Crossref","is-referenced-by-count":3,"title":["Oxford
-        University Press, 1896\u20131945"],"prefix":"10.1093","author":[{"given":"William","family":"Whyte","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        History of Oxford University Press: Volume III"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:53:39Z","timestamp":1659484419000},"score":27.258041,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8235\/chapter\/153806531"}},"issued":{"date-parts":[[2013,11,14]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199568406.003.0003","published":{"date-parts":[[2013,11,14]]}},{"indexed":{"date-parts":[[2025,12,10]],"date-time":"2025-12-10T12:15:38Z","timestamp":1765368938006},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,11,14]]},"DOI":"10.1093\/acprof:oso\/9780199568406.003.0004","type":"book-chapter","created":{"date-parts":[[2014,8,21]],"date-time":"2014-08-21T09:27:24Z","timestamp":1408613244000},"page":"97-135","source":"Crossref","is-referenced-by-count":3,"title":["Oxford
-        University Press, 1945\u20131970"],"prefix":"10.1093","author":[{"given":"C.
-        S.","family":"Nicholls","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        History of Oxford University Press: Volume III"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:53:38Z","timestamp":1659484418000},"score":26.936834,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8235\/chapter\/153810563"}},"issued":{"date-parts":[[2013,11,14]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199568406.003.0004","published":{"date-parts":[[2013,11,14]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T00:14:46Z","timestamp":1659485686582},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,9,26]]},"DOI":"10.1093\/acprof:oso\/9780199681624.003.0007","type":"book-chapter","created":{"date-parts":[[2014,1,27]],"date-time":"2014-01-27T13:54:04Z","timestamp":1390830844000},"page":"196-212","source":"Crossref","is-referenced-by-count":0,"title":["The
-        protolanguage hypothesis"],"prefix":"10.1093","author":[{"given":"Denis","family":"Bouchard","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        Nature and Origin of Language"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:39:37Z","timestamp":1659483577000},"score":26.724773,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8112\/chapter\/153577037"}},"issued":{"date-parts":[[2013,9,26]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199681624.003.0007","published":{"date-parts":[[2013,9,26]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T00:14:55Z","timestamp":1659485695913},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,9,26]]},"DOI":"10.1093\/acprof:oso\/9780199681624.003.0009","type":"book-chapter","created":{"date-parts":[[2014,1,27]],"date-time":"2014-01-27T13:54:04Z","timestamp":1390830844000},"page":"235-332","source":"Crossref","is-referenced-by-count":0,"title":["How
-        signs account for some complex properties of language"],"prefix":"10.1093","author":[{"given":"Denis","family":"Bouchard","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        Nature and Origin of Language"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:39:39Z","timestamp":1659483579000},"score":26.275951,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8112\/chapter\/153578890"}},"issued":{"date-parts":[[2013,9,26]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199681624.003.0009","published":{"date-parts":[[2013,9,26]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T00:14:54Z","timestamp":1659485694737},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,9,26]]},"DOI":"10.1093\/acprof:oso\/9780199681624.003.0005","type":"book-chapter","created":{"date-parts":[[2014,1,27]],"date-time":"2014-01-27T13:54:04Z","timestamp":1390830844000},"page":"133-152","source":"Crossref","is-referenced-by-count":0,"title":["The
-        emergence of linguistic signs"],"prefix":"10.1093","author":[{"given":"Denis","family":"Bouchard","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        Nature and Origin of Language"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:39:36Z","timestamp":1659483576000},"score":25.965887,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8112\/chapter\/153574477"}},"issued":{"date-parts":[[2013,9,26]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199681624.003.0005","published":{"date-parts":[[2013,9,26]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T00:15:31Z","timestamp":1659485731076},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,9,26]]},"DOI":"10.1093\/acprof:oso\/9780199681624.003.0008","type":"book-chapter","created":{"date-parts":[[2014,1,27]],"date-time":"2014-01-27T13:54:04Z","timestamp":1390830844000},"page":"215-234","source":"Crossref","is-referenced-by-count":0,"title":["Combinatorial
-        signs and Universal Grammar"],"prefix":"10.1093","author":[{"given":"Denis","family":"Bouchard","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        Nature and Origin of Language"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:39:37Z","timestamp":1659483577000},"score":25.953886,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8112\/chapter\/153578022"}},"issued":{"date-parts":[[2013,9,26]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199681624.003.0008","published":{"date-parts":[[2013,9,26]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T00:15:53Z","timestamp":1659485753023},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,11,14]]},"DOI":"10.1093\/acprof:oso\/9780199568406.003.0002","type":"book-chapter","created":{"date-parts":[[2014,8,21]],"date-time":"2014-08-21T09:27:24Z","timestamp":1408613244000},"page":"12-56","source":"Crossref","is-referenced-by-count":2,"title":["Reassessing
-        the History of Oxford University Press, 1896\u20131970"],"prefix":"10.1093","author":[{"given":"WM.
-        Roger","family":"Louis","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        History of Oxford University Press: Volume III"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:53:37Z","timestamp":1659484417000},"score":25.949749,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8235\/chapter\/153804290"}},"issued":{"date-parts":[[2013,11,14]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199568406.003.0002","published":{"date-parts":[[2013,11,14]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T00:14:41Z","timestamp":1659485681906},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,9,26]]},"DOI":"10.1093\/acprof:oso\/9780199681624.003.0010","type":"book-chapter","created":{"date-parts":[[2014,1,27]],"date-time":"2014-01-27T13:54:04Z","timestamp":1390830844000},"page":"333-337","source":"Crossref","is-referenced-by-count":0,"title":["In
-        the beginning was the sign"],"prefix":"10.1093","author":[{"given":"Denis","family":"Bouchard","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        Nature and Origin of Language"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:39:38Z","timestamp":1659483578000},"score":25.594439,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8112\/chapter\/153583878"}},"issued":{"date-parts":[[2013,9,26]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199681624.003.0010","published":{"date-parts":[[2013,9,26]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T00:14:57Z","timestamp":1659485697694},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,9,26]]},"DOI":"10.1093\/acprof:oso\/9780199681624.003.0004","type":"book-chapter","created":{"date-parts":[[2014,1,27]],"date-time":"2014-01-27T13:54:04Z","timestamp":1390830844000},"page":"101-132","source":"Crossref","is-referenced-by-count":0,"title":["The
-        neurogenetic factors: Offline Brain Systems"],"prefix":"10.1093","author":[{"given":"Denis","family":"Bouchard","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        Nature and Origin of Language"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:39:35Z","timestamp":1659483575000},"score":25.59378,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8112\/chapter\/153573434"}},"issued":{"date-parts":[[2013,9,26]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199681624.003.0004","published":{"date-parts":[[2013,9,26]]}},{"indexed":{"date-parts":[[2024,9,19]],"date-time":"2024-09-19T15:34:34Z","timestamp":1726760074855},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,11,14]]},"DOI":"10.1093\/acprof:oso\/9780199543151.003.0002","type":"book-chapter","created":{"date-parts":[[2014,8,21]],"date-time":"2014-08-21T09:28:48Z","timestamp":1408613328000},"page":"26-75","source":"Crossref","is-referenced-by-count":1,"title":["The
-        Press and the University"],"prefix":"10.1093","author":[{"given":"Mark","family":"Curthoys","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        History of Oxford University Press: Volume II"],"deposited":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T02:30:34Z","timestamp":1659493834000},"score":25.463112,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/27015\/chapter\/196251923"}},"issued":{"date-parts":[[2013,11,14]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199543151.003.0002","published":{"date-parts":[[2013,11,14]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T00:14:56Z","timestamp":1659485696989},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,9,26]]},"DOI":"10.1093\/acprof:oso\/9780199681624.003.0006","type":"book-chapter","created":{"date-parts":[[2014,1,27]],"date-time":"2014-01-27T13:54:04Z","timestamp":1390830844000},"page":"153-195","source":"Crossref","is-referenced-by-count":0,"title":["Self-organizing
-        constraints due to building materials"],"prefix":"10.1093","author":[{"given":"Denis","family":"Bouchard","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        Nature and Origin of Language"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:39:36Z","timestamp":1659483576000},"score":25.191639,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8112\/chapter\/153575103"}},"issued":{"date-parts":[[2013,9,26]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199681624.003.0006","published":{"date-parts":[[2013,9,26]]}},{"indexed":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T04:29:12Z","timestamp":1659500952224},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,11,14]]},"DOI":"10.1093\/acprof:oso\/9780199543151.003.0018","type":"book-chapter","created":{"date-parts":[[2014,8,21]],"date-time":"2014-08-21T09:28:48Z","timestamp":1408613328000},"page":"704-732","source":"Crossref","is-referenced-by-count":0,"title":["Press
-        Books Abroad"],"prefix":"10.1093","author":[{"given":"Robert","family":"Fraser","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        History of Oxford University Press: Volume II"],"deposited":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T02:30:45Z","timestamp":1659493845000},"score":24.669752,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/27015\/chapter\/196271665"}},"issued":{"date-parts":[[2013,11,14]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199543151.003.0018","published":{"date-parts":[[2013,11,14]]}},{"indexed":{"date-parts":[[2024,5,29]],"date-time":"2024-05-29T11:55:47Z","timestamp":1716983747636},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,11,14]]},"DOI":"10.1093\/acprof:oso\/9780199543151.003.0009","type":"book-chapter","created":{"date-parts":[[2014,8,21]],"date-time":"2014-08-21T09:28:48Z","timestamp":1408613328000},"page":"356-401","source":"Crossref","is-referenced-by-count":3,"title":["The
-        Bible Press"],"prefix":"10.1093","author":[{"given":"Amy","family":"Flanders","sequence":"first","affiliation":[]},{"given":"Stephen","family":"Colclough","sequence":"additional","affiliation":[]}],"member":"286","container-title":["The
-        History of Oxford University Press: Volume II"],"deposited":{"date-parts":[[2022,8,3]],"date-time":"2022-08-03T02:30:39Z","timestamp":1659493839000},"score":24.301353,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/27015\/chapter\/196263292"}},"issued":{"date-parts":[[2013,11,14]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199543151.003.0009","published":{"date-parts":[[2013,11,14]]}},{"indexed":{"date-parts":[[2024,9,19]],"date-time":"2024-09-19T15:34:35Z","timestamp":1726760075939},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,11,14]]},"DOI":"10.1093\/acprof:oso\/9780199568406.003.0006","type":"book-chapter","created":{"date-parts":[[2014,8,21]],"date-time":"2014-08-21T09:27:24Z","timestamp":1408613244000},"page":"190-216","source":"Crossref","is-referenced-by-count":1,"title":["The
-        Business of the Press"],"prefix":"10.1093","author":[{"given":"Daniel","family":"Raff","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        History of Oxford University Press: Volume III"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T23:53:38Z","timestamp":1659484418000},"score":24.209888,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/8235\/chapter\/153819059"}},"issued":{"date-parts":[[2013,11,14]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199568406.003.0006","published":{"date-parts":[[2013,11,14]]}},{"indexed":{"date-parts":[[2024,5,5]],"date-time":"2024-05-05T06:00:26Z","timestamp":1714888826088},"edition-number":"1","reference-count":0,"publisher":"Oxford
-        University PressOxford","isbn-type":[{"value":"0199557314","type":"print"},{"value":"9780199557318","type":"print"},{"value":"9780191772320","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,11,14]]},"abstract":"<jats:title>Abstract<\/jats:title>\n               <jats:p>The
-        chapter considers the relationship between printing and publishing and the
-        University of Oxford by examining how the activities and reforms of the Press
-        affected, or were affected by, university governance, the revision and publication
-        of university statutes, the changing composition of the Delegacy, and the
-        University''s location in the broader political landscape. The significance
-        of the Press''s income and expenditures for the University''s finances is
-        discussed, with particular attention to the support for learned printing and
-        to the changes in the management of the privilege. The chapter also examines
-        the buildings of the Press, first the Sheldonian Theatre and later the Clarendon
-        Printing House, in the context of the architectural and scholarly environment
-        of the University of Oxford, with particular attention given to the influence
-        of William Lancaster and George Clark, local patron of the architect Nicholas
-        Hawksmoor, in the progress and design of university buildings.<\/jats:p>","DOI":"10.1093\/acprof:oso\/9780199557318.003.0007","type":"book-chapter","created":{"date-parts":[[2014,8,21]],"date-time":"2014-08-21T09:31:12Z","timestamp":1408613472000},"page":"158-191","source":"Crossref","is-referenced-by-count":0,"title":["The
-        University and the Press 1584\u20131780"],"prefix":"10.1093","author":[{"given":"Andrew","family":"Hegarty","sequence":"first","affiliation":[]}],"member":"286","container-title":["The
-        History of Oxford University Press: Volume I"],"language":"en","link":[{"URL":"https:\/\/academic.oup.com\/book\/6941\/chapter\/151221774","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2023,12,16]],"date-time":"2023-12-16T03:35:56Z","timestamp":1702697756000},"score":24.149181,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/6941\/chapter\/151221774"}},"issued":{"date-parts":[[2013,11,14]]},"ISBN":["0199557314","9780199557318","9780191772320"],"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199557318.003.0007","published":{"date-parts":[[2013,11,14]]}},{"indexed":{"date-parts":[[2024,5,5]],"date-time":"2024-05-05T06:00:35Z","timestamp":1714888835886},"edition-number":"1","reference-count":0,"publisher":"Oxford
-        University PressOxford","isbn-type":[{"value":"0199557314","type":"print"},{"value":"9780199557318","type":"print"},{"value":"9780191772320","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013,11,14]]},"abstract":"<jats:title>Abstract<\/jats:title>\n               <jats:p>This
-        chapter explores the relationship between the University and the local book
-        trades. It considers Oxford''s book trade prior to the arrival of printed
-        books in the latter half of the fifteenth century, and explains why the vast
-        majority of Oxford''s book trade in the sixteenth, seventeenth, and eighteenth
-        centuries sought to be seen as \u2018privileged persons\u2019, accountable
-        to the University and not the town authorities. It offers an overview of Oxford''s
-        book trade as a whole, and considers the University''s role as a regulator
-        of the book trade, paying particular attention to the activities of the Chancellor''s
-        Court, the University''s legal court.<\/jats:p>","DOI":"10.1093\/acprof:oso\/9780199557318.003.0019","type":"book-chapter","created":{"date-parts":[[2014,8,21]],"date-time":"2014-08-21T09:31:12Z","timestamp":1408613472000},"page":"548-567","source":"Crossref","is-referenced-by-count":0,"title":["The
-        University and the Oxford Book Trade"],"prefix":"10.1093","member":"286","container-title":["The
-        History of Oxford University Press: Volume I"],"language":"en","link":[{"URL":"https:\/\/academic.oup.com\/book\/6941\/chapter\/151250932","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2023,12,16]],"date-time":"2023-12-16T03:35:40Z","timestamp":1702697740000},"score":24.143734,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/6941\/chapter\/151250932"}},"editor":[{"given":"Ian","family":"Gadd","sequence":"first","affiliation":[]}],"issued":{"date-parts":[[2013,11,14]]},"ISBN":["0199557314","9780199557318","9780191772320"],"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/acprof:oso\/9780199557318.003.0019","published":{"date-parts":[[2013,11,14]]}}],"items-per-page":20,"query":{"start-index":0,"search-terms":"The+Nature+and+Origin+of+Language+2013+Oxford+University+Press"}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:18 GMT
+      string: !binary |-
+        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
+  recorded_at: Sat, 18 Apr 2026 01:18:08 GMT
 recorded_with: VCR 6.4.0

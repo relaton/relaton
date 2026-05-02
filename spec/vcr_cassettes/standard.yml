@@ -7,23 +7,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:43 GMT
+      - Sat, 18 Apr 2026 01:18:22 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1294'
+      - '706'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -35,6 +43,8 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
@@ -49,11 +59,7 @@ http_interactions:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2024,8,2]],"date-time":"2024-08-02T00:22:20Z","timestamp":1722558140673},"publisher-location":"Berlin","standards-body":{"name":"DIN
-        Deutsches Institut f\u00fcr Normung e. V.","acronym":"DIN"},"reference-count":0,"publisher":"DIN
-        Media GmbH","content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"DOI":"10.31030\/2640440","type":"standard","created":{"date-parts":[[2019,3,31]],"date-time":"2019-03-31T21:56:19Z","timestamp":1554069379000},"approved":{"date-parts":[[1994,1]]},"source":"Crossref","is-referenced-by-count":0,"title":["DIN
-        ETS 300218:1994-01, ISDN; Protokolle der unteren Schichten f\u00fcr Videotex
-        auf Syntaxbasis f\u00fcr ISDN-Paketmodus (CCITT-Empfehlung_X.31 Fall_A und
-        Fall_B); Englische Fassung ETS_300218:1993"],"prefix":"10.31030","member":"15010","container-title":[],"original-title":[],"deposited":{"date-parts":[[2024,8,1]],"date-time":"2024-08-01T23:39:21Z","timestamp":1722555561000},"score":1,"resource":{"primary":{"URL":"https:\/\/www.dinmedia.de\/de\/-\/-\/2204273"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.31030\/2640440","relation":{},"subject":[]}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:43 GMT
+      string: !binary |-
+        H4sIAAAAAAAA/3VUYW/aMBT8K1Y+bVIc7IQUkn5aS7chbV01WDWtVJWJDXgkcWQ7BYT473tOaIlaJoFk2bx79+7usfeMZbY2Xuqpted7hTCGLQW2u0rA3Ubp7u2z0EaqEh5oQAJyevHSvSdLLraCuyNnVuCKaQu4Dw8hCfv+0A8fH/32xcrCgbt7TIaYhFNC0jBMQ/IHIN0rkCoqL6WDMIzjIe2Ti0F08L2qnufSrITGucqYbalcCZ3LEgqhqORMc4Pniu8cj5I1jUbjWzQStTXZShg0Lo2VtrZoMasJWWQa3Spd1OUSiQDdBwDEMq3KXdFWetBXi4XQoswEzlRdWi8lHS7HBt8Flwx9KeZfASFTpRWlxVwVDLg5SY6nBxAB4I0pmF5jDZNqmbWTLFhuBHQzK6UtdhBQAbMC21y0laMfYyc+CSJKIjLrhRd90u87I46GvWjgOGgBYp/1gyZ+5Ef0vSE0wSTCEZ2GNI0vUpq8NSSOwYskGiSEEKDKqkqr53NNaJL0fejg5lG1zhz+tZsbtARMafCrqBzPdx1hX8ZtVL2ZTlBESEiHqUPEhPpoPBndXqI7raxaqzwXiAuNoNqhoUm2ktkKxD/Zey+5UFZsEasXaLIDWbdzZqQ5/cIh4ju2FrZQvDbow/X1eDrFN0W1EKscovH0GxRHn1meP32CVrw9Xn28RDflEmIAwYIrY1yKgPLTiXLkgcgVzCq3HeeazSnmTXhoTCg5Zuad4UrLpSxZ3r3jolJG/sfaZtXOOHtcNXA2SqMkDenZVYvjC9o6azKloZK68L8YuIdBJOS22a1fP78B8MrayqSz3qy32WwCLsvCrUHAxaznvrj5hCHph4PIOzjcet4ZpY1650KChucGK+s8b8L0mhrTicxbLlzJQOnlrHduU7TIj38d+5bPX5FZ1/1w+AfE935LDgUAAA==
+  recorded_at: Sat, 18 Apr 2026 01:18:22 GMT
 recorded_with: VCR 6.4.0

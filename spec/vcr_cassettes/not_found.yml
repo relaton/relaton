@@ -7,19 +7,27 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 404
       message: Not Found
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:02 GMT
+      - Sat, 18 Apr 2026 01:18:01 GMT
       Content-Type:
       - text/plain
       Transfer-Encoding:
@@ -48,5 +56,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: Resource not found.
-  recorded_at: Wed, 08 Apr 2026 19:51:02 GMT
+  recorded_at: Sat, 18 Apr 2026 01:18:01 GMT
 recorded_with: VCR 6.4.0

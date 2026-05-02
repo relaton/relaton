@@ -7,23 +7,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:30 GMT
+      - Sat, 18 Apr 2026 01:18:13 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1203'
+      - '649'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -35,6 +43,8 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
@@ -49,12 +59,9 @@ http_interactions:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2024,9,16]],"date-time":"2024-09-16T16:14:40Z","timestamp":1726503280528},"reference-count":0,"publisher":"University
-        of St. Augustine for Health Sciences Library","content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":["SJOT"],"DOI":"10.46409\/001.rlpt5688","type":"journal-volume","created":{"date-parts":[[2021,6,17]],"date-time":"2021-06-17T19:17:19Z","timestamp":1623957439000},"source":"Crossref","is-referenced-by-count":0,"title":[],"prefix":"10.46409","volume":"1","member":"23747","container-title":["Student
-        Journal of Occupational Therapy"],"original-title":[],"deposited":{"date-parts":[[2021,12,31]],"date-time":"2021-12-31T00:46:13Z","timestamp":1640911573000},"score":1,"resource":{"primary":{"URL":"https:\/\/soar.usa.edu\/sjot\/vol1\/"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[null]]},"references-count":0,"issue-title":["Fall
-        2020, Innaugural Issue"],"URL":"https:\/\/doi.org\/10.46409\/001.rlpt5688","archive":["Internet
-        Archive"],"relation":{},"ISSN":["2689-1662"],"issn-type":[{"type":"electronic","value":"2689-1662"}],"subject":[]}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:30 GMT
+      string: !binary |-
+        H4sIAAAAAAAA/3WUTW/iMBCG/0rkcxzsJASSW7Wr1VJVW2mhlwUOJjHg1rEjf3SLEP99x4G2EUtvju0Zv+8zMzki65jzFlVIv6AYtdxatuPYHToOe3+1Ge6+cmOFVnBAE5KQzxNUHZFQDX/jTVg2zHHcMeMg73KZkjSPy5gW63V8PnKiDdnDASYlpsWCFhXNq5z8gZzhFFS1HaroJC3GJEunZJxOTzEyfMsNVzXHtfbKoYrEqPMbKeyeG8j4pESv0R0ivY3mLonu/M5bJxSPttpEPzmTbh/NaxGS2OhBbAwzB3i01spx5XCjWyZUb+KyWoLq2mhrW2ZesAFpRtSux7Bl0nKQZffaOBxSQAQ34M9JMLhE8/vHBYL474+zAI0keZGTcjUihCZGdm5cTKfB8Zn2s/ZGMYlftfQAKDzLAddtpDQuYjq5gZRiUmA6WdAS8FW0vEZapFk5nuRZSQgJ2uHROoR+Cx4BMFwXFn+QbvDmMKD9bg3e7eCOeBv4gsiLdNjrm6Pd9GVJs0k+uUC+JuR8A9yj+7P3ULbHuvYdC4ThewGFZd0hQNRG7ETgM9DQ8E5Dub9kRNM4ozch0RRndEFIlUPrZf9BAjuUjifZBVKtDUTS0IHvwI4AQLShe2D59PsBEu+d62y1Gq1GVjOTeMsS3nj4etZuNQI2dDVCp5DPbwYmzu0z2BDW+luWlJdyvR7OgR2Upo/6JPuDSRmBVRJHM6UYzIEBnrNwKdC8VtxokWizW42+7FJm6j2MV8g9g2Exirvo7rK3DpokO4/FERTO5vNf4WZaTMOAFyk6+1KXX8vy+N71XPLaGa1EHfqHSd+X6CPstO5xPcOlAOd0+gfIP6tMswQAAA==
+  recorded_at: Sat, 18 Apr 2026 01:18:13 GMT
 - request:
     method: get
     uri: https://api.crossref.org/works?filter=type:book-chapter,type:book-part,type:book-section,type:book-track&query=2021%2BUniversity%2Bof%2BSt.%2BAugustine%2Bfor%2BHealth%2BSciences%2BLibrary
@@ -62,23 +69,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Faraday v2.7.12
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:31 GMT
+      - Sat, 18 Apr 2026 01:18:13 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '31418'
+      - '6423'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -90,133 +105,23 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
-      - '5'
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
       X-Concurrency-Limit:
-      - '1'
+      - '3'
       X-Api-Pool:
-      - public
+      - polite
       Permissions-Policy:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":1978151,"items":[{"indexed":{"date-parts":[[2025,2,21]],"date-time":"2025-02-21T05:27:44Z","timestamp":1740115664682,"version":"3.37.3"},"reference-count":0,"publisher":"Lexington
-        Books","isbn-type":[{"value":"9780739179192","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2012]]},"DOI":"10.5771\/9780739179192-69","type":"book-chapter","created":{"date-parts":[[2025,2,20]],"date-time":"2025-02-20T14:55:41Z","timestamp":1740063341000},"page":"69-86","source":"Crossref","is-referenced-by-count":0,"title":["4
-        St. Augustine: Archetypes of Family"],"prefix":"10.5771","member":"3821","container-title":["Augustine
-        and Psychology"],"deposited":{"date-parts":[[2025,2,20]],"date-time":"2025-02-20T15:09:02Z","timestamp":1740064142000},"score":25.517708,"resource":{"primary":{"URL":"https:\/\/www.nomos-elibrary.de\/index.php?doi=10.5771\/9780739179192-69"}},"editor":[{"given":"Sandra","family":"Dixon","sequence":"first","affiliation":[]},{"given":"John","family":"Doody","sequence":"additional","affiliation":[]},{"given":"Villanova
-        University","family":"Kim Paffenroth, Villanova University","sequence":"additional","affiliation":[]}],"issued":{"date-parts":[[2012]]},"ISBN":["9780739179192"],"references-count":0,"URL":"https:\/\/doi.org\/10.5771\/9780739179192-69","published":{"date-parts":[[2012]]}},{"indexed":{"date-parts":[[2025,3,27]],"date-time":"2025-03-27T05:07:31Z","timestamp":1743052051195,"version":"3.40.3"},"publisher-location":"Dordrecht","reference-count":0,"publisher":"Springer
-        Netherlands","isbn-type":[{"type":"print","value":"9781402056130"},{"type":"electronic","value":"9781402056147"}],"license":[{"start":{"date-parts":[[2008,1,1]],"date-time":"2008-01-01T00:00:00Z","timestamp":1199145600000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.springer.com\/tdm"},{"start":{"date-parts":[[2008,1,1]],"date-time":"2008-01-01T00:00:00Z","timestamp":1199145600000},"content-version":"vor","delay-in-days":0,"URL":"https:\/\/www.springer.com\/tdm"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2008]]},"DOI":"10.1007\/978-1-4020-5614-7_3356","type":"book-chapter","created":{"date-parts":[[2008,6,2]],"date-time":"2008-06-02T13:28:55Z","timestamp":1212413335000},"page":"1348-1348","source":"Crossref","is-referenced-by-count":0,"title":["St.
-        Augustine"],"prefix":"10.1007","member":"297","container-title":["Encyclopedia
-        of Public Health"],"language":"en","link":[{"URL":"https:\/\/link.springer.com\/content\/pdf\/10.1007\/978-1-4020-5614-7_3356","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2024,7,11]],"date-time":"2024-07-11T10:51:19Z","timestamp":1720695079000},"score":25.218727,"resource":{"primary":{"URL":"https:\/\/link.springer.com\/10.1007\/978-1-4020-5614-7_3356"}},"issued":{"date-parts":[[2008]]},"ISBN":["9781402056130","9781402056147"],"references-count":0,"URL":"https:\/\/doi.org\/10.1007\/978-1-4020-5614-7_3356","published":{"date-parts":[[2008]]}},{"indexed":{"date-parts":[[2023,9,13]],"date-time":"2023-09-13T08:10:59Z","timestamp":1694592659895},"reference-count":0,"publisher":"Bloomsbury
-        Academic","isbn-type":[{"value":"9780826426611","type":"print"},{"value":"9781472541529","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.5040\/9781472541529.ch-007","type":"book-chapter","created":{"date-parts":[[2014,9,12]],"date-time":"2014-09-12T14:52:14Z","timestamp":1410533534000},"source":"Crossref","is-referenced-by-count":0,"title":["St.
-        Augustine and the Defense of Liberal Education"],"prefix":"10.5040","member":"2984","container-title":["St
-        Augustine"],"deposited":{"date-parts":[[2023,9,12]],"date-time":"2023-09-12T02:23:39Z","timestamp":1694485419000},"score":24.924242,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/monograph-detail?docid=b-9781472541529&tocid=b-9781472541529-chapter7"}},"issued":{"date-parts":[[null]]},"ISBN":["9780826426611","9781472541529"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9781472541529.ch-007"},{"indexed":{"date-parts":[[2023,9,13]],"date-time":"2023-09-13T08:10:54Z","timestamp":1694592654116},"reference-count":0,"publisher":"Bloomsbury
-        Academic","isbn-type":[{"value":"9780826426611","type":"print"},{"value":"9781472541529","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.5040\/9781472541529.ch-001","type":"book-chapter","created":{"date-parts":[[2014,9,12]],"date-time":"2014-09-12T14:52:14Z","timestamp":1410533534000},"source":"Crossref","is-referenced-by-count":0,"title":["Approaching
-        Augustine"],"prefix":"10.5040","member":"2984","container-title":["St Augustine"],"deposited":{"date-parts":[[2023,9,12]],"date-time":"2023-09-12T02:23:33Z","timestamp":1694485413000},"score":24.685501,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/monograph-detail?docid=b-9781472541529&tocid=b-9781472541529-chapter1"}},"issued":{"date-parts":[[null]]},"ISBN":["9780826426611","9781472541529"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9781472541529.ch-001"},{"indexed":{"date-parts":[[2022,3,31]],"date-time":"2022-03-31T23:19:42Z","timestamp":1648768782096},"reference-count":0,"publisher":"University
-        Press of Florida","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014,5,27]]},"DOI":"10.5744\/florida\/9780813049373.003.0009","type":"book-chapter","created":{"date-parts":[[2014,10,14]],"date-time":"2014-10-14T17:28:20Z","timestamp":1413307700000},"page":"101-124","source":"Crossref","is-referenced-by-count":0,"title":["Transforming
-        St. Augustine, 1887"],"prefix":"10.5744","author":[{"given":"Thomas","family":"Graham","sequence":"first","affiliation":[]}],"member":"3749","container-title":["Mr.
-        Flagler''s St. Augustine"],"link":[{"URL":"http:\/\/florida.universitypressscholarship.com\/view\/10.5744\/florida\/9780813049373.001.0001\/upso-9780813049373-chapter-9","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2016,7,25]],"date-time":"2016-07-25T19:18:20Z","timestamp":1469474300000},"score":24.653313,"resource":{"primary":{"URL":"http:\/\/florida.universitypressscholarship.com\/view\/10.5744\/florida\/9780813049373.001.0001\/upso-9780813049373-chapter-9"}},"issued":{"date-parts":[[2014,5,27]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5744\/florida\/9780813049373.003.0009","published":{"date-parts":[[2014,5,27]]}},{"indexed":{"date-parts":[[2022,3,31]],"date-time":"2022-03-31T11:04:10Z","timestamp":1648724650215},"reference-count":0,"publisher":"The
-        Lutterworth Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2021,1,28]]},"DOI":"10.2307\/j.ctv1j13z2z.7","type":"book-chapter","created":{"date-parts":[[2021,3,18]],"date-time":"2021-03-18T20:19:42Z","timestamp":1616098782000},"page":"32-40","source":"Crossref","is-referenced-by-count":0,"title":["Augustine"],"prefix":"10.2307","member":"1121","container-title":["Truth
-        and Reality"],"deposited":{"date-parts":[[2021,3,18]],"date-time":"2021-03-18T20:19:49Z","timestamp":1616098789000},"score":24.348677,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv1j13z2z.7"}},"issued":{"date-parts":[[2021,1,28]]},"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv1j13z2z.7","published":{"date-parts":[[2021,1,28]]}},{"indexed":{"date-parts":[[2022,4,5]],"date-time":"2022-04-05T20:11:49Z","timestamp":1649189509377},"reference-count":0,"publisher":"University
-        Press of Florida","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014,5,27]]},"DOI":"10.5744\/florida\/9780813049373.003.0021","type":"book-chapter","created":{"date-parts":[[2014,10,14]],"date-time":"2014-10-14T17:28:20Z","timestamp":1413307700000},"page":"442-475","source":"Crossref","is-referenced-by-count":0,"title":["Returning
-        to St. Augustine, 1906\u20131911"],"prefix":"10.5744","author":[{"given":"Thomas","family":"Graham","sequence":"first","affiliation":[]}],"member":"3749","container-title":["Mr.
-        Flagler''s St. Augustine"],"link":[{"URL":"http:\/\/florida.universitypressscholarship.com\/view\/10.5744\/florida\/9780813049373.001.0001\/upso-9780813049373-chapter-21","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2016,7,25]],"date-time":"2016-07-25T19:18:23Z","timestamp":1469474303000},"score":24.158016,"resource":{"primary":{"URL":"http:\/\/florida.universitypressscholarship.com\/view\/10.5744\/florida\/9780813049373.001.0001\/upso-9780813049373-chapter-21"}},"issued":{"date-parts":[[2014,5,27]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5744\/florida\/9780813049373.003.0021","published":{"date-parts":[[2014,5,27]]}},{"indexed":{"date-parts":[[2022,4,3]],"date-time":"2022-04-03T04:34:42Z","timestamp":1648960482614},"reference-count":0,"publisher":"University
-        Press of Florida","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014,5,27]]},"DOI":"10.5744\/florida\/9780813049373.003.0001","type":"book-chapter","created":{"date-parts":[[2014,10,14]],"date-time":"2014-10-14T17:28:20Z","timestamp":1413307700000},"page":"1-9","source":"Crossref","is-referenced-by-count":0,"title":["Dr.
-        Anderson of St. Augustine, 1839\u20131880"],"prefix":"10.5744","author":[{"given":"Thomas","family":"Graham","sequence":"first","affiliation":[]}],"member":"3749","container-title":["Mr.
-        Flagler''s St. Augustine"],"link":[{"URL":"http:\/\/florida.universitypressscholarship.com\/view\/10.5744\/florida\/9780813049373.001.0001\/upso-9780813049373-chapter-1","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2016,7,25]],"date-time":"2016-07-25T19:18:17Z","timestamp":1469474297000},"score":24.033699,"resource":{"primary":{"URL":"http:\/\/florida.universitypressscholarship.com\/view\/10.5744\/florida\/9780813049373.001.0001\/upso-9780813049373-chapter-1"}},"issued":{"date-parts":[[2014,5,27]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5744\/florida\/9780813049373.003.0001","published":{"date-parts":[[2014,5,27]]}},{"indexed":{"date-parts":[[2022,3,31]],"date-time":"2022-03-31T04:13:38Z","timestamp":1648700018322},"reference-count":0,"publisher":"University
-        Press of Florida","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014,5,27]]},"DOI":"10.5744\/florida\/9780813049373.003.0015","type":"book-chapter","created":{"date-parts":[[2014,10,14]],"date-time":"2014-10-14T17:28:20Z","timestamp":1413307700000},"page":"265-292","source":"Crossref","is-referenced-by-count":0,"title":["The
-        Season in St. Augustine, 1892\u20131893"],"prefix":"10.5744","author":[{"given":"Thomas","family":"Graham","sequence":"first","affiliation":[]}],"member":"3749","container-title":["Mr.
-        Flagler''s St. Augustine"],"link":[{"URL":"http:\/\/florida.universitypressscholarship.com\/view\/10.5744\/florida\/9780813049373.001.0001\/upso-9780813049373-chapter-15","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2016,7,25]],"date-time":"2016-07-25T19:18:22Z","timestamp":1469474302000},"score":23.84713,"resource":{"primary":{"URL":"http:\/\/florida.universitypressscholarship.com\/view\/10.5744\/florida\/9780813049373.001.0001\/upso-9780813049373-chapter-15"}},"issued":{"date-parts":[[2014,5,27]]},"references-count":0,"URL":"https:\/\/doi.org\/10.5744\/florida\/9780813049373.003.0015","published":{"date-parts":[[2014,5,27]]}},{"indexed":{"date-parts":[[2023,9,13]],"date-time":"2023-09-13T08:10:54Z","timestamp":1694592654995},"reference-count":0,"publisher":"Bloomsbury
-        Academic","isbn-type":[{"value":"9780826426611","type":"print"},{"value":"9781472541529","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.5040\/9781472541529.ch-006","type":"book-chapter","created":{"date-parts":[[2014,9,12]],"date-time":"2014-09-12T14:52:14Z","timestamp":1410533534000},"source":"Crossref","is-referenced-by-count":0,"title":["Augustine
-        and Some Philosophers of Education"],"prefix":"10.5040","member":"2984","container-title":["St
-        Augustine"],"deposited":{"date-parts":[[2023,9,12]],"date-time":"2023-09-12T02:23:38Z","timestamp":1694485418000},"score":23.55058,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/monograph-detail?docid=b-9781472541529&tocid=b-9781472541529-chapter6"}},"issued":{"date-parts":[[null]]},"ISBN":["9780826426611","9781472541529"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9781472541529.ch-006"},{"indexed":{"date-parts":[[2024,9,16]],"date-time":"2024-09-16T14:42:36Z","timestamp":1726497756689},"reference-count":0,"publisher":"NYU
-        Press","isbn-type":[{"type":"print","value":"9780814724323"},{"type":"electronic","value":"9780814770634"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2017,7,25]]},"abstract":"<p>This
-        chapter examines the sacramental theology of Augustine of Hippo, the great
-        Western Church Father who emphasized the mystery of God and the fruit of love,
-        and identified sacraments as \u201cvisible sign that connect us to the mystery
-        of our saving God.\u201d Baptism was to occur only once in a believer\u2019s
-        life and marked not only the entrance of the believer into the Church but
-        also the believer\u2019s identity with the death and resurrection of Jesus
-        Christ. Augustine encouraged infant baptism and considered marriage and ordination
-        to be sacraments as well. In addition, for Augustine, \u201cthe Eucharist
-        is the summit of sacramental theology because it is so obviously and closely
-        connected to the Incarnate Christ himself and because it is a visible sign
-        that connects us to the mystery of salvation in Christ which is fulfilled
-        in love.\u201d Augustine\u2019s work on the sacraments was in many ways seminal
-        and has continued to influence Christian sacramental theology ever since.\n<\/p>","DOI":"10.18574\/nyu\/9780814724323.003.0004","type":"book-chapter","created":{"date-parts":[[2018,9,24]],"date-time":"2018-09-24T08:07:24Z","timestamp":1537776444000},"source":"Crossref","is-referenced-by-count":0,"title":["St.
-        Augustine of Hippo"],"prefix":"10.18574","author":[{"given":"Thomas L.","family":"Humphries","sequence":"first","affiliation":[]}],"member":"7832","published-online":{"date-parts":[[2018,9,20]]},"container-title":["Christian
-        Theologies of the Sacraments"],"original-title":["St. Augustine of Hippo"],"language":"en","deposited":{"date-parts":[[2022,7,29]],"date-time":"2022-07-29T20:07:53Z","timestamp":1659125273000},"score":23.093222,"resource":{"primary":{"URL":"http:\/\/nyu.universitypressscholarship.com\/view\/10.18574\/nyu\/9780814724323.001.0001\/upso-9780814724323-chapter-004"},"secondary":[{"URL":"https:\/\/academic.oup.com\/nyu-press-scholarship-online\/book\/18006\/chapter\/175854539","label":"XYZ123"}]},"issued":{"date-parts":[[2017,7,25]]},"ISBN":["9780814724323","9780814770634"],"references-count":0,"URL":"https:\/\/doi.org\/10.18574\/nyu\/9780814724323.003.0004","published":{"date-parts":[[2017,7,25]]}},{"indexed":{"date-parts":[[2025,12,26]],"date-time":"2025-12-26T11:09:23Z","timestamp":1766747363010,"version":"3.48.0"},"reference-count":0,"publisher":"University
-        of South Carolina Press","isbn-type":[{"type":"electronic","value":"9781643360805"},{"type":"electronic","value":"1643360809"},{"type":"print","value":"9781643360799"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2020,7,17]]},"DOI":"10.2307\/j.ctvrxk35v.10","type":"book-chapter","created":{"date-parts":[[2020,7,21]],"date-time":"2020-07-21T17:00:42Z","timestamp":1595350842000},"page":"39-50","source":"Crossref","is-referenced-by-count":0,"title":["The
-        Reception at St. Augustine"],"prefix":"10.2307","member":"1121","container-title":["Patriots
-        in Exile"],"deposited":{"date-parts":[[2025,12,26]],"date-time":"2025-12-26T11:06:33Z","timestamp":1766747193000},"score":22.603176,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctvrxk35v.10"}},"issued":{"date-parts":[[2020,7,17]]},"ISBN":["9781643360805","1643360809","9781643360799"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctvrxk35v.10","published":{"date-parts":[[2020,7,17]]}},{"indexed":{"date-parts":[[2024,5,22]],"date-time":"2024-05-22T00:11:15Z","timestamp":1716336675280},"publisher-location":"Turnhout,
-        Belgium","reference-count":0,"publisher":"Brepols Publishers","isbn-type":[{"value":"9782503593203","type":"print"},{"value":"9782503593210","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2021,1]]},"DOI":"10.1484\/m.behe-eb.5.124426","type":"book-chapter","created":{"date-parts":[[2021,4,19]],"date-time":"2021-04-19T10:04:50Z","timestamp":1618826690000},"page":"373-407","source":"Crossref","is-referenced-by-count":0,"title":["Is
-        Christ Head of the Church as Man? The History of a Problem between St. Augustine
-        and St. Thomas"],"prefix":"10.1484","author":[{"given":"Conor","family":"McDonough","sequence":"first","affiliation":[]}],"member":"7597","published-online":{"date-parts":[[2021,4,19]]},"container-title":["Biblioth\u00e8que
-        de l''Ecole des Hautes Etudes, Sciences Religieuses","Reading the Church Fathers
-        with St. Thomas Aquinas"],"language":"en","deposited":{"date-parts":[[2024,5,21]],"date-time":"2024-05-21T13:17:36Z","timestamp":1716297456000},"score":22.600056,"resource":{"primary":{"URL":"https:\/\/www.brepolsonline.net\/doi\/10.1484\/M.BEHE-EB.5.124426"}},"issued":{"date-parts":[[2021,1]]},"ISBN":["9782503593203","9782503593210"],"references-count":0,"alternative-id":["10.1484\/M.BEHE-EB.5.124426","10.1484\/behe-eb","10.1484\/M.BEHE-EB.5.122260"],"URL":"https:\/\/doi.org\/10.1484\/m.behe-eb.5.124426","ISSN":["1784-2727","2565-9324"],"issn-type":[{"value":"1784-2727","type":"print"},{"value":"2565-9324","type":"electronic"}],"published":{"date-parts":[[2021,1]]}},{"indexed":{"date-parts":[[2024,5,29]],"date-time":"2024-05-29T00:07:01Z","timestamp":1716941221715},"edition-number":"1","reference-count":0,"publisher":"Oxford
-        University PressOxford","isbn-type":[{"value":"0192846035","type":"print"},{"value":"9780192846037","type":"print"},{"value":"9780191938405","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2021,9,23]]},"abstract":"<jats:title>Abstract<\/jats:title>\n               <jats:p>The
-        Introduction sets the context of the project within scholarly suspicion that
-        demons are an archaic holdover from the Christianity of Augustine\u2019s historical
-        setting. It proceeds to suggest that before demons are dismissed in this manner,
-        a greater effort should be made to understand what Augustine means in the
-        first place when he speaks of demons, and that this is the principle goal
-        of the work as a whole. Following an overview of the chapter structure of
-        the work, some notes on sources are offered to provide additional context
-        for the project. First, the principal works of Augustine\u2019s consulted
-        throughout the study are identified, with particular attention paid to the
-        City of God. After this, the principle sources Augustine himself used for
-        his demonology are highlighted, especially Apuleius of Madaura and Porphyry
-        of Tyre.<\/jats:p>","DOI":"10.1093\/oso\/9780192846037.003.0001","type":"book-chapter","created":{"date-parts":[[2021,10,26]],"date-time":"2021-10-26T06:27:33Z","timestamp":1635229653000},"page":"1-15","source":"Crossref","is-referenced-by-count":0,"title":["Introduction"],"prefix":"10.1093","author":[{"given":"Gregory
-        D.","family":"Wiebe","sequence":"first","affiliation":[]}],"member":"286","container-title":["Fallen
-        Angels in the Theology of St Augustine"],"language":"en","link":[{"URL":"https:\/\/academic.oup.com\/book\/chapter-pdf\/57941424\/oso-9780192846037-chapter-1.pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2024,5,28]],"date-time":"2024-05-28T07:39:52Z","timestamp":1716881992000},"score":22.382137,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/39169\/chapter\/338632863"}},"issued":{"date-parts":[[2021,9,23]]},"ISBN":["0192846035","9780192846037","9780191938405"],"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/oso\/9780192846037.003.0001","published":{"date-parts":[[2021,9,23]]}},{"indexed":{"date-parts":[[2023,9,13]],"date-time":"2023-09-13T08:10:59Z","timestamp":1694592659876},"reference-count":0,"publisher":"Bloomsbury
-        Academic","isbn-type":[{"value":"9780826426611","type":"print"},{"value":"9781472541529","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.5040\/9781472541529.0008","type":"book-chapter","created":{"date-parts":[[2014,9,12]],"date-time":"2014-09-12T14:52:14Z","timestamp":1410533534000},"source":"Crossref","is-referenced-by-count":0,"title":["Select
-        Bibliography"],"prefix":"10.5040","member":"2984","container-title":["St Augustine"],"deposited":{"date-parts":[[2023,9,12]],"date-time":"2023-09-12T02:23:40Z","timestamp":1694485420000},"score":22.34357,"resource":{"primary":{"URL":"https:\/\/www.bloomsburycollections.com\/monograph-detail?docid=b-9781472541529&tocid=b-9781472541529-b-0142"}},"issued":{"date-parts":[[null]]},"ISBN":["9780826426611","9781472541529"],"references-count":0,"URL":"https:\/\/doi.org\/10.5040\/9781472541529.0008"},{"indexed":{"date-parts":[[2024,5,28]],"date-time":"2024-05-28T08:10:51Z","timestamp":1716883851456},"edition-number":"1","reference-count":0,"publisher":"Oxford
-        University PressOxford","isbn-type":[{"value":"0192846035","type":"print"},{"value":"9780192846037","type":"print"},{"value":"9780191938405","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2021,9,23]]},"abstract":"<jats:title>Abstract<\/jats:title>\n               <jats:p>The
-        concluding chapter considers the import of Augustine\u2019s religious or sacramental
-        understanding of demons presented in the work as a whole, against the backdrop
-        of the suspicion that Augustine\u2019s demonology is an obsolete aspect of
-        his thought, remote in one way or another from present-day concerns. This
-        import is articulated first in terms of the theology of atonement and the
-        specific question of ransoming the devil, which suggests that restoration
-        of humanity\u2019s relationship with God simultaneously requires freedom from
-        the fallen social, political, and religious powers that enslave them. The
-        risk of missing this is then explored briefly in an assessment of Charles
-        Mathewes\u2019 rejection of demons in his Augustinian and Arendtian \u2018political
-        ontology.\u2019 This assessment makes it clear that dismissing demons as irrelevant
-        to or undermining the socio-political order threatens to construct exactly
-        the demonic idols, the gods of the nations, about which Augustine is most
-        concerned.<\/jats:p>","DOI":"10.1093\/oso\/9780192846037.003.0008","type":"book-chapter","created":{"date-parts":[[2021,10,20]],"date-time":"2021-10-20T21:30:12Z","timestamp":1634765412000},"page":"222-232","source":"Crossref","is-referenced-by-count":0,"title":["Conclusion"],"prefix":"10.1093","author":[{"given":"Gregory
-        D.","family":"Wiebe","sequence":"first","affiliation":[]}],"member":"286","container-title":["Fallen
-        Angels in the Theology of St Augustine"],"language":"en","link":[{"URL":"https:\/\/academic.oup.com\/book\/chapter-pdf\/57942211\/oso-9780192846037-chapter-8.pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2024,5,28]],"date-time":"2024-05-28T07:40:02Z","timestamp":1716882002000},"score":22.288134,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/39169\/chapter\/338636124"}},"issued":{"date-parts":[[2021,9,23]]},"ISBN":["0192846035","9780192846037","9780191938405"],"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/oso\/9780192846037.003.0008","published":{"date-parts":[[2021,9,23]]}},{"indexed":{"date-parts":[[2024,9,25]],"date-time":"2024-09-25T04:24:03Z","timestamp":1727238243848},"reference-count":0,"publisher":"Columbia
-        University Press","isbn-type":[{"type":"electronic","value":"9780231889070"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1985,12,31]]},"DOI":"10.7312\/colb92510-002","type":"book-chapter","created":{"date-parts":[[2019,4,25]],"date-time":"2019-04-25T09:19:11Z","timestamp":1556183951000},"page":"1-12","source":"Crossref","is-referenced-by-count":0,"title":["1.
-        Shell-Shocked in St. Augustine: The Celebration"],"prefix":"10.7312","member":"4359","container-title":["Racial
-        Change and Community Crisis"],"link":[{"URL":"http:\/\/www.degruyter.com\/view\/books\/colb92510\/colb92510-002\/colb92510-002.xml","content-type":"text\/html","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.degruyter.com\/document\/doi\/10.7312\/colb92510-002\/xml","content-type":"application\/xml","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.degruyter.com\/document\/doi\/10.7312\/colb92510-002\/pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2024,9,24]],"date-time":"2024-09-24T07:28:36Z","timestamp":1727162916000},"score":22.21279,"resource":{"primary":{"URL":"https:\/\/www.degruyter.com\/document\/doi\/10.7312\/colb92510-002\/html"}},"issued":{"date-parts":[[1985,12,31]]},"ISBN":["9780231889070"],"references-count":0,"alternative-id":["10.7312\/colb92510-002","10.7312\/colb92510"],"URL":"https:\/\/doi.org\/10.7312\/colb92510-002","published":{"date-parts":[[1985,12,31]]}},{"indexed":{"date-parts":[[2022,7,14]],"date-time":"2022-07-14T17:29:03Z","timestamp":1657819743496},"reference-count":0,"publisher":"LEARN","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2017,4,3]]},"DOI":"10.14324\/000.learn.08","type":"book-chapter","created":{"date-parts":[[2017,4,3]],"date-time":"2017-04-03T08:19:05Z","timestamp":1491207545000},"source":"Crossref","is-referenced-by-count":1,"title":["UWI
-        St Augustine Campus Libraries and RDM efforts at the UWI, St Augustine Campus"],"prefix":"10.14324","member":"5433","container-title":["LEARN
-        Toolkit of Best Practice for Research Data Management"],"deposited":{"date-parts":[[2017,4,3]],"date-time":"2017-04-03T08:19:20Z","timestamp":1491207560000},"score":22.146084,"resource":{"primary":{"URL":"http:\/\/discovery.ucl.ac.uk\/1546537\/"}},"issued":{"date-parts":[[2017,4,3]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14324\/000.learn.08","published":{"date-parts":[[2017,4,3]]}},{"indexed":{"date-parts":[[2025,11,4]],"date-time":"2025-11-04T22:56:52Z","timestamp":1762297012412,"version":"build-2065373602"},"reference-count":0,"publisher":"University
-        of Notre Dame Press","isbn-type":[{"type":"electronic","value":"9780268200206"},{"type":"electronic","value":"0268200203"},{"type":"print","value":"9780268200213"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2021,4,1]]},"DOI":"10.2307\/j.ctv19m6512.11","type":"book-chapter","created":{"date-parts":[[2021,10,1]],"date-time":"2021-10-01T19:30:24Z","timestamp":1633116624000},"page":"68-85","source":"Crossref","is-referenced-by-count":0,"title":["\u201cI
-        DREAMED I SAW ST. AUGUSTINE . . .\u201d"],"prefix":"10.2307","member":"1121","container-title":["Simone
-        Weil for the Twenty-First Century"],"deposited":{"date-parts":[[2025,11,4]],"date-time":"2025-11-04T22:43:51Z","timestamp":1762296231000},"score":22.069313,"resource":{"primary":{"URL":"http:\/\/www.jstor.org\/stable\/10.2307\/j.ctv19m6512.11"}},"issued":{"date-parts":[[2021,4,1]]},"ISBN":["9780268200206","0268200203","9780268200213"],"references-count":0,"URL":"https:\/\/doi.org\/10.2307\/j.ctv19m6512.11","published":{"date-parts":[[2021,4,1]]}},{"indexed":{"date-parts":[[2025,11,14]],"date-time":"2025-11-14T15:03:49Z","timestamp":1763132629756,"version":"3.45.0"},"edition-number":"1","reference-count":0,"publisher":"Oxford
-        University PressOxford","isbn-type":[{"value":"9780198948827","type":"print"},{"value":"9780198948858","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2025,12,11]]},"abstract":"<jats:title>Abstract<\/jats:title>\n                  <jats:p>Chapter
-        3 assesses how the Hermits adopted and adapted the cult of St Augustine. Despite
-        the eight centuries separating them from St Augustine\u2019s death, the Augustinian
-        friars transformed the late antique church father into a contemporary holy
-        man whose power could be accessed only through their convents. This chapter
-        argues that the commission of images was employed to highlight a direct, even
-        tactile link between the friars and their patron saint (e.g., the Rule-giving
-        scene) and played a key role in the successful promotion of this concept.
-        At the same time, this investigation illuminates the process of how everyday
-        objects were elevated to a nearly semi-relic status in the Augustinian convent.
-        St Augustine was buried in a hidden shrine in San Pietro in Ciel d\u2019Oro
-        in Padua. Consequently, due to a lack of distributable primary relics, simple
-        articles accessible to every friar (rule, habit, leather belt) were transformed
-        in the Augustinian imagination to become tangible proof attesting to the new
-        sacred narrative of the Order.<\/jats:p>","DOI":"10.1093\/9780198948858.003.0004","type":"book-chapter","created":{"date-parts":[[2025,11,14]],"date-time":"2025-11-14T14:59:56Z","timestamp":1763132396000},"page":"118-196","source":"Crossref","is-referenced-by-count":0,"title":["St
-        Augustine"],"prefix":"10.1093","author":[{"ORCID":"https:\/\/orcid.org\/0009-0005-4765-2246","authenticated-orcid":false,"given":"Krisztina","family":"Ilko","sequence":"first","affiliation":[{"name":"Queens\u2019
-        College, University of Cambridge ,","place":["UK"]}]}],"member":"286","container-title":["The
-        Sons of St Augustine"],"language":"en","link":[{"URL":"https:\/\/academic.oup.com\/book\/chapter-pdf\/65290376\/workid-ukac0044215-book-part-4.pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2025,11,14]],"date-time":"2025-11-14T14:59:58Z","timestamp":1763132398000},"score":22.027279,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/book\/61648\/chapter\/539969468"}},"issued":{"date-parts":[[2025,12,11]]},"ISBN":["9780198948827","9780198948858"],"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/9780198948858.003.0004","published":{"date-parts":[[2025,12,11]]}}],"items-per-page":20,"query":{"start-index":0,"search-terms":"2021+University+of+St.+Augustine+for+Health+Sciences+Library"}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:31 GMT
+      string: !binary |-
+        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
+  recorded_at: Sat, 18 Apr 2026 01:18:13 GMT
 recorded_with: VCR 6.4.0

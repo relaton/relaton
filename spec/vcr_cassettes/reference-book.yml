@@ -7,23 +7,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:38 GMT
+      - Sat, 18 Apr 2026 01:18:17 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1366'
+      - '672'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -35,6 +43,8 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
@@ -49,10 +59,9 @@ http_interactions:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2024,9,10]],"date-time":"2024-09-10T08:34:26Z","timestamp":1725957266686},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9781439864852"}],"content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"DOI":"10.1201\/9781439864852","type":"reference-book","created":{"date-parts":[[2018,2,25]],"date-time":"2018-02-25T15:01:42Z","timestamp":1519570902000},"source":"Crossref","is-referenced-by-count":0,"title":["Audio
-        Anecdotes II"],"prefix":"10.1201","member":"301","published-online":{"date-parts":[[2004,10,1]]},"container-title":[],"original-title":[],"language":"en","deposited":{"date-parts":[[2021,4,11]],"date-time":"2021-04-11T00:34:14Z","timestamp":1618101254000},"score":1,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864852"}},"subtitle":[],"editor":[{"given":"Ken","family":"Greenebaum","sequence":"first","affiliation":[]},{"given":"Ronen","family":"Barzel","sequence":"additional","affiliation":[]}],"short-title":[],"issued":{"date-parts":[[2004,10,1]]},"ISBN":["9781439864852"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864852","relation":{},"subject":[],"published":{"date-parts":[[2004,10,1]]}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:38 GMT
+      string: !binary |-
+        H4sIAAAAAAAA/31UwXLaMBD9FUZnCyTFJsa3JJ3pMOm0mTS9FDjI9kLU2BKV5FDK8O9dGQiGkN7kXe3ue2+fvCHOS984khHzQiJSg3NyAdSvl4CxlbHd6CtYp4zGBO+zPjtmSLYhSpfwB8pwLKUHupTWY9/JRDARR6OIs9ks2qW8qkP3kKBsRDl7Yml2FWdi+BN7hiyiqpck49ciGSXXYjgcpsNtRKBUHgFQ3dQ5WGwRMFiYgwVdAC1Moz3JWESWTV4p99zeuend9x7AI/bp4O7xrvdgETTWKZfrPdHJhuwZQwWFt0arAm+8yqoJwdF1yuOrUTqM00SQLdIojPagPS1NLZVuOe9Pk5C1xrla2heKo7xVhW9Vm8vKAbJwz8Z6GlpgBViUw1ewq/z0bRzUZX0uGJ8OTgdHB5BHxrlp11ZYQF0vas/TSEQiea89TykTVCRPPMkYz2Jxrn3CUXo2YoIxFlCbxhah9C6wQwithPQNS0nzdWcDB1LkpimV6d1oKErjwfXGY4JYllin/hy5tl7aL/Wq/TyssKRGV6jTJXIsRltFfDbb7lbyTk9j1UJpWXVjldSLpjUtAY2DSlgapz6QT/AIZ/AL1uWUxZTzJ8aCdXl8Lt+Qp5xxkcR7+QpjsZIHvx6k3KAMCn2yDscfj1+w8bP3S5dNB9PBarXqe7mujJ1bqQvl+oWpp4OwcXfujG0Y0OQdkuGlGNs6e6FeIbzZ+5btXNaqwoHkswXQkMumxqiD301YIsbnyjqPITmfq0rJnXUnqPCx06PRp71upf0L1WkfWe4eq6wuNJsdXkEHsnKuubyE7prH32+/BludCjDr/AZcx4XnopZG9Y1dTAcfPjEL1R7mZifqL/wh7AC+OfL/GLfbf+W7ZfBWBQAA
+  recorded_at: Sat, 18 Apr 2026 01:18:17 GMT
 - request:
     method: get
     uri: https://api.crossref.org/works?filter=type:book-chapter,type:book-part,type:book-section,type:book-track&query=Audio%2BAnecdotes%2BII%2B2004%2BA%2BK%2BPeters/CRC%2BPress
@@ -60,23 +69,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Faraday v2.7.12
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:38 GMT
+      - Sat, 18 Apr 2026 01:18:17 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '23469'
+      - '2606'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -88,71 +105,23 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
-      - '5'
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
       X-Concurrency-Limit:
-      - '1'
+      - '3'
       X-Api-Pool:
-      - public
+      - polite
       Permissions-Policy:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":814866,"items":[{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:17:21Z","timestamp":1726075041859},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429063046"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,10,1]]},"DOI":"10.1201\/9781439864852-10","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:07:27Z","timestamp":1594307247000},"page":"159-190","source":"Crossref","is-referenced-by-count":0,"title":["Spatialization"],"prefix":"10.1201","member":"301","container-title":["Audio
-        Anecdotes II"],"language":"en","deposited":{"date-parts":[[2020,12,22]],"date-time":"2020-12-22T12:56:32Z","timestamp":1608641792000},"score":38.589214,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864852\/chapters\/10.1201\/9781439864852-10"}},"issued":{"date-parts":[[2004,10,1]]},"ISBN":["9780429063046"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864852-10","published":{"date-parts":[[2004,10,1]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:17:20Z","timestamp":1726075040249},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429063046"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,10,1]]},"DOI":"10.1201\/9781439864852-7","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T11:07:27Z","timestamp":1594292847000},"page":"19-44","source":"Crossref","is-referenced-by-count":0,"title":["Field
-        Recording"],"prefix":"10.1201","member":"301","container-title":["Audio Anecdotes
-        II"],"language":"en","deposited":{"date-parts":[[2020,12,22]],"date-time":"2020-12-22T07:56:30Z","timestamp":1608623790000},"score":38.468506,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864852\/chapters\/10.1201\/9781439864852-7"}},"issued":{"date-parts":[[2004,10,1]]},"ISBN":["9780429063046"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864852-7","published":{"date-parts":[[2004,10,1]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:17:24Z","timestamp":1726075044198},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429063046"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,10,1]]},"DOI":"10.1201\/9781439864852-14","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T11:07:27Z","timestamp":1594292847000},"page":"321-378","source":"Crossref","is-referenced-by-count":0,"title":["Sound
-        Design"],"prefix":"10.1201","member":"301","container-title":["Audio Anecdotes
-        II"],"language":"en","deposited":{"date-parts":[[2020,12,22]],"date-time":"2020-12-22T07:56:35Z","timestamp":1608623795000},"score":38.468506,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864852\/chapters\/10.1201\/9781439864852-14"}},"issued":{"date-parts":[[2004,10,1]]},"ISBN":["9780429063046"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864852-14","published":{"date-parts":[[2004,10,1]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:17:20Z","timestamp":1726075040563},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429063046"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,10,1]]},"DOI":"10.1201\/9781439864852-8","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:07:27Z","timestamp":1594307247000},"page":"45-82","source":"Crossref","is-referenced-by-count":0,"title":["Synthesis"],"prefix":"10.1201","member":"301","container-title":["Audio
-        Anecdotes II"],"language":"en","deposited":{"date-parts":[[2020,12,22]],"date-time":"2020-12-22T12:56:31Z","timestamp":1608641791000},"score":38.363457,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864852\/chapters\/10.1201\/9781439864852-8"}},"issued":{"date-parts":[[2004,10,1]]},"ISBN":["9780429063046"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864852-8","published":{"date-parts":[[2004,10,1]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:17:23Z","timestamp":1726075043793},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429063046"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,10,1]]},"DOI":"10.1201\/9781439864852-15","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T11:07:27Z","timestamp":1594292847000},"page":"379-412","source":"Crossref","is-referenced-by-count":0,"title":["Nature"],"prefix":"10.1201","member":"301","container-title":["Audio
-        Anecdotes II"],"language":"en","deposited":{"date-parts":[[2020,12,22]],"date-time":"2020-12-22T07:56:36Z","timestamp":1608623796000},"score":38.24333,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864852\/chapters\/10.1201\/9781439864852-15"}},"issued":{"date-parts":[[2004,10,1]]},"ISBN":["9780429063046"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864852-15","published":{"date-parts":[[2004,10,1]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:17:22Z","timestamp":1726075042581},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429063046"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,10,1]]},"DOI":"10.1201\/9781439864852-12","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:07:27Z","timestamp":1594307247000},"page":"243-274","source":"Crossref","is-referenced-by-count":0,"title":["Computer
-        Tools"],"prefix":"10.1201","member":"301","container-title":["Audio Anecdotes
-        II"],"language":"en","deposited":{"date-parts":[[2020,12,22]],"date-time":"2020-12-22T12:56:34Z","timestamp":1608641794000},"score":38.2213,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864852\/chapters\/10.1201\/9781439864852-12"}},"issued":{"date-parts":[[2004,10,1]]},"ISBN":["9780429063046"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864852-12","published":{"date-parts":[[2004,10,1]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:17:22Z","timestamp":1726075042934},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429063046"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,10,1]]},"DOI":"10.1201\/9781439864852-13","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:07:27Z","timestamp":1594307247000},"page":"275-320","source":"Crossref","is-referenced-by-count":0,"title":["Music
-        Theory"],"prefix":"10.1201","member":"301","container-title":["Audio Anecdotes
-        II"],"language":"en","deposited":{"date-parts":[[2020,12,22]],"date-time":"2020-12-22T12:56:35Z","timestamp":1608641795000},"score":38.11704,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864852\/chapters\/10.1201\/9781439864852-13"}},"issued":{"date-parts":[[2004,10,1]]},"ISBN":["9780429063046"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864852-13","published":{"date-parts":[[2004,10,1]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:17:22Z","timestamp":1726075042582},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429063046"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,10,1]]},"DOI":"10.1201\/9781439864852-11","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T11:07:27Z","timestamp":1594292847000},"page":"191-242","source":"Crossref","is-referenced-by-count":0,"title":["Computer
-        Techniques"],"prefix":"10.1201","member":"301","container-title":["Audio Anecdotes
-        II"],"language":"en","deposited":{"date-parts":[[2020,12,22]],"date-time":"2020-12-22T07:56:33Z","timestamp":1608623793000},"score":37.941856,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864852\/chapters\/10.1201\/9781439864852-11"}},"issued":{"date-parts":[[2004,10,1]]},"ISBN":["9780429063046"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864852-11","published":{"date-parts":[[2004,10,1]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:17:20Z","timestamp":1726075040865},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429063046"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,10,1]]},"DOI":"10.1201\/9781439864852-9","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:07:27Z","timestamp":1594307247000},"page":"83-158","source":"Crossref","is-referenced-by-count":0,"title":["Signal
-        Processing"],"prefix":"10.1201","member":"301","container-title":["Audio Anecdotes
-        II"],"language":"en","deposited":{"date-parts":[[2020,12,22]],"date-time":"2020-12-22T12:56:31Z","timestamp":1608641791000},"score":37.895958,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864852\/chapters\/10.1201\/9781439864852-9"}},"issued":{"date-parts":[[2004,10,1]]},"ISBN":["9780429063046"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864852-9","published":{"date-parts":[[2004,10,1]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:21:25Z","timestamp":1726075285415},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429065149"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,3,11]]},"DOI":"10.1201\/9781439864029-8","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:19:37Z","timestamp":1594307977000},"page":"53-132","source":"Crossref","is-referenced-by-count":0,"title":["Perception"],"prefix":"10.1201","member":"301","container-title":["Audio
-        Anecdotes"],"language":"en","deposited":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:19:39Z","timestamp":1594307979000},"score":33.1858,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864029\/chapters\/10.1201\/9781439864029-8"}},"issued":{"date-parts":[[2004,3,11]]},"ISBN":["9780429065149"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864029-8","published":{"date-parts":[[2004,3,11]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:21:25Z","timestamp":1726075285928},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429065149"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,3,11]]},"DOI":"10.1201\/9781439864029-9","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:19:37Z","timestamp":1594307977000},"page":"133-178","source":"Crossref","is-referenced-by-count":0,"title":["Recording"],"prefix":"10.1201","member":"301","container-title":["Audio
-        Anecdotes"],"language":"en","deposited":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:19:40Z","timestamp":1594307980000},"score":32.992676,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864029\/chapters\/10.1201\/9781439864029-9"}},"issued":{"date-parts":[[2004,3,11]]},"ISBN":["9780429065149"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864029-9","published":{"date-parts":[[2004,3,11]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:21:24Z","timestamp":1726075284386},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429065149"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,3,11]]},"DOI":"10.1201\/9781439864029-7","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T11:19:37Z","timestamp":1594293577000},"page":"21-52","source":"Crossref","is-referenced-by-count":0,"title":["Measurement"],"prefix":"10.1201","member":"301","container-title":["Audio
-        Anecdotes"],"language":"en","deposited":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T11:19:38Z","timestamp":1594293578000},"score":32.859287,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864029\/chapters\/10.1201\/9781439864029-7"}},"issued":{"date-parts":[[2004,3,11]]},"ISBN":["9780429065149"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864029-7","published":{"date-parts":[[2004,3,11]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:21:26Z","timestamp":1726075286369},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429065149"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,3,11]]},"DOI":"10.1201\/9781439864029-10","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:19:37Z","timestamp":1594307977000},"page":"179-234","source":"Crossref","is-referenced-by-count":0,"title":["Synthesis"],"prefix":"10.1201","member":"301","container-title":["Audio
-        Anecdotes"],"language":"en","deposited":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:19:41Z","timestamp":1594307981000},"score":32.858147,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864029\/chapters\/10.1201\/9781439864029-10"}},"issued":{"date-parts":[[2004,3,11]]},"ISBN":["9780429065149"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864029-10","published":{"date-parts":[[2004,3,11]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:21:28Z","timestamp":1726075288550},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429065149"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,3,11]]},"DOI":"10.1201\/9781439864029-14","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T11:19:37Z","timestamp":1594293577000},"page":"421-470","source":"Crossref","is-referenced-by-count":0,"title":["Human
-        Experience"],"prefix":"10.1201","member":"301","container-title":["Audio Anecdotes"],"language":"en","deposited":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T11:19:45Z","timestamp":1594293585000},"score":32.768387,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864029\/chapters\/10.1201\/9781439864029-14"}},"issued":{"date-parts":[[2004,3,11]]},"ISBN":["9780429065149"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864029-14","published":{"date-parts":[[2004,3,11]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:21:28Z","timestamp":1726075288230},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429065149"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,3,11]]},"DOI":"10.1201\/9781439864029-13","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:19:37Z","timestamp":1594307977000},"page":"359-420","source":"Crossref","is-referenced-by-count":0,"title":["Computer
-        Tools"],"prefix":"10.1201","member":"301","container-title":["Audio Anecdotes"],"language":"en","deposited":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:19:44Z","timestamp":1594307984000},"score":32.549023,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864029\/chapters\/10.1201\/9781439864029-13"}},"issued":{"date-parts":[[2004,3,11]]},"ISBN":["9780429065149"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864029-13","published":{"date-parts":[[2004,3,11]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:21:26Z","timestamp":1726075286429},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429065149"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,3,11]]},"DOI":"10.1201\/9781439864029-11","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T11:19:37Z","timestamp":1594293577000},"page":"235-298","source":"Crossref","is-referenced-by-count":0,"title":["Signal
-        Processing"],"prefix":"10.1201","member":"301","container-title":["Audio Anecdotes"],"language":"en","deposited":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T11:19:42Z","timestamp":1594293582000},"score":32.390327,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864029\/chapters\/10.1201\/9781439864029-11"}},"issued":{"date-parts":[[2004,3,11]]},"ISBN":["9780429065149"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864029-11","published":{"date-parts":[[2004,3,11]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T17:21:27Z","timestamp":1726075287200},"edition-number":"0","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429065149"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,3,11]]},"DOI":"10.1201\/9781439864029-12","type":"book-chapter","created":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:19:37Z","timestamp":1594307977000},"page":"299-358","source":"Crossref","is-referenced-by-count":0,"title":["Computer
-        Techniques"],"prefix":"10.1201","member":"301","container-title":["Audio Anecdotes"],"language":"en","deposited":{"date-parts":[[2020,7,9]],"date-time":"2020-07-09T15:19:43Z","timestamp":1594307983000},"score":32.24466,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864029\/chapters\/10.1201\/9781439864029-12"}},"issued":{"date-parts":[[2004,3,11]]},"ISBN":["9780429065149"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864029-12","published":{"date-parts":[[2004,3,11]]}},{"indexed":{"date-parts":[[2024,9,11]],"date-time":"2024-09-11T08:59:38Z","timestamp":1726045178036},"edition-number":"1","reference-count":0,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429063053"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007,11,29]]},"DOI":"10.1201\/9781439864869-2","type":"book-chapter","created":{"date-parts":[[2019,9,26]],"date-time":"2019-09-26T08:33:12Z","timestamp":1569486792000},"page":"15-28","source":"Crossref","is-referenced-by-count":0,"title":["How
-        Recordings Are Made II: Digital Hard-Disk-Based Recording"],"prefix":"10.1201","author":[{"given":"Jay","family":"Kadis","sequence":"first","affiliation":[]},{"given":"Daniel
-        J.","family":"Levitin","sequence":"additional","affiliation":[]}],"member":"301","container-title":["Audio
-        Anecdotes III"],"language":"en","deposited":{"date-parts":[[2021,4,5]],"date-time":"2021-04-05T01:29:15Z","timestamp":1617586155000},"score":27.833805,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864869\/chapters\/10.1201\/9781439864869-2"}},"issued":{"date-parts":[[2007,11,29]]},"ISBN":["9780429063053"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9781439864869-2","published":{"date-parts":[[2007,11,29]]}},{"indexed":{"date-parts":[[2022,4,2]],"date-time":"2022-04-02T09:37:20Z","timestamp":1648892240650},"reference-count":0,"publisher":"Gorgias
-        Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2004,12,31]]},"DOI":"10.31826\/9781463209575-014","type":"book-chapter","created":{"date-parts":[[2019,4,29]],"date-time":"2019-04-29T13:24:55Z","timestamp":1556544295000},"page":"587-604","source":"Crossref","is-referenced-by-count":0,"title":["Appendix
-        II. Historical Anecdotes in the Tosefta"],"prefix":"10.31826","member":"16894","container-title":["Midrash
-        and Legend: Historical Anecdotes in the Tannaitic Midrashim"],"link":[{"URL":"http:\/\/www.degruyter.com\/view\/books\/9781463209575\/9781463209575-014\/9781463209575-014.xml","content-type":"text\/html","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.degruyter.com\/document\/doi\/10.31826\/9781463209575-014\/xml","content-type":"application\/xml","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/www.degruyter.com\/document\/doi\/10.31826\/9781463209575-014\/pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2021,4,22]],"date-time":"2021-04-22T22:01:10Z","timestamp":1619128870000},"score":27.294945,"resource":{"primary":{"URL":"https:\/\/www.degruyter.com\/document\/doi\/10.31826\/9781463209575-014\/html"}},"issued":{"date-parts":[[2004,12,31]]},"references-count":0,"alternative-id":["10.31826\/9781463209575-014","10.31826\/9781463209575"],"URL":"https:\/\/doi.org\/10.31826\/9781463209575-014","published":{"date-parts":[[2004,12,31]]}},{"indexed":{"date-parts":[[2025,12,18]],"date-time":"2025-12-18T14:10:36Z","timestamp":1766067036897},"edition-number":"1","reference-count":1,"publisher":"A
-        K Peters\/CRC Press","isbn-type":[{"type":"electronic","value":"9780429063053"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2007,11,29]]},"DOI":"10.1201\/9781439864869-13","type":"book-chapter","created":{"date-parts":[[2019,9,26]],"date-time":"2019-09-26T08:33:12Z","timestamp":1569486792000},"page":"199-221","source":"Crossref","is-referenced-by-count":1,"title":["Audio
-        Dynamic Range Compression"],"prefix":"10.1201","author":[{"given":"Mark","family":"Kolber","sequence":"first","affiliation":[]},{"given":"Daniel","family":"Lee","sequence":"additional","affiliation":[]}],"member":"301","reference":[{"key":"ref13","doi-asserted-by":"crossref","unstructured":"John
-        Borwick . Sound Recording Practice. Oxford: Oxford University Press, 1994.","DOI":"10.1093\/oso\/9780198163817.001.0001"}],"container-title":["Audio
-        Anecdotes III"],"language":"en","deposited":{"date-parts":[[2024,7,24]],"date-time":"2024-07-24T02:31:18Z","timestamp":1721788278000},"score":26.080603,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781439864869\/chapters\/10.1201\/9781439864869-13"}},"issued":{"date-parts":[[2007,11,29]]},"ISBN":["9780429063053"],"references-count":1,"URL":"https:\/\/doi.org\/10.1201\/9781439864869-13","published":{"date-parts":[[2007,11,29]]}}],"items-per-page":20,"query":{"start-index":0,"search-terms":"Audio+Anecdotes+II+2004+A+K+Peters\/CRC+Press"}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:38 GMT
+      string: !binary |-
+        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
+  recorded_at: Sat, 18 Apr 2026 01:18:17 GMT
 recorded_with: VCR 6.4.0

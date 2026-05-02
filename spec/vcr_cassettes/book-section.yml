@@ -7,23 +7,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:12 GMT
+      - Sat, 18 Apr 2026 01:18:05 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '1444'
+      - '682'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -35,6 +43,8 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
@@ -49,14 +59,9 @@ http_interactions:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work","message-version":"1.0.0","message":{"indexed":{"date-parts":[[2022,4,3]],"date-time":"2022-04-03T01:50:38Z","timestamp":1648950638960},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"short-container-title":[],"DOI":"10.14509\/23007","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Wiseman Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"original-title":[],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:35Z","timestamp":1400222435000},"score":1,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23007"}},"subtitle":[],"short-title":[],"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23007","relation":{},"subject":[]}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:12 GMT
+      string: !binary |-
+        H4sIAAAAAAAA/6VUTXPTMBD9KxofONmO7Nim9Q0o0zJTBmjLdIYkB9mSHRHZMvpImsnkv7OyU+r0Axi4ybvep7dv32rnaUOM1V7uyZXnew3TmtQsMNuOQWwj1Ti6Zkpz2UIiCnGIHzJevvN4S9kdo+5IiWFBR5QB3NksxnHsJ/50sfCHjOGNA3fxACcBnt7gKE9xPj35BpAuC6SazsujLDk5TXE2PTnN8N73FKuYYm3JglLa1ng59r3OFoLrJVOA+EYQvSLojK+544lkhc6ZFLLmJRHolfvollvdf11btWZbDReWsjWsNQGVDeFtz/9wmgHjUkmtG6JWgQJaipemV6AiQjOgpJdSmcBBQAVT0JsRbKg8+/TBKYXDKEnx6XwSTzF+7RoctC2kXAWaDXjuHgbaPCtflPipH2VP9YtAvDSIshuc5QnO4+ixfgkGjeMkjjB2+mlpVelK37mmQE34nevgl6w0KLYjae978S54vXTtS2EdWyQ4JQoBF4IqqRBvK0VAG1saqxgqpVKcSqV9dMs1a0iLvlhCFWlrwXw0DMmDZjq4mN+NNAI6xBpQFC7deTVfM+e1mxCdhZCqSMPFFgIXtiiIohDS7Id1xCFYcaWNA6gqLjgZpjRb7P0HoI8hujwCequIbY9hCKXc1RLxe6yrEL0/wroF0Qsl+y36B7zPj/HOiRCkdr7+e7yFW8im6HchzeLsYO5jZ/5pmoclemmobnBS8ZoDhbHbKeuk5v/p4Gn6goOn6cHBwAMqI/cW3Lt5B0bisKFbd/x6dQnAS2O6fD6ZTzabTUjrWoek7yqs5Xo+gSdDzyec3q/k3gHbYtTMsNWjANfaPtdaa4VYLMZPkx4t0AMZ3bOhkodS1fPJ00dBMXGY425g8x1ehn6o+5/fuDlBpAUAAA==
+  recorded_at: Sat, 18 Apr 2026 01:18:05 GMT
 - request:
     method: get
     uri: https://api.crossref.org/works?filter=type:book-chapter,type:book-part,type:book-section,type:book-track&query=High-resolution%2Blidar%2Bdata%2Bfor%2Binfrastructure%2Bcorridors,%2BWiseman%2BQuadrangle,%2BAlaska%2B2014%2BAlaska%2BDivision%2Bof%2BGeological%2B%26%2BGeophysical%2BSurveys
@@ -64,23 +69,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Faraday v2.7.12
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:12 GMT
+      - Sat, 18 Apr 2026 01:18:06 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '25564'
+      - '2056'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -92,140 +105,25 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
-      - '5'
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
       X-Concurrency-Limit:
-      - '1'
+      - '3'
       X-Api-Pool:
-      - public
+      - polite
       Permissions-Policy:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":1936,"items":[{"indexed":{"date-parts":[[2022,4,3]],"date-time":"2022-04-03T01:50:38Z","timestamp":1648950638960},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23007","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Wiseman Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:35Z","timestamp":1400222435000},"score":100.95872,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23007"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23007"},{"indexed":{"date-parts":[[2024,9,3]],"date-time":"2024-09-03T11:42:26Z","timestamp":1725363746759},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23806","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T02:40:21Z","timestamp":1400208021000},"source":"Crossref","is-referenced-by-count":2,"title":["High-resolution
-        lidar data for infrastructure corridors, Sagavanirktok Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T02:40:51Z","timestamp":1400208051000},"score":91.21046,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23806"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23806"},{"indexed":{"date-parts":[[2022,4,1]],"date-time":"2022-04-01T22:40:32Z","timestamp":1648852832275},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23004","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Tanana Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:30Z","timestamp":1400222430000},"score":91.08717,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23004"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23004"},{"indexed":{"date-parts":[[2022,4,4]],"date-time":"2022-04-04T23:33:32Z","timestamp":1649115212781},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/22724","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T02:40:21Z","timestamp":1400208021000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Tanacross Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T02:40:29Z","timestamp":1400208029000},"score":91.08717,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/22724"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/22724"},{"indexed":{"date-parts":[[2022,4,5]],"date-time":"2022-04-05T02:06:44Z","timestamp":1649124404184},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23003","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Bettles Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:30Z","timestamp":1400222430000},"score":91.03534,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23003"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23003"},{"indexed":{"date-parts":[[2022,4,5]],"date-time":"2022-04-05T14:37:42Z","timestamp":1649169462874},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23024","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Anchorage Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:37Z","timestamp":1400222437000},"score":90.90663,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23024"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23024"},{"indexed":{"date-parts":[[2022,4,4]],"date-time":"2022-04-04T08:04:26Z","timestamp":1649059466508},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23363","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Gulkana Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:43Z","timestamp":1400222443000},"score":90.85987,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23363"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23363"},{"indexed":{"date-parts":[[2022,4,3]],"date-time":"2022-04-03T10:47:19Z","timestamp":1648982839446},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23703","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Valdez Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:43Z","timestamp":1400222443000},"score":90.84004,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23703"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23703"},{"indexed":{"date-parts":[[2022,3,31]],"date-time":"2022-03-31T19:07:39Z","timestamp":1648753659441},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23006","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Talkeetna Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:33Z","timestamp":1400222433000},"score":90.81969,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23006"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23006"},{"indexed":{"date-parts":[[2022,4,2]],"date-time":"2022-04-02T02:19:42Z","timestamp":1648865982280},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23804","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T02:40:21Z","timestamp":1400208021000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Chandalar Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T02:40:50Z","timestamp":1400208050000},"score":90.81969,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23804"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23804"},{"indexed":{"date-parts":[[2022,3,31]],"date-time":"2022-03-31T00:03:42Z","timestamp":1648685022074},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23005","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T02:40:21Z","timestamp":1400208021000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Tyonek Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T02:40:33Z","timestamp":1400208033000},"score":90.666504,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23005"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23005"},{"indexed":{"date-parts":[[2022,4,3]],"date-time":"2022-04-03T23:58:47Z","timestamp":1649030327755},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/22725","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Nabesna Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:29Z","timestamp":1400222429000},"score":90.48416,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/22725"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/22725"},{"indexed":{"date-parts":[[2022,3,31]],"date-time":"2022-03-31T05:26:45Z","timestamp":1648704405577},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23023","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T02:40:21Z","timestamp":1400208021000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Livengood Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T02:40:37Z","timestamp":1400208037000},"score":90.27477,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23023"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23023"},{"indexed":{"date-parts":[[2022,4,5]],"date-time":"2022-04-05T06:51:58Z","timestamp":1649141518521},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23163","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T02:40:21Z","timestamp":1400208021000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Healy Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T02:40:43Z","timestamp":1400208043000},"score":90.27477,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23163"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23163"},{"indexed":{"date-parts":[[2022,4,1]],"date-time":"2022-04-01T12:23:43Z","timestamp":1648815823359},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/22723","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Mount Hayes Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:28Z","timestamp":1400222428000},"score":90.270615,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/22723"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/22723"},{"indexed":{"date-parts":[[2023,10,4]],"date-time":"2023-10-04T03:18:38Z","timestamp":1696389518211},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23803","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":1,"title":["High-resolution
-        lidar data for infrastructure corridors, Beechey Point Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:47Z","timestamp":1400222447000},"score":89.87018,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23803"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23803"},{"indexed":{"date-parts":[[2022,3,31]],"date-time":"2022-03-31T04:09:11Z","timestamp":1648699751724},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23164","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Talkeetna Mountains Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:43Z","timestamp":1400222443000},"score":89.818375,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23164"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23164"},{"indexed":{"date-parts":[[2022,4,1]],"date-time":"2022-04-01T05:07:49Z","timestamp":1648789669651},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/22726","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Big Delta Quadrangle, Alaska"],"prefix":"10.14509","author":[{"given":"T.
-        D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M. L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:30Z","timestamp":1400222430000},"score":89.50093,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/22726"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/22726"},{"indexed":{"date-parts":[[2022,3,31]],"date-time":"2022-03-31T03:57:13Z","timestamp":1648699033560},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/23805","type":"book-section","created":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:21Z","timestamp":1400222421000},"source":"Crossref","is-referenced-by-count":0,"title":["High-resolution
-        lidar data for infrastructure corridors, Philip Smith Mountains Quadrangle,
-        Alaska"],"prefix":"10.14509","author":[{"given":"T. D.","family":"Hubbard","sequence":"first","affiliation":[]},{"given":"M.
-        L.","family":"Braun","sequence":"additional","affiliation":[]},{"given":"R.
-        E.","family":"Westbrook","sequence":"additional","affiliation":[]},{"given":"P.
-        E.","family":"Gallagher","sequence":"additional","affiliation":[]}],"member":"5626","container-title":["High-resolution
-        lidar data for Alaska infrastructure corridors"],"deposited":{"date-parts":[[2014,5,16]],"date-time":"2014-05-16T06:40:51Z","timestamp":1400222451000},"score":88.968254,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/23805"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/23805"},{"indexed":{"date-parts":[[2022,4,3]],"date-time":"2022-04-03T16:22:40Z","timestamp":1649002960479},"reference-count":0,"publisher":"Alaska
-        Division of Geological & Geophysical Surveys","content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.14509\/29183","type":"book-section","created":{"date-parts":[[2015,1,12]],"date-time":"2015-01-12T20:47:27Z","timestamp":1421095647000},"source":"Crossref","is-referenced-by-count":0,"title":["Volcanology
-        FY15 project descriptions"],"prefix":"10.14509","author":[{"name":"DGGS Staff","sequence":"first","affiliation":[]}],"member":"5626","container-title":["Alaska
-        Division of Geological &amp; Geophysical Surveys Annual Report 2014"],"deposited":{"date-parts":[[2015,1,12]],"date-time":"2015-01-12T23:25:31Z","timestamp":1421105131000},"score":60.502804,"resource":{"primary":{"URL":"http:\/\/www.dggs.alaska.gov\/pubs\/id\/29183"}},"issued":{"date-parts":[[null]]},"references-count":0,"URL":"https:\/\/doi.org\/10.14509\/29183"}],"items-per-page":20,"query":{"start-index":0,"search-terms":"High-resolution+lidar+data+for+infrastructure+corridors,+Wiseman+Quadrangle,+Alaska+2014+Alaska+Division+of+Geological+&+Geophysical+Surveys"}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:12 GMT
+      string: !binary |-
+        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
+  recorded_at: Sat, 18 Apr 2026 01:18:06 GMT
 - request:
     method: get
     uri: https://api.crossref.org/works?filter=type:book,type:book-set,type:edited-book,type:monograph,type:reference-book&query=High-resolution%20lidar%20data%20for%20Alaska%20infrastructure%20corridors%2B2014
@@ -233,23 +131,31 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      User-Agent:
-      - Faraday v2.7.12
       Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      - gzip,deflate,identity
       Accept:
       - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
   response:
     status:
       code: 200
       message: OK
     headers:
       Date:
-      - Wed, 08 Apr 2026 19:51:13 GMT
+      - Sat, 18 Apr 2026 01:18:06 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '28802'
+      - '6578'
       Connection:
       - keep-alive
       Access-Control-Expose-Headers:
@@ -261,107 +167,23 @@ http_interactions:
       - "*"
       Vary:
       - Accept-Encoding
+      Content-Encoding:
+      - gzip
       Server:
       - Jetty(9.4.40.v20210413)
       X-Rate-Limit-Limit:
-      - '5'
+      - '10'
       X-Rate-Limit-Interval:
       - 1s
       X-Concurrency-Limit:
-      - '1'
+      - '3'
       X-Api-Pool:
-      - public
+      - polite
       Permissions-Policy:
       - interest-cohort=()
     body:
       encoding: ASCII-8BIT
-      string: '{"status":"ok","message-type":"work-list","message-version":"1.0.0","message":{"facets":{},"total-results":100601,"items":[{"indexed":{"date-parts":[[2026,3,14]],"date-time":"2026-03-14T12:01:00Z","timestamp":1773489660103,"version":"3.50.1"},"reference-count":0,"publisher":"World
-        Bank Group, Washington, DC","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014,11]]},"DOI":"10.1596\/1813-9450-7091","type":"book","created":{"date-parts":[[2014,12,16]],"date-time":"2014-12-16T16:47:14Z","timestamp":1418748434000},"source":"Crossref","is-referenced-by-count":5,"title":["Protected
-        Areas and Deforestation: New Results from High Resolution Panel Data"],"prefix":"10.1596","author":[{"given":"Brian","family":"Blankespoor","sequence":"first","affiliation":[]},{"given":"Susmita","family":"Dasgupta","sequence":"additional","affiliation":[]},{"given":"David","family":"Wheeler","sequence":"additional","affiliation":[]}],"member":"558","published-online":{"date-parts":[[2014,12,3]]},"language":"en","deposited":{"date-parts":[[2026,2,18]],"date-time":"2026-02-18T02:14:27Z","timestamp":1771380867000},"score":22.965988,"resource":{"primary":{"URL":"https:\/\/hdl.handle.net\/10986\/20625"}},"issued":{"date-parts":[[2014,11]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1596\/1813-9450-7091","published":{"date-parts":[[2014,11]]}},{"indexed":{"date-parts":[[2026,2,13]],"date-time":"2026-02-13T07:17:53Z","timestamp":1770967073528,"version":"3.50.1"},"publisher-location":"Cham","reference-count":0,"publisher":"Springer
-        International Publishing","isbn-type":[{"value":"9783319163956","type":"print"},{"value":"9783319163963","type":"electronic"}],"license":[{"start":{"date-parts":[[2015,1,1]],"date-time":"2015-01-01T00:00:00Z","timestamp":1420070400000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.springernature.com\/gp\/researchers\/text-and-data-mining"},{"start":{"date-parts":[[2015,1,1]],"date-time":"2015-01-01T00:00:00Z","timestamp":1420070400000},"content-version":"vor","delay-in-days":0,"URL":"https:\/\/www.springernature.com\/gp\/researchers\/text-and-data-mining"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2015]]},"DOI":"10.1007\/978-3-319-16396-3","type":"book","created":{"date-parts":[[2015,9,10]],"date-time":"2015-09-10T23:03:39Z","timestamp":1441926219000},"source":"Crossref","is-referenced-by-count":4,"title":["Mega
-        Transport Infrastructure Planning"],"prefix":"10.1007","member":"297","language":"en","link":[{"URL":"https:\/\/link.springer.com\/content\/pdf\/10.1007\/978-3-319-16396-3.pdf","content-type":"application\/pdf","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/link.springer.com\/content\/pdf\/10.1007\/978-3-319-16396-3","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2023,5,11]],"date-time":"2023-05-11T16:04:30Z","timestamp":1683821070000},"score":22.028805,"resource":{"primary":{"URL":"https:\/\/link.springer.com\/10.1007\/978-3-319-16396-3"}},"subtitle":["European
-        Corridors in Local-Regional Perspective"],"editor":[{"given":"Sandro","family":"Fabbro","sequence":"first","affiliation":[]}],"issued":{"date-parts":[[2015]]},"ISBN":["9783319163956","9783319163963"],"references-count":0,"URL":"https:\/\/doi.org\/10.1007\/978-3-319-16396-3","published":{"date-parts":[[2015]]}},{"indexed":{"date-parts":[[2026,4,2]],"date-time":"2026-04-02T06:04:45Z","timestamp":1775109885722,"version":"3.50.1"},"reference-count":0,"publisher":"Washington,
-        DC: World Bank","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2025,6,30]]},"DOI":"10.1596\/43665","type":"book","created":{"date-parts":[[2026,4,2]],"date-time":"2026-04-02T03:30:09Z","timestamp":1775100609000},"source":"Crossref","is-referenced-by-count":0,"title":["Infrastructure
-        and Regulatory Needs for Green Freight Corridors"],"prefix":"10.1596","author":[{"given":"Carlos","family":"Bellas
-        Lamas","sequence":"first","affiliation":[]},{"given":"Carlos","family":"Gabriel
-        Pereira","sequence":"additional","affiliation":[]},{"given":"Joanna","family":"Moody","sequence":"additional","affiliation":[]}],"member":"558","published-online":{"date-parts":[[2025,9,3]]},"language":"en","deposited":{"date-parts":[[2026,4,2]],"date-time":"2026-04-02T04:50:15Z","timestamp":1775105415000},"score":21.155912,"resource":{"primary":{"URL":"https:\/\/hdl.handle.net\/10986\/43665"}},"issued":{"date-parts":[[2025,6,30]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1596\/43665","published":{"date-parts":[[2025,6,30]]}},{"indexed":{"date-parts":[[2026,3,27]],"date-time":"2026-03-27T08:17:39Z","timestamp":1774599459665,"version":"3.50.1"},"reference-count":0,"publisher":"Dunod","isbn-type":[{"value":"9782100517183","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014]]},"DOI":"10.3917\/dunod.fusti.2014.01","type":"monograph","created":{"date-parts":[[2016,2,10]],"date-time":"2016-02-10T20:26:35Z","timestamp":1455135995000},"source":"Crossref","is-referenced-by-count":17,"title":["Les
-        corridors du quotidien"],"prefix":"10.3917","author":[{"given":"Paul","family":"Fustier","sequence":"first","affiliation":[]}],"member":"2273","language":"fr","deposited":{"date-parts":[[2019,4,17]],"date-time":"2019-04-17T22:45:12Z","timestamp":1555541112000},"score":20.893324,"resource":{"primary":{"URL":"http:\/\/www.cairn.info\/les-corridors-du-quotidien--9782100517183.htm"}},"issued":{"date-parts":[[2014]]},"ISBN":["9782100517183"],"references-count":0,"URL":"https:\/\/doi.org\/10.3917\/dunod.fusti.2014.01","published":{"date-parts":[[2014]]}},{"indexed":{"date-parts":[[2026,2,16]],"date-time":"2026-02-16T10:19:56Z","timestamp":1771237196110,"version":"3.50.1"},"publisher-location":"Boca
-        Raton, FL : Taylor & Francis, 2018.","edition-number":"1","reference-count":0,"publisher":"CRC
-        Press","isbn-type":[{"value":"9780429470196","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.1201\/9780429470196","type":"book","created":{"date-parts":[[2018,6,27]],"date-time":"2018-06-27T14:23:44Z","timestamp":1530109424000},"source":"Crossref","is-referenced-by-count":29,"title":["High
-        Spatial Resolution Remote Sensing"],"prefix":"10.1201","member":"301","published-online":{"date-parts":[[2018,6,27]]},"language":"en","deposited":{"date-parts":[[2021,4,4]],"date-time":"2021-04-04T13:04:36Z","timestamp":1617541476000},"score":18.439554,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9780429893001"}},"subtitle":["Data,
-        Analysis, and Applications"],"editor":[{"given":"Yuhong","family":"He","sequence":"first","affiliation":[]},{"given":"Qihao","family":"Weng","sequence":"additional","affiliation":[]}],"issued":{"date-parts":[[2018,6,27]]},"ISBN":["9780429470196"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/9780429470196","published":{"date-parts":[[2018,6,27]]}},{"indexed":{"date-parts":[[2026,3,26]],"date-time":"2026-03-26T17:50:16Z","timestamp":1774547416801,"version":"3.50.1"},"edition-number":"0","reference-count":0,"publisher":"CRC
-        Press","isbn-type":[{"value":"9780429168468","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.1201\/b17184","type":"book","created":{"date-parts":[[2014,6,25]],"date-time":"2014-06-25T19:46:22Z","timestamp":1403725582000},"source":"Crossref","is-referenced-by-count":24,"title":["High-Resolution
-        XAS\/XES"],"prefix":"10.1201","member":"301","published-online":{"date-parts":[[2014,7,14]]},"language":"en","deposited":{"date-parts":[[2021,4,10]],"date-time":"2021-04-10T11:47:56Z","timestamp":1618055276000},"score":18.28712,"resource":{"primary":{"URL":"https:\/\/www.taylorfrancis.com\/books\/9781466592995"}},"subtitle":["Analyzing
-        Electronic Structures of Catalysts"],"editor":[{"given":"Jacinto","family":"Sa","sequence":"first","affiliation":[]}],"issued":{"date-parts":[[2014,7,14]]},"ISBN":["9780429168468"],"references-count":0,"URL":"https:\/\/doi.org\/10.1201\/b17184","published":{"date-parts":[[2014,7,14]]}},{"indexed":{"date-parts":[[2024,3,29]],"date-time":"2024-03-29T07:51:25Z","timestamp":1711698685160},"reference-count":0,"publisher":"Swedish
-        University of Agricultural Sciences","isbn-type":[{"value":"9789180460651","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2023]]},"abstract":"<jats:p>This
-        thesis presents planning approaches adapted for high spatial resolution data
-        from remote sensing and evaluate whether such approaches can enhance the provision
-        of ecosystem services from forests. The presented methods are compared with
-        conventional, stand-level methods. The main focus lies on the planning concept
-        of dynamic treatment units (DTU), where treatments in small units for modelling
-        ecosystem processes and forest management are clustered spatiotemporally to
-        form treatment units realistic in practical forestry. The methodological foundation
-        of the thesis is mainly airborne laser scanning data (raster cells 12.5x12.5
-        m2), different optimization methods and the forest decision support system
-        Heureka. Paper I demonstrates a mixed-integer programming model for DTU planning,
-        and the results highlight the economic advances of clustering harvests. Paper
-        II and III presents an addition to a DTU heuristic from the literature and
-        further evaluates its performance. Results show that direct modelling of fixed
-        costs for harvest operations can improve plans and that DTU planning enhances
-        the economic outcome of forestry. The higher spatial resolution of data in
-        the DTU approach enables the planning model to assign management with higher
-        precision than if stand-based planning is applied. Paper IV evaluates whether
-        this phenomenon is also valid for ecological values. Here, an approach adapted
-        for cell-level data is compared to a schematic approach, dealing with stand-level
-        data, for the purpose of allocating retention patches. The evaluation of economic
-        and ecological values indicate that high spatial resolution data and an adapted
-        planning approach increased the ecological values, while differences in economy
-        were small. In conclusion, the studies in this thesis demonstrate how forest
-        planning can utilize high spatial resolution data from remote sensing, and
-        the results suggest that there is a potential to increase the overall provision
-        of ecosystem services if such methods are applied.<\/jats:p>","DOI":"10.54612\/a.4h25q0pofl","type":"monograph","created":{"date-parts":[[2023,2,10]],"date-time":"2023-02-10T09:42:24Z","timestamp":1676022144000},"source":"Crossref","is-referenced-by-count":2,"title":["Forest
-        planning utilizing high spatial resolution data"],"prefix":"10.54612","member":"12795","published-online":{"date-parts":[[2023]]},"container-title":["Acta
-        Universitatis Agriculturae Sueciae"],"deposited":{"date-parts":[[2023,2,10]],"date-time":"2023-02-10T13:38:30Z","timestamp":1676036310000},"score":18.161285,"resource":{"primary":{"URL":"https:\/\/res.slu.se\/id\/publ\/120330"}},"issued":{"date-parts":[[2023]]},"ISBN":["9789180460651"],"references-count":0,"URL":"https:\/\/doi.org\/10.54612\/a.4h25q0pofl","ISSN":["1652-6880"],"issn-type":[{"value":"1652-6880","type":"print"}],"published":{"date-parts":[[2023]]}},{"indexed":{"date-parts":[[2024,9,16]],"date-time":"2024-09-16T00:34:24Z","timestamp":1726446864504},"publisher-location":"Unitec
-        House, 2 Albert Place, London N3 1QB, UK","reference-count":0,"publisher":"Future
-        Science Ltd","isbn-type":[{"type":"electronic","value":"9781909453555"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014,1]]},"DOI":"10.4155\/9781909453555","type":"edited-book","created":{"date-parts":[[2017,3,24]],"date-time":"2017-03-24T09:13:10Z","timestamp":1490346790000},"source":"Crossref","is-referenced-by-count":0,"title":["Applications
-        of High-Resolution Mass Spectrometry in Drug Discovery and Development"],"prefix":"10.4155","author":[{"given":"Lekha","family":"Sleno","sequence":"first","affiliation":[]}],"member":"301","published-online":{"date-parts":[[2014,12,16]]},"language":"en","link":[{"URL":"http:\/\/www.futuremedicine.com\/doi\/pdf\/10.4155\/9781909453555","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2024,5,15]],"date-time":"2024-05-15T15:23:54Z","timestamp":1715786634000},"score":18.136562,"resource":{"primary":{"URL":"https:\/\/librarianresources.taylorandfrancis.com\/future-science-group-platform-migration-library-guide\/ebooks\/"}},"issued":{"date-parts":[[2014,1]]},"ISBN":["9781909453555"],"references-count":0,"alternative-id":["10.4155\/9781909453555"],"URL":"https:\/\/doi.org\/10.4155\/9781909453555","published":{"date-parts":[[2014,1]]}},{"indexed":{"date-parts":[[2026,4,5]],"date-time":"2026-04-05T21:01:03Z","timestamp":1775422863462,"version":"3.50.1"},"reference-count":0,"publisher":"DE
-        GRUYTER","isbn-type":[{"value":"9783110304725","type":"print"},{"value":"9783110305012","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014,9,12]]},"DOI":"10.1515\/9783110305012","type":"edited-book","created":{"date-parts":[[2014,9,30]],"date-time":"2014-09-30T13:03:09Z","timestamp":1412082189000},"source":"Crossref","is-referenced-by-count":4,"title":["Structure
-        Analysis of Advanced Nanomaterials"],"prefix":"10.1515","author":[{"given":"Takeo","family":"Oku","sequence":"first","affiliation":[]}],"member":"374","published-online":{"date-parts":[[2014,9,12]]},"link":[{"URL":"https:\/\/www.degruyter.com\/document\/doi\/10.1515\/9783110305012\/pdf","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2026,4,5]],"date-time":"2026-04-05T20:21:08Z","timestamp":1775420468000},"score":17.908978,"resource":{"primary":{"URL":"https:\/\/www.degruyterbrill.com\/document\/doi\/10.1515\/9783110305012\/html"}},"subtitle":["Nanoworld
-        by High-Resolution Electron Microscopy"],"issued":{"date-parts":[[2014,9,12]]},"ISBN":["9783110304725","9783110305012"],"references-count":0,"alternative-id":["10.1515\/9783110305012"],"URL":"https:\/\/doi.org\/10.1515\/9783110305012","published":{"date-parts":[[2014,9,12]]}},{"indexed":{"date-parts":[[2022,4,4]],"date-time":"2022-04-04T00:45:15Z","timestamp":1649033115935},"reference-count":0,"publisher":"Alaska
-        Sea Grant, University of Alaska Fairbansk","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2015,10,1]]},"DOI":"10.4027\/asg1415ar.2015","type":"book","created":{"date-parts":[[2016,5,20]],"date-time":"2016-05-20T08:47:54Z","timestamp":1463734074000},"source":"Crossref","is-referenced-by-count":0,"title":["Alaska
-        Sea Grant 2014-2015 Annual Report"],"prefix":"10.4027","member":"2454","published-online":{"date-parts":[[2015,10,1]]},"deposited":{"date-parts":[[2016,5,20]],"date-time":"2016-05-20T08:47:54Z","timestamp":1463734074000},"score":17.18859,"resource":{"primary":{"URL":"https:\/\/seagrant.uaf.edu\/about\/reports\/admin-93-annual-report-2015.pdf"}},"issued":{"date-parts":[[2015,10,1]]},"references-count":0,"URL":"https:\/\/doi.org\/10.4027\/asg1415ar.2015","published":{"date-parts":[[2015,10,1]]}},{"indexed":{"date-parts":[[2024,5,18]],"date-time":"2024-05-18T15:19:48Z","timestamp":1716045588049},"reference-count":0,"publisher":"MDPI","isbn-type":[{"value":"9783038426745","type":"electronic"},{"value":"9783038426738","type":"print"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2018,5,11]]},"DOI":"10.3390\/books978-3-03842-674-5","type":"edited-book","created":{"date-parts":[[2018,5,14]],"date-time":"2018-05-14T08:20:34Z","timestamp":1526286034000},"source":"Crossref","is-referenced-by-count":0,"title":["Advances
-        in Airborne Lidar Systems and Data Processing"],"prefix":"10.3390","member":"1968","language":"en","deposited":{"date-parts":[[2018,12,6]],"date-time":"2018-12-06T08:07:03Z","timestamp":1544083623000},"score":16.937044,"resource":{"primary":{"URL":"http:\/\/www.mdpi.com\/books\/pdfview\/selection\/641"}},"issued":{"date-parts":[[2018,5,11]]},"ISBN":["9783038426745","9783038426738"],"references-count":0,"URL":"https:\/\/doi.org\/10.3390\/books978-3-03842-674-5","published":{"date-parts":[[2018,5,11]]}},{"indexed":{"date-parts":[[2024,5,17]],"date-time":"2024-05-17T19:10:49Z","timestamp":1715973049863},"publisher-location":"Woods
-        Hole, MA","reference-count":0,"publisher":"Woods Hole Oceanographic Institution","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[1998]]},"DOI":"10.1575\/1912\/262","type":"monograph","created":{"date-parts":[[2005,12,16]],"date-time":"2005-12-16T14:46:37Z","timestamp":1134744397000},"source":"Crossref","is-referenced-by-count":0,"title":["A
-        Graphical user interface for processing data from the high resolution profiler
-        (HRP)"],"prefix":"10.1575","author":[{"given":"Ellyn T.","family":"Montgomery","sequence":"first","affiliation":[]},{"given":"S.
-        Thompson","family":"Bolmer","sequence":"additional","affiliation":[]}],"member":"906","language":"en","deposited":{"date-parts":[[2017,5,10]],"date-time":"2017-05-10T16:07:02Z","timestamp":1494432422000},"score":16.844988,"resource":{"primary":{"URL":"https:\/\/hdl.handle.net\/1912\/262"}},"issued":{"date-parts":[[1998]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1575\/1912\/262","published":{"date-parts":[[1998]]}},{"indexed":{"date-parts":[[2024,9,8]],"date-time":"2024-09-08T11:28:58Z","timestamp":1725794938990},"reference-count":0,"publisher":"Alaska
-        Sea Grant, University of Alaska Fairbanks","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2013]]},"DOI":"10.4027\/asgcpsp1417.2013","type":"book","created":{"date-parts":[[2014,6,1]],"date-time":"2014-06-01T00:34:08Z","timestamp":1401582848000},"source":"Crossref","is-referenced-by-count":0,"title":["Alaska
-        Sea Grant College Program Strategic Plan 2014-2017"],"prefix":"10.4027","member":"2454","published-online":{"date-parts":[[2013]]},"deposited":{"date-parts":[[2014,6,1]],"date-time":"2014-06-01T00:34:09Z","timestamp":1401582849000},"score":16.67642,"resource":{"primary":{"URL":"http:\/\/seagrant.uaf.edu\/research\/rfp\/2014-2017strategic-plan.php"}},"issued":{"date-parts":[[2013]]},"references-count":0,"URL":"https:\/\/doi.org\/10.4027\/asgcpsp1417.2013","published":{"date-parts":[[2013]]}},{"indexed":{"date-parts":[[2025,12,9]],"date-time":"2025-12-09T15:57:22Z","timestamp":1765295842312,"version":"3.46.0"},"publisher-location":"Washington,
-        D.C.","reference-count":0,"publisher":"Transportation Research Board","isbn-type":[{"type":"print","value":"9780309283816"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014,8,1]]},"DOI":"10.17226\/22329","type":"edited-book","created":{"date-parts":[[2016,10,19]],"date-time":"2016-10-19T18:08:00Z","timestamp":1476900480000},"source":"Crossref","is-referenced-by-count":0,"title":["Web-Based
-        Screening Tool for Shared-Use Rail Corridors"],"prefix":"10.17226","author":[{"name":"National
-        Cooperative Freight Research Program","sequence":"first","affiliation":[]},{"name":"Transportation
-        Research Board","sequence":"additional","affiliation":[]},{"name":"National
-        Academies of Sciences, Engineering, and Medicine","sequence":"additional","affiliation":[]}],"member":"6987","deposited":{"date-parts":[[2025,12,9]],"date-time":"2025-12-09T15:33:00Z","timestamp":1765294380000},"score":16.610077,"resource":{"primary":{"URL":"https:\/\/www.nationalacademies.org\/publications\/22329"}},"issued":{"date-parts":[[2014,8,1]]},"ISBN":["9780309283816"],"references-count":0,"URL":"https:\/\/doi.org\/10.17226\/22329","published":{"date-parts":[[2014,8,1]]}},{"indexed":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T17:41:58Z","timestamp":1659462118789},"reference-count":0,"publisher":"Oxford
-        University Press","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014,9,1]]},"DOI":"10.1093\/oxfordhb\/9780199914036.013.041","type":"book","created":{"date-parts":[[2014,6,17]],"date-time":"2014-06-17T01:37:07Z","timestamp":1402969027000},"source":"Crossref","is-referenced-by-count":0,"title":["Native
-        Literatures of Alaska"],"prefix":"10.1093","author":[{"given":"James","family":"Ruppert","sequence":"additional","affiliation":[]}],"member":"286","published-online":{"date-parts":[[2014,5,1]]},"container-title":["Oxford
-        Handbooks Online"],"deposited":{"date-parts":[[2022,8,2]],"date-time":"2022-08-02T17:22:27Z","timestamp":1659460947000},"score":16.382767,"resource":{"primary":{"URL":"https:\/\/academic.oup.com\/edited-volume\/28018\/chapter\/211823790"}},"editor":[{"given":"James
-        H.","family":"Cox","sequence":"first","affiliation":[]},{"given":"Daniel Heath","family":"Justice","sequence":"additional","affiliation":[]}],"issued":{"date-parts":[[2014,5,1]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1093\/oxfordhb\/9780199914036.013.041","published":{"date-parts":[[2014,5,1]]}},{"indexed":{"date-parts":[[2025,12,9]],"date-time":"2025-12-09T15:23:57Z","timestamp":1765293837167,"version":"3.46.0"},"publisher-location":"Washington,
-        D.C.","reference-count":0,"publisher":"National Academies Press","isbn-type":[{"type":"electronic","value":"9780309585699"}],"content-domain":{"domain":[],"crossmark-restriction":false},"DOI":"10.17226\/9083","type":"edited-book","created":{"date-parts":[[2015,10,24]],"date-time":"2015-10-24T14:37:54Z","timestamp":1445697474000},"source":"Crossref","is-referenced-by-count":0,"title":["A
-        Data Foundation For The National Spatial Data Infrastructure"],"prefix":"10.17226","member":"6987","published-online":{"date-parts":[[1995,1,1]]},"deposited":{"date-parts":[[2025,12,9]],"date-time":"2025-12-09T15:20:14Z","timestamp":1765293614000},"score":16.307821,"resource":{"primary":{"URL":"https:\/\/www.nationalacademies.org\/publications\/9083"}},"issued":{"date-parts":[[1995,1,1]]},"ISBN":["9780309585699"],"references-count":0,"URL":"https:\/\/doi.org\/10.17226\/9083","published":{"date-parts":[[1995,1,1]]}},{"indexed":{"date-parts":[[2026,1,6]],"date-time":"2026-01-06T05:14:36Z","timestamp":1767676476908,"version":"3.40.4"},"reference-count":0,"publisher":"World
-        Bank Group, Washington, DC","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014,9]]},"DOI":"10.1596\/1813-9450-7032","type":"book","created":{"date-parts":[[2014,10,14]],"date-time":"2014-10-14T22:17:50Z","timestamp":1413325070000},"source":"Crossref","is-referenced-by-count":19,"title":["Infrastructure
-        Gap in South Asia: Infrastructure Needs, Prioritization, and Financing"],"prefix":"10.1596","author":[{"given":"Dan","family":"Biller","sequence":"first","affiliation":[]},{"given":"Luis","family":"Andres","sequence":"additional","affiliation":[]},{"given":"Matias","family":"Herrera
-        Dappe","sequence":"additional","affiliation":[]}],"member":"558","published-online":{"date-parts":[[2014,10,1]]},"language":"en","deposited":{"date-parts":[[2025,4,10]],"date-time":"2025-04-10T10:27:52Z","timestamp":1744280872000},"score":16.23352,"resource":{"primary":{"URL":"https:\/\/hdl.handle.net\/10986\/20327"}},"issued":{"date-parts":[[2014,9]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1596\/1813-9450-7032","published":{"date-parts":[[2014,9]]}},{"indexed":{"date-parts":[[2025,4,11]],"date-time":"2025-04-11T04:06:41Z","timestamp":1744344401832,"version":"3.40.4"},"reference-count":0,"publisher":"World
-        Bank Group, Washington, DC","content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014,9]]},"DOI":"10.1596\/1813-9450-7033","type":"book","created":{"date-parts":[[2014,10,14]],"date-time":"2014-10-14T22:19:58Z","timestamp":1413325198000},"source":"Crossref","is-referenced-by-count":2,"title":["Infrastructure
-        Gap in South Asia: Inequality of Access to Infrastructure Services"],"prefix":"10.1596","author":[{"given":"Dan","family":"Biller","sequence":"first","affiliation":[]},{"given":"Luis","family":"Andres","sequence":"additional","affiliation":[]},{"given":"Matias","family":"Herrera
-        Dappe","sequence":"additional","affiliation":[]}],"member":"558","published-online":{"date-parts":[[2014,10,2]]},"language":"en","deposited":{"date-parts":[[2025,4,10]],"date-time":"2025-04-10T10:27:43Z","timestamp":1744280863000},"score":16.175934,"resource":{"primary":{"URL":"https:\/\/hdl.handle.net\/10986\/20344"}},"issued":{"date-parts":[[2014,9]]},"references-count":0,"URL":"https:\/\/doi.org\/10.1596\/1813-9450-7033","published":{"date-parts":[[2014,9]]}},{"indexed":{"date-parts":[[2022,4,2]],"date-time":"2022-04-02T12:40:55Z","timestamp":1648903255166},"reference-count":0,"publisher":"IGI
-        Global","isbn-type":[{"value":"9781466651982","type":"print"},{"value":"9781466651999","type":"electronic"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014]]},"DOI":"10.4018\/978-1-4666-5198-2","type":"monograph","created":{"date-parts":[[2014,3,12]],"date-time":"2014-03-12T20:33:49Z","timestamp":1394656429000},"source":"Crossref","is-referenced-by-count":0,"title":["Innovative
-        Techniques and Applications of Entity Resolution"],"prefix":"10.4018","author":[{"given":"Hongzhi","family":"Wang","sequence":"first","affiliation":[{"name":"Harbin
-        Institute of Technology, China"}]}],"member":"2432","container-title":["Advances
-        in Data Mining and Database Management"],"deposited":{"date-parts":[[2018,11,19]],"date-time":"2018-11-19T06:05:02Z","timestamp":1542607502000},"score":15.917526,"resource":{"primary":{"URL":"http:\/\/services.igi-global.com\/resolvedoi\/resolve.aspx?doi=10.4018\/978-1-4666-5198-2"}},"subtitle":[""],"issued":{"date-parts":[[2014]]},"ISBN":["9781466651982","9781466651999"],"references-count":0,"URL":"https:\/\/doi.org\/10.4018\/978-1-4666-5198-2","ISSN":["2327-1981","2327-199X"],"issn-type":[{"value":"2327-1981","type":"print"},{"value":"2327-199X","type":"electronic"}],"published":{"date-parts":[[2014]]}},{"indexed":{"date-parts":[[2026,3,18]],"date-time":"2026-03-18T11:43:25Z","timestamp":1773834205935,"version":"3.50.1"},"publisher-location":"Cham","reference-count":0,"publisher":"Springer
-        International Publishing","isbn-type":[{"value":"9783319047850","type":"print"},{"value":"9783319047867","type":"electronic"}],"license":[{"start":{"date-parts":[[2014,1,1]],"date-time":"2014-01-01T00:00:00Z","timestamp":1388534400000},"content-version":"tdm","delay-in-days":0,"URL":"https:\/\/www.springernature.com\/gp\/researchers\/text-and-data-mining"},{"start":{"date-parts":[[2014,1,1]],"date-time":"2014-01-01T00:00:00Z","timestamp":1388534400000},"content-version":"vor","delay-in-days":0,"URL":"https:\/\/www.springernature.com\/gp\/researchers\/text-and-data-mining"}],"content-domain":{"domain":[],"crossmark-restriction":false},"published-print":{"date-parts":[[2014]]},"DOI":"10.1007\/978-3-319-04786-7","type":"book","created":{"date-parts":[[2014,9,8]],"date-time":"2014-09-08T15:43:42Z","timestamp":1410191022000},"source":"Crossref","is-referenced-by-count":5,"title":["Analytical
-        Decision-Making Methods for Evaluating Sustainable Transport in European Corridors"],"prefix":"10.1007","member":"297","container-title":["SxI
-        - Springer for Innovation \/ SxI - Springer per l''Innovazione"],"language":"en","link":[{"URL":"https:\/\/link.springer.com\/content\/pdf\/10.1007\/978-3-319-04786-7.pdf","content-type":"application\/pdf","content-version":"vor","intended-application":"text-mining"},{"URL":"https:\/\/link.springer.com\/content\/pdf\/10.1007\/978-3-319-04786-7","content-type":"unspecified","content-version":"vor","intended-application":"similarity-checking"}],"deposited":{"date-parts":[[2024,7,12]],"date-time":"2024-07-12T11:11:52Z","timestamp":1720782712000},"score":15.912693,"resource":{"primary":{"URL":"https:\/\/link.springer.com\/10.1007\/978-3-319-04786-7"}},"editor":[{"given":"Isabella
-        M.","family":"Lami","sequence":"first","affiliation":[]}],"issued":{"date-parts":[[2014]]},"ISBN":["9783319047850","9783319047867"],"references-count":0,"URL":"https:\/\/doi.org\/10.1007\/978-3-319-04786-7","ISSN":["2239-2688","2239-2696"],"issn-type":[{"value":"2239-2688","type":"print"},{"value":"2239-2696","type":"electronic"}],"published":{"date-parts":[[2014]]}}],"items-per-page":20,"query":{"start-index":0,"search-terms":"High-resolution
-        lidar data for Alaska infrastructure corridors+2014"}}}'
-  recorded_at: Wed, 08 Apr 2026 19:51:13 GMT
+      string: !binary |-
+        H4sIAAAAAAAA/+1d63PbRpL/V1D8cJetI6h54sHauytb8kM5O/Faynn3In8YASMSZxBg8JCtpPK/X/cAJEEAJEHKVna3LrETigTn0dP96+e0fhvlhSrKfDQdpZ9G49FC57maabt4WGp473OafbLjKC8aH93rLI/SBD6lEzIhm09G099GdyrQBYz22+/jUZEWKrYznZcxvkUJcSkbj6JCL+DHn38bRUmov+gQvxeqQttLleGDP//MCHPGfEzFx4/j6qMiWuB68AObcJuKa8qmhE4J+R9YAH4K+1gsYRbX5cLzHYdQwsejzWL5RJIJHcG6Mn2nM50E2g7SMilGUzIeLctb2OZcZ/DkhzSLQ+u5Sj5Zr7K0XI6tDyqfR8msSJOxdXEOEwZpUuiksMN0oaLEbKB+9TOsOMjSPF8oIB1svsiioDBLuFNxrn/fzBXayyzC+bvbp2JM6ceP8PDFj5dIaVi69J2bM+pRbvtCEtslPsWtVwd1m5rjCzINI/VSFIdkY+p0SUqFTZlNnWvqTIU7paJNUkE9V3iCC0IILClPyyzAr57jPoGa8HiU22uyhvbtw4q0EkcqYnj659G7LC10AMuznsEyc0sloXWh71IkkkISTa0f9GfrfcUw1l2WLqzX0WyO76RxiU9Y71SiY+tCFWoE+1jCnNGXDX1gIaos5mlm2GsW3Ws8+edZpBL46E4tovgB34jhbHW+TOFB2I7+pcRlwwd3UWZYXd3dRXGkqmP7GY5hM9hVmS8imL0x3IXKZ+XSvNcYS4VhhAOoeP+AF+o+CpvDfZhrHevsiNE+oggubg3zSumNmiyWJnGU6N0MwQ2XAUFmpRHhkUZShXqZ5tEOTgLZBEby+mUTGMm7JgyYZsrcrmxS7hHPcWtGCuDsR1PGJr7HiCNRNFfM9RscbgQy9IAvf3r/BiaYF8Uyn96c3ZzNw3gyB/aJ9STRBUgF8T0QDhiDydHvvyM75uVuMagka82veQMH2jOFaTRJsxlOsUsC17TeNx2e+H64A5LynSTl1wQE051K3iUp8YGeLpfM64e7NbTZcRrUTDM6n6vF6DAUXiFCzXRmXQLeZYmqWNB6Vz0CHxnRv01qfQFCd6/iEpfuux7n1KcO96WzwakK8ZAaPQ86fPMgiEBQZGkSBSPk7zgKdJJXU8DWs37UlGM6pj0AJ21C4c81IVPzpwNwDHQTQXgzfLlC9w01i3BhpCJWD3aU2KF6yHvZ5fPnz5O8phlQq8z0JEgXN2ez5c0Z8LZWWQCEzW/OCv2lsIGDYahC2YsoQVoiWf6Azd0bGPzmm/v4BGpTtnQm7PzmDDjM5jbwmG2YzOZHqU059seU9NMdRiTXjE8Jn3K/Q3dBfeYw6h+vNUVDa77VM2VdZyoBfZUVIIh3mQLqlAEegPUOkNuQt60NYeejhlpgPv7YhnlQDZ+MSLWPGj9Yn3V1yvXZ3Zwtw7sKDvuJO4HPGxZSTWi1XIIIG/wwI4x2M2KEb4dAj8Z3UASRqRqC8hWX3F1uCdTWQXQX6fD4leYRaHKVRQWc51wHn1bcv1+p8rE0qqKjAbhNpE0pWmdETHlHvh2Pe4wSl2wrVQpKlXN/sE7tod8eiqGSzcvbNZe+KLN0qVVinadZFoVplltRYr0BhRPb7/WsVhtAPyBrAZYP8qsGk6Zlql0BamRp0xp6qW5vzTsDzLSPexV/hQ2XV89/wAW39dO2Gvp4inmwk7n2WwhykHkgxqzfOhBgIFwTwxtCdq0DibaRJ13GTnSGtlyfqbVxjp7ADWJyDH4g6XOEBHcceQyQH6YhgDjozw6OGxoSh5yA46SB4y3gRucHBKOMFcjAAzg+OgSXJ83A5dQ6sV5mGjyfYiNOw92dc5XFab7l7+g4Bn/rjVqo/GiHpzvcK3WbRdqIs46yE92e71NQXFtu1Ns0DR++udfDUJ+f5vQcYB8xlWRK+0VQCirb8EyFC19/rM9TycF+n6cpRid6PStx2wtlm3kO4xkfM3dXdIe518RDd6drVLmukD54X76D7uIpgHZRJmm4z20BXUokdanXsBNrt+UpTFixjXbcp6BVQlz05K7Mi2iCz0xII/azSJN0lqnl/IAla3zMPku28jHBkiVT5kx5h4WFlJQD2eXxCEjdBgS+0bkVrO2DsLR+KdMiCiOQvha64a770e2dKuMt+wBp0o6W7DEQNhYxc/m2SXyXHQIB6gMI0B6+BXUPKEDda8ZAC08pa5NQwj+CUsq2UYBMfCJ9DFQeRIG1CxaoKEsmUXKXgtFmxLimqB2W9pqitr3FypN5sTgYGWkbSA1JOMUg2se6B4ImA00ifyce+9eUTinwcx8eu5wDVgmPHBEweQ4vrffK2EEv31hT61o9xKCu/wVUtUqCKB9bsHBvMqrsWviSnZQ1q9EBkZbz9+fWO2CCfB80EcF84QK3NSIqrUDJo/BpY2PBXowt2zfjAKfZA0XQh+/Us4mD+I7hQT4VnVCz5AQUm2AnhJp509oyceOrJZwe+B2N+PF7vUgLbV3pJO/zmplhzjVG8G1e3RdMXe34aLuCAh/35Tmo4WNxTblx+5yO20ddQBThOluIAhzIPV/wIYiyieoUhpfvKkaufD885HzNAp7PCdCi7fVhHH5sPQP77CFHCUCj9tnGF853eHl/K+epCR2uUfy1Ptou/Us0V1ue4gdtxjzCfNyDhY3jbABiQxpO8hB7pWo/FK4XMgQP+1RTBYjUmFRMAN90AdEBPmLS8YTbAkQ6YQiIHUAjXxPQKEzseE8CaLeozMSRWTOgv+xNmiGSyWvqT4UzZR2NLwh3Gfgl7HgkY7KFZHYDwf767Orm7K8vrr4idomxO661//HY1WdRVuAFFiUoYeFOZQ94eURK1gUvYAcphjtFB8GLCnAUfAa2awe8DGz9ClrAerHmOOtq5aDnVnpnnQO+AbQVu4DsexWAGb+FQldqGJLth5/GibTgp5aW0+FnLQOH8lb1Cg7hjkBXrs8QE8aV8zFzJWmfIUapAy6sJ6lDBvhtV5/hAPK59VMSGYwqHvCEns1A5ssYTgz0/FUQGXrsQxwfOE84xJENB+rpvDtWRR7ULXxdBfDI6M//q4p8uvyP63mUW8Vcgx61lphNSQp4UUf3LbVcZqkK4GNLhWqJOXSMFc3RyslrKyfbYATmXar8eVbZO3ll7xgFrZEasC7r81zDhJmVl8G8OUOgEksnc5AnjSuC5aT3ESoFJLgO0hwkQi9gzOw+AmpXE1Vp/HxiXZtvmA3AKhcwRRrCqjMNrt8CSAFvfo6KOfyUgBBV6nlsAVMkoR3rex2vvlMNhdSHwYMyt+IIpTKp1rSiDAwT6GWBSwsfEpDCwCoQzhcwtlUmEVDxu4vrn/40xu3CItYfmgA1nGYc148hQRdpqOMYx93sE7YPu8x1VbBQ7ROWlQBKmknM1mLwbzTuzZwGkHyxTIEl4werSPE7i86q4EcsrIH1wjqWyA1gNcX1+NlDvXtDijROZ/WHZRIaDMH9Ih1qjoE/SCiYDpzD2zRLtBWrHM82qOlkWOI7jEDCuwFsMrcom8gv+B9rwYA+YXRnJBBouQQ5jX6tJlqfIGweZ6wJEOqg4om8XJrEVE2t1xrA85OaWO/UEvPG8OACLEFg9wIpaC0iABIbMyeYVgbazjK1WOAKDe3NKcB5rQ94vJ64LiQyTB+b4Ci+C+eUpHjqKrxHjjW4XR8HjjpX2X3FmPWCLs2Al/D/tZgBv69MRTwuZRYwh41U52P4G+eKQRFmah2+vSszIz8rgYJjQJnVGZ43rmWyrmXJ5+lnGEIB3aIMlE2D0WC5d0gT4OS85sJ6zXAOOB0a0kYmowVKYsX7q/OAEZvUWsltvk2btCxA+LSZa4u/kJbIJV0IQXlClokqecNJVhABk6jbuJ5jPXN1fEi+PI9mSVNCjLzXUwHRa8aBxcOe7mrRvwV2DTejAUObpJoO1wf33w1Cr6CrQNRczjVsE/4m5mtxnlrwYFRBJNBgJT1GCwAjvAYuH5tDX22oiakoGzUQVQTIN8BlmCMHkFwoZIzV90F2UJhh2WanTSwLjYeE4xpilRmYU+YcABtMcAG+lOmiAkILjgERuDqbercb3K35HCG8vSk4phCdLl2xxF69gAMYjq/23NExMBYaxHgcNRNtz4VIGsV6jReBmb5e4IP1GVHW4OrEukwMPoM0Rhg3weHyogyj6htFQ+U1UMJCWalRZgPzsGLYQxz9qo/Wel0IycvZDIc3xCqMXkDOsZapOQll+HhFBvNNkDuE84O6EPkZ1WlT760Y+c83Z7WyHzU8Eykcym7O1ETMmfyFLNO7+OjQLuM7QruYPDahXQJeCgP/r2OIgwnOGBUnxFtYw0l52Tqu6qgM/u45rLYLY0jR9GEoc3050IupTSu04EAT6szeGPoB8MXabISV5E2zUVtXJUCSMinpQyn6A1SmfMq9vhQ9UJk7nJK2u0Md4RyRo4fHJnlcTnJ9cxaFN2dIFzDtGeGcHMoB8bY30bCET/Em+vn28urKjE8dyWzH88iocnR6jPHNIz2G+P48Ex/kl/i91a7ol2ByHuuluOgRCZc5AlwsR0gidkWDgZsKHViv0zIHVcKsZzEwbIHVOAH8/CZNQmDxH7hF//J8bP30XwPCJS9LY1fULoz1pujmqLrxkXHTs6E+8YXkUsonSlSNWxXKgkpZOd2blWyiOiGKlT0g4uKiQ9kTEaWucSgFYhkIGu0WuvmEC8f1yeMS9c0AJqJ8OwDzFgwc62ppDgFgPntAXXaRlTPrIgLJBpR5qEubwQBIl2gBtYEOKdWf3nqjP823suJXMRg2x2e3jor+1HXhPeGfngKxddzlznDsAg42gKGrwAsAxKbaqp8f/vhKK4GVVj0hPUQGaVN5TSUmJ2QXGah0PcdZ18FvYFxQx3OPKLW6zRQWpa+ez+sgFrDNVhyrIrGdV6Bgz/A2gg1KtkAPw15Es8o9sKsBH+xZGYWgGnQd/xpQCt1WCo2j2qUUVFyXAt9rOwoN2Pef9cf9CqSfPQ5WUw8Mhfedb5UalNeMmqsjPbXUUjDmwQE7J1ZLXbywXr3/6W/XL97vi0FxSgknwmWyo/rGPQ9KYqyibxAeHwbzoEdZuwSLVkfXu8DBSI9D876CBKOiubGnCO8pyRJg8niMeo8srV0He9cpLBNSrAIJofWDAodGYRwByNWtv6I7IPxafdJbIeEfP5UnALgrhgP4+oR2FvQiYId6lpUPxaq6M0yDcmHKYw1q9x9ru1j3j0Ptg0JNpijXXq9Qg6HrbYO2O/Gp6x2XaVgT8DaLwL09horzYhF3MhDIYJ9NPeXtQ8fMWCUlrLcRSnGQLh9Gh5IGaz5oVrk2wWZbZI9C+D6ZP4Dw/TBxCOHrTRwCebYjb87qvDmY91iJ00k7OGgmwoKkz+UARH8Wq/yTsq60sl6Bai7G7QRE9flLjLuqJH+Kqli8CUI6xjdhLnhj+QzAUaoMS22OKo+lDlhFbEd1mLQZwfwx5vK6twMd7oJJ5J4QQtgyu1uEtowewG0AOielKePAQHPHloaNN2MGTMjByNkg5P66r69GnDX6mLshw6s0cq1mSJVJqe4mOizhqG/TssCQABIFjD0VLqLE9rmtDLXs6gNDQHMl44At2CDF0aGAHbx3oOx9NeFhR1723zaszHUPzXVMwneRnzpESOl5RPgDJP3txbvLvVYb4Z5gjitkvzE27n2aex0b7ymsNq++TbJVSsp9UufGq1sKZok27Mg+yVE3c/Q56p45GGEqTjDI0inyAtb3HHLKfeItxFhlfMD/frZKe72JQpVZVyYsW18xxrDwuyqJ11PzhVTZijn6phjlqEIIIAX40H1Xqz28Wk0cJAVxe1wOKQTxOCDBNj44E58zjw25Ebu2ThbhMtoqfwCpv4/0ZwQPZFNz9coR9BASNFinaUY0uX+bv0+qDd3Pi4dqouSwW7UGOvpqoirocLF4h4Kd0C0zB/PABavJB2dwVwzwQ4oB/tdprMfW22cDQnybL1g/BlrVkf0osC6THJjamH3f3Hygvu+1nTkXrDTqo5kKgnl08oHIXY0FkMZVYwGBNVK8cx+ccuEKwX33kUCAFgNSEoyEErPe6Hhk2IrCZN6Wa9lvpIiKOvvZzEnAg+CQwfe/e/3+3Z+6Hp+7w+N7EccPiXU9GW3dZkmKWbrQWetKy5AWA5j/SxfLPN3uWpDGi5PbAvjEORrUXJSePqPHNdJDzI1EALVu6ZsPh8oEY21Q80CuvNNvvKxZdB+CrRn8hJsubUHYA0P1NEOyEDtsF98mHhbIMW8qu7YLk64vfO75/pDiqOO8lE/5U3gpfIeDEizzJRiKLpqJx13FxlrMvhvwphSzugHPRU8IQIC16TFPeF/ZQzlP41jPNBoXWMWCxYOwsBkgOl7LXjsw7td0WfgAb2UgnbphtZpOfltuHQfwY0isZIevsuoOAK/ultinoyZMviIYBrWTyXK+PGSc8Ed6KG3m229oDMkzGu3XV/9olB9eRJFT6fYUCLuOZL4Eq4fTVrRZOBOy8yLK1oXcyflkgOGx7h6g6jsQ1WlYz1OV7UwzVoK9lWEknPjM4x51nir07LXDHACMDDu9MM78U3wWx3idPccFnjwlNoXjAkvd62uj4YIQEIMhjwGRD/rWfm6Ka64CvOmLVsl1mlaFb1dzLDOyf8q19V5F8Z7bv0iGbWMkUWYnP6x6tJyndfnYvV7fJl6ffI1Yg02TevBDjHTEPeD2cp8FKtSLqKrfWxXyjq0XyQyQ0JTyVWU8b+t844l2kON77sGy9iEizXlf7zEUacE90gFQ6nNxVKx51WtHrehSYZkRmzo5vRKDg1k+r5vna4jySaXk22J4KKTrDQr0MHiu74Y1kNzDG9bUnQraYys50hcOo9RzvSFxnh+/gKiFTQNpdU3laXJp7RY1Pr85S82a5rfV7SCwLX28PwJqgPIJEcf2eXP676ga9Y8XgSi4YmC5d9U/8wHj2CO9sR8qzHmzLpbNNxZot02Nz/t9qu8BH7a6Drwvl4BnxYlyzzxnqIVlgga7aslq5nkNUGSCF9aP1UAH01cDmJuxnpZphrkJ3hZrQQpnrk+H1xzUOBJM0nJZRYlqpXkP3u9CgywD33k3Z8Ecy0Iz+BkEinHXrwrLei+/wCqt11te73n65Wh390Il2E3iNXD0vDnW93hlODgS6PfioDw1wD1USA/hoByEg0PUD9andNvrofrhHnep435bi7JHbfff9TtQs4ZqSHrS8f2vedevUk4+aXZwGG4imsREbwEaBj2wAI0KBNCeZI+Anbji0ZmwKmT9cnPZ4yXYhlgSvib76mazeXC7s8wuU7FtAh3GQuDwuufcIY9zGMuSntaiFcs6VHTgDSTruOz8IIvJMMWB8NFm0y2DqebURxhMNU/ujyut5j9c5kT7cg5YEUFNzkFiF87uzXHXwX+NP9NqGSnAU/7H6ZDrH2qQy9mRhhP6hn2CL4xvKLC7Bzbh7PqGlHMmNy3YjmmQ4u/uEfVKLTG3dZWCeWQ9yyM1bbf/M22jxoC9UZqBXqyubFWO0ssowUrCniYHOztHXbTa5EZxpw/tAH3+poy2DLdnSZjp/Ag13hjrLcLc1mivdZaBXQnIB+bgicbgcT1yV2nx465Gy11Xo+XqajQBa28qu2EhIcAU89xO8Bx8LdAvj++RC4bjYZfR/1otcvmgkp9BVpHo749YEZRiAy7igIfYQ1AuhADrlrfjbP9kcHdsNH0I3Pk9DncFd9Q/IZ7OjkQ7kG4Vr5IYAabx8GpW65tX9e2r/0e6xyId+3ZIJ7rl1hXSOZ3aB+o43P0aSCfEUyLd4XzCMKQzv/pgR3t1bgqeKFCzt7UVOH+CESxt/DvsBU6E68nuba9uL3B80HEbvtspvcDFjnbZ4kC7bO55kou/817g32xz/0S9wEU70Lrdntcwme0eqTJ7s/l0nc2XKJiiWxBBCfUpYSf0Amq2AjK3FKo2ERf1LXr7rcL6eettfd8Ys0gv6ovj8PZVmWMEE6/rN3qIg5bt9mse1kG8JyR69eXSsq01OuAKLpMkva9CFzdnVusBvMwf/2v1yK/wiIlYfNPO5PVR/yN1Jt9w5x9/88K0AuqLXQPbuzZlptUi7XNlGHE95raaXlI58bH6efiv+xjWmnxFsh3h6stc3WIfZOvtVsT6DbwYZvgdiC73dRdfa7xtxXZSAGkng6yuXDPGfZs5Hlp89euqT13/9evm4zsV8macXcr48Y082Y7GyqxurEzZVJCp7LnI4fngXkoJ5uIAJ+7y1aX1Kk5vjc28007BfmEOujbsgJ2yetD3d5LmqTWcMAkcZBFq4+ps3Id9fEEnxZZefQJPTUsvEHis6uY9ZbPcF450BHt0q/RKfdyD0tLBPIl+KevuS+272S+SAp3DzbWpbqkV9fpdwNdpMvt1HjWx4INqd5Dsx4J19cJrld2CMl3V75rGLmbF2DLlYWydg1msgBe2U5HCxET6GlU0CtpNZP9tlKy6duHP2CPHervuq3Mw6Yhl6bS/2gV4hGK1C/7iANlTwikFc4grSRe6CSDZkFKGuhSs8swn0SyyZ0b6Kvw2Vbf32tyZq19PVL788p/wzr/v4eX2FbpDV+I695ub8r0txqeg8m6RW6MyZ6AjfQ/Tg/Vr/697ULnx+G5UXo/zCFT+WP8mPhvsMfgUTS8GuwXWr07SOB+2AW5Dhsqmt8H1w9/eV7WlbNROx+beRVVfDRZgXSsZbQdq1q2q/w1XAYf5+/8B/xg6MYBwAAA=
+  recorded_at: Sat, 18 Apr 2026 01:18:06 GMT
 recorded_with: VCR 6.4.0
