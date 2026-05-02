@@ -26,12 +26,12 @@ module Relaton
 
       def from_xml(xml)
         require_relative "../xsf"
-        Relaton::Bib::Item.from_xml(xml)
+        Relaton::Xsf::Item.from_xml(xml)
       end
 
       def from_yaml(yaml)
         require_relative "../xsf"
-        Relaton::Bib::Item.from_yaml(yaml)
+        Relaton::Xsf::Item.from_yaml(yaml)
       end
 
       def grammar_hash

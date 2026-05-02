@@ -8,7 +8,7 @@ module Relaton
         resp = agent.get hit[:url]
         hash = YAML.safe_load resp.body
         hash["fetched"] = Date.today.to_s
-        @doc = Relaton::Bib::Item.from_yaml hash.to_yaml
+        @doc = Relaton::Xsf::Item.from_yaml hash.to_yaml
       rescue StandardError => e
         raise Relaton::RequestError, e.message
       end

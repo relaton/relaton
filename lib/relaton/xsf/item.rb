@@ -1,7 +1,7 @@
 module Relaton
   module Xsf
     class Item < Bib::Item
-      model Bib::ItemData
+      model ItemData
     end
   end
 end

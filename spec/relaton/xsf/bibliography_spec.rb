@@ -6,7 +6,7 @@ describe Relaton::Xsf::Bibliography do
         bib = Relaton::Xsf::Bibliography.get "XEP 0001"
         xml = bib.to_xml bibdata: true
         File.write file, xml, encoding: "UTF-8" unless File.exist? file
-        expect(bib).to be_instance_of Relaton::Bib::ItemData
+        expect(bib).to be_instance_of Relaton::Xsf::ItemData
         expect(bib.docidentifier.first.content).to eq "XEP 0001"
         expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8").gsub(
           /(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s
