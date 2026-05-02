@@ -21,17 +21,19 @@ http_interactions:
       message: OK
     headers:
       Server:
-      - nginx/1.28.3
+      - nginx/1.30.0
       Date:
-      - Fri, 03 Apr 2026 18:51:29 GMT
+      - Fri, 17 Apr 2026 21:33:01 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
       - chunked
       Connection:
       - keep-alive
-      X-Ol-Stats:
-      - '"IB 6 0.102 MC 12 0.004 OT 1 0.057 TT 0 0.277"'
+      X-Served-By:
+      - FastAPI
+      Server-Timing:
+      - wait;dur=0, queue;dur=0, connect;dur=0, resp;dur=637
       Referrer-Policy:
       - no-referrer-when-downgrade
     body:
@@ -102,5 +104,5 @@ http_interactions:
         YXN0X21vZGlmaWVkIjogeyJ0eXBlIjogIi90eXBlL2RhdGV0aW1lIiwgInZh
         bHVlIjogIjIwMjMtMDQtMDRUMDQ6MzM6MjguNDQ5MzUzIn19fX19LCAiaXRl
         bXMiOiBbXX0=
-  recorded_at: Fri, 03 Apr 2026 18:51:29 GMT
+  recorded_at: Fri, 17 Apr 2026 21:33:01 GMT
 recorded_with: VCR 6.4.0
