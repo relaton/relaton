@@ -45,13 +45,13 @@ status:
     content: Published
 copyright:
 - owner:
-    organization:
+  - organization:
       name:
       - content: European Committee for Standardization
       abbreviation:
         content: CEN
       uri:
-        content: https://cen.eu
+      - content: https://cen.eu
   from: '2019'
 relation:
 - type: obsoletes
@@ -60,7 +60,8 @@ relation:
     - content: https://standards.cen.eu/dyn/www/f?p=CENWEB:110:0::::FSP_PROJECT:34670&cs=1739483DB0A85EDABBC435CE39F54C548
       type: src
     type: standard
-    formattedref: CEN ISO/TS 21003-7:2008/A1:2010
+    formattedref:
+      content: CEN ISO/TS 21003-7:2008/A1:2010
 place:
 - formatted_place: London
 fetched: '2021-05-21'
@@ -76,7 +77,7 @@ ext:
   - code: 91.140.60
     text: Water supply systems
   structuredidentifier:
-    type: international-standard
+  - type: international-standard
     agency:
       - CEN
     docnumber: "21003"
