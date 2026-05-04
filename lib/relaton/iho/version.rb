@@ -1,5 +1,5 @@
 module Relaton
   module Iho
-    VERSION = "2.0.3".freeze
+    VERSION = "2.1.0".freeze
   end
 end
