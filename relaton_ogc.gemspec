@@ -28,5 +28,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "faraday", "~> 2.7"
   spec.add_dependency "relaton-core", "~> 0.0.13"
   spec.add_dependency "relaton-index", "~> 0.2.0"
-  spec.add_dependency "relaton-iso", "~> 2.0.0"
+  spec.add_dependency "relaton-iso", "~> 2.1.0"
 end
