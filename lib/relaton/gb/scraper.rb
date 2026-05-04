@@ -95,8 +95,8 @@ module Relaton
       # @param doc [Nokogiri::HTML::Document]
       # @return [Array<String>]
       def get_ccs(doc)
-        code = doc.at("//div[contains(text(), '中国标准分类号')]/following-sibling::div").text.delete("\r\n\t\t")
-        [CCS.new(code: code.strip)]
+        code = doc.at("//div[contains(text(), '中国标准分类号')]/following-sibling::div").text.strip
+        [CCS.new(code: code)]
       end
 
       # @param doc [Nokogiri::HTML::Document]
@@ -106,8 +106,8 @@ module Relaton
                     " | //dt[contains(text(), '国际标准分类号')]/following-sibling::dd")
         return [] unless ics
 
-        code = ics.text.delete("\r\n\t\t")
-        [Bib::ICS.new(code: code.strip)]
+        code = ics.text.strip
+        [Bib::ICS.new(code: code)]
       end
 
       # @param doc [Nokogiri::HTML::Document]
