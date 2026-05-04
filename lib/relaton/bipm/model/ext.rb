@@ -10,7 +10,6 @@ module Relaton
         kg_h_c_deltanu kg_h m_c_deltanu m_c mol_NA s_deltanu
       ]
 
-      attribute :schema_version, method: :get_schema_version
       attribute :doctype, Doctype
       attribute :comment_period, CommentPeriod
       attribute :si_aspect, :string, values: SI_ASPECTS
@@ -22,6 +21,12 @@ module Relaton
         map_element "si-aspect", to: :si_aspect
         map_element "meeting-note", to: :meeting_note
         map_element "structuredidentifier", to: :structuredidentifier
+      end
+
+      key_value do
+        map_element "comment_period", to: :comment_period
+        map_element "si_aspect", to: :si_aspect
+        map_element "meeting_note", to: :meeting_note
       end
 
       def get_schema_version
