@@ -144,7 +144,7 @@ describe Relaton::Calconnect::Scraper do
         }
       ],
       "edition" => { "number" => "1" },
-      "version" => [{ "revision_date" => "2000-04-12" }],
+      "version" => [{ "content" => "2000-04-12" }],
       "abstract" => [{ "content" => "This is an abstract." }],
       "status" => { "stage" => { "content" => "published" } },
       "copyright" => [{ "owner" => [{ "organization" => { "name" => [{ "content" => "CalConnect" }] } }] }],
