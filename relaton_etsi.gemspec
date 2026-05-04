@@ -35,7 +35,7 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   spec.require_paths = ["lib"]
 
   spec.add_dependency "mechanize", "~> 2.8"
-  spec.add_dependency "relaton-bib", "~> 2.0.0"
+  spec.add_dependency "relaton-bib", "~> 2.1.0"
   spec.add_dependency "relaton-core", "~> 0.0.13"
   spec.add_dependency "relaton-index", "~> 0.2.7"
 
