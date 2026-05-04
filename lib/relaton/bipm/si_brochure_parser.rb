@@ -35,6 +35,14 @@ module Relaton::Bipm
         xml = File.read(f, encoding: "UTF-8")
         xml = xml.force_encoding("UTF-8") if xml.encoding != Encoding::UTF_8
         item1 = Bibdata.from_xml(xml)
+        # Workaround for relaton-bib Version#content bug: whitespace between
+        # legacy <revision-date>/<draft> children gets captured as @content,
+        # blocking the legacy-fold path. Clear it so the getter recomputes.
+        item1.version.each do |v|
+          c = v.instance_variable_get(:@content)
+          next unless c.is_a?(Array) || (c.is_a?(String) && c.strip.empty?)
+          v.instance_variable_set(:@content, nil)
+        end
         @data_fetcher.errors[:si_brochure_title] &&= item1.title.empty?
         @data_fetcher.errors[:si_brochure_docidentifier] &&= item1.docidentifier.empty?
         unless has_committee_contributor?(item1)
