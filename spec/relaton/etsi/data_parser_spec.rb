@@ -79,7 +79,7 @@ describe Relaton::Etsi::DataParser do
       it "has correct version" do
         expect(subject.version).to be_instance_of Array
         expect(subject.version.first).to be_instance_of Relaton::Bib::Version
-        expect(subject.version.first.draft).to eq "1.3.0"
+        expect(subject.version.first.content).to eq "1.3.0"
       end
 
       it "has correct status" do
@@ -200,7 +200,7 @@ describe Relaton::Etsi::DataParser do
       version = subject.version
       expect(version).to be_instance_of Array
       expect(version.first).to be_instance_of Relaton::Bib::Version
-      expect(version.first.draft).to eq "1.3.0"
+      expect(version.first.content).to eq "1.3.0"
     end
 
     context "#status" do
