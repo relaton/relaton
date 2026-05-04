@@ -1,5 +1,5 @@
 describe Relaton::ThreeGpp::Bibitem do
-  let(:file) { "spec/fixtures/bibitem.xml"}
+  let(:file) { "spec/fixtures/bibitem.xml" }
   let(:input_xml) { File.read file, encoding: "UTF-8" }
   let(:item) { described_class.from_xml input_xml }
 

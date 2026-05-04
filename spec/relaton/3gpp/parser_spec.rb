@@ -59,7 +59,7 @@ describe Relaton::ThreeGpp::Parser do
     expect(item.docidentifier[0].content).to eq("3GPP TS 02.09:REL-99/8.0.0")
     expect(item.docnumber).to eq("TS 02.09:REL-99/8.0.0")
     expect(item.date[0].at.to_s).to eq("2000-06-30")
-    expect(item.version[0].draft).to eq("8.0.0")
+    expect(item.version[0].content).to eq("8.0.0")
     expect(item.contributor[0].role[0].type).to eq("author")
     expect(item.contributor[0].role[1].type).to eq("publisher")
     expect(item.contributor[0].organization.name[0].content).to eq("3rd Generation Partnership Project")
