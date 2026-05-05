@@ -1,3 +1,4 @@
+require "cgi"
 require "ieee-idams"
 
 module Relaton
@@ -147,7 +148,7 @@ module Relaton
         abbr = Bib::LocalizedString.new(content: "IEEE")
 
         # Create subdivision for the committee
-        subdiv_name = Bib::TypedLocalizedString.new(content: committee, language: "en", script: "Latn")
+        subdiv_name = Bib::TypedLocalizedString.new(content: CGI.unescapeHTML(committee), language: "en", script: "Latn")
         subdivision = Bib::Subdivision.new(type: "committee", name: [subdiv_name])
 
         org = Bib::Organization.new(name: [orgname], abbreviation: abbr, subdivision: [subdivision])
@@ -232,7 +233,7 @@ module Relaton
       #
       def parse_keyword
         result = @doc.keyword.map do |kw|
-          Bib::Keyword.new(vocab: Bib::LocalizedString.new(content: kw, language: "en", script: "Latn"))
+          Bib::Keyword.new(vocab: Bib::LocalizedString.new(content: CGI.unescapeHTML(kw), language: "en", script: "Latn"))
         end
         @errors[:keyword] &&= result.empty?
         result
