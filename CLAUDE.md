@@ -33,7 +33,7 @@ Data flow: `Processor#get` → `Bibliography.get` → `HitCollection.search` →
 
 DataFetcher flow: Crawls `https://xmpp.org/extensions/refs/`, parses each XML ref via `Relaton::Bib::Converter::BibXml.to_item`, sets `ext.flavor = "xsf"`, saves to disk.
 
-Constants: `INDEXFILE = "index-v1"`, `GHDATA_URL` points to relaton-data-xsf `data-v2` branch.
+Constants: `INDEXFILE = "index-v1"`, `GHDATA_URL` points to relaton-data-xsf `v2` branch.
 
 ## Testing
 

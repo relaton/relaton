@@ -1,7 +1,7 @@
 module Relaton
   module Xsf
     class HitCollection < Relaton::Core::HitCollection
-      GHDATA_URL = "https://raw.githubusercontent.com/relaton/relaton-data-xsf/data-v2/".freeze
+      GHDATA_URL = "https://raw.githubusercontent.com/relaton/relaton-data-xsf/v2/".freeze
 
       def search
         @array = index.search(ref).sort_by { |hit| hit[:id] }.map do |row|
