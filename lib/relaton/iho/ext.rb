@@ -14,9 +14,7 @@ module Relaton
 
       key_value { map_element "commentperiod", to: :commentperiod }
 
-      def schema_version
-        Relaton.schema_versions["relaton-model-iho"]
-      end
+      def schema_version = Relaton.schema_versions["relaton-model-iho"]
     end
   end
 end
