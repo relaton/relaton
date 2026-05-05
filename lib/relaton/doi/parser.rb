@@ -462,7 +462,10 @@ module Relaton
         return [] unless @src["standards-body"]
 
         name, acronym = @src["standards-body"].values_at("name", "acronym")
-        org = create_org(name, acronym)
+        org = create_org(
+          CGI.unescapeHTML(name),
+          acronym && CGI.unescapeHTML(acronym),
+        )
         [contributor(org, "authorizer")]
       end
 
