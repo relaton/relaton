@@ -54,6 +54,20 @@ module Relaton
       def to_hash
         PARTS.each_with_object({}) { |part, hash| hash[part] = send part if send part }
       end
+
+      #
+      # Render docidentifier as a string, the inverse of {.parse}.
+      #
+      # @return [String] document identifier
+      #
+      def to_s
+        prefix = stage || (type if type && type != "TR")
+        base = [prefix, code].compact.join("-")
+        base = "#{base}-#{year}" if year
+        base = "#{base}-#{date}" if date
+        base = "#{base}/#{suff}" if suff
+        base
+      end
     end
   end
 end

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-w3c/data-v2/data/xml-names.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-w3c/v2/data/xml-names.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 24B6:C5814:13C7C2:181353:69F51EC5
+      - 1452:31B43B:18D51A:1CCEA0:69FA32A4
       Accept-Ranges:
       - bytes
       Date:
-      - Fri, 01 May 2026 21:44:40 GMT
+      - Tue, 05 May 2026 18:10:46 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200155-IAD
+      - cache-iad-kcgs7200134-IAD
       X-Cache:
       - HIT
       X-Cache-Hits:
       - '1'
       X-Timer:
-      - S1777671880.071373,VS0,VE1
+      - S1778004647.969935,VS0,VE1
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -63,11 +63,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - b5c60f63ced906963242a3327e7ce188fcfb1085
+      - c7620363cc594da02fc1fa3610eb1ea5eb3719f6
       Expires:
-      - Fri, 01 May 2026 21:49:40 GMT
+      - Tue, 05 May 2026 18:15:46 GMT
       Source-Age:
-      - '2'
+      - '1'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -163,5 +163,5 @@ http_interactions:
         bWJlcjogeG1sLW5hbWVzCmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjEuMC4w
         CiAgZG9jdHlwZToKICAgIGNvbnRlbnQ6IHRlY2huaWNhbFJlcG9ydAogIGZs
         YXZvcjogdzNjCg==
-  recorded_at: Fri, 01 May 2026 21:44:40 GMT
+  recorded_at: Tue, 05 May 2026 18:10:46 GMT
 recorded_with: VCR 6.4.0

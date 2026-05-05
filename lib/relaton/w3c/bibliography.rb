@@ -8,7 +8,7 @@ module Relaton
   module W3c
     # Class methods for search W3C standards.
     class Bibliography
-      SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-w3c/data-v2/"
+      SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-w3c/v2/"
 
       class << self
         # @param text [String]
