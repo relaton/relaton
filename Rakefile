@@ -13,7 +13,7 @@ namespace :spec do
     require_relative "lib/relaton/iho"
 
     filename = "#{Relaton::Iho::INDEXFILE}.zip"
-    url = "https://raw.githubusercontent.com/relaton/relaton-data-iho/data-v2/\#{filename}"
+    url = "https://raw.githubusercontent.com/relaton/relaton-data-iho/v2/\#{filename}"
     dest = File.join(__dir__, "spec", "fixtures", filename)
 
     puts "Downloading \#{url} ..."
