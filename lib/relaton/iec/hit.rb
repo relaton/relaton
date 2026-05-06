@@ -4,7 +4,7 @@ module Relaton
   module Iec
     # Hit.
     class Hit < Core::Hit
-      GHURL = "https://raw.githubusercontent.com/relaton/relaton-data-iec/refs/heads/data-v2/"
+      GHURL = "https://raw.githubusercontent.com/relaton/relaton-data-iec/refs/heads/v2/"
 
       attr_writer :item
 
