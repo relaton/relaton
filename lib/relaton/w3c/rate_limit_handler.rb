@@ -38,6 +38,12 @@ module Relaton
         rescue Lutaml::Hal::NotFoundError
           Util.warn "Object not found: #{href}"
           RateLimitHandler.fetched_objects[href] = nil
+        rescue Lutaml::Hal::Error => e
+          # Non-retryable client-side errors (403/401/400 and any other
+          # Lutaml::Hal::Error not matched above) — skip the resource and
+          # continue rather than aborting the whole crawl.
+          Util.warn "Client error for #{href}, skipping: #{e.message}"
+          RateLimitHandler.fetched_objects[href] = nil
         end
       end
 
