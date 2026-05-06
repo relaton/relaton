@@ -6,9 +6,9 @@ module Relaton
     module Scraper
       extend Scraper
 
-      IDS = "https://raw.githubusercontent.com/relaton/relaton-data-ids/refs/heads/data-v2/"
-      RFC = "https://raw.githubusercontent.com/relaton/relaton-data-rfcs/refs/heads/data-v2/"
-      RSS = "https://raw.githubusercontent.com/relaton/relaton-data-rfcsubseries/refs/heads/data-v2/"
+      IDS = "https://raw.githubusercontent.com/relaton/relaton-data-ids/refs/heads/v2/"
+      RFC = "https://raw.githubusercontent.com/relaton/relaton-data-rfcs/refs/heads/v2/"
+      RSS = "https://raw.githubusercontent.com/relaton/relaton-data-rfcsubseries/refs/heads/v2/"
 
       # @param text [String]
       # @return [RelatonIetf::IetfBibliographicItem]

@@ -12,9 +12,9 @@ namespace :spec do
     require "uri"
 
     indexes = {
-      "rfc-index-v1.zip" => "https://raw.githubusercontent.com/relaton/relaton-data-rfcs/data-v2/index-v1.zip",
-      "rss-index-v1.zip" => "https://raw.githubusercontent.com/relaton/relaton-data-rfcsubseries/data-v2/index-v1.zip",
-      "ids-index-v1.zip" => "https://raw.githubusercontent.com/relaton/relaton-data-ids/data-v2/index-v1.zip",
+      "rfc-index-v1.zip" => "https://raw.githubusercontent.com/relaton/relaton-data-rfcs/v2/index-v1.zip",
+      "rss-index-v1.zip" => "https://raw.githubusercontent.com/relaton/relaton-data-rfcsubseries/v2/index-v1.zip",
+      "ids-index-v1.zip" => "https://raw.githubusercontent.com/relaton/relaton-data-ids/v2/index-v1.zip",
     }
 
     indexes.each do |filename, url|
