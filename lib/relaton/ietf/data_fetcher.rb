@@ -120,12 +120,12 @@ module Relaton
       # @param [String] ref reference
       # @param [String] type relation type
       #
-      # @return [Relaton::Bib::Relation] relation
+      # @return [Relaton::Ietf::Relation] relation
       #
       def version_relation(ver, type)
         docid = Bib::Docidentifier.new(type: "Internet-Draft", content: ver[:ref], primary: true)
         bibitem = ItemData.new(formattedref: Bib::Formattedref.new(content: ver[:ref]), docidentifier: [docid], source: ver[:source])
-        Bib::Relation.new(type: type, bibitem: bibitem)
+        Relaton::Ietf::Relation.new(type: type, bibitem: bibitem)
       end
 
       #

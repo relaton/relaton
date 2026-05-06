@@ -212,7 +212,7 @@ module Relaton
           is_also.doc_id.map do |ref|
             rfc_entry = rfc_index&.[](ref)
             bibitem = rfc_entry ? rfc_entry.to_rfc_item(wg_names: wg_names) : build_minimal_bibitem(ref)
-            Bib::Relation.new(type: "includes", bibitem: bibitem)
+            Relaton::Ietf::Relation.new(type: "includes", bibitem: bibitem)
           end.compact
         end
 
@@ -339,7 +339,7 @@ module Relaton
         def build_rfc_doc_relation(ref, type)
           docid = Bib::Docidentifier.new(type: "IETF", content: ref, primary: true)
           bibitem = ItemData.new(formattedref: Bib::Formattedref.new(content: ref), docidentifier: [docid])
-          Bib::Relation.new(type: type, bibitem: bibitem)
+          Relaton::Ietf::Relation.new(type: type, bibitem: bibitem)
         end
 
         def build_rfc_status

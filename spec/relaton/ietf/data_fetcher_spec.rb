@@ -124,7 +124,7 @@ RSpec.describe Relaton::Ietf::DataFetcher do
 
     it "create version relation" do
       rel = subject.send(:version_relation, { ref: "draft-collins-pfr-00", source: [] }, "includes")
-      expect(rel).to be_instance_of(Relaton::Bib::Relation)
+      expect(rel).to be_instance_of(Relaton::Ietf::Relation)
     end
   end
 
