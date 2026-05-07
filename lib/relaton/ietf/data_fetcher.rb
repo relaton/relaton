@@ -1,3 +1,5 @@
+require "etc"
+require "parallel"
 require "relaton/core"
 require_relative "../ietf"
 require_relative "bibxml_parser"
@@ -41,83 +43,144 @@ module Relaton
       end
 
       #
-      # Fetches ietf-internet-drafts documents
+      # Fetches ietf-internet-drafts documents.
       #
-      def fetch_ieft_internet_drafts # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-        versions = Dir["bibxml-ids/*.xml"].each_with_object([]) do |path, vers|
-          file = File.basename path, ".xml"
-          draft = file.include?("D.draft-")
-          /(?<ver>\d+)$/ =~ file if draft
-          bib = BibXMLParser.parse(File.read(path, encoding: "UTF-8"))
-          if ver
-            version = Bib::Version.new(draft: ver)
-            bib.version = [version]
-          end
-          if draft
-            vers << { ref: file.sub(/^reference\.I-D\./, "").downcase, source: bib.source }
-          end
-          save_doc bib
+      # Each work unit (one series, or one singleton XML) is processed
+      # end-to-end in a worker process: parse → link relations → serialize →
+      # write. Workers return Marshal-friendly index entries; the parent
+      # collects them and updates `Relaton::Index` and the duplicate-check set
+      # serially. Set `RELATON_IETF_PARALLEL_WORKERS=0` to force serial
+      # execution (useful for tests and debugging).
+      #
+      def fetch_ieft_internet_drafts
+        series_groups, singleton_paths = group_draft_paths
+
+        series_results = parallelize(series_groups.to_a) do |(series, paths_info)|
+          process_series(series, paths_info)
+        end.flatten(1)
+
+        singleton_results = parallelize(singleton_paths) do |path|
+          process_singleton(path)
         end
-        update_versions(versions) if versions.any? && @format != "bibxml"
+
+        (series_results + singleton_results).compact.each { |r| record_index_entry(r) }
       end
 
       #
-      # Updates I-D's versions
+      # Run `block` once per item, in parallel worker processes when configured.
+      # `Parallel.map(items, in_processes: 0)` runs synchronously in the
+      # current process, which keeps tests deterministic and lets mocks work.
       #
-      # @param [Array<String>] versions list of versions
+      def parallelize(items, &block)
+        Parallel.map(items, in_processes: worker_count, &block)
+      end
+
+      def worker_count
+        ENV.fetch("RELATON_IETF_PARALLEL_WORKERS", Etc.nprocessors.to_s).to_i
+      end
+
       #
-      def update_versions(versions) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-        series = ""
-        bib_versions = []
-        Dir["#{@output}/*.#{@ext}"].each do |file|
-          match = /(?<series>draft-.+)-(?<ver>\d{2})\.#{@ext}$/.match file
-          if match
-            if series != match[:series]
-              bib_versions = versions.select { |v| v[:ref].downcase.gsub(/[.\s\/:-]+/, "-").match?(/^#{Regexp.quote match[:series]}-\d{2}/) }
-              create_series match[:series], bib_versions
-              series = match[:series]
-            end
-            lv = bib_versions.select { |v| v[:ref].match(/\d+$/).to_s.to_i < match[:ver].to_i }
-            hv = bib_versions.select { |v| v[:ref].match(/\d+$/).to_s.to_i > match[:ver].to_i }
-            if lv.any? || hv.any?
-              bib = read_doc(file)
-              bib.relation << version_relation(lv.last, "updates") if lv.any?
-              bib.relation << version_relation(hv.first, "updatedBy") if hv.any?
-              save_doc bib, check_duplicate: false
-            end
+      # Filename-only scan: group versioned drafts by normalized series stem;
+      # everything else (non-versioned, non-`D.draft-`) goes to singletons.
+      # No XML parsing happens here — workers do that.
+      #
+      # @return [Array(Hash, Array<String>)]
+      #   series_groups: { normalized_series => [{path, ver, ref}, ...] }
+      #   singleton_paths: [path, ...]
+      #
+      def group_draft_paths
+        series_groups = {}
+        singleton_paths = []
+        Dir["bibxml-ids/*.xml"].each do |path|
+          file = File.basename(path, ".xml")
+          is_draft = file.include?("D.draft-")
+          ver = is_draft ? file[/(\d+)$/, 1] : nil
+          ref = file.sub(/^reference\.I-D\./, "").downcase
+          stem_match = is_draft && ver ? /^(draft-.+)-(\d{2})$/.match(ref) : nil
+          if stem_match
+            series = stem_match[1].gsub(/[.\s\/:-]+/, "-")
+            (series_groups[series] ||= []) << { path: path, ver: ver, ref: ref }
+          else
+            singleton_paths << path
+          end
+        end
+        [series_groups, singleton_paths]
+      end
+
+      #
+      # Worker: parse all files in a series, sort by version, append
+      # immediate-neighbor relations (skipped for bibxml), write each version
+      # and the un-versioned aggregator doc. Returns an array of index entries
+      # for the parent.
+      #
+      def process_series(series, paths_info)
+        sorted = paths_info.sort_by { |p| p[:ver].to_i }.map do |p|
+          bib = BibXMLParser.parse(File.read(p[:path], encoding: "UTF-8"))
+          bib.version = [Bib::Version.new(draft: p[:ver])]
+          p.merge(bib: bib, source: bib.source)
+        end
+        link_neighbor_relations(sorted) if @format != "bibxml"
+
+        results = sorted.map { |entry| serialize_and_write(entry[:bib]) }
+        results << serialize_and_write(build_unversioned_doc(series, sorted)) if @format != "bibxml"
+        results.compact
+      end
+
+      #
+      # Worker: parse + serialize + write a single non-grouped XML.
+      #
+      def process_singleton(path)
+        file = File.basename(path, ".xml")
+        is_draft = file.include?("D.draft-")
+        ver = is_draft ? file[/(\d+)$/, 1] : nil
+        bib = BibXMLParser.parse(File.read(path, encoding: "UTF-8"))
+        bib.version = [Bib::Version.new(draft: ver)] if ver
+        serialize_and_write(bib)
+      end
+
+      #
+      # Append immediate-neighbor `updates` / `updatedBy` relations in memory.
+      # Single-version series get no relations (no neighbors).
+      #
+      def link_neighbor_relations(sorted)
+        sorted.each_with_index do |entry, i|
+          if i.positive?
+            prev = sorted[i - 1]
+            entry[:bib].relation << version_relation({ ref: prev[:ref], source: prev[:source] }, "updates")
+          end
+          if i < sorted.size - 1
+            nxt = sorted[i + 1]
+            entry[:bib].relation << version_relation({ ref: nxt[:ref], source: nxt[:source] }, "updatedBy")
           end
         end
       end
 
       #
-      # Create unversioned bibliographic item
+      # Build (but do not write) the un-versioned series aggregator doc with
+      # `includes` relations to every version. Uses the latest version's
+      # title/abstract from memory.
       #
-      # @param [String] ref reference
-      # @param [Array<String>] versions list of versions
+      # @return [Relaton::Ietf::ItemData, nil]
       #
-      def create_series(ref, versions) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-        vs = versions.sort_by { |v| v[:ref].match(/\d+$/).to_s.to_i }
-        if vs.empty?
-          Util.warn "No versions found for #{ref}"
-          return
+      def build_unversioned_doc(series, sorted)
+        if sorted.empty?
+          Util.warn "No versions found for #{series}"
+          return nil
         end
-        file = output_file(vs.last[:ref])
-        # return unless File.exist?(file)
 
-        docid = Bib::Docidentifier.new(type: "Internet-Draft", content: ref, primary: true)
-        rel = vs.map { |v| version_relation v, "includes" }
-        last_v = Item.from_yaml(File.read(file, encoding: "UTF-8"))
-        bib = ItemData.new(
-          title: last_v.title, abstract: last_v.abstract, formattedref: Bib::Formattedref.new(content: ref),
+        last_v = sorted.last[:bib]
+        docid = Bib::Docidentifier.new(type: "Internet-Draft", content: series, primary: true)
+        rel = sorted.map { |e| version_relation({ ref: e[:ref], source: e[:source] }, "includes") }
+        ItemData.new(
+          title: last_v.title, abstract: last_v.abstract, formattedref: Bib::Formattedref.new(content: series),
           docidentifier: [docid], relation: rel
         )
-        save_doc bib
       end
 
       #
       # Create bibitem relation
       #
-      # @param [String] ref reference
+      # @param [Hash] ver version reference, { ref:, source: }
       # @param [String] type relation type
       #
       # @return [Relaton::Ietf::Relation] relation
@@ -126,22 +189,6 @@ module Relaton
         docid = Bib::Docidentifier.new(type: "Internet-Draft", content: ver[:ref], primary: true)
         bibitem = ItemData.new(formattedref: Bib::Formattedref.new(content: ver[:ref]), docidentifier: [docid], source: ver[:source])
         Relaton::Ietf::Relation.new(type: type, bibitem: bibitem)
-      end
-
-      #
-      # Redad saved documents
-      #
-      # @param [String] file path to file
-      #
-      # @return [Relaton::Ietf::ItemData] bibliographic item
-      #
-      def read_doc(file)
-        doc = File.read(file, encoding: "UTF-8")
-        case @format
-        when "xml" then Item.from_xml(doc)
-        when "yaml" then Item.from_yaml(doc)
-        else BibXMLParser.parse(doc)
-        end
       end
 
       #
@@ -172,38 +219,58 @@ module Relaton
       end
 
       #
-      # Save document to file
+      # Save document to file (sequential path: serialize, write, index).
+      # Used by the rfcsubseries / rfc-entries fetchers; the I-D fetcher splits
+      # this into worker-safe `serialize_and_write` plus parent-only
+      # `record_index_entry` so the index is touched only in the main process.
       #
-      # @param [Relaton::Ietf::Rfc::Entry, nil] rfc index entry
+      # @param [Relaton::Ietf::Rfc::Entry, nil] entry
       # @param [Boolean] check_duplicate check for duplicate
       #
-      def save_doc(entry, check_duplicate: true) # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
-        return unless entry
+      def save_doc(entry, check_duplicate: true)
+        result = serialize_and_write(entry)
+        record_index_entry(result, check_duplicate: check_duplicate) if result
+      end
 
-        c = case @format
-            when "xml" then entry.to_xml(bibdata: true)
-            when "yaml" then entry.to_yaml
-            when "bibxml" then entry.to_rfcxml
-            else entry.send("to_#{@format}")
-            end
+      #
+      # Worker-safe: serialize, compute output filename, write to disk, return
+      # a Marshal-friendly hash with the docid+file pair the parent needs to
+      # update `Relaton::Index` and `@files`. Does NOT touch instance state
+      # that has to stay consistent across workers (`@files`, the index).
+      #
+      # @param [#to_yaml, #to_xml, #to_rfcxml, nil] entry
+      # @return [Hash, nil]
+      #
+      def serialize_and_write(entry) # rubocop:disable Metrics/MethodLength, Metrics/CyclomaticComplexity
+        return nil unless entry
+
+        content = case @format
+                  when "xml" then entry.to_xml(bibdata: true)
+                  when "yaml" then entry.to_yaml
+                  when "bibxml" then entry.to_rfcxml
+                  else entry.send("to_#{@format}")
+                  end
         id = if entry.respond_to?(:docidentifier)
                entry.docidentifier.detect { |i| i.type == "Internet-Draft" && i.primary }&.content
              end
         id ||= entry.docnumber || entry.formattedref.content
         file = output_file(id)
-        if check_duplicate && @files.include?(file)
-          Util.warn "File #{file} already exists. Document: #{entry.docnumber}"
-        elsif check_duplicate
-          @files << file
-        end
-        File.write file, c, encoding: "UTF-8"
-        add_to_index entry, file
+        File.write file, content, encoding: "UTF-8"
+        primary = entry.docidentifier.detect(&:primary) || entry.docidentifier.first
+        { docnumber: entry.docnumber, file: file, index_id: primary.content }
       end
 
-      def add_to_index(entry, file)
-        docid = entry.docidentifier.detect(&:primary)
-        docid ||= entry.docidentifier.first
-        index.add_or_update docid.content, file
+      #
+      # Parent-only: dedupe-check `@files` and update `Relaton::Index`. Called
+      # serially after workers return so index updates are race-free.
+      #
+      def record_index_entry(result, check_duplicate: true)
+        if check_duplicate && @files.include?(result[:file])
+          Util.warn "File #{result[:file]} already exists. Document: #{result[:docnumber]}"
+        elsif check_duplicate
+          @files << result[:file]
+        end
+        index.add_or_update result[:index_id], result[:file]
       end
 
     end
