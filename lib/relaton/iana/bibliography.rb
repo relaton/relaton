@@ -4,7 +4,7 @@ module Relaton
   module Iana
     # Methods for search IANA standards.
     module Bibliography
-      SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-iana/refs/heads/data-v2/"
+      SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-iana/refs/heads/v2/"
 
       # @param text [String]
       # @return [Relaton::Iana::ItemData, nil]
