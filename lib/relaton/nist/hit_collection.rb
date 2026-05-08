@@ -10,7 +10,7 @@ module Relaton
     class HitCollection < Core::HitCollection
       include Core::DateParser
 
-      GHNISTDATA = "https://raw.githubusercontent.com/relaton/relaton-data-nist/data-v2/"
+      GHNISTDATA = "https://raw.githubusercontent.com/relaton/relaton-data-nist/v2/"
 
       attr_reader :reference
       attr_accessor :array
