@@ -1,7 +1,7 @@
 module Relaton
   module Ieee
     class Bibliography
-      GH_URL = "https://raw.githubusercontent.com/relaton/relaton-data-ieee/refs/heads/data-v2/".freeze
+      GH_URL = "https://raw.githubusercontent.com/relaton/relaton-data-ieee/refs/heads/v2/".freeze
 
       class << self
         #
