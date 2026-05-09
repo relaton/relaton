@@ -29,6 +29,27 @@ describe Relaton::Ieee::IdamsParser do
     it_behaves_like "parse file", "00026466"
     it_behaves_like "parse file", "07409855"
 
+    context "abstract sanitization" do
+      let(:source_xml) { File.read "spec/fixtures/examples/04140777.xml" }
+
+      it "strips <<ETX>> placeholder from abstract content" do
+        articleinfo = doc.volume.article.articleinfo
+        articleinfo.abstract.first.value += "<<ETX>>"
+
+        abstract = subject.send(:parse_abstract)
+        expect(abstract.size).to eq 1
+        expect(abstract.first.content).not_to include "<<ETX>>"
+        expect(abstract.first.content).not_to include "ETX"
+      end
+
+      it "skips abstract whose content is only a control-char placeholder" do
+        articleinfo = doc.volume.article.articleinfo
+        articleinfo.abstract.first.value = "<<ETX>>"
+
+        expect(subject.send(:parse_abstract)).to be_empty
+      end
+    end
+
     context "backrefs" do
       let(:source_xml) { File.read "spec/fixtures/examples/07873195.xml" }
       let(:xml) { bibitem.to_xml bibdata: true }

@@ -11,6 +11,12 @@ module Relaton
         relation source keyword ext
       ].freeze
 
+      # Upstream IDAMS abstracts sometimes carry escaped ASCII control
+      # characters as printable tokens like `<<ETX>>`. They are meaningless
+      # in output, and `<<…>>` blows up XML serialization downstream
+      # (libxml2 reads `<<` as the start of a tag). Strip the whole family.
+      CONTROL_PLACEHOLDER_RE = /<<[A-Z]{2,5}>>/.freeze
+
       def initialize(doc, fetcher, errors = {})
         @doc = doc
         @fetcher = fetcher
@@ -164,7 +170,10 @@ module Relaton
         result = @doc.volume.article.articleinfo.abstract.each_with_object([]) do |abs, acc|
           next unless abs.abstract_type == "Standard"
 
-          acc << Bib::Abstract.new(content: abs.value, language: "en", script: "Latn")
+          content = abs.value.gsub(CONTROL_PLACEHOLDER_RE, "").strip
+          next if content.empty?
+
+          acc << Bib::Abstract.new(content: content, language: "en", script: "Latn")
         end
         @errors[:abstract] &&= result.empty?
         result
