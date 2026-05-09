@@ -11,5 +11,3 @@ on:
 jobs:
   rake:
     uses: relaton/support/.github/workflows/rake.yml@main
-    secrets:
-      pat_token: ${{ secrets.RELATON_CI_PAT }}
