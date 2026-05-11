@@ -17,7 +17,7 @@ namespace :spec do
     require "net/http"
     require "uri"
 
-    url = "https://raw.githubusercontent.com/relaton/relaton-data-etsi/data-v2/index-v1.zip"
+    url = "https://raw.githubusercontent.com/relaton/relaton-data-etsi/v2/index-v1.zip"
     dest = File.join(__dir__, "spec", "fixtures", "index-v1.zip")
 
     puts "Downloading \#{url} ..."

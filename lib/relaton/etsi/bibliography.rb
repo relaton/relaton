@@ -4,7 +4,7 @@ module Relaton
   module Etsi
     # Methods for search IANA standards.
     module Bibliography
-      SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-etsi/refs/heads/data-v2/"
+      SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-etsi/refs/heads/v2/"
 
       # @param text [String]
       # @return [Relaton::Etsi::ItemData, nil]
