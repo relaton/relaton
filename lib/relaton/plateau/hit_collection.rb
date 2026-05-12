@@ -3,7 +3,7 @@ require_relative "hit"
 module Relaton
   module Plateau
     class HitCollection < Relaton::Core::HitCollection
-      ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-plateau/data-v2/"
+      ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-plateau/v2/"
 
       def find
         @array = index.search do |row|
