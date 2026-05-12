@@ -6,7 +6,7 @@ module Relaton
   module Iso
     # Page of hit collection.
     class HitCollection < Relaton::Core::HitCollection
-      ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-iso/data-v2/"
+      ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-iso/v2/"
 
       def opts
         @opts ||= {}
