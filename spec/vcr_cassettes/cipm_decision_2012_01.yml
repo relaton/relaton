@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/data-v2/data/cipm/meeting/decision/2012-101-1.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/v2/data/cipm/meeting/decision/2012-101-1.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -47,23 +47,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 406A:1FC586:CE04B2:F28C03:69F64A7D
+      - 2A20:2C9C4B:410848:505268:6A028AF6
       Content-Encoding:
       - gzip
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 02 May 2026 19:03:26 GMT
+      - Tue, 12 May 2026 02:05:43 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100121-IAD
+      - cache-iad-kcgs7200164-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1777748606.061040,VS0,VE71
+      - S1778551543.015733,VS0,VE74
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -71,9 +71,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - cd8175c93add2c37dd1c269e0859c5e61d230a9c
+      - c63661c43f1ca1d6fbe8730732fe1e5596bdef29
       Expires:
-      - Sat, 02 May 2026 19:08:26 GMT
+      - Tue, 12 May 2026 02:10:43 GMT
       Source-Age:
       - '0'
     body:
@@ -93,10 +93,10 @@ http_interactions:
         cKmu4WVdW5zRhgNwNmFM6n2fZfBTc9jki/k3XvVnmBh7QQ8Zl/zry380MaZ9
         to5hO9kNEUOXQTxIYUMvF99W/oxxA3mUllyGf3yVKnzv/2DE/wcAXF7pTLIt
         ynZZujGSG1HjeT/tZl+OqzcqM9Vj9g/0MQXvsAgAAA==
-  recorded_at: Sat, 02 May 2026 19:03:26 GMT
+  recorded_at: Tue, 12 May 2026 02:05:43 GMT
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/data-v2/data/cipm/meeting/decision/2022-111-10.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/v2/data/cipm/meeting/decision/2022-111-10.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -141,23 +141,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 216E:1994CA:CE7877:F2EEA9:69F64A7D
+      - 91E0:1E8CF9:433516:527DEB:6A028AF6
       Content-Encoding:
       - gzip
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 02 May 2026 19:03:26 GMT
+      - Tue, 12 May 2026 02:05:43 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200069-IAD
+      - cache-iad-kjyo7100122-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1777748606.413621,VS0,VE58
+      - S1778551543.349334,VS0,VE70
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -165,9 +165,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 1b63494e979f77e7a091bdc7c145a8b8dd9e6bec
+      - 52e4d791a71b4a59655173caa9e791683a6927ef
       Expires:
-      - Sat, 02 May 2026 19:08:26 GMT
+      - Tue, 12 May 2026 02:10:43 GMT
       Source-Age:
       - '0'
     body:
@@ -187,5 +187,5 @@ http_interactions:
         AMggJbuG11Xl8ZE2HICTCVNm7/qsI8/cfpPP5t/Vqk/D1Pkzeii4xC/P/9HE
         lPfZOkbsFDdUCl0GyWQI6zu9eMfK60y6yL32FDL8w+VQ5TtfCiP5UgCQ+hru
         JNuibJbVmyKlG9Us52k2+3PavVGai4LM/gHzfCVCvAgAAA==
-  recorded_at: Sat, 02 May 2026 19:03:26 GMT
+  recorded_at: Tue, 12 May 2026 02:05:43 GMT
 recorded_with: VCR 6.4.0

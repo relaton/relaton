@@ -3,7 +3,7 @@ require_relative "id_parser"
 
 module Relaton::Bipm
   class Bibliography
-    GH_ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/data-v2/".freeze
+    GH_ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/v2/".freeze
 
     class << self
       # @param text [String]

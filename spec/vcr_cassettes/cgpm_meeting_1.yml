@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/data-v2/data/cgpm/meeting/1.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/v2/data/cgpm/meeting/1.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -47,23 +47,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - BD8A:FD004:1152515:14642BD:69F64A7C
+      - 3BB4:2E9D11:42A472:51EC06:6A028AF5
       Content-Encoding:
       - gzip
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 02 May 2026 19:03:25 GMT
+      - Tue, 12 May 2026 02:05:42 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200061-IAD
+      - cache-iad-kcgs7200067-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1777748605.374592,VS0,VE52
+      - S1778551542.294485,VS0,VE78
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -71,9 +71,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 5df6b101ee6e4ba697b03484538176e03b1f7e30
+      - 1fd0aad232b50d51bd36e992ac84ca19d183f13e
       Expires:
-      - Sat, 02 May 2026 19:08:25 GMT
+      - Tue, 12 May 2026 02:10:42 GMT
       Source-Age:
       - '0'
     body:
@@ -95,5 +95,5 @@ http_interactions:
         PPUC7sP9BHz5cK9wzAaI+t086nf9ufrFO+wpBpVEIWgInYPwI4aNA5tuObxV
         0Dk3zAibwC9XRfu/uKxzvKwJQWvFdiTPKB+PLgOjNi7Eow8bh1Xx7TMsxGx5
         c1Eskj/bd94cQQgAAA==
-  recorded_at: Sat, 02 May 2026 19:03:25 GMT
+  recorded_at: Tue, 12 May 2026 02:05:42 GMT
 recorded_with: VCR 6.4.0

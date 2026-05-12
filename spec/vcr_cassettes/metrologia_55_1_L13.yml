@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/data-v2/data/metrologia-55-1-l13.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/v2/data/metrologia-55-1-l13.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -47,23 +47,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - C660:27E2B7:115D115:146F154:69F64A7D
+      - CD8E:24E915:3EFF31:4E47C3:6A028AF9
       Content-Encoding:
       - gzip
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 02 May 2026 19:03:29 GMT
+      - Tue, 12 May 2026 02:05:46 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200131-IAD
+      - cache-iad-kcgs7200101-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1777748609.276579,VS0,VE53
+      - S1778551546.035519,VS0,VE71
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -71,9 +71,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - e97a76e7cbe1ffa7dcaf27f3a29fba00489424cd
+      - 0d8de6f5ae94a491c996689220672bd1167ec987
       Expires:
-      - Sat, 02 May 2026 19:08:29 GMT
+      - Tue, 12 May 2026 02:10:46 GMT
       Source-Age:
       - '0'
     body:
@@ -105,5 +105,5 @@ http_interactions:
         yVRIfM2JqxxlyDinI/wF+Zd1N0gj4/u+fJG0d1M921B7Ugrwu58iqFRxOivt
         qnq/L1VaZGUmxGB5VH1dnyvd7lHFUhhTHDCMqnY5RbjXbEPr07xVbvbEhehi
         2vMqLWodB758HvvHHDdv4P4FrVMAY6kbAAA=
-  recorded_at: Sat, 02 May 2026 19:03:29 GMT
+  recorded_at: Tue, 12 May 2026 02:05:46 GMT
 recorded_with: VCR 6.4.0
