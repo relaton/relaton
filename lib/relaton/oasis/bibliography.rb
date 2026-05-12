@@ -5,7 +5,7 @@ require "net/http"
 module Relaton
   module Oasis
     module Bibliography
-      ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-oasis/refs/heads/data-v2/"
+      ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-oasis/refs/heads/v2/"
 
       class << self
         def search(text, _year = nil, _opts = {}) # rubocop:disable Metrics/MethodLength
