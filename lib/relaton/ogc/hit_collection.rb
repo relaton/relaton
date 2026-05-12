@@ -4,7 +4,7 @@ require_relative "hit"
 module Relaton
   module Ogc
     class HitCollection < Core::HitCollection
-      ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-ogc/data-v2/".freeze
+      ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-ogc/v2/".freeze
 
       # @return [self]
       def find
