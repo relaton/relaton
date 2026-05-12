@@ -3,7 +3,7 @@ require_relative "hit"
 module Relaton
   module Ccsds
     class HitCollection < Relaton::Core::HitCollection
-      GHURL = "https://raw.githubusercontent.com/relaton/relaton-data-ccsds/refs/heads/data-v2/".freeze
+      GHURL = "https://raw.githubusercontent.com/relaton/relaton-data-ccsds/refs/heads/v2/".freeze
 
       #
       # Search his in index.
