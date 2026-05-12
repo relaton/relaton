@@ -3,7 +3,7 @@ require "mechanize"
 module Relaton
   module Cie
     module Scrapper
-      ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-cie/refs/heads/data-v2/".freeze
+      ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-cie/refs/heads/v2/".freeze
 
       class << self
         # @param code [String]
