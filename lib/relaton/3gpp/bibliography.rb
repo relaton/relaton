@@ -5,7 +5,7 @@ module Relaton
     # Methods for search IANA standards.
     module Bibliography
       # SOURCE = "http://xml2rfc.tools.ietf.org/public/rfc/bibxml-3gpp-new/"
-      SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-3gpp/refs/heads/data-v2/"
+      SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-3gpp/refs/heads/v2/"
 
       # @param text [String]
       # @return [RelatonBib::BibliographicItem]
