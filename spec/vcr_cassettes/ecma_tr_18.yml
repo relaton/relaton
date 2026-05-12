@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-ecma/refs/heads/data-v2/data/ecma-tr-18-1.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ecma/refs/heads/v2/data/ecma-tr-18-1.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -37,7 +37,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"4dc8eda6a28f423a50f4811f13db100eb758e96987e53bdc9e72c5d332ab5e1b"
+      - W/"8a848a439b90746cb8ef3d0e7deab09d9b7ef1e5d4ca0f7cc19e6d2366a88bb6"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -47,23 +47,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - E7AA:255B4F:2063C:27D88:69F50340
+      - 7652:2154C:253BC3:2D9C1A:6A025715
       Content-Encoding:
       - gzip
       Accept-Ranges:
       - bytes
       Date:
-      - Fri, 01 May 2026 19:47:12 GMT
+      - Mon, 11 May 2026 22:24:22 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200132-IAD
+      - cache-iad-kcgs7200089-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1777664833.718246,VS0,VE75
+      - S1778538262.986634,VS0,VE83
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -71,32 +71,32 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 7dd1f08a580536e0c7ce4f8f39d5aa243df7acb5
+      - da244c91c7ebdfd55eb8a44be53f74a4543f8a9b
       Expires:
-      - Fri, 01 May 2026 19:52:12 GMT
+      - Mon, 11 May 2026 22:29:22 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
         H4sIAAAAAAAAA5VVTY/jNgy9+1fwtpfYmaBoMetb0RZFgfYyyD1gZDoWRpZc
-        fSSToj++T5KRyWwGBTaXxDT5SL5HMm3bNnro6bdf/vp5/7J7buJ1kZ5CZDuw
-        H5qgJpn5cBYftLM9nXfdj91PTdTRSN+0ZNieEp8QIrYhCsrrJfb0J8f8qJyN
-        YvG8n4RmYavtidyY7aPzM1slFN0tW2iCS14V4LUOr+5hphiX0G+3omZuNYze
-        ckRdbDrnT9slHY1WxRJaQLY34G0UNVm8M62XxfkYKkb07e55e0u3DON3pLss
-        7eq6TYtxjDSZxsP+BaCHXYgHGXT2PwRZosxH8Yfd1+cfupxmcEoPCNWjFp8b
-        vmXNGLR/2UIMWuvKJjwsXs/srz1Fn6QZON4xVXoPkwzwY6DkRO3T1ybDen1M
-        0ZUs3mXdiL4N87ChJyj0T2kx+xBZnqX+elA6f75RO3/euwBn9Mc9Z83KRn9P
-        8Zfdl+aGjPqAvaLioeDyMUTPKn7HtP3blmp+9TzGPHHKzUtCJe+DRvimE+sy
-        kB+UJT55kRk4eTIjpp90did5W8QGfZYSG/UsOWFIc4ZYvFMSwiYHeMFsyycE
-        VKA37VLI2EBL8IsTx/vCYOJAZzaJj6asBxuTUykgybChyyQ5C4W0LAbDEyAc
-        pYAfmxypY86zuBD0Gj/zq5ROukLLJ4WxCY6OArSzBBq1n821FoYw8gKXXJDU
-        3X0gcxBQg29ni7+86QAhVHHnEuBlWskLErM5JDW9I3Soh05ixbPZVIxxFBUR
-        YEFrwbFX4Mtjepq40HmsemCpvAzQFGWb0l9+6Qpjc9nBAldZl4jMkUZnjLuE
-        atQP5ymnvmUDt8AeXDrGTQ0YMZykMCGQIGsL6lSWDG5/Jwm1BLR0x+AH+Lm0
-        ViW9UXrJc0TWVaJKOgqTS2YociBHYbkquv+/obto1BJEXnMuZdjr8VrqwYiU
-        fSSH6/7QM4JedRH1U8l17amsDnosbusMvs9lWRR4rcrWY6OArV+lQ9VcRrXU
-        kjzKkaoMbPVId81iuP4dKB1x934H0JkbeYt9Wf+H/6an7gkvcFvLdWs+XCRY
-        U95rWEfDZ9xDyoe9+Q/HLJYbAwcAAA==
-  recorded_at: Fri, 01 May 2026 19:47:12 GMT
+        fSSToj++T5KRyWwGBTaXxDT5SL5HMm3bNnro6bdf/vp5/7J7boKaZObDWXzQ
+        zvZ03nU/dj818bpITyGyHdgPTdTRSN+0ZNieEp/wTmxDFJTXS+zpT475UTkb
+        xeJ5PwnNwlbbE7kx20fnZ7ZKKLobbGiCS14V4DWhV/cwU4xL6LdbUTO3GkZv
+        OaJMNp3zp+2SjkarYgktINsb8DaKmizemdbL4nwMFSP6dve8vaVbhvE70l2W
+        dnXdpsU4RppM42H/AtDDLsSDDDr7H4IsUeaj+MPu6/MPXU4zOKUHhOpRi88N
+        37JmDNq/bCEGrXVlEx4Wr2f2156iT9IMHO+YKr2HSQb4MVByovbpa5NhvT6m
+        6EoW77JuRN+GedjQExT6p7SYfYgsz1J/PSidP9+onT/vXYAz+uOes2Zlo7+n
+        +MvuS3NDRn3AXlHxUHD5GKJnFb9j2v5tSzW/eh5jnjjl5iWhkvdBI3zTiXUZ
+        yA/KEp+8yAycPJkRy0A6u5O8LWKDPkuJjXqWnDCkOUMs3ikJYZMDvGC25RMC
+        KtCbdilkbKAl+MWJ431hMHGgM5vER1PWg43JqRSQZNjQZZKchUJaFoPhCRCO
+        UsCPTY7UMedZXAh6jZ/5VUonXaHlk8LYBEdHAdpZAo3az+ZaC0MYeYFLLkjq
+        7j6QOQiowbezxV/edIAQqrhzCfAyreQFidkckpreETrUQyex4tlsKsY4iooI
+        sKC14Ngr8OUxPU1c6DxWPbBUXgZoirJN6S+/dIWxuexggausS0TmSKMzxl1C
+        NeqH85RT37KBW2APLh3jpgaMGE5SmBBIkLUFdSpLBre/k4RaAlq6Y/AD/Fxa
+        q5LeKL3kOSLrKlElHYXJJTMUOZCjsFwV3f/f0F00agkirzmXMuz1eC31YETK
+        PpLDsX/oGUGvuoj6qeS69lRWBz0Wt3UG3+eyLAq8VmXrsVHA1q/SoWouo1pq
+        SR7lSFUGtnqku2YxXP8OlI64e78D6MyNvMW+rP/DX9VT94QXuK3lujUfLhKs
+        Ke81rKPhM+4h5cPe/AeEeypcAwcAAA==
+  recorded_at: Mon, 11 May 2026 22:24:22 GMT
 recorded_with: VCR 6.4.0
