@@ -9,7 +9,7 @@ module Relaton::Calconnect
     # DATADIR = File.expand_path ".relaton/calconnect", Dir.home
     # DATAFILE = File.expand_path "bibliography.yml", DATADIR
     # ETAGFILE = File.expand_path "etag.txt", DATADIR
-    GHURL = "https://raw.githubusercontent.com/relaton/relaton-data-calconnect/refs/heads/data-v2/".freeze
+    GHURL = "https://raw.githubusercontent.com/relaton/relaton-data-calconnect/refs/heads/v2/".freeze
 
     # @param ref [Strig]
     # @param year [String]
