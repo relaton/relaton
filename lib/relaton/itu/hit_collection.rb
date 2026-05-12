@@ -7,7 +7,7 @@ module Relaton
     # Page of hit collection.
     class HitCollection < Relaton::Core::HitCollection
       DOMAIN = "https://www.itu.int"
-      GH_ITU_R = "https://raw.githubusercontent.com/relaton/relaton-data-itu-r/refs/heads/data-v2/"
+      GH_ITU_R = "https://raw.githubusercontent.com/relaton/relaton-data-itu-r/refs/heads/v2/"
 
       def search
         case ref.to_ref
