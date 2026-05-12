@@ -5,7 +5,7 @@ require_relative "hit"
 module Relaton
   module Jis
     class HitCollection < Core::HitCollection
-      GH_URL = "https://raw.githubusercontent.com/relaton/relaton-data-jis/data-v2/"
+      GH_URL = "https://raw.githubusercontent.com/relaton/relaton-data-jis/v2/"
 
       #
       # Initialize hit collection
