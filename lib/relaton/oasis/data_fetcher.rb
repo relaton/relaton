@@ -13,6 +13,11 @@ module Relaton
 
       def fetch(_source = nil)
         agent = Mechanize.new
+        agent.user_agent_alias = "Mac Safari"
+        agent.request_headers = {
+          "Accept" => "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Accept-Language" => "en-US,en;q=0.5",
+        }
         resp = agent.get "https://www.oasis-open.org/standards/"
         doc = Nokogiri::HTML resp.body
         doc.xpath("//details").map do |item|
