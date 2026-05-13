@@ -11,15 +11,10 @@ module Relaton
         Util.error msg
       end
 
+      STANDARDS_URL = "https://www.oasis-open.org/standards/".freeze
+
       def fetch(_source = nil)
-        agent = Mechanize.new
-        agent.user_agent_alias = "Mac Safari"
-        agent.request_headers = {
-          "Accept" => "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-          "Accept-Language" => "en-US,en;q=0.5",
-        }
-        resp = agent.get "https://www.oasis-open.org/standards/"
-        doc = Nokogiri::HTML resp.body
+        doc = Nokogiri::HTML fetch_html(STANDARDS_URL)
         doc.xpath("//details").map do |item|
           save_doc DataParser.new(item, @errors).parse
           fetch_parts item
@@ -29,6 +24,40 @@ module Relaton
       end
 
       private
+
+      # OASIS sits behind Cloudflare, which 403s Ruby Net::HTTP from
+      # GitHub Actions runners regardless of User-Agent. libcurl's TLS
+      # fingerprint isn't blocked, so fall back to a curl shellout when
+      # Mechanize is rejected.
+      def fetch_html(url)
+        agent = Mechanize.new
+        agent.user_agent_alias = "Mac Safari"
+        agent.request_headers = {
+          "Accept" => "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Accept-Language" => "en-US,en;q=0.5",
+        }
+        agent.get(url).body
+      rescue Mechanize::ResponseCodeError => e
+        raise unless e.response_code == "403"
+
+        curl_get(url)
+      end
+
+      def curl_get(url)
+        ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) " \
+             "AppleWebKit/605.1.15 (KHTML, like Gecko) " \
+             "Version/17.4 Safari/605.1.15"
+        body = IO.popen(
+          ["curl", "-fsSL", "--retry", "2", "-A", ua,
+           "-H", "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+           "-H", "Accept-Language: en-US,en;q=0.5",
+           url],
+          &:read
+        )
+        raise "curl failed (exit=#{$?.exitstatus}) for #{url}" unless $?.success?
+
+        body
+      end
 
       def index
         @index ||= Relaton::Index.find_or_create(
