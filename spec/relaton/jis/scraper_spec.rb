@@ -33,7 +33,7 @@ describe Relaton::Jis::Scraper do
         expect(item.ext).to be_instance_of Relaton::Jis::Ext
         expect(item.ext.doctype).to be_instance_of Relaton::Jis::Doctype
         expect(item.ext.ics.first).to be_instance_of Relaton::Bib::ICS
-        expect(item.ext.structuredidentifier).to be_instance_of Relaton::Iso::StructuredIdentifier
+        expect(item.ext.structuredidentifier).to be_instance_of Relaton::Jis::StructuredIdentifier
         expect(item.contributor.size).to eq 4
         expect(item.contributor.first).to be_instance_of Relaton::Bib::Contributor
         # editorial group contributor

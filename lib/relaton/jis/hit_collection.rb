@@ -76,7 +76,7 @@ module Relaton
         bibitem = ItemData.new(
           formattedref: Bib::Formattedref.new(content: hit.hit[:id]), docidentifier: [docid],
         )
-        Bib::Relation.new(type: "instanceOf", bibitem: bibitem)
+        Relation.new(type: "instanceOf", bibitem: bibitem)
       end
 
       #

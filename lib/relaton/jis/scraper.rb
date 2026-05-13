@@ -213,7 +213,7 @@ module Relaton
       end
 
       def fetch_structuredidentifier
-        Iso::StructuredIdentifier.new(
+        StructuredIdentifier.new(
           project_number: Iso::ProjectNumber.new(content: fetch_docnumber),
           type: "JIS",
         )
