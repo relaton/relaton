@@ -47,6 +47,16 @@ module Relaton
         ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) " \
              "AppleWebKit/605.1.15 (KHTML, like Gecko) " \
              "Version/17.4 Safari/605.1.15"
+        # TEMP DIAGNOSTIC: probe alternative endpoints to see which Cloudflare
+        # path/IP rules let through from GitHub Actions runners.
+        ["https://www.oasis-open.org/standards/",
+         "https://www.oasis-open.org/wp-json/wp/v2/standard?per_page=1",
+         "https://www.oasis-open.org/sitemap.xml",
+         "https://docs.oasis-open.org/"].each do |probe|
+          code = `curl -s -o /dev/null -w '%{http_code}' -A '#{ua}' '#{probe}'`
+          warn "PROBE #{code} #{probe}"
+        end
+
         body = IO.popen(
           ["curl", "-fsSL", "--retry", "2", "-A", ua,
            "-H", "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
