@@ -83,7 +83,6 @@ module Relaton
       #
       def parse_docnumber
         ref = @node.at("./span/strong|./strong|./b/span")
-        require 'pry-byebug'; binding.pry if ref.nil?
         num = ref.text.match(/[^\[\]]+/).to_s
         id = parse_errata(num)
         # some part refs need "Pt" to distinguish from root doc
