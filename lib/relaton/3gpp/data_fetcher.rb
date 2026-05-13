@@ -1,5 +1,6 @@
 require "fileutils"
-require "net/ftp"
+require "net/http"
+require "uri"
 require_relative "../3gpp"
 require_relative "parser"
 
@@ -7,6 +8,8 @@ module Relaton
   module ThreeGpp
     class DataFetcher < Core::DataFetcher
       CURRENT = "current.yaml".freeze
+      CSV_URL = "https://www.3gpp.org/ftp/Information/Databases/3GPPBibliography.csv".freeze
+      CSV_FILE = "3GPPBibliography.csv".freeze
 
       def log_error(msg)
         Util.error msg
@@ -39,7 +42,7 @@ module Relaton
       end
 
       #
-      # Get file from FTP. If file does not exist or changed, return nil
+      # Get file via HTTPS. If file has not changed, return nil
       #
       # @param [Boolean] renewal force to update all documents
       #
@@ -48,31 +51,50 @@ module Relaton
       def get_file(renewal) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
         @current = YAML.load_file CURRENT if File.exist? CURRENT
         @current ||= {}
+        uri = URI(CSV_URL)
         n = 0
         begin
-          ftp = Net::FTP.new("www.3gpp.org", open_timeout: 30)
-          ftp.resume = true
-          ftp.login
-          ftp.chdir "/Information/Databases/"
-          file_path = ftp.list("*.csv").first
-          return unless file_path
+          last_modified = head_last_modified(uri)
+          return unless last_modified
 
-          d, t, _, file = file_path.split
-          dt = DateTime.strptime("#{d} #{t}", "%m-%d-%y %I:%M%p")
-          if !renewal && file == @current["file"] && !@current["date"].empty? && dt == DateTime.parse(@current["date"])
+          dt = DateTime.parse(last_modified)
+          if !renewal && CSV_FILE == @current["file"] &&
+             !@current["date"].to_s.empty? &&
+             dt == DateTime.parse(@current["date"])
             return
           end
 
           tmp_file = File.join Dir.tmpdir, "3gpp.csv"
-          ftp.get(file, tmp_file)
-        rescue Net::OpenTimeout, Net::ReadTimeout => e
+          download(uri, tmp_file)
+        rescue Net::OpenTimeout, Net::ReadTimeout, SocketError => e
           n += 1
           retry if n < 5
           raise e
         end
-        @current["file"] = file
+        @current["file"] = CSV_FILE
         @current["date"] = dt.to_s
         tmp_file
+      end
+
+      def head_last_modified(uri)
+        Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https",
+                                            open_timeout: 30, read_timeout: 30) do |http|
+          resp = http.request(Net::HTTP::Head.new(uri.request_uri))
+          raise "HTTP #{resp.code} from #{uri}" unless resp.is_a?(Net::HTTPSuccess)
+
+          resp["last-modified"]
+        end
+      end
+
+      def download(uri, tmp_file)
+        Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https",
+                                            open_timeout: 30, read_timeout: 120) do |http|
+          http.request(Net::HTTP::Get.new(uri.request_uri)) do |resp|
+            raise "HTTP #{resp.code} from #{uri}" unless resp.is_a?(Net::HTTPSuccess)
+
+            File.open(tmp_file, "wb") { |f| resp.read_body { |chunk| f.write(chunk) } }
+          end
+        end
       end
 
       #

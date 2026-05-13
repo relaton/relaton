@@ -11,7 +11,6 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
   end
 
   context "instance" do
-    require "net/ftp"
     let(:format) { "xml" }
     let(:bib) { Relaton::ThreeGpp::ItemData.new docnumber: "3GPP TS 01.01:REL-99/8.0.0" }
 
@@ -39,68 +38,57 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
 
     context "fetch data" do
       context "get file" do
-        let(:ftp) do
-          f = double("ftp")
-          expect(f).to receive(:resume=).with(true).at_least(:once)
-          expect(f).to receive(:login).at_least(:once)
-          expect(f).to receive(:chdir).with("/Information/Databases/").at_least(:once)
-          f
-        end
+        let(:last_modified) { "Mon, 22 Nov 2021 14:39:00 GMT" }
 
         before do
-          expect(Net::FTP).to receive(:new).and_return(ftp).at_least(:once)
+          allow(subject).to receive(:head_last_modified).and_return(last_modified)
+          allow(subject).to receive(:download)
         end
 
-        context do
-          before do
-            expect(ftp).to receive(:list).with("*.csv").and_return(
-              ["11-22-21  02:39PM            459946195 file.csv"],
-            ).at_least(:once)
-          end
-
-          it "skip if no updates" do
-            expect(File).to receive(:exist?).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(true)
-            allow(File).to receive(:exist?).and_call_original
-            expect(YAML).to receive(:load_file).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(
-              { "file" => "file.csv", "date" => "2021-11-22T14:39:00+00:00" },
-            )
-            expect(subject.get_file(false)).to be_nil
-          end
-
-          it "download fist time" do
-            expect(File).to receive(:exist?).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(false)
-            expect(ftp).to receive(:get).with("file.csv", /3gpp\.csv$/)
-            expect(subject.get_file(false)).to match(/3gpp.csv$/)
-          end
-
-          it "download update" do
-            expect(File).to receive(:exist?).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(true)
-            expect(YAML).to receive(:load_file).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(
-              { "file" => "file.csv", "date" => "2021-11-23T14:39:00+00:00" },
-            )
-            expect(ftp).to receive(:get).with("file.csv", /3gpp\.csv$/)
-            expect(subject.get_file(false)).to match(/3gpp.csv$/)
-          end
-
-          it "retry file downloading from FTP" do
-            expect(ftp).to receive(:get).with("file.csv", /3gpp\.csv$/)
-              .and_raise(Net::ReadTimeout).exactly(5).times
-            expect do
-              subject.get_file false
-            end.to raise_error(Net::ReadTimeout)
-          end
-
-          it "download if current date is empty" do
-            expect(File).to receive(:exist?).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(true)
-            current = { "file" => "file.csv", "date" => "" }
-            expect(YAML).to receive(:load_file).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return current
-            expect(ftp).to receive(:get).with("file.csv", /3gpp\.csv$/)
-            expect(subject.get_file(false)).to match(/3gpp.csv$/)
-          end
+        it "skip if no updates" do
+          expect(File).to receive(:exist?).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(true)
+          allow(File).to receive(:exist?).and_call_original
+          expect(YAML).to receive(:load_file).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(
+            { "file" => Relaton::ThreeGpp::DataFetcher::CSV_FILE, "date" => "2021-11-22T14:39:00+00:00" },
+          )
+          expect(subject).not_to receive(:download)
+          expect(subject.get_file(false)).to be_nil
         end
 
-        it "return nil if no files" do
-          expect(ftp).to receive(:list).with("*.csv").and_return([])
+        it "download first time" do
+          expect(File).to receive(:exist?).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(false)
+          expect(subject).to receive(:download).with(instance_of(URI::HTTPS), /3gpp\.csv$/)
+          expect(subject.get_file(false)).to match(/3gpp\.csv$/)
+        end
+
+        it "download update" do
+          expect(File).to receive(:exist?).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(true)
+          expect(YAML).to receive(:load_file).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(
+            { "file" => Relaton::ThreeGpp::DataFetcher::CSV_FILE, "date" => "2021-11-23T14:39:00+00:00" },
+          )
+          expect(subject).to receive(:download).with(instance_of(URI::HTTPS), /3gpp\.csv$/)
+          expect(subject.get_file(false)).to match(/3gpp\.csv$/)
+        end
+
+        it "retry file downloading on timeout" do
+          expect(subject).to receive(:download).with(instance_of(URI::HTTPS), /3gpp\.csv$/)
+            .and_raise(Net::ReadTimeout).exactly(5).times
+          expect do
+            subject.get_file false
+          end.to raise_error(Net::ReadTimeout)
+        end
+
+        it "download if current date is empty" do
+          expect(File).to receive(:exist?).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(true)
+          current = { "file" => Relaton::ThreeGpp::DataFetcher::CSV_FILE, "date" => "" }
+          expect(YAML).to receive(:load_file).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return current
+          expect(subject).to receive(:download).with(instance_of(URI::HTTPS), /3gpp\.csv$/)
+          expect(subject.get_file(false)).to match(/3gpp\.csv$/)
+        end
+
+        it "return nil if no last-modified header" do
+          allow(subject).to receive(:head_last_modified).and_return(nil)
+          expect(subject).not_to receive(:download)
           expect(subject.get_file(false)).to be_nil
         end
       end
