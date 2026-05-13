@@ -43,7 +43,7 @@ module Relaton
       #
       # @return [void]
       #
-      def fetch # rubocop:disable Metrics/AbcSize
+      def fetch(_source = nil) # rubocop:disable Metrics/AbcSize
         Util.info "Scrapping ICS pages..."
         fetch_ics
         Util.info "(#{Time.now}) Scrapping documents..."
