@@ -84,7 +84,7 @@ module Relaton
                            "[starts-with(., 'Editor')]]"
                    page.xpath(xpath).map do |p|
                      create_contribution_info(p, "editor", ["Chair"])
-                   end
+                   end.compact
                  else
                    []
                  end
@@ -101,7 +101,7 @@ module Relaton
                            "[contains(@class, 'Title')]]"
                    page.xpath(xpath).map do |p|
                      create_contribution_info(p, "editor")
-                   end
+                   end.compact
                  else
                    parse_editors_from_text
                  end
@@ -111,6 +111,9 @@ module Relaton
 
       def create_contribution_info(person_node, type, description = [])
         name = person_node.text.match(/^[^(]+/).to_s.strip
+        return nil if name.empty? || !name.match?(/\A\p{L}/) ||
+                      name.match?(%r{\A(?:https?://|urn:)})
+
         email, org = person_node.xpath ".//a[@href]"
         entity = create_person name, email, org
         desc = description.map { |d| Bib::LocalizedMarkedUpString.new(content: d) }
@@ -137,7 +140,15 @@ module Relaton
           [href.split(":")[1]]
         elsif (cf_email = email.at(".//span[@data-cfemail]"))
           decoded = decode_cf_email(cf_email["data-cfemail"])
-          decoded.empty? ? [] : [decoded]
+          return [] if decoded.empty?
+
+          # Cloudflare obfuscates ASCII email characters in the data-cfemail
+          # span but leaves non-ASCII characters (e.g. the Latin "fl" ligature
+          # U+FB02) as plain text outside the span. Concatenate any sibling
+          # text and NFKC-normalize so ligatures become their ASCII equivalent.
+          prefix = cf_email.xpath("./preceding-sibling::node()").map(&:text).join
+          suffix = cf_email.xpath("./following-sibling::node()").map(&:text).join
+          [(prefix + decoded + suffix).unicode_normalize(:nfkc)]
         else
           []
         end

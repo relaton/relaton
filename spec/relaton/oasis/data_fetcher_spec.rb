@@ -18,6 +18,8 @@ describe Relaton::Oasis::DataFetcher do
 
   it "fetch" do
     agent = double "agent"
+    allow(agent).to receive(:user_agent=)
+    allow(agent).to receive(:request_headers=)
     resp = double "resp", body: <<~EOHTML
       <details>
         <div><div><div class="standard__grid--cite-as">

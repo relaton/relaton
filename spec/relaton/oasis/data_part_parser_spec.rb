@@ -233,6 +233,36 @@ describe Relaton::Oasis::DataPartParser do
     end
   end
 
+  context "#title" do
+    let(:node) do
+      doc = Nokogiri::HTML <<-EOHTML
+        <details>
+          <div class="standard__details">
+            <div class="standard__grid">
+              <div class="standard__grid--cite-as">
+                <p>
+                  <strong>[some-std-v1.0]</strong>
+                  Some plain trailing text without markers
+                  <a href="http://example.com/doc.html">link</a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </details>
+      EOHTML
+      doc.at("//p")
+    end
+
+    it "falls back to text when no title element and regex doesn't match" do
+      expect { subject.title }.not_to raise_error
+      expect(subject.title).to include "Some plain trailing text"
+    end
+
+    it "does not crash parse_docnumber on such nodes" do
+      expect { subject.parse_docnumber }.not_to raise_error
+    end
+  end
+
   context "#parse_relation" do
     it "returns a partOf relation with parent docid" do
       rels = subject.parse_relation

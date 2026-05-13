@@ -34,11 +34,11 @@ module Relaton
         xpath = "./span[@class='citationTitle' " \
                 "or @class='citeTitle']|./em|./i"
         t = @node.at(xpath)
-        @title = if t then t.text
+        @title = if t
+                   t.text
                  else
-                   text.match(
-                     /(?<content>.+)\s(?:Edited|\d{2}\s\w+\d{4})/,
-                   )[:content]
+                   m = text.match(/(?<content>.+)\s(?:Edited|\d{2}\s\w+\d{4})/)
+                   m ? m[:content] : text
                  end.strip
       end
 
@@ -82,7 +82,8 @@ module Relaton
       # @return [String] document number
       #
       def parse_docnumber
-        ref = @node.at("./span[@class='citationLabel']/strong|./strong|b/span")
+        ref = @node.at("./span/strong|./strong|./b/span")
+        require 'pry-byebug'; binding.pry if ref.nil?
         num = ref.text.match(/[^\[\]]+/).to_s
         id = parse_errata(num)
         # some part refs need "Pt" to distinguish from root doc
@@ -110,8 +111,8 @@ module Relaton
       # @return [Array<Bib::Date>] bibliographic dates
       #
       def parse_date
-        /(?<on>\d{1,2}\s\w+\s\d{4})/ =~ text
-        result = [Bib::Date.new(at: Date.parse(on).to_s, type: "issued")]
+        match = text.match(/(?<on>\d{1,2}\s\w+\s\d{4})/)
+        result = match ? [Bib::Date.new(at: Date.parse(match[:on]).to_s, type: "issued")] : []
         @errors[:part_date] &&= result.empty?
         result
       end

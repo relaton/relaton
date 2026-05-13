@@ -128,6 +128,58 @@ RSpec.describe Relaton::Oasis::DataParserUtils do
     end
   end
 
+  describe "#parse_editors" do
+    it "skips contributor paragraphs whose text is a URI" do
+      html = <<~HTML
+        <html><body>
+          <p>Editor(s):</p>
+          <p class="Contributor">William Cox</p>
+          <p class="Contributor">http://docs.oasis-open.org/ns/emix/2011/06/power/resource</p>
+          <p class="Title">EMIX</p>
+        </body></html>
+      HTML
+      dp = Relaton::Oasis::DataParser.new(node)
+      allow(dp).to receive(:page).and_return(Nokogiri::HTML(html))
+      result = dp.send(:parse_editors)
+      expect(result.size).to eq 1
+      expect(result.first.person.name.forename.first.content).to eq "William"
+    end
+
+    it "skips contributor paragraphs that start with a bullet" do
+      html = <<~HTML
+        <html><body>
+          <p>Editor(s):</p>
+          <p class="Contributor">Hal Lockhart</p>
+          <p class="Contributor">·         eXtensible Access Control Markup Language</p>
+          <p class="Title">XACML</p>
+        </body></html>
+      HTML
+      dp = Relaton::Oasis::DataParser.new(node)
+      allow(dp).to receive(:page).and_return(Nokogiri::HTML(html))
+      result = dp.send(:parse_editors)
+      expect(result.size).to eq 1
+      expect(result.first.person.name.forename.first.content).to eq "Hal"
+    end
+
+    it "includes ligature text adjacent to a Cloudflare-obfuscated email" do
+      # Cloudflare's email scanner leaves non-ASCII characters (here the Latin
+      # "fl" ligature U+FB02) outside the data-cfemail span; the span only
+      # encodes the ASCII tail "orian.mueller02@sap.com".
+      html = <<~HTML
+        <html><body>
+          <p>Editor(s):</p>
+          <p class="Contributor">Florian M&uuml;ller (<a href="/cdn-cgi/l/email-protection#56303a39">&#64258;<span class="__cf_email__" data-cfemail="026d706b636c2c6f77676e6e67703230427163722c616d6f">[email&#160;protected]</span></a>), <a href="http://www.sap.com/">SAP</a></p>
+          <p class="Title">CMIS</p>
+        </body></html>
+      HTML
+      dp = Relaton::Oasis::DataParser.new(node)
+      allow(dp).to receive(:page).and_return(Nokogiri::HTML(html))
+      result = dp.send(:parse_editors)
+      expect(result.size).to eq 1
+      expect(result.first.person.email).to eq ["florian.mueller02@sap.com"]
+    end
+  end
+
   describe "#parse_doctype" do
     def parser_with_text(cite_text)
       html = <<~HTML
