@@ -28,7 +28,7 @@ module Relaton
         contributors << eg_contributor if eg_contributor
         attrs = ATTRS.to_h { |attr| [attr, send("fetch_#{attr}")] }
         attrs[:contributor] = contributors
-        Bib::ItemData.new(**attrs)
+        ItemData.new(**attrs)
       end
 
       def fetch_title

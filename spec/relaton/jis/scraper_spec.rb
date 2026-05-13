@@ -17,7 +17,7 @@ describe Relaton::Jis::Scraper do
 
       it do
         item = subject.fetch
-        expect(item).to be_instance_of Relaton::Bib::ItemData
+        expect(item).to be_instance_of Relaton::Jis::ItemData
         expect(item.title.size).to eq 2
         expect(item.title.first).to be_instance_of Relaton::Bib::Title
         expect(item.source.size).to eq 2
