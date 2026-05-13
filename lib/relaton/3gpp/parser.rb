@@ -205,7 +205,13 @@ module Relaton
       end
 
       def other_contribs
-        contribs = @row["Responsible Secondary"].strip.split(", ").map do |wg|
+        secondary = @row["Responsible Secondary"]
+        if secondary.nil? || secondary.strip.empty?
+          @errors[:editorial_group_contributor_other] &&= true
+          return []
+        end
+
+        contribs = secondary.strip.split(", ").map do |wg|
           editorial_group_contributor(wg, "other")
         end
         @errors[:editorial_group_contributor_other] &&= contribs.empty?
