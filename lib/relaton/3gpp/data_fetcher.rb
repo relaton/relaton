@@ -33,7 +33,7 @@ module Relaton
           FileUtils.rm_f Dir.glob(File.join(@output, "/*")) # if renewal && dbs["2001-04-25_schedule"].any?
           index.remove_all # if renewal
         end
-        CSV.open(file, "r:bom|utf-8", headers: true).each do |row|
+        CSV.open(file, "r:bom|utf-8", headers: true, col_sep: ";").each do |row|
           save_doc Parser.parse(row, @errors)
         end
         File.write CURRENT, @current.to_yaml, encoding: "UTF-8"

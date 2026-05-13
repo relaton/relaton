@@ -124,7 +124,7 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
               before do
                 expect(File).to receive(:size).with("file.csv").and_return 25_000_000
                 expect(CSV).to receive(:open)
-                  .with("file.csv", "r:bom|utf-8", headers: true).and_return [:row]
+                  .with("file.csv", "r:bom|utf-8", headers: true, col_sep: ";").and_return [:row]
                 expect(Relaton::ThreeGpp::Parser).to receive(:parse).with(:row, subject.instance_variable_get(:@errors)).and_return :doc
                 expect(subject).to receive(:save_doc).with(:doc)
                 expect(File).to receive(:write).with("current.yaml", anything, encoding: "UTF-8")
