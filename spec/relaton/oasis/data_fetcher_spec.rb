@@ -32,12 +32,12 @@ describe Relaton::Oasis::DataFetcher do
     expect(parser).to receive(:parse).and_return(:bibitem)
     expect(subject).to receive(:save_doc).with(:bibitem).exactly(3).times
     expect(Relaton::Oasis::DataParser).to receive(:new)
-      .with(kind_of(Nokogiri::XML::Element), kind_of(Hash))
+      .with(kind_of(Nokogiri::XML::Element), kind_of(Hash), agent: agent)
       .and_return(parser)
     part_parser = double "part_parser"
     expect(part_parser).to receive(:parse).and_return(:bibitem).twice
     expect(Relaton::Oasis::DataPartParser).to receive(:new)
-      .with(kind_of(Nokogiri::XML::Element), kind_of(Hash))
+      .with(kind_of(Nokogiri::XML::Element), kind_of(Hash), agent: agent)
       .and_return(part_parser).twice
     index = subject.send(:index)
     expect(index).to receive(:save)

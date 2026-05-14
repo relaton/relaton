@@ -9,9 +9,10 @@ module Relaton
       #
       # @param [Nokogiri::HTML::Element] node document node
       #
-      def initialize(node, errors = {})
+      def initialize(node, errors = {}, agent: nil)
         @node = node
         @errors = errors
+        @agent = agent
       end
 
       def text
@@ -182,7 +183,7 @@ module Relaton
       # @return [Array<Bib::Relation>] document relations
       #
       def parse_relation
-        parser = DataParser.new @node.at("./ancestor::details")
+        parser = DataParser.new(@node.at("./ancestor::details"), @errors, agent: @agent)
         fref = parser.parse_docid[0].content
         bib = ItemData.new(formattedref: Bib::Formattedref.new(content: fref))
         result = [Bib::Relation.new(type: "partOf", bibitem: bib)]

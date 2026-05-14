@@ -9,9 +9,10 @@ module Relaton
       #
       # @param [Nokogiri::HTML::Element] node document node
       #
-      def initialize(node, errors = {})
+      def initialize(node, errors = {}, agent: nil)
         @node = node
         @errors = errors
+        @agent = agent
       end
 
       def title
@@ -158,7 +159,7 @@ module Relaton
         rels = @node.xpath(xpath)
         result = if rels.size > 1
                    rels.map do |r|
-                     docid = DataPartParser.new(r).parse_docid
+                     docid = DataPartParser.new(r, @errors, agent: @agent).parse_docid
                      bib = ItemData.new(formattedref: Bib::Formattedref.new(content: docid[0].content))
                      Bib::Relation.new(type: "hasPart", bibitem: bib)
                    end

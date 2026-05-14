@@ -1,9 +1,17 @@
 require "mechanize"
+require_relative "browser_agent"
 
 module Relaton
   module Oasis
     # Common methods for document and part parsers.
     module DataParserUtils
+      RETRIABLE_PAGE_ERRORS = [
+        Errno::ETIMEDOUT,
+        Net::OpenTimeout,
+        Ferrum::TimeoutError,
+        Ferrum::PendingConnectionsError,
+        Ferrum::StatusError,
+      ].freeze
       #
       # Parse contributor.
       #
@@ -52,10 +60,16 @@ module Relaton
       def page
         return @page if defined? @page
 
-        if link_node && link_node[:href].match?(/\.html$/)
+        @page = nil
+        return @page unless link_node && link_node[:href].match?(/\.html$/)
+
+        if @agent
+          doc = retry_page(link_node[:href], @agent)
+          @page = doc if doc && @agent.last_status == 200
+        else
+          # No injected agent (e.g. unit tests with VCR cassettes): fall back
+          # to a Mechanize request — VCR can intercept it.
           agent = Mechanize.new
-          # 403 / 503 are returned by Cloudflare from GHA runner IPs; treat as
-          # missing page rather than crashing the whole crawl.
           agent.agent.allowed_error_codes = [403, 404, 503]
           resp = retry_page(link_node[:href], agent)
           @page = resp if resp && resp.code == "200"
@@ -66,15 +80,15 @@ module Relaton
       # Retry to get page.
       #
       # @param [String] url page URL
-      # @param [Mechanize] agent HTTP client
+      # @param [#get] agent HTTP client responding to #get(url)
       # @param [Integer] retries number of retries
       #
-      # @return [Mechanize::Page, nil] page or nil
+      # @return [Nokogiri::HTML::Document, Mechanize::Page, nil] page or nil
       #
       def retry_page(url, agent, retries = 3)
         sleep 1 # to avoid 429 error
         agent.get url
-      rescue Errno::ETIMEDOUT, Net::OpenTimeout => e
+      rescue *RETRIABLE_PAGE_ERRORS => e
         retry if (retries -= 1).positive?
         Util.error "Failed to get page `#{url}`\n#{e.message}"
         nil
