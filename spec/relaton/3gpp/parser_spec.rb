@@ -50,7 +50,7 @@ describe Relaton::ThreeGpp::Parser do
     )
     item = described_class.parse(row)
     expect(item).to be_a(Relaton::Bib::ItemData)
-    expect(item.id).to eq("3GPPTS0209REL99800")
+    expect(item.id).to eq("TS0209REL99800")
     expect(item.type).to eq("standard")
     expect(item.language).to eq(["en"])
     expect(item.script).to eq(["Latn"])

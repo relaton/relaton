@@ -49,7 +49,7 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
           expect(File).to receive(:exist?).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(true)
           allow(File).to receive(:exist?).and_call_original
           expect(YAML).to receive(:load_file).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(
-            { "file" => Relaton::ThreeGpp::DataFetcher::CSV_FILE, "date" => "2021-11-22T14:39:00+00:00" },
+            { "date" => "2021-11-22T14:39:00+00:00" },
           )
           expect(subject).not_to receive(:download)
           expect(subject.get_file(false)).to be_nil
@@ -64,7 +64,7 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
         it "download update" do
           expect(File).to receive(:exist?).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(true)
           expect(YAML).to receive(:load_file).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(
-            { "file" => Relaton::ThreeGpp::DataFetcher::CSV_FILE, "date" => "2021-11-23T14:39:00+00:00" },
+            { "date" => "2021-11-23T14:39:00+00:00" },
           )
           expect(subject).to receive(:download).with(instance_of(URI::HTTPS), /3gpp\.csv$/)
           expect(subject.get_file(false)).to match(/3gpp\.csv$/)
@@ -80,7 +80,7 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
 
         it "download if current date is empty" do
           expect(File).to receive(:exist?).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return(true)
-          current = { "file" => Relaton::ThreeGpp::DataFetcher::CSV_FILE, "date" => "" }
+          current = { "date" => "" }
           expect(YAML).to receive(:load_file).with(Relaton::ThreeGpp::DataFetcher::CURRENT).and_return current
           expect(subject).to receive(:download).with(instance_of(URI::HTTPS), /3gpp\.csv$/)
           expect(subject.get_file(false)).to match(/3gpp\.csv$/)

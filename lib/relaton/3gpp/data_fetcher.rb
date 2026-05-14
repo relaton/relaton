@@ -9,7 +9,6 @@ module Relaton
     class DataFetcher < Core::DataFetcher
       CURRENT = "current.yaml".freeze
       CSV_URL = "https://www.3gpp.org/ftp/Information/Databases/3GPPBibliography.csv".freeze
-      CSV_FILE = "3GPPBibliography.csv".freeze
 
       def log_error(msg)
         Util.error msg
@@ -58,9 +57,8 @@ module Relaton
           return unless last_modified
 
           dt = DateTime.parse(last_modified)
-          if !renewal && CSV_FILE == @current["file"] &&
-             !@current["date"].to_s.empty? &&
-             dt == DateTime.parse(@current["date"])
+          if !renewal && !@current["date"].to_s.empty? &&
+              dt == DateTime.parse(@current["date"])
             return
           end
 
@@ -71,7 +69,6 @@ module Relaton
           retry if n < 5
           raise e
         end
-        @current["file"] = CSV_FILE
         @current["date"] = dt.to_s
         tmp_file
       end
