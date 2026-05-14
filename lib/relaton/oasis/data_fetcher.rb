@@ -1,4 +1,5 @@
-require "mechanize"
+require "ferrum"
+require "nokogiri"
 require_relative "../oasis"
 require_relative "data_parser_utils"
 require_relative "data_parser"
@@ -6,62 +7,105 @@ require_relative "data_part_parser"
 
 module Relaton
   module Oasis
+    # Thin Ferrum-backed agent that drives headless Chrome with stealth tweaks
+    # so the Cloudflare-protected oasis-open.org host serves real HTML instead
+    # of a "Just a moment..." challenge. Mirrors the pattern used by
+    # Relaton::Cie::BrowserAgent.
+    class BrowserAgent
+      UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " \
+           "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+      CHALLENGE_MARKERS = ["Just a moment", "challenge-platform"].freeze
+      MAX_CHALLENGE_WAIT = 30
+
+      def initialize
+        @browser = Ferrum::Browser.new(
+          headless: true,
+          timeout: 90,
+          process_timeout: 90,
+          window_size: [1366, 768],
+          browser_options: {
+            "disable-blink-features" => "AutomationControlled",
+            "disable-quic" => nil,
+            "no-sandbox" => nil,
+          },
+        )
+        @browser.headers.set(
+          "Accept-Language" => "en-US,en;q=0.9",
+          "Accept" => "text/html,application/xhtml+xml,application/xml;q=0.9," \
+                      "image/webp,*/*;q=0.8",
+          "User-Agent" => UA,
+        )
+        @browser.evaluate_on_new_document(<<~JS)
+          Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+          Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+          Object.defineProperty(navigator, 'plugins', { get: () => [1,2,3,4,5] });
+          window.chrome = { runtime: {} };
+        JS
+      end
+
+      def get(url)
+        @browser.go_to(url)
+        wait_for_challenge
+        Nokogiri::HTML(@browser.body)
+      end
+
+      def quit
+        @browser&.quit
+      ensure
+        @browser = nil
+      end
+
+      private
+
+      def wait_for_challenge
+        MAX_CHALLENGE_WAIT.times do
+          return unless CHALLENGE_MARKERS.any? { |m| @browser.body.include?(m) }
+
+          sleep 1
+        end
+      end
+    end
+
     class DataFetcher < Core::DataFetcher
+      STANDARDS_URL = "https://www.oasis-open.org/standards/".freeze
+      RETRIABLE_ERRORS = [
+        SocketError,
+        Ferrum::TimeoutError,
+        Ferrum::PendingConnectionsError,
+        Ferrum::StatusError,
+      ].freeze
+
       def log_error(msg)
         Util.error msg
       end
 
-      USER_AGENTS = [
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 " \
-          "(KHTML, like Gecko) Version/17.4 Safari/605.1.15",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " \
-          "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-        "Mozilla/5.0 (X11; Linux x86_64; rv:125.0) Gecko/20100101 Firefox/125.0",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 14.4; rv:125.0) Gecko/20100101 " \
-          "Firefox/125.0",
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 " \
-          "Firefox/125.0",
-      ].freeze
-
-      MAX_ATTEMPTS = 5
-      RETRY_BACKOFF = 2 # seconds, doubled each attempt
-
       def fetch(_source = nil)
-        doc = Nokogiri::HTML fetch_with_retry("https://www.oasis-open.org/standards/")
+        doc = with_retry { agent.get(STANDARDS_URL) }
         doc.xpath("//details").map do |item|
           save_doc DataParser.new(item, @errors).parse
           fetch_parts item
         end
         index.save
         report_errors
+      ensure
+        @agent&.quit
       end
 
       private
 
-      def fetch_with_retry(url)
-        last_error = nil
-        USER_AGENTS.first(MAX_ATTEMPTS).each_with_index do |ua, i|
-          sleep(RETRY_BACKOFF * (2**(i - 1))) if i.positive?
-          begin
-            Util.info "Fetching #{url} (attempt #{i + 1}/#{MAX_ATTEMPTS}, UA=#{ua[0, 30]}...)"
-            return build_agent(ua).get(url).body
-          rescue Mechanize::ResponseCodeError => e
-            last_error = e
-            Util.warn "Attempt #{i + 1} failed: HTTP #{e.response_code}"
-            raise unless e.response_code == "403"
-          end
-        end
-        raise last_error
+      def agent
+        @agent ||= BrowserAgent.new
       end
 
-      def build_agent(user_agent)
-        agent = Mechanize.new
-        agent.user_agent = user_agent
-        agent.request_headers = {
-          "Accept" => "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-          "Accept-Language" => "en-US,en;q=0.5",
-        }
-        agent
+      def with_retry
+        tries = 0
+        begin
+          tries += 1
+          yield
+        rescue *RETRIABLE_ERRORS => e
+          retry if tries < 4
+          raise e
+        end
       end
 
       def index

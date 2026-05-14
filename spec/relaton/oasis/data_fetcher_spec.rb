@@ -17,10 +17,8 @@ describe Relaton::Oasis::DataFetcher do
   end
 
   it "fetch" do
-    agent = double "agent"
-    allow(agent).to receive(:user_agent=)
-    allow(agent).to receive(:request_headers=)
-    resp = double "resp", body: <<~EOHTML
+    agent = instance_double(Relaton::Oasis::BrowserAgent, quit: nil)
+    doc = Nokogiri::HTML(<<~EOHTML)
       <details>
         <div><div><div class="standard__grid--cite-as">
           <p><strong>[ref1]</strong></p>
@@ -28,8 +26,8 @@ describe Relaton::Oasis::DataFetcher do
         </div></div></div>
       </details>
     EOHTML
-    expect(agent).to receive(:get).with("https://www.oasis-open.org/standards/").and_return(resp)
-    expect(Mechanize).to receive(:new).and_return(agent)
+    expect(agent).to receive(:get).with("https://www.oasis-open.org/standards/").and_return(doc)
+    allow(subject).to receive(:agent).and_return(agent)
     parser = double "parser"
     expect(parser).to receive(:parse).and_return(:bibitem)
     expect(subject).to receive(:save_doc).with(:bibitem).exactly(3).times

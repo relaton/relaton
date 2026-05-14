@@ -1,3 +1,5 @@
+require "mechanize"
+
 module Relaton
   module Oasis
     # Common methods for document and part parsers.
@@ -52,7 +54,9 @@ module Relaton
 
         if link_node && link_node[:href].match?(/\.html$/)
           agent = Mechanize.new
-          agent.agent.allowed_error_codes = [404]
+          # 403 / 503 are returned by Cloudflare from GHA runner IPs; treat as
+          # missing page rather than crashing the whole crawl.
+          agent.agent.allowed_error_codes = [403, 404, 503]
           resp = retry_page(link_node[:href], agent)
           @page = resp if resp && resp.code == "200"
         end
