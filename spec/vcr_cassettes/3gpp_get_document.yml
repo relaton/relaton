@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-3gpp/refs/heads/v2/data/tr-00-01u-umts-3-0-0.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-3gpp/v2/data/tr-00-01u-umts-3-0-0.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1527'
+      - '1523'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"13fb1d15e30035e5f996d019d15c17a51faba9d03068fde4d0498f9007287fbb"
+      - W/"7436c800fa2add799dfbe94cc7e258c78b5d233202294f54fe8e33070ddbe214"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 2494:2114EA:9C750:C5BF2:6A051E28
+      - 5584:3C8D1C:7EDF35:9B43E9:6A05D7F8
       Accept-Ranges:
       - bytes
       Date:
-      - Thu, 14 May 2026 00:58:18 GMT
+      - Thu, 14 May 2026 14:11:04 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200139-IAD
+      - cache-iad-kjyo7100112-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1778720299.755666,VS0,VE91
+      - S1778767864.278321,VS0,VE183
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -63,9 +63,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - f3669124734d198b700a9d9c23e46d925428b7cc
+      - bd00da0f2d24cb11552f969cf62e08a999f7c58e
       Expires:
-      - Thu, 14 May 2026 01:03:18 GMT
+      - Thu, 14 May 2026 14:16:04 GMT
       Source-Age:
       - '0'
     body:
@@ -105,5 +105,5 @@ http_interactions:
         Ry0jMjgKICAgIGZyZWV6ZV9zdGFnZTNfbWVldGluZzogU01HLSMyOAogICAg
         Y2xvc2VfbWVldGluZzogU0EjMjgKICAgIHByb2plY3Rfc3RhcnQ6ICcxOTk0
         LTA4LTE4JwogICAgcHJvamVjdF9lbmQ6ICcxOTk5LTAyLTEyJwo=
-  recorded_at: Thu, 14 May 2026 00:58:18 GMT
+  recorded_at: Thu, 14 May 2026 14:11:04 GMT
 recorded_with: VCR 6.4.0

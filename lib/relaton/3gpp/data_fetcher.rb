@@ -21,7 +21,8 @@ module Relaton
       #
       # Parse documents
       #
-      # @param [String] source source of documents, status-smg-3gpp for updare or status-smg-3gpp-force for renewal
+      # @param [String] source source of documents, status-smg-3gpp for updare
+      #   or status-smg-3gpp-force for renewal
       #
       def fetch(source) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         renewal = source == "status-smg-3GPP-force"
@@ -29,7 +30,7 @@ module Relaton
         return unless file && File.exist?(file) && File.size(file) > 20_000_000
 
         if renewal
-          FileUtils.rm_f Dir.glob(File.join(@output, "/*")) # if renewal && dbs["2001-04-25_schedule"].any?
+          FileUtils.rm_f Dir.glob(File.join(@output, "/*"))
           index.remove_all # if renewal
         end
         CSV.open(file, "r:bom|utf-8", headers: true, col_sep: ";").each do |row|
@@ -99,7 +100,7 @@ module Relaton
       #
       # @param [RelatonW3c::W3cBibliographicItem, nil] bib bibliographic item
       #
-      def save_doc(bib) # rubocop:disable Metrics/MethodLength
+      def save_doc(bib) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
         return unless bib
 
         bib1 = bib
@@ -125,7 +126,7 @@ module Relaton
       def merge_duplication(bib, file)
         hash = YAML.load_file file
         existed = Item.from_hash hash
-        changed = update_source bib, existed
+        changed = update_source? bib, existed
         bib1, bib2, chng = transposed_relation bib, existed
         changed ||= chng
         chng = add_contributor(bib1, bib2)
@@ -141,7 +142,7 @@ module Relaton
       #
       # @return [Boolean] true if link has been updated
       #
-      def update_source(bib1, bib2)
+      def update_source?(bib1, bib2)
         if bib1.source.any? && bib2.source.empty?
           bib2.source = bib1.source
           true
@@ -162,8 +163,9 @@ module Relaton
       #   related bibliographic item, true if relation has been added
       #
       def transposed_relation(bib, existed) # rubocop:disable Metrics/CyclomaticComplexity
-        return [bib, existed, false] if bib.date.none? && existed.date.none? ||
-          bib.date.any? && existed.date.none?
+        if (bib.date.none? && existed.date.none?) || (bib.date.any? && existed.date.none?)
+          return [bib, existed, false]
+        end
         return [existed, bib, true] if bib.date.none? && existed.date.any?
 
         check_transposed_date bib, existed
@@ -205,7 +207,7 @@ module Relaton
         bib1.relation << rel
       end
 
-      def add_contributor(bib1, bib2) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
+      def add_contributor(bib1, bib2) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
         changed = false
 
         bib2.contributor.each do |bc|

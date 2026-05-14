@@ -4,8 +4,7 @@ module Relaton
   module ThreeGpp
     # Methods for search IANA standards.
     module Bibliography
-      # SOURCE = "http://xml2rfc.tools.ietf.org/public/rfc/bibxml-3gpp-new/"
-      SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-3gpp/refs/heads/v2/"
+      SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-3gpp/v2/"
 
       # @param text [String]
       # @return [RelatonBib::BibliographicItem]
@@ -14,7 +13,6 @@ module Relaton
         row = index.search(text.sub(/^3GPP\s/, "")).min_by { |r| r[:id] }
         return unless row
 
-        # file = text.sub(/^3GPP\s/, "").gsub(/[\s,:\/]/, "_").squeeze("_").upcase
         url = "#{SOURCE}#{row[:file]}"
         resp = Net::HTTP.get_response URI(url)
         return unless resp.code == "200"
@@ -22,9 +20,9 @@ module Relaton
         item = Item.from_yaml(resp.body)
         item.fetched = Date.today.to_s
         item
-      rescue SocketError, Timeout::Error, Errno::EINVAL, Errno::ECONNRESET,
-            EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
-            Net::ProtocolError, Errno::ETIMEDOUT => e
+      rescue  SocketError, Timeout::Error, Errno::EINVAL, Errno::ECONNRESET,
+              EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
+              Net::ProtocolError, Errno::ETIMEDOUT => e
         raise Relaton::RequestError, e.message
       end
 
