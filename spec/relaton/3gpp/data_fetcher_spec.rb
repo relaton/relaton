@@ -196,21 +196,21 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
       end
 
       it "has changed link" do
-        expect(subject).to receive(:update_source).with(:bib, :bib2).and_return true
+        expect(subject).to receive(:update_source?).with(:bib, :bib2).and_return true
         expect(subject).to receive(:transposed_relation).with(:bib, :bib2).and_return [:bib1, :bib2, false]
         expect(subject).to receive(:add_contributor).with(:bib1, :bib2).and_return false
         expect(subject.send(:merge_duplication, :bib, :file)).to eq :bib1
       end
 
       it "has changed transposed relation" do
-        expect(subject).to receive(:update_source).with(:bib, :bib2).and_return false
+        expect(subject).to receive(:update_source?).with(:bib, :bib2).and_return false
         expect(subject).to receive(:transposed_relation).with(:bib, :bib2).and_return [:bib1, :bib2, true]
         expect(subject).to receive(:add_contributor).with(:bib1, :bib2).and_return false
         expect(subject.send(:merge_duplication, :bib, :file)).to eq :bib1
       end
 
       it "has changed contributor" do
-        expect(subject).to receive(:update_source).with(:bib, :bib2).and_return false
+        expect(subject).to receive(:update_source?).with(:bib, :bib2).and_return false
         expect(subject).to receive(:transposed_relation).with(:bib, :bib2).and_return [:bib1, :bib2, false]
         expect(subject).to receive(:add_contributor).with(:bib1, :bib2).and_return true
         expect(subject.send(:merge_duplication, :bib, :file)).to eq :bib1
@@ -222,22 +222,22 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
       let(:bib_without_source) { Relaton::ThreeGpp::Item.new source: [] }
 
       it "update original source" do
-        expect(subject.send(:update_source, bib_with_source, bib_without_source)).to be true
+        expect(subject.send(:update_source?, bib_with_source, bib_without_source)).to be true
         expect(bib_with_source.source.size).to eq 1
       end
 
       it "update new source" do
-        expect(subject.send(:update_source, bib_without_source, bib_with_source)).to be true
+        expect(subject.send(:update_source?, bib_without_source, bib_with_source)).to be true
         expect(bib_without_source.source.size).to eq 1
       end
 
       context "no changes" do
         it "both has source" do
-          expect(subject.send(:update_source, bib_with_source, bib_with_source)).to be false
+          expect(subject.send(:update_source?, bib_with_source, bib_with_source)).to be false
         end
 
         it "both empty" do
-          expect(subject.send(:update_source, bib_without_source, bib_without_source)).to be false
+          expect(subject.send(:update_source?, bib_without_source, bib_without_source)).to be false
         end
       end
     end
