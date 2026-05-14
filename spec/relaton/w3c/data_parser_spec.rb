@@ -130,4 +130,61 @@ RSpec.describe Relaton::W3c::DataParser do
       expect(doc.contributor.size).to eq 1
     end
   end
+
+  # Regression for the relaton-data-w3c crawler crash caused by W3C API
+  # returning 403 on a sub-resource. RateLimitHandler#realize now caches
+  # nil for non-retryable client errors, so DataParser must tolerate nil
+  # results at every realize callsite.
+  describe "tolerates nil from realize (e.g. 403/401/400 sub-resources)" do
+    let(:link) { double("link", href: "https://api.w3.org/foo") }
+    let(:links) { double("links") }
+    let(:specification) { double("spec", links: links) }
+
+    before do
+      allow(links).to receive(:respond_to?).and_return(false)
+      allow(subject).to receive(:realize).with(link).and_return(nil)
+    end
+
+    it "skips successor_versions when realize returns nil" do
+      allow(links).to receive(:respond_to?).with(:successor_versions).and_return(true)
+      allow(links).to receive(:successor_versions).and_return(link)
+
+      expect { subject.send(:relations) }.not_to raise_error
+      expect(subject.send(:relations)).to be_empty
+    end
+
+    it "skips predecessor_versions when realize returns nil" do
+      allow(links).to receive(:respond_to?).with(:predecessor_versions).and_return(true)
+      allow(links).to receive(:predecessor_versions).and_return(link)
+
+      expect { subject.send(:relations) }.not_to raise_error
+      expect(subject.send(:relations)).to be_empty
+    end
+
+    it "drops the specification editionOf relation when its target cannot be realized" do
+      allow(links).to receive(:respond_to?).with(:specification).and_return(true)
+      allow(links).to receive(:specification).and_return(link)
+
+      expect { subject.send(:relations) }.not_to raise_error
+      expect(subject.send(:relations)).to be_empty
+    end
+
+    it "falls back to empty when version_history cannot be realized" do
+      allow(links).to receive(:respond_to?).with(:version_history).and_return(true)
+      allow(links).to receive(:version_history).and_return(link)
+
+      expect { subject.send(:parse_relation) }.not_to raise_error
+      expect(subject.send(:parse_relation)).to eq []
+    end
+
+    it "still returns the W3C publisher contributor when editors cannot be realized" do
+      allow(links).to receive(:respond_to?).with(:editors).and_return(true)
+      allow(links).to receive(:editors).and_return(link)
+
+      expect { subject.send(:parse_contrib) }.not_to raise_error
+      result = subject.send(:parse_contrib)
+      expect(result.size).to eq 1
+      expect(result[0].role[0].type).to eq "publisher"
+    end
+  end
 end

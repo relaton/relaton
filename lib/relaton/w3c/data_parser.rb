@@ -236,10 +236,11 @@ module Relaton
       def parse_relation
         result = if @spec.links.respond_to?(:version_history)
                    version_history = realize @spec.links.version_history
-                   version_history.links.spec_versions.map { |version| create_relation(version, "hasEdition") }
+                   version_history&.links&.spec_versions&.map { |version| create_relation(version, "hasEdition") } || []
                  else
                    relations
                  end
+        result = result.compact
         @errors[:relation] &&= result.empty?
         result
       end
@@ -254,17 +255,17 @@ module Relaton
         rels << create_relation(@spec.links.specification, "editionOf") if @spec.links.respond_to?(:specification)
         if @spec.links.respond_to?(:predecessor_versions) && @spec.links.predecessor_versions
           predecessor_versions = realize @spec.links.predecessor_versions
-          predecessor_versions.links.predecessor_versions.each do |version|
+          predecessor_versions&.links&.predecessor_versions&.each do |version|
             rels << create_relation(version, "obsoletes")
           end
         end
         if @spec.links.respond_to?(:successor_versions) && @spec.links.successor_versions
           successor_versions = realize @spec.links.successor_versions
-          successor_versions.links.successor_versions.each do |version|
+          successor_versions&.links&.successor_versions&.each do |version|
             rels << create_relation(version, "updatedBy", "errata")
           end
         end
-        rels
+        rels.compact
       end
 
       #
@@ -278,6 +279,8 @@ module Relaton
       #
       def create_relation(version, type, desc = nil)
         version_spec = realize version
+        return nil unless version_spec
+
         url = doc_uri(version_spec)
         id = pub_id(url)
         title = parse_title(version_spec)
@@ -314,7 +317,7 @@ module Relaton
 
         if @spec.links.respond_to?(:editors)
           editors = realize @spec.links.editors
-          editors.links.editors&.each do |ed|
+          editors&.links&.editors&.each do |ed|
             editor = create_editor(ed)
             contribs << editor if editor
           end
