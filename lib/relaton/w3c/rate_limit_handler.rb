@@ -1,3 +1,5 @@
+require "concurrent/map"
+
 module Relaton
   module W3c
     module RateLimitHandler
@@ -7,8 +9,11 @@ module Relaton
         Lutaml::Hal::ServerError, Faraday::ConnectionFailed, Net::OpenTimeout,
       ].freeze
 
+      # Concurrent::Map so multiple fetcher threads can hit the cache without
+      # a global lock. Duplicate concurrent fetches of the same URL are
+      # possible but harmless; the second write just replaces the first.
       def self.fetched_objects
-        @fetched_objects ||= {}
+        @fetched_objects ||= Concurrent::Map.new
       end
 
       def realize(obj)

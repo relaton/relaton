@@ -87,7 +87,7 @@ RSpec.describe Relaton::W3c::RateLimitHandler do
 
         result = handler.realize(obj)
         expect(result).to be_nil
-        expect(Relaton::W3c::RateLimitHandler.fetched_objects).not_to have_key(href)
+        expect(Relaton::W3c::RateLimitHandler.fetched_objects.key?(href)).to be false
         expect(Relaton.logger_pool).to have_received(:warn).with(/Failed to realize object/, anything)
       end
     end
@@ -102,7 +102,7 @@ RSpec.describe Relaton::W3c::RateLimitHandler do
         result = handler.realize(obj)
         expect(result).to be_nil
         expect(Relaton::W3c::RateLimitHandler.fetched_objects[href]).to be_nil
-        expect(Relaton::W3c::RateLimitHandler.fetched_objects).to have_key(href)
+        expect(Relaton::W3c::RateLimitHandler.fetched_objects.key?(href)).to be true
         expect(Relaton.logger_pool).to have_received(:warn).with(/Object not found/, anything)
       end
     end
@@ -117,7 +117,7 @@ RSpec.describe Relaton::W3c::RateLimitHandler do
         result = handler.realize(obj)
         expect(result).to be_nil
         expect(Relaton::W3c::RateLimitHandler.fetched_objects[href]).to be_nil
-        expect(Relaton::W3c::RateLimitHandler.fetched_objects).to have_key(href)
+        expect(Relaton::W3c::RateLimitHandler.fetched_objects.key?(href)).to be true
         expect(Relaton.logger_pool).to have_received(:warn).with(/Client error for/, anything)
       end
     end
@@ -147,7 +147,7 @@ RSpec.describe Relaton::W3c::RateLimitHandler do
         result = handler.realize(obj)
         expect(result).to be_nil
         expect(Relaton::W3c::RateLimitHandler.fetched_objects[href]).to be_nil
-        expect(Relaton::W3c::RateLimitHandler.fetched_objects).to have_key(href)
+        expect(Relaton::W3c::RateLimitHandler.fetched_objects.key?(href)).to be true
         expect(Relaton.logger_pool).to have_received(:warn).with(/Server error for .* skipping/, anything)
       end
     end
