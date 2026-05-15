@@ -59,22 +59,26 @@ RSpec.describe Relaton::Calconnect::DataFetcher do
     end
 
     context "#write_doc" do
-      let(:bib) { instance_double Relaton::Calconnect::ItemData }
+      let(:primary_docid) { double("docid", content: "CC/DIR 1234:2019", primary: true) }
+      let(:bib) do
+        instance_double Relaton::Calconnect::ItemData, docidentifier: [primary_docid]
+      end
 
       before do
         expect(subject).to receive(:serialize).with(bib).and_return :yaml
-        expect(subject.index).to receive(:add_or_update).with("1234", "data/1234.yaml")
-        expect(File).to receive(:write).with("data/1234.yaml", :yaml, encoding: "UTF-8")
+        expect(subject.index).to receive(:add_or_update)
+          .with("CC/DIR 1234:2019", "data/cc-dir-1234.yaml")
+        expect(File).to receive(:write).with("data/cc-dir-1234.yaml", :yaml, encoding: "UTF-8")
       end
 
-      it do
-        subject.send(:write_doc, "1234", bib)
-        expect(files).to include "data/1234.yaml"
+      it "keys the index by the primary docid, not the slug" do
+        subject.send(:write_doc, "cc-dir-1234", bib)
+        expect(files).to include "data/cc-dir-1234.yaml"
       end
 
       it "warn if file exist" do
-        files << "data/1234.yaml"
-        expect { subject.send(:write_doc, "1234", bib) }.to output(/exist/).to_stderr_from_any_process
+        files << "data/cc-dir-1234.yaml"
+        expect { subject.send(:write_doc, "cc-dir-1234", bib) }.to output(/exist/).to_stderr_from_any_process
       end
     end
 

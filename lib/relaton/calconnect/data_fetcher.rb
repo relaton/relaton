@@ -65,15 +65,22 @@ module Relaton::Calconnect
       false
     end
 
-    def write_doc(docid, bib) # rubocop:disable Metrics/MethodLength
-      file = output_file docid
+    def write_doc(slug, bib) # rubocop:disable Metrics/MethodLength
+      file = output_file slug
       if @files.include? file
         Util.warn "#{file} exist"
       else
         @files << file
       end
-      index.add_or_update docid, file
+      index.add_or_update primary_docid(bib), file
       File.write file, serialize(bib), encoding: "UTF-8"
+    end
+
+    # Index entries are keyed by the canonical doc identifier
+    # (e.g. "CC/DIR 10005:2019"), not the upstream slug used for filenames.
+    def primary_docid(bib)
+      docid = bib.docidentifier.find(&:primary) || bib.docidentifier.first
+      docid.content
     end
 
     def to_yaml(bib) = bib.to_yaml
