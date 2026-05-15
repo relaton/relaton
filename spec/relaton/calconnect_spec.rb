@@ -30,7 +30,7 @@ RSpec.describe Relaton::Calconnect do
 
     it "raises RequestError" do
       expect(Relaton::Calconnect::HitCollection).to receive(:new)
-        .and_raise Faraday::ConnectionFailed.new("Connection error")
+        .and_raise SocketError.new("Connection error")
       expect do
         Relaton::Calconnect::Bibliography.search("CC/DIR 10005:2019")
       end.to raise_error Relaton::RequestError

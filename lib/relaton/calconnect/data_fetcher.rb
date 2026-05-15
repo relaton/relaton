@@ -1,7 +1,7 @@
 # frozen_string_literal:true
 
-require "yaml"
-require "faraday"
+require "json"
+require "mechanize"
 require "relaton/core"
 require "relaton/index"
 require_relative "scraper"
@@ -12,12 +12,7 @@ module Relaton::Calconnect
   # Relaton-calconnect data fetcher
   #
   class DataFetcher < Relaton::Core::DataFetcher
-    # DOMAIN = "https://standards.calconnect.org/"
-    # SCHEME, HOST = DOMAIN.split(%r{:?/?/})
-    ENDPOINT = "https://standards.calconnect.org/relaton/index.yaml"
-    # DATADIR = "data"
-    # DATAFILE = File.join DATADIR, "bibliography.yml"
-    # ETAGFILE = File.join DATADIR, "etag.txt"
+    ENDPOINT = "https://standards.calconnect.org/cc/index.json"
 
     def etagfile
       @etagfile ||= File.join @output, "etag.txt"
@@ -31,18 +26,23 @@ module Relaton::Calconnect
       Util.error msg
     end
 
+    def agent
+      @agent ||= Mechanize.new
+    end
+
     #
     # fetch data form server and save it to file.
     #
     def fetch(_source = nil) # rubocop:disable Metrics/AbcSize
-      resp = Faraday.new(ENDPOINT, headers: { "If-None-Match" => etag }).get
-      # return if there aren't any changes since last fetching
-      return unless resp.status == 200
+      agent.request_headers["If-None-Match"] = etag if etag
+      resp = agent.get(ENDPOINT)
+      # 304 Not Modified — nothing changed since the last fetch
+      return if resp.code == "304"
 
-      data = YAML.safe_load resp.body
+      data = JSON.parse resp.body
       all_success = true
-      data["root"]["items"].each { |doc| all_success &&= parse_page doc }
-      self.etag = resp[:etag] if all_success
+      Array(data["documents"]).each { |doc| all_success &&= parse_page doc }
+      self.etag = resp.response["etag"] if all_success
       index.save
       report_errors
     end
@@ -56,11 +56,10 @@ module Relaton::Calconnect
     #
     def parse_page(doc)
       bib = Scraper.new(@errors).parse_page doc
-      # bib.link.each { |l| l.content.merge!(scheme: SCHEME, host: HOST) unless l.content.host }
-      write_doc doc["docid"][0]["id"], bib
+      write_doc doc["id"], bib
       true
     rescue StandardError => e
-      Util.warn "Document: #{doc['docid'][0]['id']}"
+      Util.warn "Document: #{doc['id']}"
       Util.warn e.message
       Util.warn e.backtrace[0..5].join("\n")
       false

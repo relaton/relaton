@@ -14,33 +14,47 @@ RSpec.describe Relaton::Calconnect::DataFetcher do
     end
 
     it "#fetch" do
-      expect(subject).to receive(:etag).and_return nil
-      faraday = double "Faraday instance"
-      body = File.read "spec/fixtures/data.yaml", encoding: "UTF-8"
-      response = double "Faraday response", status: 200, body: body
-      expect(response).to receive(:[]).with(:etag).and_return "1234"
-      expect(faraday).to receive(:get).with(no_args).and_return response
-      expect(Faraday).to receive(:new)
-        .with(Relaton::Calconnect::DataFetcher::ENDPOINT, headers: { "If-None-Match" => nil })
-        .and_return faraday
+      expect(subject).to receive(:etag).twice.and_return "old-etag"
+      body = JSON.dump(
+        "documents" => [
+          { "id" => "cc-1" }, { "id" => "cc-2" }, { "id" => "cc-3" }
+        ],
+      )
+      net_resp = { "etag" => "new-etag" }
+      mech_resp = double "Mechanize response", code: "200", body: body, response: net_resp
+      headers = {}
+      agent = double "Mechanize agent", request_headers: headers
+      expect(agent).to receive(:get).with(Relaton::Calconnect::DataFetcher::ENDPOINT).and_return mech_resp
+      expect(subject).to receive(:agent).at_least(:once).and_return agent
       expect(subject).to receive(:parse_page).with(kind_of(Hash)).and_return(true).exactly(3).times
-      expect(subject).to receive(:etag=).with("1234")
+      expect(subject).to receive(:etag=).with("new-etag")
       expect(subject.index).to receive(:save)
       expect(subject).to receive(:report_errors)
+      subject.fetch
+      expect(headers).to eq("If-None-Match" => "old-etag")
+    end
+
+    it "#fetch returns early on 304 Not Modified" do
+      expect(subject).to receive(:etag).at_least(:once).and_return "old-etag"
+      mech_resp = double "Mechanize response", code: "304"
+      agent = double "Mechanize agent", request_headers: {}
+      expect(agent).to receive(:get).and_return mech_resp
+      expect(subject).to receive(:agent).at_least(:once).and_return agent
+      expect(subject).not_to receive(:parse_page)
       subject.fetch
     end
 
     context "#parse_page" do
       it do
         expect_any_instance_of(Relaton::Calconnect::Scraper).to receive(:parse_page).with(kind_of(Hash)).and_return :bib
-        expect(subject).to receive(:write_doc).with("1234", :bib)
-        expect(subject.send(:parse_page, { "docid" => [{ "id" => "1234" }] })).to be true
+        expect(subject).to receive(:write_doc).with("cc-1234", :bib)
+        expect(subject.send(:parse_page, { "id" => "cc-1234" })).to be true
       end
 
       it "log error" do
         expect_any_instance_of(Relaton::Calconnect::Scraper).to receive(:parse_page).and_raise StandardError
-        doc = { "docid" => [{ "id" => "1234" }] }
-        expect { subject.send(:parse_page, doc) }.to output(/Document: 1234/).to_stderr_from_any_process
+        doc = { "id" => "cc-1234" }
+        expect { subject.send(:parse_page, doc) }.to output(/Document: cc-1234/).to_stderr_from_any_process
       end
     end
 

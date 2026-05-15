@@ -1,3 +1,5 @@
+require "mechanize"
+
 module Relaton::Calconnect
   class Bibliography
     class << self
@@ -5,7 +7,7 @@ module Relaton::Calconnect
       # @return [RelatonCalconnect::HitCollection]
       def search(text, year = nil, _opts = {})
         HitCollection.new text, year
-      rescue Faraday::ConnectionFailed
+      rescue Mechanize::ResponseCodeError, SocketError, Errno::ECONNREFUSED
         raise Relaton::RequestError, "Could not access https://standards.calconnect.org"
       end
 

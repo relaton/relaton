@@ -1,5 +1,8 @@
-require "addressable/uri"
+require "mechanize"
+require "stringio"
+require "zip"
 require_relative "model/item"
+require_relative "model/bibdata"
 
 module Relaton
   module Calconnect
@@ -7,9 +10,8 @@ module Relaton
       include Core::HashKeysSymbolizer
       include Core::ArrayWrapper
 
-      DOMAIN = "https://standards.calconnect.org/".freeze
-      SCHEME, HOST = DOMAIN.split(%r{:?/?/})
-      # DOMAIN = "http://127.0.0.1:4000/".freeze
+      RELEASE_ASSET_URL = "https://github.com/%<owner>s/%<repo>s/releases/download/" \
+                          "%<tag>s/%<asset_stem>s.zip".freeze
 
       # @param errors [Hash] error tracking hash
       def initialize(errors = {})
@@ -17,273 +19,67 @@ module Relaton
       end
 
       #
-      # Parse document page
+      # Parse an aggregate-index document entry: download the per-document
+      # GitHub release zip, extract the RXL, and parse it into a bibitem.
       #
-      # @papam hit [Hash] document hash
+      # @param hit [Hash] document entry from /cc/index.json
       #
       # @return [Relaton::Calconnect::ItemData] bibliographic item
       #
-      def parse_page(hit) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-        hash = symbolize_hash_keys hit
-        links = array(hash[:link])
-        link = links.detect { |l| l[:type] == "rxl" }
-        if link
-          bib = fetch_bib_xml link[:content]
-          update_links bib, links
-        else
-          hash.delete :fetched
-          bib = hash_to_item hash
-        end
-        update_sources bib
-        bib
+      def parse_page(hit)
+        zip_data = download_release_zip hit
+        rxl = extract_rxl zip_data, rxl_filename(hit)
+        xml = normalize_rxl rxl
+        Item.from_xml xml
       end
 
       private
 
-      #
-      # Fetch bibliographic item from XML source
-      #
-      # @param url [String] URL to fetch
-      #
-      # @return [RelatonCalconnect::CcBibliographicItem] bibliographic item
-      #
-      def fetch_bib_xml(url) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-        rxl = get_rxl url
-        uri_rxl = rxl.at("uri[@type='rxl']")
-        if uri_rxl
-          uri_xml = rxl.xpath("//uri").to_xml
-          rxl = get_rxl uri_rxl.text
-          docid = rxl.at "//docidentifier"
-          docid.add_previous_sibling uri_xml
+      def release_zip_url(hit)
+        source = hit["source"] || {}
+        format(
+          RELEASE_ASSET_URL,
+          owner: source["owner"],
+          repo: source["repo"],
+          tag: source["tag"],
+          asset_stem: asset_stem(hit),
+        )
+      end
+
+      def rxl_filename(hit)
+        "#{asset_stem(hit)}.rxl"
+      end
+
+      # The release asset uses the tag with the slash replaced by a hyphen,
+      # which encodes both the document id and the release qualifier
+      # (e.g. `ed1`, `ed1-wd`).
+      def asset_stem(hit)
+        (hit["source"] && hit["source"]["tag"] || "").tr("/", "-")
+      end
+
+      def download_release_zip(hit)
+        url = release_zip_url(hit)
+        agent.get(url).body
+      rescue Mechanize::ResponseCodeError => e
+        raise "Failed to download release zip #{url}: HTTP #{e.response_code}"
+      end
+
+      def agent
+        @agent ||= Mechanize.new
+      end
+
+      def extract_rxl(zip_data, filename)
+        Zip::File.open_buffer(StringIO.new(zip_data)) do |zip|
+          entry = zip.find_entry(filename)
+          raise "RXL file #{filename} not found in release zip" unless entry
+
+          return entry.get_input_stream.read
         end
-        xml = rxl.to_xml.gsub(%r{(</?)technical-committee(>)}, '\1committee\2')
+      end
+
+      def normalize_rxl(xml)
+        xml.gsub(%r{(</?)technical-committee(>)}, '\1committee\2')
           .gsub(%r{type="(?:csd|CC)"(?=>)}i, '\0 primary="true"')
-        Item.from_xml xml
-      end
-
-      # @param path [String]
-      # @return [Nokogiri::XML::Document]
-      def get_rxl(path)
-        resp = Faraday.get DOMAIN + path
-        Nokogiri::XML resp.body
-      end
-
-      #
-      # Fix editorial group
-      #
-      # @param [Hash] doc
-      #
-      # @return [Hash]
-      #
-      def hash_to_item(hash)
-        hash_to_title hash
-        hash_to_source hash
-        hash_to_docid hash
-        hash_to_date hash
-        hash_to_contributor hash
-        hash_to_edition hash
-        hash_to_version hash
-        hosh_to_abstract hash
-        hash_to_status hash
-        hash_to_relation hash
-        hash_to_copyrigh hash
-        hash_to_keyword hash
-        hash_to_editorialgroup hash
-        hash_to_ext hash
-        ItemData.new(**hash)
-      end
-
-      def hash_to_title(hash)
-        hash[:title] = array(hash[:title]).map do |t|
-          t[:language] = t[:language].first if t[:language].is_a? Array
-          t[:script] = t[:script].first if t[:script].is_a? Array
-          t.delete :format
-          Bib::Title.new(**t)
-        end
-        @errors[:title] &&= hash[:title].empty?
-      end
-
-      def hash_to_source(hash)
-        hash[:source] = array(hash[:link]).map { |link| Bib::Uri.new(type: "src", **link) }
-        @errors[:source] &&= hash[:source].empty?
-      end
-
-      def hash_to_docid(hash)
-        docid = hash.delete(:docid)
-        @errors[:docid] &&= docid.nil?
-        return unless docid
-
-        docid_types = %w[CC CSD]
-        hash[:docidentifier] = array(docid).map do |id|
-          id[:primary] = true if docid_types.include? id[:type].upcase
-          id[:content] = id.delete(:id) if id[:id]
-          Bib::Docidentifier.new(**id)
-        end
-      end
-
-      def hash_to_date(hash)
-        hash[:date] = array(hash[:date]).map do |d|
-          d[:at] = d.delete(:value) if d[:value]
-          Bib::Date.new(**d)
-        end
-        @errors[:date] &&= hash[:date].empty?
-      end
-
-      def hash_to_contributor(hash)
-        hash[:contributor] = array(hash[:contributor]).map do |contrib|
-          if contrib[:organization]
-            contrib[:organization] = create_organization contrib[:organization]
-          elsif contrib[:person]
-            contrib[:person] = create_person contrib[:person]
-          end
-          contrib[:role] = array(contrib[:role]).map do |role|
-            role[:description] = array(role[:description]).map do |desc|
-              Bib::LocalizedMarkedUpString.new content: desc
-            end
-            Bib::Contributor::Role.new(**role)
-          end
-          Bib::Contributor.new(**contrib)
-        end
-        @errors[:contributor] &&= hash[:contributor].empty?
-      end
-
-      def create_organization(org_hash)
-        org_name = array(org_hash[:name]).each { |name| Bib::TypedLocalizedString.new(**name) }
-        contact = create_contact org_hash[:contact]
-        Bib::Organization.new(name: org_name, **contact)
-      end
-
-      def create_contact(contact_hash)
-        array(contact_hash).each_with_object({address: [], email: [], uri: []}) do |cont, acc|
-          case cont
-          in { address: addr_hash }
-            acc[:address] = Bib::Address.new(**addr_hash)
-          in { email: email }
-            acc[:email] << email
-          in { uri: uri }
-            acc[:uri] << Bib::Uri.new(content: uri)
-          end
-        end
-      end
-
-      def create_person(person_hash)
-        completename = Bib::LocalizedString.new(**person_hash[:name][:completename])
-        name = Bib::FullName.new completename: completename
-        affiliation = array(person_hash[:affiliation]).map do |aff|
-          org = create_organization aff[:organization]
-          Bib::Affiliation.new(organization: org)
-        end
-        contact = create_contact person_hash[:contact]
-        Bib::Person.new(name: name, affiliation: affiliation, **contact)
-      end
-
-      def hash_to_edition(hash)
-        number = hash.dig(:edition, :content)
-        @errors[:edition] &&= number.nil?
-        hash[:edition] = Bib::Edition.new(number: number) if number
-      end
-
-      def hash_to_version(hash)
-        hash[:version] = array(hash[:version]).map do |ver|
-          Bib::Version.new(revision_date: ver[:revision_date])
-        end
-      end
-
-      def hosh_to_abstract(hash)
-        hash[:abstract] = array(hash[:abstract]).map do |abs|
-          Bib::Abstract.new(**abs)
-        end
-        @errors[:abstract] &&= hash[:abstract].empty?
-      end
-
-      def hash_to_status(hash)
-        docstatus = hash.delete(:docstatus)
-        @errors[:status] &&= docstatus.nil?
-        return unless docstatus
-
-        stage = Bib::Status::Stage.new content: docstatus.dig(:stage, :value)
-        hash[:status] = Bib::Status.new stage: stage
-      end
-
-      def hash_to_relation(hash)
-        hash[:relation] = array(hash[:relation]).map do |rel|
-          Bib::Relation.new(type: rel[:type], bibitem: hash_to_item(rel[:bibitem]))
-        end
-        @errors[:relation] &&= hash[:relation].empty?
-      end
-
-      def hash_to_copyrigh(hash)
-        hash[:copyright] = array(hash[:copyright]).map do |cr|
-          cr[:owner] = array(cr[:owner]).map do |owner|
-            org_name = array(owner[:name]).map do |name|
-              Bib::TypedLocalizedString.new(**name)
-            end
-            Bib::ContributionInfo.new organization: Bib::Organization.new(name: org_name)
-          end
-          Bib::Copyright.new(**cr)
-        end
-        @errors[:copyright] &&= hash[:copyright].empty?
-      end
-
-      def hash_to_keyword(hash)
-        hash[:keyword] = array(hash[:keyword]).map do |kw|
-          vocab = Bib::LocalizedString.new(**kw)
-          Bib::Keyword.new(vocab: vocab)
-        end
-        @errors[:keyword] &&= hash[:keyword].empty?
-      end
-
-      def hash_to_ext(hash)
-        return unless hash[:ext]
-
-        hash_to_doctype hash[:ext]
-        hash[:ext] = Ext.new(flavor: "calconnect", **hash.delete(:ext))
-      end
-
-      def hash_to_doctype(ext)
-        @errors[:doctype] &&= ext[:doctype].nil?
-        return unless ext[:doctype]
-
-        ext[:doctype] = Doctype.new content: ext.dig(:doctype, :type), abbreviation: ext.dig(:doctype, :abbreviation)
-      end
-
-      def hash_to_editorialgroup(hash)
-        eg = hash.delete(:editorialgroup) || (hash[:ext] && hash[:ext].delete(:editorialgroup))
-        @errors[:editorialgroup] &&= eg.nil?
-        return unless eg
-
-        # Normalize: editorialgroup can be a single hash or an array of hashes
-        groups = array(eg).map do |g|
-          g = g[:technical_committee] if g.is_a?(Hash) && g[:technical_committee]
-          g
-        end
-
-        subdivisions = groups.map do |g|
-          subdiv_name = Bib::TypedLocalizedString.new content: g[:name]
-          Bib::Subdivision.new(type: "technical-committee", name: [subdiv_name])
-        end
-
-        org_name = Bib::TypedLocalizedString.new content: "CalConnect"
-        org = Bib::Organization.new name: [org_name], subdivision: subdivisions
-        description = Bib::LocalizedMarkedUpString.new content: "committee"
-        role = Bib::Contributor::Role.new type: "author", description: [description]
-        hash[:contributor] ||= []
-        hash[:contributor] << Bib::Contributor.new(organization: org, role: [role])
-      end
-
-      def update_links(bib, links)
-        links.each do |l|
-          tu = l.transform_keys(&:to_sym)
-          bib.source << Relaton::Bib::Uri.new(**tu) unless bib.source(l[:type])
-        end
-        bib
-      end
-
-      def update_sources(bib)
-        bib.source.each do |l|
-          uri = Addressable::URI.parse l.content
-          l.content = uri.merge(scheme: SCHEME, host: HOST).to_s unless uri.host
-        end
       end
     end
   end
