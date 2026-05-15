@@ -46,11 +46,13 @@ describe Relaton::Calconnect::Scraper do
       <bibdata>
         <docidentifier type="csd">x</docidentifier>
         <technical-committee>TC</technical-committee>
+        <subdivision type="Technical committee"><name>X</name></subdivision>
       </bibdata>
     XML
     out = scraper.send(:normalize_rxl, xml)
     expect(out).to include "<committee>TC</committee>"
     expect(out).to include 'type="csd" primary="true"'
+    expect(out).to include '<subdivision type="technical-committee">'
   end
 
   it "#parse_page downloads release zip, extracts rxl, and parses it" do

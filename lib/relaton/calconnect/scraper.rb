@@ -80,6 +80,7 @@ module Relaton
       def normalize_rxl(xml)
         xml.gsub(%r{(</?)technical-committee(>)}, '\1committee\2')
           .gsub(%r{type="(?:csd|CC)"(?=>)}i, '\0 primary="true"')
+          .gsub(%r{type="Technical committee"}, 'type="technical-committee"')
       end
     end
   end
