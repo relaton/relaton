@@ -10,7 +10,7 @@ module Relaton
         @prefix = "ISO"
         @defaultprefix = %r{^ISO(/IEC)?\s}
         @idtype = "ISO"
-        @datasets = %w[iso-ics]
+        @datasets = %w[iso-open-data iso-open-data-all]
       end
 
       # @param code [String]
@@ -23,16 +23,19 @@ module Relaton
       end
 
       #
-      # Fetch all the documents from https://www.iso.org/standards-catalogue/browse-by-ics.html
+      # Fetch all the documents from the ISO Open Data programme
+      # (https://www.iso.org/open-data.html).
       #
-      # @param [String] source source name (iso-rss, iso-rss-all)
+      # @param [String] source source name
+      #   * `iso-open-data` - skip if upstream `Last-Modified` is unchanged
+      #   * `iso-open-data-all` - wipe `output` and re-emit every record
       # @param [Hash] opts
       # @option opts [String] :output directory to output documents
       # @option opts [String] :format output format (xml, yaml, bibxml)
       #
-      def fetch_data(_source, opts)
+      def fetch_data(source, opts)
         require_relative "data_fetcher"
-        DataFetcher.fetch(**opts)
+        DataFetcher.fetch(source, **opts)
       end
 
       # @param xml [String]

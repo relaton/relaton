@@ -1,7 +1,9 @@
+require_relative "../type/pubid"
+
 module Relaton
   module Iso
     class Docidentifier < Bib::Docidentifier
-      attribute :content, :string
+      attribute :content, Type::Pubid
 
       attr_reader :pubid
 
@@ -30,7 +32,10 @@ module Relaton
               begin
                 ::Pubid::Iso::Identifier.parse(value)
               rescue StandardError
-                Util.warn "Failed to parse Pubid: #{value}"
+                # Suppress when type is not yet set (lutaml runs the setter
+                # once during init before `type` is assigned, then `initialize`
+                # re-runs it; only the second pass is authoritative).
+                Util.warn "Failed to parse Pubid: #{value}" if type
                 nil
               end
             end

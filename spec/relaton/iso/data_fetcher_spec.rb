@@ -1,286 +1,181 @@
 require "relaton/iso/data_fetcher"
+require "fileutils"
+require "tmpdir"
 
 describe Relaton::Iso::DataFetcher do
-  subject { described_class.new "data", "yaml" }
+  let(:work_dir) { Dir.mktmpdir }
+  let(:output_dir) { File.join(work_dir, "data") }
+  let(:last_modified_path) { File.join(work_dir, Relaton::Iso::DataFetcher::LAST_MODIFIED_FILE) }
+
+  let(:sample_records) do
+    [
+      {
+        "id" => 1, "deliverableType" => "IS", "reference" => "ISO 9001:2015",
+        "title" => { "en" => "Quality management systems - Requirements" },
+        "publicationDate" => "2015-09-01", "edition" => 5,
+        "icsCode" => ["03.120.10"], "ownerCommittee" => "ISO/TC 176/SC 2",
+        "currentStage" => 9092, "languages" => ["en"], "scope" => { "en" => nil }
+      },
+      {
+        "id" => 2, "deliverableType" => "TR", "reference" => "ISO/TR 17",
+        "title" => { "en" => "Vocabulary" },
+        "publicationDate" => "2018-01-01", "edition" => 1,
+        "icsCode" => nil, "ownerCommittee" => "ISO/TC 1",
+        "currentStage" => 6060, "languages" => ["en"], "scope" => { "en" => nil }
+      },
+    ]
+  end
+
+  let(:jsonl_path) do
+    p = File.join(work_dir, "fixture.jsonl")
+    File.write(p, sample_records.map(&:to_json).join("\n"))
+    p
+  end
+
+  let(:tc_jsonl_path) do
+    p = File.join(work_dir, "tc.jsonl")
+    File.write(p, "")
+    p
+  end
 
   before do
-    ENV["GITHUB_TOKEN"] = "token"
+    @cwd = Dir.pwd
+    Dir.chdir(work_dir)
+    allow_any_instance_of(described_class).to receive(:download_dataset).and_return(jsonl_path)
+    allow_any_instance_of(described_class).to receive(:download_tc_dataset).and_return(tc_jsonl_path)
+    allow_any_instance_of(described_class).to receive(:fetch_last_modified).and_return("Wed, 13 May 2026 07:18:23 GMT")
+  end
+
+  after do
+    Dir.chdir(@cwd)
+    FileUtils.rm_rf(work_dir)
   end
 
   it "initializes" do
-    data_fetcher = described_class.new "data", "bibxml"
-    expect(data_fetcher.instance_variable_get(:@output)).to eq "data"
-    expect(data_fetcher.instance_variable_get(:@format)).to eq "bibxml"
-    expect(data_fetcher.instance_variable_get(:@ext)).to eq "xml"
-    expect(data_fetcher.instance_variable_get(:@files)).to be_instance_of Set
+    fetcher = described_class.new(output_dir, "bibxml")
+    expect(fetcher.instance_variable_get(:@output)).to eq(output_dir)
+    expect(fetcher.instance_variable_get(:@format)).to eq("bibxml")
+    expect(fetcher.instance_variable_get(:@ext)).to eq("xml")
+    expect(fetcher.instance_variable_get(:@files)).to be_a(Set)
   end
 
-  context "::fetch" do
-    let(:data_fetcher) { double "data_fetcher" }
-    before { expect(data_fetcher).to receive(:fetch) }
-
-    it "iso-rss, default output and format" do
-      expect(described_class).to receive(:new).with("data", "yaml").and_return data_fetcher
-      expect(FileUtils).to receive(:mkdir_p).with("data")
-      described_class.fetch
-    end
-
-    it "iso-rss-all, output and format" do
-      expect(described_class).to receive(:new).with("dir", "xml").and_return data_fetcher
-      expect(FileUtils).to receive(:mkdir_p).with("dir")
-      described_class.fetch(output: "dir", format: "xml")
-    end
+  it "ingests records and writes one YAML per primary docid" do
+    described_class.fetch("iso-open-data-all", output: output_dir, format: "yaml")
+    files = Dir["#{output_dir}/*.yaml"]
+    expect(files.size).to eq(2)
+    expect(files.find { |f| f.include?("iso-9001-2015") }).not_to be_nil
+    expect(files.find { |f| f.include?("iso-tr-17") }).not_to be_nil
   end
 
-  context "instance methods" do
-    let(:index) { double "index" }
-    let(:page) { double "page" }
-    let(:item) { double "item" }
-    let(:id) { Pubid::Iso::Identifier.parse "ISO/IEC 123" }
-    let(:docid) { Relaton::Iso::Docidentifier.new content: id, type: "ISO", primary: true }
-    let(:stage) { Relaton::Bib::Status::Stage.new content: "60" }
-    let(:substage) { Relaton::Bib::Status::Stage.new content: "98" }
-    let(:status) { Relaton::Bib::Status.new stage: stage, substage: substage }
-    let(:edition) { Relaton::Bib::Edition.new content: "2" }
-    let(:doc) { Relaton::Iso::ItemData.new docidentifier: [docid], edition: edition, status: status }
+  it "writes last_modified.txt after a successful run" do
+    described_class.fetch("iso-open-data-all", output: output_dir, format: "yaml")
+    expect(File.read(last_modified_path).strip).to eq("Wed, 13 May 2026 07:18:23 GMT")
+  end
 
-    it "#queue" do
-      expect(subject.queue).to be_instance_of ::Queue
+  it "short-circuits when last-modified is unchanged" do
+    File.write(last_modified_path, "Wed, 13 May 2026 07:18:23 GMT")
+    FileUtils.mkdir_p(output_dir)
+    File.write(File.join(output_dir, "iso-1.yaml"), "stub")
+    File.write("#{Relaton::Iso::INDEXFILE}.yaml", "[]")
+    expect_any_instance_of(described_class).not_to receive(:download_dataset)
+    described_class.fetch("iso-open-data", output: output_dir, format: "yaml")
+  end
+
+  it "refreshes even when last-modified matches but the output dir is empty" do
+    File.write(last_modified_path, "Wed, 13 May 2026 07:18:23 GMT")
+    File.write("#{Relaton::Iso::INDEXFILE}.yaml", "[]")
+    described_class.fetch("iso-open-data", output: output_dir, format: "yaml")
+    expect(Dir["#{output_dir}/*.yaml"].size).to eq(2)
+  end
+
+  it "refreshes even when last-modified matches but the index file is missing" do
+    File.write(last_modified_path, "Wed, 13 May 2026 07:18:23 GMT")
+    FileUtils.mkdir_p(output_dir)
+    File.write(File.join(output_dir, "iso-1.yaml"), "stub")
+    expect_any_instance_of(described_class).to receive(:ingest_records).and_call_original
+    described_class.fetch("iso-open-data", output: output_dir, format: "yaml")
+  end
+
+  it "iso-open-data-all clears @output before re-ingesting" do
+    FileUtils.mkdir_p(output_dir)
+    stale = File.join(output_dir, "stale.yaml")
+    File.write(stale, "stale")
+    described_class.fetch("iso-open-data-all", output: output_dir, format: "yaml")
+    expect(File.exist?(stale)).to be(false)
+  end
+
+  describe "#normalize_reference" do
+    let(:fetcher) { described_class.new(output_dir, "yaml") }
+
+    it "rewrites a `Withdrawn` publisher prefix as ISO" do
+      expect(fetcher.send(:normalize_reference, "Withdrawn 1701/Add 1"))
+        .to eq("ISO 1701/Add 1")
     end
 
-    it "#mutex" do
-      expect(subject.mutex).to be_instance_of Mutex
+    it "leaves a normal reference untouched" do
+      expect(fetcher.send(:normalize_reference, "ISO 9001:2015"))
+        .to eq("ISO 9001:2015")
     end
 
-    it "#iso_queue" do
-      expect(subject.iso_queue).to be_instance_of Relaton::Iso::Queue
-    end
-
-    it "#fetch" do
-      expect(subject).to receive(:fetch_ics).with(no_args)
-      expect(subject).to receive(:fetch_docs).with(no_args)
-      expect(subject.index).to receive(:save).with(no_args)
-      expect(subject.iso_queue).to receive(:save).with(no_args)
-      expect(subject).to receive(:report_errors)
-      subject.fetch
-    end
-
-    it "#fetch_ics" do
-      expect(subject).to receive(:fetch_ics_page).with("/standards-catalogue/browse-by-ics.html")
-      subject.send :fetch_ics
-    end
-
-    context "#fetch_ics_page" do
-      let(:resp) { double "response", body: :html }
-
-      context "successful" do
-        before do
-          expect(subject).to receive(:get_redirection)
-            .with("/standards-catalogue/browse-by-ics.html").and_return resp
-          expect(Nokogiri).to receive(:HTML).with(:html).and_return page
-        end
-
-        it "with ICS" do
-          expect(page).to receive(:xpath).with("//td[@data-title='Standard and/or project']/div/div/a").and_return []
-          expect(item).to receive(:[]).with(:href).and_return "/ics/01.html"
-          expect(page).to receive(:xpath).with("//td[@data-title='ICS']/a").and_return [item]
-          expect(subject.queue).to receive(:<<).with("/ics/01.html")
-          subject.send :fetch_ics_page, "/standards-catalogue/browse-by-ics.html"
-        end
-
-        it "with documents" do
-          expect(page).to receive(:xpath).with("//td[@data-title='Standard and/or project']/div/div/a").and_return [item]
-          expect(item).to receive(:[]).with(:href).and_return "/standard/62510.html?browse=ics"
-          expect(page).to receive(:xpath).with("//td[@data-title='ICS']/a").and_return []
-          subject.send :fetch_ics_page, "/standards-catalogue/browse-by-ics.html"
-          expect(subject.iso_queue[0]).to eq "/standard/62510.html"
-        end
-      end
-
-      it "unsuccessful" do
-        expect(subject).to receive(:get_redirection).with("/standards-catalogue/browse-by-ics.html").and_return nil
-        expect do
-          subject.send :fetch_ics_page, "/standards-catalogue/browse-by-ics.html"
-        end.to output(
-          /ERROR: Failed fetching ICS page https:\/\/www.iso\.org\/standards-catalogue\/browse-by-ics\.html/,
-        ).to_stderr_from_any_process
-      end
-    end
-
-    context "#parse_doc_links" do
-      it "successful" do
-        expect(item).to receive(:[]).with(:href).and_return "/standard/62510.html?browse=ics"
-        expect(page).to receive(:xpath).with("//td[@data-title='Standard and/or project']/div/div/a")
-          .and_return [item]
-        subject.send :parse_doc_links, page # , "/standards-catalogue/browse-by-ics.html"
-        expect(subject.iso_queue[0]).to eq "/standard/62510.html"
-      end
-
-      it "unsuccessful" do
-        expect(page).to receive(:xpath).with("//td[@data-title='Standard and/or project']/div/div/a")
-          .and_return []
-        subject.send :parse_doc_links, page # , "/standards-catalogue/browse-by-ics.html"
-        expect(subject.instance_variable_get(:@errors)).to eq doc_links: true
-      end
-    end
-
-    context "#parse_ics_links" do
-      it "successful" do
-        expect(item).to receive(:[]).with(:href).and_return "/ics/01.html"
-        expect(page).to receive(:xpath).with("//td[@data-title='ICS']/a").and_return [item]
-        expect(subject.queue).to receive(:<<).with("/ics/01.html")
-        subject.send :parse_ics_links, page # , "/standards-catalogue/browse-by-ics.html"
-      end
-
-      it "unsuccessful" do
-        expect(page).to receive(:xpath).with("//td[@data-title='ICS']/a").and_return []
-        subject.send :parse_ics_links, page # , "/standards-catalogue/browse-by-ics.html"
-        expect(subject.instance_variable_get(:@errors)).to eq ics_links: true
-      end
-    end
-
-    context "#get_redirection" do
-      before do
-        allow(URI).to receive(:parse).with("https://www.iso.org/link1").and_return :uri
-      end
-
-      it "successful" do
-        resp = double "response", code: "302"
-        expect(resp).to receive(:[]).with("location").and_return("/link2")
-        expect(Net::HTTP).to receive(:get_response).with(:uri).and_return resp
-        expect(subject).to receive(:get_redirection).with("/link2").and_return resp
-        allow(subject).to receive(:get_redirection).with("/link1").and_call_original
-        expect(subject.send(:get_redirection, "/link1")).to eq resp
-      end
-
-      it "retry" do
-        expect do
-          resp = double "response", code: "200"
-          expect(Net::HTTP).to receive(:get_response).with(:uri).and_raise(Net::OpenTimeout).twice
-          expect(Net::HTTP).to receive(:get_response).with(:uri).and_return resp
-          expect(subject.send(:get_redirection, "/link1")).to eq resp
-        end.to output(/WARN: Timeout fetching uri, retrying.../).to_stderr_from_any_process
-      end
-
-      it "unsuccessful" do
-        expect(Net::HTTP).to receive(:get_response).with(:uri).and_raise(Net::OpenTimeout).exactly(3).times
-        expect { subject.send(:get_redirection, "/link1") }
-          .to output(/WARN: Failed fetching uri/).to_stderr_from_any_process
-      end
-    end
-
-    it "#fetch_docs" do
-      expect(subject.iso_queue).to receive(:[]).with(0..10_000).and_return %w[/page_path1 /page_path2]
-      expect(subject.queue).to receive(:<<).with("/page_path1")
-      expect(subject.queue).to receive(:<<).with("/page_path2")
-      expect(subject.queue).to receive(:<<).with(:END).exactly(3).times.and_call_original
-      subject.send :fetch_docs
-    end
-
-    context "#fetch_doc" do
-      it "successful" do
-        expect(Relaton::Iso::Scraper).to receive(:parse_page)
-          .with("/page_path", errors: {}).and_return :doc
-        expect(subject).to receive(:save_doc).with(:doc, "/page_path")
-        subject.send :fetch_doc, "/page_path"
-      end
-
-      it "Open timeout" do
-        expect(Relaton::Iso::Scraper).to receive(:parse_page).and_raise Net::OpenTimeout
-        expect { subject.send :fetch_doc, "/page_path" }
-          .to output(/WARN: Fail fetching document: https:\/\/www.iso\.org\/page_path/)
-          .to_stderr_from_any_process
-      end
-
-      it "Read timeout" do
-        expect(Relaton::Iso::Scraper).to receive(:parse_page).and_raise Net::ReadTimeout
-        expect { subject.send :fetch_doc, "/page_path" }
-          .to output(/WARN: Fail fetching document: https:\/\/www.iso\.org\/page_path/)
-          .to_stderr_from_any_process
-      end
-    end
-
-    context "#save_doc" do
-      it "no file duplication" do
-        subject.iso_queue.add_first "/page_path1.html"
-        subject.iso_queue.add_first "/page_path2.html"
-        expect(subject.index).to receive(:add_or_update).with(id.to_h, "data/iso-iec-123.yaml")
-        expect(File).to receive(:write).with("data/iso-iec-123.yaml", /ISO\/IEC 123/, encoding: "UTF-8")
-        subject.send :save_doc, doc, "/page_path1.html"
-        expect(subject.iso_queue[0]).to eq "/page_path2.html"
-      end
-
-      context "file duplication" do
-        let(:hash) { YAML.safe_load Relaton::Iso::Item.to_yaml(doc) }
-
-        before do
-          expect(File).to receive(:exist?).with("data/iso-iec-123.yaml").and_return true
-          allow(File).to receive(:exist?).and_call_original
-        end
-
-        it "warn" do
-          hash["status"] = { "stage" => { "content" => "60" }, "substage" => { "content" => "99" } }
-          yaml = hash.to_yaml
-          expect(File).to receive(:read).with("data/iso-iec-123.yaml", encoding: "UTF-8").and_return yaml
-          subject.instance_variable_get(:@files).add "data/iso-iec-123.yaml"
-          expect { subject.send :save_doc, doc, "/page_path.html" }
-            .to output(/WARN: Duplicate file `data\/iso-iec-123\.yaml`/).to_stderr_from_any_process
-        end
-
-        it "rewrite" do
-          hash["edition"] = { "content" => "1" }
-          yaml = hash.to_yaml
-          expect(File).to receive(:read).with("data/iso-iec-123.yaml", encoding: "UTF-8").and_return yaml
-          expect(subject.index).to receive(:add_or_update).with(id.to_h, "data/iso-iec-123.yaml")
-          expect(File).to receive(:write).with("data/iso-iec-123.yaml", /ISO\/IEC 123/, encoding: "UTF-8")
-          subject.send :save_doc, doc, "/page_path.html"
-        end
-      end
-    end
-
-    context "#serialize" do
-      it("yaml") { expect(subject.serialize(doc)).to include "content: ISO/IEC 123" }
-
-      it "bibxml" do
-        subject.instance_variable_set(:@format, "bibxml")
-        expect(subject.serialize(doc)).to include '<reference anchor="ISO/IEC.123"'
-      end
-
-      it "xml" do
-        subject.instance_variable_set(:@format, "xml")
-        expect(subject.serialize(doc)).to include(
-          '<docidentifier type="ISO" primary="true">ISO/IEC 123</docidentifier>',
-        )
-      end
+    it "returns nil for nil or empty input" do
+      expect(fetcher.send(:normalize_reference, nil)).to be_nil
+      expect(fetcher.send(:normalize_reference, "")).to be_nil
     end
   end
 
-  context "integration" do
-    it "call fetch_doc asynchroniously" do
-      expect(subject).to receive(:fetch_doc).with("/page_path.html")
-      subject.iso_queue.add_first "/page_path.html"
-      subject.send :fetch_docs
+  context "withdrawn relations" do
+    let(:sample_records) do
+      [
+        {
+          "id" => 100, "deliverableType" => "IS", "reference" => "Withdrawn 1701/Add 1",
+          "title" => { "en" => "Old" }, "publicationDate" => "1978-01-01",
+          "currentStage" => 9599, "languages" => ["en"]
+        },
+        {
+          "id" => 101, "deliverableType" => "IS", "reference" => "ISO 1701",
+          "title" => { "en" => "New" }, "publicationDate" => "1995-01-01",
+          "currentStage" => 6060, "languages" => ["en"],
+          "replaces" => [100]
+        },
+      ]
     end
 
-    # it "fetch ics", vcr: "fetch_ics" do
-    #   expect(subject).to receive(:fetch_ics_page).with("/standards-catalogue/browse-by-ics.html").and_call_original
-    #   expect(subject).to receive(:fetch_ics_page).with("/ics/01.html").and_call_original
-    #   expect(subject).to receive(:fetch_ics_page).with("/ics/01.020.html").and_call_original
-    #   allow(subject).to receive(:fetch_ics_page).and_return nil
-    #   subject.fetch_ics
-    #   expect(subject.iso_queue[0..2]).to eq %w[/standard/62510.html /standard/45797.html /standard/71971.html]
-    # end
+    it "rewrites `Withdrawn` references in `replaces` / `replacedBy` relations" do
+      described_class.fetch("iso-open-data-all", output: output_dir, format: "yaml")
+      file = Dir["#{output_dir}/*.yaml"].find { |f| f.include?("iso-1701") && !f.include?("add") }
+      item = Relaton::Iso::Item.from_yaml(File.read(file))
+      rel = item.relation.first
+      expect(rel.bibitem.docidentifier.first.content.to_s).to eq("ISO 1701/Add 1")
+    end
+  end
 
-    # it "fetch docs", vcr: "fetch_docs" do
-    #   subject.iso_queue.add_first "/standard/62510.html"
-    #   subject.iso_queue.add_first "/standard/45797.html"
-    #   expect(subject).to receive(:save_doc).with(kind_of(RelatonIsoBib::IsoBibliographicItem), "/standard/62510.html")
-    #   expect(subject).to receive(:save_doc).with(kind_of(RelatonIsoBib::IsoBibliographicItem), "/standard/45797.html")
-    #   subject.fetch_docs
-    #   threads = subject.instance_variable_get(:@threads)
-    #   queue = subject.instance_variable_get(:@queue)
-    #   threads.size.times { queue << :END }
-    #   threads.each &:join
-    # end
+  context "#rewrite_with_same_or_newer" do
+    let(:fetcher) { described_class.new(output_dir, "yaml") }
+    let(:newer) do
+      Relaton::Iso::DataParser.new(
+        sample_records[0].merge("edition" => 6), {}, Hash.new(true),
+      ).parse
+    end
+    let(:older) do
+      Relaton::Iso::DataParser.new(sample_records[0], {}, Hash.new(true)).parse
+    end
+
+    before { FileUtils.mkdir_p(output_dir) }
+
+    it "rewrites when the new edition is greater" do
+      file = File.join(output_dir, "iso-9001-2015.yaml")
+      File.write(file, older.to_yaml)
+      docid = newer.docidentifier.find(&:primary)
+      fetcher.send(:rewrite_with_same_or_newer, newer, docid, file)
+      expect(Relaton::Iso::Item.from_yaml(File.read(file)).edition.content).to eq("6")
+    end
+
+    it "does not overwrite when the on-disk record is newer" do
+      file = File.join(output_dir, "iso-9001-2015.yaml")
+      File.write(file, newer.to_yaml)
+      docid = older.docidentifier.find(&:primary)
+      fetcher.send(:rewrite_with_same_or_newer, older, docid, file)
+      expect(Relaton::Iso::Item.from_yaml(File.read(file)).edition.content).to eq("6")
+    end
   end
 end

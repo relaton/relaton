@@ -278,14 +278,15 @@ RSpec.describe Relaton::Iso::Bibliography do
       VCR.use_cassette "iso_iec_23008_1_wd_amd_1" do
         result = described_class.get "ISO/IEC 23008-1/WD Amd 1"
         expect(result.docidentifier.first.to_s).to eq "ISO/IEC 23008-1/WD Amd 1"
-        expect(result.relation[0].bibitem.docidentifier[0].content).to eq "ISO/IEC 23008-1:2023/WD Amd 1"
+        instance_of = result.relation("instanceOf").first
+        expect(instance_of.bibitem.docidentifier[0].content).to eq "ISO/IEC 23008-1:2023/WD Amd 1"
       end
     end
 
     it "fetch AWI Amd" do
-      VCR.use_cassette "iso_avi_amd" do
-        result = described_class.get "ISO 10791-6:2014/AWI Amd 1"
-        expect(result.docidentifier.first.content).to eq "ISO 10791-6:2014/AWI Amd 1"
+      VCR.use_cassette "iso_10318_1_2015_awi_amd_2" do
+        result = described_class.get "ISO 10318-1:2015/AWI Amd 2"
+        expect(result.docidentifier.first.content).to eq "ISO 10318-1:2015/AWI Amd 2"
       end
     end
 

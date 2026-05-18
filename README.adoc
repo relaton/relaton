@@ -352,6 +352,26 @@ item.source
   @type="rss">]
 ----
 
+[[bulk-data-ingest]]
+=== Bulk data ingest
+
+The curated dataset under https://github.com/relaton/relaton-data-iso[relaton-data-iso] is rebuilt daily by `Relaton::Iso::DataFetcher`, which streams the
+https://www.iso.org/open-data.html[ISO Open Data programme] JSONL feeds — `iso_deliverables_metadata.jsonl` for documents (~80,000 records) and `iso_technical_committees.jsonl` for committee titles — and writes one YAML per primary docid.
+
+Two source modes are exposed (also reachable via `relaton-cli`'s dataset list and the GitHub Actions workflow input):
+
+[source,ruby]
+----
+# Incremental: skip the run if upstream `Last-Modified` matches the local
+# `last_modified.txt`. Falls back to a full pass when `data/` or
+# `index-v1.yaml` is missing.
+Relaton::Iso::DataFetcher.fetch("iso-open-data", output: "data", format: "yaml")
+
+# Full refresh: wipe `output` and re-emit every record. Use when the local
+# tree is suspect or after a parser change that affects emitted YAML.
+Relaton::Iso::DataFetcher.fetch("iso-open-data-all", output: "data", format: "yaml")
+----
+
 === Logging
 
 RelatonIso uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
@@ -367,7 +387,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 == Exceptional Citations
 
-This gem retrieves bibliographic descriptions of ISO documents by doing searches on the ISO website, http://www.iso.org, and screenscraping the document that matches the queried document identifier. The following documents are not returned as search results from the ISO website, and the gem returns manually generated references to them.
+Single-document lookups via `Bibliography.get` first consult the curated relaton-data-iso index (regenerated daily from the ISO Open Data programme — see <<bulk-data-ingest>>) and fall back to scraping individual pages on http://www.iso.org for items not yet indexed. The following documents are not returned as search results from the ISO website, and the gem returns manually generated references to them.
 
 * `IEV`: used in the metanorma-iso gem to reference Electropedia entries generically. Is resolved to an "all parts" reference to IEC 60050, which in turn is resolved into the specific documents cited by their top-level clause.
 

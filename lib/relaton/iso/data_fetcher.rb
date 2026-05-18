@@ -1,185 +1,230 @@
+require "fileutils"
+require "json"
+require "net/http"
+require "tmpdir"
 require_relative "../iso"
-require_relative "queue"
-require_relative "scraper"
+require_relative "data_parser"
 
 module Relaton
   module Iso
-    # Fetch all the documents from ISO website.
+    #
+    # Fetch ISO documents from the ISO Open Data programme bulk JSONL
+    # (see https://www.iso.org/open-data.html) and write each one as a YAML
+    # file under `@output`.
+    #
+    # `source` modes (matching the `Relaton::Core::DataFetcher.fetch` arg):
+    #
+    # * `"iso-open-data"` (default) - skip the run if the upstream
+    #   `Last-Modified` header matches `LAST_MODIFIED_FILE`.
+    # * `"iso-open-data-all"` - clear `@output` and re-emit every record.
+    #
     class DataFetcher < Core::DataFetcher
-      #
-      # The queue is used to store the ICS page paths beeing fetching in the current run.
-      #
-      # @return [Queue] queue
-      #
-      def queue
-        @queue ||= ::Queue.new
-      end
-
-      def mutex
-        @mutex ||= Mutex.new
-      end
+      OPEN_DATA_URL = "https://isopublicstorageprod.blob.core.windows.net/" \
+                     "opendata/_latest/iso_deliverables_metadata/json/" \
+                     "iso_deliverables_metadata.jsonl".freeze
+      TC_DATA_URL = "https://isopublicstorageprod.blob.core.windows.net/" \
+                   "opendata/_latest/iso_technical_committees/json/" \
+                   "iso_technical_committees.jsonl".freeze
+      LAST_MODIFIED_FILE = "last_modified.txt".freeze
 
       def log_error(msg)
         Util.error msg
       end
 
       def index
-        @index ||= Relaton::Index.find_or_create :iso, file: "#{INDEXFILE}.yaml"
+        @index ||= Relaton::Index.find_or_create(
+          :iso, file: "#{INDEXFILE}.yaml", pubid_class: ::Pubid::Iso::Identifier,
+        )
       end
 
-      #
-      # ISO has too many docs. GHA can't get them all in one run.
-      # So, we need to split the process into several runs.
-      # The iso_queue is used to store the doc paths that have not been fetched.
-      #
-      # @return [Relaton::Iso::Queue] queue
-      #
-      def iso_queue
-        @iso_queue ||= Relaton::Iso::Queue.new
-      end
+      def fetch(source = nil)
+        @source = source || "iso-open-data"
+        @full_refresh = @source == "iso-open-data-all"
 
-      #
-      # Go through all ICS and fetch all documents.
-      #
-      # @return [void]
-      #
-      def fetch(_source = nil) # rubocop:disable Metrics/AbcSize
-        Util.info "Scrapping ICS pages..."
-        fetch_ics
-        Util.info "(#{Time.now}) Scrapping documents..."
-        fetch_docs
-        iso_queue.save
-        # index.sort! { |a, b| compare_docids a, b }
+        Util.info "Fetching ISO Open Data (mode: #{@source})..."
+        last_modified = fetch_last_modified
+        return if up_to_date?(last_modified)
+
+        prepare_output
+        jsonl_path = download_dataset
+        ref_index, amend_index = build_ref_index(jsonl_path)
+        tc_index = build_tc_index
+        ingest_records(jsonl_path, ref_index, tc_index, amend_index)
+        merge_static_files
+
         index.save
+        save_last_modified(last_modified)
         report_errors
+      rescue StandardError => e
+        Util.error "#{e.message}\n#{e.backtrace.join("\n")}"
+        raise
       end
 
       private
 
-      #
-      # Fetch ICS page recursively and store all the links to documents in the iso_queue.
-      #
-      # @param [String] path path to ICS page
-      #
-      def fetch_ics
-        threads = Array.new(3) { thread { |path| fetch_ics_page(path) } }
-        fetch_ics_page "/standards-catalogue/browse-by-ics.html"
-        sleep(1) until queue.empty?
-        threads.size.times { queue << :END }
-        threads.each(&:join)
-      end
+      # --- HTTP / state -----------------------------------------------------
 
-      def fetch_ics_page(path)
-        resp = get_redirection path
-        unless resp
-          Util.error "Failed fetching ICS page #{url(path)}"
-          return
+      def fetch_last_modified
+        uri = URI(OPEN_DATA_URL)
+        resp = Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+          http.request(Net::HTTP::Head.new(uri.request_uri))
         end
-
-        page = Nokogiri::HTML(resp.body)
-        parse_doc_links page
-        parse_ics_links page
+        resp["last-modified"]
       end
 
-      def parse_doc_links(page)
-        doc_links = page.xpath "//td[@data-title='Standard and/or project']/div/div/a"
-        @errors[:doc_links] &&= doc_links.empty?
-        doc_links.each { |item| iso_queue.add_first item[:href].split("?").first }
-      end
+      def up_to_date?(last_modified)
+        return false if @full_refresh || last_modified.nil?
+        return false unless File.exist?(LAST_MODIFIED_FILE)
+        return false unless output_populated?
 
-      def parse_ics_links(page)
-        ics_links = page.xpath("//td[@data-title='ICS']/a")
-        @errors[:ics_links] &&= ics_links.empty?
-        ics_links.each { |item| queue << item[:href] }
-      end
-
-      def url(path)
-        Scraper::DOMAIN + path
-      end
-
-      #
-      # Get the page from the given path. If the page is redirected, get the
-      # page from the new path.
-      #
-      # @param [String] path path to the page
-      #
-      # @return [Net::HTTPOK, nil] HTTP response
-      #
-      def get_redirection(path) # rubocop:disable Metrics/MethodLength
-        try = 0
-        uri = URI url(path)
-        begin
-          get_response uri
-        rescue Net::OpenTimeout, Net::ReadTimeout, Errno::ECONNREFUSED => e
-          try += 1
-          retry if check_try try, uri
-
-          Util.warn "Failed fetching #{uri}, #{e.message}"
-        end
-      end
-
-      def get_response(uri)
-        resp = Net::HTTP.get_response(uri)
-        resp.code == "302" ? get_redirection(resp["location"]) : resp
-      end
-
-      def check_try(try, uri)
-        if try < 3
-          Util.warn "Timeout fetching #{uri}, retrying..."
-          sleep 1
+        if File.read(LAST_MODIFIED_FILE, encoding: "UTF-8").strip == last_modified.strip
+          Util.info "ISO Open Data is up to date (Last-Modified: #{last_modified}); nothing to do."
           true
-        end
-      end
-
-      def fetch_docs
-        threads = Array.new(3) { thread { |path| fetch_doc(path) } }
-        iso_queue[0..10_000].each { |docpath| queue << docpath }
-        threads.size.times { queue << :END }
-        threads.each(&:join)
-      end
-
-      #
-      # Fetch document from ISO website.
-      #
-      # @param [String] docpath document page path
-      #
-      # @return [void]
-      #
-      def fetch_doc(docpath)
-        doc = Scraper.parse_page docpath, errors: @errors
-        mutex.synchronize { save_doc doc, docpath }
-      rescue StandardError => e
-        Util.warn "Fail fetching document: #{url(docpath)}\n#{e.message}\n#{e.backtrace}"
-      end
-
-      # def compare_docids(id1, id2)
-      #   Pubid::Iso::Identifier.create(**id1).to_s <=> Pubid::Iso::Identifier.create(**id2).to_s
-      # end
-
-      #
-      # save document to file.
-      #
-      # @param [RelatonIsoBib::IsoBibliographicItem] doc document
-      #
-      # @return [void]
-      #
-      def save_doc(doc, docpath) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-        docid = doc.docidentifier.detect(&:primary)
-        file = output_file docid.content.to_s
-        if File.exist?(file)
-          rewrite_with_same_or_newer doc, docid, file, docpath
         else
-          write_file file, doc, docid
+          false
         end
-        iso_queue.move_last docpath
       end
 
-      def rewrite_with_same_or_newer(doc, docid, file, docpath)
-        bib = Item.from_yaml File.read(file, encoding: "UTF-8")
-        if edition_greater?(doc, bib) || replace_substage98?(doc, bib)
-          write_file file, doc, docid
-        elsif @files.include?(file) && !edition_greater?(bib, doc)
-          Util.warn "Duplicate file `#{file}` for `#{docid.content}` from #{url(docpath)}"
+      # Guard against an external wipe (or a fresh checkout) — if the YAML tree
+      # or the index file is gone, force a refresh instead of trusting
+      # `LAST_MODIFIED_FILE`.
+      def output_populated?
+        return false unless Dir.exist?(@output)
+        return false unless File.exist?("#{INDEXFILE}.yaml")
+
+        Dir.children(@output).any? { |f| f.end_with?(".yaml") }
+      end
+
+      def save_last_modified(last_modified)
+        return unless last_modified
+
+        File.write(LAST_MODIFIED_FILE, last_modified, encoding: "UTF-8")
+      end
+
+      def prepare_output
+        FileUtils.rm_rf(@output) if @full_refresh
+        FileUtils.mkdir_p(@output)
+      end
+
+      def download_dataset
+        download_jsonl(OPEN_DATA_URL, "iso_deliverables_metadata.jsonl")
+      end
+
+      def download_tc_dataset
+        download_jsonl(TC_DATA_URL, "iso_technical_committees.jsonl")
+      end
+
+      def download_jsonl(url, filename)
+        path = File.join(Dir.tmpdir, filename)
+        Util.info "Downloading #{url}..."
+        uri = URI(url)
+        File.open(path, "wb") do |f|
+          Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+            http.request_get(uri.request_uri) do |resp|
+              raise "Open Data download failed: HTTP #{resp.code}" unless resp.code == "200"
+
+              resp.read_body { |chunk| f.write(chunk) }
+            end
+          end
+        end
+        Util.info "Downloaded #{File.size(path) / 1024 / 1024} MB to #{path}."
+        path
+      end
+
+      # --- ingestion --------------------------------------------------------
+
+      def build_ref_index(path)
+        Util.info "Indexing references and amendments..."
+        ref_map = {}
+        amend_map = Hash.new { |h, k| h[k] = [] }
+        File.foreach(path, encoding: "UTF-8") do |line|
+          rec = JSON.parse(line)
+          id = rec["id"]
+          ref = normalize_reference(rec["reference"])
+          next unless ref
+
+          ref_map[id] = ref if id
+          if rec["supplementType"] && (base = amend_base(ref))
+            amend_map[base] << ref
+          end
+        rescue JSON::ParserError
+          next
+        end
+        Util.info "Indexed #{ref_map.size} references; " \
+                  "#{amend_map.values.sum(&:size)} amendments across #{amend_map.size} bases."
+        [ref_map, amend_map]
+      end
+
+      def amend_base(ref)
+        pubid = ::Pubid::Iso::Identifier.parse(ref)
+        return nil unless pubid.respond_to?(:base) && pubid.base
+
+        pubid.base.to_s
+      rescue StandardError
+        nil
+      end
+
+      # Open Data flags withdrawn records by prefixing the reference with
+      # "Withdrawn"; pubid-iso doesn't recognize that as a publisher, so
+      # substitute the real publisher back in. The withdrawal state is
+      # carried via currentStage.
+      def normalize_reference(ref)
+        return nil if ref.nil? || ref.empty?
+
+        ref.sub(/\AWithdrawn\b/, "ISO")
+      end
+
+      def build_tc_index
+        Util.info "Indexing technical committees..."
+        path = download_tc_dataset
+        map = {}
+        File.foreach(path, encoding: "UTF-8") do |line|
+          rec = JSON.parse(line)
+          ref = rec["reference"]
+          title = rec["title"]
+          map[ref] = title if ref && title.is_a?(Hash)
+        rescue JSON::ParserError
+          next
+        end
+        Util.info "Indexed #{map.size} committees."
+        map
+      end
+
+      def ingest_records(path, ref_index, tc_index, amend_index = {})
+        Util.info "Parsing records..."
+        count = 0
+        File.foreach(path, encoding: "UTF-8") do |line|
+          rec = JSON.parse(line)
+          next unless rec["reference"]
+
+          fetch_pub(rec, ref_index, tc_index, amend_index)
+          count += 1
+          Util.info "Processed #{count} records..." if (count % 5_000).zero?
+        rescue StandardError => e
+          Util.warn "Failed record `#{rec && rec['reference']}`: #{e.message}"
+        end
+        Util.info "Finished: #{count} records."
+      end
+
+      def fetch_pub(rec, ref_index, tc_index = {}, amend_index = {})
+        doc = DataParser.new(rec, ref_index, @errors, tc_index, amend_index).parse
+        docid = doc.docidentifier.detect(&:primary)
+        return unless docid
+
+        file = output_file(docid.content.to_s)
+        if File.exist?(file)
+          rewrite_with_same_or_newer(doc, docid, file)
+        else
+          write_file(file, doc, docid)
+        end
+      end
+
+      def rewrite_with_same_or_newer(doc, docid, file)
+        existing = Item.from_yaml(File.read(file, encoding: "UTF-8"))
+        if edition_greater?(doc, existing) || replace_substage98?(doc, existing)
+          write_file(file, doc, docid)
+        elsif @files.include?(file) && !edition_greater?(existing, doc)
+          Util.warn "Duplicate file `#{file}` for `#{docid.content}`"
         end
       end
 
@@ -187,35 +232,38 @@ module Relaton
         doc.edition && bib.edition && doc.edition.content.to_i > bib.edition.content.to_i
       end
 
-      def replace_substage98?(doc, bib) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+      def replace_substage98?(doc, bib)
         doc.edition&.content == bib.edition&.content &&
           (doc.status&.substage&.content != "98" || bib.status&.substage&.content == "98")
       end
 
       def write_file(file, doc, docid)
         @files << file
-        index.add_or_update docid.pubid.to_h, file
-        File.write file, serialize(doc), encoding: "UTF-8"
+        index.add_or_update(docid.pubid || docid.content.to_s, file)
+        File.write(file, serialize(doc), encoding: "UTF-8")
       end
+
+      # --- static merge -----------------------------------------------------
+
+      def merge_static_files
+        return unless Dir.exist?("static")
+
+        Dir["static/**/*.yaml"].each do |f|
+          item = Item.from_yaml(File.read(f, encoding: "UTF-8"))
+          did = item.docidentifier.detect(&:primary)
+          next unless did
+
+          index.add_or_update(did.pubid || did.content.to_s, f)
+        end
+      end
+
+      # --- serialization ---------------------------------------------------
 
       def to_yaml(doc) = doc.to_yaml
 
-      def to_xml(doc) = doc.to_xml bibxml: true
+      def to_xml(doc) = doc.to_xml(bibxml: true)
 
       def to_bibxml(doc) = doc.to_rfcxml
-
-      #
-      # Create thread worker
-      #
-      # @return [Thread] thread
-      #
-      def thread
-        Thread.new do
-          while (path = queue.pop) != :END
-            yield path
-          end
-        end
-      end
     end
   end
 end

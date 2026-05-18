@@ -7,7 +7,7 @@ describe Relaton::Iso::Processor do
     expect(subject.instance_variable_get(:@prefix)).to eq "ISO"
     expect(subject.instance_variable_get(:@defaultprefix)).to eq %r{^ISO(/IEC)?\s}
     expect(subject.instance_variable_get(:@idtype)).to eq "ISO"
-    expect(subject.instance_variable_get(:@datasets)).to eq %w[iso-ics]
+    expect(subject.instance_variable_get(:@datasets)).to eq %w[iso-open-data iso-open-data-all]
   end
 
   it "#get" do
@@ -16,8 +16,9 @@ describe Relaton::Iso::Processor do
   end
 
   it "#fetch_data" do
-    expect(Relaton::Iso::DataFetcher).to receive(:fetch).with(output: "output", format: "xml")
-    subject.fetch_data "iso-rss", output: "output", format: "xml"
+    expect(Relaton::Iso::DataFetcher).to receive(:fetch)
+      .with("iso-open-data-all", output: "output", format: "xml")
+    subject.fetch_data "iso-open-data-all", output: "output", format: "xml"
   end
 
   it "#from_xml" do
