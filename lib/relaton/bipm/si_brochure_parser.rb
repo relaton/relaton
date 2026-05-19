@@ -25,12 +25,11 @@ module Relaton::Bipm
     # Parse SI brochure and write them to YAML files
     #
     def parse # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-      # puts "Parsing SI brochure..."
-      # puts "Ls #{Dir['*']}"
-      # puts "Ls #{Dir['bipm-si-brochure/*']}"
-      # puts "Ls #{Dir['bipm-si-brochure/site/*']}"
-      # puts "Ls #{Dir['bipm-si-brochure/site/documents/*']}"
-      Dir["bipm-si-brochure/_site/documents/*.rxl"].each do |f|
+      # metanorma site generate writes per-document outputs into a subdirectory
+      # named after the source path (e.g. _site/documents/si-brochure/3.01/
+      # si-brochure-en.rxl). The legacy top-level *.rxl glob is kept for
+      # backwards compatibility with any older flow that flattened outputs.
+      si_brochure_rxls.each do |f|
         puts "Parsing #{f}"
         xml = File.read(f, encoding: "UTF-8")
         xml = xml.force_encoding("UTF-8") if xml.encoding != Encoding::UTF_8
@@ -69,6 +68,19 @@ module Relaton::Bipm
         @data_fetcher.write_file outfile, item, warn_duplicate: warn_duplicate
         puts "Saved to #{outfile}"
       end
+    end
+
+    #
+    # @return [Array<String>] paths to SI Brochure RXL files. Looks at the
+    #   legacy flat layout first, then the metanorma-cli subdirectory layout
+    #   (`<source_path_without_'sources'>/<doc>.rxl`) used by current
+    #   `metanorma site generate` output.
+    #
+    def si_brochure_rxls
+      flat = Dir["bipm-si-brochure/_site/documents/*.rxl"]
+      return flat if flat.any?
+
+      Dir["bipm-si-brochure/_site/documents/**/si-brochure-{en,fr}.rxl"]
     end
 
     #
