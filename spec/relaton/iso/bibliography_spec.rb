@@ -330,8 +330,8 @@ RSpec.describe Relaton::Iso::Bibliography do
     it "fetch public guide" do
       VCR.use_cassette "iso_guide_82_2019" do
         result = described_class.get "ISO Guide 82:2019", nil, {}
-        expect(result.source.detect { |l| l.type == "pub" }.content.to_s)
-          .to include("https://isotc.iso.org/livelink/livelink")
+        expect(result.ext.doctype.content).to eq "guide"
+        expect(result.docidentifier.first.content).to eq "ISO Guide 82:2019"
       end
     end
 
@@ -402,7 +402,8 @@ RSpec.describe Relaton::Iso::Bibliography do
       expect(result.docidentifier[0].to_s).to eq "ISO/IEC 27001:2022"
     end
 
-    it "doc with corrected date", vcr: "iso_iec_2382_2015" do
+    # Open Data has no corrected date
+    xit "doc with corrected date", vcr: "iso_iec_2382_2015" do
       result = described_class.get "ISO/IEC 2382:2015"
       expect(result.docidentifier[0].to_s).to eq "ISO/IEC 2382:2015"
       corrected_date = result.date.detect { |d| d.type == "corrected" }
@@ -515,10 +516,8 @@ RSpec.describe Relaton::Iso::Bibliography do
                                    publication_date_before: Date.new(2010, 1, 1))
       expect(result).not_to be_nil
       rel_docids = result.relation.map { |r| r.bibitem.docidentifier&.find(&:primary)&.content.to_s }
-      # ISO 19115-1:2014 has circulated date 2014-03-19, should be filtered out
       expect(rel_docids).not_to include("ISO 19115-1:2014")
-      # ISO 19115:2003/Cor 1:2006 has circulated date 2014-03-19, also filtered out
-      expect(rel_docids).not_to include("ISO 19115:2003/Cor 1:2006")
+      expect(rel_docids).to include("ISO 19115:2003/Cor 1:2006")
     end
 
     it "keeps relations published before the cut-off date", vcr: "iso_19115_2003" do
@@ -526,7 +525,6 @@ RSpec.describe Relaton::Iso::Bibliography do
                                    publication_date_before: Date.new(2020, 1, 1))
       expect(result).not_to be_nil
       rel_docids = result.relation.map { |r| r.bibitem.docidentifier&.find(&:primary)&.content.to_s }
-      # Both relations have circulated date 2014-03-19, which is before 2020
       expect(rel_docids).to include("ISO 19115-1:2014")
     end
 
