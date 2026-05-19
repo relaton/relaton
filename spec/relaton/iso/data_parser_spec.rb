@@ -1,7 +1,7 @@
 require "relaton/iso/data_parser"
 
 describe Relaton::Iso::DataParser do
-  def build(overrides = {}, ref_index: {}, tc_index: {}, amend_index: {})
+  def build(overrides = {}, ref_index: {}, tc_index: {}, amend_index: {}, date_index: {})
     rec_overrides = overrides
     base = {
       "id" => 1,
@@ -20,7 +20,10 @@ describe Relaton::Iso::DataParser do
       "pages" => { "en" => 30 },
       "scope" => { "en" => "<p>Specifies requirements.</p>" },
     }
-    described_class.new(base.merge(rec_overrides), ref_index, Hash.new(true), tc_index, amend_index).parse
+    described_class.new(
+      base.merge(rec_overrides), ref_index, Hash.new(true),
+      tc_index, amend_index, date_index,
+    ).parse
   end
 
   it "parses a published international standard" do
@@ -125,6 +128,29 @@ describe Relaton::Iso::DataParser do
     upd = item.relation.find { |r| r.type == "updates" }
     expect(upd).not_to be_nil
     expect(upd.bibitem.docidentifier.first.content.to_s).to eq "ISO 19115-2:2019"
+  end
+
+  it "attaches `published` date to a related bibitem when date_index has the ref" do
+    item = build(
+      { "replacedBy" => [99] },
+      ref_index: { 99 => "ISO 9001:2026" },
+      date_index: { "ISO 9001:2026" => "2026-04-15" },
+    )
+
+    rel = item.relation.find { |r| r.type == "obsoletedBy" }
+    expect(rel.bibitem.date.first.type).to eq "published"
+    expect(rel.bibitem.date.first.at.to_s).to eq "2026-04-15"
+  end
+
+  it "leaves a related bibitem with no date when date_index lacks the ref" do
+    item = build(
+      { "replacedBy" => [99] },
+      ref_index: { 99 => "ISO 9001:2026" },
+      date_index: {},
+    )
+
+    rel = item.relation.find { |r| r.type == "obsoletedBy" }
+    expect(rel.bibitem.date).to be_empty
   end
 
   it "emits French titles when title.fr is present" do

@@ -56,13 +56,18 @@ module Relaton
       #   reference -> list of supplement (Amd/Cor/Add) references that
       #   target it. Open Data records the supplement -> base direction only
       #   via the reference string, so we pre-build the reverse map.
+      # @param [Hash{String=>String}] date_index map of reference ->
+      #   `publicationDate`, used to attach a `published` date to each
+      #   emitted relation's bibitem when the related document is itself
+      #   present in the Open Data feed.
       #
-      def initialize(pub, ref_index = {}, errors = {}, tc_index = {}, amend_index = {})
+      def initialize(pub, ref_index = {}, errors = {}, tc_index = {}, amend_index = {}, date_index = {})
         @pub = pub
         @ref_index = ref_index
         @errors = errors
         @tc_index = tc_index
         @amend_index = amend_index
+        @date_index = date_index
       end
 
       def parse
@@ -390,11 +395,14 @@ module Relaton
 
       def relation_for(ref, type)
         docid = Docidentifier.new(content: ref, type: "ISO", primary: true)
-        bibitem = ItemData.new(
+        attrs = {
           docidentifier: [docid],
           formattedref: Bib::Formattedref.new(content: ref),
-        )
-        Relation.new(type: type, bibitem: bibitem)
+        }
+        if (pub_date = @date_index[ref]) && !pub_date.empty?
+          attrs[:date] = [Bib::Date.new(type: "published", at: pub_date)]
+        end
+        Relation.new(type: type, bibitem: ItemData.new(**attrs))
       end
 
       # ---- structured identifier ------------------------------------------

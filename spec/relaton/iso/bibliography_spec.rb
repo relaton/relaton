@@ -335,10 +335,14 @@ RSpec.describe Relaton::Iso::Bibliography do
       end
     end
 
-    it "fetch circulated date" do
+    it "fetch published date of related document" do
       VCR.use_cassette "iso_iec_8824_1_2015" do
         bib = described_class.get("ISO/IEC 8824-1:2015")
-        expect(bib.relation[4].bibitem.date.first.at.to_s).to eq "2021-06-30"
+        rel = bib.relation.find do |r|
+          r.bibitem.docidentifier.first.content.to_s == "ISO/IEC 8824-1:2021"
+        end
+        expect(rel.bibitem.date.first.type).to eq "published"
+        expect(rel.bibitem.date.first.at.to_s).to eq "2021-06-30"
       end
     end
 

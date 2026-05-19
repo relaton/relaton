@@ -47,9 +47,9 @@ module Relaton
 
         prepare_output
         jsonl_path = download_dataset
-        ref_index, amend_index = build_ref_index(jsonl_path)
+        ref_index, amend_index, date_index = build_ref_index(jsonl_path)
         tc_index = build_tc_index
-        ingest_records(jsonl_path, ref_index, tc_index, amend_index)
+        ingest_records(jsonl_path, ref_index, tc_index, amend_index, date_index)
         merge_static_files
 
         index.save
@@ -137,6 +137,7 @@ module Relaton
         Util.info "Indexing references and amendments..."
         ref_map = {}
         amend_map = Hash.new { |h, k| h[k] = [] }
+        date_map = {}
         File.foreach(path, encoding: "UTF-8") do |line|
           rec = JSON.parse(line)
           id = rec["id"]
@@ -144,6 +145,8 @@ module Relaton
           next unless ref
 
           ref_map[id] = ref if id
+          pub_date = rec["publicationDate"]
+          date_map[ref] = pub_date if pub_date && !pub_date.empty?
           if rec["supplementType"] && (base = amend_base(ref))
             amend_map[base] << ref
           end
@@ -151,8 +154,9 @@ module Relaton
           next
         end
         Util.info "Indexed #{ref_map.size} references; " \
-                  "#{amend_map.values.sum(&:size)} amendments across #{amend_map.size} bases."
-        [ref_map, amend_map]
+                  "#{amend_map.values.sum(&:size)} amendments across #{amend_map.size} bases; " \
+                  "#{date_map.size} publication dates."
+        [ref_map, amend_map, date_map]
       end
 
       def amend_base(ref)
@@ -190,14 +194,14 @@ module Relaton
         map
       end
 
-      def ingest_records(path, ref_index, tc_index, amend_index = {})
+      def ingest_records(path, ref_index, tc_index, amend_index = {}, date_index = {})
         Util.info "Parsing records..."
         count = 0
         File.foreach(path, encoding: "UTF-8") do |line|
           rec = JSON.parse(line)
           next unless rec["reference"]
 
-          fetch_pub(rec, ref_index, tc_index, amend_index)
+          fetch_pub(rec, ref_index, tc_index, amend_index, date_index)
           count += 1
           Util.info "Processed #{count} records..." if (count % 5_000).zero?
         rescue StandardError => e
@@ -206,8 +210,8 @@ module Relaton
         Util.info "Finished: #{count} records."
       end
 
-      def fetch_pub(rec, ref_index, tc_index = {}, amend_index = {})
-        doc = DataParser.new(rec, ref_index, @errors, tc_index, amend_index).parse
+      def fetch_pub(rec, ref_index, tc_index = {}, amend_index = {}, date_index = {})
+        doc = DataParser.new(rec, ref_index, @errors, tc_index, amend_index, date_index).parse
         docid = doc.docidentifier.detect(&:primary)
         return unless docid
 
