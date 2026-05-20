@@ -132,9 +132,16 @@ module Relaton
       end
 
       def parse_si_brochure(id)
+        # Accepts the bare/sectioned forms ("SI Brochure", "SI Brochure, Part 1",
+        # "SI Brochure Concise" …) and the edition-tagged form emitted by the
+        # SI Brochure 9e v3.01 bibdata as docnumber: "SI Brochure 9e v3.01
+        # (2019/2024, E)". Edition/version/year/lang are matched but not
+        # captured so the index key collapses to {group, type} as the prior
+        # collection-render flow produced.
         %r{^
           (?<group>SI)\s(?<type>Brochure)
           (?:,?\s(?:(?:Part|Partie)\s(?<part>\d+)|(?:Appendix|Annexe)\s(?<append>\d+)|(?<number>Concise|FAQ)))?
+          (?:\s\d+e\sv[\d.]+\s\([\d/]+(?:,\s*[A-Z])?\))?
         $}x.match(id)
       end
 
