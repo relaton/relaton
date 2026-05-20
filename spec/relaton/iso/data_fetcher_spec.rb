@@ -182,4 +182,41 @@ describe Relaton::Iso::DataFetcher do
       expect(Relaton::Iso::Item.from_yaml(File.read(file)).edition.content).to eq("6")
     end
   end
+
+  describe "#download_jsonl" do
+    let(:fetcher) { described_class.new(output_dir, "yaml") }
+    let(:url) { "https://example.com/iso/data.jsonl" }
+    let(:filename) { "data_fetcher_spec_download.jsonl" }
+    let(:tmp_path) { File.join(Dir.tmpdir, filename) }
+
+    before { allow(fetcher).to receive(:sleep) }
+    after  { FileUtils.rm_f(tmp_path) }
+
+    it "retries on transient HTTP failure and eventually succeeds" do
+      stub_request(:get, url).to_return(
+        { status: 403, body: "" },
+        { status: 503, body: "" },
+        { status: 200, body: "ok\n" },
+      )
+
+      path = fetcher.send(:download_jsonl, url, filename)
+
+      expect(path).to eq(tmp_path)
+      expect(File.read(path)).to eq("ok\n")
+      expect(a_request(:get, url)).to have_been_made.times(3)
+      expect(fetcher).to have_received(:sleep).with(30).ordered
+      expect(fetcher).to have_received(:sleep).with(60).ordered
+    end
+
+    it "raises after exhausting retries on persistent HTTP failure" do
+      stub_request(:get, url).to_return(status: 403, body: "")
+
+      expect { fetcher.send(:download_jsonl, url, filename) }
+        .to raise_error(RuntimeError, /Open Data download failed: HTTP 403/)
+
+      total = described_class::MAX_DOWNLOAD_RETRIES + 1
+      expect(a_request(:get, url)).to have_been_made.times(total)
+      expect(fetcher).to have_received(:sleep).exactly(described_class::MAX_DOWNLOAD_RETRIES).times
+    end
+  end
 end

@@ -26,6 +26,8 @@ module Relaton
                    "opendata/_latest/iso_technical_committees/json/" \
                    "iso_technical_committees.jsonl".freeze
       LAST_MODIFIED_FILE = "last_modified.txt".freeze
+      MAX_DOWNLOAD_RETRIES = 4
+      RETRY_BACKOFF_BASE = 30
 
       def log_error(msg)
         Util.error msg
@@ -118,14 +120,25 @@ module Relaton
         path = File.join(Dir.tmpdir, filename)
         Util.info "Downloading #{url}..."
         uri = URI(url)
-        File.open(path, "wb") do |f|
-          Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
-            http.request_get(uri.request_uri) do |resp|
-              raise "Open Data download failed: HTTP #{resp.code}" unless resp.code == "200"
+        attempt = 0
+        begin
+          File.open(path, "wb") do |f|
+            Net::HTTP.start(uri.host, uri.port, use_ssl: true) do |http|
+              http.request_get(uri.request_uri) do |resp|
+                raise "Open Data download failed: HTTP #{resp.code}" unless resp.code == "200"
 
-              resp.read_body { |chunk| f.write(chunk) }
+                resp.read_body { |chunk| f.write(chunk) }
+              end
             end
           end
+        rescue StandardError => e
+          attempt += 1
+          raise if attempt > MAX_DOWNLOAD_RETRIES
+
+          delay = RETRY_BACKOFF_BASE * (2**(attempt - 1))
+          Util.warn "Download attempt #{attempt}/#{MAX_DOWNLOAD_RETRIES} failed (#{e.message}). Retrying in #{delay}s..."
+          sleep delay
+          retry
         end
         Util.info "Downloaded #{File.size(path) / 1024 / 1024} MB to #{path}."
         path
