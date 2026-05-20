@@ -52,7 +52,12 @@ module Relaton
           specs.links.specifications.each { |spec| queue << spec }
           break unless specs.next?
 
-          specs = specs.next
+          # Route pagination through realize so transient 403/5xx on the
+          # next-page link retry with backoff instead of crashing the crawl.
+          next_page = realize(specs.links.next)
+          break unless next_page
+
+          specs = next_page
         end
 
         n_workers.times { queue << nil } # poison pills

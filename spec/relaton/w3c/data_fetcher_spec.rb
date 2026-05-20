@@ -39,9 +39,10 @@ RSpec.describe Relaton::W3c::DataFetcher do
       it "iterates through paginated specifications" do
         specs2_links = double("specs2_links", specifications: [spec_link])
         specs2 = double("specs2", links: specs2_links)
+        next_link = double("next_link", href: "https://example.com/page2", realize: specs2)
 
+        allow(spec_links).to receive(:next).and_return(next_link)
         expect(specs).to receive(:next?).and_return(true)
-        expect(specs).to receive(:next).and_return(specs2)
         expect(specs2).to receive(:next?).and_return(false)
 
         client = double("client", specifications: specs)

@@ -107,18 +107,33 @@ RSpec.describe Relaton::W3c::RateLimitHandler do
       end
     end
 
-    context "when a non-retryable Lutaml::Hal::Error is raised (e.g. 403)" do
+    context "when Lutaml::Hal::Error is raised (e.g. 403 rate-limit)" do
       before do
-        allow(obj).to receive(:realize).and_raise(Lutaml::Hal::Error, "Status: 403")
+        allow(handler).to receive(:sleep)
         allow(Relaton.logger_pool).to receive(:warn)
       end
 
-      it "warns, caches nil, and returns nil" do
+      it "retries with backoff and succeeds on transient 403" do
+        call_count = 0
+        allow(obj).to receive(:realize) do
+          call_count += 1
+          raise Lutaml::Hal::Error, "Status: 403" if call_count < 3
+          realized
+        end
+
+        result = handler.realize(obj)
+        expect(result).to eq realized
+        expect(call_count).to eq 3
+      end
+
+      it "gives up after MAX_RETRIES and caches nil on persistent 403" do
+        allow(obj).to receive(:realize).and_raise(Lutaml::Hal::Error, "Status: 403")
+
         result = handler.realize(obj)
         expect(result).to be_nil
         expect(Relaton::W3c::RateLimitHandler.fetched_objects[href]).to be_nil
         expect(Relaton::W3c::RateLimitHandler.fetched_objects.key?(href)).to be true
-        expect(Relaton.logger_pool).to have_received(:warn).with(/Client error for/, anything)
+        expect(Relaton.logger_pool).to have_received(:warn).with(/Client error for .* skipping after retries/, anything)
       end
     end
 

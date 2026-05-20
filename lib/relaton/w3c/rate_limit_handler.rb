@@ -25,10 +25,7 @@ module Relaton
           RateLimitHandler.fetched_objects[href] = obj.realize
         rescue *RETRYABLE_ERRORS => e
           if attempt < MAX_RETRIES
-            sleep_time = attempt * attempt
-            attempt += 1
-            Util.warn "Rate limit exceeded for #{href}, retrying in #{sleep_time} seconds..."
-            sleep sleep_time
+            attempt = backoff(attempt, href)
             retry
           elsif e.is_a?(Lutaml::Hal::ServerError)
             # Persistent 5xx — cache nil so a permanently broken upstream
@@ -44,15 +41,27 @@ module Relaton
           Util.warn "Object not found: #{href}"
           RateLimitHandler.fetched_objects[href] = nil
         rescue Lutaml::Hal::Error => e
-          # Non-retryable client-side errors (403/401/400 and any other
-          # Lutaml::Hal::Error not matched above) — skip the resource and
-          # continue rather than aborting the whole crawl.
-          Util.warn "Client error for #{href}, skipping: #{e.message}"
+          # Generic client-side errors (403/401/400). W3C API returns 403 under
+          # rate-limiting, so retry with backoff. After MAX_RETRIES, cache nil
+          # and skip the resource rather than aborting the whole crawl.
+          if attempt < MAX_RETRIES
+            attempt = backoff(attempt, href)
+            retry
+          end
+
+          Util.warn "Client error for #{href}, skipping after retries: #{e.message}"
           RateLimitHandler.fetched_objects[href] = nil
         end
       end
 
       private
+
+      def backoff(attempt, href)
+        sleep_time = attempt * attempt
+        Util.warn "Rate limit exceeded for #{href}, retrying in #{sleep_time} seconds..."
+        sleep sleep_time
+        attempt + 1
+      end
 
       def resolve_href(obj)
         obj.href || obj.links.self.href
