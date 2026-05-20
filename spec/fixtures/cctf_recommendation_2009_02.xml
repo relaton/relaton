@@ -1,5 +1,5 @@
 <bibdata type="proceedings" schema-version="v1.5.6">
-  <fetched>2025-09-29</fetched>
+  <fetched>2026-05-19</fetched>
   <title language="en" script="Latn">Characterization of delays of global navigation satellite system (GNSS) equipment in laboratories contributing to International Atomic Time (TAI)</title>
   <title language="fr" script="Latn">Caractérisation des retards des équipements de comparaison de temps par systèmes globaux de navigation par satellite (GNSS) des laboratoires contribuant au Temps atomique international (TAI)</title>
   <uri language="en" script="Latn" type="citation">https://www.bipm.org/en/committees/cc/cctf/18-2009/resolution-2</uri>
@@ -27,11 +27,16 @@
     </organization>
   </contributor>
   <contributor>
-    <role type="author"/>
+    <role type="author">
+      <description>committee</description>
+    </role>
     <organization>
-      <name language="en" script="Latn">Consultative Committee for Time and Frequency</name>
-      <name language="fr" script="Latn">Comité consultatif du temps et des fréquences</name>
-      <abbreviation language="en" script="Latn">CCTF</abbreviation>
+      <name script="Latn">BIPM</name>
+      <subdivision type="committee">
+        <name language="en" script="Latn">Consultative Committee for Time and Frequency</name>
+        <name language="fr" script="Latn">Comité consultatif du temps et des fréquences</name>
+        <abbreviation language="en" script="Latn">CCTF</abbreviation>
+      </subdivision>
     </organization>
   </contributor>
   <language>en</language>
