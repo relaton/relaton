@@ -187,15 +187,6 @@ describe Relaton::Iso::DataParser do
     expect(sub.identifier.first.content).to eq "ISO/TC 176/SC 2"
   end
 
-  it "rewrites a `Withdrawn` publisher prefix as ISO" do
-    item = build({
-      "reference" => "Withdrawn 1043/Add 1",
-      "currentStage" => 9599,
-    })
-    primary = item.docidentifier.find(&:primary)
-    expect(primary.content.to_s).to eq "ISO 1043/Add 1"
-  end
-
   it "skips invalid pubid gracefully" do
     item = described_class.new(
       { "id" => 1, "reference" => "GARBAGE", "title" => { "en" => "x" } },

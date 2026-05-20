@@ -168,14 +168,18 @@ module Relaton
         nil
       end
 
-      # Open Data flags withdrawn records by prefixing the reference with
-      # "Withdrawn"; pubid-iso doesn't recognize that as a publisher, so
-      # substitute the real publisher back in. The withdrawal state is
-      # carried via currentStage.
+      # Open Data emits stub records for deleted/abandoned projects with a
+      # "Withdrawn" publisher prefix. They have no publicationDate, no edition,
+      # and sit on stage *.98 (deleted). Skip them entirely.
       def normalize_reference(ref)
         return nil if ref.nil? || ref.empty?
+        return nil if ref.start_with?("Withdrawn ")
 
-        ref.sub(/\AWithdrawn\b/, "ISO")
+        ref
+      end
+
+      def ingestable?(ref)
+        !ref.nil? && !ref.empty? && !ref.start_with?("Withdrawn ")
       end
 
       def build_tc_index
@@ -199,7 +203,7 @@ module Relaton
         count = 0
         File.foreach(path, encoding: "UTF-8") do |line|
           rec = JSON.parse(line)
-          next unless rec["reference"]
+          next unless ingestable?(rec["reference"])
 
           fetch_pub(rec, ref_index, tc_index, amend_index, date_index)
           count += 1

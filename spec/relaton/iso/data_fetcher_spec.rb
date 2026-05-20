@@ -107,9 +107,9 @@ describe Relaton::Iso::DataFetcher do
   describe "#normalize_reference" do
     let(:fetcher) { described_class.new(output_dir, "yaml") }
 
-    it "rewrites a `Withdrawn` publisher prefix as ISO" do
+    it "drops `Withdrawn` deleted-project references" do
       expect(fetcher.send(:normalize_reference, "Withdrawn 1701/Add 1"))
-        .to eq("ISO 1701/Add 1")
+        .to be_nil
     end
 
     it "leaves a normal reference untouched" do
@@ -123,13 +123,15 @@ describe Relaton::Iso::DataFetcher do
     end
   end
 
-  context "withdrawn relations" do
+  context "withdrawn (deleted-project) records" do
     let(:sample_records) do
       [
         {
-          "id" => 100, "deliverableType" => "IS", "reference" => "Withdrawn 1701/Add 1",
-          "title" => { "en" => "Old" }, "publicationDate" => "1978-01-01",
-          "currentStage" => 9599, "languages" => ["en"]
+          "id" => 100, "deliverableType" => "IS",
+          "reference" => "Withdrawn 1701/Add 1",
+          "title" => { "en" => "Old" },
+          "publicationDate" => nil, "currentStage" => 3098,
+          "languages" => ["en"]
         },
         {
           "id" => 101, "deliverableType" => "IS", "reference" => "ISO 1701",
@@ -140,12 +142,14 @@ describe Relaton::Iso::DataFetcher do
       ]
     end
 
-    it "rewrites `Withdrawn` references in `replaces` / `replacedBy` relations" do
+    it "skips Withdrawn records and drops them from relations" do
       described_class.fetch("iso-open-data-all", output: output_dir, format: "yaml")
-      file = Dir["#{output_dir}/*.yaml"].find { |f| f.include?("iso-1701") && !f.include?("add") }
-      item = Relaton::Iso::Item.from_yaml(File.read(file))
-      rel = item.relation.first
-      expect(rel.bibitem.docidentifier.first.content.to_s).to eq("ISO 1701/Add 1")
+
+      files = Dir["#{output_dir}/*.yaml"]
+      expect(files.size).to eq(1)
+
+      item = Relaton::Iso::Item.from_yaml(File.read(files.first))
+      expect(item.relation.find { |r| r.type == "obsoletes" }).to be_nil
     end
   end
 

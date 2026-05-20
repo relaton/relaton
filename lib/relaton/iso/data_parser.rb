@@ -80,12 +80,8 @@ module Relaton
 
       # ---- identifiers -----------------------------------------------------
 
-      # Open Data occasionally tags withdrawn records with a `Withdrawn`
-      # publisher prefix (e.g. `Withdrawn 1043/Add 1`). Pubid::Iso can't parse
-      # that, so substitute the real publisher back in before any downstream
-      # use. The withdrawal state is already represented via `currentStage`.
       def reference
-        @reference ||= (@pub["reference"] || "").sub(/\AWithdrawn\b/, "ISO")
+        @reference ||= @pub["reference"] || ""
       end
 
       def pubid
