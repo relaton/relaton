@@ -26,6 +26,7 @@ module Relaton
       key_value do
         map_element "comment_period", to: :comment_period
         map_element "si_aspect", to: :si_aspect
+        map_element "structuredidentifier", to: :structuredidentifier
         map_element "meeting_note", to: :meeting_note
       end
 
