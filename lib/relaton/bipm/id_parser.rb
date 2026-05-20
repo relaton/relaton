@@ -216,6 +216,8 @@ module Relaton
         other_hash.delete(:year) unless hash[:year]
         hash.delete(:lang) unless other_hash[:lang]
         other_hash.delete(:lang) unless hash[:lang]
+        hash.delete(:part) unless other_hash[:part]
+        hash.delete(:append) unless other_hash[:append]
         hash == other_hash
       end
 

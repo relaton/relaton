@@ -214,9 +214,10 @@ RSpec.describe Relaton::Bipm::Bibliography do
         end
       end
 
-      xit "SI Brochure", vcr: "si_brochure" do
+      it "SI Brochure", vcr: "si_brochure" do
         result = Relaton::Bipm::Bibliography.get "BIPM SI Brochure Part 1"
-        expect(result.docidentifier.find { |id| id.language == "en" }.content).to eq "BIPM SI Brochure Part 1"
+        en_id = result.docidentifier.find { |id| id.content.is_a?(String) && id.content.end_with?(", E)") }
+        expect(en_id.content).to eq "BIPM SI Brochure 9e v3.01 (2019/2024, E)"
       end
 
       context "Metrologia" do
