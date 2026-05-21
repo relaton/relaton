@@ -29,7 +29,7 @@ RSpec.describe Relaton::Bipm::Bibliography do
       xml = subject.to_xml bibdata: true
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
       expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
-      schema = Jing.new "grammars/relaton-bipm-compile.rng"
+      schema = Jing.new "spec/schemas/relaton-bipm-compile.rng"
       errors = schema.validate file
       expect(errors).to eq []
     end
@@ -298,8 +298,8 @@ RSpec.describe Relaton::Bipm::Bibliography do
         it "with text/html title", vcr: "metrologia_55_1_L13" do
           result = Relaton::Bipm::Bibliography.get "BIPM Metrologia 55 1 L13"
           expect(result.title[0].content).to eq(
-            "The CODATA 2017 values of <italic>h</italic>, <italic>e</italic>, <italic>k</italic>, " \
-            "and <italic>N</italic><sub>A</sub> for the revision of the SI",
+            "The CODATA 2017 values of <em>h</em>, <em>e</em>, <em>k</em>, " \
+            "and <em>N</em><sub>A</sub> for the revision of the SI",
           )
         end
       end

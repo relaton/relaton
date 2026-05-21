@@ -6,7 +6,7 @@ describe Relaton::Bipm::Bibitem do
   it "round trip" do
     output_xml = described_class.to_xml item
     expect(output_xml).to be_equivalent_to input_xml
-    schema = Jing.new "grammars/relaton-bipm-compile.rng"
+    schema = Jing.new "spec/schemas/relaton-bipm-compile.rng"
     errors = schema.validate file
     expect(errors).to eq []
   end
