@@ -5,7 +5,7 @@ describe Relaton::Itu::Bibdata do
 
   it "round trip" do
     expect(item.to_xml(bibdata: true)).to be_equivalent_to input_xml
-    schema = Jing.new "grammars/relaton-itu-compile.rng"
+    schema = Jing.new "spec/schemas/relaton-itu-compile.rng"
     errors = schema.validate file
     expect(errors).to eq []
   end
