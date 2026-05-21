@@ -14,9 +14,12 @@ RSpec.describe Relaton do
     expect(defined?(Relaton::Db::Registry)).to eq("constant")
   end
 
-  it "does NOT auto-require Relaton::Cli (CLI is opt-in)" do
-    # Users must `require 'relaton/cli'` explicitly. The meta-gem
-    # intentionally does not pull it in.
-    expect(defined?(Relaton::Cli)).to be_nil
+  it "does NOT pull relaton-cli's runtime code via require 'relaton'" do
+    # The meta-gem's lib/relaton.rb requires only relaton/db, not
+    # relaton/cli. Even if Relaton::Cli is defined as a module shell by
+    # some other code path, its runtime classes (Command, ::start) must
+    # not be loaded just from `require 'relaton'`.
+    expect(defined?(Relaton::Cli::Command)).to be_nil
+    expect(Relaton::Cli.respond_to?(:start)).to be(false) if defined?(Relaton::Cli)
   end
 end

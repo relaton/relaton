@@ -15,7 +15,7 @@ RSpec.describe Relaton::Db do
 
   it "rejects an illegal reference prefix" do
     expect { @db.fetch("XYZ XYZ", nil, {}) }.to output(
-      /\[relaton\] INFO: \(XYZ XYZ\) `XYZ XYZ` does not/,
+      /\[relaton-db\] INFO: \(XYZ XYZ\) `XYZ XYZ` does not/,
     ).to_stderr_from_any_process
   end
 

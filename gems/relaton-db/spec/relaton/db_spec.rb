@@ -39,7 +39,7 @@ RSpec.describe Relaton::Db do
                                :relaton_iso, db: db, id: "ISO(ISO 123)"
           expect(entry).to be_nil
         end.to output(
-          "[relaton] INFO: (ISO 123) not found in cache, " \
+          "[relaton-db] INFO: (ISO 123) not found in cache, " \
           "if you wish to ignore cache please use " \
           "`no-cache` option.\n",
         ).to_stderr_from_any_process
@@ -350,7 +350,7 @@ RSpec.describe Relaton::Db do
       expect do
         expect(db.mv("new_cache_dir")).to be_nil
       end.to output(
-        /\[relaton\] INFO: target directory exists/,
+        /\[relaton-db\] INFO: target directory exists/,
       ).to_stderr_from_any_process
     end
 
@@ -537,7 +537,7 @@ RSpec.describe Relaton::Db do
       expect(subject).to receive(:fetch).and_raise Errno::EACCES
       log_io = Relaton.logger_pool[:default].instance_variable_get(:@logdev)
       expect(log_io).to receive(:write).with(
-        "[relaton] ERROR: `ISO REF` -- Permission denied\n",
+        "[relaton-db] ERROR: `ISO REF` -- Permission denied\n",
       )
       subject.fetch_async("ISO REF") { |r| queue << r }
       result = Timeout.timeout(5) { queue.pop }

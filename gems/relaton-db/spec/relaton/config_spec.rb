@@ -1,4 +1,4 @@
-describe Relaton do
+describe Relaton::Db do
   after { described_class.instance_variable_set :@configuration, nil }
 
   it "configure" do
