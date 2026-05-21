@@ -188,7 +188,7 @@ module Relaton::Bipm
       def parse_type = "article"
 
       def parse_source
-        result = @doc.doi_links
+        result = @doc.doi_links.map { |link| Relaton::Bib::Uri.new(**link) }
         @errors[:article_source] &&= result.empty?
         result
       end

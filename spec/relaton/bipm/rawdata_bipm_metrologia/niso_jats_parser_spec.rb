@@ -82,6 +82,15 @@ describe Relaton::Bipm::RawdataBipmMetrologia::NisoJatsParser do
       expect(subject.type).to eq "article"
     end
 
+    context "parse_source" do
+      it { expect(subject.source.size).to eq 2 }
+      it { expect(subject.source[0]).to be_instance_of Relaton::Bib::Uri }
+      it { expect(subject.source[0].type).to eq "src" }
+      it { expect(subject.source[0].content.to_s).to eq "https://doi.org/10.1088/0026-1394/49/3/273" }
+      it { expect(subject.source[1]).to be_instance_of Relaton::Bib::Uri }
+      it { expect(subject.source[1].type).to eq "doi" }
+    end
+
     it "parse_ext" do
       expect(subject.ext.doctype).to be_instance_of Relaton::Bipm::Doctype
       expect(subject.ext.doctype.content).to eq "article"
