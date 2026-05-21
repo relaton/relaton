@@ -1,0 +1,62 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://www.omg.org/spec/NOTEXIST/1.1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Mechanize/2.14.0 Ruby/3.4.7p58 (http://github.com/sparklemotion/mechanize/)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - www.omg.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      Date:
+      - Thu, 21 May 2026 02:28:13 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Cache-Control:
+      - no-cache
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Content-Disposition:
+      - inline;filename=f.txt
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=dfAWwthvCteaL1OboalfMGqUvOa%2FxlzpPZelptispwC587kq2sJgAfEZHRL3mnEeqgUbdCGzMheWXcidouuBaeEygkrlpQdik5z%2FIPY1H8ySJc8O1PnJ90usdFQbrkOUJQ%2FT1eDijGD2"}]}'
+      Cf-Cache-Status:
+      - MISS
+      Vary:
+      - accept-encoding
+      Content-Encoding:
+      - gzip
+      Cf-Ray:
+      - 9ff0257f7b1b452c-ATL
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAA/6pWKsnMTS0uScwtULJSMjIwMtM1MNU1MgwxMLIysrAyNNYzMTLRNjCwMjBQ0lECqispLVayMjEw0VFKLSrKLwJq8ssvUXDLL81LASooSCzJAArpFxekJuv7+Ye4RngGh+gb6hkq1QIAAAD//wMAmKPoFGoAAAA=
+  recorded_at: Thu, 21 May 2026 02:28:13 GMT
+recorded_with: VCR 6.4.0
