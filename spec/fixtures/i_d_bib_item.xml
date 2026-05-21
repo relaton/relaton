@@ -1,5 +1,5 @@
 <bibdata type="standard" schema-version="v1.5.6">
-  <fetched>2026-02-17</fetched>
+  <fetched>2026-05-20</fetched>
   <title language="en" script="Latn">Centralized Conferencing (XCON) Media Models</title>
   <uri type="src">https://datatracker.ietf.org/doc/html/draft-burger-xcon-mmodels-00</uri>
   <docidentifier type="Internet-Draft">draft-burger-xcon-mmodels</docidentifier>
@@ -13,7 +13,7 @@
     <person>
       <name>
         <forename language="en" script="Latn">Eric</forename>
-        <forename language="en" script="Latn" initial="E"></forename>
+        <forename language="en" script="Latn" initial="E"/>
         <formatted-initials language="en">E.</formatted-initials>
         <surname language="en">Burger</surname>
         <completename language="en">Eric Burger</completename>
@@ -28,11 +28,12 @@
   <version>00</version>
   <language>en</language>
   <script>Latn</script>
-  <abstract language="en" script="Latn">This document describes various models for endpoint control of media
+  <abstract language="en" script="Latn">
+    <p>This document describes various models for endpoint control of media
    policy for centralized conferencing services.  The models include
    detailed mixer control, as in H.248, individual end-point
-   negotiation, and participant roles, as in MSCML.
-	 </abstract>
+   negotiation, and participant roles, as in MSCML.</p>
+  </abstract>
   <series type="main">
     <title language="en" script="Latn">Internet-Draft</title>
     <number>draft-burger-xcon-mmodels-00</number>
