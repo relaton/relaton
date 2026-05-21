@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+  <include href="biblio-standoc.rng">
+    <define name="DocumentType">
+      <choice>
+        <value>specification</value>
+        <value>memorandum</value>
+        <value>resolution</value>
+        <value>standard</value>
+      </choice>
+    </define>
+  </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <zeroOrMore>
+      <ref name="technology-area"/>
+    </zeroOrMore>
+  </define>
+  <define name="technology-area">
+    <element name="technology-area">
+      <ref name="TechnologyArea"/>
+    </element>
+  </define>
+  <define name="TechnologyArea">
+    <choice>
+      <value>Cloud</value>
+      <value>Content-Technologies</value>
+      <value>Cybersecurity</value>
+      <value>e-Business</value>
+      <value>eGov/Legal</value>
+      <value>Emergency-Management</value>
+      <value>Energy</value>
+      <value>Information-Modeling</value>
+      <value>IoT</value>
+      <value>Lifecycle-Integration</value>
+      <value>Localization</value>
+      <value>Messaging</value>
+      <value>Privacy/Identity</value>
+      <value>Security</value>
+      <value>SOA</value>
+      <value>Web-Services</value>
+      <value>Software-Development</value>
+      <value>Virtualization</value>
+    </choice>
+  </define>
+</grammar>
