@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="biblio-standoc.rng">
+    <define name="DocumentType">
+      <choice>
+        <value>handbook</value>
+        <value>technical-report</value>
+        <value>annex</value>
+      </choice>
+    </define>
+  </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <optional>
+      <ref name="stagename">
+        <a:documentation>Human-readable name of the stage of publication, corresponding to the numeric stage code given in `/bibdata/status/stage`</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="filesize">
+        <a:documentation>Size of output file, in bytes</a:documentation>
+      </ref>
+    </optional>
+  </define>
+  <define name="documentnumber">
+    <element name="project-number">
+      <optional>
+        <attribute name="part">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="subpart">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="amendment">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="corrigendum">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="origyr">
+          <ref name="ISO8601Date"/>
+        </attribute>
+      </optional>
+      <text/>
+    </element>
+  </define>
+  <define name="stagename">
+    <element name="stagename">
+      <optional>
+        <attribute name="abbreviation"/>
+      </optional>
+      <text/>
+    </element>
+  </define>
+  <define name="filesize">
+    <element name="filesize">
+      <data type="int"/>
+    </element>
+  </define>
+</grammar>

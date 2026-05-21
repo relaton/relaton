@@ -1,0 +1,110 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-plateau/v2/data/plateau-technical-report-00-10.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - raw.githubusercontent.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1537'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"abcc8e7090984a228f3019cbabd392679d5b0126e5a39281ee53e7c3d48b6521"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - C9C8:17E3D7:582775:6CC5F2:6A0E6E90
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Thu, 21 May 2026 02:31:45 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kjyo7100147-IAD
+      X-Cache:
+      - HIT
+      X-Cache-Hits:
+      - '1'
+      X-Timer:
+      - S1779330706.647968,VS0,VE3
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - 3f42186c9bd8cd34025f5967dce1ac33e1cd1407
+      Expires:
+      - Thu, 21 May 2026 02:36:45 GMT
+      Source-Age:
+      - '1'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        LS0tCmlkOiBQTEFURUFVVGVjaG5pY2FsUmVwb3J0MDAxMApzY2hlbWFfdmVy
+        c2lvbjogdjEuNS42CnR5cGU6IHN0YW5kYXJkCnRpdGxlOgotIGxhbmd1YWdl
+        OiBqYQogIHNjcmlwdDogSnBhbgogIGNvbnRlbnQ6IDNE6YO95biC44Oi44OH
+        44Or44KS5rS755So44GX44Gf6Ieq5YuV6YGL6Lui6LuK5Lih44Gu6Ieq5bex
+        5L2N572u5o6o5a6a5oqA6KGT5qSc6Ki844Os44Od44O844OICiAgdHlwZTog
+        bWFpbgpzb3VyY2U6Ci0gdHlwZTogcGRmCiAgY29udGVudDogaHR0cHM6Ly93
+        d3cubWxpdC5nby5qcC9wbGF0ZWF1L2ZpbGUvbGlicmFyaWVzL2RvYy9wbGF0
+        ZWF1X3RlY2hfZG9jXzAwMDBfdmVyMDEucGRmCmRvY2lkZW50aWZpZXI6Ci0g
+        Y29udGVudDogJ1BMQVRFQVUgVGVjaG5pY2FsIFJlcG9ydCAjMDAgMS4wJwog
+        IHR5cGU6IFBMQVRFQVUKICBwcmltYXJ5OiB0cnVlCmRvY251bWJlcjogJ1Rl
+        Y2huaWNhbCBSZXBvcnQgIzAwIDEuMCcKZGF0ZToKLSB0eXBlOiBwdWJsaXNo
+        ZWQKICBhdDogJzIwMjItMDMtMjknCmNvbnRyaWJ1dG9yOgotIHJvbGU6CiAg
+        LSB0eXBlOiBwdWJsaXNoZXIKICBvcmdhbml6YXRpb246CiAgICBuYW1lOgog
+        ICAgLSBsYW5ndWFnZTogamEKICAgICAgc2NyaXB0OiBKcGFuCiAgICAgIGNv
+        bnRlbnQ6IOWbveWcn+S6pOmAmuecgQogICAgLSBsYW5ndWFnZTogZW4KICAg
+        ICAgc2NyaXB0OiBMYXRuCiAgICAgIGNvbnRlbnQ6IEphcGFuZXNlIE1pbmlz
+        dHJ5IG9mIExhbmQsIEluZnJhc3RydWN0dXJlLCBUcmFuc3BvcnQgYW5kIFRv
+        dXJpc20KICAgIGFiYnJldmlhdGlvbjoKICAgICAgY29udGVudDogTUxJVApl
+        ZGl0aW9uOgogIG51bWJlcjogJzEuMCcKICBjb250ZW50OiAnMS4wJwphYnN0
+        cmFjdDoKLSBsYW5ndWFnZTogamEKICBzY3JpcHQ6IEpwYW4KICBjb250ZW50
+        OiDoh6rli5XpgYvou6Lou4rkuKHjga7oh6rlt7HkvY3nva7mjqjlrprjgrfj
+        grnjg4bjg6Dplovnmbrlrp/oqLzjga7mioDooZPos4fmlpnvvIgyMDIx5bm0
+        5bqm77yJCmtleXdvcmQ6Ci0gdm9jYWI6CiAgICBjb250ZW50OiAyMDIx5bm0
+        5bqmCi0gdm9jYWI6CiAgICBjb250ZW50OiBVbml0eQotIHZvY2FiOgogICAg
+        Y29udGVudDogVlBTCi0gdm9jYWI6CiAgICBjb250ZW50OiDoh6rlvovpgYvo
+        iKoKZGVwaWN0aW9uOgotIHNjb3BlOiBjb3ZlcgogIGltYWdlOgogIC0gc3Jj
+        OiBodHRwczovL3d3dy5tbGl0LmdvLmpwLy9wbGF0ZWF1L3VwbG9hZHMvMjAy
+        Mi8wMy9wbGF0ZWF1X3RlY2hfZG9jXzAwMDBfdmVyMDEtMS1zY2FsZWQuanBl
+        ZwogICAgbWltZXR5cGU6IGltYWdlL2pwZWcKZXh0OgogIHNjaGVtYV92ZXJz
+        aW9uOiB2MC4xLjAKICBkb2N0eXBlOgogICAgY29udGVudDogdGVjaG5pY2Fs
+        LXJlcG9ydAogIHN1YmRvY3R5cGU6IFVzZSBDYXNlCiAgZmxhdm9yOiBwbGF0
+        ZWF1CiAgc3RydWN0dXJlZGlkZW50aWZpZXI6CiAgLSB0eXBlOiBUZWNobmlj
+        YWwgUmVwb3J0CiAgICBhZ2VuY3k6CiAgICAtIFBMQVRFQVUKICAgIGtsYXNz
+        OiBVc2UgQ2FzZQogICAgZG9jbnVtYmVyOiAnMDAnCiAgZmlsZXNpemU6IDE5
+        MDk4OTU3Cg==
+  recorded_at: Thu, 21 May 2026 02:31:45 GMT
+recorded_with: VCR 6.4.0
