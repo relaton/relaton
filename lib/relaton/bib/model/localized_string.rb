@@ -26,7 +26,14 @@ module Relaton
     end
 
     class LocalizedMarkedUpString < LocalizedStringAttrs
+      module ContentSanitization
+        def content=(value)
+          super(Relaton::Bib::Sanitizer.sanitize(value))
+        end
+      end
+
       attribute :content, :string, raw: true
+      prepend ContentSanitization
 
       xml do
         map_all to: :content
