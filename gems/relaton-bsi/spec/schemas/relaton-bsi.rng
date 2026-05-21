@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="biblio-standoc.rng">
+    <define name="bdate">
+      <element name="date">
+        <attribute name="type">
+          <choice>
+            <ref name="BibliographicDateType"/>
+            <text/>
+          </choice>
+        </attribute>
+        <choice>
+          <group>
+            <element name="from">
+              <ref name="ISO8601Date"/>
+            </element>
+            <optional>
+              <element name="to">
+                <ref name="ISO8601Date"/>
+              </element>
+            </optional>
+          </group>
+          <element name="on">
+            <choice>
+              <ref name="ISO8601Date"/>
+              <value>--</value>
+              <value>–</value>
+            </choice>
+          </element>
+        </choice>
+      </element>
+    </define>
+    <define name="DocumentType">
+      <choice>
+        <value>british-standard</value>
+        <value>draft-for-development</value>
+        <value>published-document</value>
+        <value>privately-subscribed-standard</value>
+        <value>publicly-available-specification</value>
+        <value>flex-standard</value>
+        <value>international-standard</value>
+        <value>technical-specification</value>
+        <value>technical-report</value>
+        <value>guide</value>
+        <value>international-workshop-agreement</value>
+        <value>industry-technical-agreement</value>
+        <value>standard</value>
+        <value>european-workshop-agreement</value>
+        <value>fast-track-standard</value>
+        <value>expert-commentary</value>
+      </choice>
+    </define>
+    <define name="DocumentSubtype">
+      <choice>
+        <value>specification</value>
+        <value>method-of-test</value>
+        <value>method-of-specifying</value>
+        <value>vocabulary</value>
+        <value>code-of-practice</value>
+      </choice>
+    </define>
+    <define name="structuredidentifier">
+      <element name="structuredidentifier">
+        <optional>
+          <attribute name="type"/>
+        </optional>
+        <group>
+          <ref name="documentnumber"/>
+          <optional>
+            <ref name="tc-documentnumber"/>
+          </optional>
+        </group>
+      </element>
+    </define>
+  </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <optional>
+      <ref name="stagename">
+        <a:documentation>Human-readable name of the stage of publication, corresponding to the numeric stage code given in `/bibdata/status/stage`</a:documentation>
+      </ref>
+    </optional>
+  </define>
+  <define name="updates_document_type">
+    <element name="updates-document-type">
+      <ref name="DocumentType"/>
+    </element>
+  </define>
+  <define name="horizontal">
+    <element name="horizontal">
+      <data type="boolean"/>
+    </element>
+  </define>
+  <define name="documentnumber">
+    <element name="project-number">
+      <optional>
+        <attribute name="part">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="subpart">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="amendment">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="corrigendum">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="origyr">
+          <ref name="ISO8601Date"/>
+        </attribute>
+      </optional>
+      <text/>
+    </element>
+  </define>
+  <define name="tc-documentnumber">
+    <element name="tc-document-number">
+      <data type="int"/>
+    </element>
+  </define>
+  <define name="stagename">
+    <element name="stagename">
+      <optional>
+        <attribute name="abbreviation"/>
+      </optional>
+      <text/>
+    </element>
+  </define>
+</grammar>
