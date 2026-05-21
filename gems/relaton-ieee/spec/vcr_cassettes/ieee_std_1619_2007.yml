@@ -1,0 +1,143 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ieee/refs/heads/v2/data/ieee-std-1619-2007.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.7.12
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '3118'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"2bc38fd474f0a3a8e890715cae120ab2524d8348486ef4e5795a1296e729418e"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - 0B2A:242D3D:771B13:906AE6:6A0E66E9
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Thu, 21 May 2026 01:59:06 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kcgs7200148-IAD
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1779328746.969232,VS0,VE68
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - b4890351da0c5a20f0f9832d44ac595d476955a0
+      Expires:
+      - Thu, 21 May 2026 02:04:06 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        LS0tCmlkOiBJRUVFU3RkMTYxOTIwMDcKc2NoZW1hX3ZlcnNpb246IHYxLjUu
+        Ngp0eXBlOiBzdGFuZGFyZAp0aXRsZToKLSBjb250ZW50OiBJRUVFIFN0YW5k
+        YXJkIGZvciBDcnlwdG9ncmFwaGljIFByb3RlY3Rpb24gb2YgRGF0YSBvbiBC
+        bG9jay1PcmllbnRlZCBTdG9yYWdlCiAgICBEZXZpY2VzCiAgdHlwZTogbWFp
+        bgpzb3VyY2U6Ci0gdHlwZTogc3JjCiAgY29udGVudDogaHR0cHM6Ly9pZWVl
+        eHBsb3JlLmllZWUub3JnL2RvY3VtZW50LzQ0OTM0NTAKZG9jaWRlbnRpZmll
+        cjoKLSBjb250ZW50OiBJRUVFIFN0ZCAxNjE5LTIwMDcKICB0eXBlOiBJRUVF
+        CiAgcHJpbWFyeTogdHJ1ZQotIGNvbnRlbnQ6IElFRUUgU3RkIDE2MTnihKIt
+        MjAwNwogIHR5cGU6IElFRUUKICBzY29wZTogdHJhZGVtYXJrCiAgcHJpbWFy
+        eTogdHJ1ZQotIGNvbnRlbnQ6IDk3OC0xLTUwNDQtNTUyMy03CiAgdHlwZTog
+        SVNCTgotIGNvbnRlbnQ6IDEwLjExMDkvSUVFRVNURC4yMDA4LjQ0OTM0NTAK
+        ICB0eXBlOiBET0kKZG9jbnVtYmVyOiBJRUVFIFN0ZCAxNjE5LTIwMDcKZGF0
+        ZToKLSB0eXBlOiBjcmVhdGVkCiAgYXQ6ICcyMDA4LTAzLTA0JwotIHR5cGU6
+        IHB1Ymxpc2hlZAogIGF0OiAnMjAxOS0wMi0wNycKLSB0eXBlOiBpc3N1ZWQK
+        ICBhdDogJzIwMDctMTItMDUnCmNvbnRyaWJ1dG9yOgotIHJvbGU6CiAgLSB0
+        eXBlOiBwdWJsaXNoZXIKICBvcmdhbml6YXRpb246CiAgICBhZGRyZXNzOgog
+        ICAgLSBjaXR5OiBOZXcgWW9yawogICAgICBjb3VudHJ5OiBVU0EKICAgIHVy
+        aToKICAgIC0gdHlwZTogb3JnCiAgICAgIGNvbnRlbnQ6IGh0dHA6Ly93d3cu
+        aWVlZS5vcmcKICAgIG5hbWU6CiAgICAtIGxhbmd1YWdlOiBlbgogICAgICBz
+        Y3JpcHQ6IExhdG4KICAgICAgY29udGVudDogSW5zdGl0dXRlIG9mIEVsZWN0
+        cmljYWwgYW5kIEVsZWN0cm9uaWNzIEVuZ2luZWVycwogICAgYWJicmV2aWF0
+        aW9uOgogICAgICBjb250ZW50OiBJRUVFCi0gcm9sZToKICAtIHR5cGU6IGF1
+        dGhvcgogICAgZGVzY3JpcHRpb246CiAgICAtIGxhbmd1YWdlOiBlbgogICAg
+        ICBzY3JpcHQ6IExhdG4KICAgICAgY29udGVudDogY29tbWl0dGVlCiAgb3Jn
+        YW5pemF0aW9uOgogICAgbmFtZToKICAgIC0gbGFuZ3VhZ2U6IGVuCiAgICAg
+        IHNjcmlwdDogTGF0bgogICAgICBjb250ZW50OiBJbnN0aXR1dGUgb2YgRWxl
+        Y3RyaWNhbCBhbmQgRWxlY3Ryb25pY3MgRW5naW5lZXJzCiAgICBzdWJkaXZp
+        c2lvbjoKICAgIC0gbmFtZToKICAgICAgLSBsYW5ndWFnZTogZW4KICAgICAg
+        ICBzY3JpcHQ6IExhdG4KICAgICAgICBjb250ZW50OiBTdG9yYWdlIFN5c3Rl
+        bXMgb2YgdGhlIElFRUUgQ29tcHV0ZXIgU29jaWV0eQogICAgICB0eXBlOiBj
+        b21taXR0ZWUKICAgIGFiYnJldmlhdGlvbjoKICAgICAgY29udGVudDogSUVF
+        RQpsYW5ndWFnZToKLSBlbgpzY3JpcHQ6Ci0gTGF0bgphYnN0cmFjdDoKLSBs
+        YW5ndWFnZTogZW4KICBzY3JpcHQ6IExhdG4KICBjb250ZW50OiBUaGlzIHN0
+        YW5kYXJkIHNwZWNpZmllcyBjcnlwdG9ncmFwaGljIHRyYW5zZm9ybSBhbmQg
+        a2V5IGFyY2hpdmFsIG1ldGhvZHMKICAgIGZvciBwcm90ZWN0aW9uIG9mIGRh
+        dGEgaW4gc2VjdG9yLWxldmVsIHN0b3JhZ2UgZGV2aWNlcy4KY29weXJpZ2h0
+        OgotIGZyb206ICcyMDA4JwogIG93bmVyOgogIC0gb3JnYW5pemF0aW9uOgog
+        ICAgICB1cmk6CiAgICAgIC0gdHlwZTogb3JnCiAgICAgICAgY29udGVudDog
+        aHR0cDovL3d3dy5pZWVlLm9yZwogICAgICBuYW1lOgogICAgICAtIGxhbmd1
+        YWdlOiBlbgogICAgICAgIHNjcmlwdDogTGF0bgogICAgICAgIGNvbnRlbnQ6
+        IEluc3RpdHV0ZSBvZiBFbGVjdHJpY2FsIGFuZCBFbGVjdHJvbmljcyBFbmdp
+        bmVlcnMKICAgICAgYWJicmV2aWF0aW9uOgogICAgICAgIGNvbnRlbnQ6IElF
+        RUUKcmVsYXRpb246Ci0gdHlwZTogb2Jzb2xldGVkQnkKICBiaWJpdGVtOgog
+        ICAgZm9ybWF0dGVkcmVmOgogICAgICBjb250ZW50OiBJRUVFIFN0ZCAxNjE5
+        LTIwMTgKICAgIGRvY2lkZW50aWZpZXI6CiAgICAtIGNvbnRlbnQ6IElFRUUg
+        U3RkIDE2MTktMjAxOAogICAgICB0eXBlOiBJRUVFCiAgICAgIHByaW1hcnk6
+        IHRydWUKa2V5d29yZDoKLSB2b2NhYjoKICAgIGxhbmd1YWdlOiBlbgogICAg
+        c2NyaXB0OiBMYXRuCiAgICBjb250ZW50OiBJRUVFIFN0YW5kYXJkcwotIHZv
+        Y2FiOgogICAgbGFuZ3VhZ2U6IGVuCiAgICBzY3JpcHQ6IExhdG4KICAgIGNv
+        bnRlbnQ6IENyeXB0b2dyYXBoeQotIHZvY2FiOgogICAgbGFuZ3VhZ2U6IGVu
+        CiAgICBzY3JpcHQ6IExhdG4KICAgIGNvbnRlbnQ6IFRyYWRlbWFya3MKLSB2
+        b2NhYjoKICAgIGxhbmd1YWdlOiBlbgogICAgc2NyaXB0OiBMYXRuCiAgICBj
+        b250ZW50OiBQYXRlbnRzCi0gdm9jYWI6CiAgICBsYW5ndWFnZTogZW4KICAg
+        IHNjcmlwdDogTGF0bgogICAgY29udGVudDogV2FycmFudGllcwotIHZvY2Fi
+        OgogICAgbGFuZ3VhZ2U6IGVuCiAgICBzY3JpcHQ6IExhdG4KICAgIGNvbnRl
+        bnQ6IDE2MTktMjAwNwotIHZvY2FiOgogICAgbGFuZ3VhZ2U6IGVuCiAgICBz
+        Y3JpcHQ6IExhdG4KICAgIGNvbnRlbnQ6IGRhdGEtYXQtcmVzdCBzZWN1cml0
+        eQotIHZvY2FiOgogICAgbGFuZ3VhZ2U6IGVuCiAgICBzY3JpcHQ6IExhdG4K
+        ICAgIGNvbnRlbnQ6IGVuY3J5cHRpb24KLSB2b2NhYjoKICAgIGxhbmd1YWdl
+        OiBlbgogICAgc2NyaXB0OiBMYXRuCiAgICBjb250ZW50OiBrZXkgbWFuYWdl
+        bWVudAotIHZvY2FiOgogICAgbGFuZ3VhZ2U6IGVuCiAgICBzY3JpcHQ6IExh
+        dG4KICAgIGNvbnRlbnQ6IHNlY3VyaXR5Ci0gdm9jYWI6CiAgICBsYW5ndWFn
+        ZTogZW4KICAgIHNjcmlwdDogTGF0bgogICAgY29udGVudDogc3RvcmFnZQot
+        IHZvY2FiOgogICAgbGFuZ3VhZ2U6IGVuCiAgICBzY3JpcHQ6IExhdG4KICAg
+        IGNvbnRlbnQ6IFhUUwpleHQ6CiAgc2NoZW1hX3ZlcnNpb246IHYxLjEuMwog
+        IGRvY3R5cGU6CiAgICBjb250ZW50OiBzdGFuZGFyZAogIGZsYXZvcjogaWVl
+        ZQogIGljczoKICAtIGNvZGU6ICczNS4wNDAnCiAgICB0ZXh0OiBDaGFyYWN0
+        ZXIgc2V0cyBhbmQgaW5mb3JtYXRpb24gY29kaW5nCiAgc3RhbmRhcmRfc3Rh
+        dHVzOiBTdXBlcnNlZGVkCiAgcHVic3RhdHVzOiBBY3RpdmUKICBob2xkc3Rh
+        dHVzOiBQdWJsaXNoCg==
+  recorded_at: Thu, 21 May 2026 01:59:06 GMT
+recorded_with: VCR 6.4.0
