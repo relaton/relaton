@@ -20,11 +20,11 @@ module Relaton
     #
     class DataFetcher < Core::DataFetcher
       OPEN_DATA_URL = "https://isopublicstorageprod.blob.core.windows.net/" \
-                     "opendata/_latest/iso_deliverables_metadata/json/" \
-                     "iso_deliverables_metadata.jsonl".freeze
+                      "opendata/_latest/iso_deliverables_metadata/json/" \
+                      "iso_deliverables_metadata.jsonl".freeze
       TC_DATA_URL = "https://isopublicstorageprod.blob.core.windows.net/" \
-                   "opendata/_latest/iso_technical_committees/json/" \
-                   "iso_technical_committees.jsonl".freeze
+                    "opendata/_latest/iso_technical_committees/json/" \
+                    "iso_technical_committees.jsonl".freeze
       LAST_MODIFIED_FILE = "last_modified.txt".freeze
       MAX_DOWNLOAD_RETRIES = 4
       RETRY_BACKOFF_BASE = 30
