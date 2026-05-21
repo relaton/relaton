@@ -1,0 +1,74 @@
+---
+id: TR0001UUMTS300
+schema_version: v1.5.6
+type: standard
+title:
+- content: Work programme for the standardization of Universal Mobile Telecommunications
+    System (UMTS)
+  type: main
+source:
+- type: src
+  content: https://www.3gpp.org/ftp/Specs/archive/00_series/00.01U/0001U-300.zip
+docidentifier:
+- content: 3GPP TR 00.01U:UMTS/3.0.0
+  type: 3GPP
+  primary: true
+docnumber: TR 00.01U:UMTS/3.0.0
+date:
+- type: published
+  at: '1994-11-18'
+contributor:
+- role:
+  - type: author
+  - type: publisher
+  organization:
+    address:
+    - street:
+      - c/o ETSI 650, route des Lucioles
+      - 3GPP Mobile Competence Centre
+      city: Sophia Antipolis Cedex
+      country: France
+      postcode: '06921'
+    name:
+    - content: 3rd Generation Partnership Project
+    abbreviation:
+      content: 3GPP
+- role:
+  - type: author
+  person:
+    name:
+      forename:
+      - language: en
+        script: Latn
+        content: Juha
+      surname:
+        language: en
+        script: Latn
+        content: Rapeli
+    affiliation:
+    - organization:
+        name:
+        - content: PHILIPS CONSUMER COMMUNICATION
+version:
+- content: 3.0.0
+language:
+- en
+script:
+- Latn
+place:
+- city: Sophia Antipolis Cedex
+  country:
+  - iso: FR
+    content: France
+ext:
+  schema_version: v1.0.4
+  doctype:
+    content: TR
+  flavor: 3gpp
+  release:
+    freeze_stage1_meeting: SMG-#28
+    freeze_stage2_meeting: SMG-#28
+    freeze_stage3_meeting: SMG-#28
+    close_meeting: SA#28
+    project_start: '1994-08-18'
+    project_end: '1999-02-12'
