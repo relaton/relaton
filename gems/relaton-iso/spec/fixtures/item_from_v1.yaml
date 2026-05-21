@@ -1,0 +1,298 @@
+---
+id: TC211
+type: standard
+schema_version: v1.5.6
+fetched: '2011-06-22'
+title:
+- language: en
+  script: Latn
+  content: Geographic information
+  type: title-intro
+  format: text/plain
+- language: en
+  script: Latn
+  content: Metadata
+  type: title-main
+  format: text/plain
+- language: en
+  script: Latn
+  content: 'Part 1: Fundamentals'
+  type: title-part
+  format: text/plain
+- language: en
+  script: Latn
+  content: 'Geographic information – Metadata – Part 1: Fundamentals'
+  type: main
+  format: text/plain
+- language: fr
+  script: Latn
+  content: Information géographique
+  type: title-intro
+  format: text/plain
+- language: fr
+  script: Latn
+  content: Métadonnées
+  type: title-main
+  format: text/plain
+- language: fr
+  script: Latn
+  content: Information géographique
+  type: title-part
+  format: text/plain
+- language: fr
+  script: Latn
+  content: Information géographique – Métadonnées – Information géographique
+  type: main
+  format: text/plain
+source:
+- type: src
+  content: https://www.iso.org/standard/53798.html
+- type: obp
+  content: https://www.iso.org/obp/ui/#!iso:std:53798:en
+- type: rss
+  content: https://www.iso.org/contents/data/standard/05/37/53798.detail.rss
+docidentifier:
+- content: TC211
+  type: ISO
+  primary: true
+docnumber: '123456'
+date:
+- type: issued
+  at: '2014'
+- type: published
+  at: 2014-04
+- type: accessed
+  at: '2015-05-20'
+contributor:
+- role:
+  - type: publisher
+    description:
+    - content: Publisher role
+  organization:
+    uri:
+    - content: www.iso.org
+    name:
+    - content: International Organization for Standardization
+    abbreviation:
+      content: ISO
+- role:
+  - type: author
+  person:
+    address:
+    - street:
+      - Street
+      city: City
+      state: State
+      country: Country
+      postcode: '123456'
+    phone:
+    - type: work
+      content: '223322'
+    name:
+      completename:
+        language: en
+        content: A. Bierman
+    affiliation:
+    - organization:
+        name:
+        - content: IETF
+        abbreviation:
+          content: IETF
+        identifier:
+        - type: uri
+          content: www.ietf.org
+- role:
+  - type: publisher
+  organization:
+    name:
+    - content: IETF
+    abbreviation:
+      content: IETF
+    identifier:
+    - type: uri
+      content: www.ietf.org
+- role:
+  - type: author
+  person:
+    address:
+    - street:
+      - Street
+      city: City
+      state: State
+      country: Country
+      postcode: '123456'
+    phone:
+    - type: work
+      content: '223322'
+    name:
+      forename:
+      - initial: A
+      surname:
+        content: Bierman
+    affiliation:
+    - organization:
+        name:
+        - content: IETF
+        abbreviation:
+          content: IETF
+    identifier:
+    - type: uri
+      content: www.person.com
+- role:
+  - type: author
+    description:
+    - content: committee
+  organization:
+    name:
+    - content: International Organization for Standardization
+    subdivision:
+    - name:
+      - content: ISO/TC 211 Geographic information/Geomatics
+      type: technical-committee
+      subtype: technicalCommittee
+    abbreviation:
+      content: ISO
+- role:
+  - type: author
+    description:
+    - content: committee
+  organization:
+    name:
+    - content: International Organization for Standardization
+    subdivision:
+    - name:
+      - content: International Organization for Standardization
+      type: subcommittee
+      subtype: ISO
+- role:
+  - type: author
+    description:
+    - content: committee
+  organization:
+    name:
+    - content: Workgroup Organization
+    subdivision:
+    - name:
+      - content: Workgroup Organization
+      type: workgroup
+      subtype: WG
+edition:
+  content: '1'
+version:
+- content: draft (2019-04-01)
+note:
+- content: note
+  type: bibnote
+language:
+- en
+- fr
+script:
+- Latn
+abstract:
+- language: en
+  script: Latn
+  content: ISO 19115-1:2014 defines the schema required for ...
+  format: text/plain
+- language: fr
+  script: Latn
+  content: L'ISO 19115-1:2014 définit le schéma requis pour ...
+  format: text/plain
+status:
+  stage:
+    content: '60'
+  substage:
+    content: '60'
+  iteration: final
+copyright:
+- from: '2014'
+  to: '2020'
+  owner:
+  - organization:
+      uri:
+      - content: www.iso.org
+      name:
+      - content: International Organization for Standardization
+      abbreviation:
+        content: ISO
+relation:
+- type: updates
+  bibitem:
+    formattedref:
+      content: ISO 19115:2003
+  locality_stack:
+  - locality:
+    - type: section
+      reference_from: Reference from
+- type: updates
+  bibitem:
+    type: standard
+    formattedref:
+      content: ISO 19115:2003/Cor 1:2006
+series:
+- type: main
+  title:
+  - language: en
+    script: Latn
+    content: ISO/IEC FDIS 10118-3
+    type: title-main
+    format: text/plain
+  place:
+    city: Geneva
+  organization: Serie's organization
+  abbreviation:
+    language: en
+    script: Latn
+    content: ABVR
+  from: '2009-02-01'
+  to: '2010-12-20'
+  number: serie1234
+  partnumber: part5678
+- type: alt
+  formattedref:
+    language: en
+    script: Latn
+    content: serieref
+  title:
+  - content: Series Title
+medium:
+  form: medium form
+  size: medium size
+  scale: medium scale
+place:
+- city: Geneva
+extent:
+- locality:
+  - type: section
+    reference_from: Reference from
+    reference_to: Reference to
+accesslocation:
+- accesslocation1
+- accesslocation2
+classification:
+- content: value
+  type: type
+validity:
+  begins: '2010-10-10T12:21:00+00:00'
+  ends: '2011-02-03T18:30:00+00:00'
+  revision: '2011-03-04T09:00:00+00:00'
+ext:
+  schema_version: v1.1.2
+  doctype:
+    content: international-standard
+  subdoctype: specification
+  flavor: iso
+  ics:
+  - code: 35.240.70
+    text: IT applications in science
+  structuredidentifier:
+    type: sid
+    project_number:
+      part: 2
+      subpart: 2
+      content: ISO 1-2:2014
+    tc_document_number: 1234
+  horizontal: false
+  stagename:
+    content: International Standard published
+  fast_track: false
+  price_code: A
