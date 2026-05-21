@@ -5,7 +5,7 @@ describe Relaton::Iana::Bibdata do
 
   it "round trip" do
     expect(described_class.to_xml(item)).to be_equivalent_to input_xml
-    schema = Jing.new "grammars/relaton-iana-compile.rng"
+    schema = Jing.new "spec/schemas/relaton-iana-compile.rng"
     errors = schema.validate file
     expect(errors).to eq []
   end
