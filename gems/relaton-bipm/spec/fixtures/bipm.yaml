@@ -1,0 +1,296 @@
+---
+id: DraftAgendaNMIDirMeeting2017v10
+schema_version: v1.5.6
+fetched: '2020-09-10'
+type: standard
+title:
+- content: 19th Meeting of the Directors of NMIs and Member State Representatives
+source:
+- type: obp
+  content: http://www.bipm.org/cc/PARTNERS/Allowed/2017_October/2017-09-04-Draft-Agenda-NMI-Dir-Meeting-2017-v10.pdf
+docidentifier:
+- content: Draft-Agenda-NMI-Dir-Meeting-2017-v10
+  type: BIPM
+docnumber: Draft-Agenda-NMI-Dir-Meeting-2017-v10
+date:
+- type: issued
+  at: '2014-01-01'
+- type: effective
+  from: '2014-04-01'
+  to: '2015-12-31'
+- type: supreseded
+  at: '2015-05-20'
+contributor:
+- role:
+  - type: publisher
+    description:
+    - content: Publisher role
+  organization:
+    uri:
+    - content: www.iso.org
+    name:
+    - content: International Organization for Standardization
+    subdivision:
+    - name:
+      - content: division
+    abbreviation:
+      content: ISO
+- role:
+  - type: author
+  person:
+    address:
+    - street:
+      - Street
+      city: City
+      state: State
+      country: Country
+      postcode: '123456'
+    phone:
+    - content: '223322'
+    name:
+      completename:
+        language: en
+        content: A. Bierman
+    affiliation:
+    - organization:
+        name:
+        - content: IETF
+        abbreviation:
+          content: IETF
+        identifier:
+        - type: uri
+          content: www.ietf.org
+- role:
+  - type: publisher
+    description:
+    - content: Publisher description
+  - type: editor
+    description:
+    - content: Editor description
+  organization:
+    name:
+    - content: IETF
+    abbreviation:
+      content: IETF
+    identifier:
+    - type: uri
+      content: www.ietf.org
+- role:
+  - type: author
+  person:
+    address:
+    - street:
+      - Street
+      city: City
+      state: State
+      country: Country
+      postcode: '123456'
+    phone:
+    - content: '223322'
+    name:
+      prefix:
+      - language: en
+        content: Prefix
+      forename:
+      - language: en
+        initial: A.
+      - language: en
+        content: Forename
+      surname:
+        language: en
+        content: Bierman
+      addition:
+      - language: en
+        content: Addition
+    affiliation:
+    - description:
+      - language: en
+        content: Description
+      organization:
+        name:
+        - content: IETF
+        abbreviation:
+          content: IETF
+    identifier:
+    - type: uri
+      content: www.person.com
+- role:
+  - type: distributor
+    description:
+    - content: sponsor
+  organization:
+    name:
+    - content: Institution
+- role:
+  - type: author
+    description:
+    - content: committee
+  organization:
+    name:
+    - content: BIPM
+    subdivision:
+    - name:
+      - language: en
+        script: Latn
+        content: Consultative Committee for Units
+      abbreviation:
+        content: CCU
+      type: committee
+    identifier:
+    - type: workgroup
+edition:
+  number: '1'
+version:
+- content: draft (2019-04-01)
+note:
+- content: note
+- content: An note
+  type: annote
+language:
+- en
+- fr
+script:
+- Latn
+abstract:
+- language: en
+  script: Latn
+  content: The agenda for the first day addresses current issues relating to the BIPM
+    and CIPM and also includes advanced information about plans for the 26th CGPM
+    in 2018.
+  format: text/plain
+- language: fr
+  script: Latn
+  content: Conférence générale des poids et mesures
+  format: text/plain
+status:
+  stage:
+    content: in-force
+copyright:
+- from: '2014'
+  to: '2020'
+  owner:
+  - organization:
+      uri:
+      - content: www.iso.org
+      name:
+      - content: International Organization for Standardization
+      abbreviation:
+        content: ISO
+  scope: Scope
+relation:
+- type: obsoletes
+  bibitem:
+    formattedref:
+      content: ISO 19115:2003
+  locality_stack:
+  - locality:
+    - type: section
+      reference_from: Reference from
+  - locality:
+    - type: chapter
+      reference_from: '1'
+    - type: page
+      reference_from: '2'
+  source_locality_stack:
+  - source_locality:
+    - type: volume
+      reference_from: '2'
+    - type: chapter
+      reference_from: '3'
+- type: obsoletedBy
+  description:
+    content: Obsoleted by
+  bibitem:
+    type: standard
+    formattedref:
+      content: ISO 19115:2003/Cor 1:2006
+series:
+- type: main
+  title:
+  - language: en
+    script: Latn
+    content: ISO/IEC FDIS 10118-3
+    type: original
+  place:
+    city: Serie's place
+  organization: Serie's organization
+  abbreviation:
+    content: ABVR
+  from: '2009-02-01'
+  to: '2010-12-20'
+  number: serie1234
+  partnumber: part5678
+- type: alt
+  formattedref:
+    content: serieref
+  title:
+  - content: Series Title
+- type: alt
+  title:
+  - content: Journal
+  number: '7'
+- title:
+  - language: en
+    script: Latn
+    content: Series
+  - language: fr
+    script: Latn
+    content: Séries
+medium:
+  form: medium form
+  size: medium size
+  scale: medium scale
+place:
+- formatted_place: bib place
+- city: Geneva
+  country:
+  - iso: CH
+    content: Switzeland
+extent:
+- locality:
+  - type: section
+    reference_from: Reference from
+    reference_to: Reference to
+  - type: chapter
+    reference_from: '4'
+  - type: page
+    reference_from: '10'
+    reference_to: '20'
+  - type: volume
+    reference_from: '1'
+accesslocation:
+- accesslocation1
+- accesslocation2
+license:
+- License
+classification:
+- content: value
+  type: type
+- content: Keywords
+  type: keyword
+- content: Mendeley Tags
+  type: mendeley
+keyword:
+- vocab:
+    content: Keyword
+- vocab:
+    content: Key Word
+ext:
+  schema_version: v1.1.2
+  doctype:
+    content: brochure
+  flavor: bipm
+  ics:
+  - code: '13.02'
+    text: Metrology and measurement
+  - code: '1.04'
+    text: Standardization and standards
+  structuredidentifier:
+    docnumber: si-brochure
+    part: '1'
+    appendix: A
+  comment_period:
+    from: '2011-01-01'
+    to: '2011-12-31'
+  si_aspect: A_e_deltanu
+  meeting_note: Meeting note

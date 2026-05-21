@@ -1,0 +1,193 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/v2/data/cipm/meeting/decision/2012-101-1.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Mechanize/2.14.0 Ruby/3.4.7p58 (http://github.com/sparklemotion/mechanize/)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - raw.githubusercontent.com
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '665'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"65dd7ccb68362cd64bbb83bbd0cf1ff3fe1839ef80e666e5c23fc4d9d015ef65"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - DC04:195DE6:B76ED:D741F:6A0CC323
+      Content-Encoding:
+      - gzip
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Tue, 19 May 2026 20:08:05 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kcgs7200175-IAD
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1779221285.486717,VS0,VE74
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - 0fc2ea16a43002c42f2499331d1e9373001ca3db
+      Expires:
+      - Tue, 19 May 2026 20:13:05 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        H4sIAAAAAAAAA7VW22rbQBB911fMW1voSlagoegxl0KgKXnrY1hJY3lA2hV7
+        sZv+Ub4jP9bZta3YsRTbkBqDtYz2nLNzZmYthEioLuD67uH+5vb6Vz7L84tZ
+        fpHYaoGdfFyisaRVAcs8/ZZeJu6pxwJ6oyvEmlRjE0euxSIR0ErVeNlwGFUC
+        YCtDvSvgp3RhWWnlUPH6BisKkJEyYz6Rw+dA+WUPY27ew3h5ngSx2pvqBEHr
+        k1TkpGOgXfSFc70tsmy1WqUl9V2qTZOhyirddeQcos0q4m/fRebHXMSMHVN/
+        JuHcnEM4fUJrqjEuI1dpQ27hS2/RbMIpM2YdOqm06WQWtIhaOim0dxxiHZ0k
+        tVbSIbpQAIIzs3kW0Yj0qWtPTMZ/18ZJPNRW64pqRqQ5oQmFMggI1QShDWCv
+        pLZyrzjMi95QJ81TAc54PL3wR8G/wu0Z+O82xQT+j4/Vv+3eyQSJVqvmY1p5
+        DPYEOZCdicoFoXxXcjFMVQAXWhwpm/Hny5bsAmvGkizlU3hJzC7F7PunJAg0
+        VHqnY20ZHaYjwNu9ISfc5lLR3zgPwjsA3tD6Yeegu1MhxpTscPvWG+/C502m
+        w2fAuuNfoyKhbOHKG5Qe9Bx+IzULZ0GqGu5RWg7YA4bo4zGGDSbtEdVooddU
+        W0AH3KoDvCxLg0vayQCcTRiK+jDP0ruFXu9n9rh/4NhJ7jBiR+3YzfRRDVGo
+        L2taxsrb7nvFmPBr9HiTnl1vBcNcm2nfJpw7xsXo5F6eT7Vv3MBRC48yb1M4
+        XJSDMwMa28xZEwF0A8aLCNe3cn3n8/XKg+1BGrIJ/nFFnDwH/2Ty9IID3PaR
+        KtkTUm9GStjJA7JyfNp6976IJfU6MeKcSP4B5VqpVUgJAAA=
+  recorded_at: Tue, 19 May 2026 20:08:05 GMT
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/v2/data/cipm/meeting/decision/2022-111-10.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Mechanize/2.14.0 Ruby/3.4.7p58 (http://github.com/sparklemotion/mechanize/)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - raw.githubusercontent.com
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '666'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"fce2e80054b54c3bc091ce45c1c02eaff9f84701b69229dda354c44dd7c6156e"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - C3B0:25F8B:8301C2:9D8AF5:6A0CC325
+      Content-Encoding:
+      - gzip
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Tue, 19 May 2026 20:08:05 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kcgs7200078-IAD
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1779221286.863627,VS0,VE101
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - 78a485f119b8793a9d96a23e0d245670e32d0bf5
+      Expires:
+      - Tue, 19 May 2026 20:13:05 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        H4sIAAAAAAAAA7VWy27bMBC86yt4SwuUkq2iOeiYR4EATZFbjwElreUFRFLg
+        w276R/mO/FiXtK3IsRTbQCIYsIkVZ4a7s0tzzhOsC3Z993B/c3v9e07PLJ/l
+        eWKrJUjxuAJjUauCrebpj/QycU8dFKwzugKoUTU2cehaKBLOWqEaLxoKg0oY
+        s5XBzhXsl3BhWWnlQNH6BioMkJEzIz4+n7EvgfPrHsjCvAfy8jyNYrU31QmS
+        Nmep0AlHSEP4pXOdLbJsvV6nJXYy1abJQGWVlhKdA7BZhfTpZKR+zHnM2TH5
+        ZxIuzDmE0ye0phrjMmKdNuiWvvQWzDacEmMmwQmljRRZ0MJr4QTX3lGIdEiB
+        aqNEArhgAU6Z2f7mQV2ePsn2xGR8ujZK4qG2WldYEyIuEEwwSi8g2ImFTmD7
+        ntrpvaI4LTqDUpingjnj4XTvj6N/Y7dnELzbF1MEPz/2BLsWns4Rb7VqPqif
+        x3BPEcSyc3HJF8rLkjwxaQQyXBwt20HoyxbtEmoCE6TmIrzEZ5c8/36RBI0G
+        S+909JjRYU4y9nZvyAu1u1D4L86F8A5j3uDmx+Csw+kQY0pI2L31poDheZPt
+        8PRYd/RtVCQULbvyBoRnesH+ADZLZ5lQNbsHYSlgDxhiLY8xbDFxj6gGyzqN
+        tWXgGLVsDy/K0sAKBxlgZxMGZx/mWXi31Jv9xB739xyD5PajdrQcw0wf1RCF
+        +rLGVfTebt8rxkS9Ro83WbPrnWC20Ga6bhOVO8ZF6Ohenk8t33gBR0t4lHmX
+        wv7C7CvTo1GZKWs8gG7BaBHhulZs7n66Zmm6PQiDNoG/rojT5+A/zTzNKUB9
+        H6mSPSH1dqqEnTQlK0enrYf3RrTU68jYDIrkP8lRYmlUCQAA
+  recorded_at: Tue, 19 May 2026 20:08:05 GMT
+recorded_with: VCR 6.4.0

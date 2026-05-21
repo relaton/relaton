@@ -1,0 +1,94 @@
+---
+id: BIPMSIBrochurePart1
+type: standard
+schema_version: v1.5.6
+title:
+- language: en
+  content: The International System of Units
+  type: title-main
+  format: text/plain
+- language: en
+  content: The International System of Units (SI)
+  type: title-cover
+  format: text/plain
+- language: fr
+  content: Le Système international d’unités
+  type: title-main
+  format: text/plain
+- language: fr
+  content: Le Système international d’unités (SI)
+  type: title-cover
+  format: text/plain
+docidentifier:
+- language: fr
+  content: BIPM SI Brochure Partie 1
+  type: BIPM
+  primary: true
+- language: en
+  content: BIPM SI Brochure Part 1
+  type: BIPM
+  primary: true
+- content: 978-92-822-2272-0
+  type: ISBN
+docnumber: SI Brochure Part 1
+contributor:
+- role:
+  - type: author
+  organization:
+    name:
+    - content: Bureau international des poids et mesures
+    abbreviation:
+      content: BIPM
+- role:
+  - type: publisher
+  organization:
+    name:
+    - content: Bureau international des poids et mesures
+    abbreviation:
+      content: BIPM
+- role:
+  - type: author
+    description:
+    - content: committee
+  organization:
+    name:
+    - content: BIPM
+    subdivision:
+    - name:
+      - language: en
+        script: Latn
+        content: International Bureau of Weights and Measures
+      - language: fr
+        script: Latn
+        content: Bureau International des Poids et Mesures
+      abbreviation:
+        content: BIPM
+      type: committee
+edition:
+  content: '9'
+version:
+- content: v1.07 (2019-05-20)
+language:
+- fr
+- en
+script:
+- Latn
+status:
+  stage:
+    content: in-force
+copyright:
+- from: '2019'
+  owner:
+  - organization:
+      name:
+      - content: Bureau international des poids et mesures
+      abbreviation:
+        content: BIPM
+ext:
+  schema_version: v1.1.2
+  doctype:
+    content: brochure
+  structuredidentifier:
+    docnumber: Brochure
+    part: '1'
+  si_aspect: full

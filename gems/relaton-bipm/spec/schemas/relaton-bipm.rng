@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0">
+  <include href="biblio-standoc.rng">
+    <define name="DocumentType">
+      <choice>
+        <value>brochure</value>
+        <value>mise-en-pratique</value>
+        <value>rapport</value>
+        <value>monographie</value>
+        <value>guide</value>
+        <value>meeting-report</value>
+        <value>technical-report</value>
+        <value>working-party-note</value>
+        <value>strategy</value>
+        <value>cipm-mra</value>
+        <value>resolution</value>
+        <value>policy</value>
+      </choice>
+    </define>
+    <define name="structuredidentifier">
+      <element name="structuredidentifier">
+        <element name="docnumber">
+          <text/>
+        </element>
+        <optional>
+          <element name="part">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="appendix">
+            <text/>
+          </element>
+        </optional>
+      </element>
+    </define>
+  </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <optional>
+      <ref name="comment-period">
+        <a:documentation>Period during which comments are allowed on the document draft</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="si-aspect">
+        <a:documentation>The domain of SI covered by the document; used to select logo in PDF cover page. The logo nominates one primary SI base units, and defining consonants for that unit and possibly others as well</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="meeting-note">
+        <a:documentation>Note on when and where a guide was adopted</a:documentation>
+      </ref>
+    </optional>
+  </define>
+  <define name="comment-period">
+    <element name="comment-period">
+      <element name="from">
+        <ref name="ISO8601Date"/>
+      </element>
+      <element name="to">
+        <ref name="ISO8601Date"/>
+      </element>
+    </element>
+  </define>
+  <define name="si-aspect">
+    <element name="si-aspect">
+      <choice>
+        <value>A_e_deltanu</value>
+        <value>A_e</value>
+        <value>cd_Kcd_h_deltanu</value>
+        <value>cd_Kcd</value>
+        <value>full</value>
+        <value>K_k_deltanu</value>
+        <value>K_k</value>
+        <value>kg_h_c_deltanu</value>
+        <value>kg_h</value>
+        <value>m_c_deltanu</value>
+        <value>m_c</value>
+        <value>mol_NA</value>
+        <value>s_deltanu</value>
+      </choice>
+    </element>
+  </define>
+  <define name="meeting-note">
+    <element name="meeting-note">
+      <text/>
+    </element>
+  </define>
+</grammar>

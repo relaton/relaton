@@ -1,0 +1,324 @@
+schema_version: v1.5.6
+
+id: DraftAgendaNMIDirMeeting2017v10
+
+fetched: "2020-09-10"
+
+title:
+- content: 19th Meeting of the Directors of NMIs and Member State Representatives
+
+type: standard
+
+docidentifier:
+- content: Draft-Agenda-NMI-Dir-Meeting-2017-v10
+  type: BIPM
+
+docnumber: Draft-Agenda-NMI-Dir-Meeting-2017-v10
+edition:
+  number: "1"
+
+language:
+  - en
+  - fr
+
+script:
+  - Latn
+
+version:
+- revision_date: "2019-04-01"
+  draft: draft
+
+note:
+  - content: note
+  - content: An note
+    type: annote
+
+status:
+  stage:
+    content: in-force
+
+date:
+  - type: issued
+    at: "2014-01-01"
+  - type: effective
+    from: "2014-04-01"
+    to: "2015-12-31"
+  - type: supreseded
+    at: "2015-05-20"
+
+abstract:
+  - content: The agenda for the first day addresses current issues relating to the BIPM and CIPM and also includes advanced information about plans for the 26th CGPM in 2018.
+    language: en
+    script: Latn
+    format: text/plain
+  - content: Conférence générale des poids et mesures
+    language: fr
+    script: Latn
+    format: text/plain
+
+contributor:
+  - organization:
+      name:
+      - content: International Organization for Standardization
+      uri:
+        content: www.iso.org
+      abbreviation:
+        content: ISO
+      subdivision:
+      - name:
+        - content: division
+    role:
+    - type: publisher
+      description:
+      - content: Publisher role
+  - person:
+      name:
+        completename:
+          content: A. Bierman
+          language: en
+      affiliation:
+      - organization:
+          name:
+          - content: IETF
+          abbreviation:
+            content: IETF
+          identifier:
+          - type: uri
+            content: www.ietf.org
+      address:
+      - street:
+        - Street
+        city: City
+        postcode: "123456"
+        country: Country
+        state: State
+      phone:
+      - content: "223322"
+    role:
+    - type: author
+  - organization:
+      name:
+      - content: IETF
+      abbreviation:
+        content: IETF
+      identifier:
+      - type: uri
+        content: www.ietf.org
+    role:
+      - type: publisher
+        description:
+        - content: Publisher description
+      - type: editor
+        description:
+        - content: Editor description
+  - person:
+      name:
+        forename:
+        - initial: A.
+          language: en
+        - content: Forename
+          language: en
+        surname:
+          content: Bierman
+          language: en
+        addition:
+        - content: Addition
+          language: en
+        prefix:
+        - content: Prefix
+          language: en
+      affiliation:
+      - organization:
+          name:
+          - content: IETF
+          abbreviation:
+            content: IETF
+        description:
+        - content: Description
+          language: en
+      address:
+      - street:
+        - Street
+        city: City
+        postcode: "123456"
+        country: Country
+        state: State
+      phone:
+      - content: "223322"
+      identifier:
+      - type: uri
+        content: www.person.com
+    role:
+    - type: author
+  - organization:
+      name:
+      - content: Institution
+    role:
+    - type: distributor
+      description:
+      - content: sponsor
+  - organization:
+      name:
+      - content: BIPM
+      subdivision:
+        type: committee
+        name:
+        - content: Consultative Committee for Units
+          language: en
+          script: Latn
+        abbreviation:
+          content: CCU
+      identifier:
+      - type: workgroup
+        name:
+        - content: Work group
+        abbreviation:
+          content: ACRN
+    role:
+    - type: author
+      description:
+      - content: committee
+
+copyright:
+- owner:
+  - organization:
+      name:
+      - content: International Organization for Standardization
+      abbreviation:
+        content: ISO
+      uri:
+        content: www.iso.org
+  from: "2014"
+  to: "2020"
+  scope: Scope
+
+source:
+- type: obp
+  content: http://www.bipm.org/cc/PARTNERS/Allowed/2017_October/2017-09-04-Draft-Agenda-NMI-Dir-Meeting-2017-v10.pdf
+
+relation:
+  - type: obsoletes
+    bibitem:
+      formattedref: ISO 19115:2003
+    locality_stack:
+    - locality:
+      - type: section
+        reference_from: Reference from
+    - locality:
+      - type: chapter
+        reference_from: "1"
+      - type: page
+        reference_from: "2"
+    source_locality_stack:
+      - source_locality:
+        - type: volume
+          reference_from: "2"
+        - type: chapter
+          reference_from: "3"
+  - type: obsoletedBy
+    description:
+      content: Obsoleted by
+    bibitem:
+      type: standard
+      formattedref: ISO 19115:2003/Cor 1:2006
+
+series:
+  - type: main
+    title:
+    - type: original
+      content: ISO/IEC FDIS 10118-3
+      language: en
+      script: Latn
+    place:
+      city: Serie's place
+    organization: Serie's organization
+    abbreviation:
+      content: ABVR
+    from: "2009-02-01"
+    to: "2010-12-20"
+    number: serie1234
+    partnumber: part5678
+  - type: alt
+    formattedref: serieref
+    title:
+    - content: Series Title
+  - type: alt
+    title:
+    - content: Journal
+    number: "7"
+  - title:
+    - content: Series
+      language: en
+      script: Latn
+    - content: Séries
+      language: fr
+      script: Latn
+
+medium:
+  form: medium form
+  size: medium size
+  scale: medium scale
+
+place:
+  - formatted_place: bib place
+  - city: Geneva
+    country:
+      - content: Switzeland
+        iso: CH
+
+extent:
+  - locality:
+    - type: section
+      reference_from: Reference from
+      reference_to: Reference to
+    - type: chapter
+      reference_from: "4"
+    - type: page
+      reference_from: "10"
+      reference_to: "20"
+    - type: volume
+      reference_from: "1"
+
+accesslocation:
+  - accesslocation1
+  - accesslocation2
+
+classification:
+  - type: type
+    content: value
+  - type: keyword
+    content: Keywords
+  - type: mendeley
+    content: Mendeley Tags
+
+keyword:
+  - vocab:
+      content: Keyword
+  - vocab:
+      content: Key Word
+
+license: License
+
+ext:
+  schema_version: v1.1.2
+  doctype:
+    content: brochure
+  flavor: bipm
+
+  ics:
+    - code: 13.020
+      text: Metrology and measurement
+    - code: 01.040
+      text: Standardization and standards
+
+  comment_period:
+    from: '2011-01-01'
+    to: '2011-12-31'
+
+  si_aspect: A_e_deltanu
+  meeting_note: Meeting note
+
+  structuredidentifier:
+    docnumber: si-brochure
+    part: '1'
+    appendix: A
