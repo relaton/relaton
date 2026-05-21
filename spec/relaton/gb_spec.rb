@@ -40,7 +40,7 @@ RSpec.describe Relaton::Gb do
       File.write file_path, xml unless File.exist? file_path
       expect(xml).to be_equivalent_to File.open(file_path, "r:UTF-8", &:read)
         .sub(%r{<fetched>[^<]+</fetched>}, "<fetched>#{Date.today}</fetched>")
-      schema = Jing.new "grammars/relaton-gb-compile.rng"
+      schema = Jing.new "spec/schemas/relaton-gb-compile.rng"
       errors = schema.validate file_path
       expect(errors).to eq []
     end
@@ -57,7 +57,7 @@ RSpec.describe Relaton::Gb do
       File.write file_path, xml unless File.exist? file_path
       expect(xml).to be_equivalent_to File.open(file_path, "r:UTF-8", &:read)
         .sub(%r{<fetched>[^<]+</fetched>}, "<fetched>#{Date.today}</fetched>")
-      schema = Jing.new "grammars/relaton-gb-compile.rng"
+      schema = Jing.new "spec/schemas/relaton-gb-compile.rng"
       errors = schema.validate file_path
       expect(errors).to eq []
     end
@@ -74,7 +74,7 @@ RSpec.describe Relaton::Gb do
       File.write file_path, xml unless File.exist? file_path
       expect(xml).to be_equivalent_to File.open(file_path, "r:UTF-8", &:read)
         .sub(%r{<fetched>[^<]+</fetched>}, "<fetched>#{Date.today}</fetched>")
-      schema = Jing.new "grammars/relaton-gb-compile.rng"
+      schema = Jing.new "spec/schemas/relaton-gb-compile.rng"
       errors = schema.validate file_path
       expect(errors).to eq []
     end
