@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0">
+  <include href="biblio-standoc.rng">
+    <define name="DocumentType">
+      <choice>
+        <value>directive</value>
+        <value>guide</value>
+        <value>specification</value>
+        <value>standard</value>
+        <value>report</value>
+        <value>administrative</value>
+        <value>amendment</value>
+        <value>technical corrigendum</value>
+        <value>advisory</value>
+      </choice>
+    </define>
+  </include>
+</grammar>
