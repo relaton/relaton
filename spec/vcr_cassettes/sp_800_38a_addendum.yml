@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-nist/v2/data/nist-sp-800-38a-add-.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-nist/v2/data/nist-sp-800-38a-add.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"7aed7c9e38f6cf5064cad3a506d491249005ddb5e4eed3eae9533f983d6da049"
+      - W/"46cae0fe4a14dd3df6f8346352129b2554b2361789e3d66658ef2f90c6a70c5a"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - D3BE:24503D:7552:9E70:69F51B33
+      - E2EE:23BF6E:9290D4:B145BA:6A0E6C0C
       Accept-Ranges:
       - bytes
       Date:
-      - Fri, 01 May 2026 21:29:23 GMT
+      - Thu, 21 May 2026 02:21:01 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100081-IAD
+      - cache-iad-kcgs7200114-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1777670964.810518,VS0,VE63
+      - S1779330061.107638,VS0,VE41
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -63,16 +63,16 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 2e478dbf2f196d73e15c20f5e0df3129e07e5b16
+      - a55f4af3f9887e362c6289270e8c833c1fbf26f7
       Expires:
-      - Fri, 01 May 2026 21:34:23 GMT
+      - Thu, 21 May 2026 02:26:01 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
-        LS0tCmlkOiBOSVNUU1A4MDAzOEFBZGQKdHlwZTogc3RhbmRhcmQKc2NoZW1h
-        X3ZlcnNpb246IHYxLjQuMQp0aXRsZToKLSBsYW5ndWFnZTogZW4KICBzY3Jp
+        LS0tCmlkOiBOSVNUU1A4MDAzOEFBZGQKc2NoZW1hX3ZlcnNpb246IHYxLjUu
+        Ngp0eXBlOiBzdGFuZGFyZAp0aXRsZToKLSBsYW5ndWFnZTogZW4KICBzY3Jp
         cHQ6IExhdG4KICBjb250ZW50OiBSZWNvbW1lbmRhdGlvbiBmb3IgYmxvY2sg
         Y2lwaGVyIG1vZGVzIG9mIG9wZXJhdGlvbgogIHR5cGU6IHRpdGxlLW1haW4K
         LSBsYW5ndWFnZTogZW4KICBzY3JpcHQ6IExhdG4KICBjb250ZW50OiB0aHJl
@@ -114,7 +114,7 @@ http_interactions:
         LSBjb250ZW50OiBOSVNUIHNwZWNpYWwgcHVibGljYXRpb247IE5JU1Qgc3Bl
         Y2lhbCBwdWI7IE5JU1QgU1AKICBudW1iZXI6IDgwMC0zOGEtYWRkCnBsYWNl
         OgotIGNpdHk6IEdhaXRoZXJzYnVyZwogIHJlZ2lvbjoKICAtIGlzbzogTUQK
-        ZXh0OgogIHNjaGVtYV92ZXJzaW9uOiB2MS4wLjAKICBkb2N0eXBlOgogICAg
+        ZXh0OgogIHNjaGVtYV92ZXJzaW9uOiB2MS4xLjIKICBkb2N0eXBlOgogICAg
         Y29udGVudDogc3RhbmRhcmQKICBmbGF2b3I6IG5pbHN0Cg==
-  recorded_at: Fri, 01 May 2026 21:29:23 GMT
+  recorded_at: Thu, 21 May 2026 02:21:01 GMT
 recorded_with: VCR 6.4.0
