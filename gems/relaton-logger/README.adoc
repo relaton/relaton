@@ -1,0 +1,136 @@
+= Relaton::Logger
+
+image:https://img.shields.io/gem/v/relaton-logger.svg["Gem Version", link="https://rubygems.org/gems/relaton-logger"]
+image:https://github.com/relaton/relaton-logger/workflows/rake/badge.svg["Build Status", link="https://github.com/relaton/relaton-logger/actions?workflow=rake"]
+image:https://codeclimate.com/github/relaton/relaton-logger/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/relaton/relaton-logger"]
+image:https://img.shields.io/github/issues-pr-raw/relaton/relaton-logger.svg["Pull Requests", link="https://github.com/relaton/relaton-logger/pulls"]
+image:https://img.shields.io/github/commits-since/relaton/relaton-logger/latest.svg["Commits since latest",link="https://github.com/relaton/relaton-logger/releases"]
+
+Relaton::Logger is a Ruby gem that implements a logger for Relaton gems. It is also possible to use this gem as a standalone logger.
+
+== Installation
+
+Install the gem and add to the application's Gemfile by executing:
+
+    $ bundle add relaton-logger
+
+If bundler is not being used to manage dependencies, install the gem by executing:
+
+    $ gem install relaton-logger
+
+== Usage
+
+The Relaton::Logger gem provides a logger pool that can be used to log messages. The logger pool is a singleton and can be accessed by calling `Relaton.logger_pool`. The logger pool is an Array that contains loggers. By default, the logger pool contains a single logger, which is an instance of `Relaton::Logger::Log` class, which inherits the `Logger` class from the Ruby standard library.
+
+The logger pool can be used to log messages by calling the methods of the loggers in the pool. These methods are the same as the methods of the `Logger` class from the Ruby standard library (`debug`, `info`, `warn`, `error`, `fatal`, `unknown`).
+
+[source, ruby]
+----
+require "relaton/logger"
+
+Relaton.logger_pool.info "message"
+INFO: message
+----
+
+The program name and the key can be passed as arguments to the log methods. The program name is a string that is added to the log message. The key is a string that is added to the log message in parentheses.
+
+[source, ruby]
+----
+Relaton.logger_pool.warn "message", "progname", key: "KEY"
+[progname] WARN: (KEY) message
+----
+
+The block form of the log methods can be used to log messages that are expensive to generate. The block is called only if the message is logged.
+
+[source, ruby]
+----
+Relaton.logger_pool.error("progname", key: "KEY") { "message" }
+[progname] ERROR: (KEY) message
+----
+
+The logger pool can be configured to contain multiple loggers. Initially, there is one `:default` logger. Any instance of loggers in the logger pool are accessible with `[]` method. To add or replace a logger use `[]=` method of the logger pool and pass the logger as an argument. The loggers in the pool are called in the order they are added to the pool.
+
+[source, ruby]
+----
+# Access logger
+Relaton.logger_pool[:default]
+ =>
+#<Relaton::Logger::Log:0x00000001212068c8
+
+# Add a new logger
+Relaton.logger_pool[:file] = Relaton::Logger::Log.new("relaton.log", levels: [:info, :warn])
+----
+
+To change the log level of a logger, call the `level=` method of the logger.
+
+[source, ruby]
+----
+Relaton.logger_pool[:default].levels = [:info, :warn, :error]
+Relaton.logger_pool[:default].add_level :fatal
+Relaton.logger_pool[:default].remove_level :warn
+----
+
+To create a new logger, call the `new` method of the `Relaton::Logger::Log` class and pass arguments:
+
+- `logdev` - file name or an IO object. If nil or File::NULL, messages are not logged. If it is a file name, the file is opened in append mode. If it is an IO object, messages are written to it.
+- `shift_age` - the number of old log files to keep. If 0, no old log files are kept. If it is a number, old log files are kept and the log file is rotated when it reaches the maximum size. If it is a string, old log files are kept and the log file is rotated when it reaches the maximum size. The string is a time unit and a number, for example, "daily 7" or "weekly 4". Default is 0.
+- `shift_size` - the maximum size of the log file. If it is a number, the log file is rotated when it reaches the maximum size. If it is a string, the log file is rotated when it reaches the maximum size. The string is a number and a time unit, for example, "1048576" or "1M". Default is 1048576.
+- `levels` - an array of symbols that represent the log levels The log levels are `:debug`, `:info`, `:warn`, `:error`, `:fatal`, `:unknown`. Default is `[:info, :warn, :error, :fatal, :unknown]`.
+- `formatter` - a formatter object that is used to format the log messages. Two formatters are available at this moment `Relaton::Logger::FormatterString`, `Relaton::Logger::FormatterJson`, and `Proc`. The default formater is `Relaton::Logger::FormatterString`.
+- `progname` - a string that is added to the log message. Default is nil.
+
+[source, ruby]
+----
+Relaton::Logger::Log.new("relaton.log", levels: [:info, :warn], formatter: Relaton::Logger::FormatterJSON, progname: "progname")
+----
+
+To create a custom formatter implement a class with the `call` method which takes agruments:
+
+- `severity` - the log level
+- `time` - the time the message was logged
+- `progname` - the program name
+- `msg` - the message
+- any other keyword arguments that are passed to the log method, for example, `key`
+
+[source, ruby]
+----
+class CustomFormatter
+  def call(severity, time, progname, msg, key: "Key 1")
+    "#{time} [#{severity}] #{progname} (#{key}): #{msg}\n"
+  end
+end
+
+Relaton::Logger::Log.new("relaton.log", formatter: CustomFormatter)
+----
+
+It's possible to use `Proc` as a formatter. The `Proc` object is called with the same arguments as the `call` method of the custom formatter.
+
+[source, ruby]
+----
+log = Relaton::Logger::Log.new("relaton.log")
+
+log.formatter = Proc.new do |severity, time, progname, msg, key: "Key 1"|
+  "#{time} [#{severity}] #{progname} (#{key}): #{msg}\n"
+end
+----
+
+A log file can be cleared by calling the `truncate` method of the logger pool.
+
+[source, ruby]
+----
+Relaton.logger_pool.truncate
+----
+
+== Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+== Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/relaton/relaton-logger.
+
+== License
+
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
