@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="biblio-standoc.rng">
+    <define name="DocumentType">
+      <choice>
+        <value>japanese-industrial-standard</value>
+        <value>technical-report</value>
+        <value>technical-specification</value>
+        <value>amendment</value>
+      </choice>
+    </define>
+    <define name="structuredidentifier">
+      <element name="structuredidentifier">
+        <optional>
+          <attribute name="type"/>
+        </optional>
+        <group>
+          <ref name="documentnumber"/>
+          <optional>
+            <ref name="tc-documentnumber"/>
+          </optional>
+        </group>
+      </element>
+    </define>
+  </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <optional>
+      <ref name="stagename">
+        <a:documentation>Human-readable name of the stage of publication, corresponding to the numeric stage code given in `/bibdata/status/stage`</a:documentation>
+      </ref>
+    </optional>
+  </define>
+  <define name="documentnumber">
+    <element name="project-number">
+      <optional>
+        <attribute name="part">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="subpart">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="amendment">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="corrigendum">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="origyr">
+          <ref name="ISO8601Date"/>
+        </attribute>
+      </optional>
+      <text/>
+    </element>
+  </define>
+  <define name="tc-documentnumber">
+    <element name="tc-document-number">
+      <data type="int"/>
+    </element>
+  </define>
+  <define name="stagename">
+    <element name="stagename">
+      <optional>
+        <attribute name="abbreviation"/>
+      </optional>
+      <text/>
+    </element>
+  </define>
+</grammar>
