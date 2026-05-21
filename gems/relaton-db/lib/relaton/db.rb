@@ -1,9 +1,16 @@
+require "relaton/bib"
+require "yaml"
+require "net/http"
+require "nokogiri"
+require "fileutils"
+require "date"
+
 module Relaton
   class Db
     # @param global_cache [String] directory of global DB
     # @param local_cache [String] directory of local DB
     def initialize(global_cache, local_cache)
-      @registry = Relaton::Registry.instance
+      @registry = Registry.instance
       gpath = global_cache && File.expand_path(global_cache)
       @db = open_cache_biblio(gpath)
       lpath = local_cache && File.expand_path(local_cache)
@@ -53,14 +60,7 @@ module Relaton
     #  after this date (inclusive, formats: "YYYY", "YYYY-MM",
     #  or "YYYY-MM-DD")
     #
-    # @return [nil, RelatonBib::BibliographicItem,
-    #   RelatonIsoBib::IsoBibliographicItem, RelatonItu::ItuBibliographicItem,
-    #   RelatonIetf::IetfBibliographicItem, RelatonIec::IecBibliographicItem,
-    #   RelatonIeee::IeeeBibliographicItem, RelatonNist::NistBibliongraphicItem,
-    #   RelatonGb::GbbibliographicItem, RelatonOgc::OgcBibliographicItem,
-    #   RelatonCalconnect::CcBibliographicItem, RelatinUn::UnBibliographicItem,
-    #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
-    #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
+    # @return [nil, RelatonBib::BibliographicItem, ...]
     ##
     def fetch(text, year = nil, opts = {})
       reference = text.strip
@@ -132,24 +132,6 @@ module Relaton
       end
     end
 
-    # @param code [String]
-    # @param year [String, NilClass]
-    # @param stdclass [Symbol, NilClass]
-    #
-    # @param opts [Hash]
-    # @option opts [Boolean] :all_parts If all-parts reference is required
-    # @option opts [Boolean] :keep_year If undated reference should return
-    #   actual reference with year
-    # @option opts [Integer] :retries (1) Number of network retries
-    #
-    # @return [nil, RelatonBib::BibliographicItem,
-    #   RelatonIsoBib::IsoBibliographicItem, RelatonItu::ItuBibliographicItem,
-    #   RelatonIetf::IetfBibliographicItem, RelatonIec::IecBibliographicItem,
-    #   RelatonIeee::IeeeBibliographicItem, RelatonNist::NistBibliongraphicItem,
-    #   RelatonGb::GbbibliographicItem, RelatonOgc::OgcBibliographicItem,
-    #   RelatonCalconnect::CcBibliographicItem, RelatinUn::UnBibliographicItem,
-    #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
-    #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def fetch_std(code, year = nil, stdclass = nil, opts = {})
       std = nil
       @registry.processors.each do |name, processor|
@@ -194,28 +176,14 @@ module Relaton
 
     private
 
-    # @param (see #fetch_api)
-    # @return (see #fetch_api)
     def fetch_doc(code, year, opts, processor)
-      if Relaton.configuration.use_api then fetch_api(code, year, opts,
-                                                      processor)
+      if Db.configuration.use_api then fetch_api(code, year, opts, processor)
       else processor.get(code, year, opts)
       end
     end
 
-    #
-    # @param code [String]
-    # @param year [String]
-    #
-    # @param opts [Hash]
-    # @option opts [Boolean] :all_parts If all-parts reference is required
-    # @option opts [Boolean] :keep_year If undated reference should return
-    #   actual reference with year
-    #
-    # @param processor [Relaton::Processor]
-    # @return [RelatonBib::BibliographicItem, nil]
     def fetch_api(code, year, opts, processor)
-      url = "#{Relaton.configuration.api_host}" \
+      url = "#{Db.configuration.api_host}" \
             "/api/v1/document?#{params(code, year, opts)}"
       rsp = Net::HTTP.get_response URI(url)
       processor.from_xml rsp.body if rsp.code == "200"
@@ -223,36 +191,16 @@ module Relaton
       processor.get(code, year, opts)
     end
 
-    #
-    # Make string of parametrs
-    #
-    # @param [String] code
-    # @param [String] year
-    # @param [Hash] opts
-    #
-    # @return [String]
-    #
     def params(code, year, opts)
       opts.merge(code: code, year: year).map { |k, v| "#{k}=#{v}" }.join "&"
     end
 
-    # @param file [String] file path
-    # @param xml [String] content in XML format
-    # @param text [String, nil] text to serach
-    # @param edition [String, nil] edition to filter
-    # @param year [Integer, nil] year to filter
-    # @return [BibliographicItem, nil]
     def search_xml(file, xml, text, edition, year)
       return unless text.nil? || match_xml_text?(xml, text)
 
       search_edition_year(file, xml, edition, year)
     end
 
-    # @param file [String] file path
-    # @param content [String] content in XML or YAML format
-    # @param edition [String, nil] edition to filter
-    # @param year [Integer, nil] year to filter
-    # @return [BibliographicItem, nil]
     def search_edition_year(file, content, edition, year) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       processor = @registry.processor_by_ref(file.split("/")[-2])
       item = if file.match?(/xml$/) then processor.from_xml(content)
@@ -264,14 +212,6 @@ module Relaton
         end)
     end
 
-    #
-    # Look up text in the XML elements attributes and content
-    #
-    # @param xml [String] content in XML format
-    # @param text [String, nil] text to serach
-    #
-    # @return [Boolean]
-    #
     def match_xml_text?(xml, text)
       esc = Regexp.escape(text)
       pat = "((?<attr>=((?<apstr>')|\"" \
@@ -281,18 +221,6 @@ module Relaton
         .match?(xml)
     end
 
-    # @param code [String]
-    # @param year [String, nil]
-    # @param stdslass [String]
-    #
-    # @param opts [Hash] options
-    # @option opts [Boolean] :all_parts If all-parts reference is required
-    # @option opts [Boolean] :keep_year If undated reference should return
-    #   actual reference with year
-    # @option opts [Integer] :retries (1) Number of network retries
-    #
-    # @return [nil, Relaton::Bib::ItemData
-    #
     def combine_doc(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       return if stdclass == :relaton_bipm
 
@@ -323,19 +251,6 @@ module Relaton
       end
     end
 
-    # TODO: i18n
-    # Fofmat ID
-    # @param code [String]
-    # @param year [String]
-    #
-    # @param opts [Hash]
-    # @option opts [Boolean] :all_parts If all-parts reference is required
-    # @option opts [Boolean] :keep_year If undated reference should return
-    #   actual reference with year
-    # @option opts [Integer] :retries (1) Number of network retries
-    #
-    # @param stdClass [Symbol]
-    # @return [Array<String>] docid and code
     def std_id(code, year, opts, stdclass)
       prefix, code = strip_id_wrapper(code, stdclass)
       ret = code
@@ -348,59 +263,23 @@ module Relaton
       ["#{prefix}(#{ret.strip})", code]
     end
 
-    # Find prefix and clean code
-    # @param code [String]
-    # @param stdClass [Symbol]
-    # @return [Array]
     def strip_id_wrapper(code, stdclass)
       prefix = @registry[stdclass].prefix
       code =
         if code.is_a?(String)
-          code.sub("\u2013", "-").sub(/^#{prefix}\((.+)\)$/, "\\1")
+          code.sub("–", "-").sub(/^#{prefix}\((.+)\)$/, "\\1")
         else code.to_s
         end
       [prefix, code]
     end
 
-    #
-    # @param entry [String, nil] XML string
-    # @param stdclass [Symbol]
-    #
-    # @return [nil, RelatonBib::BibliographicItem,
-    #   RelatonIsoBib::IsoBibliographicItem, RelatonItu::ItuBibliographicItem,
-    #   RelatonIetf::IetfBibliographicItem, RelatonIec::IecBibliographicItem,
-    #   RelatonIeee::IeeeBibliographicItem, RelatonNist::NistBibliongraphicItem,
-    #   RelatonGb::GbbibliographicItem, RelatonOgc::OgcBibliographicItem,
-    #   RelatonCalconnect::CcBibliographicItem, RelatinUn::UnBibliographicItem,
-    #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
-    #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def bib_retval(entry, stdclass)
       if entry && !entry.match?(/^not_found/)
         @registry[stdclass].from_xml(entry)
       end
     end
 
-    # @param code [String]
-    # @param year [String]
-    #
-    # @param opts [Hash]
-    # @option opts [Boolean] :all_parts If all-parts reference is required
-    # @option opts [Boolean] :keep_year If undated reference should return
-    #   actual reference with year
-    # @option opts [Integer] :retries (1) Number of network retries
-    #
-    # @param stdclass [Symbol]
-    # @return [nil, RelatonBib::BibliographicItem,
-    #   RelatonIsoBib::IsoBibliographicItem, RelatonItu::ItuBibliographicItem,
-    #   RelatonIetf::IetfBibliographicItem, RelatonIec::IecBibliographicItem,
-    #   RelatonIeee::IeeeBibliographicItem, RelatonNist::NistBibliongraphicItem,
-    #   RelatonGb::GbbibliographicItem, RelatonOgc::OgcBibliographicItem,
-    #   RelatonCalconnect::CcBibliographicItem, RelatinUn::UnBibliographicItem,
-    #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
-    #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
     def check_bibliocache(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
-      # When date filters are present, check if the base
-      # (non-date-filtered) cache entry satisfies the range
       if opts[:publication_date_before] || opts[:publication_date_after]
         base_opts = opts.except(
           :publication_date_before, :publication_date_after
@@ -447,27 +326,6 @@ module Relaton
       bib_retval(db[id], stdclass)
     end
 
-    #
-    # Create new bibliographic entry if it doesn't exist in database
-    #
-    # @param code [String]
-    # @param year [String]
-    #
-    # @param opts [Hash]
-    # @option opts [Boolean, nil] :all_parts If true then all-parts reference is
-    #   requested
-    # @option opts [Boolean, nil] :keep_year If true then undated reference
-    #   should return actual reference with year
-    # @option opts [Integer] :retries (1) Number of network retries
-    # @option opts [Boolean] :no_cache If true then don't use cache
-    #
-    # @param stdclass [Symbol]
-    # @param db [Relaton::DbCache,`nil]
-    # @param id [String, nil] docid
-    #
-    # @return [String] bibliographic entry
-    #   XML or "redirection ID" or "not_found YYYY-MM-DD" string
-    #
     def new_bib_entry(code, year, opts, stdclass, **args)
       entry = @semaphore.synchronize { args[:db] && args[:db][args[:id]] }
       if !entry || opts[:no_cache]
@@ -493,21 +351,9 @@ module Relaton
       args[:no_cache] ? bib_entry(bib) : entry
     end
 
-    #
-    # If the reference isn't equal to the document identifier
-    # then store the document in the cache and create
-    # for the reference a redirection to the document
-    #
-    # @param [<Type>] bib <description>
-    # @param [<Type>] stdclass <description>
-    # @param [<Type>] **args <description>
-    #
-    # @return [<Type>] <description>
-    #
     def check_entry(bib, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       bib_id = bib && bib.docidentifier.first&.content
 
-      # when ref isn't equal to bib's id then return a redirection to bib's id
       quoted = Regexp.quote("(#{bib_id})")
       if args[:db] && args[:id] && bib_id &&
           args[:id] !~ /#{quoted}/
@@ -518,21 +364,6 @@ module Relaton
       end
     end
 
-    #
-    # @param code [String]
-    # @param year [String]
-    #
-    # @param opts [Hash]
-    # @option opts [Boolean] :all_parts If all-parts reference is required
-    # @option opts [Boolean] :keep_year If undated reference should return
-    #   actual reference with year
-    #
-    # @param processor [Relaton::Processor]
-    # @param retries [Integer] remain Number of network retries
-    #
-    # @raise [RelatonBib::RequestError]
-    # @return [RelatonBib::BibliographicItem]
-    #
     def net_retry(code, year, opts, processor, retries)
       fetch_doc code, year, opts, processor
     rescue Relaton::RequestError => e
@@ -541,15 +372,6 @@ module Relaton
       net_retry(code, year, opts, processor, retries - 1)
     end
 
-    # @param bib [RelatonBib::BibliographicItem,
-    #   RelatonIsoBib::IsoBibliographicItem, RelatonItu::ItuBibliographicItem,
-    #   RelatonIetf::IetfBibliographicItem, RelatonIec::IecBibliographicItem,
-    #   RelatonIeee::IeeeBibliographicItem, RelatonNist::NistBibliongraphicItem,
-    #   RelatonGb::GbbibliographicItem, RelatonOgc::OgcBibliographicItem,
-    #   RelatonCalconnect::CcBibliographicItem, RelatinUn::UnBibliographicItem,
-    #   RelatonBipm::BipmBibliographicItem, RelatonIho::IhoBibliographicItem,
-    #   RelatonOmg::OmgBibliographicItem, RelatonW3c::W3cBibliographicItem]
-    # @return [String] XML or "not_found mm-dd-yyyy"
     def bib_entry(bib)
       if bib.respond_to?(:to_xml)
         bib.to_xml(bibdata: true)
@@ -558,12 +380,6 @@ module Relaton
       end
     end
 
-    # Check if an XML entry's published date falls within the requested range.
-    # Range semantics: [after, before) — inclusive start, exclusive end.
-    #
-    # @param entry [String] XML string
-    # @param opts [Hash]
-    # @return [Boolean]
     def pub_date_in_range?(entry, opts) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       doc = Nokogiri::XML(entry)
       date_str = doc.at("//date[@type='published']/on")&.text
@@ -581,9 +397,6 @@ module Relaton
       true
     end
 
-    # @param str [String] date string in "YYYY", "YYYY-MM",
-    #   or "YYYY-MM-DD" format
-    # @return [Date, nil]
     def parse_pub_date(str)
       case str
       when /^\d{4}-\d{1,2}-\d{1,2}/ then Date.parse(str)
@@ -594,12 +407,10 @@ module Relaton
       nil
     end
 
-    # @param dir [String, nil] DB directory
-    # @return [Relaton::DbCache, NilClass]
     def open_cache_biblio(dir) # rubocop:disable Metrics/MethodLength
       return nil if dir.nil?
 
-      db = DbCache.new dir
+      db = Cache.new dir
 
       Dir["#{dir}/*/"].each do |fdir|
         next if db.check_version?(fdir)
@@ -610,9 +421,6 @@ module Relaton
       db
     end
 
-    # @param qwp [Hash]
-    # @option qwp [Queue] :queue The queue of references to fetch
-    # @option qwp [Relaton::WorkersPool] :workers_pool The pool of workers
     def process_queue(qwp)
       while args = qwp[:queue].pop; qwp[:workers_pool] << args end
     end
@@ -632,7 +440,7 @@ module Relaton
         globalname = global_bibliocache_name if opts[:global_cache]
         localname = local_bibliocache_name(opts[:local_cache])
         flush_caches globalname, localname if opts[:flush_caches]
-        Relaton::Db.new(globalname, localname)
+        new(globalname, localname)
       end
 
       def flush_caches(gcache, lcache)
@@ -653,3 +461,10 @@ module Relaton
     end
   end
 end
+
+require_relative "db/version"
+require_relative "db/util"
+require_relative "db/config"
+require_relative "db/workers_pool"
+require_relative "db/cache"
+require_relative "db/registry"

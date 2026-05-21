@@ -2,7 +2,7 @@ RSpec.describe Relaton::Db do
   before :each do |example|
     FileUtils.rm_rf %w(testcache testcache2)
     @db = Relaton::Db.new "testcache", "testcache2"
-    Relaton.instance_variable_set :@configuration, nil
+    Relaton::Db.instance_variable_set :@configuration, nil
 
     if example.metadata[:vcr]
       require "relaton/index"
@@ -41,7 +41,7 @@ RSpec.describe Relaton::Db do
         xml = bib.to_xml
         expect(xml).to include 'id="ISO191332005"'
         expect(xml).to include 'type="standard"'
-        testcache = Relaton::DbCache.new "testcache"
+        testcache = Relaton::Db::Cache.new "testcache"
         expect(
           testcache.valid_entry?("ISO(ISO 19133:2005)", Date.today.year.to_s),
         ).to eq Date.today.year.to_s
@@ -129,10 +129,10 @@ RSpec.describe Relaton::Db do
       expect(bib).to be_nil
       expect(File.exist?("testcache")).to be true
       expect(File.exist?("testcache2")).to be true
-      testcache = Relaton::DbCache.new "testcache"
+      testcache = Relaton::Db::Cache.new "testcache"
       expect(testcache.fetched("ISO(ISO 111111119115-1)")).to eq Date.today.to_s
       expect(testcache["ISO(ISO 111111119115-1)"]).to include "not_found"
-      testcache = Relaton::DbCache.new "testcache2"
+      testcache = Relaton::Db::Cache.new "testcache2"
       expect(testcache.fetched("ISO(ISO 111111119115-1)")).to eq Date.today.to_s
       expect(testcache["ISO(ISO 111111119115-1)"]).to include "not_found"
     end
@@ -155,9 +155,9 @@ RSpec.describe Relaton::Db do
     expect(@db.load_entry("not existed key")).to be_nil
     @db.save_entry "test key", nil
     expect(@db.load_entry("test key")).to be_nil
-    testcache = Relaton::DbCache.new "testcache"
+    testcache = Relaton::Db::Cache.new "testcache"
     testcache.delete("test_key")
-    testcache2 = Relaton::DbCache.new "testcache2"
+    testcache2 = Relaton::Db::Cache.new "testcache2"
     testcache2.delete("test_key")
     expect(@db.load_entry("test key")).to be_nil
   end
@@ -172,11 +172,11 @@ RSpec.describe Relaton::Db do
         XML
         expect(File.exist?("testcache")).to be true
         expect(File.exist?("testcache2")).to be true
-        testcache = Relaton::DbCache.new "testcache"
+        testcache = Relaton::Db::Cache.new "testcache"
         expect(testcache["CN(GB/T 20223-2006)"]).to include <<~XML
           <project-number origyr="2006">GB/T 20223-2006</project-number>
         XML
-        testcache = Relaton::DbCache.new "testcache2"
+        testcache = Relaton::Db::Cache.new "testcache2"
         expect(testcache["CN(GB/T 20223-2006)"]).to include <<~XML
           <project-number origyr="2006">GB/T 20223-2006</project-number>
         XML
@@ -192,11 +192,11 @@ RSpec.describe Relaton::Db do
         XML
         expect(File.exist?("testcache")).to be true
         expect(File.exist?("testcache2")).to be true
-        testcache = Relaton::DbCache.new "testcache"
+        testcache = Relaton::Db::Cache.new "testcache"
         expect(testcache["CN(GB/T 20223-2006)"]).to include <<~XML
           <project-number origyr="2006">GB/T 20223-2006</project-number>
         XML
-        testcache = Relaton::DbCache.new "testcache2"
+        testcache = Relaton::Db::Cache.new "testcache2"
         expect(testcache["CN(GB/T 20223-2006)"]).to include <<~XML
           <project-number origyr="2006">GB/T 20223-2006</project-number>
         XML
@@ -213,11 +213,11 @@ RSpec.describe Relaton::Db do
       )
       expect(File.exist?("testcache")).to be true
       expect(File.exist?("testcache2")).to be true
-      testcache = Relaton::DbCache.new "testcache"
+      testcache = Relaton::Db::Cache.new "testcache"
       expect(testcache["IETF(RFC 8341)"]).to include(
         '<docidentifier type="IETF" primary="true">RFC 8341</docidentifier>',
       )
-      testcache = Relaton::DbCache.new "testcache2"
+      testcache = Relaton::Db::Cache.new "testcache2"
       expect(testcache["IETF(RFC 8341)"]).to include(
         '<docidentifier type="IETF" primary="true">RFC 8341</docidentifier>',
       )
@@ -679,7 +679,7 @@ RSpec.describe Relaton::Db do
       processor = double "processor", short: :relaton_iso
       expect(processor).to receive(:grammar_hash)
         .and_return("new_version").exactly(2).times
-      expect(Relaton::Registry.instance)
+      expect(Relaton::Db::Registry.instance)
         .to receive(:by_type)
         .and_return(processor).exactly(2).times
       Relaton::Db.new "testcache", "testcache2"
@@ -690,14 +690,14 @@ RSpec.describe Relaton::Db do
 
   context "api.relaton.org" do
     before(:each) do
-      Relaton.configure do |config|
+      Relaton::Db.configure do |config|
         config.use_api = true
         # config.api_host = "http://0.0.0.0:9292"
       end
     end
 
     after(:each) do
-      Relaton.configure do |config|
+      Relaton::Db.configure do |config|
         config.use_api = false
       end
     end

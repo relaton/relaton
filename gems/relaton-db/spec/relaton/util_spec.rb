@@ -1,3 +1,3 @@
-describe Relaton::Util do
+describe Relaton::Db::Util do
   it { expect(described_class).to be_a Module }
 end

@@ -1,6 +1,6 @@
 RSpec.describe Relaton::Db do
   before(:each) do |example|
-    # Relaton.instance_variable_set :@configuration, nil
+    # Relaton::Db.instance_variable_set :@configuration, nil
     FileUtils.rm_rf %w[testcache testcache2]
 
     if example.metadata[:vcr]
@@ -547,7 +547,7 @@ RSpec.describe Relaton::Db do
     it "use threads number from RELATON_FETCH_PARALLEL" do
       expect(ENV).to receive(:[]).with("RELATON_FETCH_PARALLEL").and_return(1)
       allow(ENV).to receive(:[]).and_call_original
-      expect(Relaton::WorkersPool).to receive(:new).with(1).and_call_original
+      expect(Relaton::Db::WorkersPool).to receive(:new).with(1).and_call_original
       expect(subject).to receive(:fetch).with("ITU-T G.993.5", nil, {})
       subject.fetch_async("ITU-T G.993.5") { |r| queue << r }
       Timeout.timeout(50) { queue.pop }

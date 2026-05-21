@@ -24,9 +24,9 @@ SimpleCov.start do
   add_filter "/spec/"
 end
 
-require "relaton"
+require "relaton/db"
 
-Relaton.configure do |config|
+Relaton::Db.configure do |config|
   config.use_api = false
 end
 

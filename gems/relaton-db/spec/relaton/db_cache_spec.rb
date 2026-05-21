@@ -1,7 +1,7 @@
 require "fileutils"
 require "timeout"
 
-RSpec.describe Relaton::DbCache do
+RSpec.describe Relaton::Db::Cache do
   it "creates default caches" do
     cache_path = File.expand_path("~/.relaton/cache")
     FileUtils.mv cache_path, "relaton1/cache", force: true
@@ -21,8 +21,8 @@ RSpec.describe Relaton::DbCache do
     file = File.open(file_name, File::RDWR | File::CREAT, encoding: "UTF-8") # rubocop:disable Style/FileOpen
     file.flock File::LOCK_EX
     command = <<~RBY
-      require "relaton"
-      cache = Relaton::DbCache.new "testcache"
+      require "relaton/db"
+      cache = Relaton::Db::Cache.new "testcache"
       cache["ISO(ISO 123)"] = "test 1"
     RBY
     pid = spawn RbConfig.ruby, "-e #{command}"
@@ -38,7 +38,7 @@ RSpec.describe Relaton::DbCache do
 
   context "delete file from cache" do
     it "delete redirect file and its original" do
-      cache = Relaton::DbCache.new "testcache"
+      cache = Relaton::Db::Cache.new "testcache"
       cache["ISO(ISO 123)"] = "test 1"
       cache["ISO(123)"] = "redirection ISO(ISO 123)"
       expect(File.exist?("testcache/iso/iso_123.xml")).to be true
