@@ -1,0 +1,108 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-nist/v2/data/nistir-5667v4.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - raw.githubusercontent.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1442'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"6d711cc0a6bd7690dc323e98ef9650bfe42647d686079ed4861ffeeaf8a7ccaf"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - 1D6A:239F33:E69D95:118B856:6A0E68F1
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Thu, 21 May 2026 02:07:46 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kjyo7100033-IAD
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1779329267.693312,VS0,VE81
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - d15b702448980614044a0423f49a7f1f3360f208
+      Expires:
+      - Thu, 21 May 2026 02:12:46 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        LS0tCmlkOiBOSVNUSVI1NjY3djQKc2NoZW1hX3ZlcnNpb246IHYxLjUuNgp0
+        eXBlOiBzdGFuZGFyZAp0aXRsZToKLSBsYW5ndWFnZTogZW4KICBzY3JpcHQ6
+        IExhdG4KICBjb250ZW50OiBBIHN0dWR5IG9mIHBvdGVudGlhbCBhcHBsaWNh
+        dGlvbnMgb2YgYXV0b21hdGlvbiBhbmQgcm9ib3RpY3MgdGVjaG5vbG9neQog
+        ICAgaW4gY29uc3RydWN0aW9uLCBtYWludGVuYW5jZSBhbmQgb3BlcmF0aW9u
+        IG9mIGhpZ2h3YXkgc3lzdGVtcwogIHR5cGU6IHRpdGxlLW1haW4KLSBsYW5n
+        dWFnZTogZW4KICBzY3JpcHQ6IExhdG4KICBjb250ZW50OiBhIGZpbmFsIHJl
+        cG9ydAogIHR5cGU6IHRpdGxlLXBhcnQKLSBsYW5ndWFnZTogZW4KICBzY3Jp
+        cHQ6IExhdG4KICBjb250ZW50OiBBIHN0dWR5IG9mIHBvdGVudGlhbCBhcHBs
+        aWNhdGlvbnMgb2YgYXV0b21hdGlvbiBhbmQgcm9ib3RpY3MgdGVjaG5vbG9n
+        eQogICAgaW4gY29uc3RydWN0aW9uLCBtYWludGVuYW5jZSBhbmQgb3BlcmF0
+        aW9uIG9mIGhpZ2h3YXkgc3lzdGVtcyAtIGEgZmluYWwgcmVwb3J0CiAgdHlw
+        ZTogbWFpbgpzb3VyY2U6Ci0gdHlwZTogZG9pCiAgY29udGVudDogaHR0cHM6
+        Ly9kb2kub3JnLzEwLjYwMjgvTklTVC5JUi41NjY3djQKZG9jaWRlbnRpZmll
+        cjoKLSBjb250ZW50OiBOSVNUIElSIDU2Njd2NAogIHR5cGU6IE5JU1QKICBw
+        cmltYXJ5OiB0cnVlCi0gY29udGVudDogTklTVC5JUi41NjY3djQKICB0eXBl
+        OiBET0kKZGF0ZToKLSB0eXBlOiBpc3N1ZWQKICBhdDogJzE5OTUnCmNvbnRy
+        aWJ1dG9yOgotIHJvbGU6CiAgLSB0eXBlOiBhdXRob3IKICBwZXJzb246CiAg
+        ICBuYW1lOgogICAgICBjb21wbGV0ZW5hbWU6CiAgICAgICAgbGFuZ3VhZ2U6
+        IGVuCiAgICAgICAgY29udGVudDogS2VudCwgRXJuZXN0IFcuCiAgICBpZGVu
+        dGlmaWVyOgogICAgLSB0eXBlOiB1cmkKICAgICAgY29udGVudDogaHR0cHM6
+        Ly9pZC5sb2MuZ292L2F1dGhvcml0aWVzL25hbWVzL244MDA3ODQ4MQotIHJv
+        bGU6CiAgLSB0eXBlOiBwdWJsaXNoZXIKICBvcmdhbml6YXRpb246CiAgICBu
+        YW1lOgogICAgLSBjb250ZW50OiBOYXRpb25hbCBJbnN0aXR1dGUgb2YgU3Rh
+        bmRhcmRzIGFuZCBUZWNobm9sb2d5IChVLlMuKQogICAgaWRlbnRpZmllcjoK
+        ICAgIC0gdHlwZTogdXJpCiAgICAgIGNvbnRlbnQ6IGh0dHBzOi8vaWQubG9j
+        Lmdvdi9hdXRob3JpdGllcy9uYW1lcy9uODgxMTIxMjYKc2VyaWVzOgotIHRp
+        dGxlOgogIC0gY29udGVudDogTklTVElSOyBOSVNUIElSOyBOSVNUIGludGVy
+        YWdlbmN5IHJlcG9ydDsgTklTVCBpbnRlcm5hbCByZXBvcnQKICBudW1iZXI6
+        IDU2Njd2NApwbGFjZToKLSBjaXR5OiBHYWl0aGVyc2J1cmcKICByZWdpb246
+        CiAgLSBpc286IE1ECmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjEuMS4yCiAg
+        ZG9jdHlwZToKICAgIGNvbnRlbnQ6IHN0YW5kYXJkCiAgZmxhdm9yOiBuaWxz
+        dAo=
+  recorded_at: Thu, 21 May 2026 02:07:46 GMT
+recorded_with: VCR 6.4.0

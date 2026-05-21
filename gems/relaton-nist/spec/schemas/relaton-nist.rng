@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0">
+  <include href="biblio-standoc.rng">
+    <define name="DocumentType">
+      <value>standard</value>
+    </define>
+  </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <optional>
+      <ref name="commentperiod">
+        <a:documentation>The period during which comments may be submitted to the NIST document draft</a:documentation>
+      </ref>
+    </optional>
+  </define>
+  <define name="DocRelationType" combine="choice">
+    <choice>
+      <value>obsoletedBy</value>
+      <value>supersedes</value>
+      <value>supersededBy</value>
+    </choice>
+  </define>
+  <define name="BibliographicDateType" combine="choice">
+    <choice>
+      <value>abandoned</value>
+      <value>superseded</value>
+    </choice>
+  </define>
+  <define name="commentperiod">
+    <a:documentation>The period during which comments may be submitted to the NIST document draft</a:documentation>
+    <element name="commentperiod">
+      <element name="from">
+        <a:documentation>The beginning of the period during which comments may be submitted to the NIST document draft</a:documentation>
+        <ref name="ISO8601Date"/>
+      </element>
+      <optional>
+        <element name="to">
+          <a:documentation>The end of the period during which comments may be submitted to the NIST document draft. 
+The end of the period may change, and may be left open-ended (omitted)</a:documentation>
+          <ref name="ISO8601Date"/>
+        </element>
+      </optional>
+      <optional>
+        <element name="extended">
+          <a:documentation> The date on which the during which comments may be submitted to the NIST document draft was extended</a:documentation>
+          <ref name="ISO8601Date"/>
+        </element>
+      </optional>
+    </element>
+  </define>
+</grammar>
