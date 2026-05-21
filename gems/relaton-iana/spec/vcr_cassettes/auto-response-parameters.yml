@@ -1,0 +1,90 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-iana/refs/heads/v2/data/auto-response-parameters.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - raw.githubusercontent.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '643'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"bbadcf959415299a63d65dc63ff87266e228549e0165d5c43de58cc55e8f6703"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - 2156:D042D:5AE7E5:6E69AA:6A0E6663
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Thu, 21 May 2026 01:56:52 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kjyo7100026-IAD
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1779328613.918266,VS0,VE66
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - 8860e2db6744c095697cc7ef5dc8f178f35e3dd3
+      Expires:
+      - Thu, 21 May 2026 02:01:52 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        LS0tCmlkOiBJQU5BYXV0b3Jlc3BvbnNlcGFyYW1ldGVycwpzY2hlbWFfdmVy
+        c2lvbjogdjEuNS42CnR5cGU6IHN0YW5kYXJkCnRpdGxlOgotIGxhbmd1YWdl
+        OiBlbgogIHNjcmlwdDogTGF0bgogIGNvbnRlbnQ6IEF1dG9tYXRpYyBSZXNw
+        b25zZXMgdG8gRWxlY3Ryb25pYyBNYWlsIFBhcmFtZXRlcnMKc291cmNlOgot
+        IHR5cGU6IHNyYwogIGNvbnRlbnQ6IGh0dHBzOi8vd3d3LmlhbmEub3JnL2Fz
+        c2lnbm1lbnRzL2F1dG8tcmVzcG9uc2UtcGFyYW1ldGVycwpkb2NpZGVudGlm
+        aWVyOgotIGNvbnRlbnQ6IElBTkEgYXV0by1yZXNwb25zZS1wYXJhbWV0ZXJz
+        CiAgdHlwZTogSUFOQQogIHByaW1hcnk6IHRydWUKZG9jbnVtYmVyOiBhdXRv
+        LXJlc3BvbnNlLXBhcmFtZXRlcnMKZGF0ZToKLSB0eXBlOiBjcmVhdGVkCiAg
+        YXQ6ICcyMDA0LTA2LTE4JwotIHR5cGU6IHVwZGF0ZWQKICBhdDogJzIwMDkt
+        MDEtMjMnCmNvbnRyaWJ1dG9yOgotIHJvbGU6CiAgLSB0eXBlOiBwdWJsaXNo
+        ZXIKICBvcmdhbml6YXRpb246CiAgICBuYW1lOgogICAgLSBjb250ZW50OiBJ
+        bnRlcm5ldCBBc3NpZ25lZCBOdW1iZXJzIEF1dGhvcml0eQogICAgYWJicmV2
+        aWF0aW9uOgogICAgICBjb250ZW50OiBJQU5BCmxhbmd1YWdlOgotIGVuCnNj
+        cmlwdDoKLSBMYXRuCg==
+  recorded_at: Thu, 21 May 2026 01:56:52 GMT
+recorded_with: VCR 6.4.0
