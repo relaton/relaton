@@ -1,0 +1,65 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.crossref.org/works/10.31030%2F2640440
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 21 May 2026 02:22:24 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '706'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Content-Encoding:
+      - gzip
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '10'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '3'
+      X-Api-Pool:
+      - polite
+      Permissions-Policy:
+      - interest-cohort=()
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAA/3VUYW/aMBT8K1Y+bVIc7IQUkn5aS7chbV01WDWtVJWJDXgkcWQ7BYT473tOaIlaJoFk2bx79+7usfeMZbY2Xuqpted7hTCGLQW2u0rA3Ubp7u2z0EaqEh5oQAJyevHSvSdLLraCuyNnVuCKaQu4Dw8hCfv+0A8fH/32xcrCgbt7TIaYhFNC0jBMQ/IHIN0rkCoqL6WDMIzjIe2Ti0F08L2qnufSrITGucqYbalcCZ3LEgqhqORMc4Pniu8cj5I1jUbjWzQStTXZShg0Lo2VtrZoMasJWWQa3Spd1OUSiQDdBwDEMq3KXdFWetBXi4XQoswEzlRdWi8lHS7HBt8Flwx9KeZfASFTpRWlxVwVDLg5SY6nBxAB4I0pmF5jDZNqmbWTLFhuBHQzK6UtdhBQAbMC21y0laMfYyc+CSJKIjLrhRd90u87I46GvWjgOGgBYp/1gyZ+5Ef0vSE0wSTCEZ2GNI0vUpq8NSSOwYskGiSEEKDKqkqr53NNaJL0fejg5lG1zhz+tZsbtARMafCrqBzPdx1hX8ZtVL2ZTlBESEiHqUPEhPpoPBndXqI7raxaqzwXiAuNoNqhoUm2ktkKxD/Zey+5UFZsEasXaLIDWbdzZqQ5/cIh4ju2FrZQvDbow/X1eDrFN0W1EKscovH0GxRHn1meP32CVrw9Xn28RDflEmIAwYIrY1yKgPLTiXLkgcgVzCq3HeeazSnmTXhoTCg5Zuad4UrLpSxZ3r3jolJG/sfaZtXOOHtcNXA2SqMkDenZVYvjC9o6azKloZK68L8YuIdBJOS22a1fP78B8MrayqSz3qy32WwCLsvCrUHAxaznvrj5hCHph4PIOzjcet4ZpY1650KChucGK+s8b8L0mhrTicxbLlzJQOnlrHduU7TIj38d+5bPX5FZ1/1w+AfE935LDgUAAA==
+  recorded_at: Thu, 21 May 2026 02:22:24 GMT
+recorded_with: VCR 6.4.0

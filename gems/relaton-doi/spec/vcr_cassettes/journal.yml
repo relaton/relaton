@@ -1,0 +1,127 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.crossref.org/works/10.46528%2Fjk
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 21 May 2026 02:22:19 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '513'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Content-Encoding:
+      - gzip
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '10'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '3'
+      X-Api-Pool:
+      - polite
+      Permissions-Policy:
+      - interest-cohort=()
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAA/7WTQXObMBCF/4pHZ4QFCIK5ddJD7XTSmcY5tMYHGRRbNkiMJOJ4GP/3rjBxmNTX3DQr9u17n5YOGctsa1CG1AF5qObGsC3H9tRwqB2VHldfuTZCSbgIfOKTjxuUdUjIkr/x0h1LZjlumLagu1qFJAw96kXrtXe5saJ24q6OCcUkWpIgo3dZQP+CpLsFU3WDsiCh6SwmNKI0Dc8e0vyFay4LjgvVSosy4qGm3VTC7LgGxcXz43zy8OPPtyXoFEpaLi0uVc2E7G0NpxUYKbQypmb6gDVM06KwfbAXVhkOk8xOaYudBHRwDZZtxS+d33/NHQDi0yQO03y6d4QGXnvVaskqN11ziHqbBvESL75Bg2CSYBIvg1lGkiyKPtOIZ0GURrNZRAhxHmFY4VrvXRZgA58Lg6+QSrw5jUC9R0CLVorJw+7E7GQx+AUvDfSJt1Gy/nXrTQ82jFMaDEz/A6K02ApQGddK3igjvhpAoTR0Bm4x3mF0EETAu57c8fn3TxDeWdtk+TSfHo9Hfw/hDy67X6g6n6Kz02k3I+uXp79By1ESxrS3Qsm2qtbr8YqaEfoPH6Y3UirhK73Np5+2SPOKXfawA6n509OjcxCGdymmSRQOBuTwd6469Mqqtmd3/eS6ioABpp/Xfbw9L6xLdz7/A/v/vL/xAwAA
+  recorded_at: Thu, 21 May 2026 02:22:19 GMT
+- request:
+    method: get
+    uri: https://api.crossref.org/works?filter=type:book-chapter,type:book-part,type:book-section,type:book-track&query=Juni%2BKhyat%2BJournal%2B2020%2BJUNI%2BKHYAT
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 21 May 2026 02:22:19 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '3108'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Content-Encoding:
+      - gzip
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '10'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '3'
+      X-Api-Pool:
+      - polite
+      Permissions-Policy:
+      - interest-cohort=()
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        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
+  recorded_at: Thu, 21 May 2026 02:22:19 GMT
+recorded_with: VCR 6.4.0
