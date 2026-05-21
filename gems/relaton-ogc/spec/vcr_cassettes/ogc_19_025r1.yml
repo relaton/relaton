@@ -1,0 +1,118 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ogc/v2/data/19-025R1.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.14.2
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1999'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"5dabdf2c907b4750eb30edd1d1ce5e1e6f2e52db6ebea41a06c834fc8a1f1ab6"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - 746A:246852:647518:78FB2F:6A0E6DB0
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Thu, 21 May 2026 02:28:02 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kjyo7100061-IAD
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1779330482.146095,VS0,VE66
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - 1b64e1b03a88865230b4ffc13a9941de8bf437e0
+      Expires:
+      - Thu, 21 May 2026 02:33:02 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        LS0tCmlkOiAxOTAyNXIxCnNjaGVtYV92ZXJzaW9uOiB2MS41LjYKdHlwZTog
+        c3RhbmRhcmQKdGl0bGU6Ci0gbGFuZ3VhZ2U6IGVuCiAgc2NyaXB0OiBMYXRu
+        CiAgY29udGVudDogRGV2ZWxvcG1lbnQgb2YgU3BhdGlhbCBEYXRhIEluZnJh
+        c3RydWN0dXJlcyBmb3IgTWFyaW5lIERhdGEgTWFuYWdlbWVudAogIHR5cGU6
+        IHRpdGxlLW1haW4KLSBsYW5ndWFnZTogZW4KICBzY3JpcHQ6IExhdG4KICBj
+        b250ZW50OiBEZXZlbG9wbWVudCBvZiBTcGF0aWFsIERhdGEgSW5mcmFzdHJ1
+        Y3R1cmVzIGZvciBNYXJpbmUgRGF0YSBNYW5hZ2VtZW50CiAgdHlwZTogbWFp
+        bgpzb3VyY2U6Ci0gdHlwZTogc3JjCiAgY29udGVudDogaHR0cDovL3d3dy5v
+        cGVuZ2lzLm5ldC9kb2MvcGVyL21hcmluZS1zZGkKLSB0eXBlOiBodG1sCiAg
+        Y29udGVudDogaHR0cHM6Ly9kb2NzLm9nYy5vcmcvcGVyLzE5LTAyNXIxLzE5
+        LTAyNXIxL3BkZgpkb2NpZGVudGlmaWVyOgotIGNvbnRlbnQ6IDE5LTAyNXIx
+        CiAgdHlwZTogT0dDCiAgcHJpbWFyeTogdHJ1ZQpkYXRlOgotIHR5cGU6IHB1
+        Ymxpc2hlZAogIGF0OiAnMjAxOS0wOC0wNScKY29udHJpYnV0b3I6Ci0gcm9s
+        ZToKICAtIHR5cGU6IGF1dGhvcgogIHBlcnNvbjoKICAgIG5hbWU6CiAgICAg
+        IGNvbXBsZXRlbmFtZToKICAgICAgICBjb250ZW50OiBSb2JlcnQgVGhvbWFz
+        Ci0gcm9sZToKICAtIHR5cGU6IGF1dGhvcgogIHBlcnNvbjoKICAgIG5hbWU6
+        CiAgICAgIGNvbXBsZXRlbmFtZToKICAgICAgICBjb250ZW50OiBUZXJyeSBJ
+        ZG9sCi0gcm9sZToKICAtIHR5cGU6IHB1Ymxpc2hlcgogIG9yZ2FuaXphdGlv
+        bjoKICAgIG5hbWU6CiAgICAtIGNvbnRlbnQ6IE9wZW4gR2Vvc3BhdGlhbCBD
+        b25zb3J0aXVtCi0gcm9sZToKICAtIHR5cGU6IGF1dGhvcgogICAgZGVzY3Jp
+        cHRpb246CiAgICAtIGNvbnRlbnQ6IGNvbW1pdHRlZQogIG9yZ2FuaXphdGlv
+        bjoKICAgIG5hbWU6CiAgICAtIGNvbnRlbnQ6IE9wZW4gR2Vvc3BhdGlhbCBD
+        b25zb3J0aXVtCiAgICBzdWJkaXZpc2lvbjoKICAgIC0gbmFtZToKICAgICAg
+        LSBjb250ZW50OiB0ZWNobmljYWwKICAgICAgdHlwZTogdGVjaG5pY2FsLWNv
+        bW1pdHRlZQogICAgYWJicmV2aWF0aW9uOgogICAgICBjb250ZW50OiBPR0MK
+        ZWRpdGlvbjoKICBjb250ZW50OiAnMScKbGFuZ3VhZ2U6Ci0gZW4Kc2NyaXB0
+        OgotIExhdG4KYWJzdHJhY3Q6Ci0gbGFuZ3VhZ2U6IGVuCiAgc2NyaXB0OiBM
+        YXRuCiAgY29udGVudDogIlRoaXMgZW5naW5lZXJpbmcgcmVwb3J0IHByZXNl
+        bnRzIHRoZSByZXN1bHRzIG9mIGEgY29uY2VwdCBkZXZlbG9wbWVudAogICAg
+        c3R1ZHkgb24gYVxyXG5NYXJpbmUgU3BhdGlhbCBEYXRhIEluZnJhc3RydWN0
+        dXJlIChTREkpLCBzcG9uc29yZWQgYnkgdGhlIE5hdGlvbmFsCiAgICBHZW9z
+        cGF0aWFsLVxyXG5JbnRlbGxpZ2VuY2UgQWdlbmN5IChOR0EpIC0gTWFyaXRp
+        bWUgU2FmZXR5IE9mZmljZSAoTVNPKSwgb24gYmVoYWxmCiAgICBvZiB0aGVc
+        clxuSW50ZXJuYXRpb25hbCBIeWRyb2dyYXBoaWMgT3JnYW5pemF0aW9uIChJ
+        SE8pIGFuZCB0aGUgSUhPIE1TREkgV29ya2luZwogICAgR3JvdXBcclxuKE1T
+        RElXRyksIGFuZCBleGVjdXRlZCBieSB0aGUgT3BlbiBHZW9zcGF0aWFsIENv
+        bnNvcnRpdW0gKE9HQykuIFRoZSBnb2FsCiAgICBvZlxyXG50aGlzIHN0dWR5
+        IHdhcyB0byBkZW1vbnN0cmF0ZSB0byBzdGFrZWhvbGRlcnMgdGhlIGRpdmVy
+        c2l0eSwgcmljaG5lc3MgYW5kCiAgICB2YWx1ZSBvZiBhXHJcbk1hcmluZSBT
+        REkg4oCTIHNwZWNpZmljYWxseSBkYXRhLCBhbmFseXNpcywgaW50ZXJvcGVy
+        YWJpbGl0eSBhbmQgYXNzb2NpYXRlZAogICAgSVQgc2VydmljZXNcclxuLSBp
+        bmNsdWRpbmcgd2ViIHNlcnZpY2VzIC0gaW4gYWRkcmVzc2luZyBuZWVkcyBv
+        ZiB0aGUgbWFyaW5lIGRvbWFpbi4iCmV4dDoKICBzY2hlbWFfdmVyc2lvbjog
+        djEuMS4yCiAgZG9jdHlwZToKICAgIGNvbnRlbnQ6IGVuZ2luZWVyaW5nLXJl
+        cG9ydAogIGZsYXZvcjogb2djCg==
+  recorded_at: Thu, 21 May 2026 02:28:02 GMT
+recorded_with: VCR 6.4.0
