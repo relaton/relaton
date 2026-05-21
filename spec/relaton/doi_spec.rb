@@ -100,6 +100,7 @@ RSpec.describe Relaton::Doi do
     it_behaves_like "fetch document", "peer-review", "10.1111/jan.15115/v3/decision1"
     it_behaves_like "fetch document", "posted-content", "10.1101/751156"
     it_behaves_like "fetch document", "proceedings-article", "10.1109/icpadm.1994.414074"
+    it_behaves_like "fetch document", "proceedings-article-encoded-title", "10.1117/12.410780"
     it_behaves_like "fetch document", "proceedings-series", "10.15405/epsbs(2357-1330).2021.6.1"
     it_behaves_like "fetch document", "proceedings", "10.1145/1947940"
     it_behaves_like "fetch document", "reference-book", "10.1201/9781439864852"

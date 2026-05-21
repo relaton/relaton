@@ -151,6 +151,35 @@ RSpec.describe Relaton::Doi::Parser do
           expect(titles[0].content).to eq "Trailing comma"
         end
       end
+
+      context "with HTML-entity-encoded JATS title wrapper" do
+        let(:src) do
+          { "title" => ["&lt;title&gt;Test target&lt;/title&gt;"] }
+        end
+
+        it "decodes entities and strips the JATS title wrapper" do
+          expect(titles.size).to eq 1
+          expect(titles[0].content).to eq "Test target"
+        end
+      end
+
+      context "with HTML-entity-encoded characters in the title" do
+        let(:src) { { "title" => ["Caf&#233; &amp; Bar"] } }
+
+        it "decodes HTML entities" do
+          expect(titles.size).to eq 1
+          expect(titles[0].content).to eq "Café & Bar"
+        end
+      end
+
+      context "with a plain title containing no entities" do
+        let(:src) { { "title" => ["Plain title"] } }
+
+        it "leaves the title unchanged" do
+          expect(titles.size).to eq 1
+          expect(titles[0].content).to eq "Plain title"
+        end
+      end
     end
 
     context "when project is a non-empty array" do

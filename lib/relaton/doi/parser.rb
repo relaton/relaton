@@ -209,7 +209,7 @@ module Relaton
       # @return [Bib::Title] The title.
       #
       def create_title(title, type = "main")
-        cnt = str_cleanup title
+        cnt = str_cleanup CGI.unescapeHTML(title)
         Bib::Title.new type: type, content: cnt, script: "Latn"
       end
 
