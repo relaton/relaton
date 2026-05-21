@@ -23,7 +23,7 @@ RSpec.describe Relaton::Ecma do
           bibdata_file = "spec/fixtures/bibdata.xml"
           write_file bibdata_file, bibdata
           expect(bibdata).to be_equivalent_to read_file bibdata_file
-          schema = Jing.new "grammars/relaton-ecma-compile.rng"
+          schema = Jing.new "spec/schemas/relaton-ecma-compile.rng"
           errors = schema.validate bibdata_file
           expect(errors).to eq []
         end.to output(include(
