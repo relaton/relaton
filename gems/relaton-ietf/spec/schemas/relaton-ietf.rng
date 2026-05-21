@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0">
+  <include href="biblio-standoc.rng">
+    <define name="DocumentType">
+      <choice>
+        <value>rfc</value>
+        <value>internet-draft</value>
+      </choice>
+    </define>
+  </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <zeroOrMore>
+      <ref name="area">
+        <a:documentation>which IETF area this document relates to. Value should be either the full name or the abbreviation of one of the IETF areas as
+listed on &lt;http://www.ietf.org/iesg/area.html</a:documentation>
+      </ref>
+    </zeroOrMore>
+    <optional>
+      <ref name="stream">
+        <a:documentation>Document stream of document described in https://tools.ietf.org/html/rfc7841</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="ipr">
+        <a:documentation>IP status of document. See https://tools.ietf.org/html/rfc7991#section-2.45.5</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="processing-instructions">
+        <a:documentation>Processing instructions which will be added to generated RFC XML in the form `&lt;?rfc keyword='value'?&gt;</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="consensus">
+        <a:documentation>Document consensus for this document       </a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="index-include">
+        <a:documentation>Specifies whether formatter should include an index in generated files. If the source file has no `&lt;iref&gt;` elements, an index is never generated</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="ipr-extract">
+        <a:documentation>Identifies a section that can be extracted from text. See https://tools.ietf.org/html/rfc7991#section-2.45.6</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="sort-refs">
+        <a:documentation>Specifies whether the prep tool for RFC XML should sort references</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="sym-refs">
+        <a:documentation>Specifies whether the RFC XML formatter should use symbolic references (such as "`[RFC2119]`") or not (such as "`[3]`")</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="toc-include">
+        <a:documentation>Specifies whether the RFC XML formatter should contain a table of contents</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="toc-depth">
+        <a:documentation>Determines the depth of the table-of-contents; e.g. a value of `3` means three levels of heading are included</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="show-on-front-page">
+        <a:documentation>Display organization of author on front page of IAB documents. Applied to all organizations named in the document front matter</a:documentation>
+      </ref>
+    </optional>
+  </define>
+  <define name="area">
+    <element name="area">
+      <choice>
+        <value>art</value>
+        <value>gen</value>
+        <value>int</value>
+        <value>ops</value>
+        <value>rtg</value>
+        <value>sec</value>
+        <value>tsv</value>
+        <value>Applications and Real-Time</value>
+        <value>General</value>
+        <value>Internet</value>
+        <value>Operations and Management</value>
+        <value>Routing</value>
+        <value>Security</value>
+        <value>Transport</value>
+      </choice>
+    </element>
+  </define>
+  <define name="ipr">
+    <element name="ipr">
+      <text/>
+    </element>
+  </define>
+  <define name="consensus">
+    <element name="consensus">
+      <text/>
+    </element>
+  </define>
+  <define name="index-include">
+    <element name="indexInclude">
+      <text/>
+    </element>
+  </define>
+  <define name="ipr-extract">
+    <element name="iprExtract">
+      <text/>
+    </element>
+  </define>
+  <define name="sort-refs">
+    <element name="sortRefs">
+      <text/>
+    </element>
+  </define>
+  <define name="sym-refs">
+    <element name="symRefs">
+      <text/>
+    </element>
+  </define>
+  <define name="toc-include">
+    <element name="tocInclude">
+      <text/>
+    </element>
+  </define>
+  <define name="toc-depth">
+    <element name="tocDepth">
+      <text/>
+    </element>
+  </define>
+  <define name="show-on-front-page">
+    <element name="showOnFrontPage">
+      <text/>
+    </element>
+  </define>
+  <!-- not relevant to relaton -->
+  <define name="processing-instructions">
+    <element name="pi">
+      <optional>
+        <element name="artworkdelimiter">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="artworklines">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="authorship">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="autobreaks">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="background">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="colonspace">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="comments">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="docmapping">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="editing">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="emoticonic">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="footer">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="header">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="inline">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="iprnotified">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="linkmailto">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="linefile">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="notedraftinprogress">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="private">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="refparent">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="rfcedstyle">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="slides">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="text-list-symbols">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="tocappendix">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="tocindent">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="tocnarrow">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="tocompact">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="topblock">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="useobject">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="strict">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="compact">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="subcompact">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="tocinclude">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="tocdepth">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="symrefs">
+          <text/>
+        </element>
+      </optional>
+      <optional>
+        <element name="sortrefs">
+          <text/>
+        </element>
+      </optional>
+    </element>
+  </define>
+  <define name="stream">
+    <element name="stream">
+      <choice>
+        <value>IAB</value>
+        <value>IETF</value>
+        <value>Independent</value>
+        <value>IRTF</value>
+        <value>Legacy</value>
+        <value>Editorial</value>
+      </choice>
+    </element>
+  </define>
+</grammar>
