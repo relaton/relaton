@@ -1,0 +1,80 @@
+<bibitem id="ECMA6" type="standard" schema-version="v1.5.6">
+  <fetched>2025-12-29</fetched>
+  <title language="en" script="Latn">7-bit coded character set</title>
+  <uri type="src">https://ecma-international.org/publications-and-standards/standards/ecma-6/</uri>
+  <uri type="pdf">https://ecma-international.org/wp-content/uploads/ECMA-6_6th_edition_december_1991.pdf</uri>
+  <docidentifier type="ECMA" primary="true">ECMA-6</docidentifier>
+  <date type="published">
+    <on>1991-12</on>
+  </date>
+  <contributor>
+    <role type="publisher"/>
+    <organization>
+      <name language="en" script="Latn">Ecma International</name>
+    </organization>
+  </contributor>
+  <edition>6</edition>
+  <language>en</language>
+  <script>Latn</script>
+  <abstract language="en" script="Latn">This Ecma Standard specifies a set of 128 characters, (control characters and graphic characters such as letters, digits and symbols) with their coded representation. Most of these characters are mandatory and unchangeable, but provision is made for some flexibility to accommodate national and other requirements.
+This Ecma Standard specifies a 7-bit coded character set with a number of options. It also provides guidance on how to exercise the options to define specific national versions and application-oriented versions. Furthermore it specifies the International Reference Version (IRV) in which such options have been exercised.
+This character set is primarily intended for the interchange of information among data processing systems and associated equipment, and within data communication systems. The need for graphic characters and control functions in data processing has also been taken into account in determining this character set.
+This character set is applicable to alphabets of the Latin script.
+This character set allows the use of control characters for code extension where its character set is insufficient for particular applications. Procedures for the use of these control characters are specified in Standard ECMA-35.
+The definitions of the control characters mentioned in this Ecma Standard are specified in Standard ECMA-48. It is assumed that data associated with them are to be processed serially in a forward direction. When they are included in strings of data which are processed other than serially in a forward direction or when they are included in data formatted for fixed-record processing they may have undesirable effects or may require additional special treatment to ensure that they result in their desired function.</abstract>
+  <relation type="updates">
+    <bibitem>
+      <formattedref>ECMA-6</formattedref>
+      <docidentifier type="ECMA" primary="true">ECMA-6</docidentifier>
+      <date type="published">
+        <on>1965-04</on>
+      </date>
+      <edition>1</edition>
+    </bibitem>
+  </relation>
+  <relation type="updates">
+    <bibitem>
+      <formattedref>ECMA-6</formattedref>
+      <docidentifier type="ECMA" primary="true">ECMA-6</docidentifier>
+      <date type="published">
+        <on>1967-06</on>
+      </date>
+      <edition>2</edition>
+    </bibitem>
+  </relation>
+  <relation type="updates">
+    <bibitem>
+      <formattedref>ECMA-6</formattedref>
+      <docidentifier type="ECMA" primary="true">ECMA-6</docidentifier>
+      <date type="published">
+        <on>1970-07</on>
+      </date>
+      <edition>3</edition>
+    </bibitem>
+  </relation>
+  <relation type="updates">
+    <bibitem>
+      <formattedref>ECMA-6</formattedref>
+      <uri type="pdf">https://ecma-international.org/wp-content/uploads/ECMA-6_4th_edition_august_1973.pdf</uri>
+      <docidentifier type="ECMA" primary="true">ECMA-6</docidentifier>
+      <date type="published">
+        <on>1973-08</on>
+      </date>
+      <edition>4</edition>
+    </bibitem>
+  </relation>
+  <relation type="updates">
+    <bibitem>
+      <formattedref>ECMA-6</formattedref>
+      <uri type="pdf">https://ecma-international.org/wp-content/uploads/ECMA-6_5th_edition_march_1985.pdf</uri>
+      <docidentifier type="ECMA" primary="true">ECMA-6</docidentifier>
+      <date type="published">
+        <on>1985-03</on>
+      </date>
+      <edition>5</edition>
+    </bibitem>
+  </relation>
+  <place>
+    <city>Geneva</city>
+  </place>
+</bibitem>

@@ -1,0 +1,112 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ecma/refs/heads/v2/data/ecma-6-6.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Mechanize/2.14.0 Ruby/3.4.7p58 (http://github.com/sparklemotion/mechanize/)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - raw.githubusercontent.com
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1281'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"5ff7847c5eb1a3a70c30f81c5870a4892634fc395b4a185ceb591e087457ba6f"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - 9D56:1FECDF:F21E6F:123D49A:6A0E6634
+      Content-Encoding:
+      - gzip
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Thu, 21 May 2026 01:56:04 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kjyo7100081-IAD
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1779328564.488600,VS0,VE55
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - '086a29962ef8e3a9b987b8c5d36a250127108908'
+      Expires:
+      - Thu, 21 May 2026 02:01:04 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        H4sIAAAAAAAAA9VXTW/jNhC961fMLbtAJNtJ7GR9K4q2CNAFim2xPQY0NbKI
+        SqTKDzsu+uM7Q0q2HDveblFgER8Si+LMvHnzZkjneZ6pcgk/fP/xu0XmZI2t
+        eNqgdcroJWxmxbxYZH7X4RKcF7oUtsy88g0usxwaoddBrOkd6gzASas6v4Sf
+        hedHabRHTc/3+Up5eiyxBFkLK6RHCw595kywMrrqQ1g5Nqy979xyMkHZilzR
+        otXCEzDRFMauJ11YNUrGFZcTtnxA6CaHb9F2MdmH6MrqK0Jsu7zfOgldYwQ5
+        ZKbyxdPC109YKt77VKLEdoX2afbhw6zgCKWRqiQrVSm0nN8+YDInCAkOP9JD
+        Z1Ur7G4J3gbMSuFHpMQ0XY0l7RPkgYPks5uMXVq1Ct7ECNZwUQBemllao1SE
+        Vn/FzHgPgBYtpm8nZeTPi1Ly55ABUQWPY6qynojlmNmrxVW290z4yHfvlR6i
+        X7FynsXwFVL6O49ofquVSzh+7QsNrkPJbDsQLC0wFcxuHg56c9fwLjJmmtEi
+        kDWsrehqJcfLLsgahIMGfbIt1Vr5tN3t2pVp3HvYKl+Dr1HZXtwWO4uOgEZe
+        CvhoXARCexweRbUILQOn2u2i06DptV6jWDV4DVRUkoTZKG5DoFxbUSJUhrrG
+        tPSlwWe1Uo3yO/AGhJSmbQ2rBoaSRKeGAltC9WdQFlvC5Yp/Q9+r/ZoyFqAD
+        q50zM13svgIePYjGmYS6JDfroEqhJQIlUJst48RntFIREwRrsOT1EiulcYAg
+        Dzn0cyjRLrpu6PbcWEXZELxhRwE/BsvZtoaoJfSHfDjYkVrhE1ZokbF9Tubw
+        7vHT5/egNGxJB3Wq/gCwFhuEFaLe4y9HLB7zQwupk1WzA54mmjnkujGKOF5S
+        mZk7pelFG0GBaI1eA1VQMIMSnVP07HbOY9un7xzNFMFJcz07Lud1fMNFIejR
+        mIUQdE/TYF8QVFIG9lDOyJ3dDM1RkRRT5oPTEaKaeiLWORLixR/0l9JKGgza
+        Rxskn63SvN+fcHSJu77E1AJR1k1XixVS16UW4mFA7tNoeNWNaBqzTVUPLvJ8
+        puuZBtY3lZRqFCWwJfGwcs7AUtqFioTJmoumnbBeydAIO1Yl8fwLM1UGGgL7
+        ovcg+hFwZgDZvfKpPpTfviXjSXE7HzLF1Ccq1aan5IxDFgZtSc78aad/IeDd
+        Q2xmroZzoaUtvhY+CWGkwWH2tdGfZ0EMOqG3Dq2iQnAP0LggKrbsv6QpJNNk
+        /L1m+dS4i+ZKyyaUCQ0dCSScmGCMmTqSdx3cp7lGuPSXItHJx5V9JVYMkJrQ
+        981RqWcsc7I25GYk/Gjfil0aB4H62ikblYpVRbEcR+L3/bQFUaYzkeZNZJv+
+        e4vCc3niMCRRMXNMbnROogmNT0XjIyVGYFR9PxaZxaY/wYczPnQ89B0pZEXn
+        AfV6OtL3KVmslifH93ABAXhxS0m3gXMbX9xW+HN8Y4ne4q0lOTm9ufAn3V4W
+        83x6F1dG14YjiFezqzee4n0+XVxO8eaNp3g/zaf3l1O8/d9SHH4nHMGKF/kj
+        i/98mb8bXeZFWAfn6Sp/f1sMMb4Rxbf59OEyxXdvhuL5iGLiQ9bE8MP8GzP8
+        QKPo9jLD86usa0T6kSrpwr2En1DjRmR0dVjGXyonP5mnxTSLGcXQ2ZE/Wg18
+        BNBq1YgN/XQDpjL7BzX3f6WIDwAA
+  recorded_at: Thu, 21 May 2026 01:56:04 GMT
+recorded_with: VCR 6.4.0

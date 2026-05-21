@@ -1,0 +1,106 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ecma/refs/heads/v2/data/ecma-269-3-1.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Mechanize/2.14.0 Ruby/3.4.7p58 (http://github.com/sparklemotion/mechanize/)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - raw.githubusercontent.com
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '996'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"1d2ad8893fbab6a2667cd879b5eb17d44a842fc01efaaaa81139264671563303"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - 7E50:9521C:77A7BB:90E044:6A0E6635
+      Content-Encoding:
+      - gzip
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Thu, 21 May 2026 01:56:06 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kcgs7200122-IAD
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1779328566.259052,VS0,VE66
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - 9d28f9ee8a495e5009afef434f60312ff740e7bd
+      Expires:
+      - Thu, 21 May 2026 02:01:06 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        H4sIAAAAAAAAA+VYzW7jNhC+6ynm5l0gkn+SeGPd0qAoDLRAUOfQm0BLI4ut
+        RLIkJW+KPkyfpU+2Q8qypcRd76ILGN7oYpEazs838w1phmEY8CyGHx9+uZ/N
+        F4FJC6xY0qA2XIoYmml0G80D+6wwBmOZyJjOAsttiXEQQsnEpmYb+oYiADCp
+        5srG8DOzbphKYVHQeIW64SkayKWGB1mp2qKGVa2U1BYzeMISU1lVteAps2TY
+        wL1S5X7w7mH1dP+eNAI8FswgLJfLwMhap96L1juV5X2bhbXKxOMxphULOU1q
+        4bWxMpJ6M96qcCc6rlUpWWbGDoOQQEiudZZgxp10kmGK1Rp1Ml0s7pJGlnWF
+        yTRyxjKZ8owU8Jyjdn7sbXeayJ/WNzdBA6V5xfRzDFbXGGTM9t2v1yU3BWYk
+        x0iHsxdOZ4FTqvm6ttLb0NIhD/BymaY5iosJ/pcPM/ZoCVZh+/YqV+55kS/3
+        HGIg3GDZxy3YYRL3YR5dj4K9ZvKPdO+00sDrZWtjNUvtV9TL36H35qngBla7
+        ogOjMHVQG2ACfEJzliIN6FNXX2u0W0QBdivBZcY6cVswCxr/rNFYL660bChz
+        MCi5g5J3GG2iQQFeQcWzrMQt03gFjz/8dgXLx9D/rmRuzZbbtLgCVUhB3w1N
+        9V7dIsjQ634f+cBcOYNUqKkCDNDqAvAjN5aLzSEy45a3zmc8z1GjcN6xSpJU
+        wzSXtTm2DJy9gvxF0Vrbsy/DnAuiGyeABtCyspRbyGuRtpn22ja6xaXDlDm8
+        iLnOmqA5qf/waDKwr+m7E4iO5JHeFdMWZE5LTc0tulcPSSdjvOInTAunsYRf
+        0TUKE1Eo+O8/xDsiobDeVBRoLHcV33GiVo5ahmyv+Zr0Vy0FqPlUzFK/0ZjH
+        r8r9QFmAF8xu+XNc9AXD3TNkuZvpEWdgdDQdfTunu37YetvviYM1/6MvzsSh
+        L/5eC/Q9MepsfGvQ2vY4iKbXIt2zb5OT+edhnl0UzF+4/ZwZc9qaPos57Qv+
+        +0c/7vYgSXTm9rkT76y0ge0mgZr1rt0luZbVxfHkZAJnby6B3xkDr99cAq+/
+        rwTevLkE3lxUAm9sMTxqzCaTyZlz5lw4edS4LJhvezDveUJxnnuDci6cpMft
+        RUE9P1LR5+5CzoWTFT2/KJg//EdFz88P9fxkRX+4KKjvjlT04vwwL05W9N1F
+        wbzowZwWTGzQJIa7nd0WmCiNjbsJ6kTOjv90erLMF6NAlay9u03dUQZ+QoEN
+        C7qTzvCUc+SEc+wPIi120kdusCfRJPCAeD3BwJnuMolm85I1UsfgchR8Ao+L
+        omwZFwAA
+  recorded_at: Thu, 21 May 2026 01:56:06 GMT
+recorded_with: VCR 6.4.0
