@@ -33,7 +33,7 @@ module Relaton
     # @return [Hash{String=>String}] schema versions
     #
     def schema_versions
-      @@schema_versions ||= JSON.parse File.read(File.join(__dir__, "../../grammars/versions.json"))
+      @@schema_versions ||= JSON.parse File.read(File.join(__dir__, "bib/versions.json"))
     end
   end
 
