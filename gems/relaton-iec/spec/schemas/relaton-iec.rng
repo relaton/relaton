@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="biblio-standoc.rng">
+    <define name="bdate">
+      <element name="date">
+        <attribute name="type">
+          <choice>
+            <ref name="BibliographicDateType"/>
+            <text/>
+          </choice>
+        </attribute>
+        <choice>
+          <group>
+            <element name="from">
+              <ref name="ISO8601Date"/>
+            </element>
+            <optional>
+              <element name="to">
+                <ref name="ISO8601Date"/>
+              </element>
+            </optional>
+          </group>
+          <element name="on">
+            <choice>
+              <ref name="ISO8601Date"/>
+              <value>--</value>
+              <value>–</value>
+            </choice>
+          </element>
+        </choice>
+      </element>
+    </define>
+    <define name="DocumentType">
+      <choice>
+        <value>international-standard</value>
+        <value>technical-specification</value>
+        <value>technical-report</value>
+        <value>publicly-available-specification</value>
+        <value>international-workshop-agreement</value>
+        <value>guide</value>
+        <value>industry-technical-agreement</value>
+        <value>system-reference-deliverable</value>
+      </choice>
+    </define>
+    <define name="DocumentSubtype">
+      <choice>
+        <value>specification</value>
+        <value>method-of-test</value>
+        <value>vocabulary</value>
+        <value>code-of-practice</value>
+      </choice>
+    </define>
+    <define name="structuredidentifier">
+      <element name="structuredidentifier">
+        <optional>
+          <attribute name="type"/>
+        </optional>
+        <group>
+          <ref name="documentnumber"/>
+          <optional>
+            <ref name="tc-documentnumber"/>
+          </optional>
+        </group>
+      </element>
+    </define>
+  </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <optional>
+      <ref name="horizontal">
+        <a:documentation>Whether the document is a horizontal standard</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="stagename">
+        <a:documentation>Human-readable name of the stage of publication, corresponding to the numeric stage code given in `/bibdata/status/stage`</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="updates_document_type">
+        <a:documentation>If this is an update to another document (e.g. an amendment), the `doctype` will not indicate what type of
+document is being updated (e.g. that this is an amendment to a technical report, as opposed to an amendment to a technical standard).
+The `updates-document-type` value indicates the document type of the document being updated; this may be needed for proper rendering, or
+to formulate the document identifier properly</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="fast_track">
+        <a:documentation>Whether this is a fast-track standard</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="price-code">
+        <a:documentation>The price code of the standard, as documented in https://www.iec.ch/members_experts/tools/pdf/IEC_DATA_FEEDS.pdf
+Used for legacy ISO documents</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="function">
+        <a:documentation>Function of document</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="accessibility-color-inside">
+        <a:documentation>Indication that document contains colour content</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="cen-processing">
+        <a:documentation>CEN (European Committee for Standardization) processing</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="secretary">
+        <a:documentation>Secretary of the secretariat</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="interest-to-committees">
+        <a:documentation>Draft is of interest to these committees</a:documentation>
+      </ref>
+    </optional>
+  </define>
+  <define name="updates_document_type">
+    <element name="updates-document-type">
+      <ref name="DocumentType"/>
+    </element>
+  </define>
+  <define name="fast_track">
+    <element name="fast-track">
+      <data type="boolean"/>
+    </element>
+  </define>
+  <define name="horizontal">
+    <element name="horizontal">
+      <data type="boolean"/>
+    </element>
+  </define>
+  <define name="documentnumber">
+    <element name="project-number">
+      <optional>
+        <attribute name="part">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="subpart">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="amendment">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="corrigendum">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="origyr">
+          <ref name="ISO8601Date"/>
+        </attribute>
+      </optional>
+      <text/>
+    </element>
+  </define>
+  <define name="tc-documentnumber">
+    <element name="tc-document-number">
+      <data type="int"/>
+    </element>
+  </define>
+  <define name="stagename">
+    <element name="stagename">
+      <optional>
+        <attribute name="abbreviation"/>
+      </optional>
+      <text/>
+    </element>
+  </define>
+  <define name="function">
+    <element name="function">
+      <choice>
+        <value>emc</value>
+        <value>safety</value>
+        <value>environment</value>
+        <value>quality-assurance</value>
+      </choice>
+    </element>
+  </define>
+  <define name="accessibility-color-inside">
+    <element name="accessibility-color-inside">
+      <data type="boolean"/>
+    </element>
+  </define>
+  <define name="price-code">
+    <element name="price-code">
+      <text/>
+    </element>
+  </define>
+  <define name="cen-processing">
+    <element name="cen-processing">
+      <data type="boolean"/>
+    </element>
+  </define>
+  <define name="secretary">
+    <element name="secretary">
+      <text/>
+    </element>
+  </define>
+  <define name="interest-to-committees">
+    <element name="interest-to-committees">
+      <text/>
+    </element>
+  </define>
+  <define name="tc-sc-officers-note">
+    <element name="tc-sc-officers-note">
+      <zeroOrMore>
+        <ref name="BasicBlock"/>
+      </zeroOrMore>
+    </element>
+  </define>
+</grammar>

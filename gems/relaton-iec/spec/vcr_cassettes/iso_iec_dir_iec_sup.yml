@@ -1,0 +1,90 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-iec/refs/heads/v2/static/iso_iec_dir_iec_sup.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - raw.githubusercontent.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '659'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"e3a4dd1e236af61d18e29f825ea160a5924fb05957dac85e91d973d64efa7f19"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - E322:2229FD:F0584B:1221D1A:6A0E66B3
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Thu, 21 May 2026 01:58:11 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kjyo7100041-IAD
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1779328691.461889,VS0,VE101
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - 463ebcb44f5ed9da2dc6a6699accbf616c5f2923
+      Expires:
+      - Thu, 21 May 2026 02:03:11 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        aWQ6IElTT0lFQ0RJUklFQ1NVUAp0aXRsZToKLSB0eXBlOiB0aXRsZS1tYWlu
+        CiAgY29udGVudDogUHJvY2VkdXJlcyBzcGVjaWZpYyB0byBJRUMKICBsYW5n
+        dWFnZTogZW4KICBzY3JpcHQ6IExhdG4KCnNvdXJjZToKLSB0eXBlOiBvYnAK
+        ICBjb250ZW50OiBodHRwczovL3d3dy5pZWMuY2gvbWVtYmVyc19leHBlcnRz
+        L3JlZmRvY3MvaWVjL2lzb2llY2RpcjEtaWVjc3VwJTdiZWQxMy4wJTdkZW4u
+        cGRmCgp0eXBlOiBpbnRlcm5hdGlvbmFsLXN0YW5kYXJkCgpkb2NpZGVudGlm
+        aWVyOgotIGNvbnRlbnQ6IElTTy9JRUMgRElSIElFQyBTVVAKICB0eXBlOiBJ
+        RUMKICBwcmltYXJ5OiB0cnVlCgpkYXRlOgogIHR5cGU6IHB1Ymxpc2hlZAog
+        IGF0OiAnMjAxOS0wNS0wMScKCmVkaXRpb246CiAgY29udGVudDogIjEzIgoK
+        bGFuZ3VhZ2U6CiAgLSBlbgoKc2NyaXB0OgogIC0gTGF0bgoKY29weXJpZ2h0
+        OgogIG93bmVyOgogICAgLSBvcmdhbml6YXRpb246CiAgICAgICAgbmFtZToK
+        ICAgICAgICAgIC0gY29udGVudDogSW50ZXJuYXRpb25hbCBFbGVjdHJvdGVj
+        aG5pY2FsIENvbW1pc3Npb24KICAgICAgICBhYmJyZXZpYXRpb246CiAgICAg
+        ICAgICBjb250ZW50OiBJRUMKICAgICAgICB1cmk6CiAgICAgICAgICAtIGNv
+        bnRlbnQ6IGllYy5jaAogIGZyb206ICcyMDE5Jwo=
+  recorded_at: Thu, 21 May 2026 01:58:11 GMT
+recorded_with: VCR 6.4.0
