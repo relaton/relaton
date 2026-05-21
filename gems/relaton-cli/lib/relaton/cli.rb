@@ -42,7 +42,7 @@ module Relaton
     class << self
       def version
         require "relaton/bib"
-        registry = Relaton::Registry.instance
+        registry = Relaton::Db::Registry.instance
         puts "CLI => #{Relaton::Cli::VERSION}"
         puts "relaton => #{Gem.loaded_specs['relaton'].version}"
         puts "relaton-bib => #{Gem.loaded_specs['relaton-bib'].version}"
@@ -91,7 +91,7 @@ module Relaton
         proc = get_proc docid
         return proc if proc
 
-        Relaton::Registry.instance.by_type(docid&.text&.match(/^\w+/)&.to_s)
+        Relaton::Db::Registry.instance.by_type(docid&.text&.match(/^\w+/)&.to_s)
       end
 
       private
@@ -104,7 +104,7 @@ module Relaton
       def get_proc(docid)
         return unless docid && docid[:type]
 
-        Relaton::Registry.instance.by_type(docid[:type])
+        Relaton::Db::Registry.instance.by_type(docid[:type])
       end
     end
   end

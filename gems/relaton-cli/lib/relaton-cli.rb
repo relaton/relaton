@@ -1,4 +1,4 @@
-require "relaton"
+require "relaton/db"
 
 module Relaton
   module Cli
