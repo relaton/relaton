@@ -1,0 +1,42 @@
+*.gem
+*.rbc
+.bundle/
+.config/
+.yardoc
+Gemfile.lock
+**/Gemfile.lock
+InstalledFiles
+_yardoc
+coverage/
+doc/
+pkg/
+spec/reports/
+test/tmp/
+test/version_tmp/
+tmp/
+
+# YARD artifacts
+.yardoc
+_yardoc/
+doc/
+
+# RVM/rbenv
+.rvmrc
+.ruby-version
+.ruby-gemset
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Test artifacts
+testcache/
+testcache2/
+**/testcache/
+**/testcache2/
+
+# VCR cassettes locally re-recorded (kept in commits where intended)
+# (none excluded by default)
