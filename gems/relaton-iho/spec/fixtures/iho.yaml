@@ -1,0 +1,89 @@
+---
+id: B-11
+title:
+- type: main
+  content: IHO-IOC GEBCO Cook Book
+  language: en
+  format: text/plain
+- type: main
+  content: Livre de recettes GEBCO OHI-COI
+  language: fr
+  format: text/plain
+link:
+  content: https://www.star.nesdis.noaa.gov/socd/lsa/GEBCO_Cookbook/documents/CookBook_20191031.pdf
+  type: pdf
+type: standard
+docid:
+  id: B-11
+  type: IHO
+  primary: true
+docnumber: 11
+date:
+  type: published
+  from: '2020-01-20'
+contributor:
+- organization:
+    name: International Hydrographic Organization
+    abbreviation: IHO
+    url: www.iho.int
+  role: publisher
+- organization:
+    name: Intergovernmental Oceanographic Commission
+    abbreviation: IOC
+    url: http://ioc-unesco.org
+  role: publisher
+edition: 1.0.0
+version:
+  revision_date: '2019-10-31'
+revdate: '2019-10-31'
+language:
+- en
+- fr
+script: Latn
+docstatus:
+  stage:
+    value: in-force
+copyright:
+- owner:
+    name: International Hydrographic Organization
+    abbreviation: IHO
+    url: www.iho.int
+  from: '2019'
+- owner:
+    name: Intergovernmental Oceanographic Commission
+    abbreviation: IOC
+    url: http://ioc-unesco.org
+  from: '2019'
+series:
+  type: main
+  title:
+    type: original
+    content:
+    - content: Bathymetric Publications
+      language: en
+      script: Latn
+    - content: Publications bathymétriques
+      language: fr
+      script: Latn
+    format: text/plain
+  place: Monaco
+  organization: International Hydrographic Organization
+  number: B
+place: Monaco
+validity:
+  begins: 2019-10-31 00:00
+fetched: '2020-03-29'
+editorialgroup:
+- - committee:
+      abbreviation: HSSC
+      name: Hydrographic Services and Standards Committee
+  - committee:
+      abbreviation: IRCC
+      name: Inter-Regional Coordination Committee
+      committee:
+        abbreviation: GEBCO
+        name: JOINT IHO-IOC GUIDING COMMITTEE FOR THE GENERAL BATHYMETRIC CHART OF
+          THE OCEANS
+commentperiod:
+  from: '2011-01-01'
+  to: '2011-12-31'

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0">
+  <include href="biblio-standoc.rng">
+    <define name="DocumentType">
+      <choice>
+        <value>policy-and-procedures</value>
+        <value>best-practices</value>
+        <value>supporting-document</value>
+        <value>report</value>
+        <value>legal</value>
+        <value>directives</value>
+        <value>proposal</value>
+        <value>standard</value>
+        <value>specification</value>
+        <value>resolution</value>
+        <value>regulation</value>
+      </choice>
+    </define>
+    <define name="structuredidentifier">
+      <element name="structuredidentifier">
+        <element name="docnumber">
+          <text/>
+        </element>
+        <optional>
+          <element name="part">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="annexid">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="appendixid">
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="supplementid">
+            <text/>
+          </element>
+        </optional>
+      </element>
+    </define>
+  </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <optional>
+      <ref name="commentperiod">
+        <a:documentation>The period during which comments may be submitted to the document draft</a:documentation>
+      </ref>
+    </optional>
+  </define>
+  <define name="commentperiod">
+    <a:documentation>The period during which comments may be submitted to the document draft</a:documentation>
+    <element name="commentperiod">
+      <element name="from">
+        <a:documentation>The beginning of the period during which comments may be submitted to the document draft</a:documentation>
+        <ref name="ISO8601Date"/>
+      </element>
+      <optional>
+        <element name="to">
+          <a:documentation>The end of the period during which comments may be submitted to the document draft. 
+The end of the period may change, and may be left open-ended (omitted)</a:documentation>
+          <ref name="ISO8601Date"/>
+        </element>
+      </optional>
+    </element>
+  </define>
+</grammar>
