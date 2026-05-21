@@ -1,0 +1,10 @@
+require "relaton/bib"
+require "relaton/util"
+require "relaton/config"
+require "yaml"
+
+require_relative "relaton/workers_pool"
+require_relative "relaton/db"
+require_relative "relaton/db_cache"
+require_relative "relaton/version"
+require_relative "relaton/registry"

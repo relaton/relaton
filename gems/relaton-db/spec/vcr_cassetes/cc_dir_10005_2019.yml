@@ -1,0 +1,199 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-calconnect/refs/heads/data-v2/index-v1.zip
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - raw.githubusercontent.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1372'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - application/zip
+      Etag:
+      - W/"fa8ce040d15562b7afd75525de27ce029e28b5dde232d4530729370195e7fc02"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - 1898:1C03:CE45:14A0B:69F52C28
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Fri, 01 May 2026 22:41:44 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kcgs7200058-IAD
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1777675305.747895,VS0,VE73
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - abe32476ff86a20b4b5d7b3ec6b0650c7dd55d0d
+      Expires:
+      - Fri, 01 May 2026 22:46:44 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        UEsDBBQAAAAIAFR5hlz89+KcrAQAADQlAAANABwAaW5kZXgtdjEueWFtbFVU
+        CQADLwXUaTAF1Gl1eAsAAQT1AQAABBQAAACF2b1uI0cQBOD8noIvwBN7fneY
+        HSQYcEoFjgnRBwg4J5Qhw29/29NLyBar6hImgw89u6xecnr3+/2X/e74ejnu
+        Hh8fvu0Oh4Md0/r5Zbc7fn/98edxdzn/fX54edmf976498Wv/57/+vF/Z+EM
+        OgtnwKVwCboULgFXwhXoSrgCXVIucZeVy9wV5QpzNa6vQlfj+ip0SbnEXVYu
+        c1eUK9A9u6vEvbmrvF5T9Rqv11W9zustqt7C3VBuUGcH4ezAncqL8byYyovx
+        vJjKi5G8XN5d0sRc3t3SzDTaE+t32EhPfLimXPvsTu4ScVd3Cbpv7jJxZ3eZ
+        1yuqXuH1qqpXkXPViPIlXmv2USe1Zh916Ba1x4XXG8oN6qKPiIs+uneez2Ys
+        LTOfzXBeZk2Wl1mT58VUXgznZTqWl+l4XkzlxWBevI969BH47tc+6tFH6Lvv
+        0Uc4Mz366LNzlYnyJV6rqFqFu6pchW7ek9lFC7kns48W7ti9bHifns/OO9Dz
+        2UkPnlwuRF7dLarm0DUHva/Rh+S+Rh9iR7vQHe3BbiprBrMWjqVtOp43U3kz
+        mrclegnkZnVL9NJdbqZLyiXusnKZu6Jcge7krhJ3dVd5PdZPsx7up+m6cp27
+        2RODuNkTA7qh6g1aL/qBuOgH7FRejOdljbyU67KyKm2+rKxKnC8rq1Lny8qy
+        5G2WZ29dVOnzZWVVAn2Z2RHPApzBEc8ClMERzwLmEnTP7jJxb+4ydCd3hbir
+        u8JdVa7yfTa1z8brdVWv8/spngWDPwtGPAuYG9TFs4C4eBZgp/JiLC8Wsx2D
+        sx2L2Y6B2c66lJRL3GXlMnTP7gpxb+4Kr1dVvcpdU65x15Xr3C3KLdwN5QZ1
+        M2fMzZzdu5M7lperO5yXDwdmeh/ubqY3HcvZdDxnpnJmOGfTzZzBmaUvugMz
+        S4tZJ3Ex6yQuKZe4y8pl6E7u2PVd3Ynrq6pe5a4p15iLGTDKy+piBnyfl2d3
+        ibg3dwm6WS+repm7olxh+8xxfRnuM8f1ZVAvx/UBd3aXuMvKZe6KcoW7qlzl
+        rinXuOvKdebinYHBWbzFOwMDs3iLdwbUJe6ycpm7olzhripXuWvKNe66cp25
+        eLdhcHZs8W7DwMzZ4t0GdYm7rFzmrihXuKvKVe6aco25mG8bnJVYzLcNzEos
+        5tvUJe6ycpm7olzhripXuWvKNeZizmlwpmMx5zQw07GYc1KXuMvKZe6KcoW7
+        qlzlrinXmItZl8GTscWsy8C52GLWRV3iLiuXuSvKFe6qcpW5OPcbPMdZnPsN
+        nePi3E9d4i4rl6F7+t3/mR/oVi+v/uf8QHZ702zDN433fNNs2zetd15/oavU
+        7Re6Qf3b0zzHxsEL6O+XeZSNsxeYYfixjNl5GDpA6f/B5zeVwI+ybWf89Pk3
+        eXYoa9G5hhI8FWvQuYZzf3mfcmEtc3mfeoH6j6ddKin5OTiB/+H/XPZz2a/y
+        7p/4aqt/Y+T2rHYuozv08BjWLzeB3+eXsH7F6e4XerPsmbRZ/FTaLHsubRY/
+        mTZbyfVutqrrbdo2aLf7vJD4bvd5gfm9QVT0pthujQU/dmsw+277+s2xX8TV
+        zuX//Lb9BFBLAQIeAxQAAAAIAFR5hlz89+KcrAQAADQlAAANABgAAAAAAAEA
+        AACkgQAAAABpbmRleC12MS55YW1sVVQFAAMvBdRpdXgLAAEE9QEAAAQUAAAA
+        UEsFBgAAAAABAAEAUwAAAPMEAAAAAA==
+  recorded_at: Fri, 01 May 2026 22:41:44 GMT
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-calconnect/refs/heads/data-v2/data/cc-dir-10005-2019.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      User-Agent:
+      - Faraday v2.7.12
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1008'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"544445c2b81f31245c8e618225d8732168512110308c3dcdccf652ab30074245"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - DE5A:131F35:B7216:DFEB7:69F52C26
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Fri, 01 May 2026 22:41:44 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kjyo7100092-IAD
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1777675305.935102,VS0,VE59
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - 3c48bcf78960249f679c4ad23ec8863a6e4e8926
+      Expires:
+      - Fri, 01 May 2026 22:46:44 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        LS0tCmlkOiBDQ0RJUjEwMDA1MjAxOQp0eXBlOiBzdGFuZGFyZApzY2hlbWFf
+        dmVyc2lvbjogdjEuNS42CnRpdGxlOgotIGxhbmd1YWdlOiBlbgogIGNvbnRl
+        bnQ6IEd1aWRlbGluZXMgZm9yIHRoZSBpbXBsZW1lbnRhdGlvbiBvZiB0aGUg
+        Q2FsQ29ubmVjdCBwYXRlbnQgcG9saWN5CmRvY2lkZW50aWZpZXI6Ci0gY29u
+        dGVudDogQ0MvRElSIDEwMDA1OjIwMTkKICB0eXBlOiBDYWxDb25uZWN0CiAg
+        cHJpbWFyeTogdHJ1ZQpkb2NudW1iZXI6ICcxMDAwNScKZGF0ZToKLSB0eXBl
+        OiBwdWJsaXNoZWQKICBhdDogJzIwMTktMDYtMTMnCmNvbnRyaWJ1dG9yOgot
+        IHJvbGU6CiAgLSB0eXBlOiBhdXRob3IKICBvcmdhbml6YXRpb246CiAgICBu
+        YW1lOgogICAgLSBjb250ZW50OiBDYWxDb25uZWN0Ci0gcm9sZToKICAtIHR5
+        cGU6IHB1Ymxpc2hlcgogIG9yZ2FuaXphdGlvbjoKICAgIG5hbWU6CiAgICAt
+        IGNvbnRlbnQ6IENhbENvbm5lY3QKLSByb2xlOgogIC0gdHlwZTogYXV0aG9y
+        CiAgICBkZXNjcmlwdGlvbjoKICAgIC0gY29udGVudDogY29tbWl0dGVlCiAg
+        b3JnYW5pemF0aW9uOgogICAgbmFtZToKICAgIC0gY29udGVudDogQ2FsQ29u
+        bmVjdAogICAgc3ViZGl2aXNpb246CiAgICAtIG5hbWU6CiAgICAgIC0gY29u
+        dGVudDogUFVCTElTSAogICAgICB0eXBlOiB0ZWNobmljYWwtY29tbWl0dGVl
+        CmVkaXRpb246CiAgbnVtYmVyOiAnMScKdmVyc2lvbjoKLSByZXZpc2lvbl9k
+        YXRlOiAnMjAxOS0wNi0xMycKbGFuZ3VhZ2U6Ci0gZW4Kc2NyaXB0OgotIExh
+        dG4Kc3RhdHVzOgogIHN0YWdlOgogICAgY29udGVudDogcHVibGlzaGVkCmNv
+        cHlyaWdodDoKLSBmcm9tOiAnMjAxOScKICBvd25lcjoKICAtIG9yZ2FuaXph
+        dGlvbjoKICAgICAgbmFtZToKICAgICAgLSBjb250ZW50OiBDYWxDb25uZWN0
+        CmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjEuMS4yCiAgZG9jdHlwZToKICAg
+        IGFiYnJldmlhdGlvbjogRElSCiAgICBjb250ZW50OiBkaXJlY3RpdmUKICBm
+        bGF2b3I6IGNhbGNvbm5lY3QK
+  recorded_at: Fri, 01 May 2026 22:41:44 GMT
+recorded_with: VCR 6.4.0

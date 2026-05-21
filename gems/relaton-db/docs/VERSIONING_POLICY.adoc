@@ -1,0 +1,38 @@
+= Versioning Policy
+
+This document describes the versioning policy for the Relaton project. We follow the https://semver.org/[Semantic Versioning] scheme.
+
+== Versioning Scheme
+
+Version nubmers are in the form of `MAJOR.MINOR.PATCH`. The version number is incremented based on the following:
+
+- `MAJOR` version is incremented when incompatible changes are made to the API.
+- `MINOR` version is incremented when the Relaton data model is changed.
+- `PATCH` version is incremented when backward-compatible bug fixes are made.
+
+== Rules for incrementing version numbers
+
+1. **MAJOR** version is incremented when incompatible changes are made to the API. Icrement the MAJOR version when:
+   - Removing or renaming classes or methods.
+   - Changing the signature of a method.
+   - Changing the behavior of a method.
+
+2. **MINOR** version is incremented when the Relaton data model is changed. Increment the MINOR version when:
+   - Adding, remmoving or renaming attributes of data model classes.
+   - Adding new data model classes.
+
+3. **PATCH** version is incremented when backward-compatible bug fixes are made. Increment the PATCH version when:
+   - Fixing a bug that does not change the behavior of the API.
+   - Improving the performance of the API.
+
+== Additional Guidelines
+
+For convenience, we use the same major and minor vesions for all the Relaton flavor gems that uses the same version of the Relaton data model.
+
+== Exceptions
+
+In some cases, we may increment the `PATCH` version for backward-incompatible changes. In such cases, we will update dependent gems to use the new version or higher. For example `"~> 1.19.2"` doen't allow to use version less than `1.19.2`.
+
+== References
+
+- https://semver.org/[Semantic Versioning]
