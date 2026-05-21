@@ -26,8 +26,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "nokogiri", ">= 1.16"
   spec.add_dependency "psych", "~> 5.2.0" # versin 5.3.0 crashes
-  spec.add_dependency "relaton-logger", "~> 0.2.0"
-  # spec.add_dependency "relaton-bib", "~> 1.20.0"
-  # spec.add_dependency "relaton-index", "~> 0.2.16"
+  spec.add_dependency "relaton-logger", "~> 2.2"
+  # spec.add_dependency "relaton-bib", "~> 2.2"
+  # spec.add_dependency "relaton-index", "~> 2.2"
   # spec.add_dependency "pubid-core", "~> 1.12.10"
 end

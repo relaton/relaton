@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "lutaml-model", "~> 0.8.0"
   spec.add_dependency "nokogiri", ">= 1.16"
   spec.add_dependency "psych", "~> 5.2.0" # versin 5.3.0 crashes
-  spec.add_dependency "relaton-core", "~> 0.0.8"
-  spec.add_dependency "relaton-logger", "~> 0.2.0"
+  spec.add_dependency "relaton-core", "~> 2.2"
+  spec.add_dependency "relaton-logger", "~> 2.2"
   spec.add_dependency "rfcxml", "~> 0.4.3"
 end

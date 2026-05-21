@@ -30,10 +30,10 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files`.split("\n")
   spec.required_ruby_version = Gem::Requirement.new(">= 3.2.0")
 
-  spec.add_dependency "relaton-bib", "~> 2.1"
-  spec.add_dependency "relaton-core", "~> 0.0"
-  spec.add_dependency "relaton-index", "~> 0.2"
-  spec.add_dependency "relaton-logger", "~> 0.2"
+  spec.add_dependency "relaton-bib", "~> 2.2"
+  spec.add_dependency "relaton-core", "~> 2.2"
+  spec.add_dependency "relaton-index", "~> 2.2"
+  spec.add_dependency "relaton-logger", "~> 2.2"
 
   spec.metadata["rubygems_mfa_required"] = "true"
 end

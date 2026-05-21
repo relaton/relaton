@@ -1,5 +1,5 @@
 module Relaton
   module Core
-    VERSION = "0.0.13".freeze
+    VERSION = "2.2.0".freeze
   end
 end

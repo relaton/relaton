@@ -2,6 +2,6 @@
 
 module Relaton
   module Index
-    VERSION = "0.2.21"
+    VERSION = "2.2.0"
   end
 end

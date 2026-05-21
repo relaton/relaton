@@ -28,9 +28,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "openssl", "~> 3.3.2"
   spec.add_dependency "pubid-ccsds", "~> 1.15.2"
-  spec.add_dependency "relaton-bib", "~> 2.1.0"
-  spec.add_dependency "relaton-core", "~> 0.0.9"
-  spec.add_dependency "relaton-index", "~> 0.2.16"
+  spec.add_dependency "relaton-bib", "~> 2.2"
+  spec.add_dependency "relaton-core", "~> 2.2"
+  spec.add_dependency "relaton-index", "~> 2.2"
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
 end
