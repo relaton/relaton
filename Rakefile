@@ -30,6 +30,22 @@ GEMS.each do |gem_name|
       end
       raise "Test failed for #{gem_name}" unless success
     end
+
+    namespace :failed do
+      desc "Re-run only previously failed specs for #{gem_name}"
+      task namespace_name do
+        status_file = "gems/#{gem_name}/.rspec_status"
+        unless File.exist?(status_file)
+          puts "No .rspec_status for #{gem_name} — run `rake test:#{namespace_name}` first."
+          next
+        end
+        puts "Re-running failed specs for #{gem_name}..."
+        success = Bundler.with_unbundled_env do
+          system("cd gems/#{gem_name} && bundle exec rspec --only-failures")
+        end
+        raise "Test failed for #{gem_name}" unless success
+      end
+    end
   end
 
   namespace :build do
@@ -101,6 +117,49 @@ namespace :test do
 
     if failed.empty?
       puts "✓ All #{total} gems passed."
+    else
+      failed.each do |r|
+        puts "═" * 60
+        puts "FAILED: #{r[:gem]}"
+        puts "═" * 60
+        puts r[:output]
+      end
+      puts "Summary: #{passed} passed, #{failed.size} failed"
+      puts "Failed gems: #{failed.map { |r| r[:gem] }.join(', ')}"
+      exit 1
+    end
+  end
+
+  desc "Re-run only previously failed specs across all gems"
+  task :failed do
+    require "open3"
+    candidates = GEMS.select do |g|
+      f = "gems/#{g}/.rspec_status"
+      File.exist?(f) && File.read(f).include?("| failed |")
+    end
+    if candidates.empty?
+      puts "No gems have known failures. Run `rake test:all` first."
+      next
+    end
+
+    total = candidates.size
+    results = []
+    candidates.each_with_index do |gem_name, i|
+      print "[#{i + 1}/#{total}] #{gem_name} ... "
+      $stdout.flush
+      started = Time.now
+      output, status = Bundler.with_unbundled_env do
+        Open3.capture2e("cd gems/#{gem_name} && bundle exec rspec --only-failures")
+      end
+      elapsed = (Time.now - started).round(1)
+      puts status.success? ? "✓ (#{elapsed}s)" : "✗ (#{elapsed}s)"
+      results << { gem: gem_name, ok: status.success?, output: output }
+    end
+
+    failed = results.reject { |r| r[:ok] }
+    passed = results.size - failed.size
+    if failed.empty?
+      puts "✓ All #{total} gems passed (re-run of previously-failed specs)."
     else
       failed.each do |r|
         puts "═" * 60
