@@ -1,4 +1,3 @@
-require "date"
 require "niso-jats"
 
 module Relaton::Bipm
@@ -323,16 +322,17 @@ module Relaton::Bipm
       end
 
       def format_pub_date(pd)
-        year = pd.year&.content&.to_i
-        return nil unless year && year > 0
+        year = pd.year&.content
+        return nil unless year&.match?(/\A\d{1,4}\z/)
 
-        month = pd.month&.content&.to_i
-        month = 1 if month.nil? || month.zero?
-        day = pd.day&.content&.to_i
-        day = 1 if day.nil? || day.zero?
-        Date.new(year, month, day).iso8601
-      rescue ArgumentError, NoMethodError, TypeError
-        nil
+        parts = [year.rjust(4, "0")]
+        month = pd.month&.content
+        if month&.match?(/\A\d{1,2}\z/)
+          parts << month.rjust(2, "0")
+          day = pd.day&.content
+          parts << day.rjust(2, "0") if day&.match?(/\A\d{1,2}\z/)
+        end
+        parts.join("-")
       end
     end
   end

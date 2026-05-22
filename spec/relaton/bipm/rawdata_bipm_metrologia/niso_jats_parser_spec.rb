@@ -149,22 +149,41 @@ describe Relaton::Bipm::RawdataBipmMetrologia::NisoJatsParser do
   describe "#format_pub_date" do
     let(:parser) { described_class.new(double("doc"), "1", "1", "1") }
 
-    it "pads missing day to 1" do
+    it "returns YYYY-MM-DD when full date is present" do
+      pd = Niso::Jats::PubDate.new(
+        year: Niso::Jats::Year.new(content: "2023"),
+        month: Niso::Jats::Month.new(content: "5"),
+        day: Niso::Jats::Day.new(content: "7"),
+      )
+      expect(parser.send(:format_pub_date, pd)).to eq "2023-05-07"
+    end
+
+    it "returns YYYY-MM when day is missing" do
       pd = Niso::Jats::PubDate.new(
         year: Niso::Jats::Year.new(content: "2023"),
         month: Niso::Jats::Month.new(content: "5"),
       )
-      expect(parser.send(:format_pub_date, pd)).to eq "2023-05-01"
+      expect(parser.send(:format_pub_date, pd)).to eq "2023-05"
     end
 
-    it "pads missing month and day to 1" do
+    it "returns YYYY when only year is present" do
       pd = Niso::Jats::PubDate.new(year: Niso::Jats::Year.new(content: "2023"))
-      expect(parser.send(:format_pub_date, pd)).to eq "2023-01-01"
+      expect(parser.send(:format_pub_date, pd)).to eq "2023"
     end
 
     it "returns nil when year is missing" do
       pd = Niso::Jats::PubDate.new(month: Niso::Jats::Month.new(content: "5"))
       expect(parser.send(:format_pub_date, pd)).to be_nil
+    end
+
+    it "round-trips as Relaton::Bib::Date for partial precision" do
+      pd = Niso::Jats::PubDate.new(
+        year: Niso::Jats::Year.new(content: "2023"),
+        month: Niso::Jats::Month.new(content: "5"),
+      )
+      formatted = parser.send(:format_pub_date, pd)
+      date = Relaton::Bib::Date.new(type: "ppub", at: formatted)
+      expect(date.at.to_s).to eq "2023-05"
     end
   end
 
