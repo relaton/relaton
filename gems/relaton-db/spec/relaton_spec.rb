@@ -65,10 +65,15 @@ RSpec.describe Relaton::Db do
     end
 
     it "gets sn ISO/DIS reference" do
-      VCR.use_cassette "iso_dis" do
-        bib = @db.fetch "ISO/DIS 14460"
-        expect(bib.docidentifier[0].content).to eq "ISO/DIS 14460"
-      end
+      docid = Relaton::Bib::Docidentifier.new(content: "ISO/DIS 14460",
+                                              type: "ISO")
+      item = Relaton::Iso::ItemData.new(
+        docidentifier: [docid], fetched: Date.today.to_s,
+      )
+      expect(Relaton::Iso::Bibliography).to receive(:get)
+        .with("ISO/DIS 14460", nil, {}).and_return item
+      bib = @db.fetch "ISO/DIS 14460"
+      expect(bib.docidentifier[0].content).to eq "ISO/DIS 14460"
     end
   end
 
