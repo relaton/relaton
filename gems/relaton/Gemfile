@@ -2,6 +2,14 @@ source "https://rubygems.org"
 
 gemspec
 
+# Use local monorepo sibling gems where available.
+Dir["../*/"].each do |dir|
+  name = File.basename(dir)
+  next if name == File.basename(__dir__)
+  next unless File.exist?(File.join(dir, "#{name}.gemspec"))
+  gem name, path: dir
+end
+
 # Use local monorepo versions of all relaton gems for development/testing.
 gem "relaton-db", path: "../relaton-db"
 
