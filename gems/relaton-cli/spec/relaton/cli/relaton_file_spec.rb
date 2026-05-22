@@ -139,15 +139,16 @@ RSpec.describe Relaton::Cli::RelatonFile do
     end
 
     context "with YAML, RXL and linked documents" do
-      it "combines documents and also add dynamic links" do
-        file_types = ["xml", "pdf", "doc", "html"]
-        create_fixture_files("sample", file_types)
+      let(:file_types) { ["xml", "pdf", "doc", "html"] }
 
+      before { create_fixture_files("sample", file_types) }
+      after { cleanup_fixture_files("sample", file_types) }
+
+      it "combines documents and also add dynamic links" do
         Relaton::Cli::RelatonFile.concatenate(
           "spec/fixtures", "./tmp/concatenate.yml", extension: "yml"
         )
 
-        cleanup_fixture_files("sample", file_types)
         hashdoc = YAML.load_file("./tmp/concatenate.yml")
         items = hashdoc["root"]["items"]
 
@@ -215,7 +216,7 @@ RSpec.describe Relaton::Cli::RelatonFile do
   end
 
   def cleanup_fixture_files(name, types = [])
-    types.each { |type| FileUtils.rm("spec/fixtures/#{name}.#{type}") }
+    types.each { |type| FileUtils.rm_f("spec/fixtures/#{name}.#{type}") }
   end
 
   def create_fixture_files(name, types = [])
