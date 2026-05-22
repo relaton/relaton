@@ -310,7 +310,13 @@ RSpec.describe Relaton::Db do
     expect(bib.docidentifier.first.content).to eq "CCSDS 230.2-G-1"
   end
 
-  it "get IEEE reference", vcr: "ieee_528_2019" do
+  it "get IEEE reference" do
+    require "relaton/ieee"
+    docid = Relaton::Bib::Docidentifier.new(content: "IEEE Std 528-2019",
+                                            type: "IEEE")
+    item = Relaton::Ieee::ItemData.new docidentifier: [docid]
+    expect(Relaton::Ieee::Bibliography).to receive(:get)
+      .with("IEEE Std 528-2019", nil, {}).and_return item
     bib = @db.fetch "IEEE Std 528-2019"
     expect(bib).to be_instance_of Relaton::Ieee::ItemData
   end
@@ -327,17 +333,23 @@ RSpec.describe Relaton::Db do
   end
 
   it "get ECMA reference" do
-    VCR.use_cassette "ecma_6" do
-      bib = @db.fetch "ECMA-6"
-      expect(bib).to be_instance_of Relaton::Ecma::ItemData
-    end
+    require "relaton/ecma"
+    docid = Relaton::Bib::Docidentifier.new(content: "ECMA-6", type: "ECMA")
+    item = Relaton::Ecma::ItemData.new docidentifier: [docid]
+    expect(Relaton::Ecma::Bibliography).to receive(:get)
+      .with("ECMA-6", nil, {}).and_return item
+    bib = @db.fetch "ECMA-6"
+    expect(bib).to be_instance_of Relaton::Ecma::ItemData
   end
 
   it "get CIE reference" do
-    VCR.use_cassette "cie_001_1980" do
-      bib = @db.fetch "CIE 001-1980"
-      expect(bib).to be_instance_of Relaton::Cie::ItemData
-    end
+    require "relaton/cie"
+    docid = Relaton::Bib::Docidentifier.new(content: "CIE 001-1980", type: "CIE")
+    item = Relaton::Cie::ItemData.new docidentifier: [docid]
+    expect(Relaton::Cie::Bibliography).to receive(:get)
+      .with("CIE 001-1980", nil, {}).and_return item
+    bib = @db.fetch "CIE 001-1980"
+    expect(bib).to be_instance_of Relaton::Cie::ItemData
   end
 
   it "get BSI reference" do
@@ -353,10 +365,13 @@ RSpec.describe Relaton::Db do
   end
 
   it "get CEN reference" do
-    VCR.use_cassette "en_10160_1999" do
-      bib = @db.fetch "EN 10160:1999"
-      expect(bib).to be_instance_of Relaton::Cen::ItemData
-    end
+    require "relaton/cen"
+    docid = Relaton::Bib::Docidentifier.new(content: "EN 10160:1999", type: "CEN")
+    item = Relaton::Cen::ItemData.new docidentifier: [docid]
+    expect(Relaton::Cen::Bibliography).to receive(:get)
+      .with("EN 10160:1999", nil, {}).and_return item
+    bib = @db.fetch "EN 10160:1999"
+    expect(bib).to be_instance_of Relaton::Cen::ItemData
   end
 
   it "get IANA reference" do
@@ -373,10 +388,15 @@ RSpec.describe Relaton::Db do
   end
 
   it "get 3GPP reference" do
-    VCR.use_cassette "3gpp_tr_00_01u_umts_3_0_0" do
-      bib = @db.fetch "3GPP TR 00.01U:UMTS/3.0.0"
-      expect(bib).to be_instance_of Relaton::ThreeGpp::ItemData
-    end
+    require "relaton/3gpp"
+    docid = Relaton::Bib::Docidentifier.new(
+      content: "3GPP TR 00.01U:UMTS/3.0.0", type: "3GPP",
+    )
+    item = Relaton::ThreeGpp::ItemData.new docidentifier: [docid]
+    expect(Relaton::ThreeGpp::Bibliography).to receive(:get)
+      .with("3GPP TR 00.01U:UMTS/3.0.0", nil, {}).and_return item
+    bib = @db.fetch "3GPP TR 00.01U:UMTS/3.0.0"
+    expect(bib).to be_instance_of Relaton::ThreeGpp::ItemData
   end
 
   it "get OASIS reference" do
@@ -406,7 +426,14 @@ RSpec.describe Relaton::Db do
     expect(bib.docidentifier.first.content).to eq "BIPM Metrologia 29 6 373"
   end
 
-  it "get DOI reference", vcr: "doi_10_6028_nist_ir_8245" do
+  it "get DOI reference" do
+    require "relaton/doi"
+    docid = Relaton::Bib::Docidentifier.new(
+      content: "10.6028/nist.ir.8245", type: "DOI",
+    )
+    item = Relaton::Bib::ItemData.new docidentifier: [docid]
+    expect(Relaton::Doi::Crossref).to receive(:get)
+      .with("doi:10.6028/nist.ir.8245").and_return item
     bib = @db.fetch "doi:10.6028/nist.ir.8245"
     expect(bib).to be_instance_of Relaton::Bib::ItemData
   end
