@@ -81,17 +81,35 @@ end
 namespace :test do
   desc "Run all gem specs"
   task :all do
-    failures = []
-    GEMS.each do |gem_name|
-      begin
-        Rake::Task["test:#{gem_to_namespace(gem_name)}"].invoke
-      rescue StandardError => e
-        failures << "#{gem_name}: #{e.message}"
+    require "open3"
+    total = GEMS.size
+    results = []
+    GEMS.each_with_index do |gem_name, i|
+      print "[#{i + 1}/#{total}] #{gem_name} ... "
+      $stdout.flush
+      started = Time.now
+      output, status = Bundler.with_unbundled_env do
+        Open3.capture2e("cd gems/#{gem_name} && rm -f Gemfile.lock && bundle && bundle exec rake")
       end
+      elapsed = (Time.now - started).round(1)
+      puts status.success? ? "✓ (#{elapsed}s)" : "✗ (#{elapsed}s)"
+      results << { gem: gem_name, ok: status.success?, output: output }
     end
-    if failures.any?
-      puts "\nFailed gems:"
-      failures.each { |f| puts "  ✗ #{f}" }
+
+    failed = results.reject { |r| r[:ok] }
+    passed = results.size - failed.size
+
+    if failed.empty?
+      puts "✓ All #{total} gems passed."
+    else
+      failed.each do |r|
+        puts "═" * 60
+        puts "FAILED: #{r[:gem]}"
+        puts "═" * 60
+        puts r[:output]
+      end
+      puts "Summary: #{passed} passed, #{failed.size} failed"
+      puts "Failed gems: #{failed.map { |r| r[:gem] }.join(', ')}"
       exit 1
     end
   end
