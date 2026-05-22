@@ -40,3 +40,8 @@ testcache2/
 
 # VCR cassettes locally re-recorded (kept in commits where intended)
 # (none excluded by default)
+.claude/settings.local.json
+.claude/worktrees/
+
+# Rubocop URL-inherit cache (created when inherit_from points at a URL)
+.rubocop-http*
