@@ -10,4 +10,5 @@ gem "rspec", "~> 3.0"
 gem "ruby-jing"
 gem "simplecov"
 gem "vcr"
+gem "wasmtime", "~> 41.0", group: :development # kept for golden-token regeneration only
 gem "webmock"
