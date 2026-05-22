@@ -98,26 +98,26 @@ jobs:
     - if: ${{ inputs.monorepo }}
       id: combined_matrix
       run: |
-        # Create combined matrix for gems and ruby versions
+        # Create combined matrix for gems and ruby versions.
+        # GitHub Actions caps a single matrix at 256 jobs, so a full
+        # gems × rubies × oses cross-product (35 × 3 × 3 = 315) gets
+        # silently dropped. Keep full Ruby coverage on Linux and add
+        # default-Ruby sanity runs on macOS/Windows: 35×3 + 35×1 + 35×1.
         ruby_matrix='${{ steps.ruby_matrix.outputs.value }}'
         gems_array='${{ steps.gems_matrix.outputs.value }}'
 
-        # Create combined matrix
         combined=$(echo "$ruby_matrix" | jq --argjson gems "$gems_array" '
           .ruby as $ruby_configs |
-          .os as $os_list |
+          ($ruby_configs | map(select(.experimental == false)) | .[0]) as $default_ruby |
           $gems as $gem_list |
           {
-            "include": [
-              $gem_list[] as $gem |
-              $ruby_configs[] as $ruby |
-              $os_list[] as $os |
-              {
-                "gem": $gem,
-                "ruby": $ruby,
-                "os": $os
-              }
-            ]
+            "include": (
+              [ $gem_list[] as $gem | $ruby_configs[] as $ruby |
+                  { "gem": $gem, "ruby": $ruby, "os": "ubuntu-latest" } ]
+              +
+              [ $gem_list[] as $gem | ["macos-latest", "windows-latest"][] as $os |
+                  { "gem": $gem, "ruby": $default_ruby, "os": $os } ]
+            )
           }
         ')
 
@@ -135,7 +135,7 @@ jobs:
     name: Test on Ruby ${{ matrix.ruby.version }} ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     needs: prepare
-    if: needs.prepare.outputs.push-for-tag != 'true' && !inputs.monorepo
+    if: needs.prepare.outputs.push_for_tag != 'true' && !inputs.monorepo
     concurrency:
       group: '${{ github.workflow }}-${{ matrix.os }}-${{ matrix.ruby.version }}-${{ github.head_ref || github.ref_name }}'
       cancel-in-progress: true
@@ -159,7 +159,7 @@ jobs:
 
     - run: bundle exec rake
 
-    - if: needs.prepare.outputs.public == 'true' && matrix.os == 'ubuntu-latest' && matrix.ruby.version == needs.prepare.outputs.default-ruby-version
+    - if: needs.prepare.outputs.public == 'true' && matrix.os == 'ubuntu-latest' && matrix.ruby.version == needs.prepare.outputs.default_ruby_version
       uses: codecov/codecov-action@v4
       with:
         file: coverage/.resultset.json
@@ -168,7 +168,7 @@ jobs:
     name: Test ${{ matrix.gem }} on Ruby ${{ matrix.ruby.version }} ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     needs: prepare
-    if: needs.prepare.outputs.push-for-tag != 'true' && inputs.monorepo
+    if: needs.prepare.outputs.push_for_tag != 'true' && inputs.monorepo
     concurrency:
       group: '${{ github.workflow }}-${{ matrix.gem }}-${{ matrix.os }}-${{ matrix.ruby.version }}-${{ github.head_ref || github.ref_name }}'
       cancel-in-progress: true
@@ -196,7 +196,7 @@ jobs:
 
     - run: bundle exec rake
 
-    - if: needs.prepare.outputs.public == 'true' && matrix.os == 'ubuntu-latest' && matrix.ruby.version == needs.prepare.outputs.default-ruby-version
+    - if: needs.prepare.outputs.public == 'true' && matrix.os == 'ubuntu-latest' && matrix.ruby.version == needs.prepare.outputs.default_ruby_version
       uses: codecov/codecov-action@v4
       with:
         file: ${{ format('{0}/{1}/coverage/.resultset.json', inputs.gem_directory, matrix.gem) }}
