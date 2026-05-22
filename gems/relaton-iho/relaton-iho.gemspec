@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   end
   s.platform      = Gem::Platform::RUBY
   s.require_paths = ["lib"]
-  s.required_ruby_version = Gem::Requirement.new(">= 3.2.0")
+  s.required_ruby_version = Gem::Requirement.new(">= 3.3.0")
 
   s.add_dependency "base64"
   s.add_dependency "pubid-iho", "~> 1.15.16"

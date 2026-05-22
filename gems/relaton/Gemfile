@@ -7,6 +7,7 @@ Dir["../*/"].each do |dir|
   name = File.basename(dir)
   next if name == File.basename(__dir__)
   next unless File.exist?(File.join(dir, "#{name}.gemspec"))
+
   gem name, path: dir
 end
 

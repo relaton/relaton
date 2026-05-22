@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
 
   spec.require_paths = ["lib"]
   spec.files         = `git ls-files`.split("\n")
-  spec.required_ruby_version = Gem::Requirement.new(">= 3.2.0")
+  spec.required_ruby_version = Gem::Requirement.new(">= 3.3.0")
 
   spec.add_dependency "relaton-db", "~> 2.2"
 

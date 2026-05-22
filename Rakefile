@@ -121,7 +121,19 @@ end
 namespace :rubocop do
   desc "Run RuboCop for all gems"
   task :all do
-    GEMS.each { |g| Rake::Task["rubocop:#{gem_to_namespace(g)}"].invoke }
+    failures = []
+    GEMS.each do |gem_name|
+      begin
+        Rake::Task["rubocop:#{gem_to_namespace(gem_name)}"].invoke
+      rescue StandardError => e
+        failures << "#{gem_name}: #{e.message}"
+      end
+    end
+    if failures.any?
+      puts "\nFailed gems:"
+      failures.each { |f| puts "  ✗ #{f}" }
+      exit 1
+    end
   end
 end
 

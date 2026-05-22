@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.description = "The logger for Relaton gem."
   spec.homepage = "https://github.com/relaton/relaton-logger"
   spec.license = "MIT"
-  spec.required_ruby_version = ">= 2.7.0"
+  spec.required_ruby_version = ">= 3.3.0"
 
   # spec.metadata["allowed_push_host"] = "TODO: Set to your gem server 'https://example.com'"
 
