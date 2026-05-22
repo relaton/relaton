@@ -288,7 +288,7 @@ module Relaton::Bipm
           # No institution: split the single text by comma
           div_addr = (div_addr[0] || "").split(",").map(&:strip)
           div = div_addr[0]
-          addr = div_addr[1..].join(", ")
+          addr = div_addr[1..]&.join(", ") || ""
         end
         [div, addr]
       end

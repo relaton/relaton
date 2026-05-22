@@ -146,6 +146,24 @@ describe Relaton::Bipm::RawdataBipmMetrologia::NisoJatsParser do
     end
   end
 
+  describe "#division_address" do
+    let(:parser) { described_class.new(double("doc"), "1", "1", "1") }
+
+    it "returns empty strings when affiliation has no institution and no content" do
+      aff = Niso::Jats::Aff.new(content: [])
+      div, addr = parser.send(:division_address, aff)
+      expect(div).to be_nil
+      expect(addr).to eq ""
+    end
+
+    it "returns empty strings when affiliation has no institution and only whitespace content" do
+      aff = Niso::Jats::Aff.new(content: ["   "])
+      div, addr = parser.send(:division_address, aff)
+      expect(div).to be_nil
+      expect(addr).to eq ""
+    end
+  end
+
   describe "#extract_paragraph_text" do
     let(:source) do
       File.read("spec/fixtures/rawdata-bipm/met12_3_273.xml", encoding: "UTF-8")
