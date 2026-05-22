@@ -1,9 +1,9 @@
 require "relaton/un/token_generator"
+require "yaml"
 
 describe Relaton::Un::TokenGenerator do
   describe ".generate" do
     before do
-      skip "wasmtime not available" unless Relaton::Un::TokenGenerator::WASMTIME_AVAILABLE
       described_class.instance_variable_set(:@cached_token, nil)
     end
 
@@ -29,6 +29,17 @@ describe Relaton::Un::TokenGenerator do
       second = described_class.generate
       expect(second).to be_a(String)
       expect(second).to match(/\A-?\d+\z/)
+    end
+  end
+
+  describe "golden tokens (interpreter vs frozen wasmtime output)" do
+    vectors = YAML.load_file(File.expand_path("../../fixtures/tokens.yml", __dir__))
+
+    vectors.each do |v|
+      it "produces #{v['token']} for input #{v['input'].inspect}" do
+        result = described_class.send(:call_wasm, *v["input"])
+        expect(result).to eq(v["token"])
+      end
     end
   end
 

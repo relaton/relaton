@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://documents.un.org/api/search?l=en&rid=c4fda23c-ad5b-49aa-ba7e-664b99603094
+    uri: https://documents.un.org/api/search?l=en&rid=33379965-da1a-4c91-96ce-b826d1af3d55
     body:
       encoding: UTF-8
       string: '{"symbol":"TRADE/CEFACT/2004/32","jobNumber":"","publicationDate":"*
@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 21 May 2026 02:28:21 GMT
+      - Fri, 22 May 2026 21:00:10 GMT
       Content-Type:
       - application/json; charset=utf-8
       Content-Length:
@@ -35,8 +35,8 @@ http_interactions:
       Connection:
       - keep-alive
       Set-Cookie:
-      - ApplicationGatewayAffinity=5664096c6822f5dc35a32d6c01af33ef; Path=/
-      - ApplicationGatewayAffinityCORS=5664096c6822f5dc35a32d6c01af33ef; Path=/; SameSite=None;
+      - ApplicationGatewayAffinity=9ff937bc5c93d5d69c241addebbf2fc4; Path=/
+      - ApplicationGatewayAffinityCORS=9ff937bc5c93d5d69c241addebbf2fc4; Path=/; SameSite=None;
         Secure
       Vary:
       - Origin
@@ -77,5 +77,5 @@ http_interactions:
         REVIEW OF UN/LOCODE, 19 DECEMBER 2003 / SUBMITTED BY THE SECRETARIAT","subjects":["TRADE
         DATA INTERCHANGE","CODES","PORTS","TRANSPORT TERMINALS","TRADE FACILITATION","PROJECT
         EVALUATION","DATABASES","WEBSITES"]}],"meta":{"matches":1,"numberOfGroups":1}}}'
-  recorded_at: Thu, 21 May 2026 02:28:21 GMT
+  recorded_at: Fri, 22 May 2026 21:00:10 GMT
 recorded_with: VCR 6.4.0
