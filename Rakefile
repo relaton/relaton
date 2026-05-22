@@ -32,16 +32,16 @@ GEMS.each do |gem_name|
     end
 
     namespace :failed do
-      desc "Re-run only previously failed specs for #{gem_name}"
+      desc "Re-run the next still-failing spec for #{gem_name}"
       task namespace_name do
         status_file = "gems/#{gem_name}/.rspec_status"
         unless File.exist?(status_file)
           puts "No .rspec_status for #{gem_name} — run `rake test:#{namespace_name}` first."
           next
         end
-        puts "Re-running failed specs for #{gem_name}..."
+        puts "Re-running next failed spec for #{gem_name}..."
         success = Bundler.with_unbundled_env do
-          system("cd gems/#{gem_name} && bundle exec rspec --only-failures")
+          system("cd gems/#{gem_name} && bundle exec rspec --next-failure")
         end
         raise "Test failed for #{gem_name}" unless success
       end

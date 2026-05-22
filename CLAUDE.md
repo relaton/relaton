@@ -15,7 +15,7 @@ bundle install
 bundle exec rake test:all                       # every gem's specs (continues past failures, prints summary)
 bundle exec rake test:relaton_iso               # one gem (gem name with - → _)
 bundle exec rake test:failed                    # re-run only previously failed specs (filters by .rspec_status)
-bundle exec rake test:failed:relaton_iso        # re-run failed specs for one gem
+bundle exec rake test:failed:relaton_iso        # re-run the next failing spec for one gem
 bundle exec rake version:show                   # master + per-gem versions
 bundle exec rake version:check                  # enforce shared MAJOR.MINOR across all gems
 bundle exec rake "version:bump[minor]"          # bump master MAJOR.MINOR, sync to all gems (resets PATCH to 0)

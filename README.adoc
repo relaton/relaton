@@ -33,7 +33,7 @@ bundle install
 bundle exec rake test:all              # run every gem's spec suite
 bundle exec rake test:relaton_iso      # run a single gem's specs
 bundle exec rake test:failed           # re-run only previously failed specs
-bundle exec rake test:failed:relaton_iso  # re-run failed specs for one gem
+bundle exec rake test:failed:relaton_iso  # re-run the next failing spec for one gem
 bundle exec rake version:show          # show master + per-gem versions
 bundle exec rake -T                    # all available tasks
 ----
