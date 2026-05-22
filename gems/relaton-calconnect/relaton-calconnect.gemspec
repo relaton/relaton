@@ -27,9 +27,9 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = Gem::Requirement.new(">= 3.3.0")
 
   spec.add_dependency "mechanize", "~> 2.10"
-  spec.add_dependency "relaton-bib", "~> 2.2"
-  spec.add_dependency "relaton-core", "~> 2.2"
+  spec.add_dependency "relaton-bib", "~> 2.2.0"
+  spec.add_dependency "relaton-core", "~> 2.2.0"
   spec.add_dependency "addressable", "~> 2.8"
-  spec.add_dependency "relaton-index", "~> 2.2"
+  spec.add_dependency "relaton-index", "~> 2.2.0"
   spec.add_dependency "rubyzip", "~> 2.3"
 end

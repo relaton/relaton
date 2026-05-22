@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency "base64"
   s.add_dependency "pubid-iho", "~> 1.15.16"
-  s.add_dependency "relaton-bib", "~> 2.2"
-  s.add_dependency "relaton-core", "~> 2.2"
-  s.add_dependency "relaton-index", "~> 2.2"
+  s.add_dependency "relaton-bib", "~> 2.2.0"
+  s.add_dependency "relaton-core", "~> 2.2.0"
+  s.add_dependency "relaton-index", "~> 2.2.0"
 end

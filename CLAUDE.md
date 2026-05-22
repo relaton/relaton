@@ -40,9 +40,9 @@ Per-gem `Gemfile`s pin cross-gem deps via `path: "../<sibling>"`, so edits in on
 
 **Registry load order.** `Relaton::Db::Registry` requires each flavor gem's top-level (`b`) before its `b/processor` so the flavor's `util.rb` is loaded first. If you add a flavor processor, mirror that pattern — loading the processor first will blow up.
 
-**`relaton` is the meta-gem.** `gems/relaton/` depends on `relaton-db` plus every flavor plugin via `~> 2.2`. `relaton-cli` is intentionally NOT a meta-gem dependency.
+**`relaton` is the meta-gem.** `gems/relaton/` depends on `relaton-db` plus every flavor plugin via `~> 2.2.0`. `relaton-cli` is intentionally NOT a meta-gem dependency.
 
-**Versioning model.** Master `MAJOR.MINOR` lives in `lib/relaton/version.rb` as `Relaton::MONOREPO_VERSION` (currently 2.2.0). All gems share the same `MAJOR.MINOR` but carry independent `PATCH` numbers; inter-gem deps are pinned `~> MAJOR.MINOR` so PATCH can drift per gem without churn. `version:sync` resets every gem to the master (PATCH → 0) — only use it when intentionally aligning patches after a master bump.
+**Versioning model.** Master `MAJOR.MINOR` lives in `lib/relaton/version.rb` as `Relaton::MONOREPO_VERSION` (currently 2.2.0). All gems share the same `MAJOR.MINOR` but carry independent `PATCH` numbers; inter-gem deps are pinned `~> MAJOR.MINOR.0` so PATCH can drift per gem without churn. The `MAJOR.MINOR.0` floor must be re-bumped in the same commit as a master `version:bump`. `version:sync` resets every gem to the master (PATCH → 0) — only use it when intentionally aligning patches after a master bump.
 
 **Per-gem version file paths follow Ruby module conventions.** `gems/relaton-iso/lib/relaton/iso/version.rb`. The 3gpp gem is the special case: directory is `gems/relaton-3gpp/lib/relaton/3gpp/`, but Ruby module is `Relaton::ThreeGpp`.
 

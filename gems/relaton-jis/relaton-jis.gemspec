@@ -35,9 +35,9 @@ Gem::Specification.new do |spec|
 
   # Uncomment to register a new dependency of your gem
   spec.add_dependency "mechanize", "~> 2.10"
-  spec.add_dependency "relaton-core", "~> 2.2"
-  spec.add_dependency "relaton-index", "~> 2.2"
-  spec.add_dependency "relaton-iso", "~> 2.2"
+  spec.add_dependency "relaton-core", "~> 2.2.0"
+  spec.add_dependency "relaton-index", "~> 2.2.0"
+  spec.add_dependency "relaton-iso", "~> 2.2.0"
 
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html

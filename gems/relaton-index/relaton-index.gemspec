@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "openssl", "~> 3.3.2"
   spec.add_dependency "pubid-core", "~> 1.15.6"
-  spec.add_dependency "relaton-logger", "~> 2.2"
+  spec.add_dependency "relaton-logger", "~> 2.2.0"
   spec.add_dependency "rubyzip", "~> 2.3.0"
 
   # For more information and examples about making a new gem, check out our
