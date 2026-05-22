@@ -324,10 +324,14 @@ module Relaton::Bipm
 
       def format_pub_date(pd)
         year = pd.year&.content&.to_i
+        return nil unless year && year > 0
+
         month = pd.month&.content&.to_i
+        month = 1 if month.nil? || month.zero?
         day = pd.day&.content&.to_i
+        day = 1 if day.nil? || day.zero?
         Date.new(year, month, day).iso8601
-      rescue ArgumentError, NoMethodError
+      rescue ArgumentError, NoMethodError, TypeError
         nil
       end
     end

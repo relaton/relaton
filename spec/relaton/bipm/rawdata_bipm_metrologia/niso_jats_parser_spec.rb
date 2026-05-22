@@ -146,6 +146,28 @@ describe Relaton::Bipm::RawdataBipmMetrologia::NisoJatsParser do
     end
   end
 
+  describe "#format_pub_date" do
+    let(:parser) { described_class.new(double("doc"), "1", "1", "1") }
+
+    it "pads missing day to 1" do
+      pd = Niso::Jats::PubDate.new(
+        year: Niso::Jats::Year.new(content: "2023"),
+        month: Niso::Jats::Month.new(content: "5"),
+      )
+      expect(parser.send(:format_pub_date, pd)).to eq "2023-05-01"
+    end
+
+    it "pads missing month and day to 1" do
+      pd = Niso::Jats::PubDate.new(year: Niso::Jats::Year.new(content: "2023"))
+      expect(parser.send(:format_pub_date, pd)).to eq "2023-01-01"
+    end
+
+    it "returns nil when year is missing" do
+      pd = Niso::Jats::PubDate.new(month: Niso::Jats::Month.new(content: "5"))
+      expect(parser.send(:format_pub_date, pd)).to be_nil
+    end
+  end
+
   describe "#division_address" do
     let(:parser) { described_class.new(double("doc"), "1", "1", "1") }
 
