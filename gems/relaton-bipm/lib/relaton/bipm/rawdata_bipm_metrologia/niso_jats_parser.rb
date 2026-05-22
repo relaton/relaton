@@ -1,4 +1,3 @@
-require "date"
 require "niso-jats"
 
 module Relaton::Bipm
@@ -188,7 +187,7 @@ module Relaton::Bipm
       def parse_type = "article"
 
       def parse_source
-        result = @doc.doi_links
+        result = @doc.doi_links.map { |link| Relaton::Bib::Uri.new(**link) }
         @errors[:article_source] &&= result.empty?
         result
       end
@@ -288,7 +287,7 @@ module Relaton::Bipm
           # No institution: split the single text by comma
           div_addr = (div_addr[0] || "").split(",").map(&:strip)
           div = div_addr[0]
-          addr = div_addr[1..].join(", ")
+          addr = div_addr[1..]&.join(", ") || ""
         end
         [div, addr]
       end
@@ -323,12 +322,17 @@ module Relaton::Bipm
       end
 
       def format_pub_date(pd)
-        year = pd.year&.content&.to_i
-        month = pd.month&.content&.to_i
-        day = pd.day&.content&.to_i
-        Date.new(year, month, day).iso8601
-      rescue ArgumentError, NoMethodError
-        nil
+        year = pd.year&.content
+        return nil unless year&.match?(/\A\d{1,4}\z/)
+
+        parts = [year.rjust(4, "0")]
+        month = pd.month&.content
+        if month&.match?(/\A\d{1,2}\z/)
+          parts << month.rjust(2, "0")
+          day = pd.day&.content
+          parts << day.rjust(2, "0") if day&.match?(/\A\d{1,2}\z/)
+        end
+        parts.join("-")
       end
     end
   end

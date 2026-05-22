@@ -82,6 +82,15 @@ describe Relaton::Bipm::RawdataBipmMetrologia::NisoJatsParser do
       expect(subject.type).to eq "article"
     end
 
+    context "parse_source" do
+      it { expect(subject.source.size).to eq 2 }
+      it { expect(subject.source[0]).to be_instance_of Relaton::Bib::Uri }
+      it { expect(subject.source[0].type).to eq "src" }
+      it { expect(subject.source[0].content.to_s).to eq "https://doi.org/10.1088/0026-1394/49/3/273" }
+      it { expect(subject.source[1]).to be_instance_of Relaton::Bib::Uri }
+      it { expect(subject.source[1].type).to eq "doi" }
+    end
+
     it "parse_ext" do
       expect(subject.ext.doctype).to be_instance_of Relaton::Bipm::Doctype
       expect(subject.ext.doctype.content).to eq "article"
@@ -134,6 +143,65 @@ describe Relaton::Bipm::RawdataBipmMetrologia::NisoJatsParser do
       expect(subject.copyright[0].owner.size).to eq 2
       expect(subject.copyright[0].owner[0].organization.name[0].content).to eq "BIPM"
       expect(subject.copyright[0].owner[1].organization.name[0].content).to eq "IOP Publishing Ltd"
+    end
+  end
+
+  describe "#format_pub_date" do
+    let(:parser) { described_class.new(double("doc"), "1", "1", "1") }
+
+    it "returns YYYY-MM-DD when full date is present" do
+      pd = Niso::Jats::PubDate.new(
+        year: Niso::Jats::Year.new(content: "2023"),
+        month: Niso::Jats::Month.new(content: "5"),
+        day: Niso::Jats::Day.new(content: "7"),
+      )
+      expect(parser.send(:format_pub_date, pd)).to eq "2023-05-07"
+    end
+
+    it "returns YYYY-MM when day is missing" do
+      pd = Niso::Jats::PubDate.new(
+        year: Niso::Jats::Year.new(content: "2023"),
+        month: Niso::Jats::Month.new(content: "5"),
+      )
+      expect(parser.send(:format_pub_date, pd)).to eq "2023-05"
+    end
+
+    it "returns YYYY when only year is present" do
+      pd = Niso::Jats::PubDate.new(year: Niso::Jats::Year.new(content: "2023"))
+      expect(parser.send(:format_pub_date, pd)).to eq "2023"
+    end
+
+    it "returns nil when year is missing" do
+      pd = Niso::Jats::PubDate.new(month: Niso::Jats::Month.new(content: "5"))
+      expect(parser.send(:format_pub_date, pd)).to be_nil
+    end
+
+    it "round-trips as Relaton::Bib::Date for partial precision" do
+      pd = Niso::Jats::PubDate.new(
+        year: Niso::Jats::Year.new(content: "2023"),
+        month: Niso::Jats::Month.new(content: "5"),
+      )
+      formatted = parser.send(:format_pub_date, pd)
+      date = Relaton::Bib::Date.new(type: "ppub", at: formatted)
+      expect(date.at.to_s).to eq "2023-05"
+    end
+  end
+
+  describe "#division_address" do
+    let(:parser) { described_class.new(double("doc"), "1", "1", "1") }
+
+    it "returns empty strings when affiliation has no institution and no content" do
+      aff = Niso::Jats::Aff.new(content: [])
+      div, addr = parser.send(:division_address, aff)
+      expect(div).to be_nil
+      expect(addr).to eq ""
+    end
+
+    it "returns empty strings when affiliation has no institution and only whitespace content" do
+      aff = Niso::Jats::Aff.new(content: ["   "])
+      div, addr = parser.send(:division_address, aff)
+      expect(div).to be_nil
+      expect(addr).to eq ""
     end
   end
 
