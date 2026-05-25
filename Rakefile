@@ -1,5 +1,6 @@
 require "rake"
 require "fileutils"
+require "bundler"
 
 # Discover all gems in gems/
 GEMS = if Dir.exist?("gems")
@@ -89,6 +90,19 @@ GEMS.each do |gem_name|
     desc "Run RuboCop for #{gem_name}"
     task namespace_name do
       in_gem_dir(gem_name) { sh "bundle exec rubocop" }
+    end
+  end
+
+  namespace :bundle do
+    namespace :update do
+      desc "bundle update for #{gem_name}"
+      task namespace_name do
+        puts "Updating #{gem_name}..."
+        success = Bundler.with_unbundled_env do
+          system("cd gems/#{gem_name} && bundle update --all")
+        end
+        raise "bundle update failed for #{gem_name}" unless success
+      end
     end
   end
 end
@@ -210,6 +224,68 @@ namespace :rubocop do
       puts "\nFailed gems:"
       failures.each { |f| puts "  ✗ #{f}" }
       exit 1
+    end
+  end
+end
+
+namespace :bundle do
+  namespace :update do
+    desc "bundle update for the top-level Gemfile.lock"
+    task :top do
+      require "open3"
+      print "[top-level] ... "
+      $stdout.flush
+      started = Time.now
+      output, status = Bundler.with_unbundled_env { Open3.capture2e("bundle update --all") }
+      elapsed = (Time.now - started).round(1)
+      puts status.success? ? "✓ (#{elapsed}s)" : "✗ (#{elapsed}s)"
+      unless status.success?
+        puts output
+        exit 1
+      end
+    end
+
+    desc "bundle update for top-level + every gem"
+    task :all do
+      require "open3"
+      total = GEMS.size + 1
+      results = []
+
+      print "[1/#{total}] (top-level) ... "
+      $stdout.flush
+      started = Time.now
+      output, status = Bundler.with_unbundled_env { Open3.capture2e("bundle update --all") }
+      elapsed = (Time.now - started).round(1)
+      puts status.success? ? "✓ (#{elapsed}s)" : "✗ (#{elapsed}s)"
+      results << { gem: "(top-level)", ok: status.success?, output: output }
+
+      GEMS.each_with_index do |gem_name, i|
+        print "[#{i + 2}/#{total}] #{gem_name} ... "
+        $stdout.flush
+        started = Time.now
+        output, status = Bundler.with_unbundled_env do
+          Open3.capture2e("cd gems/#{gem_name} && bundle update --all")
+        end
+        elapsed = (Time.now - started).round(1)
+        puts status.success? ? "✓ (#{elapsed}s)" : "✗ (#{elapsed}s)"
+        results << { gem: gem_name, ok: status.success?, output: output }
+      end
+
+      failed = results.reject { |r| r[:ok] }
+      passed = results.size - failed.size
+      if failed.empty?
+        puts "✓ All #{total} bundle updates succeeded."
+      else
+        failed.each do |r|
+          puts "═" * 60
+          puts "FAILED: #{r[:gem]}"
+          puts "═" * 60
+          puts r[:output]
+        end
+        puts "Summary: #{passed} passed, #{failed.size} failed"
+        puts "Failed: #{failed.map { |r| r[:gem] }.join(', ')}"
+        exit 1
+      end
     end
   end
 end
