@@ -31,7 +31,7 @@ module Relaton
       #
       def find # rubocop:disable Metrics/AbcSize
         @array = index.search do |row|
-          row[:id].is_a?(Hash) || row[:id].is_a?(::Pubid::Core::Identifier::Base) ? pubid_match?(row[:id]) : ref.to_s(with_prf: true) == row[:id]
+          row[:id].is_a?(Hash) || row[:id].is_a?(::Pubid::Identifier) ? pubid_match?(row[:id]) : ref.to_s(with_prf: true) == row[:id]
         end.map { |row| Hit.new row, self }
           .sort_by! { |h| h.pubid.to_s }
           .reverse!
@@ -49,7 +49,7 @@ module Relaton
       end
 
       def create_pubid(id)
-        return id if id.is_a?(::Pubid::Core::Identifier::Base)
+        return id if id.is_a?(::Pubid::Identifier)
 
         ::Pubid::Iso::Identifier.create(**id)
       rescue StandardError => e

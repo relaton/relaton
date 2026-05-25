@@ -21,7 +21,7 @@ module Relaton
       #     and save it to the storage (if not exists, or older than 24 hours)
       #   if true then the index is read from the storage (used to remove index file)
       #   if nil then the fiename is used to read and write file (used to create indes in GH actions)
-      # @param [Pubid::Core::Identifier::Base] pubid class for deserialization
+      # @param [Pubid::Identifier] pubid class for deserialization
       #
       def initialize(dir, url, filename, id_keys, pubid_class = nil)
         @dir = dir
@@ -194,13 +194,13 @@ module Relaton
       #
       def save(index)
         yaml = sort_structured_index(index).map do |item|
-          item.transform_values { |value| value.is_a?(Pubid::Core::Identifier::Base) ? value.to_h : value }
+          item.transform_values { |value| @pubid_class && value.is_a?(@pubid_class) ? value.to_h : value }
         end.to_yaml
         Index.config.storage.write file, yaml
       end
 
       def sort_structured_index(index)
-        if @pubid_class && index.first&.dig(:id).is_a?(Pubid::Core::Identifier::Base)
+        if @pubid_class && index.first&.dig(:id).is_a?(@pubid_class)
           index.sort_by { |item| get_id_number item[:id] }
         else
           index

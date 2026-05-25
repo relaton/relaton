@@ -110,7 +110,7 @@ module Relaton
         end
 
         def row_attributes(row_id)
-          return row_id.to_h if row_id.is_a?(::Pubid::Core::Identifier::Base)
+          return row_id.to_h if row_id.is_a?(::Pubid::Identifier)
           return row_id if row_id.is_a?(Hash)
 
           nil

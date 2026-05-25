@@ -1,7 +1,7 @@
 require "json"
 require "mechanize"
 require "relaton/index"
-require "pubid/ccsds"
+require "pubid"
 require_relative "../../ccsds"
 require_relative "parser"
 

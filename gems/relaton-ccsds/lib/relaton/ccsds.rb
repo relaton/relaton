@@ -4,7 +4,7 @@
 # require "relaton/core"
 # require "relaton/bib"
 require "relaton/index"
-require "pubid/ccsds"
+require "pubid"
 require_relative "ccsds/version"
 # require_relative "ccsds/processor"
 require_relative "ccsds/util"

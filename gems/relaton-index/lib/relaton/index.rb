@@ -3,7 +3,6 @@
 require "yaml"
 require "zip"
 require "relaton/logger"
-require "pubid-core"
 
 require_relative "index/version"
 require_relative "index/file_storage"
