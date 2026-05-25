@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 
+# Specify your gem's dependencies in gemspec
 gemspec
 
 # Use local monorepo sibling gems where available.
@@ -7,45 +8,22 @@ Dir["../*/"].each do |dir|
   name = File.basename(dir)
   next if name == File.basename(__dir__)
   next unless File.exist?(File.join(dir, "#{name}.gemspec"))
-
   gem name, path: dir
 end
 
-# Use local monorepo versions of all relaton gems for development/testing.
-gem "relaton-db", path: "../relaton-db"
 
-gem "relaton-3gpp",       path: "../relaton-3gpp"
-gem "relaton-bib",        path: "../relaton-bib"
-gem "relaton-bipm",       path: "../relaton-bipm"
-gem "relaton-bsi",        path: "../relaton-bsi"
-gem "relaton-calconnect", path: "../relaton-calconnect"
-gem "relaton-ccsds",      path: "../relaton-ccsds"
-gem "relaton-cen",        path: "../relaton-cen"
-gem "relaton-cie",        path: "../relaton-cie"
-gem "relaton-core",       path: "../relaton-core"
-gem "relaton-doi",        path: "../relaton-doi"
-gem "relaton-ecma",       path: "../relaton-ecma"
-gem "relaton-etsi",       path: "../relaton-etsi"
-gem "relaton-gb",         path: "../relaton-gb"
-gem "relaton-iana",       path: "../relaton-iana"
-gem "relaton-iec",        path: "../relaton-iec"
-gem "relaton-ieee",       path: "../relaton-ieee"
-gem "relaton-ietf",       path: "../relaton-ietf"
-gem "relaton-iho",        path: "../relaton-iho"
-gem "relaton-index",      path: "../relaton-index"
-gem "relaton-isbn",       path: "../relaton-isbn"
-gem "relaton-iso",        path: "../relaton-iso"
-gem "relaton-itu",        path: "../relaton-itu"
-gem "relaton-jis",        path: "../relaton-jis"
-gem "relaton-logger",     path: "../relaton-logger"
-gem "relaton-nist",       path: "../relaton-nist"
-gem "relaton-oasis",      path: "../relaton-oasis"
-gem "relaton-ogc",        path: "../relaton-ogc"
-gem "relaton-omg",        path: "../relaton-omg"
-gem "relaton-plateau",    path: "../relaton-plateau"
-gem "relaton-un",         path: "../relaton-un"
-gem "relaton-w3c",        path: "../relaton-w3c"
-gem "relaton-xsf",        path: "../relaton-xsf"
 
-gem "rake"
-gem "rspec"
+gem "byebug"
+gem "equivalent-xml", "~> 0.6"
+gem "guard", "~> 2.14"
+gem "guard-rspec", "~> 4.7"
+gem "pry-byebug"
+gem "rake", "~> 13.0"
+gem "rspec", "~> 3.6"
+gem "rubocop"
+gem "rubocop-performance"
+gem "rubocop-rails"
+gem "simplecov", "~> 0.15"
+gem "timecop", "~> 0.9"
+gem "vcr", "~> 6"
+gem "webmock", "~> 3.18"

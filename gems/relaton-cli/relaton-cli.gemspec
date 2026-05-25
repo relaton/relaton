@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "liquid", "~> 5"
   spec.add_dependency "relaton-bib", "~> 2.2.0"
-  spec.add_dependency "relaton-db", "~> 2.2.0"
+  spec.add_dependency "relaton", "~> 2.2.0"
   spec.add_dependency "thor"
   spec.add_dependency "thor-hollaback"
 end

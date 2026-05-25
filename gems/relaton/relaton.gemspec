@@ -10,25 +10,34 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Ribose Inc."]
   spec.email         = ["open.source@ribose.com"]
 
-  spec.summary       = "Relaton meta-gem: relaton-db plus all flavor plugins."
+  spec.summary       = "Relaton: bibliographic references to technical " \
+                       "standards — database, registry, cache, and all " \
+                       "flavor plugins bundled in one gem."
   spec.description   = <<~DESCRIPTION
-    Convenience meta-gem that installs the Relaton database (relaton-db)
-    and every Relaton flavor plugin in one go. Useful for users who want
-    to fetch references from any supported standards body without
-    cherry-picking gems.
+    Relaton is the central database, registry, and cache for bibliographic
+    references to technical standards in the Relaton/XML bibliographic
+    model. It provides the Relaton::Db API, a plugin registry that lazily
+    loads flavor gems (relaton-iso, relaton-ietf, etc.) on demand, and a
+    file-based cache for fetched references.
 
-    The CLI (relaton-cli) is intentionally NOT a dependency — install it
-    separately when you need command-line access.
+    Installing this gem also pulls in every Relaton flavor plugin so you
+    can fetch references from any supported standards body out of the
+    box. The CLI (relaton-cli) is intentionally NOT a dependency —
+    install it separately when you need command-line access.
   DESCRIPTION
 
   spec.homepage      = "https://github.com/relaton/relaton"
   spec.license       = "BSD-2-Clause"
 
+  spec.bindir        = "bin"
   spec.require_paths = ["lib"]
   spec.files         = `git ls-files`.split("\n")
   spec.required_ruby_version = Gem::Requirement.new(">= 3.3.0")
 
-  spec.add_dependency "relaton-db", "~> 2.2.0"
+  spec.add_dependency "relaton-bib", "~> 2.2.0"
+  spec.add_dependency "relaton-core", "~> 2.2.0"
+  spec.add_dependency "relaton-index", "~> 2.2.0"
+  spec.add_dependency "relaton-logger", "~> 2.2.0"
 
   spec.add_dependency "relaton-3gpp", "~> 2.2.0"
   spec.add_dependency "relaton-bipm", "~> 2.2.0"

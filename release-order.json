@@ -1,5 +1,5 @@
 {
-  "_comment": "Dependency-aware release order. Each gem must precede every gem that depends on it. Foundational gems first, flavor plugins next, meta-gem last.",
+  "_comment": "Dependency-aware release order. Each gem must precede every gem that depends on it. Foundational gems first, flavor plugins next, the main `relaton` gem (which depends on every flavor) last.",
   "release_order": [
     "relaton-logger",
     "relaton-core",
@@ -33,8 +33,7 @@
     "relaton-ogc",
     "relaton-plateau",
     "relaton-doi",
-    "relaton-db",
-    "relaton-cli",
-    "relaton"
+    "relaton",
+    "relaton-cli"
   ]
 }

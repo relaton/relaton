@@ -25,7 +25,8 @@
 require "fileutils"
 
 # All 33 relaton-* gems imported from individual GitHub repos.
-# The new `relaton` meta-gem is created locally and is NOT in this list.
+# `relaton` itself is handled separately via RENAMED below — its upstream
+# GH repo is named `relaton-db` (the result of an upstream rename).
 GEMS = %w[
   relaton-core
   relaton-index
@@ -62,9 +63,9 @@ GEMS = %w[
   relaton-cli
 ].freeze
 
-# relaton-db is the renamed original `relaton` repo; imported separately on
-# first setup (already present in this monorepo). Re-importing is supported.
-RENAMED = { "relaton-db" => "relaton-db" }.freeze
+# The `relaton` gem lives in `gems/relaton/` locally but its upstream GH
+# repo is named `relaton-db` (renamed upstream). Re-importing is supported.
+RENAMED = { "relaton" => "relaton-db" }.freeze
 
 ORG = "relaton"
 PREFERRED_BRANCH = "lutaml-integration"

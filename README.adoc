@@ -3,20 +3,20 @@
 Monorepo for the Relaton family of Ruby gems: a database, registry, cache, and
 plugin ecosystem for bibliographic references to technical standards.
 
-GitHub repo: https://github.com/relaton/relaton (the renamed
-`relaton/relaton-db` repo hosts the same monorepo).
+GitHub repo: https://github.com/relaton/relaton. The
+`relaton/relaton-db` repo is the upstream history source for `gems/relaton/`
+(renamed upstream); subtree imports pull from it via `monorepo_importer.rb`.
 
 == Layout
 
 ----
 gems/
-├── relaton/             # meta-gem: depends on relaton-db + 28 flavor plugins
-├── relaton-db/          # central DB, registry, cache (formerly the `relaton` gem)
+├── relaton/             # central DB (Relaton::Db) + runtime deps on every flavor
 ├── relaton-core/        # foundational utilities
 ├── relaton-index/       # index file support
 ├── relaton-logger/      # logging helpers
 ├── relaton-bib/         # bibliographic item model (lutaml-model)
-├── relaton-cli/         # command-line interface (optional, NOT in the meta-gem)
+├── relaton-cli/         # command-line interface (optional, NOT a `relaton` dep)
 └── relaton-<flavor>/    # 28 flavor plugins: iso, ietf, nist, ieee, gb, …
 lib/relaton/version.rb   # master MAJOR.MINOR for the monorepo
 Gemfile                  # auto-discovers all gems in gems/
@@ -120,7 +120,7 @@ dependencies.
     without bumping the master.
 . Gems push to RubyGems in dep-aware order (see `release-order.json`):
   logger → core → index → bib → flavor plugins → iso-dependent flavors → doi
-  → db → cli → relaton meta-gem.
+  → relaton (depends on every flavor) → relaton-cli (depends on relaton).
 
 Required repo secrets:
 
@@ -132,9 +132,11 @@ Required repo secrets:
 
 Foundational: `relaton-logger`, `relaton-core`, `relaton-index`, `relaton-bib`.
 
-DB + CLI: `relaton-db`, `relaton-cli`.
+Main: `relaton` — the central DB (`Relaton::Db` API, registry, cache) plus
+runtime deps on every flavor plugin. `gem install relaton` gives you the full
+multi-flavor setup in one step.
 
-Meta: `relaton` (depends on `relaton-db` + every flavor plugin; not `cli`).
+CLI: `relaton-cli` (optional; NOT a `relaton` runtime dep).
 
 Flavor plugins (28): `relaton-3gpp`, `relaton-bipm`, `relaton-bsi`,
 `relaton-calconnect`, `relaton-ccsds`, `relaton-cen`, `relaton-cie`,
