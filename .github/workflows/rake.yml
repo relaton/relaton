@@ -13,9 +13,9 @@ concurrency:
 
 jobs:
   rake:
-    uses: ./.github/workflows/generic-rake.yml
+    uses: relaton/support/.github/workflows/rake-monorepo.yml@main
     with:
-      monorepo: true
       gem_directory: gems
+      ruby_versions: "3.4,4.0"
     secrets:
       pat_token: ${{ secrets.RELATON_CI_PAT_TOKEN }}
