@@ -22,12 +22,9 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
   spec.required_ruby_version = Gem::Requirement.new(">= 3.3.0")
 
-  spec.add_runtime_dependency "liquid", "~> 5"
-  spec.add_runtime_dependency "relaton-db", "~> 2.2"
-  spec.add_runtime_dependency "thor"
-  spec.add_runtime_dependency "thor-hollaback"
-
-  # https://github.com/rails/rails/issues/55886
-  # add openssl as an explicit gem to fix SSL verification issues in GHA.
-  spec.add_development_dependency "openssl"
+  spec.add_dependency "liquid", "~> 5"
+  spec.add_dependency "relaton-bib", "~> 2.2.0"
+  spec.add_dependency "relaton-db", "~> 2.2.0"
+  spec.add_dependency "thor"
+  spec.add_dependency "thor-hollaback"
 end

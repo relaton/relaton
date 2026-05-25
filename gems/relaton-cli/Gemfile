@@ -11,10 +11,14 @@ Dir["../*/"].each do |dir|
   gem name, path: dir
 end
 
-
+# https://github.com/rails/rails/issues/55886
+# add openssl as an explicit gem to fix SSL verification issues in GHA.
+# gem "openssl"
 
 gem "byebug", "~> 11.0"
+gem "debug"
 gem "equivalent-xml", "~> 0.6"
+gem "fiddle"
 gem "pry"
 gem "rake"
 gem "rspec", "~> 3.0"
@@ -24,5 +28,3 @@ gem "rspec-html", "~> 0.3.0"
 gem "simplecov"
 gem "vcr"
 gem "webmock"
-gem "debug"
-gem "fiddle"

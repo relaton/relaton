@@ -32,9 +32,6 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  # Uncomment to register a new dependency of your gem
-  spec.add_dependency "isoics", "~> 0.1.0"
-  # spec.add_dependency "psych", "~> 5.2.0"
   spec.add_dependency "relaton-bib", "~> 2.2.0"
   spec.add_dependency "relaton-core", "~> 2.2.0"
 
