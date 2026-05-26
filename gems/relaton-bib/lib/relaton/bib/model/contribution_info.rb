@@ -7,7 +7,6 @@ module Relaton
       end
 
       xml do
-        no_root
         map_element "person", to: :person
         map_element "organization", to: :organization
       end
