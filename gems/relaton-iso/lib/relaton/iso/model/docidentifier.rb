@@ -87,10 +87,10 @@ module Relaton
         return @raw_content if @raw_content
         return nil unless @pubid
 
-        pubid = @pubid.exclude(:year)
+        pubid = @pubid.exclude(:date)
         current = pubid
         while current.base_identifier
-          current.base_identifier = current.base_identifier.exclude(:year)
+          current.base_identifier = current.base_identifier.exclude(:date)
           current = current.base_identifier
         end
         pubid
@@ -101,8 +101,8 @@ module Relaton
       def render_pubid(pubid)
         case type
         when "URN" then pubid.to_urn
+        when "ISO" then pubid.exclude(:languages).to_s
         else
-          # 2.x: :human format only; :ref_num_short and :with_prf removed.
           pubid.to_s
         end
       end
