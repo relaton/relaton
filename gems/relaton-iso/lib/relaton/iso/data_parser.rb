@@ -121,8 +121,9 @@ module Relaton
       end
 
       def iso_reference_pubid
-        params = pubid.to_h.except(:typed_stage)
-        ::Pubid::Iso::Identifier.create(language: "en", **params)
+        pubid.dup.tap do |id|
+          id.languages = [::Pubid::Components::Language.new(code: ["en"])]
+        end
       rescue StandardError
         nil
       end
