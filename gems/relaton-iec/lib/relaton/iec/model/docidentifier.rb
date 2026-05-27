@@ -69,14 +69,14 @@ module Relaton
       end
 
       def remove_date!
-        remove_attr!(:year)
+        remove_attr!(:date)
       end
 
       private
 
       def render_pubid(pubid)
         case type
-        when "URN" then pubid.urn
+        when "URN" then pubid.to_urn
         else pubid.to_s
         end
       end

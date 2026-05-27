@@ -1,8 +1,8 @@
 describe Relaton::Iho::Docidentifier do
   describe "#initialize" do
-    it "parses content into a Pubid::Core::Identifier::Base" do
+    it "parses content into a Pubid::Identifier" do
       d = described_class.new(content: "S-100 Part 1", type: "IHO", primary: true)
-      expect(d.pubid).to be_a Pubid::Core::Identifier::Base
+      expect(d.pubid).to be_a Pubid::Identifier
       expect(d.pubid.number).to eq "100"
       expect(d.pubid.part).to eq "1"
       expect(d.content).to eq "S-100 Part 1"
@@ -95,7 +95,7 @@ describe Relaton::Iho::Docidentifier do
       item = Relaton::Iho::Bibdata.from_xml(xml)
       docid = item.docidentifier.first
       expect(docid).to be_a described_class
-      expect(docid.pubid).to be_a Pubid::Core::Identifier::Base
+      expect(docid.pubid).to be_a Pubid::Identifier
       expect(docid.pubid.part).to eq "1"
     end
 

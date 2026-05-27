@@ -280,7 +280,7 @@ describe Relaton::Iec::DataFetcher do
         expect(pubid.to_s).to eq "IEC 60050-311:2001"
         expect(pubid.number.to_s).to eq "60050"
         expect(pubid.part.to_s).to eq "311"
-        expect(pubid.year).to eq 2001
+        expect(pubid.date&.year).to eq "2001"
       end
 
       it "returns nil for invalid identifier" do

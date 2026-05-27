@@ -42,7 +42,7 @@ module Relaton
           ret = iecbib_get(pubid, opts)
           return nil if ret.nil?
 
-          ret = ret.to_most_recent_reference unless pubid.year || opts[:keep_year] ||
+          ret = ret.to_most_recent_reference unless pubid.date&.year || opts[:keep_year] ||
             opts[:publication_date_before] || opts[:publication_date_after]
           ret
         end
@@ -96,7 +96,7 @@ module Relaton
           result = search(pubid, exclude: exclude) || return
 
           if opts[:all_parts]
-            ret = result.to_all_parts(pubid.year&.to_s, opts)
+            ret = result.to_all_parts(pubid.date&.year&.to_s, opts)
             Util.info "Found: `#{ret&.docidentifier&.first&.content}`", key: pubid.to_s if ret
             return ret
           end
@@ -246,9 +246,9 @@ module Relaton
           Util.info "Not found.", key: pubid.to_s
 
           # Year mismatch: hits exist but not for the requested year
-          if pubid.year && result.any?
+          if pubid.date&.year && result.any?
             years = result.map { |h| h.hit[:id].year&.to_s }.compact.uniq.sort
-            Util.info "TIP: No match for edition year `#{pubid.year}`, " \
+            Util.info "TIP: No match for edition year `#{pubid.date&.year}`, " \
                       "but matches exist for `#{years.join('`, `')}`.", key: pubid.to_s
             return
           end

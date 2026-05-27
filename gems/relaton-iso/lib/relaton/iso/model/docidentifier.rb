@@ -80,7 +80,7 @@ module Relaton
       end
 
       def remove_date!
-        remove_attr!(:year)
+        remove_attr!(:date)
       end
 
       def exclude_year
