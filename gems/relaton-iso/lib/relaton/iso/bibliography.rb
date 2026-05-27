@@ -59,7 +59,7 @@ module Relaton
 
         response_pubid = ret.docidentifier.find(&:primary) # .sub(" (all parts)", "")
         Util.info "Found: `#{response_pubid}`", key: query_pubid.to_s
-        get_all = (query_pubid.root.year && opts[:keep_year].nil?) || opts[:keep_year] || opts[:all_parts] ||
+        get_all = (query_pubid.root.date&.year && opts[:keep_year].nil?) || opts[:keep_year] || opts[:all_parts] ||
           opts[:publication_date_before] || opts[:publication_date_after]
         if get_all
           filter_item_by_date(ret, opts) if date_filter
@@ -275,7 +275,7 @@ module Relaton
           Util.info "TIP: If it cannot be found, the document may no longer be published in parts.", key: pubid.to_s
         else
           Util.info "TIP: If you wish to cite all document parts for the reference, " \
-                    "use `#{pubid.to_s(format: :ref_undated)} (all parts)`.", key: pubid.to_s
+                    "use `#{pubid.exclude(:date)} (all parts)`.", key: pubid.to_s
         end
 
         nil
@@ -329,8 +329,13 @@ module Relaton
       end
 
       def build_excludings(all_parts, any_types_stages)
-        excludings = %i[year edition all_parts]
-        excludings += %i[type stage iteration] if any_types_stages
+        # 2.x attribute names: :year → :date, :iteration → :stage_iteration.
+        # Always exclude :typed_stage: parse fills the default-published
+        # typed_stage with original_abbr="" while .create leaves it nil,
+        # so equality would never hold against indexed/created rows
+        # otherwise.
+        excludings = %i[date edition all_parts typed_stage]
+        excludings += %i[type stage stage_iteration] if any_types_stages
         excludings << :part if all_parts
         excludings
       end
@@ -339,7 +344,7 @@ module Relaton
         if pubid.is_a? String then pubid == query_pubid.to_s
         else
           pubid = pubid.dup
-          pubid.base_identifier = pubid.base_identifier.exclude(:year, :edition) if pubid.base_identifier
+          pubid.base_identifier = pubid.base_identifier.exclude(:date, :edition) if pubid.base_identifier
           pubid.exclude(*excludings) == no_year_ref
         end
       end

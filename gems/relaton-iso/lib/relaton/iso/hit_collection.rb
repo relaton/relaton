@@ -19,7 +19,13 @@ module Relaton
       private_constant :LEGACY_EXCLUDE_MAP
 
       def translate_excludings(attrs)
-        attrs.map { |a| LEGACY_EXCLUDE_MAP[a] || a }
+        out = attrs.map { |a| LEGACY_EXCLUDE_MAP[a] || a }
+        # Excluding :stage implies excluding :typed_stage too — the two
+        # carry overlapping data and their default-published values can
+        # differ in trivia (e.g. original_abbr "" vs nil), so leaving
+        # typed_stage in the comparison breaks otherwise-equal matches.
+        out << :typed_stage if out.include?(:stage) && !out.include?(:typed_stage)
+        out
       end
 
       def ref_pubid_no_year
