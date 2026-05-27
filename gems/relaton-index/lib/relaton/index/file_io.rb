@@ -194,9 +194,32 @@ module Relaton
       #
       def save(index)
         yaml = sort_structured_index(index).map do |item|
-          item.transform_values { |value| @pubid_class && value.is_a?(@pubid_class) ? value.to_h : value }
+          item.transform_values do |value|
+            @pubid_class && value.is_a?(@pubid_class) ? pubid_to_hash(value) : value
+          end
         end.to_yaml
         Index.config.storage.write file, yaml
+      end
+
+      # Flat symbol-keyed attribute hash for pubid 2.x identifiers, in the
+      # legacy 1.x shape that the .create(**kwargs) factory accepts on the
+      # read path. Drops :_type and :typed_stage; flattens :date Component
+      # to :year so per-flavor index schemas (which use :year, not :date)
+      # round-trip cleanly.
+      def pubid_to_hash(pubid)
+        pubid.class.attributes.each_with_object({}) do |(name, _), h|
+          next if %i[_type typed_stage].include?(name)
+
+          val = pubid.send(name)
+          next if val.nil?
+
+          if name == :date
+            year = val.respond_to?(:year) ? val.year : nil
+            h[:year] = year if year
+          else
+            h[name] = val
+          end
+        end
       end
 
       def sort_structured_index(index)
