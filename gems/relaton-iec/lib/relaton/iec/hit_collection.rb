@@ -68,15 +68,29 @@ module Relaton
       def pubid_matches?(row_pubid, exclude)
         return false unless row_pubid
 
-        if exclude.include?(:type)
-          # Can't use exclude(:type) on pubid (subclass re-adds it),
-          # so compare using to_h(add_type: false) hashes
-          exclude_keys = exclude - [:type]
-          ref_hash = @ref.to_h(add_type: false).reject { |k, _| exclude_keys.include?(k) }
-          row_hash = row_pubid.to_h(add_type: false).reject { |k, _| exclude_keys.include?(k) }
-          ref_hash == row_hash
-        else
-          @ref.exclude(*exclude) == row_pubid.exclude(*exclude)
+        pubid_attrs(@ref, exclude) == pubid_attrs(row_pubid, exclude)
+      end
+
+      # Flat symbol-keyed attribute hash for pubid 2.x identifiers. Drops
+      # :_type and :typed_stage; flattens :date Component to a :year string
+      # so callers can exclude year by name as in pubid 1.x. Excluding
+      # :type implies excluding :stage (the two are correlated via
+      # typed_stage).
+      def pubid_attrs(pubid, exclude = [])
+        exclude = (exclude + [:stage]) if exclude.include?(:type)
+        pubid.class.attributes.each_with_object({}) do |(name, _), h|
+          next if %i[_type typed_stage].include?(name)
+          next if exclude.include?(name)
+
+          val = pubid.send(name)
+          next if val.nil?
+
+          if name == :date
+            year = val.respond_to?(:year) ? val.year : nil
+            h[:year] = year if year && !exclude.include?(:year)
+          else
+            h[name] = val
+          end
         end
       end
 
