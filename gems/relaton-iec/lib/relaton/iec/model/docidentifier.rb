@@ -20,7 +20,7 @@ module Relaton
 
         parsed =
           case value
-          when ::Pubid::Iec::Base then value
+          when ::Pubid::Iec::Identifier then value
           when String
             begin
               ::Pubid::Iec::Identifier.parse(value)
@@ -85,10 +85,10 @@ module Relaton
         return unless @pubid
 
         @pubid.send("#{attr}=", nil)
-        base = @pubid.base
+        base = @pubid.base_identifier
         while base
           base.send("#{attr}=", nil)
-          base = base.base
+          base = base.base_identifier
         end
         refresh_content!
       end

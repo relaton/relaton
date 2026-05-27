@@ -49,7 +49,7 @@ module Relaton
         return if str.nil? || str.empty?
 
         ::Pubid::Nist::Identifier.parse(str).to_s
-      rescue ::Pubid::Core::Errors::ParseError
+      rescue Parslet::ParseFailed
         str.gsub(".", " ").sub(/^[\D]+/, &:upcase)
       end
 

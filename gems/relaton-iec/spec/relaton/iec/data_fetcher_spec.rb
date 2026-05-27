@@ -73,7 +73,7 @@ describe Relaton::Iec::DataFetcher do
         idx = double("index")
         allow(subject).to receive(:index).and_return idx
         expect(idx).to receive(:add_or_update).with(
-          a_kind_of(Pubid::Iec::Base), file
+          a_kind_of(Pubid::Iec::Identifier), file
         )
         subject.send :add_file_to_index, file
       end

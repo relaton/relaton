@@ -15,9 +15,9 @@ describe Relaton::Iho::Docidentifier do
       expect(d.content).to eq "IHO S-4"
     end
 
-    it "raises Pubid::Core::Errors::ParseError on bad input (hard error)" do
+    it "raises StandardError on bad input (hard error)" do
       expect { described_class.new(content: "not a real ref", type: "IHO") }
-        .to raise_error(Pubid::Core::Errors::ParseError)
+        .to raise_error(StandardError)
     end
 
     it "leaves @pubid nil when content is empty" do
@@ -108,7 +108,7 @@ describe Relaton::Iho::Docidentifier do
     it "raises on non-parseable docidentifier in incoming XML" do
       bad_xml = xml.sub("S-100 Part 1", "garbage ref")
       expect { Relaton::Iho::Bibdata.from_xml(bad_xml) }
-        .to raise_error(Pubid::Core::Errors::ParseError)
+        .to raise_error(StandardError)
     end
   end
 

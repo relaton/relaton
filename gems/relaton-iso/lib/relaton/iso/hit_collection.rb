@@ -13,7 +13,7 @@ module Relaton
       end
 
       def ref_pubid_no_year
-        @ref_pubid_no_year ||= ref.base ? ref.dup.tap { |r| r.base = r.base.exclude(:year) } : ref.exclude(:year)
+        @ref_pubid_no_year ||= ref.base_identifier ? ref.dup.tap { |r| r.base_identifier = r.base_identifier.exclude(:year) } : ref.exclude(:year)
       end
 
       def ref_pubid_excluded
@@ -31,7 +31,7 @@ module Relaton
       #
       def find # rubocop:disable Metrics/AbcSize
         @array = index.search do |row|
-          row[:id].is_a?(Hash) || row[:id].is_a?(::Pubid::Identifier) ? pubid_match?(row[:id]) : ref.to_s(with_prf: true) == row[:id]
+          row[:id].is_a?(Hash) || row[:id].is_a?(::Pubid::Identifier) ? pubid_match?(row[:id]) : ref.to_s == row[:id]
         end.map { |row| Hit.new row, self }
           .sort_by! { |h| h.pubid.to_s }
           .reverse!
@@ -44,7 +44,7 @@ module Relaton
 
         # pubid.base = pubid.base.exclude(:year, :edition) if pubid.base
         dir_excludings = excludings.dup
-        dir_excludings << :edition unless pubid.typed_stage_abbrev == "DIR"
+        dir_excludings << :edition unless pubid.typed_stage&.abbr&.include?("DIR")
         exclude_id_attrs(pubid, *dir_excludings) == ref_pubid_excluded
       end
 
@@ -59,9 +59,9 @@ module Relaton
       def exclude_id_attrs(pubid, *attrs)
         xid = pubid.exclude(*attrs)
         curr = xid
-        while curr.base
-          curr.base = curr.base.exclude(*attrs)
-          curr = curr.base
+        while curr.base_identifier
+          curr.base_identifier = curr.base_identifier.exclude(*attrs)
+          curr = curr.base_identifier
         end
         xid
       end
@@ -107,7 +107,7 @@ module Relaton
       def to_all_parts # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity
         parts = @array.select { |h| h.pubid.part }
         if opts[:publication_date_before] || opts[:publication_date_after]
-          parts = parts.select { |h| Bibliography.send(:year_in_range?, (h.pubid.year || h.hit[:year]).to_i, opts) }
+          parts = parts.select { |h| Bibliography.send(:year_in_range?, (h.pubid.date&.year || h.hit[:year]).to_i, opts) }
         end
         hit = parts.min_by { |h| h.pubid.part.to_i }
         return @array.first&.item unless hit

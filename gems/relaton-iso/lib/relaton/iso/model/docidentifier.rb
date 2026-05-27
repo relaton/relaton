@@ -27,7 +27,7 @@ module Relaton
         else
           parsed =
             case value
-            when ::Pubid::Iso::Identifier::Base then value
+            when ::Pubid::Iso::Identifier then value
             when String
               begin
                 ::Pubid::Iso::Identifier.parse(value)
@@ -89,9 +89,9 @@ module Relaton
 
         pubid = @pubid.exclude(:year)
         current = pubid
-        while current.base
-          current.base = current.base.exclude(:year)
-          current = current.base
+        while current.base_identifier
+          current.base_identifier = current.base_identifier.exclude(:year)
+          current = current.base_identifier
         end
         pubid
       end
@@ -100,11 +100,10 @@ module Relaton
 
       def render_pubid(pubid)
         case type
-        when "URN" then pubid.urn
-        when "iso-reference", "iso-with-lang"
-          pubid.to_s(format: :ref_num_short, with_prf: true)
+        when "URN" then pubid.to_urn
         else
-          pubid.to_s(with_prf: true)
+          # 2.x: :human format only; :ref_num_short and :with_prf removed.
+          pubid.to_s
         end
       end
 
@@ -112,10 +111,10 @@ module Relaton
         return unless @pubid
 
         @pubid.send("#{attr}=", nil)
-        base = @pubid.base
+        base = @pubid.base_identifier
         while base
           base.send("#{attr}=", nil)
-          base = base.base
+          base = base.base_identifier
         end
         refresh_content!
       end

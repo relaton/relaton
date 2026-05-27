@@ -38,7 +38,7 @@ RSpec.describe Relaton::Iho do
 
     it "raises on unparseable reference" do
       expect { Relaton::Iho::Bibliography.get "IHO S63" }
-        .to raise_error(Pubid::Core::Errors::ParseError)
+        .to raise_error(StandardError)
     end
 
     it "by code and edition", vcr: { cassette_name: "code_and_edition" } do

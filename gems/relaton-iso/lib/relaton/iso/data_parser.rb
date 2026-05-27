@@ -384,9 +384,9 @@ module Relaton
       end
 
       def base_relation
-        return [] unless pubid&.respond_to?(:base) && pubid.base
+        return [] unless pubid&.base_identifier
 
-        [relation_for(pubid.base.to_s, "updates")]
+        [relation_for(pubid.base_identifier.to_s, "updates")]
       end
 
       def relation_for(ref, type)

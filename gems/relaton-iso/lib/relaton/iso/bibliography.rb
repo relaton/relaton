@@ -40,7 +40,9 @@ module Relaton
         # opts[:all_parts] ||= $~ && opts[:all_parts].nil?
 
         query_pubid = ::Pubid::Iso::Identifier.parse(code)
-        query_pubid.root.year = year.to_i if year&.respond_to?(:to_i)
+        if year&.respond_to?(:to_i)
+          query_pubid.root.date = ::Pubid::Components::Date.new(year: year.to_s)
+        end
         query_pubid.root.all_parts ||= opts[:all_parts]
         Util.info "Fetching from Relaton repository ...", key: query_pubid.to_s
 
@@ -65,7 +67,7 @@ module Relaton
         end
 
         ret.to_most_recent_reference
-      rescue ::Pubid::Core::Errors::ParseError
+      rescue Parslet::ParseFailed
         Util.warn "Is not recognized as a standards identifier.", key: code
         nil
       end
@@ -109,10 +111,12 @@ module Relaton
 
         # filter by year
         hit_collection.select! do |hit|
-          hit.pubid.year ||= hit.hit[:year]
+          if hit.pubid.date&.year.nil? && hit.hit[:year]
+            hit.pubid.date = ::Pubid::Components::Date.new(year: hit.hit[:year].to_s)
+          end
           next true if check_year(year, hit)
 
-          missed_year_ids << hit.pubid.to_s if hit.pubid.year
+          missed_year_ids << hit.pubid.to_s if hit.pubid.date&.year
           false
         end
 
@@ -189,7 +193,7 @@ module Relaton
       # @param hit [Relaton::Iso::Hit]
       # @return [Integer]
       def hit_year(hit)
-        yr = hit.pubid&.year || hit.hit[:year]
+        yr = hit.pubid&.date&.year || hit.hit[:year]
         yr.to_i
       end
 
@@ -243,9 +247,14 @@ module Relaton
       end
 
       def check_year(year, hit) # rubocop:disable Metrics/AbcSize
-        (hit.pubid.base.nil? && hit.pubid.year.to_s == year.to_s) ||
-          (!hit.pubid.base.nil? && hit.pubid.base.year.to_s == year.to_s) ||
-          (!hit.pubid.base.nil? && hit.pubid.year.to_s == year.to_s)
+        pub = hit.pubid
+        own_year = pub.date&.year.to_s
+        base_year = pub.base_identifier&.date&.year.to_s
+        if pub.base_identifier.nil?
+          own_year == year.to_s
+        else
+          base_year == year.to_s || own_year == year.to_s
+        end
       end
 
       # @param pubid [Pubid::Iso::Identifier] PubID with no results
@@ -254,7 +263,7 @@ module Relaton
 
         if missed_year_ids.any?
           ids = missed_year_ids.map { |i| "`#{i}`" }.join(", ")
-          Util.info "TIP: No match for edition year #{pubid.year}, but matches exist for #{ids}.", key: pubid.to_s
+          Util.info "TIP: No match for edition year #{pubid.date&.year}, but matches exist for #{ids}.", key: pubid.to_s
         end
 
         if tip_ids.any?
@@ -316,7 +325,7 @@ module Relaton
             !(query_pubid.root.all_parts && i.pubid.part.nil?)
         end
 
-        filter_hits_by_year(hit_collection, query_pubid.root.year)
+        filter_hits_by_year(hit_collection, query_pubid.root.date&.year)
       end
 
       def build_excludings(all_parts, any_types_stages)
@@ -330,7 +339,7 @@ module Relaton
         if pubid.is_a? String then pubid == query_pubid.to_s
         else
           pubid = pubid.dup
-          pubid.base = pubid.base.exclude(:year, :edition) if pubid.base
+          pubid.base_identifier = pubid.base_identifier.exclude(:year, :edition) if pubid.base_identifier
           pubid.exclude(*excludings) == no_year_ref
         end
       end

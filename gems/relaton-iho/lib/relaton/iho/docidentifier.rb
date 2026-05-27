@@ -24,7 +24,7 @@ module Relaton
       end
 
       def remove_date!
-        @pubid&.year = nil
+        @pubid&.date = nil
       end
 
       def to_all_parts!

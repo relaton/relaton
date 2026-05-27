@@ -21,7 +21,7 @@ module Relaton
 
       def create_id_from_pubid(content, without_date)
         pubid = without_date ? content.exclude(:year) : content
-        self.id = pubid.to_s(with_prf: true).gsub(/\W+/, "")
+        self.id = pubid.to_s.gsub(/\W+/, "")
       end
     end
   end

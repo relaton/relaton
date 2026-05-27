@@ -35,7 +35,9 @@ module Relaton
           return iev if ref.casecmp("IEV").zero?
 
           pubid = ::Pubid::Iec::Identifier.parse ref.upcase
-          pubid.year = year.to_i if year
+          if year
+            pubid.date = ::Pubid::Components::Date.new(year: year.to_s)
+          end
 
           ret = iecbib_get(pubid, opts)
           return nil if ret.nil?
@@ -112,8 +114,9 @@ module Relaton
         # @param opts [Hash]
         # @return [Relaton::Iec::ItemData, nil]
         def find_match(result, pubid, opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
-          if pubid.year
-            hit = result.detect { |h| h.hit[:id].year == pubid.year }
+          pubid_year = pubid.date&.year
+          if pubid_year
+            hit = result.detect { |h| h.hit[:id].year == pubid_year }
             return fetch_and_check_date(hit, pubid, opts) if hit
           elsif opts[:publication_date_before] || opts[:publication_date_after]
             candidates = result.select { |h| year_in_range?(h.hit[:id].year.to_i, opts) }

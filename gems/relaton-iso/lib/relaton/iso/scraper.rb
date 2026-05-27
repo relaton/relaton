@@ -104,7 +104,7 @@ module Relaton
         return @pubid if @pubid
 
         @pubid = ::Pubid::Iso::Identifier.parse(id)
-        @pubid.root.edition ||= edition.content if @pubid.base
+        @pubid.root.edition ||= edition.content if @pubid.base_identifier
         @pubid
       rescue StandardError => e
         Util.error "Failed to parse pubid from #{id}: #{e.message}"

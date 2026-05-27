@@ -174,9 +174,9 @@ module Relaton
 
       def amend_base(ref)
         pubid = ::Pubid::Iso::Identifier.parse(ref)
-        return nil unless pubid.respond_to?(:base) && pubid.base
+        return nil unless pubid.base_identifier
 
-        pubid.base.to_s
+        pubid.base_identifier.to_s
       rescue StandardError
         nil
       end
