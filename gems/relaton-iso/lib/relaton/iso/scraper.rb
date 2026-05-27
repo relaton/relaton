@@ -144,7 +144,7 @@ module Relaton
       #
       def isoref
         pubid.dup.tap do |id|
-          id.languages = [::Pubid::Components::Language.new(code: ["en"])]
+          id.languages = [::Pubid::Components::Language.new(code: "en", original_code: "E")]
         end.to_s(format: :ref_num_short)
       end
 

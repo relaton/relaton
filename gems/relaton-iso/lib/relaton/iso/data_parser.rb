@@ -122,7 +122,7 @@ module Relaton
 
       def iso_reference_pubid
         pubid.dup.tap do |id|
-          id.languages = [::Pubid::Components::Language.new(code: ["en"])]
+          id.languages = [::Pubid::Components::Language.new(code: "en", original_code: "E")]
         end
       rescue StandardError
         nil
