@@ -12,15 +12,24 @@ module Relaton
         @opts ||= {}
       end
 
+      # Maps the legacy 1.x exclude symbols to their pubid 2.x attribute
+      # names. The public excludings API still uses :year/:iteration for
+      # backwards compatibility with existing call sites and specs.
+      LEGACY_EXCLUDE_MAP = { year: :date, iteration: :stage_iteration }.freeze
+      private_constant :LEGACY_EXCLUDE_MAP
+
+      def translate_excludings(attrs)
+        attrs.map { |a| LEGACY_EXCLUDE_MAP[a] || a }
+      end
+
       def ref_pubid_no_year
-        @ref_pubid_no_year ||= ref.base_identifier ? ref.dup.tap { |r| r.base_identifier = r.base_identifier.exclude(:year) } : ref.exclude(:year)
+        @ref_pubid_no_year ||= ref.base_identifier ? ref.dup.tap { |r| r.base_identifier = r.base_identifier.exclude(:date) } : ref.exclude(:date)
       end
 
       def ref_pubid_excluded
         return @ref_pubid_excluded if defined? @ref_pubid_excluded
 
-        ref_excludings = excludings.dup
-        ref_excludings << :all_parts
+        ref_excludings = translate_excludings(excludings) + [:all_parts]
         @ref_pubid_excluded ||= ref_pubid_no_year.exclude(*ref_excludings)
       end
 
@@ -42,16 +51,20 @@ module Relaton
         pubid = create_pubid(id)
         return false unless pubid
 
-        # pubid.base = pubid.base.exclude(:year, :edition) if pubid.base
-        dir_excludings = excludings.dup
-        dir_excludings << :edition unless pubid.typed_stage&.abbr&.include?("DIR")
-        exclude_id_attrs(pubid, *dir_excludings) == ref_pubid_excluded
+        match_excludings = translate_excludings(excludings) + [:all_parts]
+        match_excludings << :edition unless pubid.typed_stage&.abbr&.include?("DIR")
+        exclude_id_attrs(pubid, *match_excludings) == exclude_id_attrs(ref_pubid_no_year, *match_excludings)
       end
 
       def create_pubid(id)
         return id if id.is_a?(::Pubid::Identifier)
 
-        ::Pubid::Iso::Identifier.create(**id)
+        pubid = ::Pubid::Iso::Identifier.create(**id)
+        if id[:stage] && pubid.typed_stage.nil?
+          Util.warn "cannot parse typed stage or stage '#{id[:stage]}'", key: ref.to_s
+          return nil
+        end
+        pubid
       rescue StandardError => e
         Util.warn e.message, key: ref.to_s
       end
@@ -71,12 +84,19 @@ module Relaton
 
         excl_attrs = %i[year]
         excl_attrs << :part if ref.root.part.nil? || ref.root.all_parts
-        if ref.stage.nil? || ref.root.all_parts
+        if default_published_stage?(ref) || ref.root.all_parts
           excl_attrs << :stage
           excl_attrs << :iteration
         end
-        # excl_parts << :edition if ref.root.edition.nil? || all_parts
         @excludings = excl_attrs
+      end
+
+      # Pubid 2.x auto-populates a published-stage default on parse/.create,
+      # so ref.stage is never nil. Treat that default as "no stage specified".
+      def default_published_stage?(pubid)
+        return true if pubid.typed_stage.nil?
+
+        pubid.typed_stage.stage_code.to_s == "published"
       end
 
       def index
@@ -109,7 +129,7 @@ module Relaton
         if opts[:publication_date_before] || opts[:publication_date_after]
           parts = parts.select { |h| Bibliography.send(:year_in_range?, (h.pubid.date&.year || h.hit[:year]).to_i, opts) }
         end
-        hit = parts.min_by { |h| h.pubid.part.to_i }
+        hit = parts.min_by { |h| h.pubid.part.value.to_i }
         return @array.first&.item unless hit
 
         bibitem = hit.item
