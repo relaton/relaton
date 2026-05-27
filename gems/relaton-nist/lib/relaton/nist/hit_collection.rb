@@ -247,7 +247,12 @@ module Relaton
 
         id.sub!(/(?:-draft\d*|\.\wpd)$/, "")
         id = id.gsub(".", " ").sub(/-Add(\d*)$/, ' Add\1') if id.match?(/-Add\d*$/)
-        pid = ::Pubid::Nist::Identifier.parse(id)
+        # Normalize to space-separated form so pubid 2.x parses as
+        # parsed_format=:short and renders without dots; also force the
+        # "NIST " prefix so publisher_was_parsed is set.
+        parse_input = id.gsub(/\bNIST\./, "NIST ")
+        parse_input = "NIST #{parse_input}" unless parse_input.start_with?("NIST ")
+        pid = ::Pubid::Nist::Identifier.parse(parse_input)
 
         # Stage: URI is authoritative, fall back to iteration. "final" => no stage.
         uri_stage = json["uri"] && json["uri"][%r{/(final|ipd|fpd|\dpd)(?:-\(\d+\))?(?:/|$)}, 1]
