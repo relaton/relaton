@@ -93,7 +93,7 @@ module Relaton
           row_attrs = row_attributes(row_id)
           return false unless row_attrs
 
-          query_attrs = query.to_h
+          query_attrs = pubid_attrs(query)
           # Subdivision keys (part/appendix/annex/supplement) use strict
           # equality — a nil query must match a nil row (the umbrella),
           # not an arbitrary subdivision under the same (number, version).
@@ -110,10 +110,27 @@ module Relaton
         end
 
         def row_attributes(row_id)
-          return row_id.to_h if row_id.is_a?(::Pubid::Identifier)
+          return pubid_attrs(row_id) if row_id.is_a?(::Pubid::Identifier)
           return row_id if row_id.is_a?(Hash)
 
           nil
+        end
+
+        # Flat symbol-keyed hash matching the IHO index schema
+        # (publisher/type/number/version/part/appendix/annex/supplement).
+        # Pubid 2.x stores the number as :code and exposes the series letter
+        # (S/P/M/B/C) via class.type[:short]; both are normalized here.
+        def pubid_attrs(pubid)
+          {
+            publisher: "IHO",
+            type: pubid.class.type[:short],
+            number: pubid.code,
+            version: pubid.version,
+            part: pubid.part,
+            appendix: (pubid.appendix if pubid.respond_to?(:appendix)),
+            annex: (pubid.annex if pubid.respond_to?(:annex)),
+            supplement: (pubid.supplement if pubid.respond_to?(:supplement)),
+          }
         end
 
         def row_version(row_id)

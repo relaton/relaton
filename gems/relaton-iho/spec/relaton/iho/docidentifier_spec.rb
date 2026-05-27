@@ -3,7 +3,7 @@ describe Relaton::Iho::Docidentifier do
     it "parses content into a Pubid::Identifier" do
       d = described_class.new(content: "S-100 Part 1", type: "IHO", primary: true)
       expect(d.pubid).to be_a Pubid::Identifier
-      expect(d.pubid.number).to eq "100"
+      expect(d.pubid.code).to eq "100"
       expect(d.pubid.part).to eq "1"
       expect(d.content).to eq "S-100 Part 1"
     end
@@ -51,9 +51,9 @@ describe Relaton::Iho::Docidentifier do
   describe "#remove_date!" do
     it "clears year on the underlying Pubid identifier" do
       d = described_class.new(content: "S-100 Part 1", type: "IHO", primary: true)
-      d.pubid.year = 2020
+      d.pubid.date = Pubid::Components::Date.new(year: "2020")
       d.remove_date!
-      expect(d.pubid.year).to be_nil
+      expect(d.pubid.date).to be_nil
     end
 
     it "is a safe no-op when pubid is nil" do
@@ -117,7 +117,7 @@ describe Relaton::Iho::Docidentifier do
       result = Relaton::Iho::Bibliography.search "IHO B-11"
       docid = result.docidentifier.first
       expect(docid).to be_a described_class
-      expect(docid.pubid.number).to eq "11"
+      expect(docid.pubid.code).to eq "11"
     end
 
     it "auto-populates ext.structuredidentifier when fetched record lacks one",
