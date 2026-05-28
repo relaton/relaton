@@ -75,8 +75,12 @@ module Relaton
       end
 
       def exclude_parts(pubid)
-        %i[stage update].each_with_object([]) do |part, parts|
-          parts << part if pubid.send(part).nil?
+        # Pubid 2.x exposes update via two slots (:update and :update_component),
+        # and pubs_export_id assigns to update_component — so checking only
+        # :update misses the case where the indexed pubid carries the update
+        # info there. Same logic for both legacy and component slots.
+        %i[stage update update_component].each_with_object([]) do |part, parts|
+          parts << part if pubid.respond_to?(part) && pubid.send(part).nil?
         end
       end
 

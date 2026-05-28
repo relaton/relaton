@@ -48,7 +48,11 @@ module Relaton
       def get_id_from_str(str)
         return if str.nil? || str.empty?
 
-        ::Pubid::Nist::Identifier.parse(str).to_s
+        # Pubid 2.x stamps parsed_format on the identifier; rendering via
+        # default to_s round-trips back to the dotted MR form (e.g.
+        # "NIST.HB.135e2022"). Force :human to get the canonical
+        # space-separated rendering expected by downstream consumers.
+        ::Pubid::Nist::Identifier.parse(str).to_s(format: :human)
       rescue Parslet::ParseFailed
         str.gsub(".", " ").sub(/^[\D]+/, &:upcase)
       end
