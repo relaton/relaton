@@ -6,6 +6,11 @@ module Relaton::Bipm
       ATTRS = %i[docidentifier title contributor date copyright abstract relation series
                  extent type source ext].freeze
 
+      # JATS inline phrasing children handled by #serialize_mixed_content
+      INLINE_TYPES = %i[italic bold fixed_case monospace overline roman
+                        sans_serif sc strike underline sub sup].freeze
+      private_constant :INLINE_TYPES
+
       # @param [Niso::Jats::Article] doc document
       # @param [String] journal journal
       # @param [String] volume volume
@@ -37,11 +42,15 @@ module Relaton::Bipm
 
       # @return [Array<Relaton::Bib::Docidentifier>] array of document identifiers
       def parse_docidentifier
-        pubid = "#{@doc.journal_title} #{volume_issue_article}"
         ids = [create_docidentifier(pubid, "BIPM", true)]
         ids << create_docidentifier(@doc.doi, "doi") if @doc.doi
         @errors[:article_docidentifier] &&= ids.empty?
         ids
+      end
+
+      # @return [String] primary BIPM publication identifier
+      def pubid
+        @pubid ||= "#{@doc.journal_title} #{volume_issue_article}"
       end
 
       # @return [String] volume issue page
@@ -52,7 +61,9 @@ module Relaton::Bipm
       # @return [Array<Relaton::Bib::Title>] array of title strings
       def parse_title
         title = @doc.front.article_meta.title_group.article_title
-        result = [Relaton::Bib::Title.new(content: title.content, language: title.lang, script: "Latn")]
+        result = [Relaton::Bib::Title.new(
+          content: serialize_mixed_content(title), language: title.lang, script: "Latn",
+        )]
         @errors[:article_title] &&= result.empty?
         result
       end
@@ -119,39 +130,40 @@ module Relaton::Bipm
         result
       end
 
-      def extract_paragraph_text(paragraph) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity,Metrics/MethodLength
-        return "" unless paragraph.respond_to?(:element_order) && paragraph.element_order
+      def extract_paragraph_text(paragraph)
+        serialize_mixed_content(paragraph)
+      end
 
-        inline_types = %i[italic bold fixed_case monospace overline roman
-                          sans_serif sc strike underline sub sup]
-        inline_instances = {}
-        inline_types.each do |type|
-          inline_instances[type] = paragraph.send(type).to_a.dup
-        end
+      # Reconstruct the marked-up string of a niso-jats mixed_content element
+      # (Title, Paragraph, …) by walking element_order in document order.
+      # Text nodes are emitted verbatim; recognised inline children are
+      # wrapped in their original XML tag so JATS markup like <italic> and
+      # <sub> survives into the relaton-bib payload instead of being
+      # flattened (paragraphs) or serialised as a stringified Array (titles).
+      def serialize_mixed_content(element)
+        return "" unless element.respond_to?(:element_order) && element.element_order
 
-        inline_indices = Hash.new(0)
-
-        result = []
-        paragraph.element_order.each do |el|
+        pools  = INLINE_TYPES.to_h { |t| [t, element.send(t).to_a.dup] }
+        cursor = Hash.new(0)
+        out    = []
+        element.element_order.each do |el|
           case el.type
           when "Text"
-            result << el.text_content
+            out << el.text_content
           when "Element"
-            type = el.name.to_sym
-            if inline_instances.key?(type) && !inline_instances[type].empty?
-              instances = inline_instances[type]
-              instance = instances[inline_indices[type]]
-              inline_indices[type] += 1
-              if instance.respond_to?(:content)
-                content = instance.content
-                content = content.join if content.is_a?(Array)
-                result << content
-              end
-            end
+            attr = el.name.tr("-", "_").to_sym
+            next unless pools.key?(attr)
+
+            inst = pools[attr][cursor[attr]]
+            cursor[attr] += 1
+            next unless inst.respond_to?(:content)
+
+            inner = inst.content
+            inner = inner.join if inner.is_a?(Array)
+            out << "<#{el.name}>#{inner}</#{el.name}>"
           end
         end
-
-        result.join
+        out.join
       end
 
       # @return [Array<Relaton::Bib::Relation>] array of document relations
@@ -284,10 +296,10 @@ module Relaton::Bipm
           div = nil
           addr = div_addr[0] || ""
         else
-          # No institution: split the single text by comma
-          div_addr = (div_addr[0] || "").split(",").map(&:strip)
-          div = div_addr[0]
-          addr = div_addr[1..]&.join(", ") || ""
+          # No institution: the whole text is the organization name; no address split
+          joined = div_addr.join(", ")
+          div = joined.empty? ? nil : joined
+          addr = ""
         end
         [div, addr]
       end
@@ -318,7 +330,9 @@ module Relaton::Bipm
         dt = Relaton::Bib::Date.new(type: type, at: format_pub_date(pd))
         carrier = type == "epub" ? "online" : "print"
         medium = Relaton::Bib::Medium.new carrier: carrier
-        ItemData.new title: parse_title, date: [dt], medium: medium
+        fref = Relaton::Bib::Formattedref.new(content: pubid)
+        docid = [create_docidentifier(pubid, "BIPM", true)]
+        ItemData.new(formattedref: fref, docidentifier: docid, date: [dt], medium: medium)
       end
 
       def format_pub_date(pd)

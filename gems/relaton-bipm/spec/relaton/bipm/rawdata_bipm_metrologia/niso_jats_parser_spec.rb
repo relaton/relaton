@@ -31,7 +31,10 @@ describe Relaton::Bipm::RawdataBipmMetrologia::NisoJatsParser do
 
     it "parse_title" do
       expect(subject.title[0]).to be_instance_of Relaton::Bib::Title
-      expect(subject.title[0].content.join).to include "Realization and validation"
+      expect(subject.title[0].content).to eq(
+        "Realization and validation of the detector-based absolute " \
+        "integrating sphere method for luminous-flux measurement at KRISS",
+      )
       expect(subject.title[0].script).to eq "Latn"
     end
 
@@ -146,6 +149,45 @@ describe Relaton::Bipm::RawdataBipmMetrologia::NisoJatsParser do
     end
   end
 
+  # Regression: relaton/relaton-data-bipm#38 — titles with inline markup were
+  # serialised as the literal stringified Array '["text", ", ", ...]' because
+  # niso-jats Title#content is a collection of text fragments around the
+  # inline children. Verify the parser now reconstructs marked-up strings
+  # for both titles and abstract paragraphs. Note that Relaton::Bib's
+  # sanitizer renames <italic> to <em> on the way into Title/Abstract.
+  context "preserves inline markup in mixed_content (issue 38)" do
+    let(:source) do
+      <<~XML
+        <article>
+          <front>
+            <article-meta>
+              <title-group>
+                <article-title>The CODATA 2017 values of <italic>h</italic>, <italic>e</italic>, <italic>k</italic>, and <italic>N</italic><sub>A</sub> for the revision of the SI</article-title>
+              </title-group>
+              <abstract><p>Result: <italic>x</italic><sub>0</sub> with precision.</p></abstract>
+            </article-meta>
+          </front>
+        </article>
+      XML
+    end
+    let(:parser) { described_class.new(doc, "55", "1", "L13") }
+
+    it "reconstructs the marked-up title as a String" do
+      title = parser.parse_title[0]
+      expect(title.content).to be_a(String)
+      expect(title.content).to eq(
+        "The CODATA 2017 values of <em>h</em>, <em>e</em>, <em>k</em>, " \
+        "and <em>N</em><sub>A</sub> for the revision of the SI",
+      )
+    end
+
+    it "keeps inline markup in abstract paragraphs" do
+      expect(parser.parse_abstract[0].content).to eq(
+        "<p>Result: <em>x</em><sub>0</sub> with precision.</p>",
+      )
+    end
+  end
+
   describe "#format_pub_date" do
     let(:parser) { described_class.new(double("doc"), "1", "1", "1") }
 
@@ -203,6 +245,81 @@ describe Relaton::Bipm::RawdataBipmMetrologia::NisoJatsParser do
       expect(div).to be_nil
       expect(addr).to eq ""
     end
+
+    # Regression: niso-jats port (PR #70) split comma-separated text and
+    # discarded everything after the first piece. Full text must be preserved
+    # as the division when there is no <institution> child.
+    it "keeps the full comma-separated text as div when no institution is present" do
+      aff = Niso::Jats::Aff.new(
+        content: ["CSIRO Division of Applied Physics, National Measurement Laboratory, " \
+                  "PO Box 218, Lindfield, NSW 2070, Australia"],
+      )
+      div, addr = parser.send(:division_address, aff)
+      expect(div).to eq(
+        "CSIRO Division of Applied Physics, National Measurement Laboratory, " \
+        "PO Box 218, Lindfield, NSW 2070, Australia",
+      )
+      expect(addr).to eq ""
+    end
+  end
+
+  # Regression: niso-jats port lost the formattedref/docidentifier shape for
+  # hasManifestation bibitems (originally fixed for ArticleParser in 09c3885)
+  # and emitted a <title> instead, and dropped the full affiliation text when
+  # an <aff> had no <institution> child.
+  context "ported regressions from old ArticleParser" do
+    let(:source) do
+      <<~XML
+        <article>
+          <front>
+            <journal-meta>
+              <journal-title-group><journal-title>Metrologia</journal-title></journal-title-group>
+            </journal-meta>
+            <article-meta>
+              <article-id pub-id-type="doi">10.1088/0026-1394/29/6/001</article-id>
+              <title-group>
+                <article-title>Decade Designs for Weighings of Non-uniform Variance</article-title>
+              </title-group>
+              <contrib-group>
+                <contrib contrib-type="author">
+                  <name><surname>E C Morris</surname></name>
+                  <xref ref-type="aff" rid="aff1">1</xref>
+                </contrib>
+                <aff id="aff1"><label>1</label>CSIRO Division of Applied Physics, National Measurement Laboratory, PO Box 218, Lindfield, NSW 2070, Australia</aff>
+              </contrib-group>
+              <pub-date pub-type="ppub"><day>01</day><month>01</month><year>1993</year></pub-date>
+              <volume>29</volume>
+              <issue>6</issue>
+              <fpage>373</fpage>
+              <lpage>377</lpage>
+            </article-meta>
+          </front>
+        </article>
+      XML
+    end
+    subject { described_class.new(doc, "29", "6", "373").parse }
+
+    it "emits formattedref + docidentifier (not a title) in hasManifestation bibitem" do
+      bibitem = subject.relation[0].bibitem
+      expect(subject.relation[0].type).to eq "hasManifestation"
+      expect(bibitem.title).to be_empty
+      expect(bibitem.formattedref).to be_instance_of Relaton::Bib::Formattedref
+      expect(bibitem.formattedref.content).to eq "Metrologia 29 6 373"
+      expect(bibitem.docidentifier.size).to eq 1
+      expect(bibitem.docidentifier[0].type).to eq "BIPM"
+      expect(bibitem.docidentifier[0].primary).to be true
+      expect(bibitem.docidentifier[0].content).to eq "Metrologia 29 6 373"
+    end
+
+    it "keeps the full affiliation text as the organization name when no <institution> is present" do
+      aff = subject.contributor[0].person.affiliation[0]
+      expect(aff.organization.name[0].content).to eq(
+        "CSIRO Division of Applied Physics, National Measurement Laboratory, " \
+        "PO Box 218, Lindfield, NSW 2070, Australia",
+      )
+      expect(aff.organization.subdivision).to be_empty
+      expect(aff.organization.address).to be_empty
+    end
   end
 
   describe "#extract_paragraph_text" do
@@ -214,12 +331,12 @@ describe Relaton::Bipm::RawdataBipmMetrologia::NisoJatsParser do
 
     it "extracts text from mixed content with inline elements" do
       text = parser.send(:extract_paragraph_text, paragraph)
-      expect(text).to include("k\u00A0=\u00A02")
+      expect(text).to include("<italic>k</italic>\u00A0=\u00A02")
     end
 
     it "preserves text sequence from element_order" do
       text = parser.send(:extract_paragraph_text, paragraph)
-      expect(text).to match(/\(k\u00A0=\u00A02\)/)
+      expect(text).to match(%r{\(<italic>k</italic>\u00A0=\u00A02\)})
     end
   end
 end
