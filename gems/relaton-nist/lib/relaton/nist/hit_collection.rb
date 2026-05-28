@@ -261,13 +261,17 @@ module Relaton
         when nil, "final"
           # no stage — "final" means published
         when "fpd"
-          pid.stage = ::Pubid::Nist::Stage.new id: "f", type: "pd"
+          pid.stage = ::Pubid::Nist::Components::Stage.new id: "f", type: "pd"
         when /\A(\w)pd\z/
-          pid.stage = ::Pubid::Nist::Stage.new id: Regexp.last_match(1), type: "pd"
+          pid.stage = ::Pubid::Nist::Components::Stage.new id: Regexp.last_match(1), type: "pd"
         end
 
         /\/upd(?<upd>\d+)\// =~ json["uri"]
-        pid.update = Pubid::Nist::Update.new number: upd if upd
+        # In pubid 2.x render paths the Update is read from
+        # update_component (Components::Update), not the legacy :update
+        # slot — assigning to :update would render as "-upd/Upd2" via the
+        # elsif fallback path in Base#to_short_style.
+        pid.update_component = ::Pubid::Nist::Components::Update.new(number: upd) if upd
         pid.to_s
       rescue StandardError
         id += " #{json["iteration"]}" if json["iteration"] && json["iteration"] != "final"
