@@ -86,7 +86,18 @@ module Relaton
           missed_years = []
           iteration = parse_iteration(opts[:stage])
 
-          result.each do |h|
+          # A stageless query means "the published document". Multiple
+          # editions can match once stage is excluded (e.g. a final "r2"
+          # and its draft "Rev. 2 ipd"), so try published hits before
+          # drafts. An explicit stage keeps the original order. Stable
+          # partition preserves existing tie-order among finals.
+          ordered = if iteration
+                      result.array
+                    else
+                      result.array.sort_by.with_index { |h, i| [draft_hit?(h) ? 1 : 0, i] }
+                    end
+
+          ordered.each do |h|
             r = h.item
             next if opts[:date] && !match_date?(r, opts[:date])
             next if iteration && r.status&.iteration != iteration
@@ -96,6 +107,13 @@ module Relaton
             return { ret: r }
           end
           { years: missed_years }
+        end
+
+        # A hit is a draft when its CSRC status says so (e.g. "draft-public")
+        # or its rendered code carries a PD stage marker (ipd/fpd/NpD).
+        def draft_hit?(hit)
+          hit.hit[:status].to_s.include?("draft") ||
+            hit.hit[:code].to_s.match?(/(?:\bi|\bf|\b\d)pd\b|\(Draft\)/i)
         end
 
         def parse_iteration(stage)
