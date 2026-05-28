@@ -113,20 +113,22 @@ module Relaton
       # @return [void]
       #
       def search_relations(bibid, bib)
+        bibid_pid = ::Pubid::Ccsds::Identifier.parse(bibid)
         index.search do |row|
           id = row[:id].exclude(:language)
           # TODO: smiplify this line?
-          next if id != bibid || row[:id] == bib.docidentifier.first.content
+          next if id != bibid_pid || row[:id] == bib.docidentifier.first.content
 
           create_relations bib, row[:file]
         end
       end
 
       def search_translations(bibid, bib)
+        bibid_pid = ::Pubid::Ccsds::Identifier.parse(bibid)
         # will call create_instance_relation if
         # there are same identifiers in index but with word "Translated"
         index.search do |row|
-          next unless row[:id].language && row[:id].exclude(:language) == bibid
+          next unless row[:id].language && row[:id].exclude(:language) == bibid_pid
 
           create_instance_relation bib, row[:file]
         end
