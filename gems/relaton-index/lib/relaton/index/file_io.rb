@@ -122,25 +122,10 @@ module Relaton
         @sorted = true
         prev_number = nil
         index.map do |r|
-          # Some flavor .create factories raise on rows that need a
-          # base_identifier (supplements/amendments/corrigenda) — those
-          # rows would still be loadable as hashes pre-2.x. Keep the raw
-          # hash so the row is at least present in the index; the
-          # match_item branch for non-String, non-equal ids will return
-          # false for it (which matches the pre-2.x behavior of those
-          # supplement rows never matching a non-supplement query).
-          id = begin
-                 @pubid_class.create(**(r[:id] || {}))
-               rescue StandardError
-                 r[:id]
-               end
-          if id.respond_to?(:number)
-            num = get_id_number id
-            @sorted = false if prev_number && prev_number > num
-            prev_number = num
-          else
-            @sorted = false
-          end
+          id = @pubid_class.create(**(r[:id] || {}))
+          num = get_id_number id
+          @sorted = false if prev_number && prev_number > num
+          prev_number = num
           { id: id, file: r[:file] }
         end
       end
