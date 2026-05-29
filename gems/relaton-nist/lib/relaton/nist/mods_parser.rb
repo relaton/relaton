@@ -48,11 +48,13 @@ module Relaton
       def get_id_from_str(str)
         return if str.nil? || str.empty?
 
-        # Pubid 2.x stamps parsed_format on the identifier; rendering via
-        # default to_s round-trips back to the dotted MR form (e.g.
-        # "NIST.HB.135e2022"). Force :human to get the canonical
-        # space-separated rendering expected by downstream consumers.
-        ::Pubid::Nist::Identifier.parse(str).to_s(format: :human)
+        # DOIs arrive dotted ("NIST.HB.135e2022-upd1"); that MR-style form
+        # parses through a path that skips UpdateCodes date lookup and drops
+        # letter suffixes. Space the leading "PUB.SERIES." prefix so it parses
+        # like the canonical short form (only the separator dots are touched,
+        # not any inside the number). Then force :human rendering.
+        spaced = str.sub(/\A(NIST|NBS)\.([A-Z][A-Za-z]*)\./, '\1 \2 ')
+        ::Pubid::Nist::Identifier.parse(spaced).to_s(format: :human)
       rescue Parslet::ParseFailed
         str.gsub(".", " ").sub(/^[\D]+/, &:upcase)
       end
