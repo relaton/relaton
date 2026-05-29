@@ -258,6 +258,12 @@ module Relaton
         parse_input = "NIST #{parse_input}" unless parse_input.start_with?("NIST ")
         pid = ::Pubid::Nist::Identifier.parse(parse_input)
 
+        # Canonicalize edition spelling: DOI-derived codes are already short
+        # ("…r2"), but no-DOI drafts come from the verbose docidentifier
+        # ("… Rev. 2") and pubid preserves that spelling via original_prefix.
+        # Drop it so every code renders the canonical short form.
+        pid.edition.original_prefix = nil if pid.respond_to?(:edition) && pid.edition
+
         # Stage: URI is authoritative, fall back to iteration. "final" => no stage.
         uri_stage = json["uri"] && json["uri"][%r{/(final|ipd|fpd|\dpd)(?:-\(\d+\))?(?:/|$)}, 1]
         stage_src = uri_stage || json["iteration"]
