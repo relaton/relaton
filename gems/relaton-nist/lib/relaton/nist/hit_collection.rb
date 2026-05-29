@@ -74,14 +74,31 @@ module Relaton
         return dup
       end
 
+      # The edition/revision/version attributes that together identify a
+      # specific edition of a document. Treated as one unit when deciding
+      # whether a reference is "incomplete" (no edition given).
+      EDITION_FAMILY = %i[
+        edition edition_component revision revision_year revision_month
+        version version_component edition_year
+      ].freeze
+
       def exclude_parts(pubid)
         # Pubid 2.x exposes update via two slots (:update and :update_component),
         # and pubs_export_id assigns to update_component — so checking only
         # :update misses the case where the indexed pubid carries the update
         # info there. Same logic for both legacy and component slots.
-        %i[stage update update_component].each_with_object([]) do |part, parts|
-          parts << part if pubid.respond_to?(part) && pubid.send(part).nil?
+        parts = %i[stage update update_component].select do |part|
+          pubid.respond_to?(part) && pubid.send(part).nil?
         end
+
+        # Incomplete reference: no edition/revision/version specified (e.g.
+        # "NIST SP 800-60v1"). Exclude the whole edition family so it matches
+        # any edition; result selection (sort_hits! + results_filter) then
+        # picks the latest/preferred one.
+        if EDITION_FAMILY.all? { |p| !pubid.respond_to?(p) || pubid.send(p).nil? }
+          parts += EDITION_FAMILY
+        end
+        parts
       end
 
       private
