@@ -61,7 +61,7 @@ module Relaton
         refid = ::Pubid::Nist::Identifier.parse(@reference)
         parts = exclude_parts refid
         arr = @array.select do |item|
-          pubid = ::Pubid::Nist::Identifier.parse(item.hit[:code].sub(/\.$/, ""))
+          pubid = ::Pubid::Nist::Identifier.parse(item.hit[:code])
           pubid.exclude(*parts) == refid
         rescue StandardError
           item.hit[:code] == ref
@@ -267,7 +267,7 @@ module Relaton
         end => id
 
         id.sub!(/(?:-draft\d*|\.\wpd)$/, "")
-        id = id.gsub(".", " ").sub(/-Add(\d*)$/, ' Add\1') if id.match?(/-Add\d*$/)
+        id = id.gsub(".", " ").sub(/-Add(\d*)$/, ' Add.\1') if id.match?(/-Add\d*$/)
         # Normalize to space-separated form so pubid 2.x parses as
         # parsed_format=:short and renders without dots; also force the
         # "NIST " prefix so publisher_was_parsed is set.

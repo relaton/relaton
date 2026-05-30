@@ -13,6 +13,11 @@ module Relaton
         #
         def search(text, year = nil, opts = {})
           ref = text.sub(/^NISTIR/, "NIST IR").sub(/\/Add/, " Add")
+          # pubid 2.x only recognizes the addendum marker with a trailing
+          # period, and only splits an uppercase part letter — canonicalize
+          # both ("800-38a Add" -> "800-38A Add.") so @reference parses to the
+          # same pubid the index/CSRC carry.
+          ref = ref.sub(/\bAdd\b\.?/i, "Add.").sub(/([0-9])([a-z])(?=\s+Add\.)/) { "#{$1}#{$2.upcase}" }
           HitCollection.search ref, year, opts
         rescue OpenURI::HTTPError, SocketError, OpenSSL::SSL::SSLError => e
           raise Relaton::RequestError, e.message
