@@ -17,9 +17,9 @@ module Relaton
 
       # @return [Relaton::Iec::ItemData, nil]
       def to_all_parts(r_year, opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-        parts = @array.select { |h| h.part && (!r_year || h.hit[:id]&.year&.to_s == r_year) }
+        parts = @array.select { |h| h.part && (!r_year || h.hit[:id]&.date&.year&.to_s == r_year) }
         if opts[:publication_date_before] || opts[:publication_date_after]
-          parts = parts.select { |h| Bibliography.send(:year_in_range?, h.hit[:id].year.to_i, opts) }
+          parts = parts.select { |h| Bibliography.send(:year_in_range?, h.hit[:id].date&.year.to_i, opts) }
         end
         hit = parts.min_by { |h| h.part.to_i }
         return @array.first&.item unless hit
@@ -100,7 +100,7 @@ module Relaton
         index.search(@ref) do |row|
           pubid_matches?(row[:id], exclude)
         end.sort_by do |row|
-          [row[:id].year.to_i, *part_sort_key(row[:id].part)]
+          [row[:id].date&.year.to_i, *part_sort_key(row[:id].part)]
         end.map do |row|
           Hit.new(row, self)
         end

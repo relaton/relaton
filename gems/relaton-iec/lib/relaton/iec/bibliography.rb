@@ -116,18 +116,18 @@ module Relaton
         def find_match(result, pubid, opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
           pubid_year = pubid.date&.year
           if pubid_year
-            hit = result.detect { |h| h.hit[:id].year == pubid_year }
+            hit = result.detect { |h| h.hit[:id].date&.year == pubid_year }
             return fetch_and_check_date(hit, pubid, opts) if hit
           elsif opts[:publication_date_before] || opts[:publication_date_after]
-            candidates = result.select { |h| year_in_range?(h.hit[:id].year.to_i, opts) }
-            candidates = candidates.sort_by { |h| -h.hit[:id].year.to_i }
+            candidates = result.select { |h| year_in_range?(h.hit[:id].date&.year.to_i, opts) }
+            candidates = candidates.sort_by { |h| -h.hit[:id].date&.year.to_i }
             candidates.each do |h|
               ret = fetch_and_check_date(h, pubid, opts)
               return ret if ret
             end
             return nil
           else
-            hit = result.max_by { |h| h.hit[:id].year.to_i }
+            hit = result.max_by { |h| h.hit[:id].date&.year.to_i }
             return unless hit
 
             ret = hit.item
@@ -247,7 +247,7 @@ module Relaton
 
           # Year mismatch: hits exist but not for the requested year
           if pubid.date&.year && result.any?
-            years = result.map { |h| h.hit[:id].year&.to_s }.compact.uniq.sort
+            years = result.map { |h| h.hit[:id].date&.year&.to_s }.compact.uniq.sort
             Util.info "TIP: No match for edition year `#{pubid.date&.year}`, " \
                       "but matches exist for `#{years.join('`, `')}`.", key: pubid.to_s
             return
