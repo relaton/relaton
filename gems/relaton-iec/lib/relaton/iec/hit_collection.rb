@@ -26,7 +26,8 @@ module Relaton
 
         bibitem = hit.item
         all_parts_item = bibitem.to_all_parts
-        parts.reject { |h| h.hit[:id] == hit.hit[:id] }.each do |hi|
+        others = parts.reject { |h| h.hit[:id] == hit.hit[:id] }
+        others.sort_by { |h| part_sort_key(h.hit[:id]) }.each do |hi|
           code = hi.hit[:id].to_s
           bib = ItemData.new(
             formattedref: Bib::Formattedref.new(content: code),
@@ -38,6 +39,13 @@ module Relaton
       end
 
       private
+
+      # Ascending sort key for part ordering, e.g. 61326-2-1 < 61326-2-6.
+      # part/subpart are pubid Code components; coerce via to_s, missing → 0.
+      def part_sort_key(pubid)
+        sub = pubid.respond_to?(:subpart) ? pubid.subpart : nil
+        [pubid.part.to_s.to_i, sub.to_s.to_i]
+      end
 
       VALID_ID_KEYS = %i[
         publisher number year type vap amendments corrigendums copublisher part base fragment edition database sheet

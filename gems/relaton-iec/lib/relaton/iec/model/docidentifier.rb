@@ -76,10 +76,9 @@ module Relaton
 
       def render_pubid(pubid)
         case type
-        # Pubid 2.x's IEC to_urn omits trailing empty positional fields,
-        # but the IEC URN convention keeps them ("...:1234-1-2::::").
-        # Route through Iec.code_to_urn to preserve the positional shape.
-        when "URN" then Relaton::Iec.code_to_urn(pubid.to_s)
+        # pubid owns the legacy positional IEC URN format (and the all-parts
+        # ":::ser" series form); render through it.
+        when "URN" then pubid.to_urn.to_s
         else pubid.to_s
         end
       end

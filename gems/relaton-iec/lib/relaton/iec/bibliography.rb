@@ -92,7 +92,9 @@ module Relaton
         # @return [Relaton::Iec::ItemData, nil]
         def iecbib_get(pubid, opts) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
           Util.info "Fetching from Relaton repository ...", key: pubid.to_s
-          exclude = opts[:all_parts] ? %i[year part] : %i[year]
+          # pubid 2.x splits multi-level numbers ("61326-2-6") into part +
+          # subpart, so all-parts matching must ignore subpart too.
+          exclude = opts[:all_parts] ? %i[year part subpart] : %i[year]
           result = search(pubid, exclude: exclude) || return
 
           if opts[:all_parts]
