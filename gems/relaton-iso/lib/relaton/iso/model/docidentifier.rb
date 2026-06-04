@@ -42,6 +42,13 @@ module Relaton
 
           if parsed
             @pubid = parsed
+            # TC committee documents have a canonical spelling ("… N1110")
+            # that pubid renders with a space ("… N 1110"). Preserve the
+            # source string (same intent as the iso-tc bypass) while keeping
+            # the parsed pubid for any structural operations.
+            if value.is_a?(String) && parsed.is_a?(::Pubid::Iso::Identifiers::TcDocument)
+              @raw_content = value
+            end
           elsif value.is_a?(String)
             @raw_content = value
           end
