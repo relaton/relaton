@@ -43,7 +43,7 @@ module Relaton
         if year&.respond_to?(:to_i)
           query_pubid.root.date = ::Pubid::Components::Date.new(year: year.to_s)
         end
-        query_pubid.root.all_parts ||= opts[:all_parts]
+        query_pubid.root.all_parts = opts[:all_parts] if opts[:all_parts]
         Util.info "Fetching from Relaton repository ...", key: query_pubid.to_s
 
         hits, missed_year_ids = isobib_search_filter(query_pubid, opts)
