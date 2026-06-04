@@ -4,6 +4,8 @@ module Relaton
     # Relaton::Index::Type is a class for indexing Relaton files.
     #
     class Type
+      include IdNumber
+
       #
       # Initialize a new Relaton::Index::Type object
       #
@@ -129,10 +131,6 @@ module Relaton
 
         right = bsearch_right(target)
         index[left...right]
-      end
-
-      def get_id_number(id)
-        id.respond_to?(:base) && id.base ? id.base.number.to_s : id.number.to_s
       end
 
       def bsearch_left(target)

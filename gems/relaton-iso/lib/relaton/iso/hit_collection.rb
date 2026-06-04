@@ -45,8 +45,14 @@ module Relaton
       # @return [Array<Relaton::Iso::Hit>] hits
       #
       def find # rubocop:disable Metrics/AbcSize
-        @array = index.search do |row|
-          row[:id].is_a?(Hash) || row[:id].is_a?(::Pubid::Identifier) ? pubid_match?(row[:id]) : ref.to_s == row[:id]
+        # Pass `ref` (a Pubid::Identifier, not a String) so the index can
+        # narrow candidates by number via binary search before applying the
+        # block, instead of a full O(n) scan of every row.
+        # Every ISO index row is a structured id (Hash, deserialized to a
+        # Pubid via the index's `pubid_class`), never a legacy id string, so
+        # `pubid_match?` (which handles both Pubid and Hash) covers every case.
+        @array = index.search(ref) do |row|
+          pubid_match?(row[:id])
         end.map { |row| Hit.new row, self }
           .sort_by! { |h| h.pubid.to_s }
           .reverse!

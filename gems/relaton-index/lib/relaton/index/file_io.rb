@@ -6,6 +6,8 @@ module Relaton
     # In index mode url should be nil.
     #
     class FileIO
+      include IdNumber
+
       attr_reader :url, :pubid_class
       attr_accessor :sorted
 
@@ -228,10 +230,6 @@ module Relaton
         else
           index
         end
-      end
-
-      def get_id_number(id)
-        id.respond_to?(:base) && id.base ? id.base.number.to_s : id.number.to_s
       end
 
       #
