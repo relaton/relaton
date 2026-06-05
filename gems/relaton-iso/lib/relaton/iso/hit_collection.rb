@@ -29,7 +29,12 @@ module Relaton
       end
 
       def ref_pubid_no_year
-        @ref_pubid_no_year ||= ref.base_identifier ? ref.dup.tap { |r| r.base_identifier = r.base_identifier.exclude(:date) } : ref.exclude(:date)
+        @ref_pubid_no_year ||=
+          if ref.base_identifier
+            ref.dup.tap { |r| r.base_identifier = r.base_identifier.exclude(:date) }
+          else
+            ref.exclude(:date)
+          end
       end
 
       def ref_pubid_excluded
@@ -47,38 +52,46 @@ module Relaton
       def find # rubocop:disable Metrics/AbcSize
         # Pass `ref` (a Pubid::Identifier, not a String) so the index can
         # narrow candidates by number via binary search before applying the
-        # block, instead of a full O(n) scan of every row.
-        # Every ISO index row is a structured id (Hash, deserialized to a
-        # Pubid via the index's `pubid_class`), never a legacy id string, so
-        # `pubid_match?` (which handles both Pubid and Hash) covers every case.
+        # block, instead of a full O(n) scan of every row. Every row's `:id`
+        # is already a Pubid::Identifier — Relaton::Index deserialized it via
+        # the `pubid_class` passed in `#index` — so `pubid_match?` compares
+        # Pubid to Pubid directly.
         @array = index.search(ref) do |row|
           pubid_match?(row[:id])
         end.map { |row| Hit.new row, self }
-          .sort_by! { |h| h.pubid.to_s }
-          .reverse!
+        # An all-parts query drops :part from the match, so multiple rows can
+        # resolve to the same pubid; collapse them so each part appears once.
+        @array.uniq! { |h| h.pubid.to_s } if ref.root.all_parts
+        @array.sort_by! { |h| h.pubid.to_s }.reverse!
         self
       end
 
-      def pubid_match?(id)
-        pubid = create_pubid(id)
-        return false unless pubid
-
+      def pubid_match?(pubid)
         match_excludings = translate_excludings(excludings) + [:all_parts]
         match_excludings << :edition unless pubid.typed_stage&.abbr&.include?("DIR")
-        exclude_id_attrs(pubid, *match_excludings) == exclude_id_attrs(ref_pubid_no_year, *match_excludings)
+        # Only the candidate is built via .create (from the index) and so may
+        # carry a compound part; `ref_pubid_no_year` is always a parsed pubid,
+        # already split, so it needs no normalization.
+        cand = normalize_compound_part(exclude_id_attrs(pubid, *match_excludings))
+        cand == exclude_id_attrs(ref_pubid_no_year, *match_excludings)
       end
 
-      def create_pubid(id)
-        return id if id.is_a?(::Pubid::Identifier)
+      # @TODO TEMP WORKAROUND (pubid 2.x migration): the v1-generated index
+      # stores a compound part such as "5-1-3" in :part with no :subpart, and
+      # Relaton::Index builds each row via Pubid::Iso::Identifier.create(**id),
+      # which keeps it as part="5-1-3" subpart=nil. A parsed query splits it
+      # (part="5", subpart="1-3"), so the two never compare equal. Re-split the
+      # compound part on the first dash to mirror parse before comparing.
+      # `exclude` returns a fresh instance, so mutating this copy is safe.
+      # Remove once pubid create() splits compound parts itself.
+      def normalize_compound_part(pubid)
+        num = pubid.part&.number.to_s
+        return pubid unless pubid.subpart.nil? && num.include?("-")
 
-        pubid = ::Pubid::Iso::Identifier.create(**id)
-        if id[:stage] && pubid.typed_stage.nil?
-          Util.warn "cannot parse typed stage or stage '#{id[:stage]}'", key: ref.to_s
-          return nil
-        end
+        head, tail = num.split("-", 2)
+        pubid.part = ::Pubid::Iso::Components::Code.new(number: head)
+        pubid.subpart = ::Pubid::Iso::Components::Code.new(number: tail)
         pubid
-      rescue StandardError => e
-        Util.warn e.message, key: ref.to_s
       end
 
       def exclude_id_attrs(pubid, *attrs)

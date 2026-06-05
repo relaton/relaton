@@ -97,7 +97,7 @@ module Relaton
 
         query_pubid.publisher == pubid.publisher &&
           query_pubid.number == pubid.number &&
-          query_pubid.copublisher == pubid.copublisher &&
+          query_pubid.copublishers == pubid.copublishers &&
           (any_types_stages || query_pubid.stage == pubid.stage) &&
           (any_types_stages || query_pubid.is_a?(pubid.class))
       end
@@ -345,8 +345,26 @@ module Relaton
         else
           pubid = pubid.dup
           pubid.base_identifier = pubid.base_identifier.exclude(:date, :edition) if pubid.base_identifier
-          pubid.exclude(*excludings) == no_year_ref
+          normalize_compound_part(pubid.exclude(*excludings)) == no_year_ref
         end
+      end
+
+      # @TODO TEMP WORKAROUND (pubid 2.x migration): the v1-generated index
+      # stores a compound part such as "5-1-3" in :part with no :subpart, and
+      # Relaton::Index builds each row via Pubid::Iso::Identifier.create(**id),
+      # which keeps it as part="5-1-3" subpart=nil. A parsed query (no_year_ref)
+      # splits it (part="5", subpart="1-3"), so the two never compare equal.
+      # Re-split the candidate's compound part on the first dash to mirror parse
+      # before comparing. `exclude` returns a fresh instance, so mutating this
+      # copy is safe. Remove once pubid create() splits compound parts itself.
+      def normalize_compound_part(pubid)
+        num = pubid.part&.number.to_s
+        return pubid unless pubid.subpart.nil? && num.include?("-")
+
+        head, tail = num.split("-", 2)
+        pubid.part = ::Pubid::Iso::Components::Code.new(number: head)
+        pubid.subpart = ::Pubid::Iso::Components::Code.new(number: tail)
+        pubid
       end
     end
   end
