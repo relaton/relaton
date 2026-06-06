@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://documents.un.org/api/search?l=en&rid=9d537074-c6f1-4b04-a396-14a6e3a4ddc9
+    uri: https://documents.un.org/api/search?l=en&rid=9f3f0e6b-e54a-47cc-9eb9-e073d3dd9368
     body:
       encoding: UTF-8
       string: '{"symbol":"TRADE/CEFACT/2004/32","jobNumber":"","publicationDate":"*
@@ -23,59 +23,36 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 200
-      message: OK
+      code: 502
+      message: Bad Gateway
     headers:
+      Server:
+      - Microsoft-Azure-Application-Gateway/v2
       Date:
-      - Sat, 30 May 2026 03:28:07 GMT
+      - Sat, 06 Jun 2026 16:54:14 GMT
       Content-Type:
-      - application/json; charset=utf-8
+      - text/html
       Content-Length:
-      - '941'
+      - '315'
       Connection:
       - keep-alive
-      Set-Cookie:
-      - ApplicationGatewayAffinity=12e076c5cc4749d1442b56ec61c8cfeb; Path=/
-      - ApplicationGatewayAffinityCORS=12e076c5cc4749d1442b56ec61c8cfeb; Path=/; SameSite=None;
-        Secure
-      Vary:
-      - Origin
-      Access-Control-Allow-Credentials:
-      - 'true'
-      Content-Security-Policy:
-      - 'default-src ''self'';script-src ''self'' https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js;style-src
-        ''self'' https://fonts.googleapis.com https://fonts.gstatic.com;frame-ancestors
-        ''self'' https://docs.un.org;base-uri ''self'';font-src ''self'' https: data:;form-action
-        ''self'';img-src ''self'' data:;object-src ''none'';script-src-attr ''none'';upgrade-insecure-requests'
-      Cross-Origin-Opener-Policy:
-      - same-origin
-      Cross-Origin-Resource-Policy:
-      - same-origin
-      Origin-Agent-Cluster:
-      - "?1"
-      Referrer-Policy:
-      - no-referrer
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains
-      X-Content-Type-Options:
-      - nosniff
-      X-Dns-Prefetch-Control:
-      - 'off'
-      X-Download-Options:
-      - noopen
-      X-Frame-Options:
-      - SAMEORIGIN
-      X-Permitted-Cross-Domain-Policies:
-      - none
-      X-Xss-Protection:
-      - '0'
       Etag:
-      - W/"3ad-DywK4+c8UjKuZTFfsF6xaJAy1iM"
+      - '"6a23d097-13b"'
     body:
       encoding: UTF-8
-      string: '{"status":1,"body":{"data":[{"id":"TRADE/CEFACT/2004/32_7895068","symbol":"TRADE/CEFACT/2004/32","symbols":["TRADE/CEFACT/2004/32","",""],"publication_date":"2004-03-18T00:00:00Z","area":"UNDOC","distribution":"GEN","tcodes":["T0006291","T0009430","T0002478","T0002587","T0002747","T0000745","T0006012","T0010642"],"agendas":["12","",""],"sessions":["10","",""],"job_numbers":["","","G0430683","","","",""],"release_dates":["1900-01-01T00:00:00Z","1900-01-01T00:00:00Z","2004-03-30T00:00:00Z","1900-01-01T00:00:00Z","1900-01-01T00:00:00Z","1900-01-01T00:00:00Z","1900-01-01T00:00:00Z"],"sizes":[-1,-1,-1,-1,-1,-1,40981,-1,110592,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],"title":"SECRETARIAT
-        REVIEW OF UN/LOCODE, 19 DECEMBER 2003 / SUBMITTED BY THE SECRETARIAT","subjects":["TRADE
-        DATA INTERCHANGE","CODES","PORTS","TRANSPORT TERMINALS","TRADE FACILITATION","PROJECT
-        EVALUATION","DATABASES","WEBSITES"]}],"meta":{"matches":1,"numberOfGroups":1}}}'
-  recorded_at: Sat, 30 May 2026 03:28:07 GMT
+      string: |-
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta http-equiv="refresh" content="0; url=https://maintenance.un.org" />
+            <title>Redirecting to Maintenance...</title>
+        </head>
+        <body>
+            <script>
+                // JavaScript fallback redirect
+                window.location.href = "https://maintenance.un.org";
+            </script>
+        </body>
+        </html>
+  recorded_at: Sat, 06 Jun 2026 16:54:14 GMT
 recorded_with: VCR 6.4.0
