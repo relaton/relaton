@@ -1,5 +1,12 @@
 require "lutaml/model"
 require "lutaml/xml"
+
+# lutaml/xml registers :doctype as an attr_accessor on Serializable (for the
+# <!DOCTYPE …> XML declaration) and adds it to the override-warning list.
+# Relaton's :doctype attribute models the document-type field
+# (international-standard, technical-report, …); the override is intentional.
+Lutaml::Model::Attribute.format_specific_warn_names.delete(:doctype)
+
 require_relative "localized_string_attrs"
 require_relative "localized_string"
 require_relative "formattedref"
