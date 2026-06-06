@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://documents.un.org/api/search?l=en&rid=f3ae97a2-f43c-4e86-a73c-26c594752740
+    uri: https://documents.un.org/api/search?l=en&rid=dd720201-f593-4f05-8439-4726c12924b6
     body:
       encoding: UTF-8
       string: '{"symbol":"NOT/FOUND","jobNumber":"","publicationDate":"* TO *","releaseDate":"*
@@ -14,7 +14,7 @@ http_interactions:
       Cache-Control:
       - public, max-age=0
       User-Agent:
-      - Faraday v2.14.2
+      - Faraday v2.7.12
       Content-Type:
       - application/json
       Accept-Encoding:
@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 22 May 2026 21:00:10 GMT
+      - Sat, 30 May 2026 03:28:07 GMT
       Content-Type:
       - application/json; charset=utf-8
       Content-Length:
@@ -35,8 +35,8 @@ http_interactions:
       Connection:
       - keep-alive
       Set-Cookie:
-      - ApplicationGatewayAffinity=12e076c5cc4749d1442b56ec61c8cfeb; Path=/
-      - ApplicationGatewayAffinityCORS=12e076c5cc4749d1442b56ec61c8cfeb; Path=/; SameSite=None;
+      - ApplicationGatewayAffinity=9ff937bc5c93d5d69c241addebbf2fc4; Path=/
+      - ApplicationGatewayAffinityCORS=9ff937bc5c93d5d69c241addebbf2fc4; Path=/; SameSite=None;
         Secure
       Vary:
       - Origin
@@ -74,5 +74,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"status":1,"body":{"data":[],"meta":{"matches":0,"numberOfGroups":0}}}'
-  recorded_at: Fri, 22 May 2026 21:00:10 GMT
+  recorded_at: Sat, 30 May 2026 03:28:07 GMT
 recorded_with: VCR 6.4.0
