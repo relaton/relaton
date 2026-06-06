@@ -1,6 +1,6 @@
 require "relaton/bib"
 require "relaton/index"
-require "pubid/iho"
+require "pubid"
 require_relative "iho/version"
 require_relative "iho/util"
 require_relative "iho/docidentifier"

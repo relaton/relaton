@@ -104,7 +104,7 @@ module Relaton
         return @pubid if @pubid
 
         @pubid = ::Pubid::Iso::Identifier.parse(id)
-        @pubid.root.edition ||= edition.content if @pubid.base
+        @pubid.root.edition ||= edition.content if @pubid.base_identifier
         @pubid
       rescue StandardError => e
         Util.error "Failed to parse pubid from #{id}: #{e.message}"
@@ -112,7 +112,15 @@ module Relaton
 
       def urn
         pubid_dup = pubid.dup
-        pubid_dup.stage ||= ::Pubid::Iso::Identifier.parse_stage(stage_code)
+        if (ts = ::Pubid::Iso::Scheme.locate_typed_stage_by_harmonized_code(stage_code))
+          pubid_dup.typed_stage = ts
+          pubid_dup.stage = ::Pubid::Components::Stage.new(
+            name: ts.name,
+            stage_code: ts.stage_code&.to_s,
+            abbr: Array(ts.abbr).first.to_s,
+            harmonized_stages: Array(ts.harmonized_stages),
+          )
+        end
         pubid_dup
       end
 
@@ -143,8 +151,9 @@ module Relaton
       # @return [String] English reference identifier
       #
       def isoref
-        params = pubid.to_h.except(:typed_stage)
-        ::Pubid::Iso::Identifier.create(language: "en", **params).to_s(format: :ref_num_short)
+        pubid.dup.tap do |id|
+          id.languages = [::Pubid::Components::Language.new(code: "en", original_code: "E")]
+        end.to_s
       end
 
       private

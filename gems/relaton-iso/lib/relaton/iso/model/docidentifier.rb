@@ -27,7 +27,7 @@ module Relaton
         else
           parsed =
             case value
-            when ::Pubid::Iso::Identifier::Base then value
+            when ::Pubid::Iso::Identifier then value
             when String
               begin
                 ::Pubid::Iso::Identifier.parse(value)
@@ -42,6 +42,13 @@ module Relaton
 
           if parsed
             @pubid = parsed
+            # TC committee documents have a canonical spelling ("… N1110")
+            # that pubid renders with a space ("… N 1110"). Preserve the
+            # source string (same intent as the iso-tc bypass) while keeping
+            # the parsed pubid for any structural operations.
+            if value.is_a?(String) && parsed.is_a?(::Pubid::Iso::Identifiers::TcDocument)
+              @raw_content = value
+            end
           elsif value.is_a?(String)
             @raw_content = value
           end
@@ -80,18 +87,18 @@ module Relaton
       end
 
       def remove_date!
-        remove_attr!(:year)
+        remove_attr!(:date)
       end
 
       def exclude_year
         return @raw_content if @raw_content
         return nil unless @pubid
 
-        pubid = @pubid.exclude(:year)
+        pubid = @pubid.exclude(:date)
         current = pubid
-        while current.base
-          current.base = current.base.exclude(:year)
-          current = current.base
+        while current.base_identifier
+          current.base_identifier = current.base_identifier.exclude(:date)
+          current = current.base_identifier
         end
         pubid
       end
@@ -100,11 +107,10 @@ module Relaton
 
       def render_pubid(pubid)
         case type
-        when "URN" then pubid.urn
-        when "iso-reference", "iso-with-lang"
-          pubid.to_s(format: :ref_num_short, with_prf: true)
+        when "URN" then pubid.to_urn
+        when "ISO" then pubid.exclude(:languages).to_s
         else
-          pubid.to_s(with_prf: true)
+          pubid.to_s
         end
       end
 
@@ -112,10 +118,10 @@ module Relaton
         return unless @pubid
 
         @pubid.send("#{attr}=", nil)
-        base = @pubid.base
+        base = @pubid.base_identifier
         while base
           base.send("#{attr}=", nil)
-          base = base.base
+          base = base.base_identifier
         end
         refresh_content!
       end

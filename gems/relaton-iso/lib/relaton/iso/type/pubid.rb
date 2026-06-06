@@ -1,7 +1,7 @@
 module Relaton
   module Iso
     module Type
-      # Lutaml-model attribute type that preserves `Pubid::Iso::Identifier::Base`
+      # Lutaml-model attribute type that preserves `Pubid::Iso::Identifier`
       # instances on the way in and stringifies them on the way out.
       #
       # The default `:string` type calls `.to_s` during `cast`, which loses the

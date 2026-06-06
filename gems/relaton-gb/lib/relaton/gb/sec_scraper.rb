@@ -22,7 +22,8 @@ module Relaton
         def scrape_page(text)
           # uri = URI "http://www.std.gov.cn/hb/search/hbPage?searchText=#{text}"
           uri = URI "https://hbba.sacinfo.org.cn/stdQueryList"
-          resp = Net::HTTP.post uri, URI.encode_www_form({ key: text })
+          resp = Net::HTTP.post uri, URI.encode_www_form({ key: text }),
+                                "Content-Type" => "application/x-www-form-urlencoded"
           # res = JSON.parse Net::HTTP.get(uri)
           json = JSON.parse resp.body
           hits = json["records"].map do |h|

@@ -31,7 +31,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Thu, 21 May 2026 01:54:16 GMT
+      - Sat, 30 May 2026 02:38:04 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Transfer-Encoding:
@@ -87,8 +87,8 @@ http_interactions:
         7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021 Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]},{"value":"<em>BS7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021
         Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]},{"value":"<em>BS7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]},{"value":"<em>BS
         7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]}],"publisher":{"value":"BSI","matchLevel":"none","matchedWords":[]},"status":{"value":"Withdrawn","matchLevel":"none","matchedWords":[]}}}}}],"nbHits":1,"page":0,"nbPages":1,"hitsPerPage":20,"exhaustiveNbHits":true,"exhaustiveTypo":true,"exhaustive":{"nbHits":true,"typo":true},"query":"BS
-        7273-4:2015+A1:2021 Ex","params":"query=BS+7273-4%3A2015%2BA1%3A2021+Ex&distinct=1&filters=NOT+tags%3Ahas-digital&filters=NOT+tags%3Anot-for-sale&filters=NOT+product_type%3Amembership","renderingContent":{},"processingTimeMS":1,"processingTimingsMS":{"_request":{"roundTrip":117},"fetch":{"total":1},"total":1},"serverTimeMS":2}'
-  recorded_at: Thu, 21 May 2026 01:54:16 GMT
+        7273-4:2015+A1:2021 Ex","params":"query=BS+7273-4%3A2015%2BA1%3A2021+Ex&distinct=1&filters=NOT+tags%3Ahas-digital&filters=NOT+tags%3Anot-for-sale&filters=NOT+product_type%3Amembership","renderingContent":{},"processingTimeMS":2,"processingTimingsMS":{"_request":{"roundTrip":109},"fetch":{"total":1},"total":2},"serverTimeMS":9}'
+  recorded_at: Sat, 30 May 2026 02:38:04 GMT
 - request:
     method: post
     uri: https://shop-bsi.myshopify.com/api/2021-04/graphql.json
@@ -122,13 +122,17 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 21 May 2026 01:54:16 GMT
+      - Sat, 30 May 2026 02:38:04 GMT
       Content-Type:
       - application/json; charset=utf-8
       Transfer-Encoding:
       - chunked
       Connection:
       - keep-alive
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.01,"max_age":604800}'
+      X-Stats-Apiclientid:
+      - '5335555'
       X-Xss-Protection:
       - 1; mode=block
       Alt-Svc:
@@ -139,8 +143,10 @@ http_interactions:
       - https://shopify.dev/api/usage/versioning#deprecation-practices
       Shopify-Complexity-Score:
       - '0'
+      Shopify-Complexity-Score-V2:
+      - '0'
       Set-Cookie:
-      - _shopify_essential=:AZ5IPZYWAAEA6Oqikz_4tlqK7vsfRG4N8wGQcVhHADn0VolSmuL4bX9kvcKKWq4I8mXxojuMNEaaPxM4yCKUUDaHnQQT1yW_G1e1HXSCXVaf3axjIr9XXCwPMvGaNVaSQW_FFpFfZQboP_5W4SFeKCMBoK9hzEUiWWzqLxpwD2KgTB5pWyR2HTs5q3A1hVDeO1i2darEe5Z455f58WsdqbQaX7tQFzXEghQZ5CLoQhL4rvWrlyPm_GV-_Fyb_E-oKXWAwAG75MlFJYgYlPlLxvbMROVFy6OqYs7yHDQUamfFGSom_A3RwunwLdBhhRA_:;
+      - _shopify_essential=:AZ52vu6VAAEAZvrpS-PdT27nctnwkClZgRfuQMqaajGjiJ1crD0F2-MWDSSBRdEjBusRWrfFilPT2fLl7vPJbsxBM-0JG2N0SrU0OUtaFBRw_Pd8FlP8CnlF8JdkLfsQaTNvjotMgfG_KiZSa3RxpRb42m433fdYL0-Jh7jU9k8cSTOMJz98z4KlVswh2OL75ru6n8z1FAAC84JRV637PPcgRQRe44DWHY9BeEXKRKRuGZYbkbiuX7NVXCC4MJ5lDXSCnr216oH7Z49v9osQbNA0sU6F2lay6UINkKQMxmgYReDdY9GBFB2roGt6IBYNKbadSBoQ3o7yiqVzKW9HIQnxOA:;
         Max-Age=31536000; Path=/; HttpOnly; Secure; Priority=High; SameSite=Lax
       X-Frame-Options:
       - DENY
@@ -151,9 +157,7 @@ http_interactions:
       X-Shopify-Api-Version:
       - 2025-07
       Report-To:
-      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=G1p9SVpiXu5k7UzMgOPk7Xb8LlvieAeqvyqQo8%2B1sf2pRjDbp77hZJA3ueKlrVejHJG27%2BkebFCnGY9hY4TW9CNht%2BJ8G0%2BgEY5nrUqz3UF5%2BCeBKdrO9Vv0lz10YP6Jufqnv6YcYUU9NjnHhIq%2FIZkRMlQ%3D"}]}'
-      Nel:
-      - '{"report_to":"cf-nel","success_fraction":0.01,"max_age":604800}'
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=eLsnBcgrTv0bRcRzsuJf0ip%2B8I2elWd%2FcoTCvqJniRiyG%2FDGjH%2BRtR3o4hxpc3b76LvPXJ32dLH8yYRrfOhcdNqORQ%2BeVZBFdpe33dsK1LZUFiRiGKjvawMkXHZanJofb09qtgSMOBtkMdTO8KXedDW0gV4%3D"}]}'
       Vary:
       - Accept,accept-encoding
       Content-Language:
@@ -162,27 +166,27 @@ http_interactions:
       - Shopify
       Server-Timing:
       - ipv6
-      - processing;dur=40, db;dur=24, asn;desc="11426", edge;desc="ATL", country;desc="US",
-        servedBy;desc="4nmx", graphql;desc="storefront/query/Relaton__Bsi__Scraper__Query__GetProducts",
-        gqlSelectionNames;desc="sfr/productByHandle", requestID;desc="5fe98a5e-edab-4d72-b1a0-0420d73a8109-1779328456",
-        _y;desc="384b99cf-871d-43e4-858a-0f371c061222", _s;desc="b562d789-f847-4be2-933c-724cb58ada8d"
+      - processing;dur=42, db;dur=24, asn;desc="11426", edge;desc="ATL", country;desc="US",
+        servedBy;desc="mv96", graphql;desc="storefront/query/Relaton__Bsi__Scraper__Query__GetProducts",
+        gqlSelectionNames;desc="sfr/productByHandle", requestID;desc="054a9f60-81fa-4446-85eb-5837f66d063a-1780108684",
+        _y;desc="4e332861-0fd4-4c04-99d2-704382ed9fe1", _s;desc="d94ea581-0f4e-40e4-ad3d-309892a2a0c8"
       X-Download-Options:
       - noopen
       X-Permitted-Cross-Domain-Policies:
       - none
-      X-Content-Type-Options:
-      - nosniff
-      X-Request-Id:
-      - 5fe98a5e-edab-4d72-b1a0-0420d73a8109-1779328456
       Server:
       - cloudflare
       X-Dc:
       - gcp-us-east1,gcp-us-east1,gcp-us-east1
+      X-Request-Id:
+      - 054a9f60-81fa-4446-85eb-5837f66d063a-1780108684
+      X-Content-Type-Options:
+      - nosniff
       Cf-Ray:
-      - 9feff3c2eb05f95d-ATL
+      - a03a5c507d3532e4-ATL
     body:
       encoding: ASCII-8BIT
-      string: '{"data":{"productByHandle":{"createdAt":"2021-08-14T08:03:52Z","publishedAt":"2025-12-13T00:55:43Z","updatedAt":"2026-02-13T04:54:21Z","productType":"publication","committee":{"value":"FSH/12/4"},"designated":{"value":"false"},"packContents":null,"summary":null,"corrigendumHandle":null,"variants":{"edges":[{"node":{"version":{"value":"basic"},"isbn":{"value":"978
+      string: '{"data":{"productByHandle":{"createdAt":"2021-08-14T08:03:52Z","publishedAt":"2025-12-13T00:55:43Z","updatedAt":"2026-05-28T02:42:58Z","productType":"publication","committee":{"value":"FSH/12/4"},"designated":{"value":"false"},"packContents":null,"summary":null,"corrigendumHandle":null,"variants":{"edges":[{"node":{"version":{"value":"basic"},"isbn":{"value":"978
         0 539 16669 9"}}}]},"description":""}},"extensions":{"cost":{"requestedQueryCost":51}}}'
-  recorded_at: Thu, 21 May 2026 01:54:16 GMT
+  recorded_at: Sat, 30 May 2026 02:38:04 GMT
 recorded_with: VCR 6.4.0

@@ -121,8 +121,9 @@ module Relaton
       end
 
       def iso_reference_pubid
-        params = pubid.to_h.except(:typed_stage)
-        ::Pubid::Iso::Identifier.create(language: "en", **params)
+        pubid.dup.tap do |id|
+          id.languages = [::Pubid::Components::Language.new(code: "en", original_code: "E")]
+        end
       rescue StandardError
         nil
       end
@@ -132,14 +133,27 @@ module Relaton
 
         @urn_pubid = begin
           dup_pubid = pubid.dup
-          if dup_pubid.respond_to?(:stage=) && stage_dotted &&
-             dup_pubid.respond_to?(:stage) && dup_pubid.stage.nil?
-            dup_pubid.stage = ::Pubid::Iso::Identifier.parse_stage(stage_dotted)
-          end
+          # Override stage even when parsed pubid carries the default
+          # "published" stage — relaton's currentStage (e.g. 9092 = Withdrawn)
+          # is the authoritative source for URN stage.
+          apply_harmonized_stage(dup_pubid, stage_dotted) if stage_dotted
           dup_pubid
         rescue StandardError
           nil
         end
+      end
+
+      def apply_harmonized_stage(pubid, harmonized_code)
+        ts = ::Pubid::Iso::Scheme.locate_typed_stage_by_harmonized_code(harmonized_code)
+        return unless ts
+
+        pubid.typed_stage = ts
+        pubid.stage = ::Pubid::Components::Stage.new(
+          name: ts.name,
+          stage_code: ts.stage_code&.to_s,
+          abbr: Array(ts.abbr).first.to_s,
+          harmonized_stages: Array(ts.harmonized_stages),
+        )
       end
 
       def docnumber
@@ -384,9 +398,9 @@ module Relaton
       end
 
       def base_relation
-        return [] unless pubid&.respond_to?(:base) && pubid.base
+        return [] unless pubid&.base_identifier
 
-        [relation_for(pubid.base.to_s, "updates")]
+        [relation_for(pubid.base_identifier.to_s, "updates")]
       end
 
       def relation_for(ref, type)

@@ -4,6 +4,8 @@ module Relaton
     # Relaton::Index::Type is a class for indexing Relaton files.
     #
     class Type
+      include IdNumber
+
       #
       # Initialize a new Relaton::Index::Type object
       #
@@ -12,7 +14,7 @@ module Relaton
       # @param [String, nil] file output file name
       # @param [Array<Symbol>] id_keys keys of identifier to be used for sorting index
       #   format of index file is checked if id_keys all is provided at least in one of the IDs
-      # @param [Pubid::Core::Identifier::Base, nil] pubid class for deserialization
+      # @param [Pubid::Identifier, nil] pubid class for deserialization
       #
       def initialize(type, url = nil, file = nil, id_keys = nil, pubid_class = nil) # rubocop:disable Metrics/ParameterLists
         @file = file
@@ -41,7 +43,7 @@ module Relaton
       #
       # Add or update index item
       #
-      # @param [Pubid::Core::Identifier::Base] id document ID
+      # @param [Pubid::Identifier] id document ID
       # @param [String] file file name of the document
       #
       # @return [void]
@@ -62,7 +64,7 @@ module Relaton
       #
       # Search index for a given ID
       #
-      # @param [String, Pubid::Core::Identifier::Base] id ID to search for
+      # @param [String, Pubid::Identifier] id ID to search for
       #
       # @return [Array<Hash>] search results
       #
@@ -129,10 +131,6 @@ module Relaton
 
         right = bsearch_right(target)
         index[left...right]
-      end
-
-      def get_id_number(id)
-        id.respond_to?(:base) && id.base ? id.base.number.to_s : id.number.to_s
       end
 
       def bsearch_left(target)

@@ -61,7 +61,7 @@ module Relaton
         refid = ::Pubid::Nist::Identifier.parse(@reference)
         parts = exclude_parts refid
         arr = @array.select do |item|
-          pubid = ::Pubid::Nist::Identifier.parse(item.hit[:code].sub(/\.$/, ""))
+          pubid = ::Pubid::Nist::Identifier.parse(item.hit[:code])
           pubid.exclude(*parts) == refid
         rescue StandardError
           item.hit[:code] == ref
@@ -74,10 +74,31 @@ module Relaton
         return dup
       end
 
+      # The edition/revision/version attributes that together identify a
+      # specific edition of a document. Treated as one unit when deciding
+      # whether a reference is "incomplete" (no edition given).
+      EDITION_FAMILY = %i[
+        edition edition_component revision revision_year revision_month
+        version version_component edition_year
+      ].freeze
+
       def exclude_parts(pubid)
-        %i[stage update].each_with_object([]) do |part, parts|
-          parts << part if pubid.send(part).nil?
+        # Pubid 2.x exposes update via two slots (:update and :update_component),
+        # and pubs_export_id assigns to update_component — so checking only
+        # :update misses the case where the indexed pubid carries the update
+        # info there. Same logic for both legacy and component slots.
+        parts = %i[stage update update_component].select do |part|
+          pubid.respond_to?(part) && pubid.send(part).nil?
         end
+
+        # Incomplete reference: no edition/revision/version specified (e.g.
+        # "NIST SP 800-60v1"). Exclude the whole edition family so it matches
+        # any edition; result selection (sort_hits! + results_filter) then
+        # picks the latest/preferred one.
+        if EDITION_FAMILY.all? { |p| !pubid.respond_to?(p) || pubid.send(p).nil? }
+          parts += EDITION_FAMILY
+        end
+        parts
       end
 
       private
@@ -246,8 +267,19 @@ module Relaton
         end => id
 
         id.sub!(/(?:-draft\d*|\.\wpd)$/, "")
-        id = id.gsub(".", " ").sub(/-Add(\d*)$/, ' Add\1') if id.match?(/-Add\d*$/)
-        pid = ::Pubid::Nist::Identifier.parse(id)
+        id = id.gsub(".", " ").sub(/-Add(\d*)$/, ' Add.\1') if id.match?(/-Add\d*$/)
+        # Normalize to space-separated form so pubid 2.x parses as
+        # parsed_format=:short and renders without dots; also force the
+        # "NIST " prefix so publisher_was_parsed is set.
+        parse_input = id.gsub(/\bNIST\./, "NIST ")
+        parse_input = "NIST #{parse_input}" unless parse_input.start_with?("NIST ")
+        pid = ::Pubid::Nist::Identifier.parse(parse_input)
+
+        # Canonicalize edition spelling: DOI-derived codes are already short
+        # ("…r2"), but no-DOI drafts come from the verbose docidentifier
+        # ("… Rev. 2") and pubid preserves that spelling via original_prefix.
+        # Drop it so every code renders the canonical short form.
+        pid.edition.original_prefix = nil if pid.respond_to?(:edition) && pid.edition
 
         # Stage: URI is authoritative, fall back to iteration. "final" => no stage.
         uri_stage = json["uri"] && json["uri"][%r{/(final|ipd|fpd|\dpd)(?:-\(\d+\))?(?:/|$)}, 1]
@@ -256,13 +288,17 @@ module Relaton
         when nil, "final"
           # no stage — "final" means published
         when "fpd"
-          pid.stage = ::Pubid::Nist::Stage.new id: "f", type: "pd"
+          pid.stage = ::Pubid::Nist::Components::Stage.new id: "f", type: "pd"
         when /\A(\w)pd\z/
-          pid.stage = ::Pubid::Nist::Stage.new id: Regexp.last_match(1), type: "pd"
+          pid.stage = ::Pubid::Nist::Components::Stage.new id: Regexp.last_match(1), type: "pd"
         end
 
         /\/upd(?<upd>\d+)\// =~ json["uri"]
-        pid.update = Pubid::Nist::Update.new number: upd if upd
+        # In pubid 2.x render paths the Update is read from
+        # update_component (Components::Update), not the legacy :update
+        # slot — assigning to :update would render as "-upd/Upd2" via the
+        # elsif fallback path in Base#to_short_style.
+        pid.update_component = ::Pubid::Nist::Components::Update.new(number: upd) if upd
         pid.to_s
       rescue StandardError
         id += " #{json["iteration"]}" if json["iteration"] && json["iteration"] != "final"

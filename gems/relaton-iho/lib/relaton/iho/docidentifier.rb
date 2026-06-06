@@ -16,7 +16,20 @@ module Relaton
       end
 
       def to_h
-        @pubid&.to_h || super
+        return super unless @pubid
+
+        # Mirrors Bibliography.pubid_attrs but keyed for downstream consumers
+        # that expect the legacy pubid 1.x shape (:number for IHO's :code).
+        {
+          publisher: "IHO",
+          type: @pubid.class.type[:short],
+          number: @pubid.code,
+          version: @pubid.version,
+          part: @pubid.part,
+          appendix: (@pubid.appendix if @pubid.respond_to?(:appendix)),
+          annex: (@pubid.annex if @pubid.respond_to?(:annex)),
+          supplement: (@pubid.supplement if @pubid.respond_to?(:supplement)),
+        }.compact
       end
 
       def remove_part!
@@ -24,7 +37,7 @@ module Relaton
       end
 
       def remove_date!
-        @pubid&.year = nil
+        @pubid&.date = nil
       end
 
       def to_all_parts!

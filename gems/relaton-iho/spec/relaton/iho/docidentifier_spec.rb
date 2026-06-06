@@ -1,9 +1,9 @@
 describe Relaton::Iho::Docidentifier do
   describe "#initialize" do
-    it "parses content into a Pubid::Core::Identifier::Base" do
+    it "parses content into a Pubid::Identifier" do
       d = described_class.new(content: "S-100 Part 1", type: "IHO", primary: true)
-      expect(d.pubid).to be_a Pubid::Core::Identifier::Base
-      expect(d.pubid.number).to eq "100"
+      expect(d.pubid).to be_a Pubid::Identifier
+      expect(d.pubid.code).to eq "100"
       expect(d.pubid.part).to eq "1"
       expect(d.content).to eq "S-100 Part 1"
     end
@@ -15,9 +15,9 @@ describe Relaton::Iho::Docidentifier do
       expect(d.content).to eq "IHO S-4"
     end
 
-    it "raises Pubid::Core::Errors::ParseError on bad input (hard error)" do
+    it "raises StandardError on bad input (hard error)" do
       expect { described_class.new(content: "not a real ref", type: "IHO") }
-        .to raise_error(Pubid::Core::Errors::ParseError)
+        .to raise_error(StandardError)
     end
 
     it "leaves @pubid nil when content is empty" do
@@ -51,9 +51,9 @@ describe Relaton::Iho::Docidentifier do
   describe "#remove_date!" do
     it "clears year on the underlying Pubid identifier" do
       d = described_class.new(content: "S-100 Part 1", type: "IHO", primary: true)
-      d.pubid.year = 2020
+      d.pubid.date = Pubid::Components::Date.new(year: "2020")
       d.remove_date!
-      expect(d.pubid.year).to be_nil
+      expect(d.pubid.date).to be_nil
     end
 
     it "is a safe no-op when pubid is nil" do
@@ -95,7 +95,7 @@ describe Relaton::Iho::Docidentifier do
       item = Relaton::Iho::Bibdata.from_xml(xml)
       docid = item.docidentifier.first
       expect(docid).to be_a described_class
-      expect(docid.pubid).to be_a Pubid::Core::Identifier::Base
+      expect(docid.pubid).to be_a Pubid::Identifier
       expect(docid.pubid.part).to eq "1"
     end
 
@@ -108,7 +108,7 @@ describe Relaton::Iho::Docidentifier do
     it "raises on non-parseable docidentifier in incoming XML" do
       bad_xml = xml.sub("S-100 Part 1", "garbage ref")
       expect { Relaton::Iho::Bibdata.from_xml(bad_xml) }
-        .to raise_error(Pubid::Core::Errors::ParseError)
+        .to raise_error(StandardError)
     end
   end
 
@@ -117,7 +117,7 @@ describe Relaton::Iho::Docidentifier do
       result = Relaton::Iho::Bibliography.search "IHO B-11"
       docid = result.docidentifier.first
       expect(docid).to be_a described_class
-      expect(docid.pubid.number).to eq "11"
+      expect(docid.pubid.code).to eq "11"
     end
 
     it "auto-populates ext.structuredidentifier when fetched record lacks one",

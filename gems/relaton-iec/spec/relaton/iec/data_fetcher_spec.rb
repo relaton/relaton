@@ -73,7 +73,7 @@ describe Relaton::Iec::DataFetcher do
         idx = double("index")
         allow(subject).to receive(:index).and_return idx
         expect(idx).to receive(:add_or_update).with(
-          a_kind_of(Pubid::Iec::Base), file
+          a_kind_of(Pubid::Iec::Identifier), file
         )
         subject.send :add_file_to_index, file
       end
@@ -280,7 +280,7 @@ describe Relaton::Iec::DataFetcher do
         expect(pubid.to_s).to eq "IEC 60050-311:2001"
         expect(pubid.number.to_s).to eq "60050"
         expect(pubid.part.to_s).to eq "311"
-        expect(pubid.year).to eq 2001
+        expect(pubid.date&.year).to eq "2001"
       end
 
       it "returns nil for invalid identifier" do

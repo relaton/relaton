@@ -1,6 +1,6 @@
 require "webmock/rspec"
 require "zip"
-require "yaml"
+require "tmpdir"
 
 INDEX_ZIP_PATH = File.join(__dir__, "..", "fixtures", "index-v1.zip")
 
@@ -9,10 +9,11 @@ RSpec.configure do |config|
     yaml = Zip::File.open(INDEX_ZIP_PATH) do |zip|
       zip.first.get_input_stream.read
     end
-    index_data = YAML.safe_load(yaml, permitted_classes: [Symbol])
+    index_file = File.join(Dir.mktmpdir("relaton-iso-spec"), "index-v1.yaml")
+    File.write(index_file, yaml)
 
-    type = Relaton::Index::Type.new(:iso, nil, "index-v1.yaml")
-    type.instance_variable_set(:@index, index_data)
+    type = Relaton::Index::Type.new(:iso, nil, index_file, nil, ::Pubid::Iso::Identifier)
+    type.index # force the offline read + deserialize now, before net is blocked
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
 
     Relaton::Index.pool.instance_variable_get(:@pool)[:ISO] = type

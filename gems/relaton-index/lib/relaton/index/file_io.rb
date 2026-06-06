@@ -6,6 +6,8 @@ module Relaton
     # In index mode url should be nil.
     #
     class FileIO
+      include IdNumber
+
       attr_reader :url, :pubid_class
       attr_accessor :sorted
 
@@ -21,7 +23,7 @@ module Relaton
       #     and save it to the storage (if not exists, or older than 24 hours)
       #   if true then the index is read from the storage (used to remove index file)
       #   if nil then the fiename is used to read and write file (used to create indes in GH actions)
-      # @param [Pubid::Core::Identifier::Base] pubid class for deserialization
+      # @param [Pubid::Identifier] pubid class for deserialization
       #
       def initialize(dir, url, filename, id_keys, pubid_class = nil)
         @dir = dir
@@ -194,21 +196,40 @@ module Relaton
       #
       def save(index)
         yaml = sort_structured_index(index).map do |item|
-          item.transform_values { |value| value.is_a?(Pubid::Core::Identifier::Base) ? value.to_h : value }
+          item.transform_values do |value|
+            @pubid_class && value.is_a?(@pubid_class) ? pubid_to_hash(value) : value
+          end
         end.to_yaml
         Index.config.storage.write file, yaml
       end
 
+      # Flat symbol-keyed attribute hash for pubid 2.x identifiers, in the
+      # legacy 1.x shape that the .create(**kwargs) factory accepts on the
+      # read path. Drops :_type and :typed_stage; flattens :date Component
+      # to :year so per-flavor index schemas (which use :year, not :date)
+      # round-trip cleanly.
+      def pubid_to_hash(pubid)
+        pubid.class.attributes.each_with_object({}) do |(name, _), h|
+          next if %i[_type typed_stage].include?(name)
+
+          val = pubid.send(name)
+          next if val.nil?
+
+          if name == :date
+            year = val.respond_to?(:year) ? val.year : nil
+            h[:year] = year if year
+          else
+            h[name] = val
+          end
+        end
+      end
+
       def sort_structured_index(index)
-        if @pubid_class && index.first&.dig(:id).is_a?(Pubid::Core::Identifier::Base)
+        if @pubid_class && index.first&.dig(:id).is_a?(@pubid_class)
           index.sort_by { |item| get_id_number item[:id] }
         else
           index
         end
-      end
-
-      def get_id_number(id)
-        id.respond_to?(:base) && id.base ? id.base.number.to_s : id.number.to_s
       end
 
       #

@@ -23,20 +23,24 @@ describe Relaton::Iso::HitCollection do
   end
 
   describe "#find" do
+    # Production index rows are always deserialized into Pubid::Identifier by
+    # Relaton::Index (via the `pubid_class`), so mirror that here. Two part-1
+    # rows (one built via .create, one via .parse) exercise that find keeps
+    # every matching row when not querying all parts.
     let(:index) do
       idx = Relaton::Index::Type.new :iso
       idx.instance_variable_set :@index, [
-        { id: { publisher: "ISO", number: "19115", part: "1", year: "2014" } },
-        { id: { publisher: "ISO", number: "19115", part: "2", year: "2015" } },
-        { id: { publisher: "ISO", number: "19115", part: "3", year: "2016" } },
-        { id: "ISO 19115-1:2014" },
+        { id: ::Pubid::Iso::Identifier.create(publisher: "ISO", number: "19115", part: "1", year: "2014") },
+        { id: ::Pubid::Iso::Identifier.create(publisher: "ISO", number: "19115", part: "2", year: "2015") },
+        { id: ::Pubid::Iso::Identifier.create(publisher: "ISO", number: "19115", part: "3", year: "2016") },
+        { id: ::Pubid::Iso::Identifier.parse("ISO 19115-1:2014") },
       ]
       idx
     end
 
     before { expect(subject).to receive(:index).and_return index }
 
-    it "find both Hash & String index rows" do
+    it "finds all rows matching the ref" do
       expect(subject.find).to be_a described_class
       expect(subject.size).to eq 2
       expect(subject.first).to be_a Relaton::Iso::Hit
@@ -51,21 +55,11 @@ describe Relaton::Iso::HitCollection do
 
   describe "#pubid_match?" do
     it "exclude year" do
-      expect(subject.pubid_match?(publisher: "ISO", number: "19115", part: "1")).to be true
+      expect(subject.pubid_match?(::Pubid::Iso::Identifier.create(publisher: "ISO", number: "19115", part: "1"))).to be true
     end
 
     it "exclude edition" do
-      expect(subject.pubid_match?(publisher: "ISO", number: "19115", part: "1", edition: "2")).to be true
-    end
-  end
-
-  context "#create_pubid" do
-    it "rescues from error" do
-      expect do
-        subject.create_pubid publisher: "ISO", stage: "ST", number: "19115"
-      end.to output(
-        /\[relaton-iso\] WARN: \(ISO 19115-1:2014\) cannot parse typed stage or stage 'ST/,
-      ).to_stderr_from_any_process
+      expect(subject.pubid_match?(::Pubid::Iso::Identifier.create(publisher: "ISO", number: "19115", part: "1", edition: "2"))).to be true
     end
   end
 

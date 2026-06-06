@@ -40,8 +40,10 @@ module Relaton
         # opts[:all_parts] ||= $~ && opts[:all_parts].nil?
 
         query_pubid = ::Pubid::Iso::Identifier.parse(code)
-        query_pubid.root.year = year.to_i if year&.respond_to?(:to_i)
-        query_pubid.root.all_parts ||= opts[:all_parts]
+        if year&.respond_to?(:to_i)
+          query_pubid.root.date = ::Pubid::Components::Date.new(year: year.to_s)
+        end
+        query_pubid.root.all_parts = opts[:all_parts] if opts[:all_parts]
         Util.info "Fetching from Relaton repository ...", key: query_pubid.to_s
 
         hits, missed_year_ids = isobib_search_filter(query_pubid, opts)
@@ -57,7 +59,7 @@ module Relaton
 
         response_pubid = ret.docidentifier.find(&:primary) # .sub(" (all parts)", "")
         Util.info "Found: `#{response_pubid}`", key: query_pubid.to_s
-        get_all = (query_pubid.root.year && opts[:keep_year].nil?) || opts[:keep_year] || opts[:all_parts] ||
+        get_all = (query_pubid.root.date&.year && opts[:keep_year].nil?) || opts[:keep_year] || opts[:all_parts] ||
           opts[:publication_date_before] || opts[:publication_date_after]
         if get_all
           filter_item_by_date(ret, opts) if date_filter
@@ -65,7 +67,7 @@ module Relaton
         end
 
         ret.to_most_recent_reference
-      rescue ::Pubid::Core::Errors::ParseError
+      rescue Parslet::ParseFailed
         Util.warn "Is not recognized as a standards identifier.", key: code
         nil
       end
@@ -95,7 +97,7 @@ module Relaton
 
         query_pubid.publisher == pubid.publisher &&
           query_pubid.number == pubid.number &&
-          query_pubid.copublisher == pubid.copublisher &&
+          query_pubid.copublishers == pubid.copublishers &&
           (any_types_stages || query_pubid.stage == pubid.stage) &&
           (any_types_stages || query_pubid.is_a?(pubid.class))
       end
@@ -109,10 +111,12 @@ module Relaton
 
         # filter by year
         hit_collection.select! do |hit|
-          hit.pubid.year ||= hit.hit[:year]
+          if hit.pubid.date&.year.nil? && hit.hit[:year]
+            hit.pubid.date = ::Pubid::Components::Date.new(year: hit.hit[:year].to_s)
+          end
           next true if check_year(year, hit)
 
-          missed_year_ids << hit.pubid.to_s if hit.pubid.year
+          missed_year_ids << hit.pubid.to_s if hit.pubid.date&.year
           false
         end
 
@@ -189,7 +193,7 @@ module Relaton
       # @param hit [Relaton::Iso::Hit]
       # @return [Integer]
       def hit_year(hit)
-        yr = hit.pubid&.year || hit.hit[:year]
+        yr = hit.pubid&.date&.year || hit.hit[:year]
         yr.to_i
       end
 
@@ -243,9 +247,14 @@ module Relaton
       end
 
       def check_year(year, hit) # rubocop:disable Metrics/AbcSize
-        (hit.pubid.base.nil? && hit.pubid.year.to_s == year.to_s) ||
-          (!hit.pubid.base.nil? && hit.pubid.base.year.to_s == year.to_s) ||
-          (!hit.pubid.base.nil? && hit.pubid.year.to_s == year.to_s)
+        pub = hit.pubid
+        own_year = pub.date&.year.to_s
+        base_year = pub.base_identifier&.date&.year.to_s
+        if pub.base_identifier.nil?
+          own_year == year.to_s
+        else
+          base_year == year.to_s || own_year == year.to_s
+        end
       end
 
       # @param pubid [Pubid::Iso::Identifier] PubID with no results
@@ -254,7 +263,7 @@ module Relaton
 
         if missed_year_ids.any?
           ids = missed_year_ids.map { |i| "`#{i}`" }.join(", ")
-          Util.info "TIP: No match for edition year #{pubid.year}, but matches exist for #{ids}.", key: pubid.to_s
+          Util.info "TIP: No match for edition year #{pubid.date&.year}, but matches exist for #{ids}.", key: pubid.to_s
         end
 
         if tip_ids.any?
@@ -266,7 +275,7 @@ module Relaton
           Util.info "TIP: If it cannot be found, the document may no longer be published in parts.", key: pubid.to_s
         else
           Util.info "TIP: If you wish to cite all document parts for the reference, " \
-                    "use `#{pubid.to_s(format: :ref_undated)} (all parts)`.", key: pubid.to_s
+                    "use `#{pubid.exclude(:date)} (all parts)`.", key: pubid.to_s
         end
 
         nil
@@ -316,12 +325,17 @@ module Relaton
             !(query_pubid.root.all_parts && i.pubid.part.nil?)
         end
 
-        filter_hits_by_year(hit_collection, query_pubid.root.year)
+        filter_hits_by_year(hit_collection, query_pubid.root.date&.year)
       end
 
       def build_excludings(all_parts, any_types_stages)
-        excludings = %i[year edition all_parts]
-        excludings += %i[type stage iteration] if any_types_stages
+        # 2.x attribute names: :year → :date, :iteration → :stage_iteration.
+        # Always exclude :typed_stage: parse fills the default-published
+        # typed_stage with original_abbr="" while .create leaves it nil,
+        # so equality would never hold against indexed/created rows
+        # otherwise.
+        excludings = %i[date edition all_parts typed_stage]
+        excludings += %i[type stage stage_iteration] if any_types_stages
         excludings << :part if all_parts
         excludings
       end
@@ -330,9 +344,27 @@ module Relaton
         if pubid.is_a? String then pubid == query_pubid.to_s
         else
           pubid = pubid.dup
-          pubid.base = pubid.base.exclude(:year, :edition) if pubid.base
-          pubid.exclude(*excludings) == no_year_ref
+          pubid.base_identifier = pubid.base_identifier.exclude(:date, :edition) if pubid.base_identifier
+          normalize_compound_part(pubid.exclude(*excludings)) == no_year_ref
         end
+      end
+
+      # @TODO TEMP WORKAROUND (pubid 2.x migration): the v1-generated index
+      # stores a compound part such as "5-1-3" in :part with no :subpart, and
+      # Relaton::Index builds each row via Pubid::Iso::Identifier.create(**id),
+      # which keeps it as part="5-1-3" subpart=nil. A parsed query (no_year_ref)
+      # splits it (part="5", subpart="1-3"), so the two never compare equal.
+      # Re-split the candidate's compound part on the first dash to mirror parse
+      # before comparing. `exclude` returns a fresh instance, so mutating this
+      # copy is safe. Remove once pubid create() splits compound parts itself.
+      def normalize_compound_part(pubid)
+        num = pubid.part&.number.to_s
+        return pubid unless pubid.subpart.nil? && num.include?("-")
+
+        head, tail = num.split("-", 2)
+        pubid.part = ::Pubid::Iso::Components::Code.new(number: head)
+        pubid.subpart = ::Pubid::Iso::Components::Code.new(number: tail)
+        pubid
       end
     end
   end

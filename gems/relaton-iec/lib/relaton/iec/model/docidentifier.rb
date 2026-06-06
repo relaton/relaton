@@ -20,7 +20,7 @@ module Relaton
 
         parsed =
           case value
-          when ::Pubid::Iec::Base then value
+          when ::Pubid::Iec::Identifier then value
           when String
             begin
               ::Pubid::Iec::Identifier.parse(value)
@@ -69,14 +69,16 @@ module Relaton
       end
 
       def remove_date!
-        remove_attr!(:year)
+        remove_attr!(:date)
       end
 
       private
 
       def render_pubid(pubid)
         case type
-        when "URN" then pubid.urn
+        # pubid owns the legacy positional IEC URN format (and the all-parts
+        # ":::ser" series form); render through it.
+        when "URN" then pubid.to_urn.to_s
         else pubid.to_s
         end
       end
@@ -84,13 +86,41 @@ module Relaton
       def remove_attr!(attr)
         return unless @pubid
 
-        @pubid.send("#{attr}=", nil)
-        base = @pubid.base
-        while base
-          base.send("#{attr}=", nil)
-          base = base.base
+        # For supplements (Amendment/Corrigendum, which carry their own
+        # date/version as an addition to the base), preserve the
+        # supplement's own attrs and only clear the base chain — e.g.
+        # "IEC 60027-1:1992/AMD1:1997" should drop the base year but keep
+        # the amendment year. For wrappers (VapIdentifier, ConsolidatedIdentifier),
+        # clear the outer attr too — they re-state the base year and need it
+        # gone everywhere.
+        unless @pubid.is_a?(::Pubid::Iec::SupplementIdentifier)
+          clear_attr_on(@pubid, attr)
+        end
+
+        node = @pubid.base_identifier
+        while node
+          clear_attr_on(node, attr)
+          # ConsolidatedIdentifier carries a sibling collection of bundled
+          # identifiers; clear the attr on each non-supplement entry too.
+          if node.respond_to?(:identifiers) && node.identifiers
+            node.identifiers.each do |id|
+              next if id.is_a?(::Pubid::Iec::SupplementIdentifier)
+
+              clear_attr_on(id, attr)
+            end
+          end
+          node = node.base_identifier
         end
         refresh_content!
+      end
+
+      # Clear one attribute on a single pubid; for :part also clear the
+      # paired :subpart (pubid 2.x splits "16-1-1" into part="1" + subpart="1").
+      def clear_attr_on(pubid, attr)
+        pubid.send("#{attr}=", nil) if pubid.respond_to?("#{attr}=")
+        return unless attr == :part && pubid.respond_to?(:subpart=)
+
+        pubid.subpart = nil
       end
 
       def refresh_content!

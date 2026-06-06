@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "net/http"
-require "pubid/iso"
+require "pubid"
 require "relaton/index"
 require "isoics"
 require "relaton/bib"

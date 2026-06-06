@@ -17,16 +17,17 @@ module Relaton
 
       # @return [Relaton::Iec::ItemData, nil]
       def to_all_parts(r_year, opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-        parts = @array.select { |h| h.part && (!r_year || h.hit[:id]&.year&.to_s == r_year) }
+        parts = @array.select { |h| h.part && (!r_year || h.hit[:id]&.date&.year&.to_s == r_year) }
         if opts[:publication_date_before] || opts[:publication_date_after]
-          parts = parts.select { |h| Bibliography.send(:year_in_range?, h.hit[:id].year.to_i, opts) }
+          parts = parts.select { |h| Bibliography.send(:year_in_range?, h.hit[:id].date&.year.to_i, opts) }
         end
         hit = parts.min_by { |h| h.part.to_i }
         return @array.first&.item unless hit
 
         bibitem = hit.item
         all_parts_item = bibitem.to_all_parts
-        parts.reject { |h| h.hit[:id] == hit.hit[:id] }.each do |hi|
+        others = parts.reject { |h| h.hit[:id] == hit.hit[:id] }
+        others.sort_by { |h| part_sort_key(h.hit[:id]) }.each do |hi|
           code = hi.hit[:id].to_s
           bib = ItemData.new(
             formattedref: Bib::Formattedref.new(content: code),
@@ -38,6 +39,13 @@ module Relaton
       end
 
       private
+
+      # Ascending sort key for part ordering, e.g. 61326-2-1 < 61326-2-6.
+      # part/subpart are pubid Code components; coerce via to_s, missing → 0.
+      def part_sort_key(pubid)
+        sub = pubid.respond_to?(:subpart) ? pubid.subpart : nil
+        [pubid.part.to_s.to_i, sub.to_s.to_i]
+      end
 
       VALID_ID_KEYS = %i[
         publisher number year type vap amendments corrigendums copublisher part base fragment edition database sheet
@@ -68,15 +76,29 @@ module Relaton
       def pubid_matches?(row_pubid, exclude)
         return false unless row_pubid
 
-        if exclude.include?(:type)
-          # Can't use exclude(:type) on pubid (subclass re-adds it),
-          # so compare using to_h(add_type: false) hashes
-          exclude_keys = exclude - [:type]
-          ref_hash = @ref.to_h(add_type: false).reject { |k, _| exclude_keys.include?(k) }
-          row_hash = row_pubid.to_h(add_type: false).reject { |k, _| exclude_keys.include?(k) }
-          ref_hash == row_hash
-        else
-          @ref.exclude(*exclude) == row_pubid.exclude(*exclude)
+        pubid_attrs(@ref, exclude) == pubid_attrs(row_pubid, exclude)
+      end
+
+      # Flat symbol-keyed attribute hash for pubid 2.x identifiers. Drops
+      # :_type and :typed_stage; flattens :date Component to a :year string
+      # so callers can exclude year by name as in pubid 1.x. Excluding
+      # :type implies excluding :stage (the two are correlated via
+      # typed_stage).
+      def pubid_attrs(pubid, exclude = [])
+        exclude = (exclude + [:stage]) if exclude.include?(:type)
+        pubid.class.attributes.each_with_object({}) do |(name, _), h|
+          next if %i[_type typed_stage].include?(name)
+          next if exclude.include?(name)
+
+          val = pubid.send(name)
+          next if val.nil?
+
+          if name == :date
+            year = val.respond_to?(:year) ? val.year : nil
+            h[:year] = year if year && !exclude.include?(:year)
+          else
+            h[name] = val
+          end
         end
       end
 
@@ -86,7 +108,7 @@ module Relaton
         index.search(@ref) do |row|
           pubid_matches?(row[:id], exclude)
         end.sort_by do |row|
-          [row[:id].year.to_i, *part_sort_key(row[:id].part)]
+          [row[:id].date&.year.to_i, *part_sort_key(row[:id].part)]
         end.map do |row|
           Hit.new(row, self)
         end
