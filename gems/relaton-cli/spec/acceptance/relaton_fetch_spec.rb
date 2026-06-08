@@ -95,9 +95,24 @@ RSpec.describe "Relaton Fetch" do
 
     context do
       let(:io) { double "IO" }
-      let(:tmpdir) { Dir.mktmpdir("relaton_test_cache") }
 
-      before (:each) do
+      # Building the ISO index (decompress + parse ~79k entries) costs ~25s and
+      # is the dominant cost of these examples. Build the DB once and reuse the
+      # in-memory index across the examples below: the first fetch builds it,
+      # the rest reuse it (warm fetch is ~0.04s).
+      before(:context) do
+        @tmpdir = Dir.mktmpdir("relaton_test_cache")
+        # Isolate from global cache by using a fresh DB in a temp directory
+        Relaton::Cli::RelatonDb.instance.instance_variable_set(:@db, nil)
+        Relaton::Cli.relaton(@tmpdir)
+      end
+
+      after(:context) do
+        Relaton::Cli::RelatonDb.instance.instance_variable_set(:@db, nil)
+        FileUtils.remove_entry(@tmpdir)
+      end
+
+      before(:each) do
         RSpec::Mocks.space.proxy_for(IO).reset
         expect(IO).to receive(:new) do |arg1, arg2, &block|
           if arg1.is_a?(Integer) then io
@@ -105,19 +120,11 @@ RSpec.describe "Relaton Fetch" do
           end
         end.at_most(2).times
 
-        # Isolate from global cache by using a fresh DB in a temp directory
-        Relaton::Cli::RelatonDb.instance.instance_variable_set(:@db, nil)
-        Relaton::Cli.relaton(tmpdir)
-
-        # Force to download index file
+        # Force to download index file (only takes effect on the first fetch,
+        # which builds the shared index; warm fetches never hit this path)
         require "relaton/index"
         allow_any_instance_of(Relaton::Index::Type).to receive(:actual?).and_return(false)
         allow_any_instance_of(Relaton::Index::FileIO).to receive(:check_file).and_return(nil)
-      end
-
-      after(:each) do
-        Relaton::Cli::RelatonDb.instance.instance_variable_set(:@db, nil)
-        FileUtils.remove_entry(tmpdir)
       end
 
       it "calls fetch and return XML" do
