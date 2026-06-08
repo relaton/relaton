@@ -118,17 +118,36 @@ module Relaton
         load_index(yaml) || []
       end
 
+      # Deserialize and sort by the same narrowing key Type#search bsearches
+      # on, so binary search always has a consistent total order. The published
+      # index is only approximately sorted (generated under pubid 1.x base
+      # semantics); merely detecting sortedness left bsearch disabled and every
+      # search a full O(n) scan. Sorting here is one-time per load.
       def deserialize_pubid(index)
         return index unless @pubid_class
 
+        deserialized = index.map do |r|
+          { id: @pubid_class.create(**(r[:id] || {})), file: r[:file] }
+        end
+        warn_unless_sorted(deserialized)
+        deserialized.sort_by! { |r| get_id_number(r[:id]) }
         @sorted = true
-        prev_number = nil
-        index.map do |r|
-          id = @pubid_class.create(**(r[:id] || {}))
-          num = get_id_number id
-          @sorted = false if prev_number && prev_number > num
-          prev_number = num
-          { id: id, file: r[:file] }
+        deserialized
+      end
+
+      # Log when the loaded index is not already in get_id_number order, so the
+      # in-memory sort above (and the underlying not-sorted index file) is
+      # visible. Stops at the first out-of-order pair.
+      def warn_unless_sorted(index)
+        prev = nil
+        index.each do |r|
+          num = get_id_number(r[:id])
+          if prev && prev > num
+            Util.warn "Index file `#{file}` is not sorted by id number; " \
+                      "sorting #{index.size} entries in memory.", progname
+            return
+          end
+          prev = num
         end
       end
 

@@ -32,17 +32,21 @@ describe Relaton::Index::FileIO do
             { id: { publisher: "ISO", number: 1 }, file: "f1" },
             { id: { publisher: "ISO", number: 2 }, file: "f2" },
           ]
+          expect(Relaton.logger_pool).not_to receive(:warn)
           file_io.deserialize_pubid(sorted_index)
           expect(file_io.sorted).to be true
         end
 
-        it "sets sorted to false when index is unsorted" do
+        it "sorts an unsorted index, warns, and sets sorted to true" do
           unsorted_index = [
             { id: { publisher: "ISO", number: 2 }, file: "f2" },
             { id: { publisher: "ISO", number: 1 }, file: "f1" },
           ]
-          file_io.deserialize_pubid(unsorted_index)
-          expect(file_io.sorted).to be false
+          expect(Relaton.logger_pool)
+            .to receive(:warn).with(/is not sorted by id number/, anything)
+          result = file_io.deserialize_pubid(unsorted_index)
+          expect(result.map { |r| r[:file] }).to eq(%w[f1 f2])
+          expect(file_io.sorted).to be true
         end
       end
 
