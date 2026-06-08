@@ -2,10 +2,11 @@ name: rake
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [ main, master ]
     tags: [ v* ]
   pull_request:
     branches: [ main, master ]
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
