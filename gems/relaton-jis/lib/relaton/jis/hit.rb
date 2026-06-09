@@ -39,6 +39,21 @@ module Relaton
         @id_parts ||= hit_collection.parse_ref hit[:id]
       end
 
+      #
+      # Parse the hit's identifier string into a pubid identifier.
+      #
+      # @return [Pubid::Jis::Identifier, nil] parsed identifier, or nil when
+      #   the string cannot be parsed
+      #
+      def pubid
+        return @pubid if defined? @pubid
+
+        @pubid = ::Pubid::Jis::Identifier.parse hit[:id]
+      rescue StandardError
+        Util.warn "Unable to create an identifier from `#{hit[:id]}`"
+        @pubid = nil
+      end
+
       # @return [Relaton::Jis::Item]
       def item
         @item ||= begin

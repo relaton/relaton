@@ -2,6 +2,7 @@
 
 require "net/http"
 require "mechanize"
+require "pubid"
 require "relaton/iso"
 require "relaton/index"
 require_relative "jis/version"
