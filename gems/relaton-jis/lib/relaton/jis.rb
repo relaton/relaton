@@ -16,6 +16,8 @@ require_relative "jis/bibliography"
 module Relaton
   module Jis
     INDEXFILE = "index-v1"
+    # Pubid-based index produced alongside index-v1 during the pubid migration.
+    INDEXFILE_V2 = "index-v2"
 
     class Error < StandardError; end
 

@@ -23,6 +23,26 @@ module Relaton
         @index ||= Relaton::Index.find_or_create :jis, file: "#{INDEXFILE}.yaml"
       end
 
+      # Pubid-based index built in parallel with the legacy string index. The
+      # pool keys by type, so requesting a second :jis index with a different
+      # file evicts the v1 Type from the pool, but we keep our own reference in
+      # @index, so both stay live for the duration of the crawl.
+      def index_v2
+        @index_v2 ||= Relaton::Index.find_or_create(
+          :jis, file: "#{INDEXFILE_V2}.yaml", pubid_class: ::Pubid::Jis::Identifier
+        )
+      end
+
+      # Parse a primary docidentifier string into a pubid identifier; nil (with
+      # a warning) if pubid can't parse it, so a single bad id never aborts the
+      # crawl or corrupts index-v2.
+      def pubid(id)
+        ::Pubid::Jis::Identifier.parse id
+      rescue StandardError => e
+        Util.warn "Failed to parse `#{id}` with pubid: #{e.message}"
+        nil
+      end
+
       def to_yaml(bib)
         Item.to_yaml bib
       end
@@ -69,6 +89,7 @@ module Relaton
         resp = agent.get "#{URL}W11M0070/index"
         parse_page resp
         index.save
+        index_v2.save
         report_errors
       end
 
@@ -150,6 +171,8 @@ module Relaton
             @files << file
             File.write file, serialize(bib), encoding: "UTF-8"
             index.add_or_update id, file
+            pid = pubid id
+            index_v2.add_or_update pid, file if pid
           end
         end
       end
