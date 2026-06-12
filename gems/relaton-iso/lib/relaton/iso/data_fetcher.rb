@@ -265,15 +265,35 @@ module Relaton
       end
 
       # Add a document's primary id to the index. With pubid 2.x every ISO id
-      # is expected to parse; if one does not (`docid.pubid` is nil) skip the
-      # index entry with a warning rather than indexing a raw string, which
-      # would crash the index sort (`get_id_number` calls `.number` on the id).
+      # is expected to parse; if one does not (`docid.pubid` is nil) record it
+      # so `report_errors` raises a tracked GitHub issue at the end, and skip
+      # the index entry rather than indexing a raw string (which would crash
+      # the index sort: `get_id_number` calls `.number` on the id). The data
+      # file is still written, so the document is not lost — only unindexed
+      # until its id parses.
       def index_primary(docid, file)
         unless docid.pubid
-          Util.warn "Skipping index entry for unparseable id `#{docid.content}` (#{file})"
+          unparseable_ids << [docid.content.to_s, file]
           return
         end
         index.add_or_update(docid.pubid, file)
+      end
+
+      def unparseable_ids
+        @unparseable_ids ||= []
+      end
+
+      # Surface unparseable primary ids through the shared error-reporting
+      # machinery (a "Error fetching documents" GitHub issue in CI) so they are
+      # visible and tracked, not silently dropped in the action log. The
+      # gh_issue logger channel is registered inside `report_errors`, so emit
+      # these at :error after it is set up and before `super` creates the issue.
+      def report_errors
+        gh_issue
+        unparseable_ids.each do |content, file|
+          log_error "Unparseable primary id `#{content}` was not indexed (#{file})"
+        end
+        super
       end
 
       # --- static merge -----------------------------------------------------

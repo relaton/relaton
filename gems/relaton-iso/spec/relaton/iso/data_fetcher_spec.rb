@@ -219,4 +219,36 @@ describe Relaton::Iso::DataFetcher do
       expect(fetcher).to have_received(:sleep).exactly(described_class::MAX_DOWNLOAD_RETRIES).times
     end
   end
+
+  describe "#index_primary (unparseable primary id handling)" do
+    let(:fetcher) { described_class.new(output_dir, "yaml") }
+    let(:index_double) { double("index") }
+
+    before { allow(fetcher).to receive(:index).and_return(index_double) }
+
+    it "indexes the parsed pubid" do
+      pubid = Pubid::Iso::Identifier.parse("ISO 9001:2015")
+      docid = double(pubid: pubid, content: "ISO 9001:2015")
+      expect(index_double).to receive(:add_or_update).with(pubid, "f.yaml")
+      fetcher.send(:index_primary, docid, "f.yaml")
+      expect(fetcher.send(:unparseable_ids)).to be_empty
+    end
+
+    it "records an unparseable id instead of indexing a raw string" do
+      docid = double(pubid: nil, content: "ISO/IEC 9579/WD Amd")
+      expect(index_double).not_to receive(:add_or_update)
+      fetcher.send(:index_primary, docid, "iso-iec-9579-wd-amd.yaml")
+      expect(fetcher.send(:unparseable_ids))
+        .to eq([["ISO/IEC 9579/WD Amd", "iso-iec-9579-wd-amd.yaml"]])
+    end
+
+    it "reports recorded unparseable ids through the error machinery" do
+      fetcher.send(:unparseable_ids) << ["ISO/IEC 9579/WD Amd", "f.yaml"]
+      allow(fetcher).to receive(:gh_issue)
+      allow(fetcher).to receive(:log_error)
+      fetcher.send(:report_errors)
+      expect(fetcher).to have_received(:log_error)
+        .with(%r{Unparseable primary id `ISO/IEC 9579/WD Amd`.*f\.yaml})
+    end
+  end
 end
