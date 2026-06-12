@@ -18,7 +18,7 @@ require_relative "iso/bibliography"
 
 module Relaton
   module Iso
-    INDEXFILE = "index-v1"
+    INDEXFILE = "index-v2"
 
     def self.grammar_hash
       # gem_path = File.expand_path "..", __dir__

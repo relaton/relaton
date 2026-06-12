@@ -13,6 +13,6 @@ VCR.configure do |config|
 
   # Ignore index download requests — handled by a global WebMock stub instead
   config.ignore_request do |request|
-    URI(request.uri).path.end_with?("index-v1.zip")
+    URI(request.uri).path.end_with?("index-v2.zip")
   end
 end
