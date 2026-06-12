@@ -260,8 +260,20 @@ module Relaton
 
       def write_file(file, doc, docid)
         @files << file
-        index.add_or_update(docid.pubid || docid.content.to_s, file)
+        index_primary(docid, file)
         File.write(file, serialize(doc), encoding: "UTF-8")
+      end
+
+      # Add a document's primary id to the index. With pubid 2.x every ISO id
+      # is expected to parse; if one does not (`docid.pubid` is nil) skip the
+      # index entry with a warning rather than indexing a raw string, which
+      # would crash the index sort (`get_id_number` calls `.number` on the id).
+      def index_primary(docid, file)
+        unless docid.pubid
+          Util.warn "Skipping index entry for unparseable id `#{docid.content}` (#{file})"
+          return
+        end
+        index.add_or_update(docid.pubid, file)
       end
 
       # --- static merge -----------------------------------------------------
@@ -274,7 +286,7 @@ module Relaton
           did = item.docidentifier.detect(&:primary)
           next unless did
 
-          index.add_or_update(did.pubid || did.content.to_s, f)
+          index_primary(did, f)
         end
       end
 
