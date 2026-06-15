@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '48043'
+      - '48062'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - application/zip
       Etag:
-      - W/"12ae4709aabd2cafa3ad6bbfa27c9707d69ba7576958debb062b71d218a073de"
+      - W/"f02478be7290f9e7aeebccb52a98de6480a2a81d95f1d3510bfb1a83d9b047d4"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 1D3A:191297:2D22C6:390C9D:6A1A4C70
+      - FCAE:3F24E:C1314F:ECC4DD:6A245374
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 30 May 2026 02:33:20 GMT
+      - Sat, 06 Jun 2026 17:06:37 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200119-IAD
+      - cache-iad-kcgs7200103-IAD
       X-Cache:
-      - MISS
+      - HIT
       X-Cache-Hits:
-      - '0'
+      - '1'
       X-Timer:
-      - S1780108401.515540,VS0,VE35
+      - S1780765597.347945,VS0,VE2
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -63,16 +63,16 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 1debf389f27737d35668740f4d4a46c46b579980
+      - 210740f34ed02fbb9392d169b673c0286b82c74e
       Expires:
-      - Sat, 30 May 2026 02:38:20 GMT
+      - Sat, 06 Jun 2026 17:11:37 GMT
       Source-Age:
-      - '0'
+      - '40'
     body:
       encoding: ASCII-8BIT
       base64_string: |
-        UEsDBBQAAAAIABOMvVxSQ3+q+7oAAExhBgANABwAaW5kZXgtdjEueWFtbFVU
-        CQADts0ZarbNGWp1eAsAAQTpAwAABOkDAABs3T2ubNG2pVWfUrwKJOzxN+cc
+        UEsDBBQAAAAIACZ6v1yGi2NADrsAAPhhBgANABwAaW5kZXgtdjEueWFtbFVU
+        CQAD+FAcavlQHGp1eAsAAQTpAwAABOkDAABs3T2ubNG2pVWfUrwKJOzxN+cc
         6SJRAGqQIkkppcRBONSeFR7Sae7QsqLfd9/92oqz4z/9p//0P/2n//jP//2/
         /uf/+N//t//1P+J/+o//+M//7b//j//zP//Hf/0v/89/+V/+7//2f8T//P/+
         l//rf/z/H8p/H8p/Hqp/H6p/Hup/H+p/Hpp/H5p/Hjr/PnT+eej++9D956H3
@@ -1135,11 +1135,12 @@ http_interactions:
         exnSq5BehvQqpJchvQrpZUivQnoZ0quQXob0KqSXIb0K6WVIr0J6mbyr5F0m
         7yp5l3/PV3/Pl3W8quNlHa/qeFnHqzpe/j1f/T1f/j1f/T1f/j1f/T1f5vkq
         z5chvQrpZUivQnpZx6s6Xtbxqo6Xdbyq42Udr+p4WcerOl7W8aqOl3W8quNl
-        Ha/qeFnHqzpe1vGqjpd1vKrjZceuOnZZnKviXPbWqreWvbXqrWXurHJnmTur
-        3Fnmzip3lrmz/3PnH1BLAQIeAxQAAAAIABOMvVxSQ3+q+7oAAExhBgANABgA
-        AAAAAAEAAACkgQAAAABpbmRleC12MS55YW1sVVQFAAO2zRlqdXgLAAEE6QMA
-        AATpAwAAUEsFBgAAAAABAAEAUwAAAEK7AAAAAA==
-  recorded_at: Sat, 30 May 2026 02:33:20 GMT
+        Ha/qeFnHqzpe1vGqjpd1vKrjZceuOnZZnKviXGbkKiOXbbhqw2XwrYJvGXyr
+        4FsG3yr4lr216q1lb616a9lbq95a9taqt5YRtf8j6h9QSwECHgMUAAAACAAm
+        er9chotjQA67AAD4YQYADQAYAAAAAAABAAAApIEAAAAAaW5kZXgtdjEueWFt
+        bFVUBQAD+FAcanV4CwABBOkDAAAE6QMAAFBLBQYAAAAAAQABAFMAAABVuwAA
+        AAA=
+  recorded_at: Sat, 06 Jun 2026 17:06:37 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-rfcs/refs/heads/v2/data/rfc8341.yaml
@@ -1181,21 +1182,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 8588:2C8537:417C64:4F45E9:6A1A4C6F
+      - 2214:17BFA2:B7690F:E2F8EE:6A245375
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 30 May 2026 02:33:20 GMT
+      - Sat, 06 Jun 2026 17:06:37 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100057-IAD
+      - cache-iad-kcgs7200088-IAD
       X-Cache:
-      - MISS
+      - HIT
       X-Cache-Hits:
-      - '0'
+      - '1'
       X-Timer:
-      - S1780108401.918261,VS0,VE37
+      - S1780765598.621863,VS0,VE1
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -1203,11 +1204,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 3cb3a07d38d78c1b1d5e3a7a0e0255e4444ac6b7
+      - b475ae6aa7cc8cbf141080ebddf37e9d922a1534
       Expires:
-      - Sat, 30 May 2026 02:38:20 GMT
+      - Sat, 06 Jun 2026 17:11:37 GMT
       Source-Age:
-      - '0'
+      - '40'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -1272,5 +1273,5 @@ http_interactions:
         bnQ6IFlBTkcKLSB2b2NhYjoKICAgIGNvbnRlbnQ6IFhNTApleHQ6CiAgc2No
         ZW1hX3ZlcnNpb246IHYxLjEuMgogIGRvY3R5cGU6CiAgICBjb250ZW50OiBy
         ZmMKICBmbGF2b3I6IGlldGYKICBzdHJlYW06IElFVEYK
-  recorded_at: Sat, 30 May 2026 02:33:20 GMT
+  recorded_at: Sat, 06 Jun 2026 17:06:37 GMT
 recorded_with: VCR 6.4.0

@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 734C:3A60E5:3B6D56:49CE1B:6A1A4ED3
+      - 85AC:165E00:3D2288:497A09:6A2456B9
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 30 May 2026 02:56:41 GMT
+      - Sat, 06 Jun 2026 17:19:54 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100057-IAD
+      - cache-iad-kjyo7100080-IAD
       X-Cache:
-      - HIT
+      - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1780109802.816641,VS0,VE22
+      - S1780766394.033442,VS0,VE46
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -63,9 +63,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - c1058656b4fd22b8cf51640c3458712df5926a05
+      - e10259842e3362b14e888d830292a41566dacc51
       Expires:
-      - Sat, 30 May 2026 03:01:41 GMT
+      - Sat, 06 Jun 2026 17:24:54 GMT
       Source-Age:
       - '0'
     body:
@@ -112,5 +112,5 @@ http_interactions:
         cnNpb246IHYxLjAuMAogIGRvY3R5cGU6CiAgICBjb250ZW50OiBzdGFuZGFy
         ZAogIGZsYXZvcjogaWhvCmV4dGVudDoKLSBsb2NhbGl0eToKICAtIHR5cGU6
         IGFwcGVuZGl4CiAgICByZWZlcmVuY2VfZnJvbTogRC0yCg==
-  recorded_at: Sat, 30 May 2026 02:56:41 GMT
+  recorded_at: Sat, 06 Jun 2026 17:19:54 GMT
 recorded_with: VCR 6.4.0

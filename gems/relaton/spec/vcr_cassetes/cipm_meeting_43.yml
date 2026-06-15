@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 9410:1F94AA:395E3D:4761FA:6A1A4C49
+      - 37CE:26FF1A:AF28C9:DABA87:6A245351
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 30 May 2026 02:32:41 GMT
+      - Sat, 06 Jun 2026 17:06:17 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100156-IAD
+      - cache-iad-kcgs7200103-IAD
       X-Cache:
-      - MISS
+      - HIT
       X-Cache-Hits:
-      - '0'
+      - '1'
       X-Timer:
-      - S1780108361.197039,VS0,VE35
+      - S1780765577.412269,VS0,VE2
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -63,11 +63,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - e9adfe7327a2c00a952416c26071a9f4d216a568
+      - 3d0f398bde16ca7ab713d66f6b10bdc5491b2a4b
       Expires:
-      - Sat, 30 May 2026 02:37:41 GMT
+      - Sat, 06 Jun 2026 17:11:17 GMT
       Source-Age:
-      - '0'
+      - '55'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -1405,7 +1405,7 @@ http_interactions:
         AfN//8d/el0fA/3Pv/z19e7f//9QSwECHgMUAAAACACQIbRcpP6x4sTpAACI
         CAwADQAYAAAAAAABAAAApIEAAAAAaW5kZXgtdjEueWFtbFVUBQADrzQNanV4
         CwABBOkDAAAE6QMAAFBLBQYAAAAAAQABAFMAAAAL6gAAAAA=
-  recorded_at: Sat, 30 May 2026 02:32:41 GMT
+  recorded_at: Sat, 06 Jun 2026 17:06:17 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/v2/data/cipm/meeting/43.yaml
@@ -1453,23 +1453,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 95E8:28967A:305BA8:3C3F71:6A1A4C48
+      - 521E:33B698:C16D42:ECF42E:6A24534F
       Content-Encoding:
       - gzip
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 30 May 2026 02:32:41 GMT
+      - Sat, 06 Jun 2026 17:06:17 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kjyo7100074-IAD
+      - cache-iad-kjyo7100159-IAD
       X-Cache:
-      - MISS
+      - HIT
       X-Cache-Hits:
-      - '0'
+      - '1'
       X-Timer:
-      - S1780108362.907903,VS0,VE43
+      - S1780765578.739113,VS0,VE2
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -1477,11 +1477,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 1156b038d13ad84482962912c949c3f8506a753a
+      - '059f2b9d715817b7c72c904a817b053149624b7a'
       Expires:
-      - Sat, 30 May 2026 02:37:41 GMT
+      - Sat, 06 Jun 2026 17:11:17 GMT
       Source-Age:
-      - '0'
+      - '55'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -1501,5 +1501,5 @@ http_interactions:
         +kLInbQjqleMM36dLO+sZ/eHhEmlzXnfzjg3xYXo0r08X2rfaQNPWjjJfJBw
         +IoNzgxoaDOqRgNoD4YvLVyz5d3HGL992Nc/uJE2gt8ub+fTuz8ZSTzHADZ+
         SxW9SeQwXA002riwH6dE6bBmMZ6y7cF6nRxXGbb+XzI3CtPpCAAA
-  recorded_at: Sat, 30 May 2026 02:32:41 GMT
+  recorded_at: Sat, 06 Jun 2026 17:06:17 GMT
 recorded_with: VCR 6.4.0
