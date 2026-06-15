@@ -132,28 +132,13 @@ module Relaton
         return @urn_pubid if defined?(@urn_pubid)
 
         @urn_pubid = begin
-          dup_pubid = pubid.dup
-          # Override stage even when parsed pubid carries the default
+          # Override stage even when the parsed pubid carries the default
           # "published" stage — relaton's currentStage (e.g. 9092 = Withdrawn)
           # is the authoritative source for URN stage.
-          apply_harmonized_stage(dup_pubid, stage_dotted) if stage_dotted
-          dup_pubid
+          stage_dotted ? pubid.with_harmonized_stage(stage_dotted) : pubid.dup
         rescue StandardError
           nil
         end
-      end
-
-      def apply_harmonized_stage(pubid, harmonized_code)
-        ts = ::Pubid::Iso::Scheme.locate_typed_stage_by_harmonized_code(harmonized_code)
-        return unless ts
-
-        pubid.typed_stage = ts
-        pubid.stage = ::Pubid::Components::Stage.new(
-          name: ts.name,
-          stage_code: ts.stage_code&.to_s,
-          abbr: Array(ts.abbr).first.to_s,
-          harmonized_stages: Array(ts.harmonized_stages),
-        )
       end
 
       def docnumber

@@ -111,17 +111,7 @@ module Relaton
       end
 
       def urn
-        pubid_dup = pubid.dup
-        if (ts = ::Pubid::Iso::Scheme.locate_typed_stage_by_harmonized_code(stage_code))
-          pubid_dup.typed_stage = ts
-          pubid_dup.stage = ::Pubid::Components::Stage.new(
-            name: ts.name,
-            stage_code: ts.stage_code&.to_s,
-            abbr: Array(ts.abbr).first.to_s,
-            harmonized_stages: Array(ts.harmonized_stages),
-          )
-        end
-        pubid_dup
+        pubid.with_harmonized_stage(stage_code)
       end
 
       def edition

@@ -1,13 +1,17 @@
 describe Relaton::Iso::HitCollection do
-  let(:hit1) do
-    Relaton::Iso::Hit.new({ id: { publisher: "ISO", number: "19115", part: "1", year: "2014" } })
+  # Materialise a row the way Relaton::Index does: serialise a parsed id to the
+  # hash the index stores, then read it back via from_hash. The stored hash
+  # carries `_type`, so from_hash rebuilds the concrete subclass — exactly as
+  # production does. (A hand-built flat hash omits `_type` and only resolves to
+  # a bare Identifier, whose `==` never matches a parsed id.)
+  def index_id(ref)
+    ::Pubid::Iso::Identifier.from_hash(::Pubid::Iso::Identifier.parse(ref).to_hash)
   end
 
-  let(:hit2) do
-    Relaton::Iso::Hit.new({ id: { publisher: "ISO", number: "19115", part: "2", year: "2015" } })
-  end
+  let(:hit1) { Relaton::Iso::Hit.new({ id: ::Pubid::Iso::Identifier.parse("ISO 19115-1:2014") }) }
+  let(:hit2) { Relaton::Iso::Hit.new({ id: ::Pubid::Iso::Identifier.parse("ISO 19115-2:2015") }) }
 
-  let(:ref) { ::Pubid::Iso::Identifier.create publisher: "ISO", number: "19115", part: "1", year: "2014" }
+  let(:ref) { ::Pubid::Iso::Identifier.parse "ISO 19115-1:2014" }
   subject { described_class.new ref }
 
   describe "#ref_pubid_no_year" do
@@ -25,14 +29,14 @@ describe Relaton::Iso::HitCollection do
   describe "#find" do
     # Production index rows are always deserialized into Pubid::Identifier by
     # Relaton::Index (via the `pubid_class`), so mirror that here. Two part-1
-    # rows (one built via .create, one via .parse) exercise that find keeps
-    # every matching row when not querying all parts.
+    # rows (one materialised via from_hash, one via parse) exercise that find
+    # keeps every matching row when not querying all parts.
     let(:index) do
       idx = Relaton::Index::Type.new :iso
       idx.instance_variable_set :@index, [
-        { id: ::Pubid::Iso::Identifier.create(publisher: "ISO", number: "19115", part: "1", year: "2014") },
-        { id: ::Pubid::Iso::Identifier.create(publisher: "ISO", number: "19115", part: "2", year: "2015") },
-        { id: ::Pubid::Iso::Identifier.create(publisher: "ISO", number: "19115", part: "3", year: "2016") },
+        { id: index_id("ISO 19115-1:2014") },
+        { id: index_id("ISO 19115-2:2015") },
+        { id: index_id("ISO 19115-3:2016") },
         { id: ::Pubid::Iso::Identifier.parse("ISO 19115-1:2014") },
       ]
       idx
@@ -55,11 +59,13 @@ describe Relaton::Iso::HitCollection do
 
   describe "#pubid_match?" do
     it "exclude year" do
-      expect(subject.pubid_match?(::Pubid::Iso::Identifier.create(publisher: "ISO", number: "19115", part: "1"))).to be true
+      expect(subject.pubid_match?(index_id("ISO 19115-1"))).to be true
     end
 
     it "exclude edition" do
-      expect(subject.pubid_match?(::Pubid::Iso::Identifier.create(publisher: "ISO", number: "19115", part: "1", edition: "2"))).to be true
+      cand = index_id("ISO 19115-1:2014")
+      cand.edition = ::Pubid::Components::Edition.new(number: "2")
+      expect(subject.pubid_match?(cand)).to be true
     end
   end
 
@@ -74,7 +80,7 @@ describe Relaton::Iso::HitCollection do
     end
 
     it "returns excluded parts when ref has no part" do
-      subject.instance_variable_set :@ref, ::Pubid::Iso::Identifier.create(publisher: "ISO", number: "19115")
+      subject.instance_variable_set :@ref, ::Pubid::Iso::Identifier.parse("ISO 19115")
       expect(subject.excludings).to eq %i[year part stage iteration]
     end
   end
@@ -106,7 +112,7 @@ describe Relaton::Iso::HitCollection do
 
   describe "#to_all_parts" do
     let(:hit_no_part) do
-      Relaton::Iso::Hit.new({ id: { publisher: "ISO", number: "19115", year: "2014" } })
+      Relaton::Iso::Hit.new({ id: ::Pubid::Iso::Identifier.parse("ISO 19115:2014") })
     end
 
     let(:docid) { Relaton::Iso::Docidentifier.new(content: hit1.pubid) }

@@ -78,7 +78,7 @@ module Relaton
 
       # @TODO TEMP WORKAROUND (pubid 2.x migration): the v1-generated index
       # stores a compound part such as "5-1-3" in :part with no :subpart, and
-      # Relaton::Index builds each row via Pubid::Iso::Identifier.create(**id),
+      # Relaton::Index builds each row via Pubid::Iso::Identifier.from_hash(id),
       # which keeps it as part="5-1-3" subpart=nil. A parsed query splits it
       # (part="5", subpart="1-3"), so the two never compare equal. Re-split the
       # compound part on the first dash to mirror parse before comparing.

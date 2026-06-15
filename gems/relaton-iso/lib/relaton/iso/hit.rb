@@ -47,7 +47,7 @@ module Relaton
 
       def create_pubid(id)
         if id.is_a?(Hash)
-          ::Pubid::Iso::Identifier.create(**id)
+          ::Pubid::Iso::Identifier.from_hash(id)
         else
           id
         end
