@@ -17,7 +17,7 @@ describe Relaton::Jis::Bibliography do
     expect(result).to be_instance_of(Relaton::Jis::HitCollection)
     expect(result.size).to eq(2)
     expect(result.first).to be_instance_of(Relaton::Jis::Hit)
-    expect(result[0].hit[:id]).to eq("JIS X 0208:1997")
+    expect(result[0].pubid.to_s).to eq("JIS X 0208:1997")
   end
 
   context "get" do

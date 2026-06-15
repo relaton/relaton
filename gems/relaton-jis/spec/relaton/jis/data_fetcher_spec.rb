@@ -104,6 +104,7 @@ describe Relaton::Jis::DataFetcher do # rubocop:disable Metrics/BlockLength
           .with(url2).and_return resp
         expect(subject).to receive(:parse_page).with(resp)
         expect(subject.index).to receive(:save)
+        expect(subject.index_v2).to receive(:save)
         subject.fetch
       end
     end

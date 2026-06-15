@@ -8,26 +8,36 @@ module Relaton
       GH_URL = "https://raw.githubusercontent.com/relaton/relaton-data-jis/v2/"
 
       #
-      # Initialize hit collection
+      # Initialize hit collection.
       #
-      # @param [String] text reference
-      # @param [String, nil] year year
-      # @param [Array<Hash>] result search results
+      # Searches the pubid-based `index-v2` for every entry sharing the
+      # reference's series and number (a supplement is filed under its base
+      # number, so editions and amendments come back together). Narrowing to a
+      # specific type/year/part happens later in {#find}.
       #
-      def initialize(text, year = nil, result:)
-        super text, year
-        @array = result.map { |h| Hit.create h, self }
+      # @param [Pubid::Jis::Identifier] pubid parsed reference
+      #
+      def initialize(pubid)
+        super(pubid, pubid.year&.to_s)
+        @array = index.search(pubid) { |row| same_base? row[:id] }
+          .map { |row| Hit.new row, self }
+          .sort_by { |hit| hit.pubid.to_s }
+      end
+
+      # @return [Pubid::Jis::Identifier] parsed reference
+      def pubid
+        ref
       end
 
       #
-      # Find hit in collection
+      # Find the best hit for the reference.
       #
-      # @return [Relaton::Bib::ItemData, Array<String>]
+      # @return [Relaton::Bib::ItemData, Array<Integer>] the matching item, or
+      #   the list of available edition years when none match the requested year
       #
       def find
-        ref_year = year || ref_parts[:year]
-        if ref_year
-          find_by_year ref_year
+        if pubid.year
+          find_by_year pubid.year
         else
           find_all_years
         end
@@ -36,75 +46,81 @@ module Relaton
       def find_by_year(ref_year)
         missed_years = []
         @array.each do |hit|
-          return hit.item if hit.eq? ref_parts, ref_year
+          next unless hit.matches?
 
-          missed_years << hit.id_parts[:year] if hit.eq?(ref_parts)
+          return hit.item if hit.pubid.year.to_s == ref_year.to_s
+
+          missed_years << hit.pubid.year
         end
         missed_years
       end
 
-      def find_all_years # rubocop:disable Metrics/AbcSize
-        hits = @array.select { |hit| hit.eq? ref_parts }
-        return [] if hits.empty?
+      # The main item is the latest edition of the requested type; every other
+      # candidate sharing the series and number (older editions, amendments,
+      # explanations) is attached as an `instanceOf` relation.
+      def find_all_years
+        editions = @array.select(&:matches?)
+        return [] if editions.empty?
 
-        item = hits.max_by { |i| i.id_parts[:year].to_i }.item
-        item_id = item.docidentifier.first.content
-        parent = item.to_most_recent_reference
-        hits.each do |hit|
-          next if hit.hit[:id] == item_id
-
-          parent.relation << create_relation(hit)
-        end
-        parent
+        item = editions.max_by { |hit| hit.pubid.year.to_i }.item
+        attach_relations item.to_most_recent_reference,
+                         item.docidentifier.first.content
       end
 
-      def find_all_parts # rubocop:disable Metrics/AbcSize
-        hits = @array.select { |hit| hit.eq? ref_parts, all_parts: true }
-        item = hits.min_by { |i| i.id_parts[:part].to_i }.item.to_all_parts
-        hits.each do |hit|
-          next if hit.hit[:id] == item.docidentifier.first.content
+      # The lowest-numbered part becomes the all-parts umbrella; every candidate
+      # sharing the series and number is attached as an `instanceOf` relation.
+      def find_all_parts
+        parts = @array.select { |hit| hit.matches? all_parts: true }
+        lowest = parts.min_by { |hit| hit.pubid.parts.first.to_i }
+        item = lowest.item.to_all_parts
+        attach_relations item, item.docidentifier.first.content
+      end
 
-          item.relation << create_relation(hit)
+      # Attach every candidate except `skip_id` to `umbrella` as an `instanceOf`
+      # relation and return the umbrella.
+      def attach_relations(umbrella, skip_id)
+        @array.each do |hit|
+          next if hit.pubid.to_s == skip_id
+
+          umbrella.relation << create_relation(hit)
         end
-        item
+        umbrella
       end
 
       def create_relation(hit)
-        docid = Docidentifier.new(
-          content: hit.hit[:id], type: "JIS", primary: true,
-        )
+        id = hit.pubid.to_s
+        docid = Docidentifier.new content: id, type: "JIS", primary: true
         bibitem = ItemData.new(
-          formattedref: Bib::Formattedref.new(content: hit.hit[:id]), docidentifier: [docid],
+          formattedref: Bib::Formattedref.new(content: id),
+          docidentifier: [docid],
         )
-        Relation.new(type: "instanceOf", bibitem: bibitem)
+        Relation.new type: "instanceOf", bibitem: bibitem
       end
 
-      #
-      # Return parts of reference
-      #
-      # @return [Hash] hash with parts of reference
-      #
-      def ref_parts
-        @ref_parts ||= parse_ref ref
+      # Index of pubid identifiers (`index-v2`), deserialized via `pubid_class`.
+      def index
+        @index ||= Relaton::Index.find_or_create(
+          :jis,
+          url: "#{GH_URL}#{INDEXFILE_V2}.zip",
+          file: "#{INDEXFILE_V2}.yaml",
+          pubid_class: ::Pubid::Jis::Identifier,
+        )
       end
 
-      #
-      # Parse reference
-      #
-      # @param [String] ref reference
-      #
-      # @return [Hash] hash with parts of reference
-      #
-      def parse_ref(ref)
-        %r{
-          ^(?<code>\w+\s\w\s?\w+)
-          (?:-(?<part>\w+))?
-          (?::(?<year>\d{4}))?
-          (?:/(?<expl>EXPL(?:ANATION)?)(?:\s(?<expl_num>\d+))?)?
-          (?:/(?<amd>AMDENDMENT)(?:\s(?<amd_num>\d+)(?::(?<amd_year>\d{4}))?)?)?
-        }x =~ ref
-        { code: code, part: part, year: year, expl: expl, expl_num: expl_num,
-          amd: amd, amd_num: amd_num, amd_year: amd_year }
+      private
+
+      # Broad candidate filter: same series and number as the reference. For a
+      # supplement (amendment/corrigendum/explanation) the document series and
+      # number live on `base`, so compare against that.
+      def same_base?(candidate)
+        cand = base_of candidate
+        ours = base_of pubid
+        cand.series == ours.series && cand.number.to_s == ours.number.to_s
+      end
+
+      def base_of(identifier)
+        supplement = identifier.respond_to?(:base) && identifier.base
+        supplement || identifier
       end
     end
   end

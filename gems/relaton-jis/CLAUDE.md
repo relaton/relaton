@@ -58,4 +58,6 @@ All classes live under `lib/relaton/jis/`:
 
 ## Testing
 
-- **Index fixture:** `spec/fixtures/index-v1.zip` is pre-loaded into `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-jis.
+- **Index fixture:** `spec/fixtures/index-v2.zip` (the pubid-based `index-v2`) is deserialized via `Pubid::Jis::Identifier` and pre-loaded into the `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-jis.
+- **Lookup path:** `Bibliography.get`/`search` parse the reference with `pubid`, then `HitCollection` matches against `index-v2` (`Hit#matches?` compares type/series/number/part; year is filtered separately). The `DataFetcher` still generates `index-v1` too, but the runtime no longer reads it.
+- **pubid dependency:** the published `pubid 2.0.0.pre.alpha.2` gem ships an incompatible lutaml-model and its `from_hash` is broken, so the `Gemfile` tracks the `rt-new-lutaml-model` git branch (matching relaton-data-jis). Use `bundle config set local.pubid /path/to/pubid` for a local checkout.

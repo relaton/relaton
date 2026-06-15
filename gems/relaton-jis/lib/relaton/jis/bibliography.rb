@@ -6,21 +6,26 @@ module Relaton
       extend self
 
       #
-      # Search JIS by keyword
+      # Search JIS by reference, returning the full candidate collection.
+      #
+      # The reference is parsed into a {Pubid::Jis::Identifier} and matched
+      # against the pubid-based `index-v2` via {HitCollection}. Candidates share
+      # the reference's series and number (a supplement is filed under its base
+      # number), so an edition and its amendments are returned together.
       #
       # @param [String] code JIS document code
       # @param [String, nil] year JIS document year
       #
-      # @return [Relaton::Jis::HitCollection] search result
+      # @return [Relaton::Jis::HitCollection, nil] search result, or nil when
+      #   the reference cannot be parsed
       #
       def search(code, year = nil)
-        index = Relaton::Index.find_or_create(
-          :jis,
-          url: "#{HitCollection::GH_URL}#{INDEXFILE}.zip",
-          file: "#{INDEXFILE}.yaml",
-        )
-        result = index.search(code).sort_by { |h| h[:id] }
-        HitCollection.new code, year, result: result
+        pubid = ::Pubid::Jis::Identifier.parse code
+        pubid.year ||= year.to_i if year
+        HitCollection.new pubid
+      rescue StandardError => e
+        Util.warn "Unable to parse `#{code}` with pubid: #{e.message}"
+        nil
       end
 
       #
@@ -53,13 +58,13 @@ module Relaton
       #
       # Log hint message
       #
-      # @param [Array] result search result
+      # @param [Array] result search result (missed edition years)
       # @param [String] ref reference to search
       # @param [String, nil] year year to search
       #
       def hint(result, ref, year)
         Util.info "Not found.", key: ref
-        if result.any?
+        if result&.any?
           Util.info "TIP: No match for edition year `#{year}`, but " \
                     "matches exist for `#{result.uniq.join('`, `')}`.", key: ref
         end

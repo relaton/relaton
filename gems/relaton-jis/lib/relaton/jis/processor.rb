@@ -47,7 +47,7 @@ module Relaton
       def remove_index_file
         require_relative "../jis"
         Relaton::Index.find_or_create(
-          :jis, url: true, file: "#{INDEXFILE}.yaml"
+          :jis, url: true, file: "#{INDEXFILE_V2}.yaml"
         ).remove_file
       end
     end

@@ -16,39 +16,42 @@ module Relaton
       end
 
       #
-      # Check if hit matches reference
+      # Check if the hit matches the collection's reference.
       #
-      # @param [Hash] ref_parts parts of reference
-      # @param [String, nil] year year
-      # @param [Boolean] all_parts check all parts of reference
+      # The candidate must be the same document type (so a plain standard query
+      # never matches its amendments) and share series and number. Part is
+      # compared only when the reference names a specific part and `all_parts`
+      # is off. Year is filtered separately by {HitCollection}.
       #
-      # @return [Boolean] true if hit matches reference
+      # @param [Boolean] all_parts match any part of the document
       #
-      def eq?(ref_parts, year = nil, all_parts: false) # rubocop:disable Metrics/CyclomaticComplexity, Metrics/AbcSize, Metrics/PerceivedComplexity
-        part_match?(ref_parts, all_parts) &&
-          (year.nil? || year == id_parts[:year]) &&
-          expl_match?(ref_parts) && amd_match?(ref_parts)
+      # @return [Boolean] true if the hit matches
+      #
+      def matches?(all_parts: false)
+        cand = pubid
+        return false unless cand && same_document?(cand)
+        return true if all_parts || reference_partless?
+
+        Array(cand.parts).map(&:to_s) == reference_parts
       end
 
       #
-      # Return parts of document id
+      # The hit's pubid identifier. `index-v2` rows are already deserialized to
+      # {Pubid::Jis::Identifier} via `pubid_class`; a Hash or String id is
+      # converted for robustness.
       #
-      # @return [Hash] hash with parts of document id
-      #
-      def id_parts
-        @id_parts ||= hit_collection.parse_ref hit[:id]
-      end
-
-      #
-      # Parse the hit's identifier string into a pubid identifier.
-      #
-      # @return [Pubid::Jis::Identifier, nil] parsed identifier, or nil when
-      #   the string cannot be parsed
+      # @return [Pubid::Jis::Identifier, nil] identifier, or nil when it cannot
+      #   be built
       #
       def pubid
         return @pubid if defined? @pubid
 
-        @pubid = ::Pubid::Jis::Identifier.parse hit[:id]
+        id = hit[:id]
+        @pubid = case id
+                 when Hash then ::Pubid::Jis::Identifier.from_hash id
+                 when String then ::Pubid::Jis::Identifier.parse id
+                 else id
+                 end
       rescue StandardError
         Util.warn "Unable to create an identifier from `#{hit[:id]}`"
         @pubid = nil
@@ -67,24 +70,23 @@ module Relaton
 
       private
 
-      def part_match?(ref_parts, all_parts)
-        id_parts[:code].include?(ref_parts[:code]) &&
-          (all_parts || ref_parts[:part].nil? ||
-           ref_parts[:part] == id_parts[:part])
+      def reference
+        hit_collection.pubid
       end
 
-      def expl_match?(ref_parts)
-        (ref_parts[:expl].nil? || !id_parts[:expl].nil?) &&
-          (ref_parts[:expl_num].nil? ||
-           ref_parts[:expl_num] == id_parts[:expl_num])
+      # Same document type, series and number as the reference.
+      def same_document?(cand)
+        cand.instance_of?(reference.class) &&
+          cand.series == reference.series &&
+          cand.number.to_s == reference.number.to_s
       end
 
-      def amd_match?(ref_parts) # rubocop:disable Metrics/AbcSize
-        (ref_parts[:amd].nil? || !id_parts[:amd].nil?) &&
-          (ref_parts[:amd_num].nil? ||
-           ref_parts[:amd_num] == id_parts[:amd_num]) &&
-          (ref_parts[:amd_year].nil? ||
-           ref_parts[:amd_year] == id_parts[:amd_year])
+      def reference_partless?
+        reference.parts.nil? || reference.parts.empty?
+      end
+
+      def reference_parts
+        Array(reference.parts).map(&:to_s)
       end
     end
   end
