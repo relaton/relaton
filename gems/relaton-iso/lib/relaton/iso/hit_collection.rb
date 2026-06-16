@@ -62,7 +62,19 @@ module Relaton
         # An all-parts query drops :part from the match, so multiple rows can
         # resolve to the same pubid; collapse them so each part appears once.
         @array.uniq! { |h| h.pubid.to_s } if ref.root.all_parts
+        # Most-recent first (pubid string desc ~ year desc), then float
+        # published-stage ids above drafts. An undated query excludes :stage
+        # when matching, so a future draft (e.g. ISO/AWI) matches alongside the
+        # published edition; without this the draft would sort first lexically
+        # ("ISO/AWI …" > "ISO …") and be returned by fetch_doc's `first`. The
+        # index id carries no lifecycle status, so the parsed stage is the only
+        # signal available here. partition is stable, preserving the year order
+        # within each group.
         @array.sort_by! { |h| h.pubid.to_s }.reverse!
+        published, drafts = @array.partition do |h|
+          h.pubid && default_published_stage?(h.pubid)
+        end
+        @array = published + drafts
         self
       end
 
