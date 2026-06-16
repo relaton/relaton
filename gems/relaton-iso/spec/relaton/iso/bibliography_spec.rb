@@ -290,6 +290,13 @@ RSpec.describe Relaton::Iso::Bibliography do
       end
     end
 
+    it "fetch DAM" do
+      VCR.use_cassette "iso_32000_2_2020_dam_1" do
+        result = described_class.get "ISO 32000-2:2020/DAM 1"
+        expect(result.docidentifier.first.content).to eq "ISO 32000-2:2020/DAM 1"
+      end
+    end
+
     # it "fetch NP Amd" do
     #   VCR.use_cassette "iso_1862_1_2017_np_amd_1" do
     #     result = described_class.get "ISO 18562-1:2017/NP Amd 1"
@@ -526,6 +533,30 @@ RSpec.describe Relaton::Iso::Bibliography do
       expect(result).not_to be_nil
       rel_docids = result.relation.map { |r| r.bibitem.docidentifier&.find(&:primary)&.content.to_s }
       expect(rel_docids).to include("ISO 19115-1:2014")
+    end
+
+    # Regression for issue #181: an amendment carries no year on its own
+    # identifier (the year lives on the base standard), so a date filter must
+    # not drop it. Metanorma passes such a filter when the citing document sets
+    # `:copyright-year:`/`:created-date:`.
+    it "finds an amendment whose year lives on the base", vcr: "iso_32000_2_2020_dam_1" do
+      result = described_class.get("ISO 32000-2:2020/DAM 1", nil,
+                                   publication_date_before: Date.new(2026, 1, 1))
+      expect(result).not_to be_nil
+      expect(result.docidentifier.first.content).to eq "ISO 32000-2:2020/DAM 1"
+    end
+
+    # If the index references a data file that 404s, the fetched item has no
+    # docidentifier; under a date filter it must degrade to "not found" rather
+    # than raise (regression for the crash exposed by the fix above).
+    it "returns nil instead of raising when the data file fails to load" do
+      empty_item = instance_double(Relaton::Iso::ItemData, docidentifier: [])
+      allow_any_instance_of(Relaton::Iso::Hit).to receive(:item).and_return(empty_item)
+      expect do
+        result = described_class.get("ISO 32000-2:2020/DAM 1", nil,
+                                     publication_date_before: Date.new(2026, 1, 1))
+        expect(result).to be_nil
+      end.not_to raise_error
     end
 
     it "filters out corrected date after the cut-off", vcr: "iso_iec_2382_2015" do
