@@ -190,10 +190,16 @@ module Relaton
       end
 
       # Extract year from a hit as an integer.
+      #
+      # Amendments, corrigendums and supplements carry no year on their own
+      # identifier; the year lives on the underlying standard reachable via
+      # `root` (which walks the full base chain, however deeply nested). Fall
+      # back to it so a date filter does not drop such references (issue #181).
+      #
       # @param hit [Relaton::Iso::Hit]
       # @return [Integer]
       def hit_year(hit)
-        yr = hit.pubid&.date&.year || hit.hit[:year]
+        yr = hit.pubid&.date&.year || hit.hit[:year] || hit.pubid&.root&.date&.year
         yr.to_i
       end
 
@@ -240,6 +246,10 @@ module Relaton
       # @return [Relaton::Iso::ItemData, nil]
       def fetch_and_check_date(hit, pubid, opts)
         ret = hit.item
+        # A data file that fails to load (e.g. the index references a file that
+        # 404s) yields an item with no docidentifier; skip it rather than crash.
+        return unless ret&.docidentifier&.first
+
         if publication_date_in_range?(ret, opts)
           Util.info "Found: `#{ret.docidentifier.first.content}`", key: pubid.to_s
           ret
