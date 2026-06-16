@@ -37,15 +37,28 @@ RSpec.describe Relaton::Iso::Hit do
       end
     end
 
-    context "fails to create pubid from Hash" do
+    context "Hash carries an unknown key" do
+      # pubid 2.x from_hash deserializes already-validated index rows and
+      # ignores extraneous keys (the format uses :_type, not :type), so a
+      # stray key is dropped rather than rejected.
       let(:hit) { { id: { publisher: "ISO", number: "19115", type: "TYPE" } } }
-      it {
+      it "ignores it and builds the identifier" do
+        expect(subject.to_s).to eq("ISO 19115")
+      end
+    end
+
+    context "from_hash raises" do
+      let(:hit) { { id: { publisher: "ISO", number: "19115" } } }
+      before do
+        allow(::Pubid::Iso::Identifier).to receive(:from_hash).and_raise(StandardError)
+      end
+      it "warns and returns nil" do
         expect do
           expect(subject).to be_nil
         end.to output(
           /\[relaton-iso\] WARN: Unable to create an identifier from #{hit[:id]}/,
         ).to_stderr_from_any_process
-      }
+      end
     end
   end
 end
