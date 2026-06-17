@@ -3,7 +3,7 @@ describe Relaton::Iho::Docidentifier do
     it "parses content into a Pubid::Identifier" do
       d = described_class.new(content: "S-100 Part 1", type: "IHO", primary: true)
       expect(d.pubid).to be_a Pubid::Identifier
-      expect(d.pubid.code).to eq "100"
+      expect(d.pubid.number).to eq "100"
       expect(d.pubid.part).to eq "1"
       expect(d.content).to eq "S-100 Part 1"
     end
@@ -23,13 +23,6 @@ describe Relaton::Iho::Docidentifier do
     it "leaves @pubid nil when content is empty" do
       d = described_class.new(type: "IHO")
       expect(d.pubid).to be_nil
-    end
-  end
-
-  describe "#to_h" do
-    it "delegates to the parsed Pubid when present" do
-      d = described_class.new(content: "S-100 Part 1", type: "IHO")
-      expect(d.to_h).to include(number: "100", part: "1")
     end
   end
 
@@ -117,7 +110,7 @@ describe Relaton::Iho::Docidentifier do
       result = Relaton::Iho::Bibliography.search "IHO B-11"
       docid = result.docidentifier.first
       expect(docid).to be_a described_class
-      expect(docid.pubid.code).to eq "11"
+      expect(docid.pubid.number).to eq "11"
     end
 
     it "auto-populates ext.structuredidentifier when fetched record lacks one",

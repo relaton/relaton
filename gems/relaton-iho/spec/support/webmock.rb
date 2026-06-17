@@ -1,6 +1,6 @@
 require "webmock/rspec"
 require "zip"
-require "yaml"
+require "tmpdir"
 require "relaton/iho"
 
 INDEX_ZIP_PATH = File.join(__dir__, "..", "fixtures", "#{Relaton::Iho::INDEXFILE}.zip")
@@ -10,10 +10,15 @@ RSpec.configure do |config|
     yaml = Zip::File.open(INDEX_ZIP_PATH) do |zip|
       zip.first.get_input_stream.read
     end
-    index_data = YAML.safe_load(yaml, permitted_classes: [Symbol])
+    # Type loads from a file path, so extract the fixture zip to an ephemeral
+    # temp file (not committed — only the zip is shipped, per `rake update_index`).
+    index_file = File.join(Dir.mktmpdir("relaton-iho-spec"), "#{Relaton::Iho::INDEXFILE}.yaml")
+    File.write(index_file, yaml)
 
-    type = Relaton::Index::Type.new(:iho, nil, "#{Relaton::Iho::INDEXFILE}.yaml")
-    type.instance_variable_set(:@index, index_data)
+    # Pass pubid_class so each row's :id is rebuilt into a Pubid::Iho::Identifiers::*
+    # via from_hash; force the offline read + deserialize now, before net is blocked.
+    type = Relaton::Index::Type.new(:iho, nil, index_file, nil, ::Pubid::Iho::Identifiers::Base)
+    type.index
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
 
     Relaton::Index.pool.instance_variable_get(:@pool)[:IHO] = type

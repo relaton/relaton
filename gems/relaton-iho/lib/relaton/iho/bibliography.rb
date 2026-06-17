@@ -16,7 +16,12 @@ module Relaton
         def search(text, _year = nil, _opts = {}) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
           pubid = text.is_a?(String) ? ::Pubid::Iho::Identifier.parse(text) : text
           Util.info "Fetching from Relaton repository ...", key: pubid.to_s
-          row = index.search { |r| pubid_match?(r[:id], pubid) }.min_by { |r| row_version(r[:id]) }
+          # Pass the pubid so Relaton::Index narrows candidates by number via
+          # binary search before applying the block. Every row's `:id` is a
+          # Pubid::Iho::Identifiers::* (Relaton::Index deserialized it via the
+          # `pubid_class` passed in `#index`), so `pubid_match?` compares pubids.
+          row = index.search(pubid) { |r| pubid_match?(r[:id], pubid) }
+                     .min_by { |r| r[:id].version.to_s }
           unless row
             Util.info "Not found.", key: pubid.to_s
             return
@@ -84,57 +89,24 @@ module Relaton
             :iho,
             url: "#{ENDPOINT}#{INDEXFILE}.zip",
             file: "#{INDEXFILE}.yaml",
-            id_keys: %i[publisher number type version part appendix annex supplement],
-            pubid_class: ::Pubid::Iho::Identifier,
+            pubid_class: ::Pubid::Iho::Identifiers::Base,
           )
         end
 
+        # Both `row_id` and `query` are Pubid::Iho::Identifiers::* instances.
+        # Class identity pins the series (S/P/M/B/C). Subdivision keys
+        # (part/appendix/annex/supplement) use strict equality — a nil query
+        # must match a nil row (the umbrella), not an arbitrary subdivision
+        # under the same (number, version). Only :version stays nil-tolerant: an
+        # unqualified `IHO B-11` query is expected to find the latest edition.
         def pubid_match?(row_id, query)
-          row_attrs = row_attributes(row_id)
-          return false unless row_attrs
-
-          query_attrs = pubid_attrs(query)
-          # Subdivision keys (part/appendix/annex/supplement) use strict
-          # equality — a nil query must match a nil row (the umbrella),
-          # not an arbitrary subdivision under the same (number, version).
-          # Only :version stays nil-tolerant: an unqualified `IHO B-11`
-          # query is expected to find the latest edition.
-          row_attrs[:publisher] == query_attrs[:publisher] &&
-            row_attrs[:type] == query_attrs[:type] &&
-            row_attrs[:number] == query_attrs[:number] &&
-            (query_attrs[:version].nil? || row_attrs[:version].to_s == query_attrs[:version].to_s) &&
-            row_attrs[:part].to_s == query_attrs[:part].to_s &&
-            row_attrs[:appendix].to_s == query_attrs[:appendix].to_s &&
-            row_attrs[:annex].to_s == query_attrs[:annex].to_s &&
-            row_attrs[:supplement].to_s == query_attrs[:supplement].to_s
-        end
-
-        def row_attributes(row_id)
-          return pubid_attrs(row_id) if row_id.is_a?(::Pubid::Identifier)
-          return row_id if row_id.is_a?(Hash)
-
-          nil
-        end
-
-        # Flat symbol-keyed hash matching the IHO index schema
-        # (publisher/type/number/version/part/appendix/annex/supplement).
-        # Pubid 2.x stores the number as :code and exposes the series letter
-        # (S/P/M/B/C) via class.type[:short]; both are normalized here.
-        def pubid_attrs(pubid)
-          {
-            publisher: "IHO",
-            type: pubid.class.type[:short],
-            number: pubid.code,
-            version: pubid.version,
-            part: pubid.part,
-            appendix: (pubid.appendix if pubid.respond_to?(:appendix)),
-            annex: (pubid.annex if pubid.respond_to?(:annex)),
-            supplement: (pubid.supplement if pubid.respond_to?(:supplement)),
-          }
-        end
-
-        def row_version(row_id)
-          row_attributes(row_id)&.dig(:version).to_s
+          row_id.class == query.class &&
+            row_id.number == query.number &&
+            row_id.part.to_s == query.part.to_s &&
+            row_id.appendix.to_s == query.appendix.to_s &&
+            row_id.annex.to_s == query.annex.to_s &&
+            row_id.supplement.to_s == query.supplement.to_s &&
+            (query.version.nil? || row_id.version.to_s == query.version.to_s)
         end
       end
     end
