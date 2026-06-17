@@ -13,6 +13,9 @@ Dir["../*/"].each do |dir|
   gem name, path: dir
 end
 
+# Until the other relaton flavor gems migrate to the renamed pubid IHO API,
+# pull pubid from the integration branch carrying the code->number rename.
+gem "pubid", github: "metanorma/pubid", branch: "rt-new-lutaml-model"
 
 gem "byebug"
 gem "equivalent-xml", "~> 0.6"

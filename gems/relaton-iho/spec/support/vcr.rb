@@ -13,6 +13,6 @@ VCR.configure do |config|
 
   # Index downloads are handled by pre-loaded fixtures in webmock.rb
   config.ignore_request do |request|
-    URI(request.uri).path.end_with?("index-v1.zip")
+    URI(request.uri).path.match?(/index-v\d+\.zip\z/)
   end
 end
