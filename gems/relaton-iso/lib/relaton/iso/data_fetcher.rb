@@ -1,3 +1,4 @@
+require "fileutils"
 require "json"
 require "net/http"
 require "tmpdir"
@@ -11,15 +12,21 @@ module Relaton
     # (see https://www.iso.org/open-data.html) and write each one as a YAML
     # file under `@output`.
     #
-    # `source` modes (matching the `Relaton::Core::DataFetcher.fetch` arg):
+    # The upstream feed has no delta API, so any run that proceeds re-downloads
+    # and re-ingests the whole feed. There is therefore no value in a partial
+    # update: a run either skips entirely or does a full replace. `source` modes
+    # (matching the `Relaton::Core::DataFetcher.fetch` arg):
     #
-    # * `"iso-open-data"` (default) - skip the run if the upstream
-    #   `Last-Modified` header matches `LAST_MODIFIED_FILE`.
-    # * `"iso-open-data-all"` - ignore the `Last-Modified` short-circuit and
-    #   re-ingest every record. Wiping `@output` and the index files for a
-    #   clean rebuild is the caller's responsibility (the destructive step is
-    #   done up front in relaton-data-iso's `crawler.rb`, where it cannot race
-    #   the short-circuit), so this mode never deletes anything itself.
+    # * `"iso-open-data"` (default) - skip when the feed's `Last-Modified` is
+    #   unchanged; otherwise wipe `@output` + index and rebuild from scratch.
+    # * `"iso-open-data-all"` - the same full rebuild, but ignore the
+    #   `Last-Modified` short-circuit and always run.
+    #
+    # Wiping happens here, after the short-circuit decision, so `@output` and the
+    # index always mirror the current feed (records that have left it don't
+    # linger as stale files or dangling index entries) without risking an empty
+    # tree on a skipped run. `#fetch` returns true when it rebuilt, false when
+    # it skipped, so callers can chain follow-up work (e.g. the pubid-v1 index).
     #
     class DataFetcher < Core::DataFetcher
       OPEN_DATA_URL = "https://isopublicstorageprod.blob.core.windows.net/" \
@@ -48,8 +55,9 @@ module Relaton
 
         Util.info "Fetching ISO Open Data (mode: #{@source})..."
         last_modified = fetch_last_modified
-        return if up_to_date?(last_modified)
+        return false if up_to_date?(last_modified)
 
+        reset_output
         jsonl_path = download_dataset
         ref_index, amend_index, date_index = build_ref_index(jsonl_path)
         tc_index = build_tc_index
@@ -59,6 +67,7 @@ module Relaton
         index.save
         save_last_modified(last_modified)
         report_errors
+        true
       rescue StandardError => e
         Util.error "#{e.message}\n#{e.backtrace.join("\n")}"
         raise
@@ -103,6 +112,16 @@ module Relaton
         return unless last_modified
 
         File.write(LAST_MODIFIED_FILE, last_modified, encoding: "UTF-8")
+      end
+
+      # Reset the data tree and the index together so the rebuild is a clean
+      # mirror of the feed. Called only after the short-circuit, so a skipped run
+      # never strands an empty tree. `Core::DataFetcher.fetch` recreates the
+      # directory before ingest writes into it.
+      def reset_output
+        FileUtils.rm_rf(@output)
+        index.remove_all
+        FileUtils.mkdir_p(@output)
       end
 
       def download_dataset

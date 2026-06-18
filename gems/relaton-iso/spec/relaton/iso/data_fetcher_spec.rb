@@ -97,15 +97,49 @@ describe Relaton::Iso::DataFetcher do
   end
 
   it "iso-open-data-all ignores the Last-Modified short-circuit" do
-    # Wiping for a clean rebuild is the caller's job (crawler.rb); the gem's only
-    # remaining full-refresh behaviour is to re-ingest even when the upstream
-    # Last-Modified is unchanged and the output is already populated.
     File.write(last_modified_path, "Wed, 13 May 2026 07:18:23 GMT")
     FileUtils.mkdir_p(output_dir)
     File.write(File.join(output_dir, "iso-1.yaml"), "stub")
     File.write("#{Relaton::Iso::INDEXFILE}.yaml", "[]")
     expect_any_instance_of(described_class).to receive(:ingest_records).and_call_original
     described_class.fetch("iso-open-data-all", output: output_dir, format: "yaml")
+  end
+
+  it "fetch returns false when up to date and true when it rebuilds" do
+    File.write(last_modified_path, "Wed, 13 May 2026 07:18:23 GMT")
+    FileUtils.mkdir_p(output_dir)
+    File.write(File.join(output_dir, "iso-1.yaml"), "stub")
+    File.write("#{Relaton::Iso::INDEXFILE}.yaml", "[]")
+    expect(described_class.fetch("iso-open-data", output: output_dir, format: "yaml"))
+      .to be(false)
+    expect(described_class.fetch("iso-open-data-all", output: output_dir, format: "yaml"))
+      .to be(true)
+  end
+
+  it "a proceeding run does a full replace: clears stale files and resets the index" do
+    # A changed Last-Modified (or -all) means a full rebuild, so files and index
+    # entries for records that have left the feed must not survive.
+    FileUtils.mkdir_p(output_dir)
+    stale = File.join(output_dir, "stale.yaml")
+    File.write(stale, "stale")
+    Relaton::Index.pool.remove(:iso) # force a fresh read of the on-disk index
+    seed = Relaton::Index::Type.new(
+      :iso, nil, "#{Relaton::Iso::INDEXFILE}.yaml", nil, ::Pubid::Iso::Identifier,
+    )
+    seed.add_or_update(
+      ::Pubid::Iso::Identifier.parse("ISO/DIS 9999"), "data/iso-dis-9999.yaml",
+    )
+    seed.save
+
+    described_class.fetch("iso-open-data-all", output: output_dir, format: "yaml")
+
+    expect(File.exist?(stale)).to be(false)
+    index = YAML.safe_load(
+      File.read("#{Relaton::Iso::INDEXFILE}.yaml"), permitted_classes: [Symbol],
+    )
+    files = index.map { |e| e[:file] }
+    expect(files).not_to include("data/iso-dis-9999.yaml")
+    expect(files.size).to eq(2) # only the two current feed records remain
   end
 
   describe "#normalize_reference" do
