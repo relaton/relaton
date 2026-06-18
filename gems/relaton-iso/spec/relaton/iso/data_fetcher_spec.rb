@@ -96,12 +96,16 @@ describe Relaton::Iso::DataFetcher do
     described_class.fetch("iso-open-data", output: output_dir, format: "yaml")
   end
 
-  it "iso-open-data-all clears @output before re-ingesting" do
+  it "iso-open-data-all ignores the Last-Modified short-circuit" do
+    # Wiping for a clean rebuild is the caller's job (crawler.rb); the gem's only
+    # remaining full-refresh behaviour is to re-ingest even when the upstream
+    # Last-Modified is unchanged and the output is already populated.
+    File.write(last_modified_path, "Wed, 13 May 2026 07:18:23 GMT")
     FileUtils.mkdir_p(output_dir)
-    stale = File.join(output_dir, "stale.yaml")
-    File.write(stale, "stale")
+    File.write(File.join(output_dir, "iso-1.yaml"), "stub")
+    File.write("#{Relaton::Iso::INDEXFILE}.yaml", "[]")
+    expect_any_instance_of(described_class).to receive(:ingest_records).and_call_original
     described_class.fetch("iso-open-data-all", output: output_dir, format: "yaml")
-    expect(File.exist?(stale)).to be(false)
   end
 
   describe "#normalize_reference" do

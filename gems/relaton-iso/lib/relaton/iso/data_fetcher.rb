@@ -1,4 +1,3 @@
-require "fileutils"
 require "json"
 require "net/http"
 require "tmpdir"
@@ -16,7 +15,11 @@ module Relaton
     #
     # * `"iso-open-data"` (default) - skip the run if the upstream
     #   `Last-Modified` header matches `LAST_MODIFIED_FILE`.
-    # * `"iso-open-data-all"` - clear `@output` and re-emit every record.
+    # * `"iso-open-data-all"` - ignore the `Last-Modified` short-circuit and
+    #   re-ingest every record. Wiping `@output` and the index files for a
+    #   clean rebuild is the caller's responsibility (the destructive step is
+    #   done up front in relaton-data-iso's `crawler.rb`, where it cannot race
+    #   the short-circuit), so this mode never deletes anything itself.
     #
     class DataFetcher < Core::DataFetcher
       OPEN_DATA_URL = "https://isopublicstorageprod.blob.core.windows.net/" \
@@ -47,7 +50,6 @@ module Relaton
         last_modified = fetch_last_modified
         return if up_to_date?(last_modified)
 
-        prepare_output
         jsonl_path = download_dataset
         ref_index, amend_index, date_index = build_ref_index(jsonl_path)
         tc_index = build_tc_index
@@ -101,11 +103,6 @@ module Relaton
         return unless last_modified
 
         File.write(LAST_MODIFIED_FILE, last_modified, encoding: "UTF-8")
-      end
-
-      def prepare_output
-        FileUtils.rm_rf(@output) if @full_refresh
-        FileUtils.mkdir_p(@output)
       end
 
       def download_dataset
