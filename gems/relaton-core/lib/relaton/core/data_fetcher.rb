@@ -20,14 +20,18 @@ module Relaton
       end
 
       # API method for external service
+      #
+      # @return the value returned by the instance `#fetch`, so callers can act
+      #   on the outcome (e.g. relaton-iso returns whether it rebuilt).
       def self.fetch(source = nil, output: "data", format: "yaml")
         t1 = Time.now
         puts "Started at: #{t1}"
         FileUtils.mkdir_p output
-        new(output, format).fetch(source)
+        result = new(output, format).fetch(source)
         t2 = Time.now
         puts "Stopped at: #{t2}"
         puts "Done in: #{(t2 - t1).round} sec."
+        result
       end
 
       def fetch(source = nil)
