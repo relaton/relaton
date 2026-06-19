@@ -16,6 +16,10 @@ require_relative "ccsds/bibliography"
 module Relaton
   module Ccsds
     INDEXFILE = "index-v1"
+    # Pubid-based index produced alongside the legacy string index-v1 during the
+    # pubid-v2 migration. index-v1 stays a plain `pubid.to_s` string index for
+    # existing consumers; index-v2 carries the lean pubid hash for pubid search.
+    INDEXFILE_V2 = "index-v2"
 
     class Error < StandardError; end
     # Your code goes here...

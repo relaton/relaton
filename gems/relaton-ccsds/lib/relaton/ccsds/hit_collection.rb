@@ -17,9 +17,11 @@ module Relaton
         raise Relaton::RequestError, e.message
       end
 
+      # Pubid index (index-v2): `:id` deserializes to a Pubid::Ccsds::Identifier
+      # via pubid_class, so search narrows by number with binary search.
       def index
         @index ||= Relaton::Index.find_or_create(
-          :ccsds, url: "#{GHURL}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml", pubid_class: Pubid::Ccsds::Identifier
+          :ccsds, url: "#{GHURL}#{INDEXFILE_V2}.zip", file: "#{INDEXFILE_V2}.yaml", pubid_class: Pubid::Ccsds::Identifier
         )
       end
 
@@ -30,9 +32,9 @@ module Relaton
       def rows
         if pubid.edition
           index.search(pubid)
-          # index.search { |r| Pubid::Ccsds::Identifier.create(**r[:id]) == pubid }
         else
-          index.search { |r| r[:id].exclude(:edition) == pubid }
+          # search(pubid) narrows candidates by number via binary search first.
+          index.search(pubid) { |r| r[:id].exclude(:edition) == pubid }
         end
       end
     end

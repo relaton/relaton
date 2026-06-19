@@ -2,7 +2,7 @@ require "webmock/rspec"
 require "zip"
 require "yaml"
 
-INDEX_ZIP_PATH = File.join(__dir__, "..", "fixtures", "index-v1.zip")
+INDEX_ZIP_PATH = File.join(__dir__, "..", "fixtures", "index-v2.zip")
 
 RSpec.configure do |config|
   config.before(:suite) do
@@ -11,10 +11,10 @@ RSpec.configure do |config|
     end
     index_data = YAML.safe_load(yaml, permitted_classes: [Symbol])
     index_data = index_data.map do |r|
-      { id: Pubid::Ccsds::Identifier.create(**(r[:id] || {})), file: r[:file] }
+      { id: Pubid::Ccsds::Identifier.from_hash(r[:id]), file: r[:file] }
     end
 
-    type = Relaton::Index::Type.new(:ccsds, nil, "index-v1.yaml")
+    type = Relaton::Index::Type.new(:ccsds, nil, "index-v2.yaml")
     type.instance_variable_set(:@index, index_data)
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
 

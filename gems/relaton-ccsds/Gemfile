@@ -13,6 +13,8 @@ Dir["../*/"].each do |dir|
   gem name, path: dir
 end
 
+# pubid 2.x CCSDS format lives on this branch until it ships as a gem release.
+gem "pubid", git: "https://github.com/metanorma/pubid", branch: "rt-new-lutaml-model"
 
 gem "equivalent-xml", "~> 0.6"
 gem "rake", "~> 13.0"

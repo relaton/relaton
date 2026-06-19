@@ -13,6 +13,7 @@ describe Relaton::Ccsds::DataFetcher do
     it "#fetch" do
       expect(subject).to receive(:fetch_docs).with(/ccsdsallpubs/)
       expect(subject.index).to receive(:save)
+      expect(subject.index_v2).to receive(:save)
       subject.fetch
     end
 
@@ -77,13 +78,13 @@ describe Relaton::Ccsds::DataFetcher do
 
       it "adds identifier's parameters as hash to index" do
         subject.save_bib(bib)
-        id_from_index = subject.index.search(id).first[:id]
+        id_from_index = subject.index_v2.search(id).first[:id]
         expect(id_from_index).to eq(id)
       end
 
       context "when have related translations" do
         before do
-          subject.index.add_or_update(
+          subject.index_v2.add_or_update(
             Pubid::Ccsds::Identifier.parse(translated_identifier),
             "spec/fixtures/ccsds_123_0-b-1_russian_translated.yaml",
           )
@@ -100,7 +101,7 @@ describe Relaton::Ccsds::DataFetcher do
 
       context "when identifier is translation" do
         before do
-          subject.index.add_or_update(
+          subject.index_v2.add_or_update(
             Pubid::Ccsds::Identifier.parse(identifier_without_translation),
             "spec/fixtures/ccsds_123_0-b-1.yaml",
           )
@@ -202,13 +203,13 @@ describe Relaton::Ccsds::DataFetcher do
       let(:bib) { Relaton::Ccsds::ItemData.new(docidentifier: [docid]) }
 
       it "found instance" do
-        expect(subject.index).to receive(:search).and_yield(id: Pubid::Ccsds::Identifier.parse(bibid), file: "file.yaml")
+        expect(subject.index_v2).to receive(:search).and_yield(id: Pubid::Ccsds::Identifier.parse(bibid), file: "file.yaml")
         expect(subject).to receive(:create_relations).with(bib, "file.yaml")
         subject.search_relations bibid, bib
       end
 
       it "found another translation" do
-        expect(subject.index).to receive(:search).and_yield(
+        expect(subject.index_v2).to receive(:search).and_yield(
           id: Pubid::Ccsds::Identifier.parse("CCSDS 123.0-B-1 - French Translated"), file: "file.yaml",
         )
         expect(subject).to receive(:create_relations).with(bib, "file.yaml")
@@ -216,7 +217,7 @@ describe Relaton::Ccsds::DataFetcher do
       end
 
       it "not found" do
-        expect(subject.index).to receive(:search).and_yield(
+        expect(subject.index_v2).to receive(:search).and_yield(
           id: Pubid::Ccsds::Identifier.parse("CCSDS 551.1-O-2 - Russian Translated"), file: "file.yaml",
         )
         expect(subject).not_to receive(:create_relations)
@@ -229,7 +230,7 @@ describe Relaton::Ccsds::DataFetcher do
 
       it "found" do
         bib = double(:bibitem, docidentifier: [double(id: bibid)])
-        expect(subject.index).to receive(:search).and_yield(
+        expect(subject.index_v2).to receive(:search).and_yield(
           id: Pubid::Ccsds::Identifier.parse("CCSDS 123.0-B-1 - Russian Translated"),
           file: "file.yaml",
         )
@@ -239,7 +240,7 @@ describe Relaton::Ccsds::DataFetcher do
 
       it "not found" do
         bib = double(:bibitem, docidentifier: [double(id: bibid)])
-        expect(subject.index).to receive(:search).and_yield(id: Pubid::Ccsds::Identifier.parse(bibid), file: "file.yaml")
+        expect(subject.index_v2).to receive(:search).and_yield(id: Pubid::Ccsds::Identifier.parse(bibid), file: "file.yaml")
         expect(subject).not_to receive(:create_instance_relation)
         subject.search_translations bibid, bib
       end
