@@ -224,6 +224,16 @@ describe Relaton::Index::FileIO do
                   "[relaton-iso] INFO: Considering `index.yaml` file corrupt, removing it."),
         ).to_stderr_from_any_process
       end
+
+      it "id pubid cannot represent (unsupported serialization)" do
+        yaml = [{ file: "data/1.yaml", id: { bogus: "x", number: "1" } }].to_yaml
+        expect(Relaton::Index::FileStorage).to receive(:read).with("index.yaml").and_return yaml
+        expect do
+          expect(subject.read_file).to eq []
+        end.to output(
+          include("[relaton-iso] INFO: Wrong structure of file `index.yaml`"),
+        ).to_stderr_from_any_process
+      end
     end
 
     context "#warn_local_index_error" do
@@ -249,30 +259,29 @@ describe Relaton::Index::FileIO do
     end
 
     context "#check_format" do
-      let(:index) { [{ file: "data/1.yaml", id: { type: "TR", number: "1234" } }] }
-
-      it "correct with id_keys" do
-        subject.instance_variable_set(:@id_keys, %i[type number year])
+      it "accepts a well-formed index (id/file hashes)" do
+        index = [{ file: "data/1.yaml", id: { publisher: "ISO", number: "1" } }]
         expect(subject.check_format(index)).to be true
       end
 
-      it "incorrect with id_keys" do
-        subject.instance_variable_set(:@id_keys, %i[number year])
-        expect(subject.check_format(index)).to be false
-      end
-
-      it "correct without id_keys" do
-        expect(subject.check_format(index)).to be true
-      end
-
-      it "incorrect without id_keys" do
-        index = [{ id: "1234" }]
-        expect(subject.check_format(index)).to be false
+      it "incorrect basic structure" do
+        expect(subject.check_format([{ id: "1234" }])).to be false
       end
 
       it "incorrect type" do
-        index = [:id]
-        expect(subject.check_format(index)).to be false
+        expect(subject.check_format([:id])).to be false
+      end
+    end
+
+    context "#deserialize_id" do
+      it "returns the deserialized id when pubid understands it" do
+        expect(subject.deserialize_id({ publisher: "ISO", number: "1" }))
+          .to eq(TestIdentifier.create(publisher: "ISO", number: 1))
+      end
+
+      it "raises when an id carries attributes pubid cannot represent" do
+        expect { subject.deserialize_id({ bogus: "x", number: "1" }) }
+          .to raise_error(Relaton::Index::FileIO::InvalidIndexError)
       end
     end
 
