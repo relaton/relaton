@@ -28,10 +28,6 @@ module Relaton
         index.save
         save_last_change
         report_errors
-      rescue StandardError => e
-        Util.error do
-          "#{e.message}\n#{e.backtrace.join("\n")}"
-        end
       end
 
       private
@@ -198,7 +194,8 @@ module Relaton
           pubid = parse_pubid(did.to_s)
           index.add_or_update pubid, file if pubid
         end
-        @last_change_max = pub["lastChangeTimestamp"] if last_change_max < pub["lastChangeTimestamp"]
+        ts = pub["lastChangeTimestamp"]
+        @last_change_max = ts if ts && last_change_max < ts
         File.write file, serialize(bib), encoding: "UTF-8"
       end
 

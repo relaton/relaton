@@ -27,10 +27,11 @@ describe Relaton::Iec::DataFetcher do
         described_class.fetch
       end
 
-      it "catch error" do
+      it "propagates errors instead of swallowing them" do
         expect(subject).to receive(:fetch_all).with(no_args).and_raise "Error"
         expect_any_instance_of(Relaton::Index::Type).not_to receive(:save)
-        expect { subject.fetch }.to output(/Error/).to_stderr_from_any_process
+        expect_any_instance_of(described_class).not_to receive(:save_last_change)
+        expect { subject.fetch }.to raise_error "Error"
       end
     end
 
@@ -217,6 +218,20 @@ describe Relaton::Iec::DataFetcher do
         expect { subject.send(:fetch_pub, pub) }.to output(
           include("relaton-iec] WARN: File data/iec-iso-1234-1-2.xml exists.")
         ).to_stderr_from_any_process
+      end
+
+      it "does not raise when publication has no lastChangeTimestamp" do
+        pub.delete "lastChangeTimestamp"
+        subject.instance_variable_set :@last_change_max, "2015-04-09T09:30:10Z"
+        allow(File).to receive(:write)
+        expect { subject.send(:fetch_pub, pub) }.not_to raise_error
+        expect(subject.instance_variable_get(:@last_change_max)).to eq "2015-04-09T09:30:10Z"
+      end
+
+      it "advances last_change_max when publication timestamp is newer" do
+        allow(File).to receive(:write)
+        subject.send :fetch_pub, pub
+        expect(subject.instance_variable_get(:@last_change_max)).to eq "2015-04-09T09:30:10Z"
       end
     end
 
