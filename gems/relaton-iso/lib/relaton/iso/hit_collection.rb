@@ -141,10 +141,6 @@ module Relaton
           :iso,
           url: "#{ENDPOINT}#{INDEXFILE}.zip",
           file: "#{INDEXFILE}.yaml",
-          id_keys: %i[publisher number copublisher part year edition type stage
-                      iteration joint_document tctype sctype wgtype tcnumber
-                      scnumber wgnumber dirtype base supplements addendum
-                      jtc_dir month amendments corrigendums language],
           pubid_class: ::Pubid::Iso::Identifier,
         )
       end

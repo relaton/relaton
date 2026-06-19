@@ -8,6 +8,11 @@ module Relaton
     class FileIO
       include IdNumber
 
+      # Raised internally when a deserialized id cannot be parsed or is not
+      # understood by the pubid class; `#load_index` rescues it to trigger the
+      # wrong-structure handling (re-download, or stop and log).
+      class InvalidIndexError < StandardError; end
+
       attr_reader :url, :pubid_class
       attr_accessor :sorted
 
@@ -25,11 +30,14 @@ module Relaton
       #   if nil then the fiename is used to read and write file (used to create indes in GH actions)
       # @param [Pubid::Identifier] pubid class for deserialization
       #
-      def initialize(dir, url, filename, id_keys, pubid_class = nil)
+      # `id_keys` is accepted for backward compatibility but no longer used: the
+      # index format is now validated by round-tripping a sample of ids through
+      # the pubid class (see #check_serialization), which understands the pubid
+      # v2 (lutaml) `_type` serialization that the old key-allowlist could not.
+      def initialize(dir, url, filename, _id_keys = nil, pubid_class = nil)
         @dir = dir
         @url = url
         @filename = filename
-        @id_keys = id_keys || []
         @pubid_class = pubid_class
         @sorted = false
       end
@@ -86,8 +94,12 @@ module Relaton
       #
       # @return [Boolean] <description>
       #
+      # Structural check only. Per-id serialization is validated during
+      # deserialization (see #deserialize_id), which reuses the `from_hash` the
+      # index load performs anyway, so every row is checked at no extra parse
+      # cost.
       def check_format(index)
-        check_basic_format(index) && check_id_format(index)
+        check_basic_format(index)
       end
 
       def check_basic_format(index)
@@ -97,13 +109,35 @@ module Relaton
         index.all? { |item| item.respond_to?(:keys) && item.keys.sort == keys }
       end
 
-      def check_id_format(index)
-        return true if @id_keys.empty?
+      # An id is supported when `from_hash` either resolves it to a concrete
+      # type (a subclass — the polymorphic `_type` matched) or round-trips
+      # losslessly through `to_hash`. The subclass clause covers valid entries
+      # pubid cannot fully rebuild on re-serialize (e.g. ISO directives drop a
+      # redundant subgroup number); the round-trip clause covers pubid classes
+      # without a subclass hierarchy. A wrong-format/garbled id satisfies
+      # neither: it falls back to the bare base class and fails to round-trip.
+      def id_supported?(obj, raw)
+        # A concrete subtype means pubid recognized the `_type`; accept without
+        # round-tripping. This both skips the false positive for valid-but-lossy
+        # types (e.g. ISO directives) and avoids the costly hash compare for the
+        # ~all rows that resolve to a subtype (it would otherwise add ~33%).
+        return true unless obj.instance_of?(@pubid_class)
 
-        keys = index.each_with_object(Set.new) do |item, acc|
-          acc.merge item[:id].keys if item[:id].is_a?(Hash)
+        normalize(obj.to_hash) == normalize(raw)
+      rescue StandardError
+        false
+      end
+
+      # Stringify hash keys and scalar values so the comparison ignores YAML
+      # scalar typing (e.g. 1 vs "1") and string/symbol key differences, while
+      # still detecting dropped/added keys or genuinely changed values.
+      def normalize(value)
+        case value
+        when Hash then value.to_h { |k, v| [k.to_s, normalize(v)] }
+        when Array then value.map { |v| normalize(v) }
+        when nil then nil
+        else value.to_s
         end
-        keys.none? { |k| !@id_keys.include? k }
       end
 
       #
@@ -127,12 +161,27 @@ module Relaton
         return index unless @pubid_class
 
         deserialized = index.map do |r|
-          { id: @pubid_class.from_hash(r[:id]), file: r[:file] }
+          { id: deserialize_id(r[:id]), file: r[:file] }
         end
         warn_unless_sorted(deserialized)
         deserialized.sort_by! { |r| get_id_number(r[:id]) }
         @sorted = true
         deserialized
+      end
+
+      # Deserialize one id and verify pubid understands it. Reuses the
+      # `from_hash` deserialization the load performs anyway, so validating every
+      # row costs only the `to_hash`/compare for ids that need the round-trip
+      # clause. Raises InvalidIndexError when an id cannot be parsed or is
+      # unsupported, so `#load_index` rejects (and re-downloads) the whole index.
+      def deserialize_id(raw)
+        obj = @pubid_class.from_hash(raw)
+      rescue StandardError => e
+        raise InvalidIndexError, "cannot parse id #{raw.inspect}: #{e.message}"
+      else
+        return obj if id_supported?(obj, raw)
+
+        raise InvalidIndexError, "unsupported id #{raw.inspect}"
       end
 
       # Log when the loaded index is not already in get_id_number order, so the
@@ -168,18 +217,20 @@ module Relaton
       def load_index(yaml, save = false)
         index = YAML.safe_load(yaml, permitted_classes: [Symbol])
         save index if save
-        return deserialize_pubid(index) if check_format index
+        return deserialize_pubid(index) if check_format(index)
 
-        if save
-          warn_remote_index_error "Wrong structure of"
-        else
-          warn_local_index_error "Wrong structure of"
-        end
+        report_invalid_index(save, "Wrong structure of")
       rescue Psych::SyntaxError
+        report_invalid_index(save, "YAML parsing error when reading")
+      rescue InvalidIndexError
+        report_invalid_index(save, "Wrong structure of")
+      end
+
+      def report_invalid_index(save, reason)
         if save
-          warn_remote_index_error "YAML parsing error when reading"
+          warn_remote_index_error reason
         else
-          warn_local_index_error "YAML parsing error when reading"
+          warn_local_index_error reason
         end
       end
 
