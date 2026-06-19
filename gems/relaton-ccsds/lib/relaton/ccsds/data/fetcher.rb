@@ -18,26 +18,20 @@ module Relaton
         @agent
       end
 
-      # Legacy string index (index-v1): `:id` is the plain `pubid.to_s` string,
-      # kept for existing consumers. No pubid_class, so entries stay strings.
+      # Pubid index (index-v2): `:id` is the lean pubid hash. index-v1 (the
+      # pubid-v1 hash index for the released gem line) is rebuilt separately by
+      # the data repo's build_index_v1.rb, in its own process with a pubid-v1
+      # bundle, because pubid v1 and v2 both define Pubid::Ccsds::Identifier and
+      # cannot coexist here.
       def index
-        @index ||= Relaton::Index.find_or_create(:ccsds, file: "#{INDEXFILE}.yaml")
-      end
-
-      # Pubid index (index-v2) built in parallel: `:id` is the lean pubid hash.
-      # The pool keys by type, so requesting a second :ccsds index evicts the v1
-      # Type from the pool, but we hold our own reference in @index_v2 so both
-      # stay live for the whole crawl.
-      def index_v2
-        @index_v2 ||= Relaton::Index.find_or_create(
-          :ccsds, file: "#{INDEXFILE_V2}.yaml", pubid_class: Pubid::Ccsds::Identifier
+        @index ||= Relaton::Index.find_or_create(
+          :ccsds, file: "#{INDEXFILE}.yaml", pubid_class: Pubid::Ccsds::Identifier
         )
       end
 
       def fetch(_source = nil)
         fetch_docs "https://ccsds.org/publications/ccsdsallpubs/"
         index.save
-        index_v2.save
       end
 
       #
@@ -94,9 +88,7 @@ module Relaton
         file = output_file(bib.docidentifier.first.content)
         merge_links bib, file
         File.write file, serialize(bib), encoding: "UTF-8"
-        content = bib.docidentifier.first.content
-        index.add_or_update content, file
-        index_v2.add_or_update Pubid::Ccsds::Identifier.parse(content), file
+        index.add_or_update Pubid::Ccsds::Identifier.parse(bib.docidentifier.first.content), file
       rescue StandardError => e
         puts "Failed to save #{bib.docidentifier.first.content}: #{e.message}\n#{e.backtrace[0..5].join("\n")}"
       end
@@ -128,7 +120,7 @@ module Relaton
       def search_relations(bibid, bib)
         bibid_pid = ::Pubid::Ccsds::Identifier.parse(bibid)
         # search(bibid_pid) narrows candidates by number via binary search first.
-        index_v2.search(bibid_pid) do |row|
+        index.search(bibid_pid) do |row|
           id = row[:id].exclude(:language)
           # TODO: smiplify this line?
           next if id != bibid_pid || row[:id] == bib.docidentifier.first.content
@@ -142,7 +134,7 @@ module Relaton
         # will call create_instance_relation if
         # there are same identifiers in index but with word "Translated"
         # search(bibid_pid) narrows candidates by number via binary search first.
-        index_v2.search(bibid_pid) do |row|
+        index.search(bibid_pid) do |row|
           next unless row[:id].language && row[:id].exclude(:language) == bibid_pid
 
           create_instance_relation bib, row[:file]

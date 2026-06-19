@@ -61,7 +61,7 @@ module Relaton
       #
       def remove_index_file
         require_relative "../ccsds"
-        Relaton::Index.find_or_create(:ccsds, url: true, file: "#{INDEXFILE_V2}.yaml").remove_file
+        Relaton::Index.find_or_create(:ccsds, url: true, file: "#{INDEXFILE}.yaml").remove_file
       end
     end
   end

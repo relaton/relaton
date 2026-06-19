@@ -21,7 +21,7 @@ module Relaton
       # via pubid_class, so search narrows by number with binary search.
       def index
         @index ||= Relaton::Index.find_or_create(
-          :ccsds, url: "#{GHURL}#{INDEXFILE_V2}.zip", file: "#{INDEXFILE_V2}.yaml", pubid_class: Pubid::Ccsds::Identifier
+          :ccsds, url: "#{GHURL}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml", pubid_class: Pubid::Ccsds::Identifier
         )
       end
 

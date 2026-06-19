@@ -15,11 +15,10 @@ require_relative "ccsds/bibliography"
 
 module Relaton
   module Ccsds
-    INDEXFILE = "index-v1"
-    # Pubid-based index produced alongside the legacy string index-v1 during the
-    # pubid-v2 migration. index-v1 stays a plain `pubid.to_s` string index for
-    # existing consumers; index-v2 carries the lean pubid hash for pubid search.
-    INDEXFILE_V2 = "index-v2"
+    # The pubid-v2 (lean hash) index this gem produces and consumes. The legacy
+    # index-v1 (pubid-v1 hash, for the released gem line) is rebuilt separately
+    # by the data repo's build_index_v1.rb.
+    INDEXFILE = "index-v2"
 
     class Error < StandardError; end
     # Your code goes here...
