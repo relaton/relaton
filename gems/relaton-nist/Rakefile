@@ -6,13 +6,13 @@ RSpec::Core::RakeTask.new(:spec)
 task :default => :spec
 
 namespace :spec do
-  desc "Download latest NIST index fixture from relaton-data-nist"
+  desc "Download latest NIST index fixture (index-v2) from relaton-data-nist"
   task :update_index do
     require "net/http"
     require "uri"
 
-    url = "https://raw.githubusercontent.com/relaton/relaton-data-nist/v2/index-v1.zip"
-    dest = File.join(__dir__, "spec", "fixtures", "index-v1.zip")
+    url = "https://raw.githubusercontent.com/relaton/relaton-data-nist/v2/index-v2.zip"
+    dest = File.join(__dir__, "spec", "fixtures", "index-v2.zip")
 
     puts "Downloading #{url} ..."
     uri = URI.parse(url)

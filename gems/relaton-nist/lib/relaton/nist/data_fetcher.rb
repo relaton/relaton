@@ -29,11 +29,22 @@ module Relaton
         id = bib.docidentifier.find(&:primary) || bib.docidentifier.first
         file = output_file id.content.sub(/^NIST IR/, "NISTIR")
         if @files.include? file
-          Util.warn "File #{file} exists. Docid: #{bib.docidentifier[0].content}"
+          Util.warn "File #{file} exists. Docid: #{id.content}"
         else @files << file
         end
-        index.add_or_update bib.docidentifier[0].content, file
+        pid = pubid id.content
+        index.add_or_update pid, file if pid
         File.write file, serialize(bib), encoding: "UTF-8"
+      end
+
+      # Parse a docidentifier string into a Pubid::Nist::Identifier; nil (with a
+      # warning) if pubid can't parse it, so a single bad id never aborts the
+      # crawl or corrupts index-v2.
+      def pubid(id)
+        ::Pubid::Nist::Identifier.parse id
+      rescue StandardError => e
+        Util.warn "Failed to parse `#{id}` with pubid: #{e.message}"
+        nil
       end
 
       # def add_static_files
@@ -60,7 +71,9 @@ module Relaton
       end
 
       def index
-        @index ||= Relaton::Index.find_or_create :nist, file: "#{INDEXFILE}.yaml"
+        @index ||= Relaton::Index.find_or_create(
+          :nist, file: "#{INDEXFILE}.yaml", pubid_class: ::Pubid::Nist::Identifier
+        )
       end
 
       def series
