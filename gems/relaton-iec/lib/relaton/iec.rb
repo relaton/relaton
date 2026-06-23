@@ -20,7 +20,7 @@ require_relative "iec/model/bibdata"
 
 module Relaton
   module Iec
-    INDEXFILE = "index-v1".freeze
+    INDEXFILE = "index-v2".freeze
 
     class << self
       # Returns hash of XML reammar

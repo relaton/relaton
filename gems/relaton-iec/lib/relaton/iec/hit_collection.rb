@@ -47,16 +47,11 @@ module Relaton
         [pubid.part.to_s.to_i, sub.to_s.to_i]
       end
 
-      VALID_ID_KEYS = %i[
-        publisher number year type vap amendments corrigendums copublisher part base fragment edition database sheet
-      ]
-
       def index
         @index ||= Relaton::Index.find_or_create(
           :IEC,
           url: "#{Hit::GHURL}#{INDEXFILE}.zip",
           file: "#{INDEXFILE}.yaml",
-          id_keys: VALID_ID_KEYS,
           pubid_class: ::Pubid::Iec::Identifier
         )
       end
@@ -70,35 +65,60 @@ module Relaton
         part.to_s.split("-").map(&:to_i)
       end
 
-      # Compare pubids for matching, excluding specified fields
+      # Keys pubid re-emits at a default value after `from_hash` but omits on a
+      # fresh `parse` (a lutaml render_default asymmetry: a deserialized
+      # attribute loses its using_default flag, so render_default: false no
+      # longer suppresses it). Equality must ignore them so a deserialized index
+      # row compares equal to the freshly-parsed query. Values are the
+      # stringified defaults (see #stringify).
+      LEAKING_DEFAULTS = { "publisher" => "IEC", "all_parts" => "false", "database" => "false" }.freeze
+
+      # Map a flat exclude symbol to the lean to_hash key it removes (at every
+      # nesting level). :type removes the polymorphic `_type` discriminator.
+      EXCLUDE_KEYS = { year: "year", part: "part", subpart: "subpart", type: "_type" }.freeze
+
+      # Compare pubids for matching, excluding specified fields.
       # @param row_pubid [Pubid::Iec::Identifier] pubid from index row
       # @return [Boolean]
       def pubid_matches?(row_pubid, exclude)
         return false unless row_pubid
 
-        pubid_attrs(@ref, exclude) == pubid_attrs(row_pubid, exclude)
+        canonical_id(@ref, exclude) == canonical_id(row_pubid, exclude)
       end
 
-      # Flat symbol-keyed attribute hash for pubid 2.x identifiers. Drops
-      # :_type and :typed_stage; flattens :date Component to a :year string
-      # so callers can exclude year by name as in pubid 1.x. Excluding
-      # :type implies excluding :stage (the two are correlated via
-      # typed_stage).
-      def pubid_attrs(pubid, exclude = [])
-        exclude = (exclude + [:stage]) if exclude.include?(:type)
-        pubid.class.attributes.each_with_object({}) do |(name, _), h|
-          next if %i[_type typed_stage].include?(name)
-          next if exclude.include?(name)
+      # Build-path-independent comparison key: the lean `to_hash` with keys and
+      # scalars stringified, leaking defaults dropped, and excluded fields
+      # removed at every nesting level. More robust than comparing attribute
+      # objects, whose derived `type`/`stage` differ between a parsed identifier
+      # (component object) and a deserialized one (nil/symbol) — at the top level
+      # and inside `base_identifier`.
+      def canonical_id(pubid, exclude)
+        drop = exclude.filter_map { |e| EXCLUDE_KEYS[e] }
+        prune(stringify(pubid.to_hash), drop)
+      end
 
-          val = pubid.send(name)
-          next if val.nil?
+      # Stringify hash keys and scalar values so comparison ignores YAML scalar
+      # typing (1 vs "1") and string/symbol key differences.
+      def stringify(value)
+        case value
+        when Hash  then value.to_h { |k, v| [k.to_s, stringify(v)] }
+        when Array then value.map { |v| stringify(v) }
+        when nil   then nil
+        else value.to_s
+        end
+      end
 
-          if name == :date
-            year = val.respond_to?(:year) ? val.year : nil
-            h[:year] = year if year && !exclude.include?(:year)
-          else
-            h[name] = val
+      # Recursively drop nil values, leaking defaults, and excluded keys.
+      def prune(value, drop)
+        case value
+        when Hash
+          value.each_with_object({}) do |(k, v), h|
+            next if v.nil? || drop.include?(k) || LEAKING_DEFAULTS[k] == v
+
+            h[k] = prune(v, drop)
           end
+        when Array then value.map { |v| prune(v, drop) }
+        else value
         end
       end
 

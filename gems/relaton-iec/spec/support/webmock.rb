@@ -2,7 +2,7 @@ require "webmock/rspec"
 require "zip"
 require "tmpdir"
 
-INDEX_ZIP_PATH = File.join(__dir__, "..", "fixtures", "index-v1.zip")
+INDEX_ZIP_PATH = File.join(__dir__, "..", "fixtures", "index-v2.zip")
 
 RSpec.configure do |config|
   config.before(:suite) do
@@ -13,7 +13,7 @@ RSpec.configure do |config|
     # so the index is sorted and `@file_io.sorted` is set: that enables binary
     # search narrowing in Type#search. Setting `@index` directly (as before)
     # left it unsorted, forcing a full O(n) scan of all rows on every search.
-    index_file = File.join(Dir.mktmpdir("relaton-iec-spec"), "index-v1.yaml")
+    index_file = File.join(Dir.mktmpdir("relaton-iec-spec"), "index-v2.yaml")
     File.write(index_file, yaml)
 
     type = Relaton::Index::Type.new(:IEC, nil, index_file, nil, ::Pubid::Iec::Identifier)
