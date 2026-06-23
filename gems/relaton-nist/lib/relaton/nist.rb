@@ -17,7 +17,11 @@ require_relative "nist/bibliography"
 
 module Relaton
   module Nist
-    INDEXFILE = "index-v1"
+    # Pubid-based index (index-v2): `:id` is a Pubid::Nist::Identifier hash, so
+    # search narrows by number via binary search. The legacy string index-v1
+    # (for older gem versions) is rebuilt separately by the relaton-data-nist
+    # crawler, not by this gem's DataFetcher.
+    INDEXFILE = "index-v2"
 
     class Error < StandardError; end
 

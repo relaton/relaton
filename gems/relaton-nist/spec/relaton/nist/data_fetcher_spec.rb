@@ -52,8 +52,11 @@ RSpec.describe Relaton::Nist::DataFetcher do
       let(:docid) { Relaton::Bib::Docidentifier.new(type: "NIST", content: "NIST IR 8296-12") }
       let(:bib) { Relaton::Bib::ItemData.new(docidentifier: [docid]) }
 
+      let(:pid) { double "pubid" }
+
       before do
-        expect(subject.index).to receive(:add_or_update).with("NIST IR 8296-12", "data/nistir-8296-12.yaml")
+        allow(subject).to receive(:pubid).with("NIST IR 8296-12").and_return(pid)
+        expect(subject.index).to receive(:add_or_update).with(pid, "data/nistir-8296-12.yaml")
         expect(File).to receive(:write).with("data/nistir-8296-12.yaml", :content, encoding: "UTF-8")
         expect(subject).to receive(:serialize).with(bib).and_return :content
       end

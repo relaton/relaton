@@ -229,13 +229,31 @@ module Relaton
       #
       def from_ga # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         Util.info "Fetching from Relaton repository ...", key: @reference
-        r = pubid
+        # Parse the reference so index.search narrows candidates by number via
+        # binary search; fall back to the raw string for index lookup if pubid
+        # can't parse it.
+        r = begin
+          ::Pubid::Nist::Identifier.parse(@reference)
+        rescue StandardError
+          @reference
+        end
 
-        index = Relaton::Index.find_or_create :nist, url: "#{GHNISTDATA}index-v1.zip", file: "#{INDEXFILE}.yaml"
-        rows = index.search(r).sort_by { |row| row[:id] }
+        index = Relaton::Index.find_or_create(
+          :nist, url: "#{GHNISTDATA}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
+          pubid_class: ::Pubid::Nist::Identifier
+        )
+        # search(r) narrows candidates by number via binary search; the block
+        # keeps the broad family match (this doc and all its editions/parts)
+        # the old string index gave via substring, leaving finer filtering to
+        # search_filter.
+        needle = r.to_s
+        rows = index.search(r) { |row| row[:id].to_s.include?(needle) }
+          .sort_by { |row| row[:id].to_s }
 
         rows.map do |row|
-          Hit.new({ code: row[:id], path: row[:file] }, self)
+          # index-v2 stores Pubid objects; the rest of the pipeline (search_filter,
+          # Hit, Scraper) works on string codes, so stringify at the boundary.
+          Hit.new({ code: row[:id].to_s, path: row[:file] }, self)
         end
       rescue OpenURI::HTTPError => e
         return [] if e.io.status[0] == "404"
