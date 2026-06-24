@@ -287,8 +287,8 @@ describe Relaton::Index::FileIO do
 
     context "#save" do
       it "sorts by pubid number when pubid_class is set" do
-        expected_yaml = "---\n- :id:\n    :publisher: ISO\n    :number: '1'\n  :file: data/1.yaml\n" \
-                        "- :id:\n    :publisher: ISO\n    :number: '2'\n  :file: data/2.yaml\n"
+        expected_yaml = "---\n- :id:\n    publisher: ISO\n    number: '1'\n  :file: data/1.yaml\n" \
+                        "- :id:\n    publisher: ISO\n    number: '2'\n  :file: data/2.yaml\n"
         expect(Relaton::Index::FileStorage).to receive(:write).with("index.yaml", expected_yaml)
         subject.save [
           { id: TestIdentifier.create(publisher: "ISO", number: 2), file: "data/2.yaml" },
