@@ -368,12 +368,12 @@ module Relaton
       # before comparing. `exclude` returns a fresh instance, so mutating this
       # copy is safe. Remove once pubid create() splits compound parts itself.
       def normalize_compound_part(pubid)
-        num = pubid.part&.number.to_s
+        num = pubid.part&.value.to_s
         return pubid unless pubid.subpart.nil? && num.include?("-")
 
         head, tail = num.split("-", 2)
-        pubid.part = ::Pubid::Iso::Components::Code.new(number: head)
-        pubid.subpart = ::Pubid::Iso::Components::Code.new(number: tail)
+        pubid.part = ::Pubid::Iso::Components::Code.new(value: head)
+        pubid.subpart = ::Pubid::Iso::Components::Code.new(value: tail)
         pubid
       end
     end
