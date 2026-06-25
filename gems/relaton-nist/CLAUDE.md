@@ -84,17 +84,19 @@ Tests use VCR with WebMock. Cassettes are stored in `spec/vcr_cassettes/` and re
 
 ### Test Data Stubbing
 
-Tests pre-load both the NIST index and CSRC pubs-export data from local fixtures in `before(:suite)` (see `spec/support/webmock.rb`), avoiding all HTTP requests for these data sources. VCR is configured to ignore both `index-v1.zip` and `pubs-export` requests (`spec/support/vcr.rb`).
+Tests pre-load both the NIST index and CSRC pubs-export data from local fixtures in `before(:suite)` (see `spec/support/webmock.rb`), avoiding all HTTP requests for these data sources. VCR is configured to ignore both `index-v2.zip` and `pubs-export` requests (`spec/support/vcr.rb`).
 
-- **Index**: A `Relaton::Index::Type` instance is created with `@index` set directly from `spec/fixtures/index-v1.zip`, then injected into `Relaton::Index.pool`. Run `rake spec:update_index` to refresh.
+The gem consumes the **index-v2** index (`INDEXFILE = "index-v2"`): each row's `:id` is a `Pubid::Nist::Identifier` hash (lean `to_hash` form), so `HitCollection#from_ga` narrows candidates by number via binary search before the substring block filter, and stringifies `row[:id].to_s` at the Hit boundary. `spec/fixtures/index-v2.zip` is required for the suite to run (`rake spec:update_index` downloads it from `relaton-data-nist/v2`).
+
+- **Index**: The YAML inside `spec/fixtures/index-v2.zip` is written to a temp file and loaded through `Relaton::Index::Type.new(:nist, nil, file, nil, ::Pubid::Nist::Identifier)`; calling `type.index` forces the offline read + `pubid_class` deserialization (and sort) before net is blocked. The instance is injected into `Relaton::Index.pool`, with `actual?` overridden to match only the remote (`url:`) lookup so the producer-side `find_or_create(:nist, file:, pubid_class:)` still gets a fresh instance. Run `rake spec:update_index` to refresh.
 - **PubsExport**: The `PubsExport` singleton's `@data` is set directly from `spec/fixtures/pubs-export.zip`. Run `rake spec:update_pubs_export` to refresh.
 
 To apply the index stubbing pattern to other relaton gems:
 
-1. Add `spec:update_index` rake task (downloads `index-v1.zip` from the gem's GitHub data repo)
-2. Run `rake spec:update_index` to create `spec/fixtures/index-v1.zip`
-3. In `spec/support/webmock.rb`: parse the zip once, create a `Type` instance with `@index` set directly, override `actual?` to return `true`, inject into `Relaton::Index.pool`
-4. In `spec/support/vcr.rb`: add `ignore_request` for `index-v1.zip`
+1. Add a `spec:update_index` rake task (downloads `index-v2.zip` from the gem's GitHub data repo)
+2. Run `rake spec:update_index` to create `spec/fixtures/index-v2.zip`
+3. In `spec/support/webmock.rb`: extract the zip's YAML, write it to a temp file, create a `Type` with the flavor's `pubid_class`, call `type.index` to deserialize + sort, override `actual?` to match the remote `url:` lookup, and inject into `Relaton::Index.pool`
+4. In `spec/support/vcr.rb`: add `ignore_request` for `index-v2.zip`
 5. Remove any `allow_any_instance_of(Relaton::Index::Type)` workarounds from specs
 
 ## Key Dependencies

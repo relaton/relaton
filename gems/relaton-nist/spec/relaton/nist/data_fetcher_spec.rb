@@ -73,6 +73,21 @@ RSpec.describe Relaton::Nist::DataFetcher do
       end
     end
 
+    context "#pubid" do
+      it "parses a valid docidentifier into a Pubid::Nist::Identifier" do
+        pid = subject.pubid "NIST IR 8200"
+        expect(pid).to be_a ::Pubid::Nist::Identifier
+        expect(pid.to_s).to eq "NIST IR 8200"
+      end
+
+      it "returns nil and warns for an unparseable id (single bad id never aborts the crawl)" do
+        result = nil
+        expect { result = subject.pubid "!!! totally bogus @@@" }
+          .to output(/Failed to parse `!!! totally bogus @@@` with pubid/).to_stderr_from_any_process
+        expect(result).to be_nil
+      end
+    end
+
     context "#serialize" do
       let(:bib) { double "BibItem" }
 
