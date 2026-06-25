@@ -83,7 +83,8 @@ RSpec.describe Relaton::Nist::Processor do
     it "removes the index file" do
       index = double("index")
       expect(Relaton::Index).to receive(:find_or_create)
-        .with(:nist, url: true, file: "index-v1.yaml").and_return(index)
+        .with(:nist, url: true, file: "index-v2.yaml", pubid_class: ::Pubid::Nist::Identifier)
+        .and_return(index)
       expect(index).to receive(:remove_file)
       processor.remove_index_file
     end

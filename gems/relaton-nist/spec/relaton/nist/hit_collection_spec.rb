@@ -8,6 +8,29 @@ RSpec.describe Relaton::Nist::HitCollection do
     expect { subject.send(:from_ga) }.to raise_error error
   end
 
+  describe "#from_ga (index-v2)" do
+    it "returns pubid-derived hits from the index-v2 fixture" do
+      hits = subject.send(:from_ga)
+      expect(hits).to all(be_instance_of(Relaton::Nist::Hit))
+      hit = hits.find { |h| h.hit[:code] == "NIST IR 8200" }
+      expect(hit).not_to be_nil
+      # index-v2 stores Pubid objects; the boundary stringifies :id and
+      # carries the data file path through unchanged (don't pin the exact
+      # filename — the fixture is refreshed by rake spec:update_index).
+      expect(hit.hit[:code]).to be_instance_of(String)
+      expect(hit.hit[:path]).to match(%r{nistir-8200.*\.yaml\z})
+    end
+
+    it "falls back to a string lookup for an unparseable reference without raising" do
+      hc = Relaton::Nist::HitCollection.new ")(*&^ not a ref"
+      # The pubid parse fails, so from_ga uses the raw string for the index
+      # lookup; the key property is that it doesn't raise (and finds nothing).
+      result = nil
+      expect { result = hc.send(:from_ga) }.not_to raise_error
+      expect(result).to eq []
+    end
+  end
+
   it "sort hits" do
     expect(subject).to receive(:from_json).and_return [
       Relaton::Nist::Hit.new({ status: "withdrawn", code: "B", release_date: Date.today }, subject),

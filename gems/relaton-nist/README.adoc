@@ -74,7 +74,7 @@ https://github.com/relaton/loc_mods[`loc_mods`] library and its data mapped to
 the Relaton model.
 
 The NIST Library dataset provides documents listed in the
-https://github.com/relaton/relaton-data-nist/blob/main/index-v1.yaml[index].
+https://github.com/relaton/relaton-data-nist/blob/v2/index-v2.yaml[index].
 
 
 
@@ -418,7 +418,7 @@ $ rake spec:update_index
 $ rake spec:update_pubs_export
 ----
 
-`spec:update_index` downloads the latest `index-v1.zip` from the
+`spec:update_index` downloads the latest `index-v2.zip` from the
 https://github.com/relaton/relaton-data-nist[relaton-data-nist] repository.
 
 `spec:update_pubs_export` downloads the latest `pubs-export.zip` from
