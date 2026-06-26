@@ -13,11 +13,6 @@ Dir["../*/"].each do |dir|
   gem name, path: dir
 end
 
-# pubid 2.x lean IEC serialization for index-v2 lives on this branch until it is
-# merged/released. Track it so relaton-iec resolves the lean to_hash/from_hash.
-gem "pubid", github: "metanorma/pubid", branch: "iec-index-v2"
-
-
 gem "equivalent-xml", "~> 0.6"
 gem "pry-byebug"
 gem "rake", "~> 13.0"

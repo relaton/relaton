@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = Gem::Requirement.new(">= 3.3.0")
 
   spec.add_dependency "isoics", "~> 0.1.6"
-  spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.2"
+  spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.3"
   spec.add_dependency "relaton-bib", "~> 2.2.0"
   spec.add_dependency "relaton-core", "~> 2.2.0"
   spec.add_dependency "relaton-index", "~> 2.2.0"

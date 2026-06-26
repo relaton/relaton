@@ -13,13 +13,6 @@ Dir["../*/"].each do |dir|
   gem name, path: dir
 end
 
-# pubid 2.x is unpublished; the RubyGems 2.0.0.pre.alpha.2 build predates the
-# current lutaml-model and its `from_hash` is broken (index-v2 consumption needs
-# it). Track the lutaml-model branch, matching relaton-data-jis. Override to a
-# local checkout with `bundle config set local.pubid /path/to/pubid`.
-gem "pubid", git: "https://github.com/metanorma/pubid.git",
-             branch: "rt-new-lutaml-model"
-
 gem "rake", "~> 13.0"
 gem "rspec", "~> 3.0"
 
