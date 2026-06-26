@@ -93,38 +93,36 @@ RSpec.describe "Relaton Fetch" do
       end
     end
 
-    context do
+    # These exercise the full Relaton::Db fetch path (registry → cache →
+    # check_bibliocache → serialization) for each output format. The only thing
+    # stubbed is the external flavor boundary Relaton::Iso::Bibliography.get,
+    # which is where the ~79k-entry index build and HTTP document fetch happen;
+    # stubbing it to return a fixture-parsed item keeps the real DB and real
+    # serialization in the path while dropping ~25s of index work and the
+    # network round-trip (replaces a slow, index-version-fragile VCR cassette).
+    context "fetch output serialization" do
       let(:io) { double "IO" }
-
-      # Building the ISO index (decompress + parse ~79k entries) costs ~25s and
-      # is the dominant cost of these examples. Build the DB once and reuse the
-      # in-memory index across the examples below: the first fetch builds it,
-      # the rest reuse it (warm fetch is ~0.04s).
-      before(:context) do
-        @tmpdir = Dir.mktmpdir("relaton_test_cache")
-        # Isolate from global cache by using a fresh DB in a temp directory
-        Relaton::Cli::RelatonDb.instance.instance_variable_set(:@db, nil)
-        Relaton::Cli.relaton(@tmpdir)
+      let(:doc) do
+        require "relaton/iso"
+        Relaton::Iso::Item.from_yaml(File.read("spec/acceptance/fixtures/iso_2146.yaml"))
       end
 
-      after(:context) do
-        Relaton::Cli::RelatonDb.instance.instance_variable_set(:@db, nil)
-        FileUtils.remove_entry(@tmpdir)
+      around do |example|
+        Dir.mktmpdir("relaton_test_cache") do |dir|
+          # Isolate from the global cache by using a fresh DB in a temp directory
+          Relaton::Cli::RelatonDb.instance.instance_variable_set(:@db, nil)
+          Relaton::Cli.relaton(dir)
+          example.run
+          Relaton::Cli::RelatonDb.instance.instance_variable_set(:@db, nil)
+        end
       end
 
-      before(:each) do
-        RSpec::Mocks.space.proxy_for(IO).reset
-        expect(IO).to receive(:new) do |arg1, arg2, &block|
-          if arg1.is_a?(Integer) then io
-          else block.call(arg1, arg2)
-          end
-        end.at_most(2).times
-
-        # Force to download index file (only takes effect on the first fetch,
-        # which builds the shared index; warm fetches never hit this path)
-        require "relaton/index"
-        allow_any_instance_of(Relaton::Index::Type).to receive(:actual?).and_return(false)
-        allow_any_instance_of(Relaton::Index::FileIO).to receive(:check_file).and_return(nil)
+      before do
+        allow(Relaton::Iso::Bibliography).to receive(:get).and_return(doc)
+        # IO.new is stubbed because Command#fetch calls $stdout.fcntl, which is
+        # unimplemented on a StringIO; the double captures the serialized output.
+        expect(IO).to receive(:new)
+          .with(kind_of(Integer), mode: "w:UTF-8").and_return io
       end
 
       it "calls fetch and return XML" do
@@ -134,37 +132,28 @@ RSpec.describe "Relaton Fetch" do
                                  "ISO 2146:2010</docidentifier>"
           expect(arg).to include '<relation type="obsoletes">'
         end
-        VCR.use_cassette "iso_2146" do
-          command = ["fetch", "--type", "iso", "ISO 2146"]
-          Relaton::Cli.start(command)
-        end
+        Relaton::Cli.start ["fetch", "--type", "iso", "ISO 2146"]
       end
 
       it "calls fetch and return YAML" do
         expect(io).to receive(:puts) do |arg|
           expect(arg).to include "- content: ISO 2146:2010"
         end
-        VCR.use_cassette "iso_2146" do
-          command = ["fetch", "--type", "iso", "--format", "yaml", "ISO 2146"]
-          Relaton::Cli.start(command)
-        end
+        Relaton::Cli.start ["fetch", "--type", "iso", "--format", "yaml", "ISO 2146"]
       end
 
       it "calls fetch and return BibTex" do
         expect(io).to receive(:puts) do |arg|
-          expect(arg).to include "@misc{ISO2146,"
+          expect(arg).to include "@misc{ISO21462010,"
         end
-        VCR.use_cassette "iso_2146" do
-          command = ["fetch", "--type", "iso", "--format", "bibtex", "ISO 2146"]
-          Relaton::Cli.start(command)
-        end
+        Relaton::Cli.start ["fetch", "--type", "iso", "--format", "bibtex", "ISO 2146"]
       end
     end
 
     # CLI-layer behaviour (option forwarding, output for a missing match) is
-    # exercised against a mocked DB. The happy-path index integration is
-    # already covered end-to-end by the VCR specs above; going through the real
-    # ISO index here would re-sort ~79k entries per example for no added
+    # exercised against a mocked DB. Serialization of a fetched item is already
+    # covered by the "fetch output serialization" specs above; going through the
+    # real ISO index here would re-sort ~79k entries per example for no added
     # coverage. (These replace former specs that shelled out to a globally
     # installed `relaton` over live network.)
     context "with a mocked DB" do

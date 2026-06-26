@@ -1,0 +1,141 @@
+---
+id: ISO21462010
+schema_version: v1.5.6
+type: standard
+title:
+- language: en
+  script: Latn
+  content: Information and documentation
+  type: title-intro
+- language: en
+  script: Latn
+  content: Registry services for libraries and related organizations
+  type: title-main
+- language: en
+  script: Latn
+  content: Information and documentation - Registry services for libraries and related
+    organizations
+  type: main
+- language: fr
+  script: Latn
+  content: Information et documentation
+  type: title-intro
+- language: fr
+  script: Latn
+  content: Services de registre pour les bibliothèques et les organismes associés
+  type: title-main
+- language: fr
+  script: Latn
+  content: Information et documentation - Services de registre pour les bibliothèques
+    et les organismes associés
+  type: main
+source:
+- type: src
+  content: https://www.iso.org/standard/44936.html
+- type: obp
+  content: https://www.iso.org/obp/ui/en/#!iso:std:44936:en
+- type: rss
+  content: https://www.iso.org/contents/data/standard/04/49/44936.detail.rss
+docidentifier:
+- content: ISO 2146:2010
+  type: ISO
+  primary: true
+- content: ISO 2146:2010(E)
+  type: iso-reference
+- content: urn:iso:std:iso:2146:stage-90.60
+  type: URN
+docnumber: '2146'
+date:
+- type: published
+  at: '2010-03-30'
+contributor:
+- role:
+  - type: publisher
+  organization:
+    uri:
+    - content: www.iso.org
+    name:
+    - content: International Organization for Standardization
+    abbreviation:
+      content: ISO
+- role:
+  - type: author
+    description:
+    - content: committee
+  organization:
+    name:
+    - content: International Organization for Standardization
+    subdivision:
+    - name:
+      - content: Technical interoperability
+      identifier:
+      - content: ISO/TC 46/SC 4
+      type: technical-committee
+      subtype: TC
+    abbreviation:
+      content: ISO
+edition:
+  content: '3'
+language:
+- en
+- fr
+script:
+- Latn
+abstract:
+- language: en
+  script: Latn
+  content: ISO 2146:2010 establishes the rules for registries operating in a network
+    environment to provide the information about collections, parties, activities
+    and services needed by libraries and related organizations to manage their collections
+    and deliver information and documentation services across a range of applications
+    and domains. ISO 2146:2010 presents a data element directory that may be used
+    as a framework for collecting the appropriate data and sharing it with other registry
+    services, providing access to registry data through standard protocols whenever
+    it is needed as part of an automated business workflow, publishing registries
+    in electronic or print form and archiving registry data when the data exists only
+    in electronic form. ISO 2146:2010 is applicable to national registries published
+    in bi- or multilingual countries and national and regional registries intended
+    for international use. The field of application includes but is not limited to
+    · collection management systems and digital repositories, · discovery services,
+    including catalogues and indexes, federated metadata repositories and metasearch
+    portals, · delivery services, including persistent identifier management and resolution,
+    access management and interlending services, · reference services including reference
+    management systems and virtual reference services, and · the registry services
+    themselves, of all types, needed to support the above applications.
+status:
+  stage:
+    content: '90'
+  substage:
+    content: '60'
+copyright:
+- from: '2010'
+  owner:
+  - organization:
+      name:
+      - content: ISO
+relation:
+- type: obsoletes
+  bibitem:
+    formattedref:
+      content: ISO 2146:1988
+    docidentifier:
+    - content: ISO 2146:1988
+      type: ISO
+      primary: true
+    date:
+    - type: published
+      at: '1988-07-07'
+place:
+- city: Geneva
+ext:
+  schema_version: v1.1.2
+  doctype:
+    content: international-standard
+  flavor: iso
+  ics:
+  - code: 01.140.20
+    text: Information sciences
+  structuredidentifier:
+    type: ISO
+    project_number:
+      content: '44936'
