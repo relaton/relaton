@@ -63,6 +63,14 @@ Thread pool for `fetch_async`. Default 10 threads per processor, overridable via
 - Tests create `testcache`/`testcache2` directories and clean them in `before(:each)`
 - Cache-related tests need `<fetched>` elements in XML for `valid_entry?` to return true
 - Integration tests in `spec/relaton_spec.rb`; unit tests mirror `lib/` structure under `spec/relaton/`
+- **ISO lookups are stubbed, not cassette-recorded.** Flavor gems (relaton-iso/iec/nist)
+  fetch a large live `index-v2` and deserialize every id through a pinned pubid build,
+  so a single drifted id in the live index makes the whole index unparseable and ISO
+  lookups return `nil`. Umbrella specs therefore stub `Relaton::Iso::Bibliography.get`
+  (and other flavors' `.get`) to return hand-built `ItemData` — the umbrella's job is to
+  test `Db` orchestration (`combine_doc`, caching, api fallback), not relaton-iso's index.
+  Build stub items with the `docidentifier:` key (not `docid:`) so the id survives the
+  cache XML round-trip. Don't reintroduce a live-index cassette for these.
 
 ## Style
 

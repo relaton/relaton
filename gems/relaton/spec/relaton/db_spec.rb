@@ -453,7 +453,13 @@ RSpec.describe Relaton::Db do
       expect(bib).to be_instance_of Relaton::Iso::ItemData
     end
 
-    it "when no local db", vcr: "iso_19115_1" do
+    it "when no local db" do
+      docid = Relaton::Bib::Docidentifier.new(content: "ISO 19115-1",
+                                              type: "ISO")
+      item = Relaton::Iso::ItemData.new(docidentifier: [docid],
+                                        fetched: Date.today.to_s)
+      expect(Relaton::Iso::Bibliography).to receive(:get)
+        .with("ISO 19115-1", nil, {}).and_return item
       db = Relaton::Db.new "testcache", nil
       bib = db.fetch("ISO 19115-1", nil, {})
       expect(bib).to be_instance_of Relaton::Iso::ItemData
@@ -481,7 +487,12 @@ RSpec.describe Relaton::Db do
     end
   end
 
-  it "fetch std", vcr: "iso_19115_1_std" do
+  it "fetch std" do
+    docid = Relaton::Bib::Docidentifier.new(content: "ISO 19115-1", type: "ISO")
+    item = Relaton::Iso::ItemData.new(docidentifier: [docid],
+                                      fetched: Date.today.to_s)
+    expect(Relaton::Iso::Bibliography).to receive(:get)
+      .with("ISO 19115-1", nil, {}).and_return item
     db = Relaton::Db.new "testcache", nil
     bib = db.fetch_std("ISO 19115-1", nil, :relaton_iso, {})
     expect(bib).to be_instance_of Relaton::Iso::ItemData

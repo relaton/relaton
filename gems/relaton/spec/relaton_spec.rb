@@ -35,32 +35,45 @@ RSpec.describe Relaton::Db do
     end
 
     it "with year in code" do
-      VCR.use_cassette "iso_19133_2005" do
-        bib = @db.fetch("ISO 19133:2005")
-        expect(bib).to be_instance_of Relaton::Iso::ItemData
-        xml = bib.to_xml
-        expect(xml).to include 'id="ISO191332005"'
-        expect(xml).to include 'type="standard"'
-        testcache = Relaton::Db::Cache.new "testcache"
-        expect(
-          testcache.valid_entry?("ISO(ISO 19133:2005)", Date.today.year.to_s),
-        ).to eq Date.today.year.to_s
-      end
+      docid = Relaton::Bib::Docidentifier.new(content: "ISO 19133:2005",
+                                              type: "ISO", primary: true)
+      item = Relaton::Iso::ItemData.new(
+        docidentifier: [docid], fetched: Date.today.to_s, type: "standard",
+      )
+      expect(Relaton::Iso::Bibliography).to receive(:get)
+        .with("ISO 19133:2005", nil, {}).and_return item
+      bib = @db.fetch("ISO 19133:2005")
+      expect(bib).to be_instance_of Relaton::Iso::ItemData
+      xml = bib.to_xml
+      expect(xml).to include 'id="ISO191332005"'
+      expect(xml).to include 'type="standard"'
+      testcache = Relaton::Db::Cache.new "testcache"
+      expect(
+        testcache.valid_entry?("ISO(ISO 19133:2005)", Date.today.year.to_s),
+      ).to eq Date.today.year.to_s
     end
 
     context "all parts" do
+      let(:all_parts_item) do
+        docid = Relaton::Bib::Docidentifier.new(
+          content: "ISO 19115 (all parts)", type: "ISO", primary: true,
+        )
+        Relaton::Iso::ItemData.new(docidentifier: [docid],
+                                   fetched: Date.today.to_s)
+      end
+
       it "implicity" do
-        VCR.use_cassette "iso_19115_all_parts" do
-          bib = @db.fetch("ISO 19115", nil, all_parts: true)
-          expect(bib.docidentifier[0].content).to eq "ISO 19115 (all parts)"
-        end
+        expect(Relaton::Iso::Bibliography).to receive(:get)
+          .with("ISO 19115", nil, { all_parts: true }).and_return all_parts_item
+        bib = @db.fetch("ISO 19115", nil, all_parts: true)
+        expect(bib.docidentifier[0].content).to eq "ISO 19115 (all parts)"
       end
 
       it "explicity" do
-        VCR.use_cassette "iso_19115_all_parts" do
-          bib = @db.fetch("ISO 19115 (all parts)")
-          expect(bib.docidentifier[0].content).to eq "ISO 19115 (all parts)"
-        end
+        expect(Relaton::Iso::Bibliography).to receive(:get)
+          .with("ISO 19115 (all parts)", nil, {}).and_return all_parts_item
+        bib = @db.fetch("ISO 19115 (all parts)")
+        expect(bib.docidentifier[0].content).to eq "ISO 19115 (all parts)"
       end
     end
 
@@ -144,10 +157,16 @@ RSpec.describe Relaton::Db do
   end
 
   it "list all elements as a serialization" do
-    VCR.use_cassette "iso_19115_1_2", match_requests_on: [:path] do
-      @db.fetch "ISO 19115-1", nil, {}
-      @db.fetch "ISO 19115-2", nil, {}
+    %w[ISO\ 19115-1 ISO\ 19115-2].each do |code|
+      docid = Relaton::Bib::Docidentifier.new(content: code, type: "ISO",
+                                              primary: true)
+      item = Relaton::Iso::ItemData.new(docidentifier: [docid],
+                                        fetched: Date.today.to_s)
+      expect(Relaton::Iso::Bibliography).to receive(:get)
+        .with(code, nil, {}).and_return item
     end
+    @db.fetch "ISO 19115-1", nil, {}
+    @db.fetch "ISO 19115-2", nil, {}
     # file = "spec/support/list_entries.xml"
     # File.write file, @db.to_xml unless File.exist? file
     docs = Nokogiri::XML @db.to_xml
@@ -501,39 +520,54 @@ RSpec.describe Relaton::Db do
 
   context "get combined documents" do
     context "ISO" do
+      # combine_doc (Db's own logic) fetches the base + amendment separately
+      # and assembles the relation graph; only the per-part lookups are stubbed,
+      # so the relation types/descriptions assembled here stay fully exercised.
+      def iso_item(content)
+        docid = Relaton::Bib::Docidentifier.new(content: content, type: "ISO",
+                                                primary: true)
+        Relaton::Iso::ItemData.new(docidentifier: [docid],
+                                   fetched: Date.today.to_s)
+      end
+
+      before do
+        expect(Relaton::Iso::Bibliography).to receive(:get)
+          .with("ISO 19115-1:2014", nil, {})
+          .and_return iso_item("ISO 19115-1:2014")
+        expect(Relaton::Iso::Bibliography).to receive(:get)
+          .with("ISO 19115-1:2014/Amd 1", nil, {})
+          .and_return iso_item("ISO 19115-1:2014/Amd 1:2018")
+      end
+
       it "included" do
-        VCR.use_cassette "iso_combined_included" do
-          bib = @db.fetch "ISO 19115-1:2014 + Amd 1"
-          expect(bib.docidentifier[0].content)
-            .to eq "ISO 19115-1:2014 + Amd 1"
-          expect(bib.relation[0].type).to eq "updates"
-          rel0 = bib.relation[0].bibitem
-          expect(rel0.docidentifier[0].content)
-            .to eq "ISO 19115-1:2014"
-          expect(bib.relation[1].type).to eq "derivedFrom"
-          expect(bib.relation[1].description).to be_nil
-          rel1 = bib.relation[1].bibitem
-          expect(rel1.docidentifier[0].content)
-            .to eq "ISO 19115-1:2014/Amd 1:2018"
-        end
+        bib = @db.fetch "ISO 19115-1:2014 + Amd 1"
+        expect(bib.docidentifier[0].content)
+          .to eq "ISO 19115-1:2014 + Amd 1"
+        expect(bib.relation[0].type).to eq "updates"
+        rel0 = bib.relation[0].bibitem
+        expect(rel0.docidentifier[0].content)
+          .to eq "ISO 19115-1:2014"
+        expect(bib.relation[1].type).to eq "derivedFrom"
+        expect(bib.relation[1].description).to be_nil
+        rel1 = bib.relation[1].bibitem
+        expect(rel1.docidentifier[0].content)
+          .to eq "ISO 19115-1:2014/Amd 1:2018"
       end
 
       it "applied" do
-        VCR.use_cassette "iso_combined_applied" do
-          bib = @db.fetch "ISO 19115-1:2014, Amd 1"
-          expect(bib.docidentifier[0].content)
-            .to eq "ISO 19115-1:2014, Amd 1"
-          expect(bib.relation[0].type).to eq "updates"
-          rel0 = bib.relation[0].bibitem
-          expect(rel0.docidentifier[0].content)
-            .to eq "ISO 19115-1:2014"
-          expect(bib.relation[1].type).to eq "complements"
-          expect(bib.relation[1].description.content)
-            .to eq "amendment"
-          rel1 = bib.relation[1].bibitem
-          expect(rel1.docidentifier[0].content)
-            .to eq "ISO 19115-1:2014/Amd 1:2018"
-        end
+        bib = @db.fetch "ISO 19115-1:2014, Amd 1"
+        expect(bib.docidentifier[0].content)
+          .to eq "ISO 19115-1:2014, Amd 1"
+        expect(bib.relation[0].type).to eq "updates"
+        rel0 = bib.relation[0].bibitem
+        expect(rel0.docidentifier[0].content)
+          .to eq "ISO 19115-1:2014"
+        expect(bib.relation[1].type).to eq "complements"
+        expect(bib.relation[1].description.content)
+          .to eq "amendment"
+        rel1 = bib.relation[1].bibitem
+        expect(rel1.docidentifier[0].content)
+          .to eq "ISO 19115-1:2014/Amd 1:2018"
       end
     end
 
@@ -742,6 +776,15 @@ RSpec.describe Relaton::Db do
     end
 
     it "if unavailable then get document directly" do
+      docid = Relaton::Bib::Docidentifier.new(content: "ISO 19115-2:2019",
+                                              type: "ISO", primary: true)
+      item = Relaton::Iso::ItemData.new(docidentifier: [docid],
+                                        fetched: Date.today.to_s)
+      # api.relaton.org is refused below, so the fetch must fall back to the
+      # flavor's direct lookup -- stub that so the fallback path is exercised
+      # without depending on the live ISO index.
+      expect(Relaton::Iso::Bibliography).to receive(:get)
+        .with("ISO 19115-2", "2019", {}).and_return item
       expect(Net::HTTP).to receive(:get_response)
         .and_wrap_original do |m, *args|
         raise Errno::ECONNREFUSED if args[0].host == "api.relaton.org"
