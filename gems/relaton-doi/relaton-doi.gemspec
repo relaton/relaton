@@ -32,12 +32,12 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "mechanize", "~> 2.0"
-  spec.add_dependency "relaton-bib", "~> 2.2.0"
-  spec.add_dependency "relaton-bipm", "~> 2.2.0"
-  spec.add_dependency "relaton-core", "~> 2.2.0"
-  spec.add_dependency "relaton-ieee", "~> 2.2.0"
-  spec.add_dependency "relaton-ietf", "~> 2.2.0"
-  spec.add_dependency "relaton-nist", "~> 2.2.0"
+  spec.add_dependency "relaton-bib", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-bipm", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-core", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-ieee", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-ietf", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-nist", "~> 2.2.0.pre.alpha.1"
 
   # For more information and examples about making a new gem, checkout our
   # guide at: https://bundler.io/guides/creating_gem.html

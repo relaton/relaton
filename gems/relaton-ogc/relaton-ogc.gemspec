@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = Gem::Requirement.new(">= 3.3.0")
 
   spec.add_dependency "faraday", "~> 2.7"
-  spec.add_dependency "relaton-core", "~> 2.2.0"
-  spec.add_dependency "relaton-index", "~> 2.2.0"
-  spec.add_dependency "relaton-iso", "~> 2.2.0"
+  spec.add_dependency "relaton-core", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-index", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-iso", "~> 2.2.0.pre.alpha.1"
 end

@@ -36,8 +36,8 @@ Gem::Specification.new do |spec| # rubocop:disable Metrics/BlockLength
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "niso-jats", "~> 0.3.4"
   spec.add_dependency "parslet", "~> 2.0.0"
-  spec.add_dependency "relaton-bib", "~> 2.2.0"
-  spec.add_dependency "relaton-index", "~> 2.2.0"
-  spec.add_dependency "relaton-core", "~> 2.2.0"
+  spec.add_dependency "relaton-bib", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-index", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-core", "~> 2.2.0.pre.alpha.1"
   spec.add_dependency "rubyzip", "~> 2.3.0"
 end

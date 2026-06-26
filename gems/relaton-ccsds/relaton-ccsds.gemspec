@@ -27,9 +27,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency "csv", "~> 3.3"
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.3"
-  spec.add_dependency "relaton-bib", "~> 2.2.0"
-  spec.add_dependency "relaton-core", "~> 2.2.0"
-  spec.add_dependency "relaton-index", "~> 2.2.0"
+  spec.add_dependency "relaton-bib", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-core", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-index", "~> 2.2.0.pre.alpha.1"
   # For more information and examples about making a new gem, check out our
   # guide at: https://bundler.io/guides/creating_gem.html
 end

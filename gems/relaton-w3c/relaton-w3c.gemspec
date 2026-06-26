@@ -32,8 +32,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "concurrent-ruby", "~> 1.0"
-  spec.add_dependency "relaton-bib", "~> 2.2.0"
-  spec.add_dependency "relaton-core", "~> 2.2.0"
-  spec.add_dependency "relaton-index", "~> 2.2.0"
+  spec.add_dependency "relaton-bib", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-core", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-index", "~> 2.2.0.pre.alpha.1"
   spec.add_dependency "w3c_api", "~> 0.3.2"
 end

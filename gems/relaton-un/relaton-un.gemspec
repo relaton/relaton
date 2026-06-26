@@ -34,7 +34,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "addressable", "~> 2.8"
   spec.add_dependency "faraday", "~> 2.7"
-  spec.add_dependency "relaton-bib", "~> 2.2.0"
-  spec.add_dependency "relaton-core", "~> 2.2.0"
+  spec.add_dependency "relaton-bib", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-core", "~> 2.2.0.pre.alpha.1"
 end
 # rubocop:enable Metrics/BlockLength

@@ -1,5 +1,5 @@
 module Relaton
   module Itu
-    VERSION = "2.2.0".freeze
+    VERSION = "2.2.0.pre.alpha.1".freeze
   end
 end
