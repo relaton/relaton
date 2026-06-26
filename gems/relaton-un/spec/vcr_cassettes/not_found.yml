@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://documents.un.org/api/search?l=en&rid=a4b3a7ed-e05e-492e-9e99-41f90b6025ff
+    uri: https://documents.un.org/api/search?l=en&rid=be45a530-9523-4f96-8bcc-7792e3d59efe
     body:
       encoding: UTF-8
       string: '{"symbol":"NOT/FOUND","jobNumber":"","publicationDate":"* TO *","releaseDate":"*
@@ -23,36 +23,59 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 502
-      message: Bad Gateway
+      code: 200
+      message: OK
     headers:
-      Server:
-      - Microsoft-Azure-Application-Gateway/v2
       Date:
-      - Sat, 06 Jun 2026 16:54:14 GMT
+      - Fri, 26 Jun 2026 03:16:41 GMT
       Content-Type:
-      - text/html
+      - application/json; charset=utf-8
       Content-Length:
-      - '315'
+      - '71'
       Connection:
       - keep-alive
+      Set-Cookie:
+      - ApplicationGatewayAffinity=fcab984b2cd86506625dfffd104962c5; Path=/
+      - ApplicationGatewayAffinityCORS=fcab984b2cd86506625dfffd104962c5; Path=/; SameSite=None;
+        Secure
+      Server:
+      - nginx
+      Vary:
+      - Origin
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Content-Security-Policy:
+      - 'default-src ''self'';script-src ''self'' https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js;style-src
+        ''self'' https://fonts.googleapis.com https://fonts.gstatic.com;frame-ancestors
+        ''self'' https://docs.un.org;base-uri ''self'';font-src ''self'' https: data:;form-action
+        ''self'';img-src ''self'' data:;object-src ''none'';script-src-attr ''none'';upgrade-insecure-requests'
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Cross-Origin-Resource-Policy:
+      - same-origin
+      Origin-Agent-Cluster:
+      - "?1"
+      Referrer-Policy:
+      - no-referrer
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      X-Content-Type-Options:
+      - nosniff
+      X-Dns-Prefetch-Control:
+      - 'off'
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Xss-Protection:
+      - '0'
+      - 1; mode=block
       Etag:
-      - '"6a23d097-13b"'
+      - W/"47-GTFOVIOn7+C1Q+InJYMy91ux42k"
     body:
       encoding: UTF-8
-      string: |-
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta http-equiv="refresh" content="0; url=https://maintenance.un.org" />
-            <title>Redirecting to Maintenance...</title>
-        </head>
-        <body>
-            <script>
-                // JavaScript fallback redirect
-                window.location.href = "https://maintenance.un.org";
-            </script>
-        </body>
-        </html>
-  recorded_at: Sat, 06 Jun 2026 16:54:14 GMT
+      string: '{"status":1,"body":{"data":[],"meta":{"matches":0,"numberOfGroups":0}}}'
+  recorded_at: Fri, 26 Jun 2026 03:16:41 GMT
 recorded_with: VCR 6.4.0
