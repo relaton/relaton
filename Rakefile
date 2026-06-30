@@ -193,6 +193,24 @@ namespace :build do
   task :all do
     GEMS.each { |g| Rake::Task["build:#{gem_to_namespace(g)}"].invoke }
   end
+
+  desc "Assemble the single combined `relaton` gem (gems in combined-gems.json) into pkg/"
+  task :combined do
+    require_relative "lib/relaton/combined_builder"
+    stage = Relaton::CombinedBuilder.build(root: __dir__)
+    puts "Staged combined gem at #{stage}"
+    # Build in a clean env so a parent `bundle exec` doesn't make `gem build`
+    # try to resolve this repo's Gemfile from the staged dir.
+    Bundler.with_unbundled_env do
+      Dir.chdir(stage) { sh "gem build relaton.gemspec" }
+    end
+    FileUtils.mkdir_p "pkg"
+    Dir["#{stage}/relaton-*.gem"].each do |gem_file|
+      dest = File.join("pkg", File.basename(gem_file))
+      FileUtils.mv(gem_file, dest)
+      puts "Built #{dest}"
+    end
+  end
 end
 
 namespace :install do

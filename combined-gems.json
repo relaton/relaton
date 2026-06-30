@@ -1,0 +1,12 @@
+{
+  "_comment": "Gems vendored into the single shippable `relaton` gem by `rake build:combined`. Order is load order: `relaton` (the base: Db, registry, cache) first, then infrastructure, then flavor plugins. Per-gem source folders under gems/ are kept; this list only controls what the build vendors into one gem. POC subset — extend to all flavors (except relaton-cli) for the full rollout.",
+  "combined": [
+    "relaton",
+    "relaton-logger",
+    "relaton-core",
+    "relaton-index",
+    "relaton-bib",
+    "relaton-iso",
+    "relaton-iec"
+  ]
+}

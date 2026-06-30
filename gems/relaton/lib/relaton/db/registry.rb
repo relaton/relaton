@@ -25,10 +25,9 @@ module Relaton
 
       def register_gems
         SUPPORTED_GEMS.each do |b|
-          # Require the gem's top-level file so its internal modules
-          # (e.g. Relaton::Iso::Util) load in the right order before we
-          # poke at its Processor class.
-          require b
+          # Load ONLY the lightweight processor file; its heavy flavor code is
+          # lazy-required inside the processor's methods. This keeps
+          # `require "relaton"` from eagerly loading every flavor at start.
           require "#{b}/processor"
           register Kernel.const_get "#{gem_to_module_path(b)}::Processor"
         rescue LoadError => e

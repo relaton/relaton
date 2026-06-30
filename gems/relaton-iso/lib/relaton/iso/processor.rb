@@ -72,8 +72,12 @@ module Relaton
       # Remove index file
       #
       def remove_index_file
+        # ../iso defines INDEXFILE and loads Index, both otherwise missing
+        # when remove_index_file runs without iso.rb already loaded.
+        require_relative "../iso"
         require_relative "hit_collection"
-        Index.find_or_create(:iso, url: true, file: "#{INDEXFILE}.yaml").remove_file
+        Index.find_or_create(:iso, url: true, file: "#{INDEXFILE}.yaml")
+          .remove_file
       end
     end
   end

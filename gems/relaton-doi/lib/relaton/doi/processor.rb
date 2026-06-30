@@ -53,6 +53,7 @@ module Relaton
       end
 
       def remove_index_file
+        require_relative "../doi" # defines Util — needed when called cold
         Util.info "This processor does not support index file. No action taken."
       end
 

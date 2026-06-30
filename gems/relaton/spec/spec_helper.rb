@@ -26,6 +26,17 @@ end
 
 require "relaton/db"
 
+# The registry loads flavors lazily in production (see lazy_loading_spec.rb):
+# it requires only each flavor's processor file, not its heavy top-level. But
+# umbrella specs reference flavor constants directly (Relaton::Iso::ItemData,
+# Relaton::Nist::Bibliography, ...), so eager-load every flavor here to keep
+# the suite order-independent. Test process only; production stays lazy.
+Relaton::Db::Registry::SUPPORTED_GEMS.each do |b|
+  require b
+rescue LoadError
+  # flavor gem not present in this environment — skip it
+end
+
 Relaton::Db.configure do |config|
   config.use_api = false
 end
