@@ -55,6 +55,7 @@ GEMS = %w[
   relaton-nist
   relaton-oasis
   relaton-ogc
+  relaton-oiml
   relaton-omg
   relaton-plateau
   relaton-un

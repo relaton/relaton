@@ -11,6 +11,7 @@ module Relaton
         relaton/bsi relaton/cen relaton/iana relaton/3gpp
         relaton/oasis relaton/doi relaton/jis relaton/xsf
         relaton/ccsds relaton/etsi relaton/isbn relaton/plateau
+        relaton/oiml
       ].freeze
 
       include Singleton
