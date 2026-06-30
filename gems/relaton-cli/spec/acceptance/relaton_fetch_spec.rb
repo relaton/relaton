@@ -191,7 +191,7 @@ RSpec.describe "Relaton Fetch" do
         expect(io).to receive(:puts).with(
           "Recognised types: 3GPP, BIPM, BSI, CC, CCSDS, CEN, CIE, CN, DOI, " \
           "ECMA, ETSI, IANA, IEC, IEEE, IETF, IHO, ISBN, ISO, ITU, JIS, NIST, OASIS, " \
-          "OGC, OMG, PLATEAU, UN, W3C, XEP"
+          "OGC, OIML, OMG, PLATEAU, UN, W3C, XEP"
         )
         expect(IO).to receive(:new).with(kind_of(Integer), mode: "w:UTF-8").and_return io
         Relaton::Cli.start ["fetch", "ISO 2146", "--type", "invalid"]
