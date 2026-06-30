@@ -28,8 +28,21 @@ module Relaton
 
       stage = stage_sources(root, gems)
       write_autoload_entry(stage, gems)
-      write_gemspec(root, gems, stage)
+      deps = collect_dependencies(root, gems)
+      validate_dependencies!(deps)
+      write_gemspec(root, stage, deps)
       stage
+    end
+
+    # Raise if any merged requirement is unsatisfiable (e.g. two flavors pin a
+    # shared dep to disjoint ranges). Without this the build emits a gemspec
+    # that only fails later at `bundle install`.
+    def validate_dependencies!(deps)
+      bad = deps.reject { |_name, req| satisfiable?(req) }
+      return if bad.empty?
+
+      lines = bad.map { |name, req| "  #{name}: #{req}" }.join("\n")
+      raise "combined build: unsatisfiable dependency constraints:\n#{lines}"
     end
 
     def config(root)
@@ -163,11 +176,60 @@ module Relaton
       Gem::Requirement.new(existing.as_list + requirement.as_list)
     end
 
-    def write_gemspec(root, gems, stage)
+    def write_gemspec(root, stage, deps)
       base = Gem::Specification.load(File.join(root, "gems", "relaton",
                                                "relaton.gemspec"))
       File.write(File.join(stage, "relaton.gemspec"),
-                 gemspec_source(base, collect_dependencies(root, gems)))
+                 gemspec_source(base, deps))
+    end
+
+    # Comparators that set a lower / upper bound, and whether they include it.
+    LOWER_OPS = { "=" => true, ">=" => true, ">" => false }.freeze
+    UPPER_OPS = { "=" => true, "<=" => true, "<" => false }.freeze
+
+    # Conservative satisfiability check: fold every comparator into a single
+    # [low, high] interval and confirm it is non-empty. Operators it cannot
+    # interpret are ignored (assumed satisfiable) to avoid false rejections.
+    def satisfiable?(requirement)
+      acc = { low: nil, low_inc: true, high: nil, high_inc: true }
+      requirement.requirements.each { |op, ver| fold_bound(acc, op, ver) }
+      interval_nonempty?(acc)
+    end
+
+    def fold_bound(acc, oper, ver)
+      set_low(acc, ver, LOWER_OPS[oper]) if LOWER_OPS.key?(oper)
+      set_high(acc, ver, UPPER_OPS[oper]) if UPPER_OPS.key?(oper)
+      return unless oper == "~>"
+
+      set_low(acc, ver, true) # ~> x.y.z == >= x.y.z, < x.(y+1)
+      set_high(acc, ver.bump, false)
+    end
+
+    def set_low(acc, ver, inc)
+      if acc[:low].nil? || ver > acc[:low]
+        acc[:low] = ver
+        acc[:low_inc] = inc
+      elsif ver == acc[:low]
+        acc[:low_inc] &&= inc
+      end
+    end
+
+    def set_high(acc, ver, inc)
+      if acc[:high].nil? || ver < acc[:high]
+        acc[:high] = ver
+        acc[:high_inc] = inc
+      elsif ver == acc[:high]
+        acc[:high_inc] &&= inc
+      end
+    end
+
+    def interval_nonempty?(acc)
+      low = acc[:low]
+      high = acc[:high]
+      return true if low.nil? || high.nil?
+      return true if low < high
+
+      low == high && acc[:low_inc] && acc[:high_inc]
     end
 
     def gemspec_source(base, deps) # rubocop:disable Metrics/AbcSize

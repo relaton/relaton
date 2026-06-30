@@ -59,6 +59,28 @@ RSpec.describe "build:combined", :slow do
     expect(spec.name).to eq("relaton")
   end
 
+  describe ".satisfiable?" do
+    def req(*constraints) = Gem::Requirement.new(*constraints)
+
+    it "accepts overlapping constraints" do
+      expect(Relaton::CombinedBuilder.satisfiable?(req("~> 0.1.0", "~> 0.1.6")))
+        .to be true
+      expect(Relaton::CombinedBuilder.satisfiable?(req(">= 1.0", "< 2")))
+        .to be true
+      expect(Relaton::CombinedBuilder.satisfiable?(req("~> 2.0.0.pre.alpha.3")))
+        .to be true
+    end
+
+    it "rejects disjoint constraints" do
+      expect(Relaton::CombinedBuilder.satisfiable?(req("~> 1.0", "~> 2.0")))
+        .to be false
+      expect(Relaton::CombinedBuilder.satisfiable?(req("= 1.0", "= 2.0")))
+        .to be false
+      expect(Relaton::CombinedBuilder.satisfiable?(req(">= 3", "< 2")))
+        .to be false
+    end
+  end
+
   it "builds a loadable .gem from the staged tree" do
     require "bundler"
     # Clean env so `gem build` doesn't inherit the spec's bundler context and
