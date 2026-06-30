@@ -13,6 +13,12 @@ Dir["../*/"].each do |dir|
   gem name, path: dir
 end
 
+# TEMPORARY: relaton-data-oiml's index-v2 uses the new pubid lutaml-model
+# serialization, which the released pubid (~> 2.0.0.pre.alpha.3 on rubygems)
+# cannot deserialize. Track the unreleased branch until that work ships, then
+# drop this line (the gemspec keeps the released `~> 2.0.0.pre.alpha.3` pin).
+gem "pubid", git: "https://github.com/metanorma/pubid", branch: "rt-new-lutaml-model"
+
 gem "byebug"
 gem "equivalent-xml", "~> 0.6"
 gem "rake", "~> 13.0"
