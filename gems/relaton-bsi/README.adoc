@@ -1,5 +1,13 @@
 = Relaton::Bsi retrieve BSI Standards for bibliographic use using the BibliographicItem model
 
+[NOTE]
+====
+`relaton-bsi` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-bsi`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 image:https://img.shields.io/gem/v/relaton-bsi.svg["Gem Version", link="https://rubygems.org/gems/relaton-bsi"]
 image:https://github.com/relaton/relaton-bsi/workflows/rake/badge.svg["Build Status", link="https://github.com/relaton/relaton-bsi/actions?workflow=rake"]
 image:https://codeclimate.com/github/relaton/relaton-bsi/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/relaton/relaton-bsi"]

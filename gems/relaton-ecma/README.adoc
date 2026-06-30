@@ -1,5 +1,13 @@
 = Relaton::Ecma
 
+[NOTE]
+====
+`relaton-ecma` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-ecma`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 image:https://img.shields.io/gem/v/relaton-ecma.svg["Gem Version", link="https://rubygems.org/gems/relaton-ecma"]
 image:https://github.com/relaton/relaton-ecma/workflows/macos/badge.svg["Build Status (macOS)", link="https://github.com/relaton/relaton-ecma/actions?workflow=macos"]
 image:https://github.com/relaton/relaton-ecma/workflows/windows/badge.svg["Build Status (Windows)", link="https://github.com/relaton/relaton-ecma/actions?workflow=windows"]

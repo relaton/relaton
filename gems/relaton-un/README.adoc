@@ -1,5 +1,13 @@
 = Relaton for UN documents
 
+[NOTE]
+====
+`relaton-un` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-un`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 RelatonUn is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
 You can use it to retrieve metadata of UN documents from https://documents.un.org, and access such metadata through the `Relaton::Un::Item` object.

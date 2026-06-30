@@ -1,5 +1,13 @@
 = Relaton::Doi retrieves bibliographic items using DOI
 
+[NOTE]
+====
+`relaton-doi` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-doi`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 image:https://img.shields.io/gem/v/relaton-doi.svg["Gem Version", link="https://rubygems.org/gems/relaton-doi"]
 image:https://github.com/relaton/relaton-doi/workflows/macos/badge.svg["Build Status (macOS)", link="https://github.com/relaton/relaton-doi/actions?workflow=macos"]
 image:https://github.com/relaton/relaton-doi/workflows/windows/badge.svg["Build Status (Windows)", link="https://github.com/relaton/relaton-doi/actions?workflow=windows"]

@@ -1,5 +1,13 @@
 = Relaton::Calconnect
 
+[NOTE]
+====
+`relaton-calconnect` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-calconnect`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 Relaton::Calconnect is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
 You can use it to retrieve metadata of Calconnect Standards from https://standards.calconnect.org, and access such metadata through the `CcBibliographicItem` object.

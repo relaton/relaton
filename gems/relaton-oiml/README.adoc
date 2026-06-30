@@ -1,5 +1,13 @@
 = Relaton OIML
 
+[NOTE]
+====
+`relaton-oiml` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-oiml`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 image:https://img.shields.io/gem/v/relaton-oiml.svg["Gem Version", link="https://rubygems.org/gems/relaton-oiml"]
 
 RelatonOiml is a library to fetch bibliographic items for OIML

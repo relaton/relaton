@@ -1,5 +1,13 @@
 = Relaton::Jis: retrieve JIS Standards for bibliographic use using the BibliographicItem model
 
+[NOTE]
+====
+`relaton-jis` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-jis`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 image:https://img.shields.io/gem/v/relaton-jis.svg["Gem Version", link="https://rubygems.org/gems/relaton-jis"]
 image:https://github.com/relaton/relaton-jis/workflows/macos/badge.svg["Build Status, link="https://github.com/relaton/relaton-jis/actions?workflow=rake"]
 image:https://codeclimate.com/github/relaton/relaton-jis/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/metanorma/relaton-jis"]

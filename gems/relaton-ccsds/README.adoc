@@ -1,5 +1,13 @@
 = Relaton::Ccsds
 
+[NOTE]
+====
+`relaton-ccsds` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-ccsds`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 RelatonCcsds is a Ruby gem that implements the https://github.com/relaton/relaton-models#bibliographic-item[BibliographicItem model].
 
 You can use it to retrieve metadata of CCSDS Standards from https://public.ccsds.org/Publications/AllPubs.aspx, and access such metadata through the `RelatonCcsds::BibliographicItem` object.

@@ -1,5 +1,13 @@
 = Relaton::Plateau: retrieve Project PLATEAU Standards for bibliographic use using the ItemData model
 
+[NOTE]
+====
+`relaton-plateau` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-plateau`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 image:https://img.shields.io/gem/v/relaton-plateau.svg["Gem Version", link="https://rubygems.org/gems/relaton-plateau"]
 image:https://github.com/relaton/relaton-plateau/workflows/macos/badge.svg["Build Status (macOS)", link="https://github.com/relaton/relaton-plateau/actions?workflow=macos"]
 image:https://github.com/relaton/relaton-plateau/workflows/windows/badge.svg["Build Status (Windows)", link="https://github.com/relaton/relaton-plateau/actions?workflow=windows"]

@@ -1,5 +1,13 @@
 = Relaton::Ieee
 
+[NOTE]
+====
+`relaton-ieee` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-ieee`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 RelatonIeee is a Ruby gem that implements the https://github.com/relaton/relaton-model-ieee#ieee-bibliographic-item-model[IeeeBibliographicItem model].
 
 You can use it to retrieve metadata of IEEE Standards from standards.ieee.org, and access such metadata through the `Relaton::Ieee::ItemData` object.

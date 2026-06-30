@@ -1,5 +1,13 @@
 = Relaton for IHO documents
 
+[NOTE]
+====
+`relaton-iho` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-iho`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 image:https://img.shields.io/gem/v/relaton-iho.svg["Gem Version", link="https://rubygems.org/gems/relaton-iho"]
 image:https://github.com/relaton/relaton-iho/workflows/macos/badge.svg["Build Status (macOS)", link="https://github.com/relaton/relaton-iho/actions?workflow=macos"]
 image:https://github.com/relaton/relaton-iho/workflows/windows/badge.svg["Build Status (Windows)", link="https://github.com/relaton/relaton-iho/actions?workflow=windows"]

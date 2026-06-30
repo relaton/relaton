@@ -1,5 +1,13 @@
 = Library for importing and caching bibliographic references to technical standards library
 
+[NOTE]
+====
+`relaton-core` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-core`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 == Usage
 
 === Exclude attributes when compare

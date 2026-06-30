@@ -1,5 +1,13 @@
 = Relaton::Cen retrieve CEN Standards for bibliographic use using the BibliographicItem model
 
+[NOTE]
+====
+`relaton-cen` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-cen`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 image:https://img.shields.io/gem/v/relaton-cen.svg["Gem Version", link="https://rubygems.org/gems/relaton-cen"]
 image:https://github.com/relaton/relaton-cen/workflows/rake/badge.svg["Build Status", link="https://github.com/relaton/relaton-cen/actions?workflow=rake"]
 image:https://codeclimate.com/github/relaton/relaton-cen/badges/gpa.svg["Code Climate", link="https://codeclimate.com/github/relaton/relaton-cen"]

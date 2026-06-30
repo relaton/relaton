@@ -1,5 +1,13 @@
 = Relaton::XSF: bibliographic retrieval of XMPP XEP specifications
 
+[NOTE]
+====
+`relaton-xsf` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-xsf`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 image:https://img.shields.io/gem/v/relaton-xsf.svg["Gem Version", link="https://rubygems.org/gems/relaton-xsf"]
 image:https://github.com/relaton/relaton-xsf/workflows/macos/badge.svg["Build Status (macOS)", link="https://github.com/relaton/relaton-xsf/actions?workflow=macos"]
 image:https://github.com/relaton/relaton-xsf/workflows/windows/badge.svg["Build Status (Windows)", link="https://github.com/relaton/relaton-xsf/actions?workflow=windows"]

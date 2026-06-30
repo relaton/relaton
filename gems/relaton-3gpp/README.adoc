@@ -1,5 +1,13 @@
 = Relaton3gpp
 
+[NOTE]
+====
+`relaton-3gpp` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-3gpp`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 Relaton3gpp is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
 You can use it to retrieve metadata of W3C Standards from https://w3.org, and access such metadata through the `W3cBibliographicItem` object.

@@ -1,5 +1,13 @@
 = Relaton::Etsi
 
+[NOTE]
+====
+`relaton-etsi` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-etsi`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 Relaton::Etsi is a Ruby gem that implements the https://github.com/relaton/relaton-models#bibliographic-item[BibliographicItem model].
 
 You can use it to retrieve metadata of ETSI Standards and access such metadata through the `Relaton::Etsi::Item` object.

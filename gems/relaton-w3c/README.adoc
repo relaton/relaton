@@ -1,5 +1,13 @@
 = Relaton::W3c
 
+[NOTE]
+====
+`relaton-w3c` is distributed as part of the combined `relaton` gem and is no longer published as a standalone gem.
+Install `relaton` (it bundles every flavor, loaded lazily) instead of
+`relaton-w3c`. This directory is the gem's development home in the
+https://github.com/relaton/relaton[relaton monorepo].
+====
+
 RelatonW3c is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
 You can use it to retrieve metadata of W3C Standards from https://w3.org, and access such metadata through the `Relaton::W3c::Item` object.
