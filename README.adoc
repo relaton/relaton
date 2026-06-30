@@ -149,7 +149,11 @@ Required repo secrets:
 
 == Gems in this monorepo
 
-Foundational: `relaton-logger`, `relaton-core`, `relaton-index`, `relaton-bib`.
+Foundational:
+link:gems/relaton-logger/README.adoc[relaton-logger],
+link:gems/relaton-core/README.adoc[relaton-core],
+link:gems/relaton-index/README.adoc[relaton-index],
+link:gems/relaton-bib/README.adoc[relaton-bib].
 
 Main: `relaton` — the central DB (`Relaton::Db` API, registry, cache). When
 built for release it is the **combined gem** that vendors every flavor's code
@@ -161,13 +165,35 @@ CLI: `relaton-cli` — the one other published gem; depends on `relaton`.
 NOTE: The foundational and flavor gems below are *development* units. They are
 no longer published individually — their code is distributed inside `relaton`.
 
-Flavor plugins (28): `relaton-3gpp`, `relaton-bipm`, `relaton-bsi`,
-`relaton-calconnect`, `relaton-ccsds`, `relaton-cen`, `relaton-cie`,
-`relaton-doi`, `relaton-ecma`, `relaton-etsi`, `relaton-gb`, `relaton-iana`,
-`relaton-iec`, `relaton-ieee`, `relaton-ietf`, `relaton-iho`, `relaton-isbn`,
-`relaton-iso`, `relaton-itu`, `relaton-jis`, `relaton-nist`, `relaton-oasis`,
-`relaton-ogc`, `relaton-omg`, `relaton-plateau`, `relaton-un`, `relaton-w3c`,
-`relaton-xsf`.
+Flavor plugins (28):
+link:gems/relaton-3gpp/README.adoc[relaton-3gpp],
+link:gems/relaton-bipm/README.adoc[relaton-bipm],
+link:gems/relaton-bsi/README.adoc[relaton-bsi],
+link:gems/relaton-calconnect/README.adoc[relaton-calconnect],
+link:gems/relaton-ccsds/README.adoc[relaton-ccsds],
+link:gems/relaton-cen/README.adoc[relaton-cen],
+link:gems/relaton-cie/README.adoc[relaton-cie],
+link:gems/relaton-doi/README.adoc[relaton-doi],
+link:gems/relaton-ecma/README.adoc[relaton-ecma],
+link:gems/relaton-etsi/README.adoc[relaton-etsi],
+link:gems/relaton-gb/README.adoc[relaton-gb],
+link:gems/relaton-iana/README.adoc[relaton-iana],
+link:gems/relaton-iec/README.adoc[relaton-iec],
+link:gems/relaton-ieee/README.adoc[relaton-ieee],
+link:gems/relaton-ietf/README.adoc[relaton-ietf],
+link:gems/relaton-iho/README.adoc[relaton-iho],
+link:gems/relaton-isbn/README.adoc[relaton-isbn],
+link:gems/relaton-iso/README.adoc[relaton-iso],
+link:gems/relaton-itu/README.adoc[relaton-itu],
+link:gems/relaton-jis/README.adoc[relaton-jis],
+link:gems/relaton-nist/README.adoc[relaton-nist],
+link:gems/relaton-oasis/README.adoc[relaton-oasis],
+link:gems/relaton-ogc/README.adoc[relaton-ogc],
+link:gems/relaton-omg/README.adoc[relaton-omg],
+link:gems/relaton-plateau/README.adoc[relaton-plateau],
+link:gems/relaton-un/README.adoc[relaton-un],
+link:gems/relaton-w3c/README.adoc[relaton-w3c],
+link:gems/relaton-xsf/README.adoc[relaton-xsf].
 
 == History
 
