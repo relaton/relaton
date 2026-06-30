@@ -62,6 +62,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "relaton-nist", "~> 2.2.0.pre.alpha.1"
   spec.add_dependency "relaton-oasis", "~> 2.2.0.pre.alpha.1"
   spec.add_dependency "relaton-ogc", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton-oiml", "~> 2.2.0.pre.alpha.1"
   spec.add_dependency "relaton-omg", "~> 2.2.0.pre.alpha.1"
   spec.add_dependency "relaton-plateau", "~> 2.2.0.pre.alpha.1"
   spec.add_dependency "relaton-un", "~> 2.2.0.pre.alpha.1"

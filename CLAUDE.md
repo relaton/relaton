@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-Monorepo for the Relaton family of Ruby gems (bibliographic references to technical standards). 34 gems live under `gems/<name>/`, each a normal Ruby gem with its own `Gemfile`, `Rakefile`, gemspec, and `spec/`. `README.adoc` is the canonical user-facing overview; this file captures the non-obvious bits for working in the repo.
+Monorepo for the Relaton family of Ruby gems (bibliographic references to technical standards). 35 gems live under `gems/<name>/`, each a normal Ruby gem with its own `Gemfile`, `Rakefile`, gemspec, and `spec/`. `README.adoc` is the canonical user-facing overview; this file captures the non-obvious bits for working in the repo.
 
 Origin: `https://github.com/relaton/relaton`. The upstream `relaton/relaton-db` GH repo holds the history of the main `relaton` gem (the renaming happened upstream); it pulls into `gems/relaton/` here via `monorepo_importer.rb`'s `RENAMED` map.
 
