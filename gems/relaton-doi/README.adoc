@@ -24,29 +24,6 @@ access such metadata through the `BibliographicItem` object.
 
 To collect metadata this gem makes a few requests to the CrossRef API. It may take a few seconds to get the metadata.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-doi'
-----
-
-And then execute:
-
-[source,sh]
-----
-$ bundle install
-----
-
-Or install it yourself as:
-
-[source,ruby]
-----
-$ gem install relaton-doi
-----
-
 == Usage
 
 === Retrieving items of known type using DOI

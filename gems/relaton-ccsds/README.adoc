@@ -12,23 +12,6 @@ RelatonCcsds is a Ruby gem that implements the https://github.com/relaton/relato
 
 You can use it to retrieve metadata of CCSDS Standards from https://public.ccsds.org/Publications/AllPubs.aspx, and access such metadata through the `RelatonCcsds::BibliographicItem` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-ccsds'
-----
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install relaton-ccsds
-
 == Usage
 
 === Search for a standard using keywords

@@ -20,23 +20,6 @@ Relaton::Iana is a Ruby gem that implements the https://github.com/metanorma/met
 
 You can use it to retrieve metadata of IANA Standards and access such metadata through the `Realaton::Iana::ItemData` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-iana'
-----
-
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install relaton-iana
-
 == Usage
 
 === Search for a standard using keywords

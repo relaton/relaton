@@ -16,16 +16,6 @@ image:https://img.shields.io/github/commits-since/relaton/relaton-logger/latest.
 
 Relaton::Logger is a Ruby gem that implements a logger for Relaton gems. It is also possible to use this gem as a standalone logger.
 
-== Installation
-
-Install the gem and add to the application's Gemfile by executing:
-
-    $ bundle add relaton-logger
-
-If bundler is not being used to manage dependencies, install the gem by executing:
-
-    $ gem install relaton-logger
-
 == Usage
 
 The Relaton::Logger gem provides a logger pool that can be used to log messages. The logger pool is a singleton and can be accessed by calling `Relaton.logger_pool`. The logger pool is an Array that contains loggers. By default, the logger pool contains a single logger, which is an instance of `Relaton::Logger::Log` class, which inherits the `Logger` class from the Ruby standard library.

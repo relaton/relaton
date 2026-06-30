@@ -12,23 +12,6 @@ RelatonW3c is a Ruby gem that implements the https://github.com/metanorma/metano
 
 You can use it to retrieve metadata of W3C Standards from https://w3.org, and access such metadata through the `Relaton::W3c::Item` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-w3c'
-----
-
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install relaton-w3c
-
 == Usage
 
 === Search for a standard using keywords

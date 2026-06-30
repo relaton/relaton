@@ -20,23 +20,6 @@ RelatonPlateau is a Ruby gem that implements the https://github.com/relaton/rela
 
 You can use it to retrieve metadata of Plateau Standards from the GitHub repository, and access such metadata through the `Relaton::Plateau::ItemData` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-plateau'
-----
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install relaton-plateau
-
 == Usage
 
 === Fetching

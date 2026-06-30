@@ -18,16 +18,6 @@ RelatonJis is a Ruby gem that implements the https://github.com/metanorma/metano
 
 You can use it to retrieve metadata of JIS Standards from https://webdesk.jsa.or.jp, and access such metadata through the `Relaton::Jis::ItemData` object.
 
-== Installation
-
-Install the gem and add to the application's Gemfile by executing:
-
-    $ bundle add relaton-jis
-
-If bundler is not being used to manage dependencies, install the gem by executing:
-
-    $ gem install relaton-jis
-
 == Usage
 
 === Search for standards using keywords

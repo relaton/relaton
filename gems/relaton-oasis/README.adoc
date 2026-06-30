@@ -20,22 +20,6 @@ RelatonOasis is a Ruby gem that implements the https://github.com/metanorma/meta
 
 You can use it to retrieve metadata of OASIS Standards from https://www.oasis-open.org/standards/ and access such metadata through the `Relaton::Oasis::ItemData` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'relaton-oasis'
-```
-
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install relaton-oasis
-
 == Usage
 
 === Get standard using reference.

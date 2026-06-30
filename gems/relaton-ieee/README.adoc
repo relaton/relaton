@@ -12,23 +12,6 @@ RelatonIeee is a Ruby gem that implements the https://github.com/relaton/relaton
 
 You can use it to retrieve metadata of IEEE Standards from standards.ieee.org, and access such metadata through the `Relaton::Ieee::ItemData` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-ieee'
-----
-
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install relaton-ieee
-
 == Usage
 
 === Search for a standard using keywords

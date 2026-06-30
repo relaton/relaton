@@ -20,23 +20,6 @@ Relaton::Iso is a Ruby gem that implements the https://github.com/metanorma/meta
 
 You can use it to retrieve metadata of ISO Standards from https://www.iso.org, and access such metadata through the `IsoBibliographicItem` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-iso'
-----
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install relaton-iso
-
 == Usage
 
 === Search for standards using keywords

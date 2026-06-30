@@ -20,23 +20,6 @@ RelatonBipm is a Ruby gem that implements the https://github.com/metanorma/metan
 
 You can use it to retrieve metadata of BIPM Standards from https://www.bipm.org, and access such metadata through the `BipmBibliographicItem` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-bipm'
-----
-
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install relaton-bipm
-
 == Usage
 
 === Search for a standard using keywords

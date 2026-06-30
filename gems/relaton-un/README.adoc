@@ -12,23 +12,6 @@ RelatonUn is a Ruby gem that implements the https://github.com/metanorma/metanor
 
 You can use it to retrieve metadata of UN documents from https://documents.un.org, and access such metadata through the `Relaton::Un::Item` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-un'
-----
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install relaton-un
-
 == Usage
 
 === Search for a standard using keywords

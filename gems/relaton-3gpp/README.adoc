@@ -12,23 +12,6 @@ Relaton3gpp is a Ruby gem that implements the https://github.com/metanorma/metan
 
 You can use it to retrieve metadata of W3C Standards from https://w3.org, and access such metadata through the `W3cBibliographicItem` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-3gpp'
-----
-
-And then execute:
-
-    $ bundle install
-
-Or install it yourself as:
-
-    $ gem install relaton-3gpp
-
 == Usage
 
 === Search for a standard using keywords

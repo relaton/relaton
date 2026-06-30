@@ -22,29 +22,6 @@ https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibli
 You can use it to retrieve metadata of Standards from https://openlibrary.org, and
 access such metadata through the `Bibitem` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-isbn'
-----
-
-And then execute:
-
-[source,sh]
-----
-$ bundle install
-----
-
-Or install it yourself as:
-
-[source,sh]
-----
-$ gem install relaton-isbn
-----
-
 == Usage
 
 === Retrieving bibliographic items using OpenLibrary API

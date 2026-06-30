@@ -12,23 +12,6 @@ Relaton::Calconnect is a Ruby gem that implements the https://github.com/metanor
 
 You can use it to retrieve metadata of Calconnect Standards from https://standards.calconnect.org, and access such metadata through the `CcBibliographicItem` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-calconnect'
-----
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install relaton-calconnect
-
 == Usage
 
 === Search for a standard using keywords

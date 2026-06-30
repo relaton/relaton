@@ -16,29 +16,6 @@ image:https://img.shields.io/github/commits-since/relaton/relaton-cen/latest.svg
 
 RelatonCen is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
-== Installation
-
-Add this line to your application's `Gemfile`:
-
-[source,ruby]
-----
-gem 'relaton-cen'
-----
-
-And then execute:
-
-[source,sh]
-----
-$ bundle install
-----
-
-Or install it yourself as:
-
-[source,sh]
-----
-$ gem install relaton-cen
-----
-
 == Usage
 
 For CENELEC standards, use references with the prefix `CEN/CLC`. For example, `CEN/CLC Guide 6`.

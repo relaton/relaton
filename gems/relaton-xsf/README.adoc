@@ -27,23 +27,6 @@ Relaton-XSF retrieves bibliographic information from https://xmpp.org/extensions
 
 The XSF Library dataset provides documents listed in the https://github.com/relaton/relaton-data-xsf/blob/main/index-v1.yaml[index].
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-xsf'
-----
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install relaton-xsf
-
 == Usage
 
 === Search for a standard using keywords

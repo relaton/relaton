@@ -20,23 +20,6 @@ Relaton:Iec is a Ruby gem that implements the https://github.com/metanorma/metan
 
 You can use it to retrieve metadata of IEC Standards from https://www.iec.ch, and access such metadata through the `Relaton::Iec::ItemData` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-iec'
-----
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install relaton-iec
-
 == Usage
 
 === Search for a standard using keywords

@@ -20,23 +20,6 @@ Relaton::Ogc is a Ruby gem that implements the https://github.com/metanorma/meta
 
 You can use it to retrieve metadata of OGC Standards from the https://github.com/relaton/relaton-data-ogc[relaton-data-ogc] dataset, and access such metadata through the `Relaton::Ogc::ItemData` object.
 
-== Installation
-
-Add this line to your application's Gemfile:
-
-[source,ruby]
-----
-gem 'relaton-ogc'
-----
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install relaton-ogc
-
 == Usage
 
 === Search for a standard using keywords
