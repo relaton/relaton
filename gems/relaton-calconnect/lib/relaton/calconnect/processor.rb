@@ -30,7 +30,7 @@ module Relaton::Calconnect
     # @option opts [String] :format
     #
     def fetch_data(_source, opts)
-      reqire_relative "data_fetcher"
+      require_relative "data_fetcher"
       DataFetcher.fetch(**opts)
     end
 

@@ -71,4 +71,25 @@ RSpec.describe "lazy flavor loading" do
     RUBY
     expect(out).to include(marker)
   end
+
+  # from_yaml is reachable cold via Db cache reads (deserialize without a prior
+  # fetch), so every processor's from_yaml must self-load its Item constant.
+  # ecma/gb regressed here when the registry stopped eager-loading flavors.
+  it "deserializes from_yaml on the cold path without preloading the flavor" do
+    out = run_in_clean_process(<<~RUBY)
+      require "relaton/db"
+      reg = Relaton::Db::Registry.instance
+      yaml = "docid:\\n  - id: X 1\\n    type: T\\n    primary: true\\n"
+      %w[relaton_ecma relaton_gb].each do |short|
+        begin
+          reg.find_processor(short).from_yaml(yaml)
+        rescue NameError => e
+          abort "FAIL: \#{short} from_yaml NameError: \#{e.message}"
+        rescue StandardError
+          # parse/validation errors are fine — we only guard against NameError
+        end
+      end
+    RUBY
+    expect(out).to include(marker)
+  end
 end

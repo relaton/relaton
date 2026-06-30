@@ -31,6 +31,7 @@ module Relaton
       # @param yaml [String]
       # @return [Relaton::Gb::ItemData]
       def from_yaml(yaml)
+        require_relative "../gb" # defines Item — cache reads hit this cold
         Item.from_yaml yaml
       end
 
