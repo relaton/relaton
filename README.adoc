@@ -11,19 +11,37 @@ GitHub repo: https://github.com/relaton/relaton. The
 
 ----
 gems/
-├── relaton/             # central DB (Relaton::Db) + runtime deps on every flavor
+├── relaton/             # central DB (Relaton::Db) — also the shippable combined gem
 ├── relaton-core/        # foundational utilities
 ├── relaton-index/       # index file support
 ├── relaton-logger/      # logging helpers
 ├── relaton-bib/         # bibliographic item model (lutaml-model)
-├── relaton-cli/         # command-line interface (optional, NOT a `relaton` dep)
+├── relaton-cli/         # command-line interface (separate published gem)
 └── relaton-<flavor>/    # 28 flavor plugins: iso, ietf, nist, ieee, gb, …
 lib/relaton/version.rb   # master MAJOR.MINOR for the monorepo
+lib/relaton/combined_builder.rb  # assembles the single combined `relaton` gem
 Gemfile                  # auto-discovers all gems in gems/
 Rakefile                 # per-gem and aggregate tasks
-release-order.json       # dep-aware release sequence
+combined-gems.json       # gems vendored into the single combined `relaton` gem
+release-order.json       # dep-aware order (docs/validation; no longer drives publishing)
 monorepo_importer.rb     # subtree import script for adding/refreshing gems
 ----
+
+== Distribution: one combined gem
+
+The monorepo is the *development* layout (each `gems/<name>/` is a normal,
+separately-testable gem). What ships, however, is a **single combined `relaton`
+gem** plus `relaton-cli` — not 30+ separate gems.
+
+`rake build:combined` vendors the `lib/` trees of every gem listed in
+`combined-gems.json` (every flavor except `relaton-cli`) into one gem under
+`pkg/combined/`, generating a combined gemspec (the union of the flavors'
+external runtime dependencies, conflicts intersected and validated) and an
+`autoload`-based entry point. So `gem install relaton` installs one gem
+containing all flavors, and flavor code is **loaded lazily**: `require
+"relaton"` and using `Relaton::Db` does not load every flavor at startup — each
+loads on first use. See `lib/relaton/combined_builder.rb` and the root
+`CLAUDE.md`.
 
 == Quick start
 
@@ -116,27 +134,32 @@ dependencies.
 . Trigger the `release` workflow on GitHub Actions:
   * `version_type = minor|major` bumps the shared MAJOR.MINOR and tags a new
     monorepo version.
-  * `version_type = skip` releases gems at their current per-gem PATCH versions
-    without bumping the master.
-. Gems push to RubyGems in dep-aware order (see `release-order.json`):
-  logger → core → index → bib → flavor plugins → iso-dependent flavors → doi
-  → relaton (depends on every flavor) → relaton-cli (depends on relaton).
+  * `version_type = skip` releases the current versions without bumping the
+    master (used for the alpha prereleases).
+. The workflow runs `rake release:combined`, which builds and pushes **only two
+  gems**: the combined `relaton` (all flavors vendored) and `relaton-cli`. The
+  per-flavor and infra gems are *not* published separately — their code ships
+  inside `relaton`. (`DRY_RUN=1 rake release:combined` builds without pushing.)
 
 Required repo secrets:
 
 * `RELATON_CI_PAT_TOKEN` — personal access token for repo dispatches.
-* `RELATON_CI_RUBYGEMS_API_KEY` — RubyGems API key with push rights for every
-  gem.
+* `RELATON_CI_RUBYGEMS_API_KEY` — RubyGems API key with push rights for
+  `relaton` and `relaton-cli`.
 
 == Gems in this monorepo
 
 Foundational: `relaton-logger`, `relaton-core`, `relaton-index`, `relaton-bib`.
 
-Main: `relaton` — the central DB (`Relaton::Db` API, registry, cache) plus
-runtime deps on every flavor plugin. `gem install relaton` gives you the full
-multi-flavor setup in one step.
+Main: `relaton` — the central DB (`Relaton::Db` API, registry, cache). When
+built for release it is the **combined gem** that vendors every flavor's code
+(see _Distribution_ above), so `gem install relaton` gives you the full
+multi-flavor setup — one gem, flavors loaded lazily.
 
-CLI: `relaton-cli` (optional; NOT a `relaton` runtime dep).
+CLI: `relaton-cli` — the one other published gem; depends on `relaton`.
+
+NOTE: The foundational and flavor gems below are *development* units. They are
+no longer published individually — their code is distributed inside `relaton`.
 
 Flavor plugins (28): `relaton-3gpp`, `relaton-bipm`, `relaton-bsi`,
 `relaton-calconnect`, `relaton-ccsds`, `relaton-cen`, `relaton-cie`,
