@@ -18,6 +18,7 @@ gems/
 ├── relaton-bib/         # bibliographic item model (lutaml-model)
 ├── relaton-cli/         # command-line interface (separate published gem)
 └── relaton-<flavor>/    # 28 flavor plugins: iso, ietf, nist, ieee, gb, …
+grammar/                 # shared RelaxNG test schemas (gems' specs validate against these)
 lib/relaton/version.rb   # master MAJOR.MINOR for the monorepo
 lib/relaton/combined_builder.rb  # assembles the single combined `relaton` gem
 Gemfile                  # auto-discovers all gems in gems/

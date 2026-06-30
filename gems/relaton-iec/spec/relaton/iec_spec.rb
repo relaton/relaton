@@ -53,7 +53,7 @@ RSpec.describe Relaton::Iec do
       xml = hits.first.item.to_xml(bibdata: true)
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
       expect(xml).to include '<docidentifier type="IEC" primary="true">IEC 61058-2-4:2018</docidentifier>'
-      schema = Jing.new "spec/schemas/relaton-iec-compile.rng"
+      schema = Jing.new "../../grammar/relaton-iec-compile.rng"
       errors = schema.validate file
       expect(errors).to eq []
     end

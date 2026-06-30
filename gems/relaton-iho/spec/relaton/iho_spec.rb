@@ -23,7 +23,7 @@ RSpec.describe Relaton::Iho do
         File.write file, xml, encoding: "UTF-8" unless File.exist? file
         expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
           .sub(/(?<=<fetched>).*(?=<\/fetched>)/, Date.today.to_s)
-        schema = Jing.new "spec/schemas/relaton-iho-compile.rng"
+        schema = Jing.new "../../grammar/relaton-iho-compile.rng"
         errors = schema.validate file
         expect(errors).to eq []
       end.to output(
@@ -106,7 +106,7 @@ RSpec.describe Relaton::Iho do
   end
 
   it "check XML grammar" do
-    schema = Jing.new "spec/schemas/relaton-iho-compile.rng"
+    schema = Jing.new "../../grammar/relaton-iho-compile.rng"
     errors = schema.validate "spec/fixtures/bibdata.xml"
     expect(errors).to eq []
   end

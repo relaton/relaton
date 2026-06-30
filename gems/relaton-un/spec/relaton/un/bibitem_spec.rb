@@ -5,7 +5,7 @@ describe Relaton::Un::Bibitem do
 
   it "round trip" do
     expect(described_class.to_xml(item)).to be_equivalent_to input_xml
-    schecma = Jing.new "spec/schemas/relaton-un-compile.rng"
+    schecma = Jing.new "../../grammar/relaton-un-compile.rng"
     errors = schecma.validate file
     expect(errors).to eq []
   end

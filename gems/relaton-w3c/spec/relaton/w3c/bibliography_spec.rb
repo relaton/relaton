@@ -35,7 +35,7 @@ describe Relaton::W3c::Bibliography do
       xml = Relaton::W3c::Bibdata.to_xml(doc)
       expect(xml).to be_equivalent_to File.read("spec/fixtures/rec_xml_names.xml", encoding: "UTF-8")
         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
-      schema = Jing.new "spec/schemas/relaton-w3c-compile.rng"
+      schema = Jing.new "../../grammar/relaton-w3c-compile.rng"
       errors = schema.validate file_xml(xml)
       expect(errors).to eq []
     end

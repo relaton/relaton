@@ -176,7 +176,7 @@ RSpec.describe Relaton::Itu do
         /(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s
       )
       # TODO: uncomment when grammars are updated for the new model
-      # schema = Jing.new "spec/schemas/relaton-itu-compile.rng"
+      # schema = Jing.new "../../grammar/relaton-itu-compile.rng"
       # errors = schema.validate file_path
       # expect(errors).to eq []
     end

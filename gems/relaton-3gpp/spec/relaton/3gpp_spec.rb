@@ -39,7 +39,7 @@ RSpec.describe Relaton::ThreeGpp do
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
       expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
         .sub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
-      schema = Jing.new "spec/schemas/relaton-3gpp-compile.rng"
+      schema = Jing.new "../../grammar/relaton-3gpp-compile.rng"
       errors = schema.validate file
       expect(errors).to eq []
     end
@@ -50,7 +50,7 @@ RSpec.describe Relaton::ThreeGpp do
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
       expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
         .sub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
-      schema = Jing.new "spec/schemas/relaton-3gpp-compile.rng"
+      schema = Jing.new "../../grammar/relaton-3gpp-compile.rng"
       errors = schema.validate file
       expect(errors).to eq []
     end

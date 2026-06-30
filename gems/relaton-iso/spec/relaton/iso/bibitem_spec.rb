@@ -6,7 +6,7 @@ describe Relaton::Iso::Bibitem do
   context "round trip" do
     it "to XML" do
       expect(described_class.to_xml(item)).to be_equivalent_to input_xml
-      schema = Jing.new "spec/schemas/relaton-iso-compile.rng"
+      schema = Jing.new "../../grammar/relaton-iso-compile.rng"
       errors = schema.validate file
       expect(errors).to eq []
     end
