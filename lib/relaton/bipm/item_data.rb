@@ -1,0 +1,47 @@
+require_relative "converter/asciibib"
+
+module Relaton
+  module Bipm
+    class ItemData < Bib::ItemData
+      def deep_clone
+        Item.from_yaml Item.to_yaml(self)
+      end
+
+      # def create_relation(**args)
+      #   Relation.new(**args)
+      # end
+
+      def to_xml(bibdata: false, **opts)
+        add_notes opts[:note] do
+          bibdata ? Bibdata.to_xml(self) : Bibitem.to_xml(self)
+        end
+      end
+
+      def to_yaml(**opts)
+        add_notes opts[:note] do
+          Item.to_yaml(self)
+        end
+      end
+
+      def to_json(**opts)
+        add_notes opts[:note] do
+          Item.to_json(self)
+        end
+      end
+
+      def to_asciibib
+        Converter::Asciibib.from_item(self)
+      end
+
+      # private
+
+      # def add_notes(notes)
+      #   self.note ||= []
+      #   Relaton.array(notes).each { |nt| note << Bib::Note.new(**nt) }
+      #   result = yield
+      #   Relaton.array(notes).each { note.pop }
+      #   result
+      # end
+    end
+  end
+end
