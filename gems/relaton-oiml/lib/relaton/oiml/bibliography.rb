@@ -83,12 +83,15 @@ module Relaton
         # The identifier without its edition year or language, e.g.
         # `OIML R 138:2007 (E)` -> `OIML R 138`. The trailing language
         # parenthetical is stripped first so a year-less, language-qualified
-        # query (`OIML R 138 (E)`) still reduces to the same stem.
+        # query (`OIML R 138 (E)`) still reduces to the same stem. Uses plain
+        # string scans (no backtracking regex) since the input is pubid output.
         def stem(pubid)
-          pubid.to_s
-               .sub(/\s*\([^)]*\)\s*\z/, "")
-               .sub(/:\d{4}.*\z/, "")
-               .strip
+          str = pubid.to_s.strip
+          if str.end_with?(")") && (open = str.rindex("("))
+            str = str[0...open].strip
+          end
+          year = str.index(/:\d{4}/)
+          year ? str[0...year] : str
         end
       end
     end
