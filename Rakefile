@@ -18,6 +18,18 @@ def in_gem_dir(gem_name, &block)
   Dir.chdir("gems/#{gem_name}", &block)
 end
 
+# Build the single combined `relaton` gem + `relaton-cli` (the only two gems
+# published in the combined model). Returns the built .gem paths.
+def build_combined_artifacts
+  Rake::Task["build:combined"].invoke
+  Bundler.with_unbundled_env do
+    Dir.chdir("gems/relaton-cli") { sh "gem build *.gemspec" }
+  end
+  combined = Dir["pkg/relaton-[0-9]*.gem"].max_by { |f| File.mtime(f) }
+  cli = Dir["gems/relaton-cli/relaton-cli-*.gem"].max_by { |f| File.mtime(f) }
+  [combined, cli].compact
+end
+
 # Per-gem tasks (dynamically generated)
 GEMS.each do |gem_name|
   namespace_name = gem_to_namespace(gem_name)
@@ -414,6 +426,23 @@ namespace :version do
 end
 
 namespace :release do
+  desc "Build + push the combined `relaton` gem and relaton-cli (DRY_RUN=1 to build only)"
+  task :combined do
+    require_relative "lib/relaton/combined_builder"
+    artifacts = build_combined_artifacts
+    unless artifacts.size == 2
+      raise "expected relaton + relaton-cli gems, got #{artifacts.inspect}"
+    end
+
+    puts "Combined release artifacts:"
+    artifacts.each { |a| puts "  #{a}" }
+    if ENV["DRY_RUN"] == "1"
+      puts "DRY_RUN=1 — not pushing."
+    else
+      Bundler.with_unbundled_env { artifacts.each { |a| sh "gem push #{a}" } }
+    end
+  end
+
   desc "Show release order (from release-order.json)"
   task :show_order do
     require "json"

@@ -61,9 +61,6 @@ jobs:
         git commit -m "Bump master version to ${{ env.NEW_VERSION }}"
         git tag "v${{ env.NEW_VERSION }}"
 
-    - name: Build all gems
-      run: bundle exec rake build:all
-
     - name: Setup RubyGems credentials
       if: ${{ !inputs.dry_run }}
       run: |
@@ -74,27 +71,14 @@ jobs:
         EOF
         chmod 0600 ~/.gem/credentials
 
-    - name: Validate release order
-      run: bundle exec rake release:validate_order
-
-    - name: Release gems to RubyGems in dep-aware order
-      if: ${{ !inputs.dry_run }}
-      run: |
-        GEMS=($(jq -r '.release_order[]' release-order.json))
-        for gem in "${GEMS[@]}"; do
-          echo "Releasing $gem..."
-          cd "gems/$gem"
-          gem_file=$(ls *.gem | head -1)
-          if [ -f "$gem_file" ]; then
-            gem push "$gem_file" || echo "(may already be published)"
-            echo "✓ $gem"
-          else
-            echo "✗ No gem file for $gem"
-            exit 1
-          fi
-          cd ../..
-          sleep 5
-        done
+    # Build the single combined `relaton` gem (all flavors vendored) and
+    # `relaton-cli`, then push both. These are the only two gems published in
+    # the combined model; the per-flavor gems are no longer released. DRY_RUN=1
+    # builds without pushing.
+    - name: Build and push the combined relaton gem + relaton-cli
+      run: bundle exec rake release:combined
+      env:
+        DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
 
     - name: Push changes and tags
       if: ${{ !inputs.dry_run && inputs.version_type != 'skip' }}
@@ -107,13 +91,11 @@ jobs:
       run: |
         echo "## Release v${{ env.NEW_VERSION }}" > release_body.md
         echo "" >> release_body.md
-        echo "Monorepo master MAJOR.MINOR bump. Per-gem PATCH versions remain independent." >> release_body.md
+        echo "Combined release: the single \`relaton\` gem bundles every flavor (lazily loaded via autoload); \`relaton-cli\` ships separately." >> release_body.md
         echo "" >> release_body.md
         echo "### Gems released:" >> release_body.md
-        jq -r '.release_order[]' release-order.json | while read gem; do
-          v=$(ruby -e "puts Gem::Specification.load('gems/$gem/$gem.gemspec').version.to_s")
-          echo "- $gem v$v" >> release_body.md
-        done
+        echo "- relaton v$(ruby -e "puts Gem::Specification.load('gems/relaton/relaton.gemspec').version.to_s")" >> release_body.md
+        echo "- relaton-cli v$(ruby -e "puts Gem::Specification.load('gems/relaton-cli/relaton-cli.gemspec').version.to_s")" >> release_body.md
 
     - name: Create GitHub Release
       if: ${{ !inputs.dry_run && inputs.version_type != 'skip' }}
@@ -132,4 +114,5 @@ jobs:
       run: |
         echo "## Dry Run Summary"
         echo "Would have released master version: ${{ env.NEW_VERSION }}"
-        find gems -name "*.gem" -exec basename {} \;
+        echo "Combined gem + CLI built (not pushed):"
+        find pkg gems/relaton-cli -name "relaton-*.gem" -exec basename {} \;
