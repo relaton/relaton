@@ -99,11 +99,14 @@ or VCR-config collisions across flavors). Each `spec/<flavor>/` has its own
 
 ## Conventions to keep
 
+- **Per-flavor docs.** Each flavor keeps its own `lib/relaton/<flavor>/CLAUDE.md`
+  with that flavor's architecture notes (retrieval flow, key classes). These are
+  dev docs — excluded from the packaged gem via the gemspec `files` glob.
 - **Adding a flavor:** drop `lib/relaton/<flavor>/…` (with a `processor.rb` and a
   `version.rb` deriving `Relaton::VERSION`), add an `autoload` line to
   `lib/relaton.rb`, add the prefix to `Relaton::Db::Registry::SUPPORTED_GEMS`,
   add its external deps to `relaton.gemspec`, put `<flavor>(-compile).rng` in
-  `grammar/`, and add specs under `spec/<flavor>/`.
+  `grammar/`, add specs under `spec/<flavor>/`, and a `lib/relaton/<flavor>/CLAUDE.md`.
 - Don't reintroduce per-flavor gems/gemspecs or the combined-build step — it's
   one gem now.
 - Don't add `relaton-cli` as a runtime dep of `relaton`.

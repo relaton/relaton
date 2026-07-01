@@ -32,8 +32,10 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = ">= 3.3.0"
 
   # Explicit globs (the repo root holds more than the gem); grammar/ and spec/
-  # are test-only and intentionally excluded.
-  spec.files = Dir.glob("lib/**/*").select { |f| File.file?(f) } +
+  # are test-only and intentionally excluded. Per-flavor CLAUDE.md files sit in
+  # lib/relaton/<flavor>/ as dev docs and are excluded from the packaged gem.
+  spec.files = Dir.glob("lib/**/*")
+                  .select { |f| File.file?(f) && File.basename(f) != "CLAUDE.md" } +
                Dir.glob("bin/**/*").select { |f| File.file?(f) } +
                %w[LICENSE README.adoc].select { |f| File.file?(f) }
 
