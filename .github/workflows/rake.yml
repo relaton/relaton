@@ -13,10 +13,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # The `relaton` gem — delegate to the shared relaton/support workflow (Ruby
+  # matrix + Java for Jing + tests-passed dispatch), same as every relaton gem.
   rake:
+    uses: relaton/support/.github/workflows/rake.yml@main
+    secrets:
+      pat_token: ${{ secrets.RELATON_CI_PAT_TOKEN }}
+
+  # relaton-cli ships as a separate gem in gems/relaton-cli/. Reuse the shared
+  # relaton/support monorepo workflow, pointed at gems/ (which now holds only
+  # relaton-cli) — it runs `bundle exec rake` in each gem dir, with the same
+  # Java setup as the flavor gems it used to test. With a single gem the matrix
+  # can't explode, so use the full upstream Ruby matrix (no ruby_versions cap).
+  cli:
     uses: relaton/support/.github/workflows/rake-monorepo.yml@main
     with:
       gem_directory: gems
-      ruby_versions: "3.4,4.0"
     secrets:
       pat_token: ${{ secrets.RELATON_CI_PAT_TOKEN }}
