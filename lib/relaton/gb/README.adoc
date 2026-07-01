@@ -1,0 +1,169 @@
+= Relaton::Gb
+
+Relaton::Gb is a Ruby gem that searches and fetches Chinese GB standards.
+The standards scraped form:
+
+* GB standards - http://www.std.gov.cn/gb/search
+* Social organization standards - http://www.ttbz.org.cn
+* Sector standards - http://www.std.gov.cn/hb
+
+NOTE: Unlike the ISO website, the GB websites require the year of publication to be included in the search.
+So a standard will not be found successfully through this gem unless the year is included in its document
+identifier: for example, not `CN(GB/T 1.1)`, but `CN(GB/T 1.1-2009)`.
+
+== Usage
+
+=== Search document
+
+[source,ruby]
+----
+require 'relaton/gb'
+=> true
+
+hit_collection = Relaton::Gb::Bibliography.search "GB/T 20223-2006"
+[relaton-gb] INFO: (GB/T 20223-2006) Fetching from openstd.samr.gov.cn ...
+=> <Relaton::Gb::HitCollection:0x00000000001350 @ref= @fetched=false>
+
+hit_collection.first
+=> <Relaton::Gb::Hit:0x00000000001850 @fullIdentifier="" @docref="GB/T 20223-2006">
+----
+
+=== Scrape document form collection
+
+[source,ruby]
+----
+hit_collection.first.item
+=> #<Relaton::Gb::ItemData:0x000000012913b968
+
+hit_collection.first.item.title.first
+=> #<Relaton::Bib::Title:0x00000001290f2bc8
+    @content="棉短绒",
+    @format=nil,
+    @language="zh",
+    @locale=nil,
+    @script="Hans",
+    @type="title-main">
+
+hit_collection.first.item.ext.gbtype
+=> #<Relaton::Gb::GbType:0x00000001259687c0
+    @mandate=["recommended"],
+    @prefix="GB_national",
+    @scope=["national"],
+    @topic=["other"]>
+
+hit_collection.first.item.ext.ccs
+=> [#<Relaton::Gb::CCS:0x000000012913f608 @code="B32">]
+
+hit_collection.first.item.date
+=> [#<Relaton::Bib::Date:0x0000000129111dc0
+    @at=#<Relaton::Bib::StringDate::Value:0x00000001291111e0 @value="2006-03-10">,
+    @from=nil,
+    @text=nil,
+    @to=nil,
+    @type=["published"]>]
+
+hit_collection.first.item.date.first.at.to_s
+=> "2006-03-10"
+
+hit_collection.first.item.date.first.at.to_date
+=> #<Date: 2006-03-10 ((2453805j,0s,0n),+0s,2299161j)>
+----
+
+=== Get document by identifier
+
+[source,ruby]
+----
+Relaton::Gb::Bibliography.get "GB/T 20223-2006"
+[relaton-gb] INFO: (GB/T 20223-2006) Fetching from openstd.samr.gov.cn ...
+[relaton-gb] INFO: (GB/T 20223-2006) Found: `GB/T 20223-2006`
+=> #<Relaton::Gb::ItemData:0x0000000129dd16a0
+----
+
+=== Get document by identifier and year
+
+[source,ruby]
+----
+Relaton::Gb::Bibliography.get "GB/T 20223", "2006"
+[relaton-gb] INFO: (GB/T 20223-2006) Fetching from openstd.samr.gov.cn ...
+[relaton-gb] INFO: (GB/T 20223-2006) Found: `GB/T 20223-2006`
+=> #<Relaton::Gb::ItemData:0x00000001299ffdd8
+----
+
+=== Create bibliographic item from YAML
+[source,ruby]
+----
+
+Relaton::Gb::Item.from_yaml File.read('spec/fixtures/item.yaml')
+=> #<Relaton::Gb::ItemData:0x00000001292d85c8
+----
+
+=== Serialization
+
+[source,ruby]
+----
+hit_collection.first.item.to_xml
+=> "<bibitem id="GBT202232006" type="standard" schema-version="v1.5.6">
+      <fetched>2026-01-26</fetched>
+      <title language="zh" script="Hans" type="title-main">棉短绒</title>
+      <title language="zh" script="Hans" type="main">棉短绒</title>
+      <title language="en" script="Latn" type="title-main">Cotton linter</title>
+      <title language="en" script="Latn" type="main">Cotton linter</title>
+      <uri type="src">http://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=083B48FA72DBD3B9BDE74507BC31736A</uri>
+      <docidentifier type="Chinese Standard" primary="true">GB/T 20223-2006</docidentifier>
+      ...
+    </bibitem>"
+----
+
+With `bibdata: true` option XML output is wrapped with `bibdata` element and `ext` element added.
+
+[source,ruby]
+----
+hit_collection.first.item.to_xml bibdata: true
+=> "<bibdata type="standard" schema-version="v1.5.6">
+      <fetched>2026-01-26</fetched>
+      <title language="zh" script="Hans" type="title-main">棉短绒</title>
+      <title language="zh" script="Hans" type="main">棉短绒</title>
+      <title language="en" script="Latn" type="title-main">Cotton linter</title>
+      <title language="en" script="Latn" type="main">Cotton linter</title>
+      <uri type="src">http://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=083B48FA72DBD3B9BDE74507BC31736A</uri>
+      <docidentifier type="Chinese Standard" primary="true">GB/T 20223-2006</docidentifier>
+      ...
+      <ext schema-version="v1.1.2">
+        <doctype>standard</doctype>
+        ...
+      </ext>
+    </bibdata>"
+----
+
+=== Typed source links
+
+Each GB document has `src` type source link.
+
+[source,ruby]
+----
+hit_collection.first.item.source
+=> #<Relaton::Bib::Uri:0x0000000129112bf8
+    @content="http://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=083B48FA72DBD3B9BDE74507BC31736A",
+    @language=nil,
+    @locale=nil,
+    @script=nil,
+    @type="src">
+----
+
+=== Logging
+
+Relaton::Gb uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
+
+== Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+== Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/gdbib.
+
+== License
+
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

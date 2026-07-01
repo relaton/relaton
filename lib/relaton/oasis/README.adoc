@@ -1,0 +1,132 @@
+= Relaton::Oasis: retrieve OASIS Standards for bibliographic use using the BibliographicItem model
+
+RelatonOasis is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
+
+You can use it to retrieve metadata of OASIS Standards from https://www.oasis-open.org/standards/ and access such metadata through the `Relaton::Oasis::ItemData` object.
+
+== Usage
+
+=== Get standard using reference.
+
+All the OASIS documents are parsed from https://www.oasis-open.org/standards/ and stored in a GitHub repository https://github.com/relaton/relaton-data-oasis. You can find all possible references on the index page https://relaton.github.io/relaton-data-oasis/.
+
+[source,ruby]
+----
+require 'relaton/oasis'
+=> true
+
+item = Relaton::Oasis::Bibliography.get "OASIS amqp-core"
+[relaton-oasis] INFO: (OASIS amqp-core) Fetching from Relaton repository ...
+[relaton-oasis] INFO: (OASIS amqp-core) Found: `OASIS amqp-core`
+=> #<Relaton::Oasis::ItemData:0x0000000120db0fa8
+...
+----
+
+=== XML serialization
+
+[source,ruby]
+----
+item.to_xml
+=> "<bibitem id="OASISamqpcore" type="standard" schema-version="v1.4.1">
+      <fetched>2026-02-27</fetched>
+      <title language="en" script="Latn" type="main">Advanced Message Queueing Protocol (AMQP) v1.0</title>
+      <docidentifier type="OASIS" primary="true">OASIS amqp-core</docidentifier>
+      ...
+    </bibitem>"
+----
+
+With argument `bibdata: true` it outputs XML wrapped by `bibdata` element and adds flavour `ext` element.
+
+[source,ruby]
+----
+item.to_xml bibdata: true
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      <fetched>2026-02-27</fetched>
+      <title language="en" script="Latn" type="main">Advanced Message Queueing Protocol (AMQP) v1.0</title>
+      <docidentifier type="OASIS" primary="true">OASIS amqp-core</docidentifier>
+      ...
+      <ext schema-version="v1.0.1">
+        <doctype>standard</doctype>
+        <flavor>oasis</flavor>
+        <technology-area>Messaging</technology-area>
+      </ext>
+    </bibdata>"
+----
+
+=== Typed links
+
+Some OASIS documents have `src` type source link.
+
+[source,ruby]
+----
+item = Relaton::Oasis::Bibliography.get "OASIS amqp-core-types-v1.0-Pt1"
+[relaton-oasis] INFO: (OASIS amqp-core-types-v1.0-Pt1) Fetching from Relaton repository ...
+[relaton-oasis] INFO: (OASIS amqp-core-types-v1.0-Pt1) Found: `OASIS amqp-core-types-v1.0-Pt1`
+=> #<Relaton::Oasis::ItemData:0x0000000123ff12d8
+...
+
+item.source[0].type
+=> "src"
+
+item.source[0].content
+=> "http://docs.oasis-open.org/amqp/core/v1.0/os/amqp-core-types-v1.0-os.html"
+----
+
+=== Create bibliographic item from XML
+
+[source,ruby]
+----
+Relaton::Oasis::Item.from_xml File.read("spec/fixtures/oasis_bibdata.xml")
+=> #<Relaton::Oasis::ItemData:0x0000000123ffeb18
+...
+----
+
+=== Create bibliographic item from YAML
+[source,ruby]
+----
+Relaton::Oasis::Item.from_yaml File.read("spec/fixtures/item.yaml")
+=> #<Relaton::Oasis::ItemData:0x000000012119a290
+...
+----
+
+=== Fetch data
+
+The OASIS documents can be fetched from https://www.oasis-open.org/standards/ and converted into RelatonXML/BibXML/BibYAML formats:
+
+The method `Relaton::Oasis::DataFetcher.fetch(output: "data", format: "yaml")` fetches and converts all the documents from the https://www.oasis-open.org/standards/ and saves them to the `./data` folder in YAML format.
+
+Arguments:
+
+- `output` - folder to save documents (default './data').
+- `format` - the format in which the documents are saved. Possible formats are: `yaml`, `xml`, `bibxml` (default `yaml`).
+
+[source,ruby]
+----
+require "relaton/oasis/data_fetcher"
+
+Relaton::Oasis::DataFetcher.fetch
+Started at: 2022-03-18 18:34:06 +0100
+Stopped at: 2022-03-18 18:34:12 +0100
+Done in: 5 sec.
+=> nil
+----
+
+=== Logging
+
+RelatonOasis uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
+
+== Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To update the index test fixture (used by tests), run `rake spec:update_index`. This downloads the latest `index-v1.zip` from the https://github.com/relaton/relaton-data-oasis[relaton-data-oasis] repository.
+
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and the created tag, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+== Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/relaton/relaton-oasis.
+
+== License
+
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

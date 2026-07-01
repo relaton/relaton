@@ -1,0 +1,131 @@
+= Relaton::Ieee
+
+RelatonIeee is a Ruby gem that implements the https://github.com/relaton/relaton-model-ieee#ieee-bibliographic-item-model[IeeeBibliographicItem model].
+
+You can use it to retrieve metadata of IEEE Standards from standards.ieee.org, and access such metadata through the `Relaton::Ieee::ItemData` object.
+
+== Usage
+
+=== Search for a standard using keywords
+
+[source,ruby]
+----
+require 'relaton/ieee'
+=> true
+
+item = Relaton::Ieee::Bibliography.search("IEEE Std 528-2019")
+=> #<Relaton::Ieee::ItemData:0x000000012891cf70
+...
+----
+
+=== XML serialization
+
+[source,ruby]
+----
+item.to_xml
+ => "<bibitem id="IEEEStd5282019" type="standard" schema-version="v1.4.1">
+      <fetched>2026-01-30</fetched>
+      <title type="main">IEEE Standard for Inertial Sensor Terminology</title>
+      <uri type="src">https://ieeexplore.ieee.org/document/8863799</uri>
+      <docidentifier type="IEEE" primary="true">IEEE Std 528-2019</docidentifier>
+      ...
+    </bibitem>"
+----
+
+With argument `bibdata: true` it ouputs XML wrapped by `bibdata` element and adds flavor `ext` element.
+
+[source,ruby]
+----
+item.to_xml bibdata: true
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      <fetched>2026-01-30</fetched>
+      <title type="main">IEEE Standard for Inertial Sensor Terminology</title>
+      <uri type="src">https://ieeexplore.ieee.org/document/8863799</uri>
+      <docidentifier type="IEEE" primary="true">IEEE Std 528-2019</docidentifier>
+      ...
+      <ext schema-version="v1.0.1">
+        <doctype>standard</doctype>
+        <flavor>ieee</flavor>
+        ...
+      </ext>
+    </bibdata>"
+----
+
+=== Get document by reference
+[source,ruby]
+----
+Relaton::Ieee::Bibliography.get("IEEE Std 528-2019")
+[relaton-ieee] INFO: (IEEE Std 528-2019) Fetching from Relaton repository ...
+[relaton-ieee] INFO: (IEEE Std 528-2019) Found: `IEEE Std 528-2019`
+=> #<Relaton::Ieee::ItemData:0x00000001288b9380
+ ...
+----
+
+=== Typed source links
+
+Each IEEE document has `src` type link.
+
+[source,ruby]
+----
+item.source.first.type
+=> "src"
+
+item.source.first.content
+=> "https://ieeexplore.ieee.org/document/8863799"
+----
+
+=== Create bibliographic item from XML
+[source,ruby]
+----
+Relaton::Ieee::Item.from_xml File.read "spec/fixtures/ieee_528_2019.xml"
+ => #<Relaton::Ieee::ItemData:0x0000000128815a00
+ ...
+----
+
+=== Create bibliographic item from YAML
+[source,ruby]
+----
+ Relaton::Ieee::Item.from_yaml File.read('spec/fixtures/item.yaml')
+=> #<Relaton::Ieee::ItemData:0x0000000122f70c88
+ ...
+----
+
+=== Fetch data
+
+There is an IEEE dataset https://github.com/relaton/ieee-rawbib which can be converted into BibXML/BibYAML formats. The dataset needs to be placed into the local directory.
+
+The method `Relaton::Ieee::DataFetcher.fetch(source, output: "data", format: "yaml")` converts all the documents from the local `ieee-rawbib` directory and saves them to the `./data` folder in YAML format.
+Arguments:
+
+- `source` - a name of data source (default 'ieee-rawbib').
+- `output` - folder to save documents (default './data').
+- `format` - the format in which the documents are saved. Possible formats are: `yaml`, `xml` (default `yaml`).
+
+[source,ruby]
+----
+Relaton::Ieee::DataFetcher.fetch
+Started at: 2021-09-24 17:55:07 +0200
+Stopped at: 2021-09-24 17:57:30 +0200
+Done in: 143 sec.
+=> nil
+----
+
+=== Logging
+
+RelatonIeee uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
+
+== Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To update the index test fixture (used by tests), run `rake spec:update_index`. This downloads the latest `index-v1.zip` from the https://github.com/relaton/relaton-data-ieee[relaton-data-ieee] repository.
+
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+== Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/relaton/relaton_ieee.
+
+== License
+
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

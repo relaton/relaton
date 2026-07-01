@@ -1,0 +1,177 @@
+= Relaton::Ecma
+
+Relaton::Ecma is a Ruby gem that searches and fetches standards from the https://www.ecma-international.org[European Computer Manufacturers Association].
+
+== Usage
+
+=== Fetch documents
+
+Documents can be fetched by reference. The structure of the reference depends on the type of the document. There are three types of documents:
+
+- ECMA standards
+- ECMA technical reports
+- ECMA mementos
+
+ECMA standards have the following reference structure: `ECMA-{NUMBER}[ ed{EDITION}][ vol{VOLUME}]`. Where: `NUMBER` is a number of the standard, `EDITION` is an edition of the standard, and `VOLUME` is a volume of the standard. The `EDITION` and `VOLUME` are optional. If `EDITION` is not specified, the latest edition of the standard will be fetched. If `VOLUME` is not specified, the first volume of the standard will be fetched. +
+
+ECMA technical reports have the following reference structure: `ECMA TR/{NUMBER}[ ed{EDITION}]`. Where: `NUMBER` is a number of the technical report, and `EDITION` is an edition of the technical report. The `EDITION` is optional. If `EDITION` is not specified, the latest edition of the technical report will be fetched. +
+
+ECMA mementos have the following reference structure: `ECMA MEM/{YEAR}`. Where: `YEAR` is an year of the memento.
+
+[source,ruby]
+----
+require 'relaton/ecma'
+=> true
+
+# fetch ECMA standard
+item = Relaton::Ecma::Bibliography.get 'ECMA-6'
+[relaton-ecma] INFO: (ECMA-6) Fetching from Relaton repository ...
+[relaton-ecma] INFO: (ECMA-6) Found: `ECMA-6`
+=> #<Relaton::Ecma::ItemData:0x000000012791d7a0
+...
+
+# fetch ECMA standard with edition and volume
+Relaton::Ecma::Bibliography.get "ECMA-269 ed3 vol2"
+[relaton-ecma] INFO: (ECMA-269 ed3 vol2) Fetching from Relaton repository ...
+[relaton-ecma] INFO: (ECMA-269 ed3 vol2) Found: `ECMA-269`
+=> #<Relaton::Ecma::ItemData:0x0000000127b81410
+...
+
+# fetch the last edition of ECMA standard
+bib = Relaton::Ecma::Bibliography.get "ECMA-269"
+[relaton-ecma] INFO: (ECMA-269) Fetching from Relaton repository ...
+[relaton-ecma] INFO: (ECMA-269) Found: `ECMA-269`
+=> #<Relaton::Ecma::ItemData:0x0000000127cd0a00
+...
+
+bib.edition.content
+=> "9"
+
+# fetch the first volume of ECMA standard
+bib = Relaton::Ecma::Bibliography.get "ECMA-269 ed3"
+[relaton-ecma] INFO: (ECMA-269 ed3) Fetching from Relaton repository ...
+[relaton-ecma] INFO: (ECMA-269 ed3) Found: `ECMA-269`
+=> #<Relaton::Ecma::ItemData:0x0000000127cf7808
+...
+
+bib.extent.first.locality.first.reference_from
+=> "1"
+
+# fetch ECMA technical report
+Relaton::Ecma::Bibliography.get 'ECMA TR/18'
+[relaton-ecma] INFO: (ECMA TR/18) Fetching from Relaton repository ...
+[relaton-ecma] INFO: (ECMA TR/18) Found: `ECMA TR/18`
+=> #<Relaton::Ecma::ItemData:0x0000000127cdc940
+...
+
+# fetch ECMA memento
+Relaton::Ecma::Bibliography.get "ECMA MEM/2021"
+[relaton-ecma] INFO: (ECMA MEM/2021) Fetching from Relaton repository ...
+[relaton-ecma] INFO: (ECMA MEM/2021) Found: `ECMA MEM/2021`
+=> #<Relaton::Ecma::ItemData:0x0000000127cf71c8
+...
+
+# Return nil if a document doesn't exist.
+Relaton::Ecma::Bibliography.get '1111'
+[relaton-ecma] INFO: (1111) Fetching from Relaton repository ...
+[relaton-ecma] INFO: (1111) Not found.
+=> nil
+----
+
+=== Serialization
+
+[source,ruby]
+----
+item.to_xml
+=> "<bibitem id="ECMA6" type="standard" schema-version="v1.5.6">
+      <fetched>2025-12-29</fetched>
+      <title language="en" script="Latn">7-bit coded character set</title>
+      <uri type="src">https://ecma-international.org/publications-and-standards/standards/ecma-6/</uri>
+      <uri type="pdf">https://ecma-international.org/wp-content/uploads/ECMA-6_6th_edition_december_1991.pdf</uri>
+      <docidentifier type="ECMA" primary="true">ECMA-6</docidentifier>
+      ...
+    </bibitem>"
+----
+
+With `bibdata: true` option XML output wrapped with `bibdata` element and `ext` element added.
+[source,ruby]
+----
+item.to_xml bibdata: true
+=> "<bibdata type="standard" schema-version="v1.5.6">
+      <fetched>2025-12-29</fetched>
+      <title language="en" script="Latn">7-bit coded character set</title>
+      <uri type="src">https://ecma-international.org/publications-and-standards/standards/ecma-6/</uri>
+      <uri type="pdf">https://ecma-international.org/wp-content/uploads/ECMA-6_6th_edition_december_1991.pdf</uri>
+      <docidentifier type="ECMA" primary="true">ECMA-6</docidentifier>
+      ...
+      <ext schema-version="v1.0.0">
+        <doctype>document</doctype>
+        <flavor>ecma</flavor>
+      </ext>
+    </bibdata>"
+----
+
+=== Typed links
+
+Each ECMA document has `src` and `doi` link types.
+
+[source,ruby]
+----
+item.source
+=>
+[#<Relaton::Bib::Uri:0x00000001278dc5e8 @content="https://ecma-international.org/publications-and-standards/standards/ecma-6/", @language=nil, @locale=nil, @script=nil, @type="src">,
+ #<Relaton::Bib::Uri:0x00000001278dc188
+  @content="https://ecma-international.org/wp-content/uploads/ECMA-6_6th_edition_december_1991.pdf",
+  @language=nil,
+  @locale=nil,
+  @script=nil,
+  @type="pdf">]
+----
+
+=== Parse a file locally
+
+[source,ruby]
+----
+item = Relaton::Ecma::Item.from_xml File.read("spec/fixtures/bibdata.xml")
+=> #<Relaton::Ecma::ItemData:0x0000000127cbb1a0
+...
+----
+
+=== Fetch data
+
+This gem uses a https://github.com/relaton/relaton-data-ecma[ecma-standards] prefetched dataset as a data source. The dataset contains documents from ECMA https://www.ecma-international.org/publications-and-standards/standards/[Standards], https://www.ecma-international.org/publications-and-standards/technical-reports/[Technical Reports], and https://www.ecma-international.org/publications-and-standards/mementos/[Mementos] pages.
+
+The method `Relaton::Ecma::DataFetcher.new(output, format).fetch` fetches all the documents from the pages and saves them to the `./data` folder in YAML format.
+Arguments:
+
+- `output` - folder to save documents (default './data').
+- `format` - the format in which the documents are saved. Possible formats are: `yaml`, `xml`, `bibxxml` (default `yaml`).
+
+[source,ruby]
+----
+Relaton::Ecma::DataFetcher.new.fetch
+Started at: 2022-06-23 09:36:55 +0200
+Stopped at: 2022-06-23 09:36:58 +0200
+Done in: 752 sec.
+=> nil
+----
+
+=== Logging
+
+Relaton::Ecma uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
+
+== Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To update the index test fixture (used by tests), run `rake spec:update_index`. This downloads the latest `index-v1.zip` from the https://github.com/relaton/relaton-data-ecma[relaton-data-ecma] repository.
+
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+== Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/relaton/relaton-ecma.
+
+== License
+
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

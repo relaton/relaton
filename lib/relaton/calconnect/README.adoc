@@ -1,0 +1,134 @@
+= Relaton::Calconnect
+
+Relaton::Calconnect is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
+
+You can use it to retrieve metadata of Calconnect Standards from https://standards.calconnect.org, and access such metadata through the `CcBibliographicItem` object.
+
+== Usage
+
+=== Search for a standard using keywords
+
+[source,ruby]
+----
+require 'relaton/calconnect'
+=> true
+
+hits = Relaton::Calconnect::Bibliography.search("CC/DIR 10005:2019")
+=> <Relaton::Calconnect::HitCollection:0x00000000002df0 @ref=CC/DIR 10005:2019 @fetched=false>
+
+item = hits[0].item
+=> #<Relaton::Calconnect::ItemData:0x000000011104c998
+...
+----
+
+=== XML serialization
+
+[source,ruby]
+----
+item.to_xml
+=> "<bibitem id="CC-DIR10005-2019" type="standard" schema-version="v1.5.6">
+      <title language="en">Guidelines for the implementation of the CalConnect patent policy</title>
+      <docidentifier type="CalConnect" primary="true">CC/DIR 10005:2019</docidentifier>
+      ...
+    </bibitem>"
+----
+With argument `bibdata: true` it outputs XML wrapped by `bibdata` element and adds flavour `ext` element.
+[source,ruby]
+----
+item.to_xml bibdata: true
+=> "<bibdata type="standard" schema-version="v1.5.6">
+      <title language="en">Guidelines for the implementation of the CalConnect patent policy</title>
+      <docidentifier type="CalConnect" primary="true">CC/DIR 10005:2019</docidentifier>
+      ...
+      <ext schema-version="v1.1.2">
+        <doctype abbreviation="DIR">directive</doctype>
+        <flavor>calconnect</flavor>
+      </ext>
+  </bibdata>
+----
+
+=== Typed links
+
+Each Calconnect document has link types:
+
+* `xml` - XML format
+* `pdf` - PDF format
+* `doc` - Microsoft Word document format
+* `html` - HTML format
+* `rxl` - RelatonXML format
+
+[source,ruby]
+----
+item.source
+=> [#<Relaton::Bib::Uri:0x00007ff2d4b009e0 @content=#<Addressable::URI:0x668 URI:https://standards.calconnect.org/csd/cc-10005.xml>, @type="xml">,
+ #<Relaton::Bib::Uri:0x00007ff2d4b00378 @content=#<Addressable::URI:0x67c URI:https://standards.calconnect.org/csd/cc-10005.pdf>, @type="pdf">,
+ #<Relaton::Bib::Uri:0x00007ff2d4b00058 @content=#<Addressable::URI:0x690 URI:https://standards.calconnect.org/csd/cc-10005.doc>, @type="doc">,
+ #<Relaton::Bib::Uri:0x00007ff2d4b23d28 @content=#<Addressable::URI:0x6a4 URI:https://standards.calconnect.org/csd/cc-10005.html>, @type="html">,
+ #<Relaton::Bib::Uri:0x00007ff2d4b23a08 @content=#<Addressable::URI:0x6b8 URI:https://standards.calconnect.org/csd/cc-10005.rxl>, @type="rxl">]
+----
+
+=== Get document by code and year
+[source,ruby]
+----
+Relaton::Calconnect::Bibliography.get "CC/DIR 10005", "2019"
+[relaton-calconnect] INFO: (CC/DIR 10005) Fetching from Relaton repository ...
+[relaton-calconnect] INFO: (CC/DIR 10005) Found: `CC/DIR 10005:2019`
+ => #<Relaton::Calconnect::ItemData:0x0000000111944b18
+...
+----
+
+=== Create bibliographic item from XML
+[source,ruby]
+----
+Relaton::Calconnect::Item.from_xml File.read('spec/fixtures/cc_dir_10005_2019.xml')
+ => #<Relaton::Calconnect::ItemData:0x000000010ec81040
+...
+----
+
+=== Create bibliographic item from YAML
+[source,ruby]
+----
+Relaton::Calconnect::Item.from_yaml File.read('spec/fixtures/item.yaml')
+=> #<Relaton::Calconnect::ItemData:0x000000010fe5e600
+...
+----
+
+=== Fetch data
+
+This gem uses the https://raw.githubusercontent.com/usnistgov/NIST-Tech-Pubs/nist-pages/xml/allrecords.xml dataset as one of the data sources.
+
+The method `RelatonCalconnect::DataFetcher.fetch(output: "data", format: "yaml")` fetches all the documents from the dataset and saves them to the `./data` folder in YAML format.
+Arguments:
+
+- `output` - folder to save documents (default './data').
+- `format` - the format in which the documents are saved. Possible formats are: `yaml`, `xml`, `bibxml` (default `yaml`).
+
+[source,ruby]
+----
+require "relaton/calconnect/data_fetcher"
+Relaton::Calconnect::DataFetcher.fetch
+Started at: 2021-09-09 16:03:51 +0200
+Stopped at: 2021-09-09 16:04:12 +0200
+Done in: 20 sec.
+=> nil
+----
+
+=== Logging
+
+RelatonCalconnect uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
+
+== Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To update the index test fixture (used by tests), run `rake spec:update_index`. This downloads the latest `index-v1.zip` from the https://github.com/relaton/relaton-data-calconnect[relaton-data-calconnect] repository.
+
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+== Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/calconnect/relaton_calconnect.
+
+== License
+
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
