@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../../lib/relaton/w3c/processor"
+require "relaton/w3c/processor"
 
 describe Relaton::W3c::Processor do
   subject(:processor) { described_class.new }
@@ -33,7 +33,7 @@ describe Relaton::W3c::Processor do
 
   describe "#fetch_data" do
     it "delegates to DataFetcher.fetch" do
-      require_relative "../../../lib/relaton/w3c/data_fetcher"
+      require "relaton/w3c/data_fetcher"
       expect(Relaton::W3c::DataFetcher).to receive(:fetch)
         .with(output: "dir", format: "yaml").and_return(:result)
       expect(processor.fetch_data("w3c-api", output: "dir", format: "yaml"))

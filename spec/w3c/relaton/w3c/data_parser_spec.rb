@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../../lib/relaton/w3c/data_fetcher"
+require "relaton/w3c/data_fetcher"
 
 RSpec.describe Relaton::W3c::DataParser do
   let(:client) { W3cApi::Client.new }

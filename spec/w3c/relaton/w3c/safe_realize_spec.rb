@@ -1,5 +1,5 @@
 require "spec_helper"
-require_relative "../../../lib/relaton/w3c/data_fetcher"
+require "relaton/w3c/data_fetcher"
 
 RSpec.describe Relaton::W3c::SafeRealize do
   let(:dummy_class) do

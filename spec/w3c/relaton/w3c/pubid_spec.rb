@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "../../../lib/relaton/w3c/pubid"
+require "relaton/w3c/pubid"
 
 RSpec.describe Relaton::W3c::PubId do
   describe "#to_s" do
