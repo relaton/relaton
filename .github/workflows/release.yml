@@ -16,6 +16,15 @@ on:
   repository_dispatch:
     types: [ do-release ]
 
+# Match the delegated relaton/support/release.yml token scope (a reusable
+# workflow can't exceed the caller's grant): gem push via trusted publishing
+# (id-token), tag + commit the version bump (contents), GitHub Packages
+# (packages). Also satisfies CodeQL actions/missing-workflow-permissions.
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+
 jobs:
   release:
     uses: relaton/support/.github/workflows/release.yml@main

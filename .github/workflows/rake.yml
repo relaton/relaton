@@ -12,6 +12,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
+# The delegated relaton/support workflows run with contents: write (rake.yml for
+# its tests-passed dispatch, rake-monorepo.yml for its release-readiness job). A
+# reusable workflow can't exceed the caller's token scope, so grant it explicitly
+# (also satisfies CodeQL actions/missing-workflow-permissions).
+permissions:
+  contents: write
+
 jobs:
   # The `relaton` gem — delegate to the shared relaton/support workflow (Ruby
   # matrix + Java for Jing + tests-passed dispatch), same as every relaton gem.
