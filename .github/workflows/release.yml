@@ -1,22 +1,15 @@
-# Releases all relaton gems to RubyGems in dep-aware order.
+# Releases the single `relaton` gem (every flavor bundled) and `relaton-cli`.
+# The gem version is set by editing lib/relaton/version.rb (Relaton::VERSION)
+# and relaton-cli's own version file; commit that before running this workflow.
 name: release
 
 on:
   workflow_dispatch:
     inputs:
-      version_type:
-        description: 'Master version bump (only major or minor change the shared MAJOR.MINOR; skip releases gems at their current versions)'
-        required: true
-        default: 'skip'
-        type: choice
-        options:
-          - skip
-          - minor
-          - major
       dry_run:
-        description: 'Dry run (do not actually push to RubyGems)'
+        description: 'Dry run (build only, do not push to RubyGems)'
         required: false
-        default: false
+        default: true
         type: boolean
 
 jobs:
@@ -35,31 +28,8 @@ jobs:
         ruby-version: '3.3'
         bundler-cache: true
 
-    - name: Configure Git
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-    - name: Check version synchronization (shared MAJOR.MINOR)
-      run: bundle exec rake version:check
-
-    - name: Bump master version
-      if: ${{ inputs.version_type != 'skip' }}
-      run: |
-        bundle exec rake "version:bump[${{ inputs.version_type }}]"
-        echo "NEW_VERSION=$(grep MONOREPO_VERSION lib/relaton/version.rb | head -1 | sed -E 's/.*"([^"]+)".*/\1/')" >> $GITHUB_ENV
-
-    - name: Get current version (skip mode)
-      if: ${{ inputs.version_type == 'skip' }}
-      run: |
-        echo "NEW_VERSION=$(grep MONOREPO_VERSION lib/relaton/version.rb | head -1 | sed -E 's/.*"([^"]+)".*/\1/')" >> $GITHUB_ENV
-
-    - name: Commit version changes
-      if: ${{ !inputs.dry_run && inputs.version_type != 'skip' }}
-      run: |
-        git add -A
-        git commit -m "Bump master version to ${{ env.NEW_VERSION }}"
-        git tag "v${{ env.NEW_VERSION }}"
+    - name: Build relaton + relaton-cli
+      run: bundle exec rake build_all
 
     - name: Setup RubyGems credentials
       if: ${{ !inputs.dry_run }}
@@ -71,48 +41,13 @@ jobs:
         EOF
         chmod 0600 ~/.gem/credentials
 
-    # Build the single combined `relaton` gem (all flavors vendored) and
-    # `relaton-cli`, then push both. These are the only two gems published in
-    # the combined model; the per-flavor gems are no longer released. DRY_RUN=1
-    # builds without pushing.
-    - name: Build and push the combined relaton gem + relaton-cli
-      run: bundle exec rake release:combined
-      env:
-        DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
-
-    - name: Push changes and tags
-      if: ${{ !inputs.dry_run && inputs.version_type != 'skip' }}
+    - name: Push to RubyGems
+      if: ${{ !inputs.dry_run }}
       run: |
-        git push origin main
-        git push origin "v${{ env.NEW_VERSION }}"
+        gem push pkg/relaton-*.gem
+        gem push gems/relaton-cli/relaton-cli-*.gem
 
-    - name: Generate release body
-      if: ${{ !inputs.dry_run && inputs.version_type != 'skip' }}
+    - name: Summary
       run: |
-        echo "## Release v${{ env.NEW_VERSION }}" > release_body.md
-        echo "" >> release_body.md
-        echo "Combined release: the single \`relaton\` gem bundles every flavor (lazily loaded via autoload); \`relaton-cli\` ships separately." >> release_body.md
-        echo "" >> release_body.md
-        echo "### Gems released:" >> release_body.md
-        echo "- relaton v$(ruby -e "puts Gem::Specification.load('gems/relaton/relaton.gemspec').version.to_s")" >> release_body.md
-        echo "- relaton-cli v$(ruby -e "puts Gem::Specification.load('gems/relaton-cli/relaton-cli.gemspec').version.to_s")" >> release_body.md
-
-    - name: Create GitHub Release
-      if: ${{ !inputs.dry_run && inputs.version_type != 'skip' }}
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: "v${{ env.NEW_VERSION }}"
-        release_name: "Release v${{ env.NEW_VERSION }}"
-        body_path: release_body.md
-        draft: false
-        prerelease: false
-
-    - name: Dry run summary
-      if: ${{ inputs.dry_run }}
-      run: |
-        echo "## Dry Run Summary"
-        echo "Would have released master version: ${{ env.NEW_VERSION }}"
-        echo "Combined gem + CLI built (not pushed):"
-        find pkg gems/relaton-cli -name "relaton-*.gem" -exec basename {} \;
+        echo "relaton  v$(ruby -Ilib -e 'require "relaton/version"; print Relaton::VERSION')"
+        find pkg gems/relaton-cli -maxdepth 1 -name "relaton*-*.gem" -exec basename {} \;
