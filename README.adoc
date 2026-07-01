@@ -1,215 +1,86 @@
-= Relaton Monorepo
+= Relaton
 
-Monorepo for the Relaton family of Ruby gems: a database, registry, cache, and
-plugin ecosystem for bibliographic references to technical standards.
+Relaton is a Ruby gem for fetching, caching, and managing bibliographic
+references to technical standards from ISO, IEC, IETF, NIST, IEEE, and ~25 other
+standards bodies. It provides the `Relaton::Db` API, a registry that lazily
+loads each standards-body "flavor" on first use, and a file-based cache.
 
-GitHub repo: https://github.com/relaton/relaton. The
-`relaton/relaton-db` repo is the upstream history source for `gems/relaton/`
-(renamed upstream); subtree imports pull from it via `monorepo_importer.rb`.
+Every flavor ships **inside this one gem** — `gem install relaton` gives you the
+full multi-flavor setup, with flavor code loaded on demand via `autoload`. The
+command-line interface, `relaton-cli`, is a separate gem.
+
+GitHub: https://github.com/relaton/relaton
+
+== Installation
+
+[source,ruby]
+----
+gem "relaton"
+----
+
+Or:
+
+[source,shell]
+----
+gem install relaton
+----
+
+== Usage
+
+[source,ruby]
+----
+require "relaton"
+
+db = Relaton::Db.new("db", nil)   # global cache dir, optional local cache dir
+bib = db.fetch("ISO 19115-1", "2014")
+puts bib.to_xml
+----
+
+Referencing a flavor namespace (e.g. `Relaton::Iso`) autoloads it; a normal
+`db.fetch` routes to the right flavor by reference prefix.
 
 == Layout
 
 ----
-gems/
-├── relaton/             # central DB (Relaton::Db) — also the shippable combined gem
-├── relaton-core/        # foundational utilities
-├── relaton-index/       # index file support
-├── relaton-logger/      # logging helpers
-├── relaton-bib/         # bibliographic item model (lutaml-model)
-├── relaton-cli/         # command-line interface (separate published gem)
-└── relaton-<flavor>/    # 28 flavor plugins: iso, ietf, nist, ieee, gb, …
-grammar/                 # shared RelaxNG test schemas (gems' specs validate against these)
-lib/relaton/version.rb   # master MAJOR.MINOR for the monorepo
-lib/relaton/combined_builder.rb  # assembles the single combined `relaton` gem
-Gemfile                  # auto-discovers all gems in gems/
-Rakefile                 # per-gem and aggregate tasks
-combined-gems.json       # gems vendored into the single combined `relaton` gem
-release-order.json       # dep-aware order (docs/validation; no longer drives publishing)
-monorepo_importer.rb     # subtree import script for adding/refreshing gems
+relaton.gemspec          # the one gemspec (union of every flavor's external deps)
+lib/
+├── relaton.rb           # entry point: autoload per flavor, then require relaton/db
+└── relaton/
+    ├── version.rb       # Relaton::VERSION — the single source of truth
+    ├── db.rb, db/       # Relaton::Db: registry, cache, workers pool
+    ├── core/ bib/ index/ logger/   # shared infrastructure
+    └── iso/ iec/ ietf/ … 3gpp/     # ~29 flavor plugins
+spec/<flavor>/           # each flavor's spec suite
+grammar/                 # shared RelaxNG test schemas (test-only, not shipped)
+gems/relaton-cli/        # the separate relaton-cli gem
 ----
 
-== Distribution: one combined gem
-
-The monorepo is the *development* layout (each `gems/<name>/` is a normal,
-separately-testable gem). What ships, however, is a **single combined `relaton`
-gem** plus `relaton-cli` — not 30+ separate gems.
-
-`rake build:combined` vendors the `lib/` trees of every gem listed in
-`combined-gems.json` (every flavor except `relaton-cli`) into one gem under
-`pkg/combined/`, generating a combined gemspec (the union of the flavors'
-external runtime dependencies, conflicts intersected and validated) and an
-`autoload`-based entry point. So `gem install relaton` installs one gem
-containing all flavors, and flavor code is **loaded lazily**: `require
-"relaton"` and using `Relaton::Db` does not load every flavor at startup — each
-loads on first use. See `lib/relaton/combined_builder.rb` and the root
-`CLAUDE.md`.
-
-== Quick start
+== Development
 
 [source,shell]
 ----
 bundle install
-bundle exec rake test:all              # run every gem's spec suite
-bundle exec rake test:relaton_iso      # run a single gem's specs
-bundle exec rake test:failed           # re-run only previously failed specs
-bundle exec rake test:failed:relaton_iso  # re-run the next failing spec for one gem
-bundle exec rake version:show          # show master + per-gem versions
-bundle exec rake -T                    # all available tasks
+bundle exec rake spec              # run every flavor's spec suite
+bundle exec rake spec:iso          # run one flavor's suite
+bundle exec rake build             # build the relaton gem into pkg/
+bundle exec rake build_all         # build relaton + relaton-cli
 ----
 
-== Versioning model
+Each flavor's specs live in `spec/<flavor>/` and run self-contained against the
+single gem (each in its own directory, so relative fixture/cassette/grammar
+paths resolve). See `CLAUDE.md` for the architecture notes (lazy registry,
+autoload, single version, grammar schemas).
 
-* Shared `MAJOR.MINOR` across all gems, driven by
-  `lib/relaton/version.rb` (`Relaton::MONOREPO_VERSION`).
-* Independent `PATCH` per gem — bump one gem's patch without bumping peers.
-* Inter-gem dependencies pinned with `~> MAJOR.MINOR` (any patch within the
-  current minor is acceptable).
+== Versioning
 
-[source,shell]
-----
-bundle exec rake version:check                      # enforce MAJOR.MINOR sync
-bundle exec rake "version:bump[minor]"              # bump master MAJOR.MINOR, sync all
-bundle exec rake "version:bump_patch[relaton-iso]"  # bump one gem's PATCH only
-----
+One version, `Relaton::VERSION` in `lib/relaton/version.rb`; every flavor derives
+from it. Bump that file (and `relaton-cli`'s own version) to cut a release.
 
-== Working on a single gem
+== Release
 
-Each `gems/<gem>/` is a normal Ruby gem (with its own `Gemfile`, `Rakefile`,
-`spec/`, gemspec). You can also work inside it directly:
-
-[source,shell]
-----
-cd gems/relaton-iso
-rm -f Gemfile.lock
-bundle
-bundle exec rake
-----
-
-The per-gem `Gemfile` uses `path: "../<sibling>"` for cross-gem deps, so local
-changes are picked up without reinstalling.
-
-== `Relaton::Db` namespace
-
-In this monorepo the legacy top-level classes have moved under `Relaton::Db`:
-
-[cols="1,1"]
-|===
-| Old                       | New
-| `Relaton::DbCache`        | `Relaton::Db::Cache`
-| `Relaton::Registry`       | `Relaton::Db::Registry`
-| `Relaton::Configuration`  | `Relaton::Db::Configuration`
-| `Relaton::WorkersPool`    | `Relaton::Db::WorkersPool`
-| `Relaton::Util`           | `Relaton::Db::Util`
-| `Relaton::VERSION`        | `Relaton::Db::VERSION`
-| `Relaton.configure`       | `Relaton::Db.configure`
-|===
-
-`Relaton::Db` itself (the main DB class) is unchanged. There are no
-backward-compat aliases — downstream code must update to the new names.
-
-== Importing a new gem
-
-The `monorepo_importer.rb` script subtree-imports a gem from its individual
-GitHub repo into `gems/<name>/`, preserving the upstream history as git objects.
-
-[source,shell]
-----
-# Import all known gems (idempotent — pulls into existing dirs)
-ruby monorepo_importer.rb
-
-# Import one
-ruby monorepo_importer.rb relaton-iso
-
-# Override the source branch
-SOURCE_BRANCH=main ruby monorepo_importer.rb relaton-iso
-----
-
-To add a brand-new gem, append its name to `GEMS` in `monorepo_importer.rb` and
-re-run; or scaffold a fresh `gems/<name>/` directory directly. Either way, add
-the gem to `release-order.json` in the right position based on its
-dependencies.
-
-== Release process
-
-. `bundle exec rake test:all` passes locally.
-. Trigger the `release` workflow on GitHub Actions:
-  * `version_type = minor|major` bumps the shared MAJOR.MINOR and tags a new
-    monorepo version.
-  * `version_type = skip` releases the current versions without bumping the
-    master (used for the alpha prereleases).
-. The workflow runs `rake release:combined`, which builds and pushes **only two
-  gems**: the combined `relaton` (all flavors vendored) and `relaton-cli`. The
-  per-flavor and infra gems are *not* published separately — their code ships
-  inside `relaton`. (`DRY_RUN=1 rake release:combined` builds without pushing.)
-
-Required repo secrets:
-
-* `RELATON_CI_PAT_TOKEN` — personal access token for repo dispatches.
-* `RELATON_CI_RUBYGEMS_API_KEY` — RubyGems API key with push rights for
-  `relaton` and `relaton-cli`.
-
-== Gems in this monorepo
-
-Foundational:
-link:gems/relaton-logger/README.adoc[relaton-logger],
-link:gems/relaton-core/README.adoc[relaton-core],
-link:gems/relaton-index/README.adoc[relaton-index],
-link:gems/relaton-bib/README.adoc[relaton-bib].
-
-Main: `relaton` — the central DB (`Relaton::Db` API, registry, cache). When
-built for release it is the **combined gem** that vendors every flavor's code
-(see _Distribution_ above), so `gem install relaton` gives you the full
-multi-flavor setup — one gem, flavors loaded lazily.
-
-CLI: `relaton-cli` — the one other published gem; depends on `relaton`.
-
-NOTE: The foundational and flavor gems below are *development* units. They are
-no longer published individually — their code is distributed inside `relaton`.
-
-Flavor plugins (28):
-link:gems/relaton-3gpp/README.adoc[relaton-3gpp],
-link:gems/relaton-bipm/README.adoc[relaton-bipm],
-link:gems/relaton-bsi/README.adoc[relaton-bsi],
-link:gems/relaton-calconnect/README.adoc[relaton-calconnect],
-link:gems/relaton-ccsds/README.adoc[relaton-ccsds],
-link:gems/relaton-cen/README.adoc[relaton-cen],
-link:gems/relaton-cie/README.adoc[relaton-cie],
-link:gems/relaton-doi/README.adoc[relaton-doi],
-link:gems/relaton-ecma/README.adoc[relaton-ecma],
-link:gems/relaton-etsi/README.adoc[relaton-etsi],
-link:gems/relaton-gb/README.adoc[relaton-gb],
-link:gems/relaton-iana/README.adoc[relaton-iana],
-link:gems/relaton-iec/README.adoc[relaton-iec],
-link:gems/relaton-ieee/README.adoc[relaton-ieee],
-link:gems/relaton-ietf/README.adoc[relaton-ietf],
-link:gems/relaton-iho/README.adoc[relaton-iho],
-link:gems/relaton-isbn/README.adoc[relaton-isbn],
-link:gems/relaton-iso/README.adoc[relaton-iso],
-link:gems/relaton-itu/README.adoc[relaton-itu],
-link:gems/relaton-jis/README.adoc[relaton-jis],
-link:gems/relaton-nist/README.adoc[relaton-nist],
-link:gems/relaton-oasis/README.adoc[relaton-oasis],
-link:gems/relaton-ogc/README.adoc[relaton-ogc],
-link:gems/relaton-omg/README.adoc[relaton-omg],
-link:gems/relaton-plateau/README.adoc[relaton-plateau],
-link:gems/relaton-un/README.adoc[relaton-un],
-link:gems/relaton-w3c/README.adoc[relaton-w3c],
-link:gems/relaton-xsf/README.adoc[relaton-xsf].
-
-== History
-
-Each gem was subtree-imported from its individual `relaton/<gem>` GitHub repo
-with the original commits preserved as objects in this repo's `.git/`. File
-history follows across the import boundary via:
-
-[source,shell]
-----
-git log --follow -- gems/<gem>/path/to/file.rb
-git blame -CCC gems/<gem>/path/to/file.rb
-----
-
-GitHub's web UI also traces history across the import for most files.
+The `release` GitHub Actions workflow builds and pushes two gems: `relaton` and
+`relaton-cli`. Requires the `RELATON_CI_RUBYGEMS_API_KEY` secret.
 
 == License
 
-BSD-2-Clause. Each gem may carry its own LICENSE file with the same terms.
+BSD-2-Clause.
