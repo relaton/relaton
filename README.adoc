@@ -1,165 +1,512 @@
-= Relaton Monorepo
+= Relaton
 
-Monorepo for the Relaton family of Ruby gems: a database, registry, cache, and
-plugin ecosystem for bibliographic references to technical standards.
+image:https://img.shields.io/gem/v/relaton.svg["Gem Version", link="https://rubygems.org/gems/relaton"]
+image:https://github.com/relaton/relaton/actions/workflows/rake.yml/badge.svg["Build Status", link="https://github.com/relaton/relaton/actions/workflows/rake.yml"]
 
-GitHub repo: https://github.com/relaton/relaton. The
-`relaton/relaton-db` repo is the upstream history source for `gems/relaton/`
-(renamed upstream); subtree imports pull from it via `monorepo_importer.rb`.
+Gem for importing and caching bibliographic references to technical standards.
+Every standards-body flavor ships inside this single gem; flavor code loads on
+demand via `autoload`, and the `Relaton::Db` API routes a reference to the right
+flavor by its prefix. The command-line interface, `relaton-cli`, is a separate gem.
+
+== Installation
+
+[source,ruby]
+----
+gem "relaton"
+----
+
+== Scope
+
+The Relaton gem obtains authoritative bibliographic entries for technical standards from online sources and expresses them in a consistent format, which can be used in document authoring. (It is the underlying bibliographic tool for the https://github.com/metanorma/metanorma[Metanorma] toolset.)
+
+The gem also caches entries it has retrieved so that subsequent iterations do not need to go back online to retrieve the same entries. The gem uses two caches: a global cache (for all bibliographic entries retrieved by the user), and a local cache (intended to store references specific to the current document being processed.)
+
+Entries are retrieved and stored in https://github.com/relaton/relaton-models[Relaton bibliographic model], which is an expression of ISO 690. The subset of the model used and serialized for Relaton is defined by the bundled `Relaton::Bib` model.
+
+Entries are serialized to and from an internal data model, and multiple formats are intended to be supported. Currently, only https://github.com/relaton/relaton-models/blob/master/grammars/biblio.rnc[Relaton XML] is supported.
+
+Relaton fetches bibliographic entries from ~29 standards bodies. Each is a
+flavor bundled in this gem (ISO, IEC, IETF, NIST, IEEE, GB, W3C, ...) -- see
+<<Flavors>> for the full list and per-flavor notes.
+
+The identifiers for which bibliographic entries are to be retrieved need to indicate which standards body they belong to. To do so, this gem adopts the convention of bracketing identifiers, and preceding them with a code that indicates the standards body:
+
+* If the standards body is the national standards body, the wrapper uses the ISO country code. So `CN(GM/T 0009-2012)` is Chinese sector standard GM/T 0009-2012.
+* Otherwise, the wrappers use the agreed abbreviation of the standards body. So `IETF(I-D.ribose-asciirfc-08)` identifies `I-D.ribose-asciirfc` as an Internet Engineering Task Force identifier.
+* Some prefixes to identifiers indicate the standards body they belong to unambiguously; e.g. `ISO` followed by a slash or space. The scope wrapper is not required for those prefixes: `ISO(ISO 639-1)` can be recognized as just `ISO 639-1`.
+
+Each flavor registers a `Relaton::<Flavor>::Processor` (a subclass of `Relaton::Core::Processor`) with the registry. A processor defines:
+
+* `@short`, the flavor name
+* `@prefix`, the regex which scopes the identifier, and constrains it to belong to a particular standards class.
+* `@defaultprefix`, the identifier prefixes which can be recognized without a scope wrapper.
+* `@idtype`, the type assigned to document identifiers for the standard class.
+* `get(code, date, opts)`, which takes a standards code, a year, and a hash of options, and returns an iso-bib-item bibliographic entry
+** `date == nil`: an ISO reference is treated as a generic reference to the latest available version of the reference. The latest
+version retrieved has its date of publication stripped. The dated reference is retained as an `instanceOf` relation to the reference.
+e.g. `get("ISO 19115-1", nil)` is transformed from a reference to `ISO 19115-1:2014` (the latest available online) to an undated reference
+to `ISO 19115-1`.
+** `opts[:keep_date] == true`: undoes the behavior of `date == nil`: the most recent dated instance of the reference is retrieved.
+e.g.  `get("ISO 19115-1", nil, keep_date: true)` returns a reference to `ISO 19115-1:2014`
+** `opts[:all_parts] == true`: an ISO reference for a specific document part is transformed into a reference to all parts of the document
+(which does not have a distinct web page). The reference to the specific document part is retained as a `partOf` relation to the reference.
+e.g. `get("ISO 19115-1", "2014", all_parts: true)` is transformed into a reference to `ISO 19115 (all parts)`.
+
+== Behaviours
+
+* If an entry is defined in both the local and the global cache, the local cache entry is used.
+* If an ISO entry has no date, the latest version available for the entry is retrieved.
+* If a cached ISO entry has no date, and was last retrieved more than 60 days ago, the gem fetches it again, in case there is a newer edition of the standard available.
+* Entries are always saved to the cache with a scope-wrapped identifier; e.g. under `ISO(ISO 639-1)`, and not `ISO 639-1`.
+* Note that the gem does not currently support the totality of the Relaton model; it will only support the information available on the source websites. We do not expect to support cartographic information, for example.
+* Document identifiers are returned with a scope indication (`@idtype`); for example, `<docidentifier type="IETF">RFC 8000</docidentifier>`. It is up to the client whether to render this with the scope indication (_IETF RFC 8000_) or without (_RFC 8000_).
+
+== Usage
+
+=== Configuration
+
+* `use_api` - `true` if it needs to use an online cache, `false` if not. The default value is `true`.
+* `api_host` - URL of an online cache. The default value is https://api.relaton.org.
+
+[source,ruby]
+----
+require "relaton"
+=> true
+
+Relaton.configure do |conf|
+  conf.use_api = true
+  conf.api_host = "https://api.relaton.org"
+end
+----
+
+Logger configuration is managed via `Relaton.logger_pool`:
+
+[source,ruby]
+----
+require "relaton"
+
+Relaton.logger_pool[:default] = Relaton::Logger::Log.new($stderr, levels: [:debug, :info, :warn, :error, :fatal])
+----
+
+=== Create DB
+
+`Relaton::Db#new(globalcache, localcache)` creates new DB. Returns Relaton::Db instance.
+
+* `globalcache` - (String or nil) path to globalcache directory
+* `localcache` - (String or nil) path to localcache directory
+
+[source,ruby]
+----
+# Do not cache any entries retrieved
+db = Relaton::Db.new(nil, nil)
+=> #<Relaton::Db:0x0000000127622a50
+...
+
+# Use only the global cache for any entries retrieved
+db = Relaton::Db.new("globalcache", nil)
+=> #<Relaton::Db:0x00000001277cd120
+...
+
+# Use both a local and a global cache
+db = Relaton::Db.new("globalcache", "localcache")
+=> #<Relaton::Db:0x0000000127aaf6e0
+...
+----
+
+=== Modify DB
+
+==== Move DB
+
+`Relaton::Db#mv(new_dir, type: :global)` moves DB directory to new location. Returns path to new directory if successful, or `nil` if target directiory exists.
+
+* `new_dir` - (String) new cache location
+* `type` - (Symbol) type of cache DB. Allowed values are: `:global`, `:local`. Default is `:global`.
+
+[source,ruby]
+----
+db.mv("new_global_dir")
+=> "new_global_dir"
+
+db.mv("new_local_dir", type: :local)
+=> "new_local_dir"
+----
+
+==== Clear DB
+
+`Relaton::Db#clear` removes all entries form DB
+
+=== Fetch documents
+
+==== Fetch document by references
+
+There are 3 fetching methods:
+
+* `Relaton::Db#fetch(reference, year, options)` - fetches document from local cache or remote source.
+* `Relaton::Db#fetch_db(reference, year, options)` - fetches document from local cache
+* `Relaton::Db#fetch_async(reference, year, options, &block)` - fetches document asynchronously
+
+Arguments:
+
+* `reference` - (String) reference to fetch document
+* `year` - (String or nil) year to filter result (optional)
+* `options` - (Hash) hash of options. Allowed options:
+- `:all_parts` - (Boolean) should be `true` if all-parts reference is required
+- `:keep_year` - (Boolean) should be `true` if undated reference should return an actual reference with the year
+- `:retries` - (Number) number of network retries. Default 1
+- `:no_cache` - (Boolean) should be `true` if cache should be ignored
+- `:publication_date_after` - (String) filter for documents published on or after this date (inclusive, `"YYYY-MM-DD"`)
+- `:publication_date_before` - (String) filter for documents published before this date (exclusive, `"YYYY-MM-DD"`)
+
+[source,ruby]
+----
+x = db.fetch("IEEE 19011")
+[relaton-ieee] (IEEE 19011) fetching...
+[relaton-ieee] WARNING: no match found online for `IEEE 19011`. The code must be exactly like it is on the standards website.
+=> nil
+
+x = db.fetch("ISO 19011")
+[relaton-iso] INFO: (ISO 19011) Fetching from Relaton repository ...
+[relaton-iso] INFO: (ISO 19011) Found: `ISO 19011:2018`
+=> #<Relaton::Iso::ItemData:0x0000000128631e00
+...
+
+x = db.fetch("ISO 19011", "2011", retries: 3)
+[relaton-iso] INFO: (ISO 19011:2011) Fetching from Relaton repository ...
+[relaton-iso] INFO: (ISO 19011:2011) Found: `ISO 19011:2011`
+=> #<Relaton::Iso::ItemData:0x000000013af95020
+...
+
+x = db.fetch("ISO 19115", nil, all_parts: true)
+[relaton-iso] INFO: (ISO 19115 (all parts)) Fetching from Relaton repository ...
+[relaton-iso] INFO: (ISO 19115 (all parts)) Found: `ISO 19115 (all parts)`
+=> #<Relaton::Iso::ItemData:0x00000001276f7f98
+...
+
+# Fetching from local cache
+
+x = db.fetch("ISO 19011")
+=> #<Relaton::Db:0x00000001390b0b00
+...
+
+x = db.fetch_db("ISO 5749")
+=> nil
+
+# Fetching asynchronously
+# RELATON_FETCH_PARALLEL environment variable can be used to override default number of parallel fetches
+
+# prepare queue for results
+results = Queue.new
+
+# references to fetch
+refs = ["ISO 19011", "ISO 19115"]
+
+# fetch documents
+refs.each do |ref|
+  db.fetch_async(ref) do |doc|
+    results << [doc, ref]
+  end
+end
+
+# wait until all the documents fetching
+refs.size.times do
+  doc, ref = results.pop
+  # do whatever you need with the result
+  # in case request error doc will be instance of Relaton::RequestError
+end
+----
+
+==== Fetch with publication date filter
+
+The `:publication_date_after` and `:publication_date_before` options restrict results to documents published within a date range. The range is inclusive of `:publication_date_after` and exclusive of `:publication_date_before`.
+
+When a date filter is used, the cache is checked first for an existing entry whose publication date satisfies the range. If no match is found, a date-specific cache entry is created.
+
+[source,ruby]
+----
+# Fetch documents published on or after 2018-01-01
+x = db.fetch("IEC 80000-6", nil, publication_date_after: Date.parse("2018-01-01"))
+[relaton-iec] INFO: (IEC 80000-6) Fetching from Relaton repository ...
+[relaton-iec] INFO: (IEC 80000-6) Found: `IEC 80000-6:2022`
+=> #<Relaton::Iec::ItemData:0x000000013f311920
+...
+
+# Fetch documents published before 2020-01-01
+x = db.fetch("IEC 80000-6", nil, publication_date_before: Date.parse("2020-01-01"))
+[relaton-iec] INFO: (IEC 80000-6) Fetching from Relaton repository ...
+[relaton-iec] INFO: (IEC 80000-6) Found: `IEC 80000-6:2008`
+=> #<Relaton::Iec::ItemData:0x00000001282b5290
+...
+
+# Fetch documents published within a range
+x = db.fetch("IEC 80000-6", nil, publication_date_after: Date.parse("2018-01-01"), publication_date_before: Date.parse("2020-01-01"))
+[relaton-iec] INFO: (IEC 80000-6) Fetching from Relaton repository ...
+[relaton-iec] INFO: (IEC 80000-6) Not found.
+[relaton-iec] INFO: (IEC 80000-6) TIP: No match for type, but matches exist: `IEC 80000-6:2008`, `IEC 80000-6:2022`.
+[relaton-iec] INFO: (IEC 80000-6) TIP: No match for type, but matches exist: `IEC 80000-6:2008`, `IEC 80000-6:2022`.
+=> nil
+----
+
+==== Fetch by URN
+
+This functionality works only for IEC documents.
+
+[source,ruby]
+----
+x = db.fetch "urn:iec:std:iec:60050-102:2007:::"
+[relaton-iec] INFO: (IEC 60050-102:2007) Fetching from Relaton repository ...
+[relaton-iec] INFO: (IEC 60050-102:2007) Found: `IEC 60050-102:2007`
+=> #<Relaton::Iec::ItemData:0x0000000130e37a98
+...
+----
+
+=== Fetch combined documents
+
+This functionality works only for ISO, IEC, ITU, and NIST documents.
+
+==== Fetch included documents
+[source,ruby]
+----
+bib = db.fetch "ISO 19115-1 + Amd 1"
+[relaton-iso] INFO: (ISO 19115-1) Fetching from Relaton repository ...
+[relaton-iso] INFO: (ISO 19115-1) Found: `ISO 19115-1:2014`
+[relaton-iso] INFO: (ISO 19115-1/Amd 1) Fetching from Relaton repository ...
+[relaton-iso] INFO: (ISO 19115-1/Amd 1) Found: `ISO 19115-1:2014/Amd 1:2018`
+=> #<Relaton::Iso::ItemData:0x000000012782e4c0
+...
+
+bib.docidentifier[0].content.to_s
+=> "ISO 19115-1 + Amd 1"
+
+bib.relation[0].type
+=> "updates"
+
+bib.relation[0].bibitem.docidentifier[0].content.to_s
+=> "ISO 19115-1"
+
+bib.relation[1].type
+=> "derivedFrom"
+
+bib.relation[1].bibitem.docidentifier[0].content.to_s
+=> "ISO 19115-1/Amd 1"
+----
+
+==== Fetch applied documents
+[source,ruby]
+----
+bib = db.fetch "ISO 19115-1, Amd 1"
+=> #<Relaton::Iso::ItemData:0x00000001265d5f08
+
+bib.docidentifier[0].content.to_s
+=> "ISO 19115-1, Amd 1"
+
+bib.relation[0].type
+=> "updates"
+
+bib.relation[0].bibitem.docidentifier[0].content.to_s
+=> "ISO 19115-1"
+
+bib.relation[1].type
+=> "complements"
+
+bib.relation[1].description.content
+=> "amendment"
+
+bib.relation[1].bibitem.docidentifier[0].content.to_s
+=> "ISO 19115-1/Amd 1"
+...
+----
+
+==== Fetch all documents from cache
+
+`Relaton::Db#fetch_all(text = nil, edition: nil, year: nil)` - fetches all document from local cache
+
+* `text` - (String) filter entries by a text (optional)
+* `edition` - (String) filter entries by an edition (optional)
+* `year` - (Integer) filter entries by a year (optional)
+
+[source,ruby]
+----
+# query for all entries in a cache
+
+items = db.fetch_all
+=> [#<Relaton::Iso::ItemData:0x00000001265d5c88
+...
+
+items.size
+=> 6
+
+# query for all entries in a cache for a certain string
+
+items = db.fetch_all("mathematical terminology")
+=> [<Relaton::Iec::ItemData:0x0000000125dabd50
+...
+
+items.size
+=> 1
+
+items[0].docidentifier[0].content.to_s
+=> "IEC 60050-102:2007"
+
+# query for all entries in a cache for a certain string and edition
+
+items = db.fetch_all("system", edition: "2")
+=> [#<RelatonIsoBib::IsoBibliographicItem:0x007ffebe2d1be8
+...
+
+items.size
+=> 1
+
+items[0].docidentifier[0].id
+=> "ISO 19011:2011"
+
+# query for all entries in a cache for a certain string and year
+
+items = db.fetch_all("Electromagnetism", edition: "2")
+=> [#<Relaton::Iec::ItemData:0x0000000123a93e80
+...
+
+items.size
+=> 1
+
+items[0].docidentifier[0].content.to_s
+=> "IEC 80000-6:2022"
+----
+
+=== Get document type
+[source,ruby]
+----
+db.docid_type("CN(GB/T 1.1)")
+=> ["Chinese Standard", "GB/T 1.1"]
+----
+
+=== Serializing
+[source,ruby]
+----
+x.to_xml
+=> "<bibitem id="IEC600501022007" type="standard" schema-version="v1.4.1">
+      ...
+    </bibitem>"
+
+db.to_xml
+=> "<?xml version"1.0" encoding="UTF-8"?>
+    <documents>
+      <bibdata type="standard" schema-version="v1.4.1">
+        ...
+      </bibdata>
+      <bibdata type="standard" schema-version="v1.4.1">
+        ...
+      </bibdata>
+      ...
+    </documents"
+
+x.to_xml bibdata: true
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      ...
+    </bibdata>"
+
+db.load_entry("ISO(ISO 19011)")
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      ...
+    </bibdata>"
+----
+
+=== Entry manipulation
+[source,ruby]
+----
+db.save_entry("ISO(ISO 19011)", nil)
+=> true
+
+db.load_entry("ISO(ISO 19011)")
+=> nil
+----
 
 == Layout
 
 ----
-gems/
-├── relaton/             # central DB (Relaton::Db) + runtime deps on every flavor
-├── relaton-core/        # foundational utilities
-├── relaton-index/       # index file support
-├── relaton-logger/      # logging helpers
-├── relaton-bib/         # bibliographic item model (lutaml-model)
-├── relaton-cli/         # command-line interface (optional, NOT a `relaton` dep)
-└── relaton-<flavor>/    # 28 flavor plugins: iso, ietf, nist, ieee, gb, …
-lib/relaton/version.rb   # master MAJOR.MINOR for the monorepo
-Gemfile                  # auto-discovers all gems in gems/
-Rakefile                 # per-gem and aggregate tasks
-release-order.json       # dep-aware release sequence
-monorepo_importer.rb     # subtree import script for adding/refreshing gems
+relaton.gemspec          # the one gemspec (union of every flavor's external deps)
+lib/
+├── relaton.rb           # entry point: autoload per flavor, then require relaton/db
+└── relaton/
+    ├── version.rb       # Relaton::VERSION — the single source of truth
+    ├── db.rb, db/       # Relaton::Db: registry, cache, workers pool
+    ├── core/ bib/ index/ logger/   # shared infrastructure
+    └── iso/ iec/ ietf/ … 3gpp/     # ~29 flavor plugins
+spec/<flavor>/           # each flavor's spec suite
+grammar/                 # shared RelaxNG test schemas (test-only, not shipped)
+gems/relaton-cli/        # the separate relaton-cli gem
 ----
 
-== Quick start
+== Flavors
+
+Every flavor lives under `lib/relaton/<flavor>/` and keeps its own README with
+usage and architecture notes.
+
+Standards bodies:
+
+link:lib/relaton/3gpp/README.adoc[3gpp],
+link:lib/relaton/bipm/README.adoc[bipm],
+link:lib/relaton/bsi/README.adoc[bsi],
+link:lib/relaton/calconnect/README.adoc[calconnect],
+link:lib/relaton/ccsds/README.adoc[ccsds],
+link:lib/relaton/cen/README.adoc[cen],
+link:lib/relaton/cie/README.adoc[cie],
+link:lib/relaton/doi/README.adoc[doi],
+link:lib/relaton/ecma/README.adoc[ecma],
+link:lib/relaton/etsi/README.adoc[etsi],
+link:lib/relaton/gb/README.adoc[gb],
+link:lib/relaton/iana/README.adoc[iana],
+link:lib/relaton/iec/README.adoc[iec],
+link:lib/relaton/ieee/README.adoc[ieee],
+link:lib/relaton/ietf/README.adoc[ietf],
+link:lib/relaton/iho/README.adoc[iho],
+link:lib/relaton/isbn/README.adoc[isbn],
+link:lib/relaton/iso/README.adoc[iso],
+link:lib/relaton/itu/README.adoc[itu],
+link:lib/relaton/jis/README.adoc[jis],
+link:lib/relaton/nist/README.adoc[nist],
+link:lib/relaton/oasis/README.adoc[oasis],
+link:lib/relaton/ogc/README.adoc[ogc],
+link:lib/relaton/oiml/README.adoc[oiml],
+link:lib/relaton/omg/README.adoc[omg],
+link:lib/relaton/plateau/README.adoc[plateau],
+link:lib/relaton/un/README.adoc[un],
+link:lib/relaton/w3c/README.adoc[w3c],
+link:lib/relaton/xsf/README.adoc[xsf].
+
+Foundational libraries:
+
+link:lib/relaton/bib/README.adoc[bib],
+link:lib/relaton/core/README.adoc[core],
+link:lib/relaton/index/README.adoc[index],
+link:lib/relaton/logger/README.adoc[logger].
+
+
+== Development
 
 [source,shell]
 ----
 bundle install
-bundle exec rake test:all              # run every gem's spec suite
-bundle exec rake test:relaton_iso      # run a single gem's specs
-bundle exec rake test:failed           # re-run only previously failed specs
-bundle exec rake test:failed:relaton_iso  # re-run the next failing spec for one gem
-bundle exec rake version:show          # show master + per-gem versions
-bundle exec rake -T                    # all available tasks
+bundle exec rake spec              # run every flavor's spec suite
+bundle exec rake spec:iso          # run one flavor's suite
+bundle exec rake build             # build the relaton gem into pkg/
+bundle exec rake build_all         # build relaton + relaton-cli
 ----
 
-== Versioning model
+Each flavor's specs live in `spec/<flavor>/` and run self-contained against the
+single gem (each in its own directory, so relative fixture/cassette/grammar
+paths resolve). See `CLAUDE.md` for the architecture notes (lazy registry,
+autoload, single version, grammar schemas).
 
-* Shared `MAJOR.MINOR` across all gems, driven by
-  `lib/relaton/version.rb` (`Relaton::MONOREPO_VERSION`).
-* Independent `PATCH` per gem — bump one gem's patch without bumping peers.
-* Inter-gem dependencies pinned with `~> MAJOR.MINOR` (any patch within the
-  current minor is acceptable).
+== Versioning
 
-[source,shell]
-----
-bundle exec rake version:check                      # enforce MAJOR.MINOR sync
-bundle exec rake "version:bump[minor]"              # bump master MAJOR.MINOR, sync all
-bundle exec rake "version:bump_patch[relaton-iso]"  # bump one gem's PATCH only
-----
+One version, `Relaton::VERSION` in `lib/relaton/version.rb`; every flavor derives
+from it. Bump that file (and `relaton-cli`'s own version) to cut a release.
 
-== Working on a single gem
+== Release
 
-Each `gems/<gem>/` is a normal Ruby gem (with its own `Gemfile`, `Rakefile`,
-`spec/`, gemspec). You can also work inside it directly:
-
-[source,shell]
-----
-cd gems/relaton-iso
-rm -f Gemfile.lock
-bundle
-bundle exec rake
-----
-
-The per-gem `Gemfile` uses `path: "../<sibling>"` for cross-gem deps, so local
-changes are picked up without reinstalling.
-
-== `Relaton::Db` namespace
-
-In this monorepo the legacy top-level classes have moved under `Relaton::Db`:
-
-[cols="1,1"]
-|===
-| Old                       | New
-| `Relaton::DbCache`        | `Relaton::Db::Cache`
-| `Relaton::Registry`       | `Relaton::Db::Registry`
-| `Relaton::Configuration`  | `Relaton::Db::Configuration`
-| `Relaton::WorkersPool`    | `Relaton::Db::WorkersPool`
-| `Relaton::Util`           | `Relaton::Db::Util`
-| `Relaton::VERSION`        | `Relaton::Db::VERSION`
-| `Relaton.configure`       | `Relaton::Db.configure`
-|===
-
-`Relaton::Db` itself (the main DB class) is unchanged. There are no
-backward-compat aliases — downstream code must update to the new names.
-
-== Importing a new gem
-
-The `monorepo_importer.rb` script subtree-imports a gem from its individual
-GitHub repo into `gems/<name>/`, preserving the upstream history as git objects.
-
-[source,shell]
-----
-# Import all known gems (idempotent — pulls into existing dirs)
-ruby monorepo_importer.rb
-
-# Import one
-ruby monorepo_importer.rb relaton-iso
-
-# Override the source branch
-SOURCE_BRANCH=main ruby monorepo_importer.rb relaton-iso
-----
-
-To add a brand-new gem, append its name to `GEMS` in `monorepo_importer.rb` and
-re-run; or scaffold a fresh `gems/<name>/` directory directly. Either way, add
-the gem to `release-order.json` in the right position based on its
-dependencies.
-
-== Release process
-
-. `bundle exec rake test:all` passes locally.
-. Trigger the `release` workflow on GitHub Actions:
-  * `version_type = minor|major` bumps the shared MAJOR.MINOR and tags a new
-    monorepo version.
-  * `version_type = skip` releases gems at their current per-gem PATCH versions
-    without bumping the master.
-. Gems push to RubyGems in dep-aware order (see `release-order.json`):
-  logger → core → index → bib → flavor plugins → iso-dependent flavors → doi
-  → relaton (depends on every flavor) → relaton-cli (depends on relaton).
-
-Required repo secrets:
-
-* `RELATON_CI_PAT_TOKEN` — personal access token for repo dispatches.
-* `RELATON_CI_RUBYGEMS_API_KEY` — RubyGems API key with push rights for every
-  gem.
-
-== Gems in this monorepo
-
-Foundational: `relaton-logger`, `relaton-core`, `relaton-index`, `relaton-bib`.
-
-Main: `relaton` — the central DB (`Relaton::Db` API, registry, cache) plus
-runtime deps on every flavor plugin. `gem install relaton` gives you the full
-multi-flavor setup in one step.
-
-CLI: `relaton-cli` (optional; NOT a `relaton` runtime dep).
-
-Flavor plugins (28): `relaton-3gpp`, `relaton-bipm`, `relaton-bsi`,
-`relaton-calconnect`, `relaton-ccsds`, `relaton-cen`, `relaton-cie`,
-`relaton-doi`, `relaton-ecma`, `relaton-etsi`, `relaton-gb`, `relaton-iana`,
-`relaton-iec`, `relaton-ieee`, `relaton-ietf`, `relaton-iho`, `relaton-isbn`,
-`relaton-iso`, `relaton-itu`, `relaton-jis`, `relaton-nist`, `relaton-oasis`,
-`relaton-ogc`, `relaton-omg`, `relaton-plateau`, `relaton-un`, `relaton-w3c`,
-`relaton-xsf`.
-
-== History
-
-Each gem was subtree-imported from its individual `relaton/<gem>` GitHub repo
-with the original commits preserved as objects in this repo's `.git/`. File
-history follows across the import boundary via:
-
-[source,shell]
-----
-git log --follow -- gems/<gem>/path/to/file.rb
-git blame -CCC gems/<gem>/path/to/file.rb
-----
-
-GitHub's web UI also traces history across the import for most files.
+The `release` GitHub Actions workflow builds and pushes two gems: `relaton` and
+`relaton-cli`. Requires the `RELATON_CI_RUBYGEMS_API_KEY` secret.
 
 == License
 
-BSD-2-Clause. Each gem may carry its own LICENSE file with the same terms.
+BSD-2-Clause.

@@ -6,6 +6,16 @@ Dir["./spec/support/**/*.rb"].sort.each { |f| require f }
 require "relaton-cli"
 require "rspec/html"
 
+# The relaton registry loads flavors lazily (only their processor files), so
+# flavor constants like Relaton::Iso::Bibliography are not defined until a fetch.
+# Some specs reference those constants directly (e.g. to stub `.get`), so
+# eager-load every flavor here. Test process only; runtime stays lazy.
+Relaton::Db::Registry::SUPPORTED_GEMS.each do |b|
+  require b
+rescue LoadError
+  nil # flavor gem not present in this environment
+end
+
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
   config.example_status_persistence_file_path = ".rspec_status"

@@ -1,0 +1,125 @@
+= Relaton for UN documents
+
+RelatonUn is a Ruby gem that implements the https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
+
+You can use it to retrieve metadata of UN documents from https://documents.un.org, and access such metadata through the `Relaton::Un::Item` object.
+
+== Usage
+
+=== Search for a standard using keywords
+
+[source,ruby]
+----
+require 'relaton/un'
+=> true
+
+hits = Relaton::Un::Bibliography.search("TRADE/CEFACT/2004/32")
+=> <Relaton::Un::HitCollection:0x00000000001660 @ref=TRADE/CEFACT/2004/32 @fetched=false>
+
+item = hits[0].item
+=> #<Relaton::Un::Item:0x000000012385aa60
+...
+----
+
+=== XML serialization
+
+[source,ruby]
+----
+item.to_xml
+=> "<bibitem id="TRADECEFACT200432" type="standard" schema-version="v1.4.1">
+      <fetched>2026-03-03</fetched>
+      <title language="en" script="Latn" type="title-main"/>
+      <title language="en" script="Latn" type="main"/>
+      <uri type="pdf">https://documents.un.org/api/symbol/access?j=G0430683&amp;t=pdf</uri>
+      <docidentifier type="UN" primary="true">TRADE/CEFACT/2004/32</docidentifier>
+      <docnumber>TRADE/CEFACT/2004/32</docnumber>
+      <date type="published">
+        <on>2004-03-18</on>
+      </date>
+      <language>en</language>
+      <script>Latn</script>
+    </bibitem>"
+----
+With argument `bibdata: true` it outputs XML wrapped by `bibdata` element and adds flavor `ext` element.
+[source,ruby]
+----
+item.to_xml bibdata: true
+=> "<bibdata type="standard" schema-version="v1.4.1">
+      <fetched>2026-03-03</fetched>
+      <title language="en" script="Latn" type="title-main"/>
+      <title language="en" script="Latn" type="main"/>
+      <uri type="pdf">https://documents.un.org/api/symbol/access?j=G0430683&amp;t=pdf</uri>
+      <docidentifier type="UN" primary="true">TRADE/CEFACT/2004/32</docidentifier>
+      <docnumber>TRADE/CEFACT/2004/32</docnumber>
+      <date type="published">
+        <on>2004-03-18</on>
+      </date>
+      <language>en</language>
+      <script>Latn</script>
+      <ext schema-version="v1.0.0">
+        <distribution>general</distribution>
+        <session>
+          <number>10</number>
+          <agenda-id>12</agenda-id>
+        </session>
+        <job_number>G0430683</job_number>
+      </ext>
+    </bibdata>"
+----
+
+=== Get code, and year
+[source,ruby]
+----
+Relaton::Un::Bibliography.get "UN TRADE/CEFACT/2004/32"
+[relaton-un] INFO: (UN TRADE/CEFACT/2004/32) Fetching from documents.un.org ...
+[relaton-un] INFO: (UN TRADE/CEFACT/2004/32) Found: `TRADE/CEFACT/2004/32`
+=> #<Relaton::Un::ItemData:0x0000000127d9c448
+...
+----
+
+=== Typed links
+
+UN documens may have `pdf` and `word` source link types.
+
+[source,ruby]
+----
+item.source[0].type
+=> "pdf"
+
+item.source[0].content
+=> "https://documents.un.org/api/symbol/access?j=G0430683&t=pdf"
+----
+
+=== Create bibliographic item from XML
+[source,ruby]
+----
+Relaton::Un::Bibdata.from_xml File.read('spec/fixtures/bibdata.xml')
+=> #<Relaton::Bib::ItemData:0x000000012772a448
+...
+----
+
+=== Create bibliographic item from YAML
+[source,ruby]
+----
+Relaton::Un::Item.from_yaml File.read('spec/fixtures/item.yaml')
+=> #<Relaton::Un::ItemData:0x0000000127d7a140
+...
+----
+
+=== Logging
+
+RelatonUn uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
+
+== Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+== Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/calconnect/relaton_un.
+
+== License
+
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

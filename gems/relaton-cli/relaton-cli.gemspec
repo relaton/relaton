@@ -23,7 +23,8 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = Gem::Requirement.new(">= 3.3.0")
 
   spec.add_dependency "liquid", "~> 5"
-  spec.add_dependency "relaton-bib", "~> 2.2.0.pre.alpha.1"
+  # relaton bundles every flavor plus Relaton::Bib, so depending on `relaton`
+  # alone is sufficient — relaton-bib is no longer published standalone.
   spec.add_dependency "relaton", "~> 2.2.0.pre.alpha.1"
   spec.add_dependency "thor"
   spec.add_dependency "thor-hollaback"

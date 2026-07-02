@@ -43,12 +43,14 @@ module Relaton
       def version
         require "relaton/bib"
         registry = Relaton::Db::Registry.instance
+        # Every flavor now ships inside the single `relaton` gem, so they all
+        # report Relaton::VERSION rather than a separate gem version.
         puts "CLI => #{Relaton::Cli::VERSION}"
-        puts "relaton => #{Gem.loaded_specs['relaton'].version}"
-        puts "relaton-bib => #{Gem.loaded_specs['relaton-bib'].version}"
+        puts "relaton => #{Relaton::VERSION}"
+        puts "relaton-bib => #{Relaton::Bib::VERSION}"
         registry.processors.each_key do |k|
           name = k.to_s.sub("_", "-")
-          puts "#{name} => #{Gem.loaded_specs[name].version}"
+          puts "#{name} => #{Relaton::VERSION}"
         end
       end
 

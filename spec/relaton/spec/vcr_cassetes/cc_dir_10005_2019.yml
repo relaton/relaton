@@ -1,0 +1,202 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-calconnect/refs/heads/v2/index-v1.zip
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - raw.githubusercontent.com
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1654'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - application/zip
+      Etag:
+      - W/"b1321bf4e1d945753f52cb90e94948df1958cb67c8e698e4365595b5ede0553e"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - A7E8:19F26E:543003:638A72:6A44571E
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Tue, 30 Jun 2026 23:54:07 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kjyo7100162-IAD
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1782863647.381659,VS0,VE47
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - 97d138421a1a0b99348b9a618a165aa6b3a17af7
+      Expires:
+      - Tue, 30 Jun 2026 23:59:07 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        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
+  recorded_at: Tue, 30 Jun 2026 23:54:07 GMT
+- request:
+    method: get
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-calconnect/refs/heads/v2/data/cc-dir-10005-2019.yaml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Mechanize/2.14.0 Ruby/3.4.9p82 (http://github.com/sparklemotion/mechanize/)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - raw.githubusercontent.com
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '449'
+      Cache-Control:
+      - max-age=300
+      Content-Security-Policy:
+      - default-src 'none'; style-src 'unsafe-inline'; sandbox
+      Content-Type:
+      - text/plain; charset=utf-8
+      Etag:
+      - W/"313d197ff3a3058af02ca3596195898c7cb5ec02fa13ed8b69640a74b067678c"
+      Strict-Transport-Security:
+      - max-age=31536000
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - deny
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Github-Request-Id:
+      - 754A:340FD9:5C63F1:6BC476:6A44571F
+      Content-Encoding:
+      - gzip
+      Accept-Ranges:
+      - bytes
+      Date:
+      - Tue, 30 Jun 2026 23:54:07 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-iad-kjyo7100036-IAD
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1782863648.569683,VS0,VE58
+      Vary:
+      - Authorization,Accept-Encoding
+      Access-Control-Allow-Origin:
+      - "*"
+      Cross-Origin-Resource-Policy:
+      - cross-origin
+      X-Fastly-Request-Id:
+      - '0864c50f8a1f0eb4e844feffaf561e5365640909'
+      Expires:
+      - Tue, 30 Jun 2026 23:59:07 GMT
+      Source-Age:
+      - '0'
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        H4sIAAAAAAAAA51TPY+cMBDt/Sumo2IDF91JoQyRkpOuOCVKHRl7gJGwjYzh
+        svn1GZtlYbVKiuvA4/c1PPI8F6QrqOsvz9/LoigeH4ryk5hUj0b+WtBP5GwF
+        S3l6PD2JcB6xgilIq6XXIlAYsBI5DNJ2s+x4hlYAKGcD2lDB15k0DmRxgtZ5
+        CD0CmXFAw1MZmBlcm05rOdTOWlQBRhmxMLqB1JnJVk0jyQrtFPPZQC2hj7pX
+        obr+wP4hBahSgg24M/PR6MlIf64g+BkjnZ1Nw1SQJWQmNItH4hU7zs1AU4+a
+        oZJVssicF095+TETUdtTMweXrHgXVwGwYeUceuf5wPlOWvqT4sYLAFYaXJ+O
+        CXaf/yED0DgpT+POduBQzhgKAfFdsnEyzY2mhaYD+w67Ab7+/Pzy/OPbZbDa
+        DKh6S0oO+e7kPsy21fctBzVtl6/jrMzEVtVjK26+17WjfINbum4xvrzIwK/c
+        x3mKrPzUXRxcifYiKDeePXV9QrbemYtKFsO82VjL6Pw+F/xrkcdsv0NycP/z
+        lacHHnBh0woTiWwajwutEsDtv7WsyTMlLbEL7SAXbikoJf4CQzY5H/ADAAA=
+  recorded_at: Tue, 30 Jun 2026 23:54:07 GMT
+recorded_with: VCR 6.4.0

@@ -1,0 +1,154 @@
+= Relaton::Ccsds
+
+RelatonCcsds is a Ruby gem that implements the https://github.com/relaton/relaton-models#bibliographic-item[BibliographicItem model].
+
+You can use it to retrieve metadata of CCSDS Standards from https://public.ccsds.org/Publications/AllPubs.aspx, and access such metadata through the `RelatonCcsds::BibliographicItem` object.
+
+== Usage
+
+=== Search for a standard using keywords
+
+[source,ruby]
+----
+require 'relaton/ccsds'
+=> true
+
+hits = Relaton::Ccsds::Bibliography.search("CCSDS 230.2-G-1")
+=> <Relaton::Ccsds::HitCollection:0x000000000016b0 @ref=CCSDS 230.2-G-1 @fetched=false>
+
+item = hits[0].item
+=> #<Relaton::Ccsds::ItemData:0x0000000125ae1318
+...
+
+item.docidentifier[0].content
+=> "CCSDS 230.2-G-1"
+
+item = Relaton::Ccsds::Bibliography.get("CCSDS 230.2-G-1")
+[relaton-ccsds] INFO: (CCSDS 230.2-G-1) Fetching from Relaton repository ...
+[relaton-ccsds] INFO: (CCSDS 230.2-G-1) Found: `CCSDS 230.2-G-1`.
+=> #<Relaton::Ccsds::ItemData:0x0000000125deba40
+...
+----
+
+=== XML serialization
+
+[source,ruby]
+----
+item.to_xml
+=> "<bibitem id="CCSDS2302G1" schema-version="v1.5.6">
+      <fetched>2025-12-03</fetched>
+      <title language="en" script="Latn">Next Generation Uplink</title>
+      <uri type="src">https://ccsds.org/publications/ccsdsallpubs/entry/3224/</uri>
+      <uri type="pdf">https://ccsds.org/wp-content/uploads/gravity_forms/5-448e85c647331d9cbaf66c096458bdd5/2025/01//230x2g1.pdf</uri>
+      <docidentifier type="CCSDS" primary="true">CCSDS 230.2-G-1</docidentifier>
+      ...
+    </bibitem>"
+----
+With argument `bibdata: true` it outputs XML wrapped by `bibdata` element and adds flavour `ext` element.
+[source,ruby]
+----
+item.to_xml bibdata: true
+=> "<bibdata schema-version="v1.5.6">
+      <fetched>2025-12-03</fetched>
+      <title language="en" script="Latn">Next Generation Uplink</title>
+      <uri type="src">https://ccsds.org/publications/ccsdsallpubs/entry/3224/</uri>
+      ...
+      <ext>
+        <doctype>report</doctype>
+        <technology-area>Space Link Services Area</technology-area>
+      </ext>
+    </bibdata>"
+----
+
+=== Typed links
+
+All the CCSDS documents have PDF links. Some of them have additional DOC links. The gem provides a way to access these links through the `RelatonBib::TypedUri` object.
+
+[source,ruby]
+----
+item.source
+=> [#<Relaton::Bib::Uri:0x0000000126722b90 @content="https://ccsds.org/publications/ccsdsallpubs/entry/3224/", @language=nil, @locale=nil, @script=nil, @type="src">,
+ #<Relaton::Bib::Uri:0x0000000126722690
+  @content="https://ccsds.org/wp-content/uploads/gravity_forms/5-448e85c647331d9cbaf66c096458bdd5/2025/01//230x2g1.pdf",
+  @language=nil,
+  @locale=nil,
+  @script=nil,
+  @type="pdf">]
+
+Relaton::Ccsds::Bibliography.get("CCSDS 720.6-Y-1").source
+[relaton-ccsds] (CCSDS 720.6-Y-1) Fetching from Relaton repository ...
+[relaton-ccsds] (CCSDS 720.6-Y-1) Found: `CCSDS 720.6-Y-1`.
+=> [#<Relaton::Bib::Uri:0x00000001268cfba0 @content="https://ccsds.org/publications/ccsdsallpubs/entry/3160/", @language=nil, @locale=nil, @script=nil, @type="src">,
+ #<Relaton::Bib::Uri:0x00000001268cf650
+  @content="https://ccsds.org/wp-content/uploads/gravity_forms/5-448e85c647331d9cbaf66c096458bdd5/2025/01//720x6y1.doc",
+  @language=nil,
+  @locale=nil,
+  @script=nil,
+  @type="doc">,
+ #<Relaton::Bib::Uri:0x00000001268cf100
+  @content="https://ccsds.org/wp-content/uploads/gravity_forms/5-448e85c647331d9cbaf66c096458bdd5/2025/01//720x6y1.pdf",
+  @language=nil,
+  @locale=nil,
+  @script=nil,
+  @type="pdf">]
+----
+
+=== Create bibliographic item from XML
+[source,ruby]
+----
+Relaton::Ccsds::Item.from_xml File.read('spec/fixtures/ccsds_230_2-g-1.xml')
+=> #<Relaton::Ccsds::ItemData:0x0000000127b46680
+...
+----
+
+=== Create bibliographic item from YAML
+[source,ruby]
+----
+yaml = File.read 'spec/fixtures/ccsds_230_2-g-1.yaml'
+=> ---\nschema-version: v1.2.9\nid: CCSDS230.2-G-1 ...
+
+Relaton::Ccsds::Item.from_yaml yaml
+=> #<Relaton::Ccsds::ItemData:0x0000000122e4caa0
+...
+----
+
+=== Fetch data
+
+This gem uses the https://ccsds.org/publications/ccsdsallpubs/ page as a data source.
+
+The method `Relaton::Ccsds::DataFetcher.fetch(output: "data", format: "yaml")` fetches all the documents from the data source and saves them to the `./data` folder in YAML format.
+Arguments:
+
+- `output` - folder to save documents (default './data').
+- `format` - the format in which the documents are saved. Possible formats are: `yaml`, `xml`, `bibxml` (default `yaml`).
+
+[source,ruby]
+----
+require 'relaton/ccsds/data/fetcher'
+Relaton::Ccsds::DataFetcher.fetch
+Started at: 2023-08-25 22:02:06 -0400
+(data/CCSDS-720-4-Y-1.yaml) file already exists. Trying to merge links ...
+...
+Done in: 40 sec.
+=> nil
+----
+
+=== Logging
+
+RelatonCcsds uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
+
+== Development
+
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+
+To update the index test fixture (used by tests), run `rake spec:update_index`. This downloads the latest `index-v1.zip` from the https://github.com/relaton/relaton-data-ccsds[relaton-data-ccsds] repository.
+
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+== Contributing
+
+Bug reports and pull requests are welcome on GitHub at https://github.com/relaton/relaton-ccsds.
+
+== License
+
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

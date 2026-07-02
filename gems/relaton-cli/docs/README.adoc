@@ -1,7 +1,7 @@
 = Relaton CLI: Command-line Interface for Bibliographic References
 
 image:https://img.shields.io/gem/v/relaton-cli.svg["Gem Version", link="https://rubygems.org/gems/relaton-cli"]
-image:https://github.com/relaton/relaton-cli/workflows/rake/badge.svg["Build Status", link="https://github.com/relaton/relaton-cli/actions?workflow=rake"]
+image:https://github.com/relaton/relaton/actions/workflows/rake.yml/badge.svg["Build Status", link="https://github.com/relaton/relaton/actions/workflows/rake.yml"]
 
 Relaton CLI is a command-line tool for fetching, converting, and managing
 bibliographic references to standards (ISO, IEC, IETF, NIST, IEEE, and many
@@ -26,7 +26,7 @@ $ gem install relaton-cli
 
 == Requirements
 
-* Ruby >= 3.2.0
+* Ruby >= 3.3.0
 
 == Usage
 
@@ -181,7 +181,7 @@ root:
           content: proposal
 ----
 
-A Relaton YAML file describing an individual bibliographic entry is limited to metadata specific to that entry. The link:https://github.com/relaton/relaton-bib/blob/master/docs/hash.adoc#yaml[Relaton YAML] illustrates the common fields supported by all flavor gems.
+A Relaton YAML file describing an individual bibliographic entry is limited to metadata specific to that entry. The link:https://github.com/relaton/relaton-bib/blob/master/docs/hash.adoc#yaml[Relaton YAML] illustrates the common fields supported by all flavors.
 
 === relaton xml2yaml
 
@@ -232,7 +232,8 @@ Render a Relaton YAML file as an HTML file. The `stylesheet` and `liquid-templat
 $ relaton version
 ----
 
-Display version information for the CLI and all installed Relaton libraries.
+Display version information for the CLI and the bundled `relaton` gem (every
+flavor now reports the single `relaton` version).
 
 === relaton collection
 
@@ -402,7 +403,7 @@ $ bundle exec rubocop
 
 == Contributing
 
-Open an issue or pull request at https://github.com/relaton/relaton-cli.
+Open an issue or pull request at https://github.com/relaton/relaton.
 
 This gem is developed, maintained, and funded by
 https://www.ribose.com[Ribose Inc.]

@@ -4,61 +4,112 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-Monorepo for the Relaton family of Ruby gems (bibliographic references to technical standards). 35 gems live under `gems/<name>/`, each a normal Ruby gem with its own `Gemfile`, `Rakefile`, gemspec, and `spec/`. `README.adoc` is the canonical user-facing overview; this file captures the non-obvious bits for working in the repo.
+A single Ruby gem, **`relaton`** — bibliographic references to technical
+standards (ISO, IEC, IETF, NIST, IEEE, …). It bundles every standards-body
+"flavor" in one gem: the `Relaton::Db` API (registry, cache), the shared model
+layer, and ~29 flavor plugins. Flavor code is **loaded lazily** via `autoload`,
+so `require "relaton"` and using `Relaton::Db` does not load every flavor at
+startup — each loads on first use.
 
-Origin: `https://github.com/relaton/relaton`. The upstream `relaton/relaton-db` GH repo holds the history of the main `relaton` gem (the renaming happened upstream); it pulls into `gems/relaton/` here via `monorepo_importer.rb`'s `RENAMED` map.
+`relaton-cli` (the command-line interface) is the one **separate** gem; it lives
+in `gems/relaton-cli/` and depends on `relaton`.
+
+> History: this repo was previously a monorepo of ~35 separate gems under
+> `gems/`, assembled into one gem at build time. It has since been **collapsed
+> into a single gem** (one gemspec, one `lib/` tree, one `VERSION`). The
+> per-gem upstream repos are snapshots; this repo is canonical.
+
+## Layout
+
+```
+relaton.gemspec          # the one gemspec (union of all flavors' external deps)
+lib/
+├── relaton.rb           # entry point: autoload per flavor, then require relaton/db
+└── relaton/
+    ├── version.rb       # Relaton::VERSION — the single source of truth
+    ├── db.rb, db/       # Relaton::Db API: registry, cache, workers pool
+    ├── core/ bib/ index/ logger/   # shared infrastructure
+    └── iso/ iec/ ietf/ … 3gpp/     # ~29 flavor plugins (Relaton::Iso, …)
+spec/<flavor>/           # each flavor's spec suite (self-contained; see Testing)
+grammar/                 # shared RelaxNG test schemas (test-only, not shipped)
+gems/relaton-cli/        # the separate relaton-cli gem
+```
 
 ## Common commands
 
 ```sh
 bundle install
-bundle exec rake test:all                       # every gem's specs (continues past failures, prints summary)
-bundle exec rake test:relaton_iso               # one gem (gem name with - → _)
-bundle exec rake test:failed                    # re-run only previously failed specs (filters by .rspec_status)
-bundle exec rake test:failed:relaton_iso        # re-run the next failing spec for one gem
-bundle exec rake version:show                   # master + per-gem versions
-bundle exec rake version:check                  # enforce shared MAJOR.MINOR across all gems
-bundle exec rake "version:bump[minor]"          # bump master MAJOR.MINOR, sync to all gems (resets PATCH to 0)
-bundle exec rake "version:bump_patch[relaton-iso]"  # bump one gem's PATCH only
-bundle exec rake release:show_order             # release-order.json contents
-bundle exec rake release:validate_order         # every gem in gems/ is in release-order.json (and vice versa)
-bundle exec rake -T                             # all tasks
+bundle exec rake spec              # run every flavor's spec suite
+bundle exec rake spec:iso          # run one flavor's suite
+bundle exec rake build             # build the relaton gem into pkg/
+bundle exec rake build_all         # build relaton + relaton-cli
 ```
-
-Per-gem work (each gem is self-contained):
-
-```sh
-cd gems/relaton-iso
-rm -f Gemfile.lock && bundle && bundle exec rake
-```
-
-Per-gem `Gemfile`s pin cross-gem deps via `path: "../<sibling>"`, so edits in one gem are picked up immediately in another without reinstall. `test:all` runs each gem in `Bundler.with_unbundled_env` and removes the per-gem `Gemfile.lock` first.
 
 ## Architecture: what's non-obvious
 
-**Namespace move (no back-compat aliases).** The original top-level `relaton` gem kept its name but had its classes moved under `Relaton::Db::*` (`Relaton::Db::Cache`, `Relaton::Db::Registry`, `Relaton::Db::Configuration`, `Relaton::Db::WorkersPool`, `Relaton::Db::Util`, `Relaton::Db::VERSION`, `Relaton::Db.configure`). `Relaton::Db` itself (the main DB class) is unchanged. There are intentionally no aliases — downstream code must update. Don't add back-compat shims.
+**Lazy registry.** `Relaton::Db::Registry#register_gems` requires only each
+flavor's lightweight `relaton/<flavor>/processor` file — never the heavy flavor
+top-level. A processor's class body references just `Relaton::Core::Processor`;
+all flavor-heavy code (models, external deps) is lazy-`require_relative`d inside
+its methods (`get`/`from_xml`/`from_yaml`/`grammar_hash`/`remove_index_file`).
+So building a `Db` loads almost nothing. **Invariant:** any processor method
+that touches a flavor constant (`INDEXFILE`, `Util`, a model class, `Digest`, …)
+MUST `require_relative "../<flavor>"` (or the specific file) first — otherwise it
+NameErrors on the cold path (reachable via `Db#fetch` → `Cache.grammar_hash` and
+`Db#clear` → `remove_index_file`). `spec/relaton/lazy_loading_spec.rb` guards this.
 
-**Registry load order.** `Relaton::Db::Registry` requires each flavor gem's top-level (`b`) before its `b/processor` so the flavor's `util.rb` is loaded first. If you add a flavor processor, mirror that pattern — loading the processor first will blow up.
+**Autoload entry.** `lib/relaton.rb` declares `autoload :Iso, "relaton/iso"` per
+flavor (3gpp → `ThreeGpp`). Referencing a flavor namespace before a `Db` is
+built loads it on demand. When adding a flavor, add an autoload line here.
 
-**`relaton` is the central gem AND the umbrella.** `gems/relaton/` ships the `Relaton::Db` API (registry, cache, workers pool) and *also* declares runtime deps on every flavor plugin (pinned `~> 2.2.0.pre.alpha.1` during the current prerelease window — see Versioning model), so `gem install relaton` gives users a working multi-flavor setup out of the box. `relaton-cli` is intentionally NOT a runtime dependency. There is no separate `relaton-db` gem — it was briefly split out, then merged back.
+**Single `VERSION`.** `lib/relaton/version.rb` defines `Relaton::VERSION`. Every
+flavor's `version.rb` derives `VERSION = Relaton::VERSION` — which works because
+it's one gem (one gemspec, no cross-gem load isolation; deriving across separate
+gems is impossible because bundler evaluates each gemspec standalone). `grammar_hash`
+methods hash these versions for cache invalidation; bumping `Relaton::VERSION`
+re-stamps them all.
 
-**Versioning model.** Master `MAJOR.MINOR` lives in `lib/relaton/version.rb` as `Relaton::MONOREPO_VERSION` (currently `2.2.0.pre.alpha.1`). All gems share the same `MAJOR.MINOR` but carry independent `PATCH` numbers; inter-gem deps are pinned `~> MAJOR.MINOR.0` so PATCH can drift per gem without churn. The `MAJOR.MINOR.0` floor must be re-bumped in the same commit as a master `version:bump`. `version:sync` resets every gem to the master (PATCH → 0) — only use it when intentionally aligning patches after a master bump.
+**Shared test grammars in `grammar/`.** The RelaxNG schemas specs validate XML
+against live in one top-level `grammar/` (deduped from the old per-gem
+`spec/schemas/`). Specs reference them as `Jing.new "../../grammar/<flavor>-compile.rng"`
+(relative to the spec's CWD, which is `spec/<flavor>/` — two levels under root,
+so `../../grammar` resolves to repo root). Co-located schemas keep the RelaxNG
+`<include href="...">` chains working. Test-only; not in the gemspec.
 
-**Prerelease window (2.2.0 alpha).** The 2.2.0 line is currently shipping as `2.2.0.pre.alpha.N` prereleases (it depends on the `pubid 2.0.0.pre.alpha.3` prerelease). While in this window, every gem's version is the alpha string and inter-gem deps are pinned `~> 2.2.0.pre.alpha.1` (a prerelease sorts *below* its release, so a plain `~> 2.2.0` would not resolve sibling alphas; the alpha pin admits both the alphas and the eventual 2.2.x stable). When cutting stable 2.2.0, sync versions to `2.2.0` and revert the inter-gem pins to `~> 2.2.0`. Alpha releases go out via the `release` workflow in `skip` mode (it builds + `gem push`es the current versions from `main`; no tag/GitHub Release).
+**relaton-cli is separate.** `gems/relaton-cli/` is its own gem depending on
+`relaton`. Don't fold it in. Its `Gemfile` uses `gem "relaton", path: "../.."`.
 
-**Per-gem version file paths follow Ruby module conventions.** `gems/relaton-iso/lib/relaton/iso/version.rb`. The 3gpp gem is the special case: directory is `gems/relaton-3gpp/lib/relaton/3gpp/`, but Ruby module is `Relaton::ThreeGpp`.
+## Testing
 
-**release-order.json drives the release workflow.** Dep-aware order: logger → core → index → bib → flavor plugins (alpha, ISO-independent first) → ISO-dependent flavors (bsi, gb, iec, jis, ogc, plateau) → doi → relaton → cli. The `release` GH workflow walks this list. `rake release:validate_order` enforces it covers `gems/` exactly. `relaton` releases after every flavor (it depends on all of them) and before `relaton-cli` (which now depends on `relaton`).
+Each flavor's specs live in `spec/<flavor>/` and run **self-contained** against
+the single gem: `rake spec` does `cd spec/<flavor> && rspec -I . .` per flavor.
+Running each in its own dir keeps their CWD-relative fixture/cassette paths,
+`__dir__`-relative index fixtures, `../../grammar` refs, and per-flavor
+`before(:suite)` index hooks working without a fragile flat merge (no constant
+or VCR-config collisions across flavors). Each `spec/<flavor>/` has its own
+`.rspec` (`--require spec_helper`).
 
-**`monorepo_importer.rb` is idempotent.** Re-running calls `git subtree pull` for existing dirs and `git subtree add` for new ones. Branch resolution prefers `lutaml-integration`, falls back to the monorepo's current branch, then `main`, then whatever's first. Override with `SOURCE_BRANCH=<name>`. The `relaton` gem is the special case: its upstream GH repo is named `relaton-db` (via the `RENAMED` map).
-
-**History across subtree imports.** File history follows through the import commit; use `git log --follow -- gems/<gem>/path/to/file.rb` and `git blame -CCC gems/<gem>/<file>`. Don't expect linear history — each gem joined via a subtree merge commit.
+- Umbrella (`Relaton::Db`) specs are in `spec/relaton/` directly (flattened — a
+  cache-dir named `relaton` would otherwise collide with a `relaton/` subdir).
+- **Known issue:** `spec/oiml/` marks 8 tests pending — `Pubid::Oiml::Identifier.from_hash`
+  fails only inside the combined-gem bundle (a runtime-dep interaction; identical
+  pubid/lutaml versions pass in isolation), so the OIML index can't deserialize.
+  This is a real combined-gem bug surfaced by the full suite; needs a dependency
+  bisect of the gemspec.
 
 ## Conventions to keep
 
-- Don't add backward-compat aliases for the `Relaton::Db::*` rename — clean break is intentional.
+- **Per-flavor docs.** Each flavor keeps its own `lib/relaton/<flavor>/CLAUDE.md`
+  with that flavor's architecture notes (retrieval flow, key classes). These are
+  dev docs — excluded from the packaged gem via the gemspec `files` glob.
+- **Adding a flavor:** drop `lib/relaton/<flavor>/…` (with a `processor.rb` and a
+  `version.rb` deriving `Relaton::VERSION`), add an `autoload` line to
+  `lib/relaton.rb`, add the prefix to `Relaton::Db::Registry::SUPPORTED_GEMS`,
+  add its external deps to `relaton.gemspec`, put `<flavor>(-compile).rng` in
+  `grammar/`, add specs under `spec/<flavor>/`, and a `lib/relaton/<flavor>/CLAUDE.md`.
+- Don't reintroduce per-flavor gems/gemspecs or the combined-build step — it's
+  one gem now.
 - Don't add `relaton-cli` as a runtime dep of `relaton`.
-- Don't re-split `relaton-db` out of `relaton`; the merged-single-gem shape is intentional (matches v2.1).
-- Cross-gem deps in per-gem `Gemfile`s use `path: "../<sibling>"`, not git refs or version constraints.
-- When adding a brand-new gem: append to `monorepo_importer.rb`'s `GEMS` list AND insert into `release-order.json` at the dep-correct position.
+- Keep `VERSION` single-sourced in `lib/relaton/version.rb`.
 - Scratch/one-off scripts go under `/tmp/`, not the project root.
+```

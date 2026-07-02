@@ -46,3 +46,9 @@ testcache2/
 # Rubocop URL-inherit cache (created when inherit_from points at a URL)
 .rubocop-http*
 .claude/scheduled_tasks.lock
+
+# RSpec run artifacts
+.rspec_status
+**/.rspec_status
+**/examples.txt
+spec/**/coverage/
