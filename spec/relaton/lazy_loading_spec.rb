@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "shellwords"
+require "open3"
 
 # These specs prove that registering the flavor processors does NOT eagerly
 # load each flavor's heavy main file (`relaton/iso`, ...). The assertions run
@@ -15,13 +15,17 @@ RSpec.describe "lazy flavor loading" do
   # loaded code. The snippet prints `marker` on success; anything else (a
   # NameError, an `abort "FAIL: ..."`) leaves it absent. Returns combined
   # stdout+stderr, which may carry unrelated log noise — assertions tolerate it.
+  #
+  # Spawns via an Open3 arg array (no shell), so it works identically on POSIX
+  # and Windows — shelling out with Shellwords escaping breaks under cmd.exe.
   def run_in_clean_process(body)
     script = <<~RUBY
       $LOAD_PATH.replace(#{$LOAD_PATH.inspect})
       #{body}
       print "#{marker}"
     RUBY
-    `#{Shellwords.escape(RbConfig.ruby)} -e #{Shellwords.escape(script)} 2>&1`
+    out, = Open3.capture2e(RbConfig.ruby, "-e", script)
+    out
   end
 
   it "registers the ISO processor without loading the heavy iso.rb" do
