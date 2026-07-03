@@ -8,7 +8,7 @@ RSpec.describe Relaton::Cie do
   end
 
   it "has a version number" do
-    expect(Relaton::Cie::VERSION).not_to be nil
+    expect(Relaton::VERSION).not_to be nil
   end
 
   it "returs grammar hash" do

@@ -10,7 +10,7 @@ RSpec.describe Relaton::Oasis do
   end
 
   it "has a version number" do
-    expect(Relaton::Oasis::VERSION).not_to be_nil
+    expect(Relaton::VERSION).not_to be_nil
   end
 
   it "return grammar hash" do

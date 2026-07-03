@@ -1,5 +1,5 @@
 RSpec.describe Relaton::Iso do
   it "has a version number" do
-    expect(Relaton::Iso::VERSION).not_to be nil
+    expect(Relaton::VERSION).not_to be nil
   end
 end

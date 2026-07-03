@@ -5,7 +5,7 @@ require "bibtex"
 require "iso639"
 require "rfcxml"
 require "relaton/core"
-require_relative "bib/version"
+require_relative "version"
 require_relative "bib/util"
 require_relative "bib/sanitizer"
 require_relative "bib/namespace_helper"
@@ -42,7 +42,7 @@ module Relaton
       # gem_path = File.expand_path "..", __dir__
       # grammars_path = File.join gem_path, "grammars", "*"
       # grammars = Dir[grammars_path].sort.map { |gp| File.read gp }.join
-      Digest::MD5.hexdigest Relaton::Bib::VERSION # grammars
+      Digest::MD5.hexdigest Relaton::VERSION # grammars
     end
   end
 end

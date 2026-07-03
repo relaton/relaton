@@ -2,7 +2,7 @@
 
 RSpec.describe Relaton::Cen do
   it "has a version number" do
-    expect(Relaton::Cen::VERSION).not_to be nil
+    expect(Relaton::VERSION).not_to be nil
   end
 
   it "retunrs grammar hash" do

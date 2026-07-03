@@ -62,12 +62,14 @@ NameErrors on the cold path (reachable via `Db#fetch` → `Cache.grammar_hash` a
 flavor (3gpp → `ThreeGpp`). Referencing a flavor namespace before a `Db` is
 built loads it on demand. When adding a flavor, add an autoload line here.
 
-**Single `VERSION`.** `lib/relaton/version.rb` defines `Relaton::VERSION`. Every
-flavor's `version.rb` derives `VERSION = Relaton::VERSION` — which works because
-it's one gem (one gemspec, no cross-gem load isolation; deriving across separate
-gems is impossible because bundler evaluates each gemspec standalone). `grammar_hash`
-methods hash these versions for cache invalidation; bumping `Relaton::VERSION`
-re-stamps them all.
+**Single `VERSION`.** `lib/relaton/version.rb` defines `Relaton::VERSION` — the
+one version constant. There are **no** per-flavor `version.rb` files or
+`Relaton::<Flavor>::VERSION` constants anymore: since this is one gem they'd all
+be identical to `Relaton::VERSION`, so they were removed. Each flavor's
+`grammar_hash` hashes `Relaton::VERSION` directly (`Digest::MD5.hexdigest
+Relaton::VERSION`) for cache invalidation; bumping `Relaton::VERSION` re-stamps
+them all. (`Relaton::Db::VERSION` in `lib/relaton/db/version.rb` is a separate,
+independently-set constant, not part of this scheme.)
 
 **Shared test grammars in `grammar/`.** The RelaxNG schemas specs validate XML
 against live in one top-level `grammar/` (deduped from the old per-gem
@@ -115,8 +117,9 @@ the gemspec globs only `lib/`), unit-tested by `spec/tasks/`. Per-flavor
 - **Per-flavor docs.** Each flavor keeps its own `lib/relaton/<flavor>/CLAUDE.md`
   with that flavor's architecture notes (retrieval flow, key classes). These are
   dev docs — excluded from the packaged gem via the gemspec `files` glob.
-- **Adding a flavor:** drop `lib/relaton/<flavor>/…` (with a `processor.rb` and a
-  `version.rb` deriving `Relaton::VERSION`), add an `autoload` line to
+- **Adding a flavor:** drop `lib/relaton/<flavor>/…` (with a `processor.rb`; the
+  flavor's `grammar_hash` should hash `Relaton::VERSION` — don't add a per-flavor
+  `version.rb`), add an `autoload` line to
   `lib/relaton.rb`, add the prefix to `Relaton::Db::Registry::SUPPORTED_GEMS`,
   add its external deps to `relaton.gemspec`, put `<flavor>(-compile).rng` in
   `grammar/`, add specs under `spec/<flavor>/`, and a `lib/relaton/<flavor>/CLAUDE.md`.

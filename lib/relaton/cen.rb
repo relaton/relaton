@@ -5,7 +5,7 @@ require "mechanize"
 require "relaton/core"
 require "isoics"
 require "relaton/bib"
-require_relative "cen/version"
+require_relative "version"
 require_relative "cen/util"
 require_relative "cen/model/item"
 require_relative "cen/model/bibitem"
@@ -23,7 +23,7 @@ module Relaton
       # gem_path = File.expand_path "..", __dir__
       # grammars_path = File.join gem_path, "grammars", "*"
       # grammars = Dir[grammars_path].sort.map { |gp| File.read gp }.join
-      Digest::MD5.hexdigest Cen::VERSION +  Bib::VERSION # grammars
+      Digest::MD5.hexdigest Relaton::VERSION # grammars
     end
   end
 end

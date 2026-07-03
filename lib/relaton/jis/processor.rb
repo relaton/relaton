@@ -37,7 +37,7 @@ module Relaton
 
       def grammar_hash
         require_relative "../jis"
-        Digest::MD5.hexdigest Relaton::Jis::VERSION + Relaton::Bib::VERSION
+        Digest::MD5.hexdigest Relaton::VERSION
       end
 
       def threads

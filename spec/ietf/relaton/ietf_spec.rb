@@ -10,7 +10,7 @@ RSpec.describe Relaton::Ietf do
   end
 
   it "has a version number" do
-    expect(Relaton::Ietf::VERSION).not_to be nil
+    expect(Relaton::VERSION).not_to be nil
   end
 
   it "returs grammar hash" do

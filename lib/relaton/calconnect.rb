@@ -1,6 +1,6 @@
 require "relaton/index"
 require "relaton/core"
-require_relative "calconnect/version"
+require_relative "version"
 require_relative "calconnect/model/item"
 require_relative "calconnect/util"
 require_relative "calconnect/model/bibitem"
@@ -20,7 +20,7 @@ module Relaton
       # gem_path = File.expand_path "..", __dir__
       # grammars_path = File.join gem_path, "grammars", "*"
       # grammars = Dir[grammars_path].sort.map { |gp| File.read gp }.join
-      Digest::MD5.hexdigest Relaton::Calconnect::VERSION + Relaton::Bib::VERSION # grammars
+      Digest::MD5.hexdigest Relaton::VERSION # grammars
     end
   end
 end

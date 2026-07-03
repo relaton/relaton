@@ -2,7 +2,7 @@
 
 require "forwardable"
 require "logger"
-require_relative "logger/version"
+require_relative "version"
 require_relative "logger/log"
 require_relative "logger/log_device"
 require_relative "logger/pool"

@@ -2,7 +2,7 @@ require "jing"
 
 RSpec.describe Relaton::Calconnect do
   it "has a version number" do
-    expect(Relaton::Calconnect::VERSION).not_to be nil
+    expect(Relaton::VERSION).not_to be nil
   end
 
   it "returs grammar hash" do

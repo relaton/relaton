@@ -1,6 +1,6 @@
 RSpec.describe Relaton::Isbn do
   it "has a version number" do
-    expect(Relaton::Isbn::VERSION).not_to be nil
+    expect(Relaton::VERSION).not_to be nil
   end
 
   it "returns grammar hash" do

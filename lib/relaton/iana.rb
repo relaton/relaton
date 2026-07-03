@@ -3,7 +3,7 @@
 require "faraday"
 require "relaton/index"
 require "relaton/bib"
-require_relative "iana/version"
+require_relative "version"
 require_relative "iana/util"
 require_relative "iana/item_data"
 require_relative "iana/item"
@@ -23,7 +23,7 @@ module Relaton
       # gem_path = File.expand_path "..", __dir__
       # grammars_path = File.join gem_path, "grammars", "*"
       # grammars = Dir[grammars_path].sort.map { |gp| File.read gp }.join
-      Digest::MD5.hexdigest Relaton::Iana::VERSION + Relaton::Bib::VERSION # grammars
+      Digest::MD5.hexdigest Relaton::VERSION # grammars
     end
   end
 end

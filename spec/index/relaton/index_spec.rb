@@ -8,7 +8,7 @@ RSpec.describe Relaton::Index do
   end
 
   it "has a version number" do
-    expect(Relaton::Index::VERSION).not_to be nil
+    expect(Relaton::VERSION).not_to be nil
   end
 
   context "#find_or_create" do
