@@ -25,7 +25,7 @@ describe Relaton::Ecma::DataParser do
       it "returns standards", vcr: "ecma_370" do
         items = subject.parse
         expect(items).to be_instance_of Array
-        expect(items.size).to eq 7
+        expect(items.size).to eq 8
         expect(items.first).to be_instance_of Relaton::Ecma::ItemData
         expect(items.first.type).to eq "standard"
         expect(items.first.language).to eq ["en"]
