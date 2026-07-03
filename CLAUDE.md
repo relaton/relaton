@@ -89,6 +89,19 @@ Running each in its own dir keeps their CWD-relative fixture/cassette paths,
 or VCR-config collisions across flavors). Each `spec/<flavor>/` has its own
 `.rspec` (`--require spec_helper`).
 
+`rake spec` **captures** each suite's output (rather than streaming ~33 walls of
+it), printing a one-line `PASS`/`FAIL` + example-count + timing status per suite
+as it runs. It then ends with a compact report: an aggregate
+`N passed, M failed (K suites, T total)` line, the full output of *only* the
+failing suites grouped at the bottom, and a verdict line naming them (the
+per-suite detail already streamed live, so it isn't repeated). Set `VERBOSE=1` to also stream raw
+output live while it runs. `FLAVOR_SPECS` is auto-derived from `spec/*/` dirs
+that contain a `*_spec.rb` (so non-suite dirs like `spec/vcr_cassettes/` are
+skipped). The report/parsing logic is the pure `SpecReporter` module in
+`tasks/spec_reporter.rb` (top-level `tasks/` — test-only tooling, **not** shipped;
+the gemspec globs only `lib/`), unit-tested by `spec/tasks/`. Per-flavor
+`rake spec:<flavor>` tasks still stream live output (unchanged).
+
 - Umbrella (`Relaton::Db`) specs are in `spec/relaton/` directly (flattened — a
   cache-dir named `relaton` would otherwise collide with a `relaton/` subdir).
 - **Known issue:** `spec/oiml/` marks 8 tests pending — `Pubid::Oiml::Identifier.from_hash`
