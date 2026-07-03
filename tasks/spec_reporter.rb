@@ -11,7 +11,6 @@ module SpecReporter
                       keyword_init: true)
 
   RULE = "=" * 72
-  THIN = "-" * 72
   BANNER = "━" * 60
 
   # The rspec summary line, e.g. "42 examples, 1 failure, 2 pending".
@@ -33,33 +32,24 @@ module SpecReporter
     format("%dm%02ds", mins, secs)
   end
 
-  # The final report string: summary table, then the captured output of only
-  # the failing suites, then a one-line verdict with total wall-clock time.
+  # The final report string: a one-line aggregate count (the per-suite status
+  # already streamed live while running), then the captured output of only the
+  # failing suites, then a verdict naming them.
   def self.report(results)
     failed = results.reject(&:passed)
     total_time = format_duration(results.sum { |r| r.seconds.to_f })
 
-    lines = ["", RULE, " SPEC SUMMARY", RULE]
-    results.each { |r| lines << summary_row(r) }
-    lines << THIN
-    lines << verdict_counts(results, failed, total_time)
-    lines << RULE
+    lines = ["", RULE, verdict_counts(results, failed, total_time), RULE]
 
-    failed.each { |r| lines.concat(failure_details(r)) }
-    lines << final_verdict(failed, results.length)
+    unless failed.empty?
+      failed.each { |r| lines.concat(failure_details(r)) }
+      names = failed.map { |r| "spec/#{r.name}" }.join(", ")
+      lines.push("", RULE, " FAILED SUITES: #{names}", RULE)
+    end
     lines.join("\n") + "\n"
   end
 
   # --- internals -----------------------------------------------------------
-
-  def self.summary_row(result)
-    status = result.passed ? "PASS" : "FAIL"
-    name = "spec/#{result.name}".ljust(22)
-    summary = result.summary || "no examples run"
-    format("  %s  %s %s  [%s]", status, name, summary,
-           format_duration(result.seconds))
-  end
-  private_class_method :summary_row
 
   def self.verdict_counts(results, failed, total_time)
     passed = results.length - failed.length
@@ -73,14 +63,4 @@ module SpecReporter
      result.output.to_s.rstrip]
   end
   private_class_method :failure_details
-
-  def self.final_verdict(failed, total)
-    if failed.empty?
-      "\n#{RULE}\n All #{total} suites passed\n#{RULE}"
-    else
-      names = failed.map { |r| "spec/#{r.name}" }.join(", ")
-      "\n#{RULE}\n FAILED SUITES: #{names}\n#{RULE}"
-    end
-  end
-  private_class_method :final_verdict
 end

@@ -57,10 +57,13 @@ RSpec.describe SpecReporter do
 
       let(:report) { described_class.report(results) }
 
-      it "lists every suite in the summary table with PASS/FAIL and timing" do
-        expect(report).to match(/FAIL\s+spec\/iso.*321 examples, 3 failures/)
-        expect(report).to match(/PASS\s+spec\/bib.*211 examples, 0 failures/)
-        expect(report).to include "12.4s"
+      it "shows only the aggregate counts + total time, not a per-suite table" do
+        expect(report).to include "1 passed, 2 failed"
+        expect(report).to include "3 suites"
+        # total time is the sum of the suites' seconds (12.4 + 3.0 + 5.0)
+        expect(report).to include "20.4s"
+        # the passing suites are NOT re-listed row-by-row (already streamed live)
+        expect(report).not_to match(/PASS\s+spec\/bib/)
       end
 
       it "replays the captured output of only the failing suites" do
@@ -85,9 +88,10 @@ RSpec.describe SpecReporter do
         ]
       end
 
-      it "reports all suites passed and includes no failure-details section" do
+      it "shows just the all-passed counts, no failure or verdict sections" do
         report = described_class.report(results)
-        expect(report).to include "All 2 suites passed"
+        expect(report).to include "2 passed, 0 failed"
+        expect(report).to include "2 suites"
         expect(report).not_to include "FAILURE DETAILS"
         expect(report).not_to include "FAILED SUITES"
       end
