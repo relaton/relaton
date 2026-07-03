@@ -31,7 +31,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 26 Jun 2026 02:55:29 GMT
+      - Fri, 03 Jul 2026 03:39:33 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Transfer-Encoding:
@@ -39,13 +39,13 @@ http_interactions:
       Connection:
       - keep-alive
       X-Alg-Pt:
-      - '2'
+      - '1'
       Accept-Encoding:
       - deflate, gzip
       Cache-Control:
       - no-store
       Correlation-Id:
-      - 575YE1-20eFD-2839CqkdlOh
+      - 575YE1-20gsV-LOCeHB95yL5
       Access-Control-Allow-Origin:
       - "*"
       Timing-Allow-Origin:
@@ -89,8 +89,8 @@ http_interactions:
         7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021 Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]},{"value":"<em>BS7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021
         Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]},{"value":"<em>BS7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]},{"value":"<em>BS
         7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]}],"publisher":{"value":"BSI","matchLevel":"none","matchedWords":[]},"status":{"value":"Withdrawn","matchLevel":"none","matchedWords":[]}}}}}],"nbHits":1,"page":0,"nbPages":1,"hitsPerPage":20,"exhaustiveNbHits":true,"exhaustiveTypo":true,"exhaustive":{"nbHits":true,"typo":true},"query":"BS
-        7273-4:2015+A1:2021 Ex","params":"query=BS+7273-4%3A2015%2BA1%3A2021+Ex&distinct=1&filters=NOT+tags%3Ahas-digital&filters=NOT+tags%3Anot-for-sale&filters=NOT+product_type%3Amembership","renderingContent":{},"processingTimeMS":3,"processingTimingsMS":{"_request":{"roundTrip":111},"fetch":{"total":1},"total":3},"serverTimeMS":4}'
-  recorded_at: Fri, 26 Jun 2026 02:55:29 GMT
+        7273-4:2015+A1:2021 Ex","params":"query=BS+7273-4%3A2015%2BA1%3A2021+Ex&distinct=1&filters=NOT+tags%3Ahas-digital&filters=NOT+tags%3Anot-for-sale&filters=NOT+product_type%3Amembership","renderingContent":{},"processingTimeMS":1,"processingTimingsMS":{"_request":{"roundTrip":179},"fetch":{"total":1},"total":1},"serverTimeMS":2}'
+  recorded_at: Fri, 03 Jul 2026 03:39:33 GMT
 - request:
     method: post
     uri: https://shop-bsi.myshopify.com/api/2021-04/graphql.json
@@ -124,7 +124,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 26 Jun 2026 02:55:30 GMT
+      - Fri, 03 Jul 2026 03:39:34 GMT
       Content-Type:
       - application/json; charset=utf-8
       Transfer-Encoding:
@@ -142,24 +142,24 @@ http_interactions:
       Cf-Cache-Status:
       - DYNAMIC
       X-Request-Id:
-      - 77bbbdce-3d3a-4240-91df-24d82bf643ca-1782442530
+      - 749347a3-1348-4443-9961-275a0eb67a18-1783049974
       Set-Cookie:
-      - _shopify_analytics=:AZ8B2pU1AAEAkxs3TNTVnAbos_6um6TDms_SeeX4SewrqG5M7MrMBzFiOPhb8pFnkrDsrZ_ybiuWPpn9ciQi7s-7hzE:;
+      - _shopify_analytics=:AZ8mD3H1AAEADD6LrnwGtR7A5ZeZwS6TXToLwUIlN4VikUAOrwbWz4SAF3NkfaTOkwh9qC8jLEBH7K8malrSNRRHsVw:;
         Max-Age=31536000; Path=/; HttpOnly; Secure; Priority=High; SameSite=Lax
-      - _shopify_essential=:AZ8B2pU0AAEAIcY1RKaCEijmzUczc46m0DIxWPBlhOmBYdK4DSCTiRMaW8nxmytHpV19O6jgsaS3w_9I20ftXDSPFOXloXXBnoUl16yF_E-aQhaXQ0_0Tq-KEZ5AvYSNMqoO85LEOeLUIizOqEEVncmVZAv4VcMrtYU4EZi7lT-FopCQzTA0m4IFZfaky3JYMc8tHpIeD8I5FLqrZcO1OOxqq8FNhDyx96-1yxYO5rDjz6ypFnmvAAfsD7i0cT5LK_Mothih-D6y3qbhozXILrjkwqda5CTlMWSjFtwC9lJp8uE2GwrvUnkb6zXptG_wSvFF4YrdV_4ihYjbR_N3nemN3g:;
+      - _shopify_essential=:AZ8mD3HzAAEAKD0FokrJZr8qQhLU9bQ-EBjNL37dwVPrRyVaSkGTQExRakDAP0zlImMhejHfgCDW0qJg6kUs6rMKFeiEix18-eft2VbsEtHzXaYOS_5AshtplXLFaqjXlULB8p69ybR6at1Ea641jnAcFbJJ5vUUWQIGogf9xOqyE9hQ3QEyatwAFSCW5bU190AjM-pGvNK5-jZD1043Z1yIXZoh-OAdYJ3Pvloh_nRIcG1DIHoLHya8Jd3-WQ5bQf0ulj0dFZ-Xg84rXfeAtj8Qu-3iW8hEbX4ao18xis9PZNvkQMUfqSTxn_rAiTYZBNE17woq1-fmtOQQ9LiGyUna:;
         Max-Age=31536000; Path=/; HttpOnly; Secure; Priority=High; SameSite=Lax
-      - _shopify_marketing=:AZ8B2pU1AAEAcNu5e9PCDMpIav7E9oLqYXGip6FErxhLLrb2v86Ze_Eeuyvnm1QwOG29rPjC_fVExJ-ML_t4ATiqr0Y:;
+      - _shopify_marketing=:AZ8mD3H1AAEAgp5Hs4f41PXTjUTAV1LDXojHiChA3TXNWaE2BgQnJ2Bepzz1SfvdUWAA75AV0Ga9ep5P0QTNMWUZS4c:;
         Max-Age=31536000; Path=/; HttpOnly; Secure; Priority=High; SameSite=Lax
-      - _shopify_s=4cbbfd01-a984-4c37-941f-09f9ce5a0f5e; path=/; domain=shop-bsi.myshopify.com;
-        expires=Fri, 26 Jun 2026 03:25:30 GMT
-      - _shopify_y=97b7c5b8-b6c0-4c26-9cd1-589fc0a25d08; path=/; domain=shop-bsi.myshopify.com;
-        expires=Sat, 26 Jun 2027 08:55:30 GMT
+      - _shopify_s=813de85d-87f1-4073-b198-3f9f7174ab0b; path=/; domain=shop-bsi.myshopify.com;
+        expires=Fri, 03 Jul 2026 04:09:34 GMT
+      - _shopify_y=7f7f0016-5a64-4693-9991-e494ef79e003; path=/; domain=shop-bsi.myshopify.com;
+        expires=Sat, 03 Jul 2027 09:39:34 GMT
       X-Shopify-Api-Deprecated-Reason:
       - https://shopify.dev/api/usage/versioning#deprecation-practices
       Shopify-Complexity-Score:
       - '0'
       Shopify-Complexity-Score-V2:
-      - '36'
+      - '38'
       X-Frame-Options:
       - DENY
       Content-Security-Policy:
@@ -171,7 +171,7 @@ http_interactions:
       Nel:
       - '{"report_to":"cf-nel","success_fraction":0.01,"max_age":604800}'
       Report-To:
-      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=42EATG7GS4EBySwjVluvCUGNjWZ1sFcfjmB0Pr%2FRuzOusC9rXfKNpuZ7zI3l8fpdrD8ui%2F4y5iA9xhePUeXEHdIf1rt5NcyVi6WbL3ZErE5eGG314PKDK%2B8bPpWupZoe6YqGTsOZX20qv55htgO7HNtdq20%3D"}]}'
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=QC6ROKh5%2F7Cx2bEhbnQVGbjMNZmgk9zAyzcWZ77%2FHeCcKxBdZQW8m7neuWFpNPiuzhhiHoFx6RR%2B5Jzp1ctlJ496vg75kxtyRpf44mkzY3wGCfctbbRVCXBUkZg1hP8UVuSKo5UdDpr9JE5cJTfJ4Mx9ID8%3D"}]}'
       Vary:
       - Accept,accept-encoding
       Content-Language:
@@ -180,10 +180,10 @@ http_interactions:
       - Shopify
       Server-Timing:
       - ipv6
-      - processing;dur=38;desc="gc:1", db;dur=23, asn;desc="11426", edge;desc="IAD",
-        country;desc="US", servedBy;desc="stnl", graphql;desc="storefront/query/Relaton__Bsi__Scraper__Query__GetProducts",
-        gqlSelectionNames;desc="sfr/productByHandle", requestID;desc="77bbbdce-3d3a-4240-91df-24d82bf643ca-1782442530",
-        _y;desc="97b7c5b8-b6c0-4c26-9cd1-589fc0a25d08", _s;desc="4cbbfd01-a984-4c37-941f-09f9ce5a0f5e"
+      - processing;dur=41;desc="gc:1", db;dur=24, asn;desc="11426", edge;desc="ATL",
+        country;desc="US", servedBy;desc="nhzl", graphql;desc="storefront/query/Relaton__Bsi__Scraper__Query__GetProducts",
+        gqlSelectionNames;desc="sfr/productByHandle", requestID;desc="749347a3-1348-4443-9961-275a0eb67a18-1783049974",
+        _y;desc="7f7f0016-5a64-4693-9991-e494ef79e003", _s;desc="813de85d-87f1-4073-b198-3f9f7174ab0b"
       X-Download-Options:
       - noopen
       X-Permitted-Cross-Domain-Policies:
@@ -195,10 +195,10 @@ http_interactions:
       X-Dc:
       - gcp-us-east1,gcp-us-east1,gcp-us-east1
       Cf-Ray:
-      - a118eef4aece2978-IAD
+      - a152dd22a9cdc825-ATL
     body:
       encoding: ASCII-8BIT
       string: '{"data":{"productByHandle":{"createdAt":"2021-08-14T08:03:52Z","publishedAt":"2025-12-13T00:55:43Z","updatedAt":"2026-05-28T02:42:58Z","productType":"publication","committee":{"value":"FSH/12/4"},"designated":{"value":"false"},"packContents":null,"summary":null,"corrigendumHandle":null,"variants":{"edges":[{"node":{"version":{"value":"basic"},"isbn":{"value":"978
         0 539 16669 9"}}}]},"description":""}},"extensions":{"cost":{"requestedQueryCost":51}}}'
-  recorded_at: Fri, 26 Jun 2026 02:55:30 GMT
+  recorded_at: Fri, 03 Jul 2026 03:39:34 GMT
 recorded_with: VCR 6.4.0

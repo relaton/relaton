@@ -8,7 +8,7 @@ require "fileutils"
 require "vcr"
 
 VCR.configure do |c|
-  c.cassette_library_dir = "vcr_cassetes" # (sic) matches this suite's cassette dir
+  c.cassette_library_dir = "vcr_cassettes" # (sic) matches this suite's cassette dir
   c.default_cassette_options = {
     clean_outdated_http_interactions: true,
     re_record_interval: 7 * 24 * 3600,

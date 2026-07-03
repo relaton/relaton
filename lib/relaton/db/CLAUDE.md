@@ -59,7 +59,7 @@ Thread pool for `fetch_async`. Default 10 threads per processor, overridable via
 ## Testing
 
 - Umbrella (Db) specs live in `spec/relaton/` and run from there (`rake spec:relaton`)
-- RSpec with VCR cassettes in `spec/relaton/vcr_cassetes/` for recorded HTTP interactions
+- RSpec with VCR cassettes in `spec/relaton/vcr_cassettes/` for recorded HTTP interactions
 - Tests create `testcache`/`testcache2` directories and clean them in `before(:each)`
 - Cache-related tests need `<fetched>` elements in XML for `valid_entry?` to return true
 - Integration tests in `spec/relaton/relaton_spec.rb`; unit tests under `spec/relaton/`
