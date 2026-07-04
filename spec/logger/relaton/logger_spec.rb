@@ -6,7 +6,7 @@ RSpec.describe Relaton::Logger do
   end
 
   it "has a version number" do
-    expect(Relaton::Logger::VERSION).not_to be nil
+    expect(Relaton::VERSION).not_to be nil
   end
 
   it "logger" do

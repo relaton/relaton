@@ -1,6 +1,6 @@
 require "relaton/index"
 require "relaton/iso"
-require_relative "ogc/version"
+require_relative "version"
 require_relative "ogc/util"
 require_relative "ogc/item_data"
 require_relative "ogc/item"
@@ -20,7 +20,7 @@ module Relaton
       # gem_path = File.expand_path "..", __dir__
       # grammars_path = File.join gem_path, "grammars", "*"
       # grammars = Dir[grammars_path].sort.map { |gp| File.read gp }.join
-      Digest::MD5.hexdigest Relaton::Ogc::VERSION + Relaton::Iso::VERSION + Relaton::Bib::VERSION # grammars
+      Digest::MD5.hexdigest Relaton::VERSION # grammars
     end
   end
 end

@@ -6,7 +6,7 @@ require "relaton/index"
 require "isoics"
 require "relaton/bib"
 require "relaton/core"
-require_relative "iso/version"
+require_relative "version"
 require_relative "iso/util"
 require_relative "iso/item_data"
 require_relative "iso/model/item"
@@ -24,7 +24,7 @@ module Relaton
       # gem_path = File.expand_path "..", __dir__
       # grammars_path = File.join gem_path, "grammars", "*"
       # grammars = Dir[grammars_path].sort.map { |gp| File.read gp, encoding: "UTF-8" }.join
-      Digest::MD5.hexdigest VERSION + Bib::VERSION # grammars
+      Digest::MD5.hexdigest Relaton::VERSION # grammars
     end
   end
 end

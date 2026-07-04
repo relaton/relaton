@@ -1,6 +1,6 @@
 require "nokogiri"
 require "relaton/bib"
-require_relative "omg/version"
+require_relative "version"
 require_relative "omg/util"
 require_relative "omg/ext"
 require_relative "omg/item_data"
@@ -18,7 +18,7 @@ module Relaton
       # gem_path = File.expand_path "..", __dir__
       # grammars_path = File.join gem_path, "grammars", "*"
       # grammars = Dir[grammars_path].sort.map { |gp| File.read gp }.join
-      Digest::MD5.hexdigest Relaton::Omg::VERSION + Relaton::Bib::VERSION # grammars
+      Digest::MD5.hexdigest Relaton::VERSION # grammars
     end
   end
 end

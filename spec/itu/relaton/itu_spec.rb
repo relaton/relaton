@@ -2,7 +2,7 @@ require "jing"
 
 RSpec.describe Relaton::Itu do
   it "has a version number" do
-    expect(Relaton::Itu::VERSION).not_to be nil
+    expect(Relaton::VERSION).not_to be nil
   end
 
   it "returs grammar hash" do

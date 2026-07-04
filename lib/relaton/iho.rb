@@ -1,7 +1,7 @@
 require "relaton/bib"
 require "relaton/index"
 require "pubid"
-require_relative "iho/version"
+require_relative "version"
 require_relative "iho/util"
 require_relative "iho/docidentifier"
 require_relative "iho/item"
@@ -21,7 +21,7 @@ module Relaton
       # gem_path = File.expand_path "..", __dir__
       # grammars_path = File.join gem_path, "grammars", "*"
       # grammars = Dir[grammars_path].sort.map { |gp| File.read gp }.join
-      Digest::MD5.hexdigest Relaton::Iho::VERSION + Relaton::Bib::VERSION # grammars
+      Digest::MD5.hexdigest Relaton::VERSION # grammars
     end
   end
 end

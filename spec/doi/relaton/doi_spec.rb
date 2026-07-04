@@ -4,7 +4,7 @@ RSpec.describe Relaton::Doi do
   before { Relaton::Doi.instance_variable_set :@configuration, nil }
 
   it "has a version number" do
-    expect(Relaton::Doi::VERSION).not_to be nil
+    expect(Relaton::VERSION).not_to be nil
   end
 
   it "returs grammar hash" do

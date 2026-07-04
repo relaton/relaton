@@ -1,6 +1,6 @@
 require "net/http"
 require "relaton/bib"
-require_relative "isbn/version"
+require_relative "version"
 require_relative "isbn/util"
 require_relative "isbn/isbn"
 require_relative "isbn/parser"
@@ -13,7 +13,7 @@ module Relaton
     # Returns hash of XML reammar
     # @return [String]
     def grammar_hash
-      Digest::MD5.hexdigest Relaton::Isbn::VERSION + Relaton::Bib::VERSION # grammars
+      Digest::MD5.hexdigest Relaton::VERSION # grammars
     end
   end
 end

@@ -5,7 +5,7 @@ describe Relaton::Ogc do
   end
 
   it "has a version number" do
-    expect(Relaton::Ogc::VERSION).not_to be_nil
+    expect(Relaton::VERSION).not_to be_nil
   end
 
   it "returns grammar hash" do

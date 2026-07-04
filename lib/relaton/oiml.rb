@@ -1,7 +1,7 @@
 require "relaton/bib"
 require "relaton/index"
 require "pubid"
-require_relative "oiml/version"
+require_relative "version"
 require_relative "oiml/util"
 require_relative "oiml/docidentifier"
 require_relative "oiml/item"
@@ -18,7 +18,7 @@ module Relaton
     # Returns hash of XML grammar
     # @return [String]
     def self.grammar_hash
-      Digest::MD5.hexdigest Relaton::Oiml::VERSION + Relaton::Bib::VERSION
+      Digest::MD5.hexdigest Relaton::VERSION
     end
   end
 end

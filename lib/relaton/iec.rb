@@ -5,7 +5,7 @@ require "pubid"
 require "zip"
 require "relaton/index"
 require "relaton/iso"
-require_relative "iec/version"
+require_relative "version"
 require_relative "iec/util"
 require_relative "iec/bibliography"
 require_relative "iec/item_data"
@@ -29,7 +29,7 @@ module Relaton
         # gem_path = File.expand_path "..", __dir__
         # grammars_path = File.join gem_path, "grammars", "*"
         # grammars = Dir[grammars_path].sort.map { |gp| File.read gp }.join
-        Digest::MD5.hexdigest Relaton::Iec::VERSION + Relaton::Iso::VERSION + Relaton::Bib::VERSION # grammars
+        Digest::MD5.hexdigest Relaton::VERSION # grammars
       end
 
       # @param code [String]

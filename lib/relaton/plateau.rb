@@ -2,7 +2,7 @@ require "net/http"
 require "uri"
 require "relaton/index"
 require "relaton/iso"
-require_relative "plateau/version"
+require_relative "version"
 require_relative "plateau/util"
 # require_relative "plateau/docidentifier"
 # require_relative "plateau/document_type"
@@ -22,7 +22,7 @@ module Relaton
     class Error < StandardError; end
 
     def self.grammar_hash
-      Digest::MD5.hexdigest Relaton::Plateau::VERSION + Relaton::Bib::VERSION # grammars
+      Digest::MD5.hexdigest Relaton::VERSION # grammars
     end
   end
 end

@@ -2,7 +2,7 @@
 
 RSpec.describe Relaton::ThreeGpp do
   it "has a version number" do
-    expect(Relaton::ThreeGpp::VERSION).not_to be nil
+    expect(Relaton::VERSION).not_to be nil
   end
 
   it "returs grammar hash" do

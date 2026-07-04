@@ -4,7 +4,7 @@ require "jing"
 
 RSpec.describe Relaton::Omg do
   it "has a version number" do
-    expect(Relaton::Omg::VERSION).not_to be_nil
+    expect(Relaton::VERSION).not_to be_nil
   end
 
   it "returns grammar hash" do

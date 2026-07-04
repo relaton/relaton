@@ -4,7 +4,7 @@ require "digest/md5"
 require "relaton/index"
 require "relaton/bib"
 require "relaton/core"
-require_relative "itu/version"
+require_relative "version"
 require_relative "itu/util"
 require_relative "itu/item_data"
 require_relative "itu/model/item"
@@ -27,7 +27,7 @@ module Relaton
       # gem_path = File.expand_path "..", __dir__
       # grammars_path = File.join gem_path, "grammars", "*"
       # grammars = Dir[grammars_path].sort.map { |gp| File.read gp }.join
-      Digest::MD5.hexdigest Relaton::Itu::VERSION + Relaton::Bib::VERSION # grammars
+      Digest::MD5.hexdigest Relaton::VERSION # grammars
     end
   end
 end

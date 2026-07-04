@@ -47,7 +47,7 @@ module Relaton
         # report Relaton::VERSION rather than a separate gem version.
         puts "CLI => #{Relaton::Cli::VERSION}"
         puts "relaton => #{Relaton::VERSION}"
-        puts "relaton-bib => #{Relaton::Bib::VERSION}"
+        puts "relaton-bib => #{Relaton::VERSION}"
         registry.processors.each_key do |k|
           name = k.to_s.sub("_", "-")
           puts "#{name} => #{Relaton::VERSION}"

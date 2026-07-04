@@ -1,6 +1,6 @@
 RSpec.describe Relaton::Bipm do
   it "has a version number" do
-    expect(Relaton::Bipm::VERSION).not_to be nil
+    expect(Relaton::VERSION).not_to be nil
   end
 
   it "retur grammar hash" do

@@ -53,9 +53,8 @@ module Relaton
       # @return [String]
       def grammar_hash
         require "digest/md5" # not loaded by etsi.rb; needed on the cold path
-        require "relaton/bib/version"
-        require_relative "version"
-        Digest::MD5.hexdigest Relaton::Etsi::VERSION + Relaton::Bib::VERSION
+        require "relaton/version"
+        Digest::MD5.hexdigest Relaton::VERSION
       end
 
       #
