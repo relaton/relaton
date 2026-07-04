@@ -32,8 +32,13 @@ lib/
     └── iso/ iec/ ietf/ … 3gpp/     # ~29 flavor plugins (Relaton::Iso, …)
 spec/<flavor>/           # each flavor's spec suite (self-contained; see Testing)
 grammar/                 # shared RelaxNG test schemas (test-only, not shipped)
-gems/relaton-cli/        # the separate relaton-cli gem
+gems/relaton-cli/        # the separate relaton-cli gem — the ONLY thing under gems/
 ```
+
+`gems/` holds **only** `relaton-cli`. The old per-flavor `gems/relaton-<flavor>/`
+dirs from the monorepo era are gone; if any reappear (as untracked SimpleCov
+`coverage/`, `Gemfile.lock`, or `testcache/` leftovers) they're stale artifacts,
+not source, and are safe to `rm -rf`.
 
 ## Common commands
 
