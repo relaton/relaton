@@ -1,10 +1,14 @@
-lib = File.expand_path("lib", __dir__)
-$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require "relaton/cli/version"
+# relaton-cli is released in lockstep with the combined `relaton` gem from this
+# repo. Derive the version (and the relaton dependency pin) from the single
+# source of truth — root lib/relaton/version.rb — so `gem bump` on that one file
+# re-stamps both gems. No separate version to hand-sync.
+root_version_file = File.expand_path("../../lib/relaton/version.rb", __dir__)
+relaton_version = File.read(root_version_file)[/VERSION\s*=\s*["']([^"']+)["']/, 1] or
+  raise "could not parse Relaton::VERSION from #{root_version_file}"
 
 Gem::Specification.new do |spec|
   spec.name          = "relaton-cli"
-  spec.version       = Relaton::Cli::VERSION
+  spec.version       = relaton_version
   spec.authors       = ["Ribose Inc."]
   spec.email         = ["open.source@ribose.com"]
 
@@ -25,7 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "liquid", "~> 5"
   # relaton bundles every flavor plus Relaton::Bib, so depending on `relaton`
   # alone is sufficient — relaton-bib is no longer published standalone.
-  spec.add_dependency "relaton", "~> 2.2.0.pre.alpha.1"
+  spec.add_dependency "relaton", "= #{relaton_version}"
   spec.add_dependency "thor"
   spec.add_dependency "thor-hollaback"
 end

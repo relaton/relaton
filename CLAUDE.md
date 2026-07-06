@@ -74,7 +74,12 @@ be identical to `Relaton::VERSION`, so they were removed. Each flavor's
 `grammar_hash` hashes `Relaton::VERSION` directly (`Digest::MD5.hexdigest
 Relaton::VERSION`) for cache invalidation; bumping `Relaton::VERSION` re-stamps
 them all. (`Relaton::Db::VERSION` in `lib/relaton/db/version.rb` is a separate,
-independently-set constant, not part of this scheme.)
+independently-set constant, not part of this scheme.) **relaton-cli follows the
+same source of truth:** its `Relaton::Cli::VERSION` is `Relaton::VERSION` (its
+`version.rb` requires and re-exports it), and its gemspec reads the root
+`version.rb` at build time to set `spec.version` and pin `relaton` **exactly**
+(`= Relaton::VERSION`). So the release's single `gem bump` of the root file
+re-stamps both gems in lockstep — nothing to hand-sync (see **Releasing**).
 
 **Shared test grammars in `grammar/`.** The RelaxNG schemas specs validate XML
 against live in one top-level `grammar/` (deduped from the old per-gem
@@ -116,6 +121,18 @@ the gemspec globs only `lib/`), unit-tested by `spec/tasks/`. Per-flavor
   pubid/lutaml versions pass in isolation), so the OIML index can't deserialize.
   This is a real combined-gem bug surfaced by the full suite; needs a dependency
   bisect of the gemspec.
+
+## Releasing
+
+Both gems ship from `.github/workflows/release.yml` (manual **Actions → release
+→ Run workflow**, or a `do-release` `repository_dispatch`). It delegates to the
+shared `relaton/support` → `metanorma/ci` `rubygems-release.yml`: for a non-`skip`
+`next_version` that job runs `gem bump --version <next> --tag --push` on the one
+root `lib/relaton/version.rb`, then runs this repo's `release_command`
+(`rake build_all` + `gem push` for **both** gems). Because relaton-cli derives
+its version and its exact `relaton` pin from that same root file at build time
+(see **Single `VERSION`**), one bump + one tag publishes `relaton` and
+`relaton-cli` together at the same version — no per-gem version bump needed.
 
 ## Conventions to keep
 

@@ -32,8 +32,10 @@ jobs:
       next_version: ${{ github.event.inputs.next_version || 'skip' }}
       # Build + push both gems from the repo root. `rake build_all` builds
       # relaton (root gemspec) and relaton-cli. Non-'skip' bumps + tags the
-      # `relaton` version (which every flavor derives from); keep relaton-cli's
-      # version file in sync in the same commit.
+      # `relaton` version (lib/relaton/version.rb) — the single source of truth;
+      # relaton-cli derives its own version and its exact `relaton` dependency
+      # from that file at build time, so both gems ship at the bumped version
+      # under one tag with nothing to hand-sync.
       release_command: |
         bundle exec rake build_all
         gem push pkg/relaton-*.gem
