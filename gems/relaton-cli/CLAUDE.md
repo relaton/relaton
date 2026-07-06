@@ -86,7 +86,10 @@ Tests use VCR cassettes to replay HTTP interactions with standards registries. W
 
 ## Key Dependencies
 
-- `relaton ~> 1.20.0` — Core library providing DB, registry, and all standard-body processors
+- `relaton` — Core library providing DB, registry, and all standard-body
+  processors. relaton-cli releases in lockstep with it: both the gemspec pin
+  (`= <version>`) and `Relaton::Cli::VERSION` derive from the root
+  `lib/relaton/version.rb` (`Relaton::VERSION`), so they never drift apart.
 - `thor` / `thor-hollaback` — CLI framework
 - `liquid ~> 5` — HTML template rendering
 - `nokogiri` (transitive via relaton) — XML parsing
