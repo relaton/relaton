@@ -51,6 +51,29 @@ namespace :spec do
     desc "Run spec/#{name}"
     task(name) { abort "spec/#{name} failed" unless run_flavor_spec(name) }
   end
+
+  # relaton-cli is the one separate gem (own Gemfile/lock, gem "relaton",
+  # path: "../.."), so run its suite in its OWN bundle — with_unbundled_env +
+  # cd, the same shape as build_all. bundle check || install first so it works
+  # on a fresh checkout; sh aborts on non-zero so a red cli suite fails the task.
+  desc "Run the relaton-cli gem's spec suite (its own bundle)"
+  task :cli do
+    Bundler.with_unbundled_env do
+      Dir.chdir("gems/relaton-cli") do
+        sh "bundle check || bundle install"
+        sh "bundle exec rake spec"
+      end
+    end
+  end
+
+  # Everything: the parallel flavor run, then relaton-cli. Rake::Task[...] looks
+  # up by full name from root, so "spec" is the top-level flavor task (not
+  # spec:spec). Fails fast — the flavor task aborts on red before cli runs.
+  desc "Run every flavor suite (parallel) then the relaton-cli suite"
+  task :all do
+    Rake::Task["spec"].invoke
+    Rake::Task["spec:cli"].invoke
+  end
 end
 
 desc "Run every flavor's spec suite in parallel " \

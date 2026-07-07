@@ -89,7 +89,12 @@ so `../../grammar` resolves to repo root). Co-located schemas keep the RelaxNG
 `<include href="...">` chains working. Test-only; not in the gemspec.
 
 **relaton-cli is separate.** `gems/relaton-cli/` is its own gem depending on
-`relaton`. Don't fold it in. Its `Gemfile` uses `gem "relaton", path: "../.."`.
+`relaton`. Don't fold it in. Its `Gemfile` uses `gem "relaton", path: "../.."`,
+so a fresh `bundle install` resolves `relaton` from `../..` (the single combined
+gem). Its `Gemfile.lock` is **gitignored** (untracked), so a clean checkout has
+none and `bundle install` regenerates a correct one. A leftover local lock with
+`remote: ../relaton-<flavor>` entries is monorepo-era rot — delete it and
+`bundle install` (that's what a stale `spec:cli` bundle-install failure means).
 
 ## Testing
 
@@ -123,6 +128,13 @@ and the report/parsing logic are the pure `SpecReporter` module in
 `tasks/spec_reporter.rb` (top-level `tasks/` — test-only tooling, **not** shipped;
 the gemspec globs only `lib/`), unit-tested by `spec/tasks/`. Per-flavor
 `rake spec:<flavor>` tasks still stream live output single-threaded (unchanged).
+
+The **relaton-cli** suite is not part of the flavor run (separate gem, separate
+bundle). `rake spec:cli` runs it from the repo root — it shells into
+`gems/relaton-cli` under `Bundler.with_unbundled_env` (the `build_all` pattern),
+does `bundle check || bundle install` (so it works on a fresh checkout), then
+runs relaton-cli's own `rake spec`. `rake spec:all` runs the parallel flavor
+suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
 
 - Umbrella (`Relaton::Db`) specs are in `spec/relaton/` directly (flattened — a
   cache-dir named `relaton` would otherwise collide with a `relaton/` subdir).
