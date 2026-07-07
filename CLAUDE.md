@@ -101,18 +101,28 @@ Running each in its own dir keeps their CWD-relative fixture/cassette paths,
 or VCR-config collisions across flavors). Each `spec/<flavor>/` has its own
 `.rspec` (`--require spec_helper`).
 
-`rake spec` **captures** each suite's output (rather than streaming ~33 walls of
-it), printing a one-line `PASS`/`FAIL` + example-count + timing status per suite
-as it runs. It then ends with a compact report: an aggregate
-`N passed, M failed (K suites, T total)` line, the full output of *only* the
-failing suites grouped at the bottom, and a verdict line naming them (the
-per-suite detail already streamed live, so it isn't repeated). Set `VERBOSE=1` to also stream raw
-output live while it runs. `FLAVOR_SPECS` is auto-derived from `spec/*/` dirs
-that contain a `*_spec.rb` (so non-suite dirs like `spec/vcr_cassettes/` are
-skipped). The report/parsing logic is the pure `SpecReporter` module in
+`rake spec` runs the flavor suites **in parallel** across a bounded pool of
+worker threads (each thread spawns one `bundle exec rspec` subprocess — the
+suites are already OS-process-isolated per flavor, so there is no shared
+in-memory state to collide, and the per-flavor CWD keeps their
+cassette/`testcache`/`.rspec_status`/`Dir.mktmpdir` paths distinct). Default
+pool size is `min(Etc.nprocessors, suite_count)`; override with `JOBS=N`, and
+`JOBS=1` restores a strictly sequential run. Each suite's output is **captured**
+(not streamed), and a one-line `PASS`/`FAIL` + example-count + timing status
+prints as each suite *completes* (out of order under the pool; the print is
+mutex-guarded so lines never interleave). It ends with a compact report: an
+aggregate `N passed, M failed (K suites, T total)` line (`T` is the summed
+per-suite time), the full output of *only* the failing suites grouped at the
+bottom, a verdict line naming them, and a real `wall:` clock line (well under
+`T` thanks to the parallelism). Set `VERBOSE=1` to also dump each suite's full
+captured output as one grouped block when it finishes. `FLAVOR_SPECS` is
+auto-derived from `spec/*/` dirs that contain a `*_spec.rb` (so non-suite dirs
+like `spec/vcr_cassettes/` are skipped). The pool runner (`SpecReporter.run_suites`,
+worker-must-not-raise contract), the `JOBS` resolver (`SpecReporter.job_count`),
+and the report/parsing logic are the pure `SpecReporter` module in
 `tasks/spec_reporter.rb` (top-level `tasks/` — test-only tooling, **not** shipped;
 the gemspec globs only `lib/`), unit-tested by `spec/tasks/`. Per-flavor
-`rake spec:<flavor>` tasks still stream live output (unchanged).
+`rake spec:<flavor>` tasks still stream live output single-threaded (unchanged).
 
 - Umbrella (`Relaton::Db`) specs are in `spec/relaton/` directly (flattened — a
   cache-dir named `relaton` would otherwise collide with a `relaton/` subdir).

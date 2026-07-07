@@ -22,6 +22,52 @@ module SpecReporter
     end&.strip
   end
 
+  # Resolve the worker-pool size for `rake spec` from the JOBS env value.
+  # Blank/nil -> nproc; an explicit int is honoured; the result is clamped to
+  # 1..max(suite_count, 1) (garbage / <1 -> 1, over-large -> suite_count). Pure.
+  def self.job_count(env_value, nproc, suite_count)
+    requested = env_value.to_s.strip
+    n = requested.empty? ? nproc.to_i : requested.to_i
+    n = 1 if n < 1
+    [n, [suite_count, 1].max].min
+  end
+
+  # Run `names` through `worker` (a callable taking one name) using a bounded
+  # pool of up to `jobs` threads. `worker.call` runs OUTSIDE any lock, so the
+  # suites run truly concurrently; each result is stored and `on_result` (if
+  # given) invoked UNDER a mutex, so status lines / verbose blocks print
+  # atomically. Returns results in the original `names` order. No I/O of its own
+  # (the caller supplies `on_result`) so it stays unit-testable.
+  #
+  # Contract: `worker` MUST NOT raise — it runs on a pool thread joined in
+  # creation order, so a raise would leak the remaining threads and drop their
+  # results. Workers own their error handling (capture_flavor_spec rescues into
+  # a failed Result).
+  def self.run_suites(names, jobs:, worker:, on_result: nil)
+    queue = Queue.new
+    names.each { |n| queue << n }
+    results = {}
+    mutex = Mutex.new
+    pool = [[jobs, names.length].min, 1].max
+    Array.new(pool) do
+      Thread.new do
+        loop do
+          name = begin
+            queue.pop(true)
+          rescue ThreadError
+            break
+          end
+          res = worker.call(name)
+          mutex.synchronize do
+            results[name] = res
+            on_result&.call(res)
+          end
+        end
+      end
+    end.each(&:join)
+    names.map { |n| results[n] }
+  end
+
   # Compact human duration: "0.7s", "12.4s", "1m03s".
   def self.format_duration(seconds)
     seconds = seconds.to_f

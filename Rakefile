@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "bundler/gem_tasks" # build / install / release for the `relaton` gem
+require "etc" # Etc.nprocessors — default worker count for parallel `rake spec`
 require_relative "tasks/spec_reporter"
 
 # Each flavor's specs live in spec/<flavor>/ and run self-contained against the
@@ -17,21 +18,31 @@ def run_flavor_spec(name)
 end
 
 # Run one flavor capturing its combined output + wall-clock time, returning a
-# SpecReporter::Result. With VERBOSE, also stream the raw output live.
+# SpecReporter::Result. Uses IO.popen's `chdir:` spawn option instead of
+# Dir.chdir so it is thread-safe (Dir.chdir mutates process-global CWD) — the
+# parallel runner calls this from worker threads. VERBOSE output is printed as a
+# grouped block by the on_result callback in :spec, not streamed here.
 def capture_flavor_spec(name)
-  verbose = ENV["VERBOSE"]
   output = +""
   started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-  ok = Dir.chdir("spec/#{name}") do
-    IO.popen("bundle exec rspec -I . .", err: %i[child out]) do |io|
-      io.each_line { |line| output << line; print line if verbose }
-    end
-    $?.success?
+  IO.popen("bundle exec rspec -I . .", chdir: "spec/#{name}",
+                                       err: %i[child out]) do |io|
+    io.each_line { |line| output << line }
   end
+  ok = $?.success? # $? is thread-local, so this is safe under the pool
   elapsed = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
   SpecReporter::Result.new(
     name: name, passed: ok, output: output, seconds: elapsed,
     summary: SpecReporter.summary_line(output)
+  )
+rescue StandardError => e
+  # The worker MUST NOT raise (run_suites joins in creation order, so one raise
+  # would leak the other threads and drop their results). Infra failures — e.g.
+  # rspec/bundle not spawnable — become a failed Result so the run reports.
+  SpecReporter::Result.new(
+    name: name, passed: false, output: "#{e.class}: #{e.message}",
+    seconds: Process.clock_gettime(Process::CLOCK_MONOTONIC) - started,
+    summary: nil
   )
 end
 
@@ -42,20 +53,35 @@ namespace :spec do
   end
 end
 
-desc "Run every flavor's spec suite (VERBOSE=1 streams raw output)"
+desc "Run every flavor's spec suite in parallel " \
+     "(JOBS=N sets workers, JOBS=1 = sequential; VERBOSE=1 dumps each suite)"
 task :spec do
-  puts "Running #{FLAVOR_SPECS.length} flavor suites " \
-       "(VERBOSE=1 to stream raw output)...\n\n"
-  results = FLAVOR_SPECS.map do |name|
-    print "  #{"spec/#{name}".ljust(22)} ... "
-    $stdout.flush
-    result = capture_flavor_spec(name)
+  jobs = SpecReporter.job_count(ENV["JOBS"], Etc.nprocessors,
+                                FLAVOR_SPECS.length)
+  puts "Running #{FLAVOR_SPECS.length} flavor suites across #{jobs} job(s) " \
+       "(JOBS=N to change, VERBOSE=1 to dump each suite)...\n\n"
+
+  # Suites finish out of order under the pool, so print a full status line per
+  # suite as it completes (guarded by the runner's mutex), and — with VERBOSE —
+  # its whole captured output as one grouped block (no interleaving).
+  on_result = lambda do |result|
     status = result.passed ? "PASS" : "FAIL"
     summary = result.summary || "no examples run"
-    puts "#{status}  (#{summary})  [#{SpecReporter.format_duration(result.seconds)}]"
-    result
+    puts "  #{"spec/#{result.name}".ljust(22)} ... #{status}  " \
+         "(#{summary})  [#{SpecReporter.format_duration(result.seconds)}]"
+    print result.output if ENV["VERBOSE"]
   end
+
+  started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  results = SpecReporter.run_suites(
+    FLAVOR_SPECS, jobs: jobs,
+    worker: method(:capture_flavor_spec), on_result: on_result
+  )
+  wall = Process.clock_gettime(Process::CLOCK_MONOTONIC) - started
+
   puts SpecReporter.report(results)
+  puts "  wall: #{SpecReporter.format_duration(wall)} " \
+       "(across #{jobs} job(s))"
   abort unless results.all?(&:passed)
 end
 

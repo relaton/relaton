@@ -97,4 +97,81 @@ RSpec.describe SpecReporter do
       end
     end
   end
+
+  describe ".job_count" do
+    it "defaults to nproc (capped by suite count) when the env is blank/nil" do
+      expect(described_class.job_count(nil, 8, 35)).to eq 8
+      expect(described_class.job_count("", 8, 35)).to eq 8
+      expect(described_class.job_count("  ", 8, 35)).to eq 8
+    end
+
+    it "caps the default at the number of suites" do
+      expect(described_class.job_count(nil, 16, 4)).to eq 4
+    end
+
+    it "honours an explicit JOBS value" do
+      expect(described_class.job_count("4", 16, 35)).to eq 4
+    end
+
+    it "caps an explicit value above the suite count" do
+      expect(described_class.job_count("50", 8, 35)).to eq 35
+    end
+
+    it "clamps zero / negative / garbage to a single job" do
+      expect(described_class.job_count("0", 8, 35)).to eq 1
+      expect(described_class.job_count("-3", 8, 35)).to eq 1
+      expect(described_class.job_count("nope", 8, 35)).to eq 1
+    end
+  end
+
+  describe ".run_suites" do
+    it "returns results in input order regardless of completion order" do
+      # Reverse-staggered sleeps: the first item finishes last.
+      names = %w[a b c d]
+      worker = lambda do |name|
+        sleep((names.index(name) == 0 ? 0.05 : 0.001))
+        "R:#{name}"
+      end
+      out = described_class.run_suites(names, jobs: 4, worker: worker)
+      expect(out).to eq %w[R:a R:b R:c R:d]
+    end
+
+    it "actually runs workers concurrently when jobs > 1" do
+      mutex = Mutex.new
+      current = 0
+      max = 0
+      worker = lambda do |_name|
+        mutex.synchronize { current += 1; max = [max, current].max }
+        sleep 0.02
+        mutex.synchronize { current -= 1 }
+        :ok
+      end
+      described_class.run_suites(%w[a b c d e f], jobs: 3, worker: worker)
+      expect(max).to eq 3
+    end
+
+    it "runs strictly sequentially when jobs is 1" do
+      mutex = Mutex.new
+      current = 0
+      max = 0
+      worker = lambda do |_name|
+        mutex.synchronize { current += 1; max = [max, current].max }
+        sleep 0.01
+        mutex.synchronize { current -= 1 }
+        :ok
+      end
+      described_class.run_suites(%w[a b c], jobs: 1, worker: worker)
+      expect(max).to eq 1
+    end
+
+    it "invokes on_result once per suite" do
+      seen = []
+      described_class.run_suites(
+        %w[a b c], jobs: 2,
+        worker: ->(name) { "R:#{name}" },
+        on_result: ->(r) { seen << r }
+      )
+      expect(seen.sort).to eq %w[R:a R:b R:c]
+    end
+  end
 end
