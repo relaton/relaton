@@ -40,6 +40,24 @@ module Relaton
   autoload :Ogc, "relaton/ogc"
   autoload :Plateau, "relaton/plateau"
   autoload :Doi, "relaton/doi"
+
+  # Global PubID prefix register (relaton-db#103). Maps an SDO document-ID
+  # prefix to the flavor module(s) that own it. Conflicting prefixes (e.g.
+  # "ISO/IEC", claimed by both ISO and IEC) return several flavors.
+  #
+  #   Relaton.prefix_flavor("NIST")    # => [Relaton::Nist]
+  #   Relaton.prefix_flavor("ISO/IEC") # => [Relaton::Iec, Relaton::Iso]
+  #   Relaton.prefix_flavor("BOGUS")   # => []
+  #
+  # NOTE: returning the flavor module forces that flavor's lazy load. To resolve
+  # a prefix without loading flavor code, use
+  # `Relaton::Db::Registry.instance.processors_by_prefix(prefix)`.
+  #
+  # @param prefix [String]
+  # @return [Array<Module>]
+  def self.prefix_flavor(prefix)
+    Db::Registry.instance.flavors_by_prefix(prefix)
+  end
 end
 
 require "relaton/db"

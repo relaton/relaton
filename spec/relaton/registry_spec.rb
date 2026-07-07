@@ -166,6 +166,37 @@ RSpec.describe Relaton::Db::Registry do
     end
   end
 
+  context "processors_by_prefix" do
+    let(:registry) { Relaton::Db::Registry.instance }
+
+    it "finds a single processor by exact prefix" do
+      expect(registry.processors_by_prefix("NIST").map(&:short)).to eq [:relaton_nist]
+    end
+
+    it "finds a processor by a secondary prefix of the same flavor" do
+      expect(registry.processors_by_prefix("NBS").map(&:short)).to eq [:relaton_nist]
+    end
+
+    it "finds all processors owning a conflicting prefix, in registration order" do
+      expect(registry.processors_by_prefix("ISO/IEC").map(&:short))
+        .to eq [:relaton_iec, :relaton_iso]
+    end
+
+    it "matches case-insensitively" do
+      expect(registry.processors_by_prefix("iso/iec").map(&:short))
+        .to eq registry.processors_by_prefix("ISO/IEC").map(&:short)
+    end
+
+    it "returns [] for an unknown prefix" do
+      expect(registry.processors_by_prefix("BOGUS")).to eq []
+    end
+  end
+
+  it "defaults #prefixes to [prefix] for a single-prefix flavor" do
+    expect(Relaton::Db::Registry.instance.find_processor(:relaton_omg).prefixes)
+      .to eq ["OMG"]
+  end
+
   it "find processot by dataset" do
     expect(Relaton::Db::Registry.instance.find_processor_by_dataset("nist-tech-pubs"))
       .to be_instance_of Relaton::Nist::Processor

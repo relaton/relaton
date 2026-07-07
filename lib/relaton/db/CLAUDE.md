@@ -28,6 +28,32 @@ Relaton is a Ruby gem that fetches, caches, and manages bibliographic references
 
 Registration is **lazy**: `register_gems` requires only each flavor's lightweight `…/processor` file, never the heavy flavor top-level, so flavor deps load on first use rather than at startup. Any processor method touching a flavor constant must `require_relative "../<flavor>"` first — see the root `CLAUDE.md` "Registry is lazy" note and `spec/relaton/lazy_loading_spec.rb`.
 
+### Global prefix register (relaton-db#103)
+
+Separate from the reference-dispatch matching above, each processor declares the
+**global document-ID prefixes its SDO owns** via `@prefixes` (Array<String>) in
+`initialize` — e.g. NIST → `%w[NIST NBS]`, ISO → `["ISO", "ISO/IEC", "IEC/ISO",
+"ISO/IEC/IEEE"]`. `Core::Processor#prefixes` defaults to `[prefix]`, so the ~24
+single-prefix flavors need no declaration; only multi-/conflicting-prefix
+flavors (iso, iec, nist, ieee, bsi) set it. **Joint prefixes are listed
+symmetrically** by every co-publisher (both ISO and IEC list `ISO/IEC`; all three
+of iso/iec/ieee list `ISO/IEC/IEEE`) so the register returns every owning flavor.
+This is a distinct exact-match list, *not* the `@defaultprefix` regex — those
+require a trailing `\s` and can't match a bare prefix like `"ISO/IEC"`.
+
+Two lookups over it:
+- `Registry#processors_by_prefix(prefix)` → the owning **processor objects**,
+  case-insensitive exact match, in registration (`SUPPORTED_GEMS`) order. **Lazy**
+  — touches no flavor constant. Use this if you must stay lazy.
+- `Relaton.prefix_flavor(prefix)` (in `lib/relaton.rb`) → the owning **flavor
+  module(s)** as an Array (`[]` if none). Dereferencing a module constant
+  triggers that flavor's autoload, so this **loads** the matched flavor(s) — by
+  design, since the caller asked for the module.
+
+Scope note: only *prefixes* live here. Broader "SDO/organization metadata" (org
+names — relaton-db#132; logos — metanorma#346) was deliberately kept **out** of
+relaton proper, destined for a separate store/gem; don't add it to the processors.
+
 ### Db (lib/relaton/db.rb) — Main Public API
 
 `Relaton::Db#fetch(ref, year, opts)` is the primary entry point. It:

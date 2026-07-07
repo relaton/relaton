@@ -13,6 +13,16 @@ module Relaton
       # @return [Array<String>]
       attr_reader :datasets
 
+      # Global document-ID prefixes this flavor owns, e.g. NIST => %w[NIST NBS].
+      # Flavors may set @prefixes in #initialize; when unset it falls back to the
+      # single canonical @prefix, so every registered processor still resolves
+      # through the global prefix register (Relaton.prefix_flavor).
+      #
+      # @return [Array<String>]
+      def prefixes
+        @prefixes || Array(prefix)
+      end
+
       def initialize
         raise "This is an abstract class!"
       end
