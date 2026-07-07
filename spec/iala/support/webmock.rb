@@ -1,3 +1,4 @@
+require "canon"
 require "webmock/rspec"
 require "relaton/iala"
 
