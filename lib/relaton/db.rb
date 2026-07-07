@@ -462,7 +462,6 @@ module Relaton
   end
 end
 
-require_relative "db/version"
 require_relative "db/util"
 require_relative "db/config"
 require_relative "db/workers_pool"
