@@ -23,8 +23,8 @@ RSpec.describe Relaton::Iala::Ext do
 
   # XML rendering of a bare Ext with a doctype hits an upstream lutaml quirk
   # that does not occur when the Ext is embedded in an Item (same issue OIML
-  # documents in its ext_spec). Skip the XML assertion on the bare Ext; the
-  # full document XML round-trip is covered by processor-level specs.
+  # documents in its ext_spec). Skip the doctype element here; the full
+  # document XML round-trip is covered by processor-level specs.
   it "serialises the IALA-specific fields (sans doctype) to XML" do
     fields_only = described_class.new(
       flavor: "iala",
@@ -34,11 +34,16 @@ RSpec.describe Relaton::Iala::Ext do
       normative: "Nor",
       supersedes: ["IALA S1070 Ed 1.0"],
     )
-    xml = fields_only.to_xml
-    expect(xml).to include "<urn>urn:mrn:iala:pub:s1070:ed2.0</urn>"
-    expect(xml).to include "<webpage>https://www.iala.int/product/s1070/</webpage>"
-    expect(xml).to include "<committee>DTEC</committee>"
-    expect(xml).to include "<normative>Nor</normative>"
-    expect(xml).to include "<supersedes>IALA S1070 Ed 1.0</supersedes>"
+    expected = <<~XML
+      <ext>
+        <flavor>iala</flavor>
+        <urn>urn:mrn:iala:pub:s1070:ed2.0</urn>
+        <webpage>https://www.iala.int/product/s1070/</webpage>
+        <committee>DTEC</committee>
+        <normative>Nor</normative>
+        <supersedes>IALA S1070 Ed 1.0</supersedes>
+      </ext>
+    XML
+    expect(fields_only.to_xml).to be_xml_equivalent_to(expected)
   end
 end
