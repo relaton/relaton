@@ -20,6 +20,7 @@ module Relaton
   autoload :Ecma, "relaton/ecma"
   autoload :Etsi, "relaton/etsi"
   autoload :Iana, "relaton/iana"
+  autoload :Iala, "relaton/iala"
   autoload :Ieee, "relaton/ieee"
   autoload :Ietf, "relaton/ietf"
   autoload :Iho, "relaton/iho"
