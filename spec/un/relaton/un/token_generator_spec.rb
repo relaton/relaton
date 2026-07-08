@@ -14,6 +14,7 @@ describe Relaton::Un::TokenGenerator do
     end
 
     it "caches the token within the same minute" do
+      allow(Time).to receive(:now).and_return(Time.now.utc)
       first = described_class.generate
       second = described_class.generate
       expect(second).to eq(first)
