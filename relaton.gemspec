@@ -70,7 +70,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "parallel", "~> 1.26"
   spec.add_dependency "parslet", "~> 2.0.0"
   spec.add_dependency "psych", "~> 5.2.0"
-  spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.5"
+  spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.6"
   spec.add_dependency "rfcxml", "~> 0.4.3"
   spec.add_dependency "rubyzip", "~> 2.3.0"
   spec.add_dependency "w3c_api", "~> 0.3.2"
