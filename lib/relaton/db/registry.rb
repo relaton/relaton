@@ -107,7 +107,46 @@ module Relaton
         nil
       end
 
+      #
+      # Global prefix register (relaton-db#103): all processors that own the
+      # given global prefix, matched case-insensitively and exactly (unlike
+      # #class_by_ref, which matches a prefix at the start of a full reference).
+      # Ordered by registration order (SUPPORTED_GEMS), so results are
+      # deterministic. Lazy: never dereferences a flavor constant.
+      #
+      # @param prefix [String]
+      # @return [Array<Relaton::Core::Processor>]
+      #
+      def processors_by_prefix(prefix)
+        key = prefix.to_s.strip.upcase
+        processors.values.select do |processor|
+          processor.prefixes.any? { |pref| pref.upcase == key }
+        end
+      end
+
+      #
+      # Flavor modules (e.g. Relaton::Iso) that own the given global prefix.
+      # NOTE: dereferencing the returned module forces that flavor's lazy load.
+      # Callers that must stay lazy should use #processors_by_prefix instead.
+      #
+      # @param prefix [String]
+      # @return [Array<Module>]
+      #
+      def flavors_by_prefix(prefix)
+        processors_by_prefix(prefix).map { |processor| flavor_module(processor) }
+      end
+
       private
+
+      # The flavor namespace for a processor: the module enclosing its class.
+      # Relaton::Iso::Processor -> Relaton::Iso. Derived from the class name so
+      # there's no @short string-munging and no 3gpp special case.
+      #
+      # @param processor [Relaton::Core::Processor]
+      # @return [Module]
+      def flavor_module(processor)
+        Object.const_get processor.class.name.split("::")[0..-2].join("::")
+      end
 
       def gem_to_module_path(gem_name)
         gem_name.split("/").map do |part|

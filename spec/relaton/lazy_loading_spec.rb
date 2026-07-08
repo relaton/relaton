@@ -42,6 +42,18 @@ RSpec.describe "lazy flavor loading" do
     expect(out).to include(marker)
   end
 
+  it "resolves prefixes to processors without loading the heavy flavor" do
+    out = run_in_clean_process(<<~RUBY)
+      require "relaton/db"
+      procs = Relaton::Db::Registry.instance.processors_by_prefix("ISO/IEC")
+      abort "FAIL: no processors for ISO/IEC" if procs.empty?
+      if Relaton::Iso.const_defined?(:Bibliography, false)
+        abort "FAIL: Iso::Bibliography was eagerly loaded"
+      end
+    RUBY
+    expect(out).to include(marker)
+  end
+
   it "loads the heavy iso.rb lazily once a processor method needs it" do
     out = run_in_clean_process(<<~RUBY)
       require "relaton/db"

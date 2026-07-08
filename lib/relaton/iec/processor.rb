@@ -6,6 +6,7 @@ module Relaton
       def initialize
         @short = :relaton_iec
         @prefix = "IEC"
+        @pubid_flavor = :Iec # global prefixes sourced from Pubid::Iec.prefixes
         @defaultprefix = %r{^(IEC\s|CISPR\s|IEV($|\s))}
         @idtype = "IEC"
         @datasets = %w[iec-harmonized-all iec-harmonized-latest]
