@@ -60,7 +60,7 @@ All data models inherit from `Lutaml::Model::Serializable` and use declarative a
 - `Processor` < `Core::Processor` — Relaton plugin interface (`get`, `fetch_data`, `from_xml`, `from_yaml`)
 
 **Data fetching/parsing**:
-- `DataFetcher` < `Core::DataFetcher` — fetches NIST Tech Pubs MODS XML from GitHub releases
+- `DataFetcher` < `Core::DataFetcher` — fetches NIST Tech Pubs MODS XML from GitHub releases. `#source_url(source)` builds the download URL: with no tag (nil/blank/`"latest"`) it uses GitHub's `releases/latest/download/allrecords-MODS.xml` redirect, so the `relaton-data-nist` crawler auto-picks up new releases without a gem release; passing a concrete tag (e.g. `"June2026"`) pins that release. The `source` flows from `Core::DataFetcher.fetch(source)` → `#fetch(source)` → `#fetch_tech_pubs(source)` (the crawler workflow's `args` input can supply it).
 - `ModsParser` — maps MODS XML (via `loc_mods`) to `ItemData`
 - `Scraper` — fetches items from GitHub YAML or CSRC JSON
 - `PubsExport` — singleton; caches CSRC pubs-export zip with thread-safe daily updates

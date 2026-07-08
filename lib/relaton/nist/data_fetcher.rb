@@ -9,20 +9,31 @@ require_relative "mods_parser"
 module Relaton
   module Nist
     class DataFetcher < Core::DataFetcher
-      URL = "https://github.com/usnistgov/NIST-Tech-Pubs/releases/download/Nov2024/allrecords-MODS.xml"
+      RELEASES_URL = "https://github.com/usnistgov/NIST-Tech-Pubs/releases"
+      MODS_ASSET = "allrecords-MODS.xml"
 
-      def fetch(_source = nil)
+      def fetch(source = nil)
         FileUtils.rm Dir[File.join(@output, "*.#{@ext}")]
-        fetch_tech_pubs
+        fetch_tech_pubs source
         # add_static_files
         index.save
         report_errors
       end
 
-      def fetch_tech_pubs
-        xml_data = Mechanize.new.get(URL).body
+      def fetch_tech_pubs(source = nil)
+        xml_data = Mechanize.new.get(source_url(source)).body
         docs = LocMods::Collection.from_xml xml_data
         docs.mods.each { |doc| write_file ModsParser.new(doc, series, @errors).parse }
+      end
+
+      # Build the MODS download URL for a NIST-Tech-Pubs release. With no tag
+      # (nil, blank, or "latest") use GitHub's `latest/download` redirect so new
+      # releases are picked up automatically by the crawler; a concrete tag
+      # (e.g. "June2026") pins that specific release.
+      def source_url(source = nil)
+        tag = source.to_s.strip
+        path = tag.empty? || tag.casecmp?("latest") ? "latest/download" : "download/#{tag}"
+        "#{RELEASES_URL}/#{path}/#{MODS_ASSET}"
       end
 
       def write_file(bib)

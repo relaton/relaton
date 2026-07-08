@@ -39,13 +39,34 @@ RSpec.describe Relaton::Nist::DataFetcher do
       page = double("page", body: xml)
       agent = double("agent")
       expect(Mechanize).to receive(:new).and_return agent
-      expect(agent).to receive(:get).with(Relaton::Nist::DataFetcher::URL).and_return page
+      expect(agent).to receive(:get).with(subject.source_url).and_return page
       parser = double "parser"
       expect(parser).to receive(:parse).and_return(:bib).twice
       expect(Relaton::Nist::ModsParser).to receive(:new)
         .with(kind_of(LocMods::Record), kind_of(Hash), kind_of(Hash)).and_return(parser).twice
       expect(subject).to receive(:write_file).with(:bib).twice
       subject.fetch_tech_pubs
+    end
+
+    context "#source_url" do
+      let(:base) { "https://github.com/usnistgov/NIST-Tech-Pubs/releases" }
+
+      it "resolves the latest release when no source is given" do
+        expect(subject.source_url).to eq "#{base}/latest/download/allrecords-MODS.xml"
+      end
+
+      it "resolves the latest release for an explicit \"latest\" (any case)" do
+        expect(subject.source_url("latest")).to eq "#{base}/latest/download/allrecords-MODS.xml"
+        expect(subject.source_url("LATEST")).to eq "#{base}/latest/download/allrecords-MODS.xml"
+      end
+
+      it "resolves the latest release for a blank source" do
+        expect(subject.source_url("  ")).to eq "#{base}/latest/download/allrecords-MODS.xml"
+      end
+
+      it "pins a specific release tag" do
+        expect(subject.source_url("June2026")).to eq "#{base}/download/June2026/allrecords-MODS.xml"
+      end
     end
 
     context "#write_file" do
