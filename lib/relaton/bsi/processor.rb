@@ -5,7 +5,7 @@ module Relaton::Bsi
     def initialize
       @short = :relaton_bsi
       @prefix = "BSI"
-      @prefixes = ["BS", "BS ISO", "BS EN ISO", "BS PAS", "PD"]
+      @pubid_flavor = :Bsi # global prefixes sourced from Pubid::Bsi.prefixes
       @defaultprefix = %r{^(BSI|BS|PD)\s}
       @idtype = "BSI"
     end

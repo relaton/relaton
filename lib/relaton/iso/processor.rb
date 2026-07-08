@@ -8,7 +8,7 @@ module Relaton
       def initialize # rubocop:disable Lint/MissingSuper
         @short = :relaton_iso
         @prefix = "ISO"
-        @prefixes = ["ISO", "ISO/IEC", "IEC/ISO", "ISO/IEC/IEEE"]
+        @pubid_flavor = :Iso # global prefixes sourced from Pubid::Iso.prefixes
         @defaultprefix = %r{^ISO(/IEC)?\s}
         @idtype = "ISO"
         @datasets = %w[iso-open-data iso-open-data-all]

@@ -13,14 +13,23 @@ module Relaton
       # @return [Array<String>]
       attr_reader :datasets
 
-      # Global document-ID prefixes this flavor owns, e.g. NIST => %w[NIST NBS].
-      # Flavors may set @prefixes in #initialize; when unset it falls back to the
-      # single canonical @prefix, so every registered processor still resolves
-      # through the global prefix register (Relaton.prefix_flavor).
+      # Global document-ID prefixes this flavor owns, e.g. BSI => %w[BS BSI DD …].
+      # The source of truth is **pubid**: a flavor sets @pubid_flavor to its Pubid
+      # module name (e.g. :Iso) in #initialize, and the prefixes are read from
+      # `Pubid::<Flavor>.prefixes` — the SDO's own leading identifier tokens,
+      # including non-obvious ones (BSI `DD`) and joint forms (`ISO/IEC`). Flavors
+      # with no pubid backing fall back to the single canonical @prefix. Loaded
+      # lazily (pubid is only required on first call) and memoized. Feeds the
+      # global prefix register (Relaton.prefix_flavor). (relaton-db#103)
       #
       # @return [Array<String>]
       def prefixes
-        @prefixes || Array(prefix)
+        @prefixes ||= if @pubid_flavor
+                        require "pubid"
+                        ::Pubid.const_get(@pubid_flavor).prefixes
+                      else
+                        Array(prefix)
+                      end
       end
 
       def initialize

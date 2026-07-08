@@ -21,6 +21,17 @@ RSpec.describe "Relaton.prefix_flavor" do
       .to eq [Relaton::Iec, Relaton::Iso, Relaton::Ieee]
   end
 
+  # These prefixes are non-obvious and come straight from pubid's grammar,
+  # proving the register is sourced from Pubid::<Flavor>.prefixes rather than
+  # hand-coded lists (the relaton-db#103 review point).
+  it "resolves a pubid-sourced non-obvious BSI prefix (DD)" do
+    expect(Relaton.prefix_flavor("DD")).to eq [Relaton::Bsi]
+  end
+
+  it "resolves a pubid-sourced IEC series prefix (CISPR)" do
+    expect(Relaton.prefix_flavor("CISPR")).to eq [Relaton::Iec]
+  end
+
   it "is case-insensitive" do
     expect(Relaton.prefix_flavor("iso/iec")).to eq Relaton.prefix_flavor("ISO/IEC")
   end

@@ -190,9 +190,18 @@ RSpec.describe Relaton::Db::Registry do
     it "returns [] for an unknown prefix" do
       expect(registry.processors_by_prefix("BOGUS")).to eq []
     end
+
+    it "routes a pubid-sourced non-obvious prefix (BSI DD)" do
+      expect(registry.processors_by_prefix("DD").map(&:short)).to eq [:relaton_bsi]
+    end
   end
 
-  it "defaults #prefixes to [prefix] for a single-prefix flavor" do
+  it "sources a flavor's #prefixes from pubid (BSI includes DD)" do
+    expect(Relaton::Db::Registry.instance.find_processor(:relaton_bsi).prefixes)
+      .to include("DD", "BS", "PD")
+  end
+
+  it "defaults #prefixes to [prefix] for a flavor with no pubid backing" do
     expect(Relaton::Db::Registry.instance.find_processor(:relaton_omg).prefixes)
       .to eq ["OMG"]
   end

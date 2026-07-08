@@ -50,6 +50,24 @@ Two lookups over it:
   triggers that flavor's autoload, so this **loads** the matched flavor(s) — by
   design, since the caller asked for the module.
 
+Prefixes are **sourced from pubid** — the source of truth for each SDO's
+identifier grammar (per @ronaldtse's review on relaton-db#103). A processor sets
+`@pubid_flavor` to its Pubid module name (e.g. `:Iso`) in `initialize`, and
+`Core::Processor#prefixes` lazily reads `Pubid::<Flavor>.prefixes`
+(`require "pubid"` on first call, memoized). pubid returns each SDO's leading
+identifier tokens, including non-obvious ones (BSI `DD`, NIST `FIPS`) and joint
+forms listed symmetrically across co-publishers (`ISO/IEC` in both ISO's and
+IEC's lists). Flavors with no `@pubid_flavor` fall back to `[prefix]`. The pubid
+API (`Pubid.prefixes(flavor)` / `Pubid.prefix_flavors` / the `PrefixesSupport`
+mixin) was specified in `HANDOFFS/metanorma__pubid.md` and implemented upstream;
+relaton pins the pubid version that carries it.
+
+Conflicting prefixes where the *same* base identifier is co-published as distinct
+per-publisher documents (e.g. `IEC 80000-13` vs `ISO 80000-3` — different cover,
+location, even foreword) are a **separate follow-up**: the register already
+returns both flavors, but returning the correct publisher-specific *content*
+touches `Db#fetch`, not the prefix list.
+
 Scope note: only *prefixes* live here. Broader "SDO/organization metadata" (org
 names — relaton-db#132; logos — metanorma#346) was deliberately kept **out** of
 relaton proper, destined for a separate store/gem; don't add it to the processors.
