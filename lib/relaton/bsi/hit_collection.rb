@@ -49,14 +49,14 @@ module Relaton::Bsi
     #
     # Filter the search results for a BSI standard.
     #
-    # @param [MatchData] code_parts parts of document identifier
+    # @param [Pubid::Bsi::Identifier] query the parsed query reference
     #
     # @return [self] filtered search results
     #
-    def filter_hits!(code_parts)
-      hits = filter code_parts
-      hits = filter code_parts, skip_rest: true if hits.empty?
-      hits = filter code_parts, drop_amd: true if hits.empty?
+    def filter_hits!(query)
+      hits = filter query
+      hits = filter query, skip_rest: true if hits.empty?
+      hits = filter query, drop_amd: true if hits.empty?
       @array = hits
       self
     end
@@ -93,20 +93,19 @@ module Relaton::Bsi
     end
 
     #
-    # Select hits that match the document identifier.
+    # Select hits that match the query reference.
     #
-    # @param [MatchData] code_parts parts of document identifier
-    # @param [Boolean] drop_amd drop amendments and corrigendums
-    # @param [Boolean] skip_rest skip rest suffix of document identifier
+    # @param [Pubid::Bsi::Identifier] query the parsed query reference
+    # @param [Boolean] drop_amd match base documents only (ignore supplements)
+    # @param [Boolean] skip_rest ignore the free-text suffix (ExComm / Flex version)
     #
-    def filter(code_parts, drop_amd: false, skip_rest: false) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    def filter(query, drop_amd: false, skip_rest: false)
       @array.select do |i|
-        code = drop_amd ? i.hit[:code].sub(/\+[AC]\d+.*$/, "") : i.hit[:code]
-        cp = Bibliography.code_parts code
-        match = cp[:code] == code_parts[:code] && cp[:a] == code_parts[:a] &&
-          (!code_parts[:y] || cp[:y] == code_parts[:y]) &&
-          (skip_rest || cp[:rest] == code_parts[:rest])
-        i.hit[:code] = code if drop_amd && match
+        hit = i.pubid or next false
+        match = Bibliography.same_reference?(query, hit, skip_rest: skip_rest, drop_amd: drop_amd)
+        # When matching base documents only, drop the amendment from the hit's
+        # rendered id too, so the returned reference is the base document.
+        i.hit[:code] = hit.base_document.to_s if drop_amd && match
         match
       end
     end
