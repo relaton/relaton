@@ -38,24 +38,56 @@ module Relaton
 
       def write_file(bib)
         id = bib.docidentifier.find(&:primary) || bib.docidentifier.first
+        unless id
+          failures << "Document skipped: no identifier (#{document_label(bib)})"
+          return
+        end
         file = output_file id.content.sub(/^NIST IR/, "NISTIR")
         if @files.include? file
           Util.warn "File #{file} exists. Docid: #{id.content}"
         else @files << file
         end
         pid = pubid id.content
-        index.add_or_update pid, file if pid
+        if pid
+          index.add_or_update pid, file
+        else
+          failures << "Unparseable id `#{id.content}` was not indexed (#{file})"
+        end
         File.write file, serialize(bib), encoding: "UTF-8"
       end
 
-      # Parse a docidentifier string into a Pubid::Nist::Identifier; nil (with a
-      # warning) if pubid can't parse it, so a single bad id never aborts the
-      # crawl or corrupts index-v2.
+      # A human-readable label for a bib with no usable docidentifier, so the
+      # skipped record is identifiable in the reported error.
+      def document_label(bib)
+        Array(bib.title).map(&:content).compact.reject(&:empty?).first || "unknown title"
+      end
+
+      # Parse a docidentifier string into a Pubid::Nist::Identifier, or nil if
+      # pubid can't parse it — so a single bad id never aborts the crawl or
+      # corrupts index-v2. The caller records the failure (see #write_file) so
+      # #report_errors can surface it as a tracked GitHub issue.
       def pubid(id)
         ::Pubid::Nist::Identifier.parse id
-      rescue StandardError => e
-        Util.warn "Failed to parse `#{id}` with pubid: #{e.message}"
+      rescue StandardError
         nil
+      end
+
+      # Per-document failures (unparseable ids, identifier-less records)
+      # collected during the crawl and surfaced by #report_errors.
+      def failures
+        @failures ||= []
+      end
+
+      # Surface accumulated per-document failures through the shared error
+      # machinery (the "Error fetching documents" GitHub issue in CI) so they
+      # are visible and tracked, not a hard crash or a silent stderr warning.
+      # The gh_issue channel is registered inside #report_errors, so emit these
+      # at :error (via #log_error) after it is set up and before super creates
+      # the issue.
+      def report_errors
+        gh_issue
+        failures.each { |msg| log_error msg }
+        super
       end
 
       # def add_static_files
