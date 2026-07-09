@@ -233,12 +233,20 @@ module Relaton
         ItemData.new(docidentifier: [docid], formattedref: fref)
       end
 
+      # Derive the related document's DOI id. Prefer an `otherType` that carries
+      # a `10.6028` DOI — it may be embedded in prose (e.g. "Translation of |a
+      # 10.6028/NIST.SP.1299" or "Supersedes … https://doi.org/10.6028/…"), not
+      # only a bare DOI — otherwise fall back to the `<name><namePart>`. Returns
+      # nil (relation skipped by #create_related_item) when neither yields a DOI,
+      # so a related item with no name and no DOI never aborts the crawl.
       def related_item_id(item)
-        if item.other_type && item.other_type[0..6] == "10.6028"
-          item.other_type
-        else
-          item.name[0].name_part[0].content
-        end => id
+        id = if item.other_type&.include?("10.6028")
+               item.other_type
+             else
+               item.name&.first&.name_part&.first&.content
+             end
+        return if id.nil?
+
         doi = remove_doi_prefix(id)
         return if doi.nil?
 

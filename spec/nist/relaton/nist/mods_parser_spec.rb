@@ -294,6 +294,35 @@ describe Relaton::Nist::ModsParser do
         expect(relations[0].type).to eq "updatedBy"
         expect(relations[0].bibitem.docidentifier[0].content).to eq "NIST HB 135e2022"
       end
+
+      it "recovers a DOI embedded in a prose otherType with no name" do
+        doc = LocMods::Collection.from_xml <<~XML
+          <modsCollection xmlns="http://www.loc.gov/mods/v3">
+            <mods>
+              <relatedItem type="otherVersion" otherType="Translation of |a 10.6028/NIST.SP.1299"/>
+            </mods>
+          </modsCollection>
+        XML
+        subject.instance_variable_set :@doc, doc.mods[0]
+        relations = subject.parse_relation
+        expect(relations.size).to eq 1
+        expect(relations[0].type).to eq "editionOf"
+        expect(relations[0].bibitem.docidentifier[0].content).to eq "NIST SP 1299"
+      end
+
+      it "skips a related item with no name and no recoverable DOI without crashing" do
+        doc = LocMods::Collection.from_xml <<~XML
+          <modsCollection xmlns="http://www.loc.gov/mods/v3">
+            <mods>
+              <relatedItem type="preceding" otherType="Supersedes some prose with no identifier"/>
+            </mods>
+          </modsCollection>
+        XML
+        subject.instance_variable_set :@doc, doc.mods[0]
+        relations = nil
+        expect { relations = subject.parse_relation }.not_to raise_error
+        expect(relations).to eq []
+      end
     end
 
     it "parse_place" do
