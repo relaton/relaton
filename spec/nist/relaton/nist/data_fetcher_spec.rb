@@ -94,6 +94,42 @@ RSpec.describe Relaton::Nist::DataFetcher do
       end
     end
 
+    context "#write_file with no identifier" do
+      let(:title) { Relaton::Bib::Title.new(content: "Quick start guide", type: "main") }
+      let(:bib) { Relaton::Bib::ItemData.new(docidentifier: [], title: [title]) }
+
+      it "does not crash, skips the file, and records the failure" do
+        expect(File).not_to receive(:write)
+        expect(subject.index).not_to receive(:add_or_update)
+        expect { subject.write_file bib }.not_to raise_error
+        expect(subject.failures).to include(/no identifier.*Quick start guide/)
+      end
+
+      it "falls back to a label when the record has no usable title (nil/blank content)" do
+        blank = Relaton::Bib::Title.new(type: "main")
+        titleless = Relaton::Bib::ItemData.new(docidentifier: [], title: [blank])
+        expect { subject.write_file titleless }.not_to raise_error
+        expect(subject.failures).to include(/no identifier.*unknown title/)
+      end
+    end
+
+    context "#write_file with an unparseable identifier" do
+      let(:docid) { Relaton::Bib::Docidentifier.new(type: "NIST", content: "NIST RB 6") }
+      let(:bib) { Relaton::Bib::ItemData.new(docidentifier: [docid]) }
+
+      before do
+        allow(subject).to receive(:pubid).with("NIST RB 6").and_return(nil)
+        allow(subject).to receive(:serialize).with(bib).and_return :content
+      end
+
+      it "still writes the file but records the id as not indexed" do
+        expect(subject.index).not_to receive(:add_or_update)
+        expect(File).to receive(:write).with("data/nist-rb-6.yaml", :content, encoding: "UTF-8")
+        subject.write_file bib
+        expect(subject.failures).to include(/Unparseable id `NIST RB 6` was not indexed/)
+      end
+    end
+
     context "#pubid" do
       it "parses a valid docidentifier into a Pubid::Nist::Identifier" do
         pid = subject.pubid "NIST IR 8200"
@@ -101,11 +137,21 @@ RSpec.describe Relaton::Nist::DataFetcher do
         expect(pid.to_s).to eq "NIST IR 8200"
       end
 
-      it "returns nil and warns for an unparseable id (single bad id never aborts the crawl)" do
-        result = nil
-        expect { result = subject.pubid "!!! totally bogus @@@" }
-          .to output(/Failed to parse `!!! totally bogus @@@` with pubid/).to_stderr_from_any_process
-        expect(result).to be_nil
+      it "returns nil for an unparseable id (single bad id never aborts the crawl)" do
+        expect(subject.pubid("!!! totally bogus @@@")).to be_nil
+      end
+    end
+
+    context "#report_errors" do
+      it "surfaces each accumulated failure at error level, then calls super" do
+        subject.failures << "boom one" << "boom two"
+        allow(subject).to receive(:gh_issue)
+        expect(subject).to receive(:log_error).with("boom one")
+        expect(subject).to receive(:log_error).with("boom two")
+        # the Core::DataFetcher#report_errors path (super) reports @errors and
+        # creates the issue; stub its side effects to keep the unit focused.
+        allow(subject).to receive(:gh_issue_channel).and_return([nil, "title"])
+        subject.report_errors
       end
     end
 
