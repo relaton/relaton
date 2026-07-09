@@ -233,6 +233,45 @@ describe Relaton::Nist::ModsParser do
         expect(contribs[0].person).to be_instance_of Relaton::Bib::Person
         expect(contribs[0].person.name.completename.content).to eq "Ricker, Richard E.,"
       end
+
+      it "keeps the usage=primary lead author instead of dropping it" do
+        doc = LocMods::Collection.from_xml <<~XML
+          <modsCollection xmlns="http://www.loc.gov/mods/v3">
+            <mods>
+              <name type="personal" usage="primary"><namePart>Woolson, Ira H.</namePart></name>
+              <name type="personal"><namePart>Brown, Edwin H.</namePart></name>
+            </mods>
+          </modsCollection>
+        XML
+        subject.instance_variable_set :@doc, doc.mods[0]
+        contribs = subject.parse_contributor
+        expect(contribs.map { |c| c.person.name.completename.content })
+          .to eq ["Woolson, Ira H.", "Brown, Edwin H."]
+        expect(contribs[0].role[0].type).to eq "author"
+      end
+
+      it "de-duplicates a name listed as both the primary and a plain added entry" do
+        doc = LocMods::Collection.from_xml <<~XML
+          <modsCollection xmlns="http://www.loc.gov/mods/v3">
+            <mods>
+              <name type="personal" usage="primary">
+                <namePart>Eaton, Brian Eric.</namePart>
+                <nameIdentifier>https://id.loc.gov/authorities/names/n88608021</nameIdentifier>
+              </name>
+              <name type="personal">
+                <namePart>Eaton, Brian Eric.</namePart>
+                <nameIdentifier>https://id.loc.gov/authorities/names/n88608021</nameIdentifier>
+              </name>
+            </mods>
+          </modsCollection>
+        XML
+        subject.instance_variable_set :@doc, doc.mods[0]
+        contribs = subject.parse_contributor
+        expect(contribs.size).to eq 1
+        expect(contribs[0].person.name.completename.content).to eq "Eaton, Brian Eric."
+        expect(contribs[0].person.identifier[0].content)
+          .to eq "https://id.loc.gov/authorities/names/n88608021"
+      end
     end
 
     context "create_org" do

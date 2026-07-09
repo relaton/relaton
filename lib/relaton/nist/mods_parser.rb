@@ -154,19 +154,34 @@ module Relaton
       def parse_doctype = Doctype.new(content: "standard")
 
       def parse_contributor
-        # exclude primary contributors to avoid duplication
-        contributor = @doc.name.reject { |n| n.usage == "primary" }.map do |name|
+        seen = []
+        contributor = @doc.name.filter_map do |name|
           entity, default_role = create_entity(name)
           next unless entity
 
+          # A name may appear twice — as the `usage="primary"` main entry and
+          # again as a plain added entry. Keep the first (primary) occurrence
+          # and drop the duplicate, so the lead author is retained, not doubled.
+          key = contributor_key(name)
+          next if seen.include?(key)
+
+          seen << key
           role = (name.role || []).reduce([]) do |a, r|
             a + r.role_term.map { |rt| Bib::Contributor::Role.new(type: rt.content) }
           end
           role << Bib::Contributor::Role.new(type: default_role) if role.empty?
           create_contributor(entity, role)
-        end.compact
+        end
         @errors[:contributor] &&= contributor.empty?
         contributor
+      end
+
+      # De-duplication signature for a contributor: its type, its non-date name
+      # parts, and its authority id — so identically-named people with distinct
+      # authority ids are still kept separate.
+      def contributor_key(name)
+        parts = name.name_part.reject(&:type).map { |p| p.content&.strip }
+        [name.type, parts, name.name_identifier&.first&.content]
       end
 
       def create_contributor(entity, role)
