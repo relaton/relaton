@@ -26,7 +26,7 @@ module Relaton
         args = ATTRS.each_with_object({}) do |attr, hash|
           hash[attr] = send("parse_#{attr}")
         end
-        args[:ext] = Ext.new(doctype: parse_doctype, flavor: "nilst")
+        args[:ext] = Ext.new(doctype: parse_doctype, flavor: "nist")
         ItemData.new(**args)
       end
 

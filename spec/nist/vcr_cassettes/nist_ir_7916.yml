@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1199'
+      - '1081'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"19864488f7443822f5522dbd954d1f3c853f1ba2e5efba4f61ff32c222c122e4"
+      - W/"1c5a94ec909e3702a9b1ffd8c60ee0fb7e711124b45987e71d04feecfec57a82"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 4AC6:2C075:E9FAC:112C98:6A4738E6
+      - B32E:1B306A:C6E93:1151EF:6A512F1D
       Accept-Ranges:
       - bytes
       Date:
-      - Fri, 03 Jul 2026 04:21:59 GMT
+      - Fri, 10 Jul 2026 17:42:53 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-pdk-kfty8610020-PDK
+      - cache-iad-kcgs7200031-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1783052519.214390,VS0,VE121
+      - S1783705374.702234,VS0,VE90
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -63,9 +63,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 033b28e2390f1b7bf9f9238fb367062fa33d7c63
+      - 726da0b53553ce2cb09b1305c5f130cb5bfb4a9d
       Expires:
-      - Fri, 03 Jul 2026 04:26:59 GMT
+      - Fri, 10 Jul 2026 17:47:53 GMT
       Source-Age:
       - '0'
     body:
@@ -83,20 +83,18 @@ http_interactions:
         dDogJzIwMTMnCmNvbnRyaWJ1dG9yOgotIHJvbGU6CiAgLSB0eXBlOiBhdXRo
         b3IKICBwZXJzb246CiAgICBuYW1lOgogICAgICBjb21wbGV0ZW5hbWU6CiAg
         ICAgICAgbGFuZ3VhZ2U6IGVuCiAgICAgICAgY29udGVudDogQnJld2VyLCBU
-        YW55YS4KLSByb2xlOgogIC0gdHlwZTogYXV0aG9yCiAgcGVyc29uOgogICAg
-        bmFtZToKICAgICAgY29tcGxldGVuYW1lOgogICAgICAgIGxhbmd1YWdlOiBl
-        bgogICAgICAgIGNvbnRlbnQ6IEJyZXdlciwgVGFueWEuCi0gcm9sZToKICAt
-        IHR5cGU6IHB1Ymxpc2hlcgogIG9yZ2FuaXphdGlvbjoKICAgIG5hbWU6CiAg
-        ICAtIGNvbnRlbnQ6IE5hdGlvbmFsIEluc3RpdHV0ZSBvZiBTdGFuZGFyZHMg
-        YW5kIFRlY2hub2xvZ3kgKFUuUy4pLgogICAgLSBjb250ZW50OiBDb21wdXRl
-        ciBTZWN1cml0eSBEaXZpc2lvbiwgSW5mb3JtYXRpb24gVGVjaG5vbG9neSBM
-        YWJvcmF0b3J5LgogICAgaWRlbnRpZmllcjoKICAgIC0gdHlwZTogdXJpCiAg
-        ICAgIGNvbnRlbnQ6IGh0dHBzOi8vaWQubG9jLmdvdi9hdXRob3JpdGllcy9u
-        YW1lcy9uODgxMTIxMjYKc2VyaWVzOgotIHRpdGxlOgogIC0gY29udGVudDog
-        TklTVElSOyBOSVNUIElSOyBOSVNUIGludGVyYWdlbmN5IHJlcG9ydDsgTklT
-        VCBpbnRlcm5hbCByZXBvcnQKICBudW1iZXI6ICc3OTE2JwpwbGFjZToKLSBj
-        aXR5OiBHYWl0aGVyc2J1cmcKICByZWdpb246CiAgLSBpc286IE1ECmV4dDoK
-        ICBzY2hlbWFfdmVyc2lvbjogdjEuMS4yCiAgZG9jdHlwZToKICAgIGNvbnRl
-        bnQ6IHN0YW5kYXJkCiAgZmxhdm9yOiBuaWxzdAo=
-  recorded_at: Fri, 03 Jul 2026 04:21:59 GMT
+        YW55YS4KLSByb2xlOgogIC0gdHlwZTogcHVibGlzaGVyCiAgb3JnYW5pemF0
+        aW9uOgogICAgbmFtZToKICAgIC0gY29udGVudDogTmF0aW9uYWwgSW5zdGl0
+        dXRlIG9mIFN0YW5kYXJkcyBhbmQgVGVjaG5vbG9neSAoVS5TLikuCiAgICAt
+        IGNvbnRlbnQ6IENvbXB1dGVyIFNlY3VyaXR5IERpdmlzaW9uLCBJbmZvcm1h
+        dGlvbiBUZWNobm9sb2d5IExhYm9yYXRvcnkuCiAgICBpZGVudGlmaWVyOgog
+        ICAgLSB0eXBlOiB1cmkKICAgICAgY29udGVudDogaHR0cHM6Ly9pZC5sb2Mu
+        Z292L2F1dGhvcml0aWVzL25hbWVzL244ODExMjEyNgpzZXJpZXM6Ci0gdGl0
+        bGU6CiAgLSBjb250ZW50OiBOSVNUSVI7IE5JU1QgSVI7IE5JU1QgaW50ZXJh
+        Z2VuY3kgcmVwb3J0OyBOSVNUIGludGVybmFsIHJlcG9ydAogIG51bWJlcjog
+        Jzc5MTYnCnBsYWNlOgotIGNpdHk6IEdhaXRoZXJzYnVyZwogIHJlZ2lvbjoK
+        ICAtIGlzbzogTUQKZXh0OgogIHNjaGVtYV92ZXJzaW9uOiB2MS4xLjIKICBk
+        b2N0eXBlOgogICAgY29udGVudDogc3RhbmRhcmQKICBmbGF2b3I6IG5pbHN0
+        Cg==
+  recorded_at: Fri, 10 Jul 2026 17:42:53 GMT
 recorded_with: VCR 6.4.0

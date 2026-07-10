@@ -39,6 +39,13 @@ describe Relaton::Nist::ModsParser do
       subject.parse
     end
 
+    it "stamps the ext flavor as nist" do
+      %i[parse_docidentifier parse_title parse_source parse_abstract
+         parse_date parse_doctype parse_contributor parse_relation
+         parse_place parse_series].each { |m| allow(subject).to receive(m) }
+      expect(subject.parse.ext.flavor).to eq "nist"
+    end
+
     it "parse_docid" do
       docid = subject.parse_docidentifier
       expect(docid).to be_instance_of Array
