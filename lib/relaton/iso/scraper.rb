@@ -128,11 +128,27 @@ module Relaton
       # @return [Array<RelatonBib::DocumentIdentifier>]
       #
       def fetch_relaton_docids
+        primary = Docidentifier.new(content: pubid, type: "ISO", primary: true)
         [
-          Docidentifier.new(content: pubid, type: "ISO", primary: true),
+          primary,
+          undated_docid(primary),
           Docidentifier.new(content: isoref, type: "iso-reference"),
           Docidentifier.new(content: urn, type: "URN"),
-        ]
+        ].compact
+      end
+
+      #
+      # Create the undated reference docid (e.g. `ISO 123` from `ISO 123:2001`).
+      # Returns nil for an already-undated identifier so it does not duplicate
+      # the primary.
+      #
+      # @return [Relaton::Iso::Docidentifier, nil]
+      #
+      def undated_docid(primary)
+        undated = Docidentifier.new(content: pubid, type: "iso-undated")
+        undated unless undated.to_s == primary.to_s
+      rescue StandardError
+        nil
       end
 
       #

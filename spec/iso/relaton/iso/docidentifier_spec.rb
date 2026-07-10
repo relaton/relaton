@@ -25,11 +25,32 @@ describe Relaton::Iso::Docidentifier do
       end
     end
 
+    context "iso-undated" do
+      let(:type) { "iso-undated" }
+      it "should render PRF identifier without language" do
+        expect(subject.to_s).to eq "ISO/PRF TR 17716.2"
+      end
+    end
+
     context "URN" do
       let(:type) { "URN" }
       it "should render PRF identifier" do
         expect(subject.to_s).to eq "urn:iso:std:iso:tr:17716:stage-draft.v2:en"
       end
+    end
+  end
+
+  context "iso-undated rendering" do
+    let(:type) { "iso-undated" }
+
+    it "drops the year from a dated identifier" do
+      docid = described_class.new content: "ISO 19115-1:2014", type: type
+      expect(docid.to_s).to eq "ISO 19115-1"
+    end
+
+    it "drops the year from an identifier and its supplement base" do
+      docid = described_class.new content: "ISO 19115-1:2014/Amd 1:2018", type: type
+      expect(docid.to_s).to eq "ISO 19115-1/Amd 1"
     end
   end
 

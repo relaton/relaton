@@ -34,6 +34,8 @@ describe Relaton::Iso::DataParser do
     primary = item.docidentifier.find(&:primary)
 
     expect(primary.content.to_s).to eq "ISO 9001:2015"
+    expect(item.docidentifier.find { |d| d.type == "iso-undated" }.content.to_s)
+      .to eq "ISO 9001"
     expect(item.docidentifier.find { |d| d.type == "iso-reference" }.content.to_s)
       .to eq "ISO 9001:2015(E)"
     expect(item.docidentifier.find { |d| d.type == "URN" }.content.to_s)
@@ -62,6 +64,46 @@ describe Relaton::Iso::DataParser do
 
     expect(item.ext.ics.first.code).to eq "03.120.10"
     expect(item.ext.doctype.content).to eq "international-standard"
+  end
+
+  it "exposes all four identifier variants under docidentifier (issue #107)" do
+    item = build({ "reference" => "ISO 10303-52:2011", "currentStage" => 6060 })
+    by_type = item.docidentifier.group_by(&:type)
+
+    primary = by_type["ISO"].find(&:primary)
+    expect(primary.content.to_s).to eq "ISO 10303-52:2011"                    # dated
+    expect(by_type["iso-undated"].first.content.to_s).to eq "ISO 10303-52"    # undated
+    expect(by_type["iso-reference"].first.content.to_s).to eq "ISO 10303-52:2011(E)" # ref number
+    expect(by_type["URN"].first.content.to_s).to start_with "urn:iso:std:iso:10303:-52" # URN
+
+    # exactly one of each variant, no duplicates
+    %w[ISO iso-undated iso-reference URN].each do |t|
+      expect(by_type.fetch(t).size).to eq(1), "expected one #{t} docid, got #{by_type[t]&.size}"
+    end
+  end
+
+  it "omits iso-undated when the reference is already undated" do
+    item = build({ "reference" => "ISO 19115", "publicationDate" => "" })
+    expect(item.docidentifier.find(&:primary).content.to_s).to eq "ISO 19115"
+    expect(item.docidentifier.map(&:type)).not_to include "iso-undated"
+  end
+
+  it "drops the iso-undated docid when a transform collapses it onto the primary" do
+    item = build({ "reference" => "ISO 10303-52:2011", "currentStage" => 6060 })
+
+    # to_all_parts rewrites the primary to `ISO 10303 (all parts)`, which the
+    # undated form also collapses to — the redundant entry must be dropped.
+    ap = item.to_all_parts
+    expect(ap.docidentifier.select { |d| d.type == "iso-undated" }).to be_empty
+
+    # to_most_recent_reference strips the year from the primary, so the undated
+    # form (`ISO 10303-52`) equals it and is likewise dropped.
+    recent = item.to_most_recent_reference
+    expect(recent.docidentifier.select { |d| d.type == "iso-undated" }).to be_empty
+
+    # a distinct undated form is still kept
+    dated = build({ "reference" => "ISO 10303-52:2011", "currentStage" => 6060 })
+    expect(dated.docidentifier.map(&:type)).to include "iso-undated"
   end
 
   it "parses a withdrawn legacy recommendation" do

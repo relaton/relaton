@@ -94,13 +94,7 @@ module Relaton
         return @raw_content if @raw_content
         return nil unless @pubid
 
-        pubid = @pubid.exclude(:date)
-        current = pubid
-        while current.base_identifier
-          current.base_identifier = current.base_identifier.exclude(:date)
-          current = current.base_identifier
-        end
-        pubid
+        exclude_date(@pubid)
       end
 
       private
@@ -109,9 +103,23 @@ module Relaton
         case type
         when "URN" then pubid.to_urn
         when "ISO" then pubid.exclude(:languages).to_s
+        when "iso-undated" then exclude_date(pubid).exclude(:languages).to_s
         else
           pubid.to_s
         end
+      end
+
+      # Return a copy of +pubid+ with the year removed from it and every
+      # identifier in its `base_identifier` chain (e.g. the base of an
+      # amendment/corrigendum). The original is left untouched.
+      def exclude_date(pubid)
+        result = pubid.exclude(:date)
+        current = result
+        while current.base_identifier
+          current.base_identifier = current.base_identifier.exclude(:date)
+          current = current.base_identifier
+        end
+        result
       end
 
       def remove_attr!(attr)
