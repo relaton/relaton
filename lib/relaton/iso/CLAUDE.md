@@ -16,7 +16,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 relaton-iso retrieves ISO standard bibliographic data. The core retrieval flow:
 
-1. **Bibliography** (`lib/relaton/iso/bibliography.rb`) — entry point via `search(pubid)` and `get(ref, year, opts)`. Handles year filtering, part matching, and type/stage validation.
+1. **Bibliography** (`lib/relaton/iso/bibliography.rb`) — entry point via `search(pubid)` and `get(ref, year, opts)`. Handles year filtering, part matching, and type/stage validation. Both **propagate** `Parslet::ParseFailed` when the caller's reference can't be parsed by pubid (they do not swallow it — the CLI turns it into a friendly message; API consumers rescue it themselves). Note `look_up_with_any_types_stages` deliberately rescues `Parslet::ParseFailed` internally: it re-parses a *machine-derived* type/stage-stripped probe, so a failure there just means "no alternative-type/stage candidates" and must not abort a lookup whose original reference already parsed.
 2. **HitCollection** (`lib/relaton/iso/hit_collection.rb`) — searches a pre-built YAML index (`index-v1.zip` from relaton-data-iso) using `Relaton::Index`. Matches on `id_keys`: publisher, number, copublisher, part, year, edition, type, stage, iteration. Returns sorted Hit array.
 3. **Hit** (`lib/relaton/iso/hit.rb`) — wraps an index result. The `item` attribute lazy-loads the full document from GitHub raw content (relaton-data-iso repo). `sort_weight` prioritizes published over withdrawn/deleted.
 4. **ItemData** / **Model::Item** — ISO-specific bibliographic item extending `Relaton::Bib::ItemData`.

@@ -465,14 +465,14 @@ RSpec.describe Relaton::Iso::Bibliography do
     # end
 
     context "return not found" do
-      it do
+      it "raises for an identifier pubid cannot parse" do
         VCR.use_cassette "not_found" do
-          result = described_class.get "ISO 111111"
-          expect(result).to be_nil
+          expect { described_class.get "ISO 111111" }
+            .to raise_error(Parslet::ParseFailed)
         end
       end
 
-      it do
+      it "returns nil when a parseable reference has no match" do
         VCR.use_cassette "git_hub_not_found" do
           result = described_class.get "ISO TC 184/SC 4 N111"
           expect(result).to be_nil
@@ -811,11 +811,8 @@ RSpec.describe Relaton::Iso::Bibliography do
   #
   # Do not return missed years if any year matched
 
-  it "rescue from pubid parse error" do
-    expect do
-      expect(described_class.get("ISO/TC 211 Good Practices")).to be_nil
-    end.to output(
-      %r{\[relaton-iso\] WARN: \(ISO/TC 211 Good Practices\) Is not recognized as a standards identifier},
-    ).to_stderr_from_any_process
+  it "propagates a pubid parse error" do
+    expect { described_class.get("ISO/TC 211 Good Practices") }
+      .to raise_error(Parslet::ParseFailed)
   end
 end

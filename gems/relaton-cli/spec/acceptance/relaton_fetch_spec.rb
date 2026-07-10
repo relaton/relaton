@@ -213,5 +213,15 @@ RSpec.describe "Relaton Fetch" do
       )
       Relaton::Cli::RelatonDb.instance.instance_variable_set :@db, nil
     end
+
+    it "reports a friendly message for a malformed identifier" do
+      expect(db).to receive(:fetch).and_raise Parslet::ParseFailed.new("bad id")
+      expect(Relaton::Cli).to receive(:relaton).and_return(db)
+      command = Relaton::Cli::Command.new
+      expect(command.send(:fetch_document, "not a reference", {})).to eq(
+        %("not a reference" is not a recognized standards identifier),
+      )
+      Relaton::Cli::RelatonDb.instance.instance_variable_set :@db, nil
+    end
   end
 end
