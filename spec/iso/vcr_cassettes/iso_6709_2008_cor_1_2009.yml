@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 7A74:133505:1166AE:13F8D6:6A473885
+      - 2480:118CB3:3BF3E:506C3:6A5117AE
       Accept-Ranges:
       - bytes
       Date:
-      - Fri, 03 Jul 2026 04:20:22 GMT
+      - Fri, 10 Jul 2026 16:10:10 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-pdk-kfty8610070-PDK
+      - cache-iad-khef600048-IAD
       X-Cache:
-      - MISS
+      - HIT
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1783052422.024074,VS0,VE55
+      - S1783699810.078075,VS0,VE1
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -63,11 +63,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - b36df1b2fcd4f3d77fd93ac9253bc7d799bf8ea5
+      - 8ff5c3ec55718758b90d693fa3504a14b5002567
       Expires:
-      - Fri, 03 Jul 2026 04:25:22 GMT
+      - Fri, 10 Jul 2026 16:15:10 GMT
       Source-Age:
-      - '0'
+      - '120'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -135,5 +135,5 @@ http_interactions:
         aW4gc2NpZW5jZQogIHN0cnVjdHVyZWRpZGVudGlmaWVyOgogICAgdHlwZTog
         SVNPCiAgICBwcm9qZWN0X251bWJlcjoKICAgICAgY29udGVudDogJzUzNTM5
         Jwo=
-  recorded_at: Fri, 03 Jul 2026 04:20:22 GMT
+  recorded_at: Fri, 10 Jul 2026 16:10:10 GMT
 recorded_with: VCR 6.4.0
