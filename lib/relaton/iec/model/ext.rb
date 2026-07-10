@@ -17,7 +17,7 @@ module Relaton
       attribute :cen_processing, :boolean
       attribute :secretary, :string
       attribute :interest_to_committees, :string
-      attribute :tc_sc_officers_note, :string, raw: true
+      attribute :tc_sc_officers_note, :string
 
       xml do
         map_element "horizontal", to: :horizontal
@@ -30,7 +30,7 @@ module Relaton
         map_element "cen-processing", to: :cen_processing
         map_element "secretary", to: :secretary
         map_element "interest-to-committees", to: :interest_to_committees
-        map_element "tc-sc-officers-note", to: :tc_sc_officers_note
+        map_element "tc-sc-officers-note", to: :tc_sc_officers_note, raw: :content
       end
 
       key_value do

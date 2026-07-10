@@ -32,7 +32,7 @@ module Relaton
         end
       end
 
-      attribute :content, :string, raw: true
+      attribute :content, :string
       prepend ContentSanitization
 
       xml do
