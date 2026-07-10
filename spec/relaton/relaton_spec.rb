@@ -142,18 +142,22 @@ RSpec.describe Relaton::Db do
   end
 
   it "deals with a non-existant ISO reference" do
-    VCR.use_cassette "iso_111111119115_1" do
-      bib = @db.fetch("ISO 111111119115-1", nil, {})
-      expect(bib).to be_nil
-      expect(File.exist?("testcache")).to be true
-      expect(File.exist?("testcache2")).to be true
-      testcache = Relaton::Db::Cache.new "testcache"
-      expect(testcache.fetched("ISO(ISO 111111119115-1)")).to eq Date.today.to_s
-      expect(testcache["ISO(ISO 111111119115-1)"]).to include "not_found"
-      testcache = Relaton::Db::Cache.new "testcache2"
-      expect(testcache.fetched("ISO(ISO 111111119115-1)")).to eq Date.today.to_s
-      expect(testcache["ISO(ISO 111111119115-1)"]).to include "not_found"
-    end
+    # A reference that resolves to nothing: Bibliography.get returns nil (a
+    # genuinely absent-but-parseable id). The Db must cache a `not_found`
+    # marker and return nil. (An *unparseable* id instead raises
+    # Parslet::ParseFailed straight out of `get` — covered in the iso specs.)
+    expect(Relaton::Iso::Bibliography).to receive(:get)
+      .with("ISO 19115-9999", nil, {}).and_return nil
+    bib = @db.fetch("ISO 19115-9999", nil, {})
+    expect(bib).to be_nil
+    expect(File.exist?("testcache")).to be true
+    expect(File.exist?("testcache2")).to be true
+    testcache = Relaton::Db::Cache.new "testcache"
+    expect(testcache.fetched("ISO(ISO 19115-9999)")).to eq Date.today.to_s
+    expect(testcache["ISO(ISO 19115-9999)"]).to include "not_found"
+    testcache = Relaton::Db::Cache.new "testcache2"
+    expect(testcache.fetched("ISO(ISO 19115-9999)")).to eq Date.today.to_s
+    expect(testcache["ISO(ISO 19115-9999)"]).to include "not_found"
   end
 
   it "list all elements as a serialization" do

@@ -1,3 +1,4 @@
+require "parslet"
 require "relaton/cli/full_text_search"
 
 module Relaton
@@ -130,6 +131,8 @@ module Relaton
           File.write colfile, coll.to_yaml, encoding: "UTF-8"
         else Util.info "No matching bibliographic entry found"
         end
+      rescue Parslet::ParseFailed
+        Util.error %("#{code}" is not a recognized standards identifier)
       end
 
       desc "import FILE", "Import document or collection from an XML file " \

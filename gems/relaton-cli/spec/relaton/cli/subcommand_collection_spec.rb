@@ -242,6 +242,19 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
         }.to raise_error(ArgumentError, /Invalid date range/)
       end
     end
+
+    it "reports a friendly message for a malformed identifier" do
+      db = double "db"
+      expect(Relaton).to receive(:db).and_return db
+      expect(db).to receive(:fetch).and_raise Parslet::ParseFailed.new("bad id")
+      expect do
+        Relaton::Cli::Command.start [
+          "collection", "fetch", "not a reference", "-t", "ISO",
+          "-d", "spec/fixtures", "-c", "sample-collection.yaml"
+        ]
+      end.to output(/"not a reference" is not a recognized standards identifier/)
+        .to_stderr_from_any_process
+    end
   end
 
   it "export collection" do
