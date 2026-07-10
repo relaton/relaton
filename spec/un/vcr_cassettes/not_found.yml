@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://documents.un.org/api/search?l=en&rid=b8eb4928-5565-4c82-ae4d-eaed5ac270e7
+    uri: https://documents.un.org/api/search?l=en&rid=5aa49d63-d434-497e-94ad-3cefd9415418
     body:
       encoding: UTF-8
       string: '{"symbol":"NOT/FOUND","jobNumber":"","publicationDate":"* TO *","releaseDate":"*
@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 03 Jul 2026 05:09:41 GMT
+      - Fri, 10 Jul 2026 16:09:00 GMT
       Content-Type:
       - application/json; charset=utf-8
       Content-Length:
@@ -35,8 +35,8 @@ http_interactions:
       Connection:
       - keep-alive
       Set-Cookie:
-      - ApplicationGatewayAffinity=4b8d2685baa36eb3c3bdd18f7a24aa3f; Path=/
-      - ApplicationGatewayAffinityCORS=4b8d2685baa36eb3c3bdd18f7a24aa3f; Path=/; SameSite=None;
+      - ApplicationGatewayAffinity=fcab984b2cd86506625dfffd104962c5; Path=/
+      - ApplicationGatewayAffinityCORS=fcab984b2cd86506625dfffd104962c5; Path=/; SameSite=None;
         Secure
       Server:
       - nginx
@@ -45,10 +45,12 @@ http_interactions:
       Access-Control-Allow-Credentials:
       - 'true'
       Content-Security-Policy:
-      - 'default-src ''self'';script-src ''self'' https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js;style-src
-        ''self'' https://fonts.googleapis.com https://fonts.gstatic.com;frame-ancestors
-        ''self'' https://docs.un.org;base-uri ''self'';font-src ''self'' https: data:;form-action
-        ''self'';img-src ''self'' data:;object-src ''none'';script-src-attr ''none'';upgrade-insecure-requests'
+      - 'default-src ''self'';script-src ''self'' https://cdn.jsdelivr.net/npm/pdfjs-dist@4.8.69/
+        https://unpkg.com/pdfjs-dist@4.8.69/;worker-src ''self'' https://cdn.jsdelivr.net/npm/pdfjs-dist@4.8.69/
+        https://unpkg.com/pdfjs-dist@4.8.69/;style-src ''self'' https://fonts.googleapis.com
+        https://fonts.gstatic.com;frame-ancestors ''self'' https://docs.un.org;base-uri
+        ''self'';font-src ''self'' https: data:;form-action ''self'';img-src ''self''
+        data:;object-src ''none'';script-src-attr ''none'';upgrade-insecure-requests'
       Cross-Origin-Opener-Policy:
       - same-origin
       Cross-Origin-Resource-Policy:
@@ -77,5 +79,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"status":1,"body":{"data":[],"meta":{"matches":0,"numberOfGroups":0}}}'
-  recorded_at: Fri, 03 Jul 2026 05:09:41 GMT
+  recorded_at: Fri, 10 Jul 2026 16:09:00 GMT
 recorded_with: VCR 6.4.0
