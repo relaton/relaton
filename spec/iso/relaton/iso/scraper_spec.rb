@@ -105,11 +105,16 @@ RSpec.describe Relaton::Iso::Scraper do
     describe "#fetch_relaton_docids" do
       let(:docid) { subject.fetch_relaton_docids }
       let(:pubid) { "ISO 123:2001" }
+      let(:undated) { "ISO 123" }
       let(:isoref) { "ISO 123:2001(E)" }
       let(:urn) { "urn:iso:std:iso:123:stage-90.93" }
 
-      it "returns PubID and URN RelatonBib document identifiers" do
-        expect(docid.map(&:to_s)).to eq([pubid, isoref, urn])
+      it "returns PubID, undated, reference and URN document identifiers" do
+        expect(docid.map(&:to_s)).to eq([pubid, undated, isoref, urn])
+      end
+
+      it "labels the undated variant" do
+        expect(docid.map(&:type)).to eq(%w[ISO iso-undated iso-reference URN])
       end
     end
 

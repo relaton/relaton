@@ -100,7 +100,11 @@ module Relaton
       def docidentifier
         ids = []
         if pubid
-          ids << Docidentifier.new(content: pubid, type: "ISO", primary: true)
+          primary = Docidentifier.new(content: pubid, type: "ISO", primary: true)
+          ids << primary
+          if (undated = undated_docid(primary))
+            ids << undated
+          end
           if (ref = iso_reference_pubid)
             ids << Docidentifier.new(content: ref, type: "iso-reference")
           end
@@ -112,6 +116,16 @@ module Relaton
         end
         @errors[:docidentifier] &&= ids.empty?
         ids
+      end
+
+      # Build the undated reference docid (e.g. `ISO 10303-52` from
+      # `ISO 10303-52:2011`). Returns nil when the reference carries no year
+      # (the undated form would just duplicate the primary).
+      def undated_docid(primary)
+        undated = Docidentifier.new(content: pubid, type: "iso-undated")
+        undated unless undated.to_s == primary.to_s
+      rescue StandardError
+        nil
       end
 
       def safe_urn_docid
