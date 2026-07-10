@@ -163,12 +163,12 @@ describe Relaton::Index::Type do
 
     context "#save" do
       it "save index" do
-        expect(File).to receive(:write).with(/index\.yaml$/, subject.index.to_yaml, encoding: "UTF-8")
+        expect(File).to receive(:binwrite).with(/index\.yaml$/, subject.index.to_yaml)
         subject.save
       end
 
       it "save empty index" do
-        expect(File).to receive(:write).with(/index\.yaml$/, [].to_yaml, encoding: "UTF-8")
+        expect(File).to receive(:binwrite).with(/index\.yaml$/, [].to_yaml)
         subject.save
       end
     end
