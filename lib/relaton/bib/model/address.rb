@@ -6,7 +6,7 @@ module Relaton
       attribute :state, :string
       attribute :country, :string
       attribute :postcode, :string
-      attribute :formatted_address, :string, raw: true
+      attribute :formatted_address, :string
 
       xml do
         root "address"
@@ -15,7 +15,7 @@ module Relaton
         map_element "state", to: :state
         map_element "country", to: :country
         map_element "postcode", to: :postcode
-        map_element "formattedAddress", to: :formatted_address
+        map_element "formattedAddress", to: :formatted_address, raw: :content
       end
     end
   end
