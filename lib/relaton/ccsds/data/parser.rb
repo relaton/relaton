@@ -47,7 +47,7 @@ module Relaton
       end
 
       def parse_docidentifier
-        [Bib::Docidentifier.new(content: docidentifier, type: "CCSDS", primary: true)]
+        [Docidentifier.new(content: docidentifier, type: "CCSDS", primary: true)]
       end
 
       def docidentifier

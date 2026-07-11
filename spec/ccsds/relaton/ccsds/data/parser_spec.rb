@@ -46,7 +46,7 @@ describe Relaton::Ccsds::DataParser do
       docid = subject.parse_docidentifier
       expect(docid).to be_instance_of Array
       expect(docid.size).to eq 1
-      expect(docid.first).to be_instance_of Relaton::Bib::Docidentifier
+      expect(docid.first).to be_instance_of Relaton::Ccsds::Docidentifier
       expect(docid.first.content).to eq(identifier)
       expect(docid.first.type).to eq "CCSDS"
       expect(docid.first.primary).to be true
