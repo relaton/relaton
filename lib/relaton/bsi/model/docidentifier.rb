@@ -55,6 +55,29 @@ module Relaton
         self.content = pubid.exclude(:date, :month)
       end
 
+      # Strip the part (and subpart) to build a whole-standard reference.
+      # pubid's `exclude` returns a new instance and propagates into nested
+      # identifiers, so the part is dropped even on adopted (BS EN ISO …) and
+      # consolidated (…+A1:…) ids while any amendment is kept.
+      def remove_part!
+        return unless pubid
+
+        self.content = pubid.exclude(:part, :subpart)
+      end
+
+      # Reduce to the all-parts form. BSI's pubid renderer does not emit an
+      # "(all parts)" marker (unlike ISO), so the rendered content degrades to
+      # the part+date-stripped form; the inherited `all_parts` flag is still set
+      # on the resulting identifier for structural/serialization correctness
+      # (guarded by `respond_to?` for identifier types that lack the setter).
+      def to_all_parts!
+        return unless pubid
+
+        all_parts = pubid.exclude(:part, :subpart, :date, :month)
+        all_parts.all_parts = true if all_parts.respond_to?(:all_parts=)
+        self.content = all_parts
+      end
+
       private
 
       # @return [Pubid::Bsi::Identifier, nil]
