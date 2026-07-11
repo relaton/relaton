@@ -51,4 +51,82 @@ describe Relaton::Bsi::Docidentifier do
       expect(did.content).to eq "978-0-539-00000-0"
     end
   end
+
+  describe "#remove_part!" do
+    it "drops the part from a parted BSI identifier via pubid" do
+      did = described_class.new(type: "BSI", content: "BS 7273-4:2015")
+      did.remove_part!
+      expect(did.content).to eq "BS 7273:2015"
+    end
+
+    it "drops the part but keeps the amendment on a consolidated id" do
+      did = described_class.new(type: "BSI", content: "BS 7273-4:2015+A1:2021")
+      did.remove_part!
+      expect(did.content).to eq "BS 7273:2015+A1:2021"
+    end
+
+    it "strips the part from an adopted-standard id (nested identifier)" do
+      did = described_class.new(type: "BSI", content: "BS EN ISO 8848-1:2021")
+      did.remove_part!
+      expect(did.content).to eq "BS EN ISO 8848:2021"
+    end
+
+    it "does not change an id without a part" do
+      did = described_class.new(type: "BSI", content: "BS EN ISO 8848:2021")
+      did.remove_part!
+      expect(did.content).to eq "BS EN ISO 8848:2021"
+    end
+
+    it "is a no-op for a non-BSI identifier (ISBN)" do
+      did = described_class.new(type: "ISBN", content: "978-0-539-00000-0")
+      did.remove_part!
+      expect(did.content).to eq "978-0-539-00000-0"
+    end
+
+    it "is a no-op for unparseable content (nil pubid)" do
+      did = described_class.new(type: "BSI", content: "not a standard at all")
+      expect(did.pubid).to be_nil
+      did.remove_part!
+      expect(did.content).to eq "not a standard at all"
+    end
+  end
+
+  describe "#to_all_parts!" do
+    # BSI's pubid renderer does not emit an "(all parts)" marker (unlike ISO),
+    # so the rendered content degrades to the part+date-stripped form while the
+    # structural `all_parts` flag is still set on the underlying identifier.
+    it "strips the part and date and sets the all_parts flag" do
+      did = described_class.new(type: "BSI", content: "BS 7273-4:2015")
+      did.to_all_parts!
+      expect(did.content).to eq "BS 7273"
+      expect(did.pubid.all_parts).to be true
+    end
+
+    it "strips part+date from an adopted-standard id and sets the flag" do
+      did = described_class.new(type: "BSI", content: "BS EN ISO 8848-1:2021")
+      did.to_all_parts!
+      expect(did.content).to eq "BS EN ISO 8848"
+      expect(did.pubid.all_parts).to be true
+    end
+
+    it "keeps the amendment while dropping part+date on a consolidated id" do
+      did = described_class.new(type: "BSI", content: "BS 7273-4:2015+A1:2021")
+      did.to_all_parts!
+      expect(did.content).to eq "BS 7273+A1:2021"
+      expect(did.pubid.all_parts).to be true
+    end
+
+    it "is a no-op for a non-BSI identifier (ISBN)" do
+      did = described_class.new(type: "ISBN", content: "978-0-539-00000-0")
+      did.to_all_parts!
+      expect(did.content).to eq "978-0-539-00000-0"
+    end
+
+    it "is a no-op for unparseable content (nil pubid)" do
+      did = described_class.new(type: "BSI", content: "not a standard at all")
+      expect(did.pubid).to be_nil
+      did.to_all_parts!
+      expect(did.content).to eq "not a standard at all"
+    end
+  end
 end
