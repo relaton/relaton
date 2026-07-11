@@ -50,7 +50,8 @@ describe Relaton::Nist::ModsParser do
       docid = subject.parse_docidentifier
       expect(docid).to be_instance_of Array
       expect(docid.size).to eq 2
-      expect(docid[0]).to be_instance_of Relaton::Bib::Docidentifier
+      expect(docid[0]).to be_instance_of Relaton::Nist::Docidentifier
+      expect(docid[1]).to be_instance_of Relaton::Nist::Docidentifier
       expect(docid[0].type).to eq "NIST"
       expect(docid[0].content).to eq "NIST IR 6229"
       expect(docid[0].primary).to be true

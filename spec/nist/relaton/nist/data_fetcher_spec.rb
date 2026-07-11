@@ -70,7 +70,7 @@ RSpec.describe Relaton::Nist::DataFetcher do
     end
 
     context "#write_file" do
-      let(:docid) { Relaton::Bib::Docidentifier.new(type: "NIST", content: "NIST IR 8296-12") }
+      let(:docid) { Relaton::Nist::Docidentifier.new(type: "NIST", content: "NIST IR 8296-12") }
       let(:bib) { Relaton::Bib::ItemData.new(docidentifier: [docid]) }
 
       let(:pid) { double "pubid" }
@@ -114,7 +114,7 @@ RSpec.describe Relaton::Nist::DataFetcher do
     end
 
     context "#write_file with an unparseable identifier" do
-      let(:docid) { Relaton::Bib::Docidentifier.new(type: "NIST", content: "NIST RB 6") }
+      let(:docid) { Relaton::Nist::Docidentifier.new(type: "NIST", content: "NIST RB 6") }
       let(:bib) { Relaton::Bib::ItemData.new(docidentifier: [docid]) }
 
       before do
