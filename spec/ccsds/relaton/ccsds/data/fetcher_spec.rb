@@ -118,7 +118,7 @@ describe Relaton::Ccsds::DataFetcher do
     end
 
     context "#serialize" do
-      let(:bib) { Relaton::Ccsds::ItemData.new(docidentifier: [Relaton::Bib::Docidentifier.new(content: identifier)]) }
+      let(:bib) { Relaton::Ccsds::ItemData.new(docidentifier: [Relaton::Ccsds::Docidentifier.new(content: identifier)]) }
 
       it "bibxml" do
         subject.instance_variable_set(:@format, "bibxml")
