@@ -9,7 +9,7 @@ RSpec.describe Relaton::Adobe::Item do
         "type" => "main",
       }],
       "docidentifier" => [{
-        "content" => "Adobe Technical Note #5014",
+        "content" => "Adobe TN 5014",
         "type" => "ADOBE",
         "primary" => true,
       }],
@@ -35,6 +35,11 @@ RSpec.describe Relaton::Adobe::Item do
     expect(yaml).to include("tech_note_number: '5014'")
   end
 
+  it "preserves the Adobe TN citation form in docidentifier.content" do
+    item = described_class.from_hash(hash)
+    expect(item.docidentifier.first.content).to eq "Adobe TN 5014"
+  end
+
   it "uses Relaton::Adobe::Ext for the ext attribute" do
     item = described_class.from_hash(hash)
     expect(item.ext).to be_a(Relaton::Adobe::Ext)
@@ -43,5 +48,39 @@ RSpec.describe Relaton::Adobe::Item do
   it "is aliased as Bibitem and Bibdata" do
     expect(Relaton::Adobe::Bibitem).to be < Relaton::Adobe::Item
     expect(Relaton::Adobe::Bibdata).to be < Relaton::Adobe::Item
+  end
+
+  context "with a named-publication item (Adobe Publication <title>)" do
+    let(:pub_hash) do
+      {
+        "id" => "adobe-glyph-list",
+        "type" => "standard",
+        "title" => [{
+          "language" => "eng",
+          "content" => "Adobe Glyph List",
+          "type" => "main",
+        }],
+        "docidentifier" => [{
+          "content" => "Adobe Publication Adobe Glyph List",
+          "type" => "ADOBE",
+          "primary" => true,
+        }],
+        "ext" => {
+          "doctype" => { "content" => "publication" },
+          "flavor" => "adobe",
+          "urn" => "urn:adobe:publication:adobe-glyph-list",
+          "publication_slug" => "adobe-glyph-list",
+        },
+      }
+    end
+
+    it "round-trips the publication citation form" do
+      item = described_class.from_hash(pub_hash)
+      yaml = item.to_yaml
+      restored = described_class.from_yaml(yaml)
+      expect(restored.docidentifier.first.content)
+        .to eq "Adobe Publication Adobe Glyph List"
+      expect(restored.ext.publication_slug).to eq "adobe-glyph-list"
+    end
   end
 end
