@@ -39,7 +39,12 @@ module Relaton
       def write(file, data)
         dir = File.dirname file
         FileUtils.mkdir_p dir
-        File.write file, data, encoding: "UTF-8"
+        # Write the bytes verbatim. `data` is often a raw Net::HTTP body, an
+        # ASCII-8BIT string; passing `encoding: "UTF-8"` would *transcode* it and
+        # raise Encoding::UndefinedConversionError on any non-ASCII byte (e.g. a
+        # UTF-8 `\xC3` in "électrotechnique"). The bytes are already valid UTF-8
+        # and `read` decodes them as UTF-8, so a binary write round-trips.
+        File.binwrite file, data
       end
 
       #

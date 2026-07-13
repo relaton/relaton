@@ -26,8 +26,19 @@ describe Relaton::Index::FileStorage do
 
     it "#write" do
       expect(FileUtils).to receive(:mkdir_p).with("iho")
-      expect(File).to receive(:write).with("iho/index.yaml", :data, encoding: "UTF-8")
+      expect(File).to receive(:binwrite).with("iho/index.yaml", :data)
       described_class.write("iho/index.yaml", :data)
+    end
+
+    it "#write round-trips non-ASCII UTF-8 from a binary (ASCII-8BIT) body" do
+      require "tmpdir"
+      Dir.mktmpdir do |dir|
+        path = File.join(dir, "index.yaml")
+        # Mimics a Net::HTTP response body: UTF-8 bytes tagged ASCII-8BIT.
+        body = "Commission électrotechnique".dup.force_encoding("ASCII-8BIT")
+        expect { described_class.write(path, body) }.not_to raise_error
+        expect(described_class.read(path)).to eq("Commission électrotechnique")
+      end
     end
 
     it "#remove" do

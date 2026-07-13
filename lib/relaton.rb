@@ -41,6 +41,7 @@ module Relaton
   autoload :Ogc, "relaton/ogc"
   autoload :Plateau, "relaton/plateau"
   autoload :Doi, "relaton/doi"
+  autoload :Sdo, "relaton/sdo"
 
   # Global PubID prefix register (relaton-db#103). Maps an SDO document-ID
   # prefix to the flavor module(s) that own it. Conflicting prefixes (e.g.
@@ -58,6 +59,23 @@ module Relaton
   # @return [Array<Module>]
   def self.prefix_flavor(prefix)
     Db::Registry.instance.flavors_by_prefix(prefix)
+  end
+
+  # SDO organization & logo store (metanorma#346, relaton-db#132). Looks up a
+  # standards body by abbreviation and returns its metadata — names/translations
+  # and logo variants — from the `relaton-data-sdo` data repo. This is a
+  # non-flavor store: no processor, no Db::Registry entry.
+  #
+  #   org = Relaton.organization("ISO")
+  #   org.name                                   # default name
+  #   org.name("fr")                             # translated name
+  #   org.logo_query(format: "eps", style: "default")  # matching logo variants
+  #   org.logo(format: "eps", style: "default")        # one logo
+  #
+  # @param abbreviation [String]
+  # @return [Relaton::Sdo::Organization, nil]
+  def self.organization(abbreviation)
+    Sdo::Store.instance.organization(abbreviation)
   end
 end
 

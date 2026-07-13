@@ -67,6 +67,27 @@ NameErrors on the cold path (reachable via `Db#fetch` → `Cache.grammar_hash` a
 flavor (3gpp → `ThreeGpp`). Referencing a flavor namespace before a `Db` is
 built loads it on demand. When adding a flavor, add an autoload line here.
 
+**SDO org/logo store (`Relaton::Sdo`).** A **non-flavor** lazy component
+(`lib/relaton/sdo/`, autoloaded like the flavors) that answers metanorma#346
+(central logo store) and relaton-db#132 (abbreviation → org name). Public entry
+point `Relaton.organization("ISO")` (delegates to `Sdo::Store.instance`, mirroring
+the `Relaton.prefix_flavor` idiom) returns an org with `name`/`name(lang)` and
+`logo_query`/`logo` over logo variants keyed by style/format/size. It has **no
+processor and no `Db::Registry` entry** — consistent with the scope note in
+`lib/relaton/db/CLAUDE.md` (org metadata stays out of the processors). It fetches
+a single `index.yaml` manifest from the `relaton-data-sdo` data repo and caches it
+under `~/.relaton/sdo` (reusing `Relaton::Index::FileStorage`). See
+`lib/relaton/sdo/CLAUDE.md`.
+
+**`Index::FileStorage#write` must be a binary write.** It caches raw `Net::HTTP`
+bodies, which are `ASCII-8BIT` strings; it uses `File.binwrite` (not
+`File.write(..., encoding: "UTF-8")`, which would *transcode* ASCII-8BIT→UTF-8 and
+raise `Encoding::UndefinedConversionError` on any non-ASCII byte — e.g. the `\xC3`
+in a French/Cyrillic org name). `read` decodes back as UTF-8, so a byte-verbatim
+write round-trips for both ASCII and UTF-8 content. This was latent until
+`Relaton::Sdo` cached the first index with non-ASCII names; don't reintroduce an
+`encoding:` transcode on write.
+
 **Single `VERSION`.** `lib/relaton/version.rb` defines `Relaton::VERSION` — the
 one version constant. There are **no** per-flavor `version.rb` files or
 `Relaton::<Flavor>::VERSION` constants anymore: since this is one gem they'd all
