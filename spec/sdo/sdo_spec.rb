@@ -41,8 +41,22 @@ RSpec.describe Relaton::Sdo do
       expect(org.name("fr")).to eq("Organisation internationale de normalisation")
     end
 
+    it "returns a translated name via the language: keyword" do
+      expect(org.name(language: "fr"))
+        .to eq("Organisation internationale de normalisation")
+    end
+
     it "returns nil for a missing translation" do
       expect(org.name("de")).to be_nil
+    end
+
+    it "returns nil for a missing translation via the language: keyword" do
+      expect(org.name(language: "de")).to be_nil
+    end
+
+    it "lets the language: keyword win over the positional argument" do
+      expect(org.name("de", language: "fr"))
+        .to eq("Organisation internationale de normalisation")
     end
   end
 

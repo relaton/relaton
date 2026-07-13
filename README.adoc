@@ -437,8 +437,10 @@ data repository, downloaded on first use and cached under `~/.relaton/sdo`.
 org = Relaton.organization("ISO")   # case-insensitive; nil if unknown
 
 # Names (relaton-db#132) -- default, or a translation by language code
-org.name         # => "International Organization for Standardization"
-org.name("fr")   # => "Organisation internationale de normalisation"
+# (passed positionally or as the language: keyword)
+org.name                   # => "International Organization for Standardization"
+org.name("fr")             # => "Organisation internationale de normalisation"
+org.name(language: "fr")   # => "Organisation internationale de normalisation"
 
 # Logos (metanorma#346). A single organization can have several logo variants,
 # distinguished by style (the primary discriminator), format and size.

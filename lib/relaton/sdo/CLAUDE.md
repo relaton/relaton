@@ -22,6 +22,7 @@ The user's choice was to still surface it from the `relaton` gem itself (one
 org = Relaton.organization("ISO")   # case-insensitive; nil if unknown
 org.name                            # default (untranslated) name
 org.name("fr")                      # translation, or nil
+org.name(language: "fr")            # same, via the language: keyword
 org.logo_query(format:, size:, style:)  # all args optional → matching Logo list
 org.logo(format:, size:, style:)        # one Logo: nil if 0, the match if 1,
                                         # raises Sdo::Error if the filter is ambiguous

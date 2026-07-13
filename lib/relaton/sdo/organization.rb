@@ -23,9 +23,12 @@ module Relaton
       end
 
       # The organization's name. With no argument (or a nil language) returns the
-      # default, untranslated name; otherwise the translation for `language`, or
-      # nil if there is none.
-      def name(language = nil)
+      # default, untranslated name; otherwise the translation for the requested
+      # language — passed positionally (`name("fr")`) or as the `language:`
+      # keyword (`name(language: "fr")`) — or nil if there is none. The keyword
+      # wins if both are given.
+      def name(lang = nil, language: nil)
+        language ||= lang
         selected =
           if language.nil?
             names.find(&:default?) || names.first
