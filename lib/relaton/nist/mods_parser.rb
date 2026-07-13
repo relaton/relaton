@@ -39,7 +39,10 @@ module Relaton
           { type: "DOI", content: parse_doi },
         ].reject { |id| id[:content].nil? || id[:content].empty? }
         @errors[:docidentifier] &&= ids.empty?
-        ids.map { |id| Bib::Docidentifier.new(**id) }
+        # All ids share the Nist::Docidentifier collection type (Item#docidentifier)
+        # so YAML serialization stays valid; the DOI is not canonical NIST pubid
+        # form, so the class keeps it as the raw string (see Docidentifier#content=).
+        ids.map { |id| Docidentifier.new(**id) }
       end
 
       # @return [String]
@@ -243,7 +246,7 @@ module Relaton
         item_id = get_id_from_str related_item_id(item)
         return if item_id.nil? || item_id.empty?
 
-        docid = Bib::Docidentifier.new(type: "NIST", content: item_id)
+        docid = Docidentifier.new(type: "NIST", content: item_id)
         fref = Bib::Formattedref.new(content: item_id)
         ItemData.new(docidentifier: [docid], formattedref: fref)
       end

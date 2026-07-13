@@ -116,8 +116,8 @@ RSpec.describe Relaton::Db do
   context "NIST references" do
     it "gets FISP" do
       require "relaton/nist"
-      docid = Relaton::Bib::Docidentifier.new(content: "NIST FIPS 140",
-                                              type: "NIST")
+      docid = Relaton::Nist::Docidentifier.new(content: "NIST FIPS 140",
+                                               type: "NIST")
       item = Relaton::Nist::ItemData.new docidentifier: [docid]
       expect(Relaton::Nist::Bibliography).to receive(:get).with(
         "NIST FIPS 140", nil, {}
@@ -129,8 +129,8 @@ RSpec.describe Relaton::Db do
 
     it "gets SP" do
       require "relaton/nist"
-      docid = Relaton::Bib::Docidentifier.new(content: "NIST SP 800-38B",
-                                              type: "NIST")
+      docid = Relaton::Nist::Docidentifier.new(content: "NIST SP 800-38B",
+                                               type: "NIST")
       item = Relaton::Nist::ItemData.new docidentifier: [docid]
       expect(Relaton::Nist::Bibliography).to receive(:get).with(
         "NIST SP 800-38B", nil, {}
@@ -699,14 +699,14 @@ RSpec.describe Relaton::Db do
       it "included" do
         # VCR.use_cassette "nist_combined_included" do
         require "relaton/nist"
-        doci = Relaton::Bib::Docidentifier.new(content: "SP 800-38A",
-                                               type: "NIST")
+        doci = Relaton::Nist::Docidentifier.new(content: "NIST SP 800-38A",
+                                                type: "NIST")
         item = Relaton::Nist::ItemData.new docidentifier: [doci]
         expect(Relaton::Nist::Bibliography).to receive(:get).with(
           "NIST SP 800-38A", nil, {}
         ).and_return item
-        docid1 = Relaton::Bib::Docidentifier.new(content: "SP 800-38A-Add",
-                                                 type: "NIST")
+        docid1 = Relaton::Nist::Docidentifier.new(content: "NIST SP 800-38A/Add",
+                                                  type: "NIST")
         item1 = Relaton::Nist::ItemData.new docidentifier: [docid1]
         expect(Relaton::Nist::Bibliography).to receive(:get).with(
           "NIST SP 800-38A/Add", nil, {}
@@ -716,13 +716,13 @@ RSpec.describe Relaton::Db do
         expect(bib.relation[0].type).to eq "updates"
         rel0 = bib.relation[0].bibitem
         expect(rel0.docidentifier[0].content)
-          .to eq "SP 800-38A"
+          .to eq "NIST SP 800-38A"
         expect(bib.relation[1].type).to eq "complements"
         expect(bib.relation[1].description.content)
           .to eq "amendment"
         rel1 = bib.relation[1].bibitem
         expect(rel1.docidentifier[0].content)
-          .to eq "SP 800-38A-Add"
+          .to eq "NIST SP 800-38A/Add"
         # end
       end
     end

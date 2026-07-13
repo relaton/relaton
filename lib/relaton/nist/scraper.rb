@@ -64,9 +64,12 @@ module Relaton
         # @param hit [Hash]
         # @return [Array<Bib::Docidentifier>]
         def fetch_docid(hit)
-          ids = [Bib::Docidentifier.new(content: hit[:code], type: "NIST", primary: true)]
+          # All ids share the Nist::Docidentifier collection type so YAML
+          # serialization stays valid; the DOI is not canonical NIST pubid form,
+          # so the class keeps it as the raw string (see Docidentifier#content=).
+          ids = [Docidentifier.new(content: hit[:code], type: "NIST", primary: true)]
           doi = hit[:json]["doi"]&.split("/")&.last
-          ids << Bib::Docidentifier.new(content: doi, type: "DOI") if doi
+          ids << Docidentifier.new(content: doi, type: "DOI") if doi
           ids
         end
 
@@ -262,7 +265,7 @@ module Relaton
             t = "obsoletes"
           else t = type
           end
-          ids = [Bib::Docidentifier.new(content: ref, type: "NIST", primary: true)]
+          ids = [Docidentifier.new(content: ref, type: "NIST", primary: true)]
           link = [Bib::Uri.new(type: "src", content: uri)]
           bib = ItemData.new(formattedref: Bib::Formattedref.new(content: ref), source: link, docidentifier: ids)
           Relation.new(type: t, description: descr, bibitem: bib)

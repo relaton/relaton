@@ -1,4 +1,5 @@
 require_relative "date"
+require_relative "docidentifier"
 require_relative "ext"
 
 module Relaton
@@ -9,6 +10,7 @@ module Relaton
     class Item < Bib::Item
       model ItemData
 
+      attribute :docidentifier, Docidentifier, collection: true, initialize_empty: true
       attribute :date, Date, collection: true
       attribute :relation, Relation, collection: true, initialize_empty: true
       attribute :ext, Ext
