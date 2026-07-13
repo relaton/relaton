@@ -69,6 +69,7 @@ module Relaton
   #   org = Relaton.organization("ISO")
   #   org.name                                   # default name
   #   org.name("fr")                             # translated name
+  #   org.name(language: "fr")                   # translated name (keyword form)
   #   org.logo_query(format: "eps", style: "default")  # matching logo variants
   #   org.logo(format: "eps", style: "default")        # one logo
   #
