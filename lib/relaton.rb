@@ -19,6 +19,7 @@ module Relaton
   autoload :Cie, "relaton/cie"
   autoload :Ecma, "relaton/ecma"
   autoload :Etsi, "relaton/etsi"
+  autoload :Easc, "relaton/easc"
   autoload :Iana, "relaton/iana"
   autoload :Iala, "relaton/iala"
   autoload :Ieee, "relaton/ieee"
