@@ -27,6 +27,7 @@ module Relaton
   autoload :Isbn, "relaton/isbn"
   autoload :Iso, "relaton/iso"
   autoload :Itu, "relaton/itu"
+  autoload :Jcgm, "relaton/jcgm"
   autoload :Nist, "relaton/nist"
   autoload :Oasis, "relaton/oasis"
   autoload :Oiml, "relaton/oiml"

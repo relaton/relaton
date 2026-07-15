@@ -23,8 +23,8 @@ All code lives under `Relaton::Bipm` (in `lib/relaton/bipm/`). The gem name is `
 ### Key Components
 
 - **`Bibliography`** (`bibliography.rb`) - Main entry point for fetching standards. Searches a relaton-data-bipm GitHub repository index to find and retrieve YAML bibliographic records.
-- **`Id`** (`id_parser.rb`) - Parses BIPM reference strings into structured hashes using regex matching. Handles multiple reference formats: outcomes (resolutions, recommendations, decisions), SI Brochure, Metrologia journal articles, and JCGM documents. The `TYPES` hash maps full type names (English/French) to abbreviations (RES, REC, DECN, DECL).
-- **`Processor`** (`processor.rb`) - Relaton framework integration point (extends `Relaton::Core::Processor`). Registers prefix `BIPM` and default prefix pattern matching BIPM, CCTF, CCDS, CGPM, CIPM, JCRB, JCGM.
+- **`Id`** (`id_parser.rb`) - Parses BIPM reference strings into structured hashes using regex matching. Handles multiple reference formats: outcomes (resolutions, recommendations, decisions), SI Brochure, and Metrologia journal articles. The `TYPES` hash maps full type names (English/French) to abbreviations (RES, REC, DECN, DECL). **JCGM is no longer handled here** — it has its own `Relaton::Jcgm` flavor (see `lib/relaton/jcgm/`).
+- **`Processor`** (`processor.rb`) - Relaton framework integration point (extends `Relaton::Core::Processor`). Registers prefix `BIPM` and default prefix pattern matching BIPM, CCTF, CCDS, CGPM, CIPM, JCRB (JCGM was split out into the `jcgm` flavor).
 - **`DataFetcher`** (`data_fetcher.rb`) - Bulk fetches from three data sources: `bipm-data-outcomes`, `bipm-si-brochure`, `rawdata-bipm-metrologia`. Delegates to specialized parsers.
 - **`Item`** / **`ItemData`** (`model/item.rb`, `item_data.rb`) - The bibliographic item model, extending `Relaton::Bib::Item`. Supports XML, YAML, and JSON serialization.
 - **`model/`** directory - Lutaml model classes (Bibdata, Bibitem, Ext, etc.) for XML/YAML serialization.
@@ -33,7 +33,7 @@ All code lives under `Relaton::Bipm` (in `lib/relaton/bipm/`). The gem name is `
 
 The gem fetches from three external datasets:
 
-1. **bipm-data-outcomes** - CGPM/CIPM/committee resolutions, recommendations, decisions
+1. **bipm-data-outcomes** - CGPM/CIPM/committee resolutions, recommendations, decisions (the `jcgm` meeting dir is now harvested by the `Relaton::Jcgm::DataFetcher` instead)
 2. **bipm-si-brochure** - SI Brochure documents
 3. **rawdata-bipm-metrologia** - Metrologia journal articles (parsed from CrossRef-style data)
 
