@@ -25,6 +25,13 @@ RSpec.describe "Relaton Fetch" do
         Relaton::Cli.start(command)
       end
 
+      it "calls fetch for JCGM" do
+        expect(db).to receive(:fetch_std).with "JCGM 100:2008", nil, :relaton_jcgm, type: "JCGM"
+
+        command = ["fetch", "--type", "JCGM", "JCGM 100:2008"]
+        Relaton::Cli.start(command)
+      end
+
       it "ignore cache" do
         expect(db).to receive(:fetch).with "ISO 2146", nil, no_cache: true
 
