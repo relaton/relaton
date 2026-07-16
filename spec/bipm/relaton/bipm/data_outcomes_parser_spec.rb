@@ -18,7 +18,7 @@ describe Relaton::Bipm::DataOutcomesParser do
 
     it "#parse" do
       expect(Dir).to receive(:[])
-        .with("bipm-data-outcomes/{cctf,cgpm,cipm,ccauv,ccem,ccl,ccm,ccpr,ccqm,ccri,cct,ccu,jcgm,jcrb}")
+        .with("bipm-data-outcomes/{cctf,cgpm,cipm,ccauv,ccem,ccl,ccm,ccpr,ccqm,ccri,cct,ccu,jcrb}")
         .and_return ["bipm-data-outcomes/cgpm"]
       expect(subject).to receive(:fetch_body).with("bipm-data-outcomes/cgpm")
       subject.parse

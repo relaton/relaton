@@ -32,14 +32,9 @@ describe Relaton::Bipm::Id do
       it_behaves_like "parses ID", "CCRI -- Meeting 21 (2009)", group: "CCRI", type: "Meeting", number: "21", year: "2009"
       it_behaves_like "parses ID", "CCT -- REC 1 (2005, EN)", group: "CCT", type: "REC", number: "1", year: "2005", lang: "EN"
       it_behaves_like "parses ID", "CCU -- Meeting 22 (2016)", group: "CCU", type: "Meeting", number: "22", year: "2016"
-      it_behaves_like "parses ID", "JCGM -- Réunion 15 (2009)", group: "JCGM", type: "Réunion", number: "15", year: "2009"
       it_behaves_like "parses ID", "JCRB -- Action 10-1 (2003)", group: "JCRB", type: "Action", number: "10-1", year: "2003"
       it_behaves_like "parses ID", "Recommendation JCRB/43-1 (2021)", group: "JCRB", type: "Recommendation", number: "43-1", year: "2021"
-      it_behaves_like "parses ID", "JCGM 100:2008", group: "JCGM", number: "100", year: "2008"
-      it_behaves_like "parses ID", "JCGM 200:2008 Corrigendum", group: "JCGM", number: "200", year: "2008", corr: "Corrigendum"
-      it_behaves_like "parses ID", "JCGM GUM-6:2020", group: "JCGM", number: "GUM-6", year: "2020"
-      it_behaves_like "parses ID", "JCGM GUM", group: "JCGM", number: "GUM"
-      it_behaves_like "parses ID", "JCGM VIM-3", group: "JCGM", number: "VIM-3"
+      # JCGM parsing moved to the dedicated Relaton::Jcgm flavor (Pubid::Jcgm).
     end
 
     context "SI Brochure" do
@@ -111,18 +106,7 @@ describe Relaton::Bipm::Id do
       it_behaves_like "comparing IDs", "Metrologia 26 4 E01", "Metrologia 26 4 E01"
     end
 
-    context "JCGM" do
-      it_behaves_like "comparing IDs", "JCGM 100:2008", "JCGM 100:2008"
-      it_behaves_like "comparing IDs", "JCGM 100:2008", "JCGM 101:2008", false
-      it_behaves_like "comparing IDs", "JCGM 200:2008 Corrigendum", "JCGM 200:2008 Corrigendum"
-      it_behaves_like "comparing IDs", "JCGM 200:2008 Corrigendum", "JCGM 200:2008", false
-      it_behaves_like "comparing IDs", "JCGM 200:2008", "JCGM 200:2008 Corrigendum", false
-      it_behaves_like "comparing IDs", "JCGM GUM-6:2020", "JCGM GUM-6:2020"
-      it_behaves_like "comparing IDs", "JCGM GUM-6:2020", "JCGM GUM:2020", false
-      it_behaves_like "comparing IDs", "JCGM GUM:2020", "JCGM GUM", false
-      it_behaves_like "comparing IDs", "JCGM VIM-3", "JCGM VIM-3"
-      it_behaves_like "comparing IDs", "JCGM VIM-3", "JCGM VIM-2", false
-    end
+    # JCGM comparison moved to the dedicated Relaton::Jcgm flavor (Pubid::Jcgm).
 
     it "`CIPM RES 1` should not be equal to `CGPM Resolution (1889)`" do
       id1 = described_class.new.parse "CIPM RES 1"
