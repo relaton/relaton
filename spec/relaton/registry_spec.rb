@@ -131,6 +131,10 @@ RSpec.describe Relaton::Db::Registry do
       expect(Relaton::Db::Registry.instance.by_type("ISBN")).to be_instance_of Relaton::Isbn::Processor
     end
 
+    it "JCGM" do
+      expect(Relaton::Db::Registry.instance.by_type("JCGM")).to be_instance_of Relaton::Jcgm::Processor
+    end
+
     context "PLATEAU" do
       let(:processor) { Relaton::Db::Registry.instance.by_type("PLATEAU") }
       before { processor }
@@ -171,6 +175,10 @@ RSpec.describe Relaton::Db::Registry do
 
     it "finds a single processor by exact prefix" do
       expect(registry.processors_by_prefix("NIST").map(&:short)).to eq [:relaton_nist]
+    end
+
+    it "finds the JCGM processor by its prefix (no longer BIPM's)" do
+      expect(registry.processors_by_prefix("JCGM").map(&:short)).to eq [:relaton_jcgm]
     end
 
     it "finds a processor by a secondary prefix of the same flavor" do
