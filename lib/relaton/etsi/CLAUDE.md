@@ -64,7 +64,40 @@ Uses Lutaml for serialization:
 2. Fetches YAML from GitHub, converts to `Item` using `from_yaml`
 3. `DataFetcher.fetch` pulls CSV from etsi.org, parses with `DataParser`, saves to output folder
 
+### Pubid-backed index-v2
+
+The ETSI index is **pubid-structured** (`index-v2.yaml`/`.zip`): each row's `:id`
+is a `Pubid::Etsi::Identifier` serialized to its `_type: pubid:etsi:{etsi-standard,
+amendment,corrigendum}` hash (the whole published ETSI corpus round-trips on the
+pinned pubid — see the root `CLAUDE.md` pubid-pin note). The rows use the **flat,
+compact** shape (`type`/`number`/`version`/`year`/`month` as scalars under
+`_type`) that the published `relaton-data-etsi` index carries — the ETSI
+`to_hash` flattening lives on pubid `main` (merged from
+`refactor/flatten-etsi-to-hash`), which the root `Gemfile` temporarily pins until
+it ships in a pubid release. The wiring mirrors NIST/JCGM:
+
+- **Producer** (`DataFetcher`): `index` calls `find_or_create(:etsi, file:
+  INDEX_FILE, pubid_class: ::Pubid::Etsi::Identifiers::Base)`; `#save` parses the
+  docid via `#pubid` and stores the **pubid object** (`index.add_or_update pid,
+  file`) so `Relaton::Index` sorts by id number and serializes each id to its
+  `_type:` hash on save. `#pubid` returns nil (skipping the whole record) for any
+  id it can't parse **or** `to_hash`-serialize, so one malformed record can never
+  abort the crawl or corrupt the index. (No current ETSI record is skipped.)
+- **Consumer** (`Bibliography#search`): `find_or_create(:etsi, url:
+  "#{SOURCE}index-v2.zip", file: INDEX_FILE, pubid_class: …)`. Rows are pubid
+  objects (no `<=>`), so the lowest-id match is picked with `min_by { |r|
+  r[:id].to_s }`; substring matching already stringifies via `Type#match_item`.
+- **Processor** `#remove_index_file` passes the same `pubid_class:`.
+
 ## Testing
 
-- **Index fixture:** `spec/fixtures/index-v1.zip` is pre-loaded into `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-etsi.
+- **Index fixture:** `spec/fixtures/index-v2.zip` (pubid `_type:` rows) is loaded
+  into the `Relaton::Index` pool in `before(:suite)` (`spec/support/webmock.rb`):
+  the YAML is written to a temp file and read through
+  `Relaton::Index::Type.new(:etsi, nil, file, nil, ::Pubid::Etsi::Identifiers::Base)`,
+  and `type.index` forces the offline `pubid_class` deserialize before the net is
+  blocked; `actual?` is overridden to match only the remote (`url:`) lookup so the
+  producer-side `find_or_create(:etsi, file:, pubid_class:)` still gets a fresh
+  instance. Regenerate by parsing `index-v1`'s ids through `Pubid::Etsi` into a
+  `pubid_class` `Type` and re-zipping (`_type: pubid:etsi:…` rows).
 Uses RSpec with VCR for HTTP interaction recording. VCR cassettes are in `spec/vcr_cassettes/`. When tests make new HTTP requests, VCR will record them.

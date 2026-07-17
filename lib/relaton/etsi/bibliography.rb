@@ -9,8 +9,11 @@ module Relaton
       # @param text [String]
       # @return [Relaton::Etsi::ItemData, nil]
       def search(text) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-        index = Relaton::Index.find_or_create :etsi, url: "#{SOURCE}index-v1.zip", file: INDEX_FILE
-        row = index.search(text).min_by { |r| r[:id] }
+        index = Relaton::Index.find_or_create :etsi, url: "#{SOURCE}index-v2.zip", file: INDEX_FILE,
+                                                     pubid_class: ::Pubid::Etsi::Identifiers::Base
+        # Rows carry Pubid::Etsi identifier objects (no `<=>`), so compare their
+        # rendered strings to pick the lowest-id match (was a plain string in v1).
+        row = index.search(text).min_by { |r| r[:id].to_s }
         return unless row
 
         url = "#{SOURCE}#{row[:file]}"
