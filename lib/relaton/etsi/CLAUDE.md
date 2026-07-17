@@ -83,10 +83,23 @@ it ships in a pubid release. The wiring mirrors NIST/JCGM:
   `_type:` hash on save. `#pubid` returns nil (skipping the whole record) for any
   id it can't parse **or** `to_hash`-serialize, so one malformed record can never
   abort the crawl or corrupt the index. (No current ETSI record is skipped.)
-- **Consumer** (`Bibliography#search`): `find_or_create(:etsi, url:
-  "#{SOURCE}index-v2.zip", file: INDEX_FILE, pubid_class: …)`. Rows are pubid
-  objects (no `<=>`), so the lowest-id match is picked with `min_by { |r|
-  r[:id].to_s }`; substring matching already stringifies via `Type#match_item`.
+- **Consumer** (`Bibliography#search`): parses the reference with
+  `::Pubid::Etsi.parse` (via `#parse_pubid`, which returns nil → "not found" for
+  an unrecognized ref rather than raising — the ETSI parser wraps failures as
+  `RuntimeError`, uncaught by the CLI's `Parslet::ParseFailed` handler), then
+  `#best_match` does the ISO-style lookup:
+  `index.search(pubid) { |row| pubid.matches?(row[:id], ignore:) }`. The `pubid`
+  (not a String) lets `Relaton::Index` narrow candidates by number via binary
+  search before the block; `ignore` is the refinements the ref omits
+  (`%i[version date]` that are nil) so a bare `ETSI GS ZSM 012` matches every
+  edition while a fully-qualified ref matches only its edition; `max_by { row[:id]
+  .to_s }` returns the most recent. Requires the ETSI parser to accept partial
+  refs (bare number, optional version/date) — on pubid `main`.
+  - **Known limitation:** a *part-less* ref (`ETSI EN 300 175`, no `-1`) does not
+    match its parts — ETSI pubid keeps the part inside the `code` component, so
+    `exclude(:part)` can't drop it without also dropping the number. Refs normally
+    carry the part, so this only affects the uncommon all-parts query; closing it
+    needs a pubid change (a code-level part exclusion).
 - **Processor** `#remove_index_file` passes the same `pubid_class:`.
 
 ## Testing
