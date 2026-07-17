@@ -84,22 +84,17 @@ it ships in a pubid release. The wiring mirrors NIST/JCGM:
   id it can't parse **or** `to_hash`-serialize, so one malformed record can never
   abort the crawl or corrupt the index. (No current ETSI record is skipped.)
 - **Consumer** (`Bibliography#search`): parses the reference with
-  `::Pubid::Etsi.parse` (via `#parse_pubid`, which returns nil → "not found" for
-  an unrecognized ref rather than raising — the ETSI parser wraps failures as
-  `RuntimeError`, uncaught by the CLI's `Parslet::ParseFailed` handler), then
-  `#best_match` does the ISO-style lookup:
+  `::Pubid::Etsi.parse` and lets a `Parslet::ParseFailed` on an unrecognized ref
+  **propagate** (ISO parity — the CLI renders a friendly message, API callers
+  rescue it), then `#best_match` does the ISO-style lookup:
   `index.search(pubid) { |row| pubid.matches?(row[:id], ignore:) }`. The `pubid`
   (not a String) lets `Relaton::Index` narrow candidates by number via binary
-  search before the block; `ignore` is the refinements the ref omits
-  (`%i[version date]` that are nil) so a bare `ETSI GS ZSM 012` matches every
-  edition while a fully-qualified ref matches only its edition; `max_by { row[:id]
-  .to_s }` returns the most recent. Requires the ETSI parser to accept partial
-  refs (bare number, optional version/date) — on pubid `main`.
-  - **Known limitation:** a *part-less* ref (`ETSI EN 300 175`, no `-1`) does not
-    match its parts — ETSI pubid keeps the part inside the `code` component, so
-    `exclude(:part)` can't drop it without also dropping the number. Refs normally
-    carry the part, so this only affects the uncommon all-parts query; closing it
-    needs a pubid change (a code-level part exclusion).
+  search before the block; `ignore` is the refinements the ref omits — `version`
+  /`date` when nil, and `:part` when `pubid.code.parts` is empty — so a bare
+  `ETSI GS ZSM 012` matches every edition, a part-less `ETSI EN 300 175` matches
+  every part, and a fully-qualified ref matches only its edition; `max_by
+  { row[:id].to_s }` returns the most recent. Requires pubid `main` (partial-ref
+  parsing, `Parslet::ParseFailed` on failure, and part exclusion inside `code`).
 - **Processor** `#remove_index_file` passes the same `pubid_class:`.
 
 ## Testing
