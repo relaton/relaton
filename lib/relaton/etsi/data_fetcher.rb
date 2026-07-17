@@ -17,7 +17,9 @@ module Relaton
         "harmonized=0&keyword=&TB=&stdType=&frequency=&mandate=&collection=&sort=1&x=%<timestamp>s".freeze
 
       def index
-        @index ||= Relaton::Index.find_or_create :etsi, file: INDEX_FILE
+        @index ||= Relaton::Index.find_or_create(
+          :etsi, file: INDEX_FILE, pubid_class: ::Pubid::Etsi::Identifiers::Base
+        )
       end
 
       def log_error(msg)
@@ -107,9 +109,32 @@ module Relaton
 
       def save(bib)
         id = bib.docidentifier.first.content
+        pid = pubid(id) or return # skip ids pubid can't parse/serialize
+
         file = output_file id
         File.write file, serialize(bib), encoding: "UTF-8"
-        index.add_or_update id, file
+        index.add_or_update pid, file
+      end
+
+      #
+      # Parse an ETSI docid into a Pubid::Etsi identifier, or nil when it can't
+      # be parsed or serialized. Storing the pubid object (not its hash) lets
+      # Relaton::Index sort the index by id number and serialize each id to its
+      # `_type: pubid:etsi:*` hash on save. A single unindexable id must never
+      # abort the crawl or corrupt the index, so it is skipped defensively
+      # (mirrors Relaton::Nist#pubid / Relaton::Jcgm#add_to_index). ETSI's whole
+      # published corpus parses on the pinned pubid; the guard protects against a
+      # future malformed record.
+      #
+      # @param [String] id docidentifier content, e.g. "ETSI GS ZSM 012 V1.1.1 (2022-12)"
+      # @return [::Pubid::Etsi::Identifiers::Base, nil]
+      #
+      def pubid(id)
+        pid = ::Pubid::Etsi.parse id
+        pid.to_hash # skip ids whose to_hash raises so index.save can't fail
+        pid
+      rescue StandardError
+        nil
       end
 
       def to_yaml(bib)

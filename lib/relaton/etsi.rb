@@ -2,6 +2,7 @@
 
 require "net/http"
 require "mechanize"
+require "pubid"
 require "relaton/index"
 require_relative "version"
 # require_relative "relaton_etsi/pubid"
@@ -12,7 +13,7 @@ require_relative "etsi/bibliography"
 
 module Relaton
   module Etsi
-    INDEX_FILE = "index-v1.yaml"
+    INDEX_FILE = "index-v2.yaml"
 
     # Returns hash of gem versions used to generate data model.
     # @return [String]
