@@ -27,7 +27,7 @@ http_interactions:
       message: Not Found
     headers:
       Date:
-      - Fri, 10 Jul 2026 16:08:58 GMT
+      - Sat, 18 Jul 2026 01:48:21 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -38,14 +38,12 @@ http_interactions:
       - cloudflare
       Cache-Control:
       - no-cache
-      Age:
-      - '22'
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
       Content-Disposition:
       - inline;filename=f.txt
       Report-To:
-      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=LWOvUZFW0K6Sb1VtOPvkBAzP7vKbefcOzgTJ3l5eND2pDZVLt8S2I%2FZcaRSapIX0%2FMx5DGbwt2Ks58Cl9Hm7dfpdzCdUBI8nHiumVhJfAv%2B0FfDkvmT74Ce48zfPcUcAvMH7Taq%2BfFzG"}]}'
-      Nel:
-      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=vRJy5FXxkFKCTADj0il%2FbuSTmf6x2grJW%2BJkb6wSxuoiMRZqeXBqRCZnPUwfc4lKZbi3%2BWjMWAp8RLptsiqTjCbHuRWw4hPVSMTYFJi1%2BWiRGInzY717RXsBTZn%2BHfy57QpLZNtFxXU2"}]}'
       Cf-Cache-Status:
       - HIT
       Vary:
@@ -53,12 +51,12 @@ http_interactions:
       Content-Encoding:
       - gzip
       Cf-Ray:
-      - a190d484898f389e-IAD
+      - a1cdd2dcfd851399-ATL
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        H4sIAAAAAAAA/6tWKsnMTS0uScwtULJSMjIwMtM1MNc1NAgxNLMysLAyNtUzNTDSNjCwMjBQ0lECqispLVayMjEw0VFKLSrKLwJq8ssvUXDLL81LASooSCzJAArpFxekJuv7+Ye4RngGh+gb6hkq1QIA0sYx/2oAAAA=
-  recorded_at: Fri, 10 Jul 2026 16:08:58 GMT
+        H4sIAAAAAAAA/6tWKsnMTS0uScwtULJSMjIwMtM1MNc1tAgxMLQyMbcyMtMzNjTRNjCwMjBQ0lECqispLVayMjEw0VFKLSrKLwJq8ssvUXDLL81LASooSCzJAArpFxekJuv7+Ye4RngGh+gb6hkq1QIAJAB8rmoAAAA=
+  recorded_at: Sat, 18 Jul 2026 01:48:21 GMT
 recorded_with: VCR 6.4.0

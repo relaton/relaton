@@ -83,10 +83,18 @@ it ships in a pubid release. The wiring mirrors NIST/JCGM:
   `_type:` hash on save. `#pubid` returns nil (skipping the whole record) for any
   id it can't parse **or** `to_hash`-serialize, so one malformed record can never
   abort the crawl or corrupt the index. (No current ETSI record is skipped.)
-- **Consumer** (`Bibliography#search`): `find_or_create(:etsi, url:
-  "#{SOURCE}index-v2.zip", file: INDEX_FILE, pubid_class: …)`. Rows are pubid
-  objects (no `<=>`), so the lowest-id match is picked with `min_by { |r|
-  r[:id].to_s }`; substring matching already stringifies via `Type#match_item`.
+- **Consumer** (`Bibliography#search`): parses the reference with
+  `::Pubid::Etsi.parse` and lets a `Parslet::ParseFailed` on an unrecognized ref
+  **propagate** (ISO parity — the CLI renders a friendly message, API callers
+  rescue it), then `#best_match` does the ISO-style lookup:
+  `index.search(pubid) { |row| pubid.matches?(row[:id], ignore:) }`. The `pubid`
+  (not a String) lets `Relaton::Index` narrow candidates by number via binary
+  search before the block; `ignore` is the refinements the ref omits — `version`
+  /`date` when nil, and `:part` when `pubid.code.parts` is empty — so a bare
+  `ETSI GS ZSM 012` matches every edition, a part-less `ETSI EN 300 175` matches
+  every part, and a fully-qualified ref matches only its edition; `max_by
+  { row[:id].to_s }` returns the most recent. Requires pubid `main` (partial-ref
+  parsing, `Parslet::ParseFailed` on failure, and part exclusion inside `code`).
 - **Processor** `#remove_index_file` passes the same `pubid_class:`.
 
 ## Testing
