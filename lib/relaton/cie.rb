@@ -1,5 +1,6 @@
 require "nokogiri"
 # require "parslet"
+require "pubid"
 require "relaton/index"
 require "relaton/bib"
 # require "relaton_bib/name_parser"
@@ -14,7 +15,7 @@ require_relative "cie/scrapper"
 
 module Relaton
   module Cie
-    INDEXFILE = "index-v1".freeze
+    INDEXFILE = "index-v2".freeze
 
     # Returns hash of XML reammar
     # @return [String]

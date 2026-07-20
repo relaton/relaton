@@ -4,18 +4,20 @@ source "https://rubygems.org"
 
 gemspec
 
-# TEMP PIN: the `jcgm` and `etsi` flavors need pubid support not yet in the
-# released 2.0.0.pre.alpha.8 that relaton.gemspec pins:
+# TEMP PIN: the `jcgm`, `etsi` and `cie` flavors need pubid support not yet in
+# the released 2.0.0.pre.alpha.8 that relaton.gemspec pins:
 #   - JCGM: meetings, bare GUM/VIM-N guides, the Corrigendum suffix, and the
 #     flattened compact `to_hash`.
 #   - ETSI: the flattened compact `to_hash` (`_type: pubid:etsi:*` with scalar
 #     type/number/version/year/month) that the published `relaton-data-etsi`
 #     index-v2 carries (the older nested shape can't deserialize it).
-# Both live on pubid `main` (the ETSI flattening merged there from
-# `refactor/flatten-etsi-to-hash`). This is the SAME pubid that built the
-# published relaton-data-{jcgm,etsi} indexes, so the flavors can deserialize
-# them. TODO: revert to the released pubid once these changes ship in a pubid
-# release.
+#   - CIE: proceedings ids (`_type: pubid:cie:proceedings` with paper/page_range),
+#     techstreet variant parsing, and the flattened compact `to_hash` that the
+#     published `relaton-data-cie` index-v2 carries.
+# All live on pubid `main` (the ETSI/CIE flattening merged there from their
+# respective branches). This is the SAME pubid that built the published
+# relaton-data-{jcgm,etsi,cie} indexes, so the flavors can deserialize them.
+# TODO: revert to the released pubid once these changes ship in a pubid release.
 gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"
 
 # Default group (installed even when the release strips dev/test): the release

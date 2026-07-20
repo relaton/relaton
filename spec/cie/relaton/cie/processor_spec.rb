@@ -37,7 +37,8 @@ describe Relaton::Cie::Processor do
   it "#remove_index_file" do
     index = instance_double Relaton::Index::Type
     expect(Relaton::Index).to receive(:find_or_create)
-      .with(:cie, url: true, file: "#{Relaton::Cie::INDEXFILE}.yaml").and_return index
+      .with(:cie, url: true, file: "#{Relaton::Cie::INDEXFILE}.yaml",
+            pubid_class: ::Pubid::Cie::Identifier).and_return index
     expect(index).to receive(:remove_file)
     subject.remove_index_file
   end

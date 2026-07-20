@@ -4,6 +4,7 @@ require "English"
 require "fileutils"
 require "ferrum"
 require "nokogiri"
+require "pubid"
 require "relaton/index"
 require "relaton/bib"
 require "relaton/core/data_fetcher"
@@ -79,7 +80,28 @@ module Relaton
       end
 
       def index
-        @index ||= Index.find_or_create :cie, file: "index-v1.yaml"
+        @index ||= Index.find_or_create :cie, file: "#{INDEXFILE}.yaml",
+                                              pubid_class: ::Pubid::Cie::Identifier
+      end
+
+      # Parse a docidentifier string into a Pubid::Cie::Identifier, or nil if
+      # pubid can't parse it or it won't survive the structured index — so a
+      # single bad id never aborts the crawl or corrupts index-v2. The caller
+      # (#write_file) records the skip.
+      #
+      # The guard mirrors the read side's acceptance test
+      # (Index::FileIO#id_supported?, `from_hash(to_hash) == to_hash`): the
+      # loader raises InvalidIndexError and rejects the WHOLE index on the first
+      # id that doesn't round-trip, so an id that serializes but can't be
+      # deserialized back must be dropped here rather than poison every lookup.
+      def pubid(id)
+        pid = ::Pubid::Cie.parse id
+        hash = pid.to_hash
+        return nil unless ::Pubid::Cie::Identifier.from_hash(hash).to_hash == hash
+
+        pid
+      rescue StandardError
+        nil
       end
 
       def log_error(msg)
@@ -283,7 +305,12 @@ module Relaton
           end
         else @files << file
         end
-        index.add_or_update bib.docidentifier[0].content, file
+        pid = pubid id
+        if pid
+          index.add_or_update pid, file
+        else
+          Util.warn { "Unparseable id `#{id}` was not indexed (#{file})" }
+        end
         File.write file, serialize(bib), encoding: "UTF-8"
       end
 
