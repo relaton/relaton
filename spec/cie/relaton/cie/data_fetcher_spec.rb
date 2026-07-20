@@ -427,7 +427,10 @@ RSpec.describe Relaton::Cie::DataFetcher do
 
       before do
         expect(subject).to receive(:serialize).with(bib).and_return "content"
-        expect(subject.index).to receive(:add_or_update).with("CIE 001-1980", "data/cie-001-1980.yaml")
+        expect(subject.index).to receive(:add_or_update).with(
+          satisfy { |id| id.is_a?(::Pubid::Cie::Identifier) && id.to_s == "CIE 001-1980" },
+          "data/cie-001-1980.yaml",
+        )
         expect(File).to receive(:write).with("data/cie-001-1980.yaml", "content", encoding: "UTF-8")
       end
 
@@ -439,6 +442,24 @@ RSpec.describe Relaton::Cie::DataFetcher do
       it "file exists" do
         subject.instance_variable_get(:@files) << "data/cie-001-1980.yaml"
         expect { subject.write_file bib }.to output(/File data\/cie-001-1980.yaml exists/).to_stderr_from_any_process
+      end
+    end
+
+    context "#write_file with an unparseable id" do
+      let(:bib) do
+        docid = Relaton::Bib::Docidentifier.new(content: "CIE FOOBAR", type: "CIE", primary: true)
+        source = Relaton::Bib::Uri.new(type: "src", content: "https://www.techstreet.com/cie/standards/foobar")
+        Relaton::Cie::ItemData.new(docidentifier: [docid], source: [source])
+      end
+
+      it "writes the document but does not index the id" do
+        expect(subject).to receive(:serialize).with(bib).and_return "content"
+        expect(subject.index).not_to receive(:add_or_update)
+        expect(File).to receive(:write).with(
+          "data/cie-foobar.yaml", "content", encoding: "UTF-8"
+        )
+        expect { subject.write_file bib }
+          .to output(/Unparseable id `CIE FOOBAR` was not indexed/).to_stderr_from_any_process
       end
     end
 
