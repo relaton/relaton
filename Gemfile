@@ -31,6 +31,7 @@ gem "rake"
 group :development, :test do
   gem "canon"          # XML/YAML canonical comparison matchers for specs
   gem "equivalent-xml"
+  gem "pry"            # bin/console
   gem "rspec"
   gem "rspec-command"  # relaton-cli acceptance specs
   gem "rspec-html"     # relaton-cli
