@@ -109,7 +109,7 @@ module Relaton
       end
 
       # Apply a mutation to the top pubid and every identifier down the
-      # `base_identifier` chain (only SupplementIdentifier exposes the chain; a
+      # `base` chain (only SupplementIdentifier exposes the chain; a
       # plain identifier returns nil and the walk terminates after one pass).
       def walk_chain
         return unless @pubid
@@ -117,7 +117,7 @@ module Relaton
         node = @pubid
         while node
           yield node
-          node = node.respond_to?(:base_identifier) ? node.base_identifier : nil
+          node = node.respond_to?(:base) ? node.base : nil
         end
         refresh_content!
       end

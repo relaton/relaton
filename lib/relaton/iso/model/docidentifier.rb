@@ -110,14 +110,14 @@ module Relaton
       end
 
       # Return a copy of +pubid+ with the year removed from it and every
-      # identifier in its `base_identifier` chain (e.g. the base of an
+      # identifier in its `base` chain (e.g. the base of an
       # amendment/corrigendum). The original is left untouched.
       def exclude_date(pubid)
         result = pubid.exclude(:date)
         current = result
-        while current.base_identifier
-          current.base_identifier = current.base_identifier.exclude(:date)
-          current = current.base_identifier
+        while current.base
+          current.base = current.base.exclude(:date)
+          current = current.base
         end
         result
       end
@@ -126,10 +126,10 @@ module Relaton
         return unless @pubid
 
         @pubid.send("#{attr}=", nil)
-        base = @pubid.base_identifier
+        base = @pubid.base
         while base
           base.send("#{attr}=", nil)
-          base = base.base_identifier
+          base = base.base
         end
         refresh_content!
       end

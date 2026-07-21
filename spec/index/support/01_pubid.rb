@@ -13,6 +13,17 @@ class TestIdentifier < Lutaml::Model::Serializable
     new(**attrs)
   end
 
+  # Pubid identifiers always answer `#root`: it walks a supplement's `.base`
+  # chain to the origin document and returns self for a base document. The
+  # index narrowing/sort key is `id.root.number.to_s`. Default to self; a spec
+  # can assign an explicit root to model a supplement whose origin document has
+  # a different number.
+  attr_writer :root
+
+  def root
+    @root || self
+  end
+
   def ==(other)
     return false unless other.is_a?(TestIdentifier)
 

@@ -97,7 +97,7 @@ module Relaton
           clear_attr_on(@pubid, attr)
         end
 
-        node = @pubid.base_identifier
+        node = @pubid.base
         while node
           clear_attr_on(node, attr)
           # ConsolidatedIdentifier carries a sibling collection of bundled
@@ -109,7 +109,7 @@ module Relaton
               clear_attr_on(id, attr)
             end
           end
-          node = node.base_identifier
+          node = node.base
         end
         refresh_content!
       end
