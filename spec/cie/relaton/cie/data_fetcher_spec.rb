@@ -43,44 +43,122 @@ RSpec.describe Relaton::Cie::DataFetcher do
     before { allow(subject).to receive(:agent).and_return(agent) }
 
     context "#fetch" do
+      it "collects hits, processes them, then saves the index once" do
+        hits = [double("hit1"), double("hit2")]
+        expect(subject).to receive(:collect_hits).and_return(hits)
+        expect(subject).to receive(:process_hits).with(hits)
+        expect(subject.index).to receive(:save).once
+        subject.fetch
+      end
+    end
+
+    context "#collect_hits (Phase 1, serial listing)" do
       let(:url) { "https://www.techstreet.com/cie/searches/31156444?page=1&per_page=100" }
 
-      before do
-        expect(subject).to receive(:time_req).and_yield
-        expect(subject).to receive(:parse_page).with(kind_of(Nokogiri::XML::Element))
+      before { allow(subject).to receive(:time_req).and_yield }
+
+      it "follows next_page and accumulates every hit across pages" do
+        page1 = Nokogiri::HTML <<~HTML
+          <html><body>
+            <ol><li data-product="A"><h3><a href="/a">CIE 001-1980</a></h3></li></ol>
+            <a class="next_page" href="/cie/standards?page=2">Next</a>
+          </body></html>
+        HTML
+        page2 = Nokogiri::HTML <<~HTML
+          <html><body>
+            <ol><li data-product="B"><h3><a href="/b">CIE 002-1981</a></h3></li></ol>
+          </body></html>
+        HTML
+        expect(agent).to receive(:get).with(url).and_return page1
+        expect(agent).to receive(:get)
+          .with("https://www.techstreet.com/cie/standards?page=2").and_return page2
+
+        hits = subject.collect_hits
+        expect(hits.map { |h| h["data-product"] }).to eq %w[A B]
       end
 
-      it "next page" do
-        result = Nokogiri::HTML <<~HTML
-          <html>
-            <body>
-              <ol>
-                <li data-product="CIE 001-1980"><h3><a href="/cie/standards/001-1980">CIE 001-1980</a></h3></li>
-              </ol>
-              <a class="next_page" href="/cie/standards?page=2">Next</a>
-            </body>
-          </html>
+      it "stops at the last page" do
+        page = Nokogiri::HTML <<~HTML
+          <html><body>
+            <ol><li data-product="A"><h3><a href="/a">CIE 001-1980</a></h3></li></ol>
+          </body></html>
         HTML
-        expect(agent).to receive(:get).with(url).and_return result
-        expect(subject).to receive(:fetch_doc).with("https://www.techstreet.com/cie/standards?page=2")
-        allow(subject).to receive(:fetch_doc).with(no_args).and_call_original
-        expect(subject.index).not_to receive(:save)
-        subject.fetch
+        expect(agent).to receive(:get).with(url).and_return page
+        expect(subject.collect_hits.size).to eq 1
+      end
+    end
+
+    context "#process_hits (Phase 2, parallel detail fetch)" do
+      # A minimal hit whose primary code is derived from its h3/a text, plus a
+      # blank detail page (the fetch_* extractors all degrade to empty/nil on a
+      # bare document, so no fixture is needed here).
+      def hit_for(code, href)
+        Nokogiri::HTML(<<~HTML).at("li")
+          <li data-product="#{code}"><h3><a href="#{href}">#{code}</a></h3></li>
+        HTML
       end
 
-      it "last page" do
-        result = Nokogiri::HTML <<~HTML
-          <html>
-            <body>
-              <ol>
-                <li data-product="CIE 001-1980"><h3><a href="/cie/standards/001-1980">CIE 001-1980</a></h3></li>
-              </ol>
-            </body>
-          </html>
-        HTML
-        expect(agent).to receive(:get).with(url).and_return result
-        expect(subject.index).to receive(:save)
-        subject.fetch
+      let(:hits) do
+        (1..6).map { |i| hit_for(format("CIE %03d-1980", i), "/cie/standards/#{i}") }
+      end
+
+      # Drive #process_hits at concurrency `n` against a stubbed agent factory
+      # (one double per worker) and return [recorded [id, pos] writes, agents].
+      def run_pool(n, hits)
+        fetcher = described_class.new "data", "yaml"
+        allow(described_class).to receive(:concurrency).and_return(n)
+        allow(fetcher).to receive(:time_req).and_yield # skip real pacing sleeps
+
+        agents = []
+        amutex = Mutex.new
+        allow(fetcher).to receive(:build_agent) do
+          a = instance_double(Relaton::Cie::BrowserAgent, quit: nil)
+          allow(a).to receive(:get).and_return(Nokogiri::HTML("<html><body></body></html>"))
+          amutex.synchronize { agents << a }
+          a
+        end
+
+        written = []
+        allow(fetcher).to receive(:write_file) { |item, pos| written << [item.docidentifier[0].content, pos] }
+
+        fetcher.process_hits(hits)
+        [written, agents]
+      end
+
+      it "processes every hit and produces the same record set as a serial run" do
+        serial, = run_pool(1, hits)
+        parallel, agents = run_pool(5, hits)
+
+        expected = (1..6).map { |i| format("CIE %03d-1980", i) }
+        expect(parallel.map(&:first).sort).to eq expected.sort
+        # Output is order-independent: the parallel record set equals the serial one.
+        expect(parallel.map(&:first).sort).to eq serial.map(&:first).sort
+        # One agent per worker, and every created agent is quit.
+        expect(agents.size).to eq 5
+        agents.each { |a| expect(a).to have_received(:quit) }
+      end
+
+      it "launches no browser when there are no hits" do
+        allow(described_class).to receive(:concurrency).and_return(3)
+        expect(subject).not_to receive(:build_agent)
+        subject.process_hits([])
+      end
+
+      it "fails fast and quits already-built agents when a browser fails to launch" do
+        allow(described_class).to receive(:concurrency).and_return(3)
+        built = []
+        call = 0
+        allow(subject).to receive(:build_agent) do
+          call += 1
+          raise "chrome launch failed" if call == 3
+
+          instance_double(Relaton::Cie::BrowserAgent, quit: nil).tap { |a| built << a }
+        end
+
+        expect { subject.process_hits([hit_for("CIE 001-1980", "/a")]) }
+          .to raise_error("chrome launch failed")
+        expect(built.size).to eq 2
+        built.each { |a| expect(a).to have_received(:quit) }
       end
     end
 
@@ -463,6 +541,32 @@ RSpec.describe Relaton::Cie::DataFetcher do
       end
     end
 
+    context "#write_file duplicate output file (deterministic last-by-position winner)" do
+      def bib_for(link)
+        docid = Relaton::Bib::Docidentifier.new(content: "CIE 001-1980", type: "CIE", primary: true)
+        source = Relaton::Bib::Uri.new(type: "src", content: link)
+        Relaton::Cie::ItemData.new(docidentifier: [docid], source: [source])
+      end
+
+      before { allow(subject.index).to receive(:add_or_update) }
+
+      it "drops an earlier-position write once a later position has claimed the file" do
+        allow(subject).to receive(:serialize).and_return "later"
+        # Later position (1) completes first; the earlier one (0) is superseded.
+        expect(File).to receive(:write).with("data/cie-001-1980.yaml", "later", encoding: "UTF-8").once
+        subject.write_file bib_for("https://x/later"), 1
+        subject.write_file bib_for("https://x/earlier"), 0
+      end
+
+      it "lets a later position overwrite an earlier one that already wrote" do
+        allow(subject).to receive(:serialize).and_return "earlier", "later"
+        expect(File).to receive(:write).with("data/cie-001-1980.yaml", "earlier", encoding: "UTF-8").ordered
+        expect(File).to receive(:write).with("data/cie-001-1980.yaml", "later", encoding: "UTF-8").ordered
+        subject.write_file bib_for("https://x/earlier"), 0
+        subject.write_file bib_for("https://x/later"), 1
+      end
+    end
+
     it "#to_xml" do
       bib = Relaton::Cie::ItemData.new
       expect(subject.to_xml(bib)).to include "<bibdata schema-version="
@@ -479,25 +583,40 @@ RSpec.describe Relaton::Cie::DataFetcher do
     end
 
     context "#time_req" do
-      it "sleep" do
-        expect(subject).to receive(:sleep).with(4)
-        subject.time_req { :result }
-        result = subject.time_req { :result }
-        expect(result).to eq :result
+      let(:pacing) { Relaton::Cie::DataFetcher::Pacing.new }
+
+      before { allow(pacing).to receive(:sleep) } # never actually sleep in specs
+
+      it "paces via the worker's pacing and returns the block result" do
+        expect(pacing).to receive(:throttle).and_call_original
+        expect(subject.time_req(pacing) { :result }).to eq :result
       end
 
-      it "retry" do
+      it "retries a retriable error, backing the worker off first" do
         block = spy "block"
         expect(block).to receive(:call).and_raise SocketError
         expect(block).to receive(:call).and_return :result
-        result = subject.time_req { block.call }
-        expect(result).to eq :result
+        expect(pacing).to receive(:backoff).once
+        expect(subject.time_req(pacing) { block.call }).to eq :result
       end
 
-      it "raise error" do
-        expect do
-          subject.time_req { raise SocketError }
-        end.to raise_error(SocketError)
+      it "treats a Cloudflare challenge as retriable" do
+        block = spy "block"
+        expect(block).to receive(:call).and_raise Relaton::Cie::BrowserAgent::ChallengeError
+        expect(block).to receive(:call).and_return :result
+        expect(subject.time_req(pacing) { block.call }).to eq :result
+      end
+
+      it "backs off on every attempt, then raises once retries are exhausted" do
+        expect(pacing).to receive(:backoff).exactly(4).times
+        expect { subject.time_req(pacing) { raise SocketError } }.to raise_error(SocketError)
+      end
+
+      it "doubles the gap on backoff, capped at the max" do
+        pace = Relaton::Cie::DataFetcher::Pacing.new(base: 1, max: 4)
+        expect { pace.backoff }.to change(pace, :gap).from(1).to(2)
+        pace.backoff # -> 4
+        expect { pace.backoff }.not_to change(pace, :gap) # capped
       end
     end
   end

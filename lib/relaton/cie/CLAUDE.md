@@ -39,6 +39,42 @@ Note the CIE grammar extensions **do** parse the techstreet variant ids like
 `CIE x051:2025/zcunvy` (as `Conference` `@variant` ids), so — unlike the old pubid —
 they are indexed, not dropped.
 
+## Crawler (`data_fetcher.rb`) — parallel detail fetch
+
+The Techstreet crawl (~1147 docs) is a headless-Chrome (Ferrum) scrape. It runs in
+**two phases**:
+
+- **Phase 1 — `collect_hits` (serial):** page through the search results following
+  `//a[@class="next_page"]`, collecting every `//li[@data-product]` into one list
+  (~12 page loads at `per_page=100`).
+- **Phase 2 — `process_hits` (parallel):** fan the hits out over a bounded pool.
+  **Each worker owns its own `BrowserAgent`** (its own Chrome, built via the
+  `build_agent` factory so the full UA/header + `navigator`/`window.chrome` stealth
+  masking runs per worker — Cloudflare evasion must hold per worker, not for a shared
+  singleton). Agents are built up front on the main thread (a Chrome-launch failure
+  aborts fast instead of hanging the bounded queue) and **every** agent is quit in an
+  `ensure`. The single memoized `#agent` is used only for Phase 1.
+
+**Concurrency knob:** `RELATON_CIE_CONCURRENCY` (default **5**, min 1), read by
+`.concurrency`. `relaton-data-cie`'s crawler workflow tunes it via env — no code change.
+
+**Per-worker adaptive pacing (`Pacing`)** replaces the old single global 4 s gap: each
+worker starts at `BASE_GAP` (~1 s) and **doubles its own gap up to `MAX_GAP`** only on
+trouble — a Cloudflare challenge or a Ferrum/socket error (`RETRIABLE_ERRORS`).
+`BrowserAgent#wait_for_challenge` raises a retriable `ChallengeError` when the challenge
+doesn't clear within `MAX_CHALLENGE_WAIT`, so a stuck worker backs off and retries
+(`#time_req` keeps the 4-try retry) instead of parsing the challenge HTML.
+
+**Thread-safety & byte-identical output:** the slow `agent.get` runs lock-free; the
+cheap build + `#write_file` run under one `@mutex`, so `@files`/`@errors`/`@seen` and the
+index mutate single-threaded. Output is order-independent by construction — `@errors`
+accumulates with `&&=` (AND, per-doc build is atomic under the lock), `@files` is a Set,
+and the structured index is sorted deterministically on save. For a duplicate output
+file, a `@seen[file] => catalogue-position` guard (`#superseded?`) keeps the
+**last-by-position** content winner the serial crawl would pick; `index.add_or_update`
+runs for **every** distinct id *before* that gate, so each id is still indexed. `index.save`
+is called **once**, after the pool drains.
+
 ## Development
 
 - `bundle install` — install dependencies
