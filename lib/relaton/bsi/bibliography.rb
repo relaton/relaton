@@ -86,7 +86,7 @@ module Relaton::Bsi
       # `#supplement_type` / `#supplement_number` / `#supplement_year`.
       def supplement_of(id)
         while id.is_a?(Ids::ExpertCommentary)
-          inner = id.base_identifier
+          inner = id.base
           break if inner.nil? || inner.equal?(id)
 
           id = inner

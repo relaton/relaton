@@ -14,9 +14,12 @@ gemspec
 #   - CIE: proceedings ids (`_type: pubid:cie:proceedings` with paper/page_range),
 #     techstreet variant parsing, and the flattened compact `to_hash` that the
 #     published `relaton-data-cie` index-v2 carries.
-# All live on pubid `main` (the ETSI/CIE flattening merged there from their
-# respective branches). This is the SAME pubid that built the published
-# relaton-data-{jcgm,etsi,cie} indexes, so the flavors can deserialize them.
+# All live on pubid `main`, which also carries the `base_identifier` → `base`
+# accessor/serialization-key rename (pubid #139) that relaton adopts here: pubid
+# removed `.base_identifier` with no alias, and `#root` now reaches the origin
+# for every flavor (the index narrowing key relies on it). This is the SAME
+# pubid that built the published relaton-data-{jcgm,etsi,cie} indexes, so the
+# flavors can deserialize them.
 # TODO: revert to the released pubid once these changes ship in a pubid release.
 gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"
 

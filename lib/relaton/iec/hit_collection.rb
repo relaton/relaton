@@ -91,7 +91,7 @@ module Relaton
       # removed at every nesting level. More robust than comparing attribute
       # objects, whose derived `type`/`stage` differ between a parsed identifier
       # (component object) and a deserialized one (nil/symbol) — at the top level
-      # and inside `base_identifier`.
+      # and inside `base`.
       def canonical_id(pubid, exclude)
         drop = exclude.filter_map { |e| EXCLUDE_KEYS[e] }
         prune(stringify(pubid.to_hash), drop)

@@ -89,10 +89,10 @@ module Relaton
         clear_attr_on(@pubid, attr)
         # Supplements/corrigenda wrap a base identifier; a plain Base returns
         # nil, so the walk clears the attr down the whole chain and terminates.
-        node = @pubid.base_identifier
+        node = @pubid.base
         while node
           clear_attr_on(node, attr)
-          node = node.base_identifier
+          node = node.base
         end
         refresh_content!
       end

@@ -30,8 +30,8 @@ module Relaton
 
       def ref_pubid_no_year
         @ref_pubid_no_year ||=
-          if ref.base_identifier
-            ref.dup.tap { |r| r.base_identifier = r.base_identifier.exclude(:date) }
+          if ref.base
+            ref.dup.tap { |r| r.base = r.base.exclude(:date) }
           else
             ref.exclude(:date)
           end
@@ -109,9 +109,9 @@ module Relaton
       def exclude_id_attrs(pubid, *attrs)
         xid = pubid.exclude(*attrs)
         curr = xid
-        while curr.base_identifier
-          curr.base_identifier = curr.base_identifier.exclude(*attrs)
-          curr = curr.base_identifier
+        while curr.base
+          curr.base = curr.base.exclude(*attrs)
+          curr = curr.base
         end
         xid
       end
