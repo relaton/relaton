@@ -16,7 +16,7 @@ module Relaton
         pubid = ::Pubid::Etsi.parse text
 
         index = Relaton::Index.find_or_create :etsi, url: "#{SOURCE}index-v2.zip", file: INDEX_FILE,
-                                                     pubid_class: ::Pubid::Etsi::Identifiers::Base
+                                                     pubid_class: ::Pubid::Etsi::Identifier
         row = best_match(index, pubid)
         return unless row
 
@@ -43,7 +43,7 @@ module Relaton
       # `max_by` on the rendered id picks the latest version/date among matches.
       #
       # @param index [Relaton::Index::Type]
-      # @param pubid [::Pubid::Etsi::Identifiers::Base]
+      # @param pubid [::Pubid::Etsi::Identifier]
       # @return [Hash, nil] the winning index row (`{ id:, file: }`)
       def best_match(index, pubid)
         ignore = %i[version date].select { |attr| pubid.public_send(attr).nil? }

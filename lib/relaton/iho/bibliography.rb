@@ -89,7 +89,7 @@ module Relaton
             :iho,
             url: "#{ENDPOINT}#{INDEXFILE}.zip",
             file: "#{INDEXFILE}.yaml",
-            pubid_class: ::Pubid::Iho::Identifiers::Base,
+            pubid_class: ::Pubid::Iho::Identifier,
           )
         end
 

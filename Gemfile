@@ -20,6 +20,10 @@ gemspec
 # for every flavor (the index narrowing key relies on it). This is the SAME
 # pubid that built the published relaton-data-{jcgm,etsi,cie} indexes, so the
 # flavors can deserialize them.
+# main also DROPPED the redundant `Pubid::<Flavor>::Identifiers::Base` alias from
+# the Category-A flavors (iho, etsi, …); relaton now names the canonical
+# `Pubid::<Flavor>::Identifier` deserialization root instead, so referencing the
+# old alias would NameError at IHO/ETSI index load on this pin.
 # TODO: revert to the released pubid once these changes ship in a pubid release.
 gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"
 
