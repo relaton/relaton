@@ -18,7 +18,7 @@ module Relaton
 
       def index
         @index ||= Relaton::Index.find_or_create(
-          :etsi, file: INDEX_FILE, pubid_class: ::Pubid::Etsi::Identifiers::Base
+          :etsi, file: INDEX_FILE, pubid_class: ::Pubid::Etsi::Identifier
         )
       end
 
@@ -127,7 +127,7 @@ module Relaton
       # future malformed record.
       #
       # @param [String] id docidentifier content, e.g. "ETSI GS ZSM 012 V1.1.1 (2022-12)"
-      # @return [::Pubid::Etsi::Identifiers::Base, nil]
+      # @return [::Pubid::Etsi::Identifier, nil]
       #
       def pubid(id)
         pid = ::Pubid::Etsi.parse id

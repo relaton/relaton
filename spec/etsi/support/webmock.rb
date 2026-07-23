@@ -16,7 +16,7 @@ RSpec.configure do |config|
     index_file = File.join(Dir.mktmpdir("relaton-etsi-spec"), "index-v2.yaml")
     File.write(index_file, yaml)
 
-    type = Relaton::Index::Type.new(:etsi, nil, index_file, nil, ::Pubid::Etsi::Identifiers::Base)
+    type = Relaton::Index::Type.new(:etsi, nil, index_file, nil, ::Pubid::Etsi::Identifier)
     type.index # force the offline read + deserialize now, before net is blocked
     # actual? only matches the remote (url:) lookup so the producer-side
     # find_or_create(:etsi, file:, pubid_class:) still gets a fresh instance.

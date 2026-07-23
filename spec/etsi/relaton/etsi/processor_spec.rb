@@ -38,7 +38,7 @@ describe Relaton::Etsi::Processor do
     index = double("index")
     expect(Relaton::Index).to receive(:find_or_create)
       .with(:etsi, url: true, file: Relaton::Etsi::INDEX_FILE,
-            pubid_class: ::Pubid::Etsi::Identifiers::Base).and_return(index)
+            pubid_class: ::Pubid::Etsi::Identifier).and_return(index)
     expect(index).to receive(:remove_file)
     subject.remove_index_file
   end

@@ -107,7 +107,7 @@ describe Relaton::Etsi::DataFetcher do
       file = "dir/etsi-en-300-175-1-v2-1-1-2001-08.xml"
       expect(File).to receive(:write).with(file, kind_of(String), encoding: "UTF-8")
       expect(subject.index).to receive(:add_or_update)
-        .with(kind_of(::Pubid::Etsi::Identifiers::Base), file)
+        .with(kind_of(::Pubid::Etsi::Identifier), file)
       subject.save bib
     end
 

@@ -77,7 +77,7 @@ compact** shape (`type`/`number`/`version`/`year`/`month` as scalars under
 it ships in a pubid release. The wiring mirrors NIST/JCGM:
 
 - **Producer** (`DataFetcher`): `index` calls `find_or_create(:etsi, file:
-  INDEX_FILE, pubid_class: ::Pubid::Etsi::Identifiers::Base)`; `#save` parses the
+  INDEX_FILE, pubid_class: ::Pubid::Etsi::Identifier)`; `#save` parses the
   docid via `#pubid` and stores the **pubid object** (`index.add_or_update pid,
   file`) so `Relaton::Index` sorts by id number and serializes each id to its
   `_type:` hash on save. `#pubid` returns nil (skipping the whole record) for any
@@ -102,7 +102,7 @@ it ships in a pubid release. The wiring mirrors NIST/JCGM:
 - **Index fixture:** `spec/fixtures/index-v2.zip` (pubid `_type:` rows) is loaded
   into the `Relaton::Index` pool in `before(:suite)` (`spec/support/webmock.rb`):
   the YAML is written to a temp file and read through
-  `Relaton::Index::Type.new(:etsi, nil, file, nil, ::Pubid::Etsi::Identifiers::Base)`,
+  `Relaton::Index::Type.new(:etsi, nil, file, nil, ::Pubid::Etsi::Identifier)`,
   and `type.index` forces the offline `pubid_class` deserialize before the net is
   blocked; `actual?` is overridden to match only the remote (`url:`) lookup so the
   producer-side `find_or_create(:etsi, file:, pubid_class:)` still gets a fresh

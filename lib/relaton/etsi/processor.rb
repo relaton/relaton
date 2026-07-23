@@ -63,7 +63,7 @@ module Relaton
       def remove_index_file
         require_relative "../etsi"
         Relaton::Index.find_or_create(
-          :etsi, url: true, file: INDEX_FILE, pubid_class: ::Pubid::Etsi::Identifiers::Base
+          :etsi, url: true, file: INDEX_FILE, pubid_class: ::Pubid::Etsi::Identifier
         ).remove_file
       end
     end
