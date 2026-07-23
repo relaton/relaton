@@ -21,7 +21,8 @@ RSpec.describe Relaton::Plateau::DataFetcher do
 
   it "index" do
     expect(Relaton::Index).to receive(:find_or_create)
-      .with(:plateau, file: "index-v1.yaml").and_return :index
+      .with(:plateau, file: "index-v2.yaml", pubid_class: ::Pubid::Plateau::Identifier)
+      .and_return :index
     expect(subject.index).to eq :index
   end
 
@@ -162,11 +163,24 @@ RSpec.describe Relaton::Plateau::DataFetcher do
       expect(File).to receive(:write).with(
         "data/plateau-handbook-01-40.xml", "<bibxml/>"
       )
-      expect(subject.index).to receive(:add_or_update).with(
-        "PLATEAU Handbook #01 第4.0版", "data/plateau-handbook-01-40.xml"
-      )
+      # The canonical id is stored as a Pubid::Plateau::Identifier, not a string.
+      expect(subject.index).to receive(:add_or_update) do |pid, file|
+        expect(pid).to be_a ::Pubid::Plateau::Identifier
+        expect(pid.to_s).to eq "PLATEAU Handbook #01 第4.0版"
+        expect(file).to eq "data/plateau-handbook-01-40.xml"
+      end
       subject.save_document item
       expect(subject.instance_variable_get(:@files)).to eq Set.new(["data/plateau-handbook-01-40.xml"])
+    end
+
+    it "skips (and warns about) an id pubid cannot parse" do
+      docid = Relaton::Bib::Docidentifier.new content: "PLATEAU Bogus #99" # not a PLATEAU id
+      bad = Relaton::Plateau::ItemData.new docidentifier: [docid]
+      expect(subject).to receive(:serialize).with(bad).and_return "<bibxml/>"
+      expect(File).to receive(:write)
+      expect(subject.index).not_to receive(:add_or_update)
+      expect { subject.save_document bad }.to output(/Unparseable id `PLATEAU Bogus #99`/)
+        .to_stderr_from_any_process
     end
 
     it "duplicate" do
