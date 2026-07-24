@@ -4,8 +4,8 @@ source "https://rubygems.org"
 
 gemspec
 
-# TEMP PIN: the `jcgm`, `etsi` and `cie` flavors need pubid support not yet in
-# the released 2.0.0.pre.alpha.8 that relaton.gemspec pins:
+# TEMP PIN: the `jcgm`, `etsi`, `cie` and `itu` flavors need pubid support not yet
+# in the released 2.0.0.pre.alpha.8 that relaton.gemspec pins:
 #   - JCGM: meetings, bare GUM/VIM-N guides, the Corrigendum suffix, and the
 #     flattened compact `to_hash`.
 #   - ETSI: the flattened compact `to_hash` (`_type: pubid:etsi:*` with scalar
@@ -14,16 +14,19 @@ gemspec
 #   - CIE: proceedings ids (`_type: pubid:cie:proceedings` with paper/page_range),
 #     techstreet variant parsing, and the flattened compact `to_hash` that the
 #     published `relaton-data-cie` index-v2 carries.
+#   - ITU: `Pubid::Itu` handbook/question identifier types plus the flattened
+#     compact ITU `to_hash` (scalar sector/series/number/parts, e.g.
+#     `_type: pubid:itu:handbook`) that the published `relaton-data-itu-r` index-v2
+#     carries (the older nested shape can't deserialize it).
 # All live on pubid `main`, which also carries the `base_identifier` → `base`
 # accessor/serialization-key rename (pubid #139) that relaton adopts here: pubid
-# removed `.base_identifier` with no alias, and `#root` now reaches the origin
-# for every flavor (the index narrowing key relies on it). This is the SAME
-# pubid that built the published relaton-data-{jcgm,etsi,cie} indexes, so the
-# flavors can deserialize them.
-# main also DROPPED the redundant `Pubid::<Flavor>::Identifiers::Base` alias from
-# the Category-A flavors (iho, etsi, …); relaton now names the canonical
-# `Pubid::<Flavor>::Identifier` deserialization root instead, so referencing the
-# old alias would NameError at IHO/ETSI index load on this pin.
+# removed `.base_identifier` with no alias, and `#root` now reaches the origin for
+# every flavor (the index narrowing key relies on it). main is the SAME pubid that
+# built the published relaton-data-{jcgm,etsi,cie,itu-r} indexes, so those flavors
+# can deserialize them. main also DROPPED the redundant
+# `Pubid::<Flavor>::Identifiers::Base` alias from the Category-A flavors (iho,
+# etsi, …); relaton now names the canonical `Pubid::<Flavor>::Identifier`
+# deserialization root, so the old alias would NameError at IHO/ETSI index load.
 # TODO: revert to the released pubid once these changes ship in a pubid release.
 gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"
 

@@ -37,8 +37,18 @@ module Relaton
 
       def request_document # rubocop:todo Metrics/MethodLength, Metrics/AbcSize
         Util.info "Fetching from Relaton repository ...", key: ref.to_s
-        index = Relaton::Index.find_or_create :itu, url: "#{GH_ITU_R}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml"
-        row = index.search(ref.to_ref).max_by { |i| i[:id] }
+        index = Relaton::Index.find_or_create :itu, url: "#{GH_ITU_R}#{INDEXFILE}.zip",
+                                                     file: "#{INDEXFILE}.yaml",
+                                                     pubid_class: ::Pubid::Itu::Identifier
+        # Pass the reference's parsed pubid (not a String) so Relaton::Index can
+        # narrow candidates by document number before the block; `part_match?`
+        # then matches every edition when the reference omits the part and the
+        # exact edition when it names one. Rows are Pubid::Itu objects (not
+        # Comparable), so rank by the numeric edition in `code.parts` (`["3"]` → 3)
+        # to return the latest — index order isn't by edition.
+        pubid = pubid_ref
+        row = index.search(pubid) { |i| part_match?(pubid, i[:id]) }
+          .max_by { |i| i[:id].code&.parts&.last.to_i }
         return unless row
 
         url = "#{GH_ITU_R}#{row[:file]}"
@@ -49,6 +59,35 @@ module Relaton
         hit = Hit.new({ url: url, ref: ref }, self)
         hit.item = item
         @array = [hit]
+      end
+
+      # Parse the reference into a Pubid::Itu identifier for the index lookup,
+      # falling back to the raw reference string if pubid can't parse it (e.g. an
+      # `ITU-R RR` Radio Regulations form) so the substring search still runs.
+      #
+      # @return [::Pubid::Itu::Identifier, String]
+      def pubid_ref
+        ::Pubid::Itu.parse ref.to_ref
+      rescue StandardError
+        ref.to_ref
+      end
+
+      # Does an index row's id match the reference? When the reference omits the
+      # part/edition (a bare `ITU-R P.838`), every edition of that exact document
+      # matches — "search all parts"; when it names a part (`ITU-R P.838-2`), only
+      # that edition matches. Anchoring on the `-` part separator is what keeps a
+      # bare `ITU-R M.1` from also matching `ITU-R M.10` (a different document)
+      # the way a plain substring would, and distinguishes `-1` from `-10`.
+      # Compares rendered ids, so it works for both `Pubid::Itu` objects (the
+      # deserialized index) and plain strings (search doubles / an unparseable ref).
+      #
+      # @param pubid [::Pubid::Itu::Identifier, String] the reference
+      # @param id [::Pubid::Itu::Identifier, String] an index row's id
+      # @return [Boolean]
+      def part_match?(pubid, id)
+        needle = pubid.to_s
+        rendered = id.to_s
+        rendered == needle || rendered.start_with?("#{needle}-")
       end
 
       # @return [String]

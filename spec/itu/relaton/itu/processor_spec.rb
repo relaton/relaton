@@ -103,7 +103,7 @@ RSpec.describe Relaton::Itu::Processor do
       processor.remove_index_file
 
       expect(Relaton::Index).to have_received(:find_or_create)
-        .with(:itu, url: true, file: "index-v1.yaml")
+        .with(:itu, url: true, file: "index-v2.yaml", pubid_class: ::Pubid::Itu::Identifier)
       expect(index).to have_received(:remove_file)
     end
   end

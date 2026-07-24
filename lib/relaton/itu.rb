@@ -1,5 +1,6 @@
 require "mechanize"
 require "parslet"
+require "pubid"
 require "digest/md5"
 require "relaton/index"
 require "relaton/bib"
@@ -17,7 +18,7 @@ require_relative "itu/bibliography"
 
 module Relaton
   module Itu
-    INDEXFILE = "index-v1"
+    INDEXFILE = "index-v2"
 
     class Error < StandardError; end
 
