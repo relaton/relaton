@@ -117,6 +117,19 @@ none and `bundle install` regenerates a correct one. A leftover local lock with
 `remote: ../relaton-<flavor>` entries is monorepo-era rot — delete it and
 `bundle install` (that's what a stale `spec:cli` bundle-install failure means).
 
+**JCGM flavor & temporary pubid pin.** `Relaton::Jcgm` (`lib/relaton/jcgm/`) is a
+pubid-backed flavor split out of BIPM (JCGM records moved to their own
+`relaton-data-jcgm` repo, stored as `_type: pubid:jcgm:{guide,gum-guide,amendment,
+corrigendum,meeting}`). It needs the JCGM support (meetings, bare `GUM`/`VIM-N`
+guides, the `Corrigendum` type, and the flattened compact `to_hash`) that lives on
+pubid **`main`** but isn't in the released `2.0.0.pre.alpha.8` that
+`relaton.gemspec` pins — so the root `Gemfile` **temporarily pins** `pubid` to
+`git: …/pubid.git, branch: main`. This is the **same pubid that built the published
+`relaton-data-jcgm` index**, so the flavor deserializes it (an older/mismatched
+pubid would make `Relaton::Index` reject the whole index). Revert the pin to the
+released `pubid ~> 2.0.0.pre.alpha.8` once these changes ship in a release. See
+`lib/relaton/jcgm/CLAUDE.md`.
+
 ## Testing
 
 Each flavor's specs live in `spec/<flavor>/` and run **self-contained** against

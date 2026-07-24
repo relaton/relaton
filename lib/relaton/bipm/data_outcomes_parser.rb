@@ -39,7 +39,7 @@ module Relaton::Bipm
     # Parse BIPM meeting and write them to YAML files
     #
     def parse
-      dirs = "cctf,cgpm,cipm,ccauv,ccem,ccl,ccm,ccpr,ccqm,ccri,cct,ccu,jcgm,jcrb"
+      dirs = "cctf,cgpm,cipm,ccauv,ccem,ccl,ccm,ccpr,ccqm,ccri,cct,ccu,jcrb"
       source_path = File.join "bipm-data-outcomes", "{#{dirs}}"
       Dir[source_path].each { |body_dir| fetch_body(body_dir) }
     end

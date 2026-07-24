@@ -25,6 +25,13 @@ RSpec.describe "Relaton Fetch" do
         Relaton::Cli.start(command)
       end
 
+      it "calls fetch for JCGM" do
+        expect(db).to receive(:fetch_std).with "JCGM 100:2008", nil, :relaton_jcgm, type: "JCGM"
+
+        command = ["fetch", "--type", "JCGM", "JCGM 100:2008"]
+        Relaton::Cli.start(command)
+      end
+
       it "ignore cache" do
         expect(db).to receive(:fetch).with "ISO 2146", nil, no_cache: true
 
@@ -190,7 +197,7 @@ RSpec.describe "Relaton Fetch" do
         io = double "IO"
         expect(io).to receive(:puts).with(
           "Recognised types: 3GPP, BIPM, BSI, CC, CCSDS, CEN, CIE, CN, DOI, " \
-          "ECMA, ETSI, IANA, IEC, IEEE, IETF, IHO, ISBN, ISO, ITU, JIS, NIST, OASIS, " \
+          "EASC, ECMA, ETSI, IANA, IEC, IEEE, IETF, IHO, ISBN, ISO, ITU, JCGM, JIS, NIST, OASIS, " \
           "OGC, OIML, OMG, PLATEAU, UN, W3C, XEP"
         )
         expect(IO).to receive(:new).with(kind_of(Integer), mode: "w:UTF-8").and_return io

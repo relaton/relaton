@@ -282,8 +282,8 @@ module Relaton
       def check_year(year, hit) # rubocop:disable Metrics/AbcSize
         pub = hit.pubid
         own_year = pub.date&.year.to_s
-        base_year = pub.base_identifier&.date&.year.to_s
-        if pub.base_identifier.nil?
+        base_year = pub.base&.date&.year.to_s
+        if pub.base.nil?
           own_year == year.to_s
         else
           base_year == year.to_s || own_year == year.to_s
@@ -383,7 +383,7 @@ module Relaton
         if pubid.is_a? String then pubid == query_pubid.to_s
         else
           pubid = pubid.dup
-          pubid.base_identifier = pubid.base_identifier.exclude(:date, :edition) if pubid.base_identifier
+          pubid.base = pubid.base.exclude(:date, :edition) if pubid.base
           normalize_compound_part(pubid.exclude(*excludings)) == no_year_ref
         end
       end

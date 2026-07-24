@@ -4,8 +4,6 @@ module Relaton
     # Relaton::Index::Type is a class for indexing Relaton files.
     #
     class Type
-      include IdNumber
-
       #
       # Initialize a new Relaton::Index::Type object
       #
@@ -124,8 +122,14 @@ module Relaton
         end
       end
 
+      # Narrowing key: the base *document's* number as a string. `#root` walks a
+      # supplement/amendment/corrigendum's `.base` chain to the origin (and
+      # returns self for a base document), so a document and all its wrappers
+      # share one key and cluster together. `.to_s` because the key is compared
+      # as a string (a pubid number Component is not `<`/`>`-comparable), and
+      # FileIO sorts the index by this exact same key so bsearch stays valid.
       def candidates_by_number(id)
-        target = get_id_number(id)
+        target = id.root.number.to_s
         left = bsearch_left(target)
         return [] unless left
 
@@ -135,13 +139,13 @@ module Relaton
 
       def bsearch_left(target)
         index.bsearch_index do |item|
-          get_id_number(item[:id]) >= target
+          item[:id].root.number.to_s >= target
         end
       end
 
       def bsearch_right(target)
         index.bsearch_index do |item|
-          get_id_number(item[:id]) > target
+          item[:id].root.number.to_s > target
         end || index.size
       end
 

@@ -7,7 +7,7 @@
 `Pubid::Ccsds::Identifier` kept in `@pubid`, while the lutaml `content` attribute
 stays a plain string for serialization. It implements the base class's abstract
 `remove_part!` / `remove_date!` / `to_all_parts!` by mutating the pubid graph
-(walking the `base_identifier` chain for supplements/corrigenda) and re-rendering
+(walking the `base` chain for supplements/corrigenda) and re-rendering
 via `refresh_content!`. Unparseable content falls back to the raw string. It is
 wired into `model/item.rb` (`attribute :docidentifier, Docidentifier`) so
 `from_xml`/`from_yaml` and `DataParser#parse_docidentifier` yield this class.

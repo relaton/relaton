@@ -13,7 +13,9 @@ module Relaton
       TECHNICAL_REPORTS_URL = "https://www.mlit.go.jp/plateau/_next/data/1.3.0/libraries/technical-reports.json".freeze
 
       def index
-        @index ||= Relaton::Index.find_or_create :plateau, file: "#{INDEXFILE}.yaml"
+        @index ||= Relaton::Index.find_or_create(
+          :plateau, file: "#{INDEXFILE}.yaml", pubid_class: ::Pubid::Plateau::Identifier
+        )
       end
 
       def log_error(msg)
@@ -123,8 +125,29 @@ module Relaton
         else
           File.write(file, serialize(item))
           @files << file
-          index.add_or_update id, file
+          pid = pubid id
+          if pid
+            index.add_or_update pid, file
+          else
+            Util.warn "Unparseable id `#{id}` was not indexed (#{file})", key: id
+          end
         end
+      end
+
+      # Parse a canonical PLATEAU docidentifier into a Pubid::Plateau::Identifier,
+      # or nil if pubid can't parse it or it doesn't round-trip through
+      # `from_hash(to_hash)` — so a single bad id never aborts the crawl or
+      # corrupts index-v2 (the read side rejects an index whose rows don't
+      # deserialize). The parser emits canonical ids, so this should not skip
+      # anything; the guard is defensive.
+      def pubid(id)
+        pid = ::Pubid::Plateau.parse id
+        hash = pid.to_hash
+        return nil unless ::Pubid::Plateau::Identifier.from_hash(hash).to_hash == hash
+
+        pid
+      rescue StandardError
+        nil
       end
 
       def file_name(id)

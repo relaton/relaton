@@ -1,5 +1,6 @@
 require "net/http"
 require "uri"
+require "pubid"
 require "relaton/index"
 require "relaton/iso"
 require_relative "version"
@@ -17,7 +18,7 @@ require_relative "plateau/processor"
 
 module Relaton
   module Plateau
-    INDEXFILE = "index-v1"
+    INDEXFILE = "index-v2"
 
     class Error < StandardError; end
 

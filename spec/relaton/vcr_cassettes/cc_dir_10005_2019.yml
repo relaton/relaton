@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 4E5A:140EC2:1B6F21:251F3A:6A511706
+      - C660:265B71:F7D6A:16C617:6A5ADB19
       Accept-Ranges:
       - bytes
       Date:
-      - Fri, 10 Jul 2026 16:09:09 GMT
+      - Sat, 18 Jul 2026 01:48:42 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-khef600069-IAD
+      - cache-pdk-kfty8610042-PDK
       X-Cache:
       - HIT
       X-Cache-Hits:
-      - '1'
+      - '0'
       X-Timer:
-      - S1783699750.683342,VS0,VE1
+      - S1784339322.088551,VS0,VE12
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -63,11 +63,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 6dd48e67be98251c030763c02b1fe95651a53b6b
+      - 1cf2818368aaacc042217ce907b0a5684b0d15f6
       Expires:
-      - Fri, 10 Jul 2026 16:14:09 GMT
+      - Sat, 18 Jul 2026 01:53:42 GMT
       Source-Age:
-      - '176'
+      - '96'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -108,7 +108,7 @@ http_interactions:
         0Sci17yMvxLxp3XmT+v8n2fu31BLAQIeAxQAAAAIANp53Fw2o5EBxgUAAAIq
         AAANABgAAAAAAAEAAACkgQAAAABpbmRleC12MS55YW1sVVQFAANrOkFqdXgL
         AAEE6QMAAATpAwAAUEsFBgAAAAABAAEAUwAAAA0GAAAAAA==
-  recorded_at: Fri, 10 Jul 2026 16:09:09 GMT
+  recorded_at: Sat, 18 Jul 2026 01:48:42 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-calconnect/refs/heads/v2/data/cc-dir-10005-2019.yaml
@@ -156,23 +156,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 8F62:1FBFAE:2072C:2D759:6A5114E4
+      - DC3C:1EDE18:96B9E:E8B92:6A5ADB1A
       Content-Encoding:
       - gzip
       Accept-Ranges:
       - bytes
       Date:
-      - Fri, 10 Jul 2026 16:09:09 GMT
+      - Sat, 18 Jul 2026 01:48:42 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200132-IAD
+      - cache-pdk-kpdk2140069-PDK
       X-Cache:
       - HIT
       X-Cache-Hits:
-      - '1'
+      - '0'
       X-Timer:
-      - S1783699750.820556,VS0,VE25
+      - S1784339322.218111,VS0,VE5
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -180,11 +180,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 56d1f2fa6e9b63a839a4ec4451218435a1efcbaf
+      - 8838172fcbfda20311bb242b41e50b864baddc89
       Expires:
-      - Fri, 10 Jul 2026 16:14:09 GMT
+      - Sat, 18 Jul 2026 01:53:42 GMT
       Source-Age:
-      - '0'
+      - '96'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -198,5 +198,5 @@ http_interactions:
         DKh6S0oO+e7kPsy21fctBzVtl6/jrMzEVtVjK26+17WjfINbum4xvrzIwK/c
         x3mKrPzUXRxcifYiKDeePXV9QrbemYtKFsO82VjL6Pw+F/xrkcdsv0NycP/z
         lacHHnBh0woTiWwajwutEsDtv7WsyTMlLbEL7SAXbikoJf4CQzY5H/ADAAA=
-  recorded_at: Fri, 10 Jul 2026 16:09:09 GMT
+  recorded_at: Sat, 18 Jul 2026 01:48:42 GMT
 recorded_with: VCR 6.4.0

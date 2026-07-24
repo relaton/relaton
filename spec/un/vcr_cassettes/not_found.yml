@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://documents.un.org/api/search?l=en&rid=5aa49d63-d434-497e-94ad-3cefd9415418
+    uri: https://documents.un.org/api/search?l=en&rid=fba5ae52-922e-45c2-ac62-e372fe89baa3
     body:
       encoding: UTF-8
       string: '{"symbol":"NOT/FOUND","jobNumber":"","publicationDate":"* TO *","releaseDate":"*
@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 10 Jul 2026 16:09:00 GMT
+      - Sat, 18 Jul 2026 01:48:38 GMT
       Content-Type:
       - application/json; charset=utf-8
       Content-Length:
@@ -35,8 +35,8 @@ http_interactions:
       Connection:
       - keep-alive
       Set-Cookie:
-      - ApplicationGatewayAffinity=fcab984b2cd86506625dfffd104962c5; Path=/
-      - ApplicationGatewayAffinityCORS=fcab984b2cd86506625dfffd104962c5; Path=/; SameSite=None;
+      - ApplicationGatewayAffinity=2fdec65b0e7dbe77896661d035ce3ceb; Path=/
+      - ApplicationGatewayAffinityCORS=2fdec65b0e7dbe77896661d035ce3ceb; Path=/; SameSite=None;
         Secure
       Server:
       - nginx
@@ -79,5 +79,5 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"status":1,"body":{"data":[],"meta":{"matches":0,"numberOfGroups":0}}}'
-  recorded_at: Fri, 10 Jul 2026 16:09:00 GMT
+  recorded_at: Sat, 18 Jul 2026 01:48:38 GMT
 recorded_with: VCR 6.4.0

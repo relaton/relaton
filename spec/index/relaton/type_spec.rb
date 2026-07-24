@@ -142,6 +142,37 @@ describe Relaton::Index::Type do
         end
       end
 
+      # The narrowing key is the base *document's* number (`id.root.number`),
+      # not the id's own number. A supplement/amendment/corrigendum (own number
+      # differs from its origin) must cluster with — and be reachable from — its
+      # base document. If the key used the id's own number, `supp` below would
+      # sort under "2" and fall outside the "9001" candidate window.
+      context "with a supplement whose root document differs from its own number" do
+        let(:doc)  { TestIdentifier.create(number: 9001, publisher: "ISO") }
+        let(:supp) { TestIdentifier.create(number: 2, publisher: "ISO").tap { |s| s.root = doc } }
+        let(:other) { TestIdentifier.create(number: 9002, publisher: "ISO") }
+
+        before do
+          # Sorted by root.number.to_s: doc/supp -> "9001", other -> "9002".
+          subject.instance_variable_set(:@index, [
+                                          { id: doc, file: "doc" },
+                                          { id: supp, file: "supp" },
+                                          { id: other, file: "other" },
+                                        ])
+          subject.instance_variable_get(:@file_io).sorted = true
+        end
+
+        it "narrows a search for the document to include the supplement, not the other document" do
+          yielded = []
+          subject.search(doc) do |i|
+            yielded << i
+            false
+          end
+          expect(yielded).to contain_exactly({ id: doc, file: "doc" },
+                                             { id: supp, file: "supp" })
+        end
+      end
+
       context "when index is unsorted" do
         before do
           unsorted_data = [
