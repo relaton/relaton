@@ -61,33 +61,31 @@ module Relaton
         @array = [hit]
       end
 
-      # Parse the reference into a Pubid::Itu identifier for the index lookup,
-      # falling back to the raw reference string if pubid can't parse it (e.g. an
-      # `ITU-R RR` Radio Regulations form) so the substring search still runs.
+      # Parse the reference into a Pubid::Itu identifier for the index lookup. A
+      # ref pubid can't parse raises (a `Pubid`/`Parslet` error) and propagates to
+      # the caller (relaton-cli / API callers rescue it), mirroring the ETSI
+      # flavor — the consumer no longer degrades to a raw-string substring search.
       #
-      # @return [::Pubid::Itu::Identifier, String]
+      # @return [::Pubid::Itu::Identifier]
       def pubid_ref
         ::Pubid::Itu.parse ref.to_ref
-      rescue StandardError
-        ref.to_ref
       end
 
       # Does an index row's id match the reference? When the reference omits the
       # part/edition (a bare `ITU-R P.838`), every edition of that exact document
       # matches — "search all parts"; when it names a part (`ITU-R P.838-2`), only
-      # that edition matches. Anchoring on the `-` part separator is what keeps a
-      # bare `ITU-R M.1` from also matching `ITU-R M.10` (a different document)
-      # the way a plain substring would, and distinguishes `-1` from `-10`.
-      # Compares rendered ids, so it works for both `Pubid::Itu` objects (the
-      # deserialized index) and plain strings (search doubles / an unparseable ref).
+      # that edition matches. Delegates to pubid's structured `matches?`, ignoring
+      # `:parts` only when the reference omits the part — so a bare `ITU-R M.1`
+      # does not match `ITU-R M.10` (a different document number) and `-1` differs
+      # from `-10`, without the local `-`-separator anchor. Mirrors the ETSI
+      # flavor's `Bibliography#best_match`. Both ids are `Pubid::Itu` identifiers.
       #
-      # @param pubid [::Pubid::Itu::Identifier, String] the reference
-      # @param id [::Pubid::Itu::Identifier, String] an index row's id
+      # @param pubid [::Pubid::Itu::Identifier] the reference
+      # @param id [::Pubid::Itu::Identifier] an index row's id
       # @return [Boolean]
       def part_match?(pubid, id)
-        needle = pubid.to_s
-        rendered = id.to_s
-        rendered == needle || rendered.start_with?("#{needle}-")
+        ignore = pubid.code&.parts.to_a.empty? ? %i[parts] : []
+        pubid.matches?(id, ignore: ignore)
       end
 
       # @return [String]
