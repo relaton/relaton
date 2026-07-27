@@ -122,16 +122,17 @@ RSpec.describe Relaton::Itu::HitCollection do
   describe "#part_match? (search all parts when the reference omits the part)" do
     subject(:collection) { described_class.new(Relaton::Itu::Pubid.parse("ITU-R P.838")) }
 
+    # Both the reference and the index row are Pubid::Itu identifiers — pubid's
+    # `matches?` compares structured ids, so the row (deserialized index) is a
+    # pubid object, not a string.
     def match?(ref, id)
-      collection.send(:part_match?, ::Pubid::Itu.parse(ref), id)
+      collection.send(:part_match?, ::Pubid::Itu.parse(ref), ::Pubid::Itu.parse(id))
     end
 
     context "part-less reference matches every edition of that exact document" do
       it { expect(match?("ITU-R P.838", "ITU-R P.838")).to be true }
       it { expect(match?("ITU-R P.838", "ITU-R P.838-0")).to be true }
       it { expect(match?("ITU-R P.838", "ITU-R P.838-3")).to be true }
-      # deserialized index rows are Pubid::Itu objects, not strings
-      it { expect(match?("ITU-R P.838", ::Pubid::Itu.parse("ITU-R P.838-3"))).to be true }
     end
 
     context "does not over-match a different document number" do

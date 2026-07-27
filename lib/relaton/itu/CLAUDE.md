@@ -24,8 +24,8 @@ No separate lint command is configured; RuboCop can be run via `bundle exec rubo
 
 The codebase is migrating from flat `RelatonItu` namespace (`lib/relaton_itu/`) to nested `Relaton::Itu` (`lib/relaton/itu/`). Both namespaces coexist:
 
-- **`lib/relaton/itu/`** — New namespace. Model classes, DataFetcher, DataParserR, Processor, Util, Version are here.
-- **`lib/relaton_itu/`** — Old namespace. ItuBibliography, XMLParser, ItuBibliographicItem, HitCollection, and others still live here.
+- **`lib/relaton/itu/`** — New namespace. Model classes, DataFetcher, DataParserR, Processor, Bibliography, HitCollection, Util, Version are here.
+- **`lib/relaton_itu/`** — Old namespace. ItuBibliography, XMLParser, ItuBibliographicItem, and others still live here.
 
 The `Processor` class (`Relaton::Itu::Processor`) bridges both: it lives in the new namespace but calls old-namespace classes (`::RelatonItu::ItuBibliography`, `::RelatonItu::XMLParser`, etc.) for functionality not yet migrated.
 
@@ -57,10 +57,11 @@ serialized to its `_type: pubid:itu:{recommendation,handbook,question,…}` hash
 **flat, compact** shape (scalar `sector`/`series`/`number`/`parts` directly under
 `_type`, e.g. `sector: R`, `number: '600'`, `parts: ['1']`) that the published
 `relaton-data-itu-r` index-v2 carries. That flat shape + the handbook/question
-identifier types live on the pubid `feat/itu-questions-handbooks` branch, which the
-root `Gemfile` **temporarily pins** (see the pubid-pin note there) — it is the same
-pubid that built the published index, so the flavor deserializes it (a mismatched
-pubid produces the older nested shape and `Relaton::Index` rejects the whole index).
+identifier types (and pubid #290's `matches?`/`exclude` fix) live on pubid `main`,
+which the root `Gemfile` **temporarily pins** (see the pubid-pin note there) — it is
+the same pubid that built the published index, so the flavor deserializes it (a
+mismatched pubid produces the older nested shape and `Relaton::Index` rejects the
+whole index).
 The wiring mirrors NIST/ETSI/CIE:
 
 - **Producer** (`DataFetcher`): `#index` calls `find_or_create(:itu, file:
@@ -82,16 +83,20 @@ The wiring mirrors NIST/ETSI/CIE:
 - **Consumer** (`HitCollection#request_document`): `find_or_create(:itu, url:
   "#{GH_ITU_R}#{INDEXFILE}.zip", file:, pubid_class: ::Pubid::Itu::Identifier)`,
   then `index.search(pubid) { |i| part_match?(pubid, i[:id]) }`. The reference is
-  parsed to a `::Pubid::Itu::Identifier` (string fallback via `#pubid_ref`) and
-  passed as a pubid (not a String) so `Relaton::Index` narrows by document number
-  (`id.root.number`) before the block. `#part_match?` then matches **every edition
-  when the reference omits the part** (a bare `ITU-R P.838` → all `P.838-N`) and the
-  exact edition when it names one — anchored on the `-` part separator, so a bare
-  `ITU-R M.1` does **not** also match `ITU-R M.10` (nor `-1` match `-10`) the way a
-  plain substring would. (pubid's own `matches?(ignore:)` is currently broken for
-  ITU — `exclude` reconstructs via `self.class.new` and hits a Ruby-3 kwargs
-  `ArgumentError` — hence the local anchored match rather than the ETSI
-  `ignore: :part` form.) `max_by { |i| i[:id].code&.parts&.last.to_i }` then returns
+  parsed to a `::Pubid::Itu::Identifier` by `#pubid_ref` (a ref pubid can't parse
+  **raises** and propagates to the caller — relaton-cli / API callers rescue it —
+  mirroring ETSI; the consumer no longer degrades to a raw-string substring
+  search) and passed as a pubid (not a String) so `Relaton::Index` narrows by
+  document number (`id.root.number`) before the block. `#part_match?` delegates to
+  pubid's structured `pubid.matches?(id, ignore:)`, ignoring `:parts` **only when
+  the reference omits the part** — so a bare `ITU-R P.838` matches **every edition**
+  (all `P.838-N`) while `ITU-R P.838-2` matches only that edition, and a bare
+  `ITU-R M.1` does **not** match `ITU-R M.10` (a different document number, nor
+  `-1` match `-10`) because pubid compares structured ids, not a `-`-anchored
+  string. This mirrors the ETSI flavor's `Bibliography#best_match`; it works now
+  that pubid #290 fixed `Pubid::Itu::Identifier#matches?`/`#exclude` (previously an
+  `exclude`→`self.class.new` kwargs `ArgumentError`), replacing the earlier local
+  anchored-`-` stopgap. `max_by { |i| i[:id].code&.parts&.last.to_i }` then returns
   the latest edition by its numeric `code.parts` edition (pubid identifiers aren't
   Comparable, so a numeric key is needed; the index isn't ordered by edition).
 - **Processor** `#remove_index_file` passes the same `pubid_class:`.
