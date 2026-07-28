@@ -7,7 +7,7 @@ RSpec.describe Relaton::Plateau::Bibliography do
   context "get" do
     it "handbook", vcr: "handbook" do
       file = "fixtures/handbook.xml"
-      bib = described_class.get("PLATEAU Handbook #00 1.0")
+      bib = described_class.get("PLATEAU Handbook #00 第1.0版")
       xml = bib.to_xml
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
       expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
@@ -34,18 +34,27 @@ RSpec.describe Relaton::Plateau::Bibliography do
       expect(bib.docidentifier[0].content).to eq "PLATEAU Handbook #00"
       expect(bib.relation.size).to be > 1
       expect(bib.relation[0].type).to eq "hasEdition"
-      expect(bib.relation[0].bibitem.docidentifier[0].content).to match(/PLATEAU Handbook #00 \d+\.\d+/)
+      expect(bib.relation[0].bibitem.docidentifier[0].content).to match(/PLATEAU Handbook #00 第[\d.]+版/)
     end
 
     it "Technical Report all editions", vcr: "technical_report_all_editions" do
       bib = described_class.get("PLATEAU Technical Report #00")
-      expect(bib.docidentifier[0].content).to eq "PLATEAU Technical Report #00 1.0"
+      expect(bib.docidentifier[0].content).to eq "PLATEAU Technical Report #00"
       expect(bib.relation.size).to eq 0
     end
 
     it "raise error" do
       expect(described_class).to receive(:search).and_raise(StandardError)
       expect { described_class.get("PLATEAU Handbook #00 1.0") }.to raise_error Relaton::Plateau::Error
+    end
+
+    # "Accept both" — a legacy Latin reference resolves to the same canonical
+    # record as the canonical query, via Pubid::Plateau's Latin-input parsing
+    # (metanorma/pubid #269). The fetched document carries the canonical id.
+    it "resolves a legacy Latin reference to the canonical record", vcr: "handbook" do
+      bib = described_class.get("PLATEAU Handbook #00 1.0")
+      expect(bib).not_to be_nil
+      expect(bib.docidentifier.first.content).to eq "PLATEAU Handbook #00 第1.0版"
     end
   end
 end

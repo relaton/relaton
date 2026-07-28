@@ -101,11 +101,21 @@ describe Relaton::Etsi::DataFetcher do
       expect(hash["Scope"]).to eq "S"
     end
 
-    it "#save" do
-      expect(File).to receive(:write).with("dir/etsi-a-12-ed-1-2019-10.xml", kind_of(String), encoding: "UTF-8")
-      expect(subject.index).to receive(:add_or_update).with(
-        "ETSI A/12 ed.1 (2019-10)", "dir/etsi-a-12-ed-1-2019-10.xml"
-      )
+    it "#save indexes the parsed pubid object" do
+      did = Relaton::Bib::Docidentifier.new type: "ETSI", content: "ETSI EN 300 175-1 V2.1.1 (2001-08)"
+      bib = Relaton::Bib::ItemData.new docidentifier: [did]
+      file = "dir/etsi-en-300-175-1-v2-1-1-2001-08.xml"
+      expect(File).to receive(:write).with(file, kind_of(String), encoding: "UTF-8")
+      expect(subject.index).to receive(:add_or_update)
+        .with(kind_of(::Pubid::Etsi::Identifier), file)
+      subject.save bib
+    end
+
+    it "#save skips an id pubid can't parse (no write, no index entry)" do
+      # "ETSI A/12 ed.1 (2019-10)" has no valid ETSI type token, so it must be
+      # skipped whole rather than corrupt the index.
+      expect(File).not_to receive(:write)
+      expect(subject.index).not_to receive(:add_or_update)
       subject.save item
     end
 

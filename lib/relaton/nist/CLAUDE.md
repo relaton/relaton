@@ -66,6 +66,54 @@ All data models inherit from `Lutaml::Model::Serializable` and use declarative a
 - `Scraper` — fetches items from GitHub YAML or CSRC JSON
 - `PubsExport` — singleton; caches CSRC pubs-export zip with thread-safe daily updates
 
+### Pubid-backed docidentifier
+
+`Relaton::Nist::Docidentifier` (`docidentifier.rb`, `< Bib::Docidentifier`,
+declared flat like the rest of the NIST models) parses its `content` into a
+`Pubid::Nist::Identifier` kept in `@pubid`, while the lutaml `content` attribute
+stays a plain string for serialization. It implements the base class's abstract
+`remove_part!` / `remove_date!` / `to_all_parts!` (plus a NIST `remove_stage!`)
+by mutating the pubid graph and re-rendering via `refresh_content!`, so NIST
+items no longer raise `NotImplementedError` on the `Bib::ItemData#to_all_parts!`
+/ `#remove_date!` paths. It is wired into `item.rb`
+(`attribute :docidentifier, Docidentifier, collection: true`) and into
+`item_base.rb` (`Nist::ItemBase`, the nested bibitem used inside `Relation`), so
+relation cross-reference ids are pubid-backed too — mirroring
+`iso/model/item_base.rb` / `iec/model/item_base.rb`. `ModsParser` and `Scraper`
+build **every** docid (primary NIST id, DOI, and relation cross-refs) as this
+class. Mirrors `lib/relaton/iec/model/docidentifier.rb` and
+`lib/relaton/ccsds/model/docidentifier.rb`.
+
+NIST-specific gotchas (why this isn't a straight copy of IEC/CCSDS):
+
+- **Adopt-on-round-trip, not a `type` gate.** A NIST DOI such as
+  `NIST.SP.800-162` is itself a valid NIST pubid in dotted MR form whose `:human`
+  render is `NIST SP 800-162` — so blindly parsing it would rewrite the DOI.
+  `content=` therefore keeps the parsed pubid **only when
+  `pubid.to_s(:human) == content`**; otherwise the raw string is preserved.
+  A `type == "NIST"` gate looks tempting but breaks: lutaml applies setters in
+  attribute-declaration order (`content` before `type`), so on `from_yaml` the
+  gate sees `type == nil`, drops the pubid, and the mutators silently no-op on
+  YAML-loaded items. The round-trip test is type/order-independent.
+- **Uniform collection type.** The `docidentifier` collection is typed
+  `Nist::Docidentifier`, and lutaml's **YAML/JSON** serializer strictly rejects a
+  parent `Bib::Docidentifier` instance in that slot (`IncorrectModelError`) —
+  which would crash the YAML-default `DataFetcher` crawler on nearly every
+  DOI-bearing record (XML tolerates it, which is why it hides in XML specs). So
+  the DOI is a `Nist::Docidentifier` too (kept raw via the round-trip rule), not
+  a `Bib::Docidentifier`.
+- **The date lives in the `edition` component.** NIST has no `:date` attribute;
+  a year is carried as the edition id (`FIPS 46e1977`) or its trailing
+  `additional_text` (`NBS CIRC 11e2.1915`), and the scalar `year`/`edition_year`
+  fields are nil on the common parse paths. `remove_date!` clears the scalar
+  fields *and* strips a 4-digit-year edition/`additional_text`, while preserving
+  numbered editions/revisions (`e2`, `r5`). Dates that ride the `update`
+  component (some NBS supplements) are left intact — `update` also encodes
+  non-date update codes (`/Upd2`), so stripping it would corrupt identity.
+- **No `(all parts)` rendering.** pubid-nist never emits an all-parts marker, so
+  `to_all_parts!` sets the `all_parts` flag as an invisible no-op and the
+  part-stripped id is the best available rendering, matching IEC/CCSDS.
+
 ### Serialization Round-Trip Pattern
 
 Models support `from_xml`/`to_xml` and `from_yaml`/`to_yaml`. Tests verify round-trip fidelity by parsing a fixture, re-serializing, and comparing output to input.

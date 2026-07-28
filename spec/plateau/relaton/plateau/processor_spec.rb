@@ -42,7 +42,8 @@ RSpec.describe Relaton::Plateau::Processor do
   it "remove_index_file" do
     index = double("index")
     expect(Relaton::Index).to receive(:find_or_create).with(
-      :plateau, url: true, file: "index-v1.yaml"
+      :plateau, url: true, file: "index-v2.yaml",
+      pubid_class: ::Pubid::Plateau::Identifier
     ).and_return index
     expect(index).to receive(:remove_file)
     subject.remove_index_file

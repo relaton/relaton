@@ -37,8 +37,18 @@ module Relaton
 
       def request_document # rubocop:todo Metrics/MethodLength, Metrics/AbcSize
         Util.info "Fetching from Relaton repository ...", key: ref.to_s
-        index = Relaton::Index.find_or_create :itu, url: "#{GH_ITU_R}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml"
-        row = index.search(ref.to_ref).max_by { |i| i[:id] }
+        index = Relaton::Index.find_or_create :itu, url: "#{GH_ITU_R}#{INDEXFILE}.zip",
+                                                     file: "#{INDEXFILE}.yaml",
+                                                     pubid_class: ::Pubid::Itu::Identifier
+        # Pass the reference's parsed pubid (not a String) so Relaton::Index can
+        # narrow candidates by document number before the block; `part_match?`
+        # then matches every edition when the reference omits the part and the
+        # exact edition when it names one. Rows are Pubid::Itu objects (not
+        # Comparable), so rank by the numeric edition in `code.parts` (`["3"]` → 3)
+        # to return the latest — index order isn't by edition.
+        pubid = pubid_ref
+        row = index.search(pubid) { |i| part_match?(pubid, i[:id]) }
+          .max_by { |i| i[:id].code&.parts&.last.to_i }
         return unless row
 
         url = "#{GH_ITU_R}#{row[:file]}"
@@ -49,6 +59,33 @@ module Relaton
         hit = Hit.new({ url: url, ref: ref }, self)
         hit.item = item
         @array = [hit]
+      end
+
+      # Parse the reference into a Pubid::Itu identifier for the index lookup. A
+      # ref pubid can't parse raises (a `Pubid`/`Parslet` error) and propagates to
+      # the caller (relaton-cli / API callers rescue it), mirroring the ETSI
+      # flavor — the consumer no longer degrades to a raw-string substring search.
+      #
+      # @return [::Pubid::Itu::Identifier]
+      def pubid_ref
+        ::Pubid::Itu.parse ref.to_ref
+      end
+
+      # Does an index row's id match the reference? When the reference omits the
+      # part/edition (a bare `ITU-R P.838`), every edition of that exact document
+      # matches — "search all parts"; when it names a part (`ITU-R P.838-2`), only
+      # that edition matches. Delegates to pubid's structured `matches?`, ignoring
+      # `:parts` only when the reference omits the part — so a bare `ITU-R M.1`
+      # does not match `ITU-R M.10` (a different document number) and `-1` differs
+      # from `-10`, without the local `-`-separator anchor. Mirrors the ETSI
+      # flavor's `Bibliography#best_match`. Both ids are `Pubid::Itu` identifiers.
+      #
+      # @param pubid [::Pubid::Itu::Identifier] the reference
+      # @param id [::Pubid::Itu::Identifier] an index row's id
+      # @return [Boolean]
+      def part_match?(pubid, id)
+        ignore = pubid.code&.parts.to_a.empty? ? %i[parts] : []
+        pubid.matches?(id, ignore: ignore)
       end
 
       # @return [String]

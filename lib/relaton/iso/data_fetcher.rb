@@ -190,9 +190,9 @@ module Relaton
 
       def amend_base(ref)
         pubid = ::Pubid::Iso::Identifier.parse(ref)
-        return nil unless pubid.base_identifier
+        return nil unless pubid.base
 
-        pubid.base_identifier.to_s
+        pubid.base.to_s
       rescue StandardError
         nil
       end
@@ -284,7 +284,7 @@ module Relaton
       # is expected to parse; if one does not (`docid.pubid` is nil) record it
       # so `report_errors` raises a tracked GitHub issue at the end, and skip
       # the index entry rather than indexing a raw string (which would crash
-      # the index sort: `get_id_number` calls `.number` on the id). The data
+      # the index sort: it calls `.root.number` on the id). The data
       # file is still written, so the document is not lost — only unindexed
       # until its id parses.
       def index_primary(docid, file)

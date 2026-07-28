@@ -10,7 +10,14 @@ module Relaton
 
       def parse_docnumber
         @errors[:tr_docnumber] &&= @entry["slug"].nil? || @entry["slug"].to_s.empty?
-        "Technical Report ##{@entry["slug"]} #{edition_number}"
+        "Technical Report ##{canonical_slug}"
+      end
+
+      # Canonical sub-number separator is "-" (Pubid::Plateau); source slugs use
+      # "_" (e.g. "46_1" -> "46-1"). PLATEAU Technical Report ids carry no
+      # edition in canonical form, so #edition_number is not part of the id.
+      def canonical_slug
+        @entry["slug"].to_s.tr("_", "-")
       end
 
       def parse_abstract

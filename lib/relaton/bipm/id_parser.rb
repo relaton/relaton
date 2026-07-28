@@ -92,7 +92,7 @@ module Relaton
       #
       def parse(id)
         # str = StringScanner.new id
-        match = parse_outcome(id) || parse_brochure(id) || parse_metrologia(id) || parse_jcgm(id)
+        match = parse_outcome(id) || parse_brochure(id) || parse_metrologia(id)
         @id = match.named_captures.compact.transform_keys(&:to_sym)
         self
       rescue StandardError => e
@@ -167,9 +167,10 @@ module Relaton
         %r{^(?<group>Metrologia)(?:\s(?<number>[a-zA-Z0-9\s]+))?$}.match(id)
       end
 
-      def parse_jcgm(id)
-        %r{^#{group}\s#{number}(?::#{year})?(?:\s(?<corr>Corrigendum))?$}.match(id)
-      end
+      # NOTE: JCGM is no longer served by the BIPM flavor — it has its own
+      # `Relaton::Jcgm` flavor (pubid-backed, fetching from relaton-data-jcgm).
+      # The old `parse_jcgm` branch and the `JCGM` default-prefix entry were
+      # removed together with the `jcgm` harvest dir in data_outcomes_parser.
 
       # def parse_gorup_num(str)
       #   return unless group = parse_group(str)

@@ -6,8 +6,6 @@ module Relaton
     # In index mode url should be nil.
     #
     class FileIO
-      include IdNumber
-
       # Raised internally when a deserialized id cannot be parsed or is not
       # understood by the pubid class; `#load_index` rescues it to trigger the
       # wrong-structure handling (re-download, or stop and log).
@@ -152,11 +150,13 @@ module Relaton
         load_index(yaml) || []
       end
 
-      # Deserialize and sort by the same narrowing key Type#search bsearches
-      # on, so binary search always has a consistent total order. The published
-      # index is only approximately sorted (generated under pubid 1.x base
-      # semantics); merely detecting sortedness left bsearch disabled and every
-      # search a full O(n) scan. Sorting here is one-time per load.
+      # Deserialize and sort by the same narrowing key Type#search bsearches on
+      # — the base document's number, `id.root.number.to_s` (see
+      # Type#candidates_by_number) — so binary search always has a consistent
+      # total order. The published index is only approximately sorted (generated
+      # under pubid 1.x base semantics); merely detecting sortedness left bsearch
+      # disabled and every search a full O(n) scan. Sorting here is one-time per
+      # load.
       def deserialize_pubid(index)
         return index unless @pubid_class
 
@@ -164,7 +164,7 @@ module Relaton
           { id: deserialize_id(r[:id]), file: r[:file] }
         end
         warn_unless_sorted(deserialized)
-        deserialized.sort_by! { |r| get_id_number(r[:id]) }
+        deserialized.sort_by! { |r| r[:id].root.number.to_s }
         @sorted = true
         deserialized
       end
@@ -184,13 +184,13 @@ module Relaton
         raise InvalidIndexError, "unsupported id #{raw.inspect}"
       end
 
-      # Log when the loaded index is not already in get_id_number order, so the
+      # Log when the loaded index is not already in narrowing-key order, so the
       # in-memory sort above (and the underlying not-sorted index file) is
       # visible. Stops at the first out-of-order pair.
       def warn_unless_sorted(index)
         prev = nil
         index.each do |r|
-          num = get_id_number(r[:id])
+          num = r[:id].root.number.to_s
           if prev && prev > num
             Util.warn "Index file `#{file}` is not sorted by id number; " \
                       "sorting #{index.size} entries in memory.", progname
@@ -275,7 +275,7 @@ module Relaton
 
       def sort_structured_index(index)
         if @pubid_class && index.first&.dig(:id).is_a?(@pubid_class)
-          index.sort_by { |item| get_id_number item[:id] }
+          index.sort_by { |item| item[:id].root.number.to_s }
         else
           index
         end

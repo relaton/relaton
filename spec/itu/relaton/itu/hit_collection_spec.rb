@@ -7,7 +7,7 @@ RSpec.describe Relaton::Itu::HitCollection do
       subject(:collection) { described_class.new ref }
 
       before do
-        index = double("Index", search: [{ id: "ITU-R BO.600-1", file: "data/r.yaml" }])
+        index = double("Index", search: [{ id: ::Pubid::Itu.parse("ITU-R BO.600-1"), file: "data/r.yaml" }])
         allow(Relaton::Index).to receive(:find_or_create).and_return(index)
       end
 
@@ -50,7 +50,7 @@ RSpec.describe Relaton::Itu::HitCollection do
       subject(:collection) { described_class.new ref }
 
       it "fetches document from index" do
-        index = double("Index", search: [{ id: "ITU-R BO.600-1", file: "data/r.yaml" }])
+        index = double("Index", search: [{ id: ::Pubid::Itu.parse("ITU-R BO.600-1"), file: "data/r.yaml" }])
         allow(Relaton::Index).to receive(:find_or_create).and_return(index)
         item = double("Item", fetched: nil, "fetched=": nil)
         resp = double("Response", code: "200", body: "---\ntitle: test")
@@ -70,7 +70,7 @@ RSpec.describe Relaton::Itu::HitCollection do
       end
 
       it "returns empty when response is 404" do
-        index = double("Index", search: [{ id: "ITU-R BO.600-1", file: "data/r.yaml" }])
+        index = double("Index", search: [{ id: ::Pubid::Itu.parse("ITU-R BO.600-1"), file: "data/r.yaml" }])
         allow(Relaton::Index).to receive(:find_or_create).and_return(index)
         resp = double("Response", code: "404")
         allow_any_instance_of(Mechanize).to receive(:get).and_return(resp)
@@ -81,10 +81,10 @@ RSpec.describe Relaton::Itu::HitCollection do
 
       it "selects the latest version when multiple exist" do
         index = double("Index", search: [
-          { id: "ITU-R P.838-3", file: "data/itu-r-p-838-3.yaml" },
-          { id: "ITU-R P.838-2", file: "data/itu-r-p-838-2.yaml" },
-          { id: "ITU-R P.838-1", file: "data/itu-r-p-838-1.yaml" },
-          { id: "ITU-R P.838-0", file: "data/itu-r-p-838-0.yaml" },
+          { id: ::Pubid::Itu.parse("ITU-R P.838-3"), file: "data/itu-r-p-838-3.yaml" },
+          { id: ::Pubid::Itu.parse("ITU-R P.838-2"), file: "data/itu-r-p-838-2.yaml" },
+          { id: ::Pubid::Itu.parse("ITU-R P.838-1"), file: "data/itu-r-p-838-1.yaml" },
+          { id: ::Pubid::Itu.parse("ITU-R P.838-0"), file: "data/itu-r-p-838-0.yaml" },
         ])
         allow(Relaton::Index).to receive(:find_or_create).and_return(index)
         item = double("Item", fetched: nil, "fetched=": nil)
@@ -98,6 +98,55 @@ RSpec.describe Relaton::Itu::HitCollection do
         expect(col.size).to eq 1
         expect(col.first.hit[:url]).to include("itu-r-p-838-3.yaml")
       end
+
+      it "picks the latest revision when revisions reach double digits" do
+        # A lexical string compare would rank "-9" above "-19"; select by number.
+        index = double("Index", search: [
+          { id: ::Pubid::Itu.parse("ITU-R P.530-9"), file: "data/itu-r-p-530-9.yaml" },
+          { id: ::Pubid::Itu.parse("ITU-R P.530-19"), file: "data/itu-r-p-530-19.yaml" },
+          { id: ::Pubid::Itu.parse("ITU-R P.530-18"), file: "data/itu-r-p-530-18.yaml" },
+        ])
+        allow(Relaton::Index).to receive(:find_or_create).and_return(index)
+        item = double("Item", fetched: nil, "fetched=": nil)
+        resp = double("Response", code: "200", body: "---\ntitle: test")
+        allow_any_instance_of(Mechanize).to receive(:get).and_return(resp)
+        allow(Relaton::Itu::Item).to receive(:from_yaml).and_return(item)
+
+        col = described_class.new(Relaton::Itu::Pubid.parse("ITU-R P.530"))
+        expect { col.search }.to output(/Fetching from Relaton repository/).to_stderr_from_any_process
+        expect(col.first.hit[:url]).to include("itu-r-p-530-19.yaml")
+      end
+    end
+  end
+
+  describe "#part_match? (search all parts when the reference omits the part)" do
+    subject(:collection) { described_class.new(Relaton::Itu::Pubid.parse("ITU-R P.838")) }
+
+    # Both the reference and the index row are Pubid::Itu identifiers — pubid's
+    # `matches?` compares structured ids, so the row (deserialized index) is a
+    # pubid object, not a string.
+    def match?(ref, id)
+      collection.send(:part_match?, ::Pubid::Itu.parse(ref), ::Pubid::Itu.parse(id))
+    end
+
+    context "part-less reference matches every edition of that exact document" do
+      it { expect(match?("ITU-R P.838", "ITU-R P.838")).to be true }
+      it { expect(match?("ITU-R P.838", "ITU-R P.838-0")).to be true }
+      it { expect(match?("ITU-R P.838", "ITU-R P.838-3")).to be true }
+    end
+
+    context "does not over-match a different document number" do
+      # a plain substring `include?` would wrongly match all of these
+      it { expect(match?("ITU-R M.1", "ITU-R M.10")).to be false }
+      it { expect(match?("ITU-R M.1", "ITU-R M.100")).to be false }
+      it { expect(match?("ITU-R P.838", "ITU-R P.8380")).to be false }
+      it { expect(match?("ITU-R M.1", "ITU-R M.1-1")).to be true }
+    end
+
+    context "a reference that names a part matches only that edition" do
+      it { expect(match?("ITU-R P.838-2", "ITU-R P.838-2")).to be true }
+      it { expect(match?("ITU-R P.838-2", "ITU-R P.838-3")).to be false }
+      it { expect(match?("ITU-R P.838-1", "ITU-R P.838-10")).to be false }
     end
   end
 end

@@ -305,33 +305,7 @@ RSpec.describe Relaton::Bipm::Bibliography do
       end
     end
 
-    context "get static document" do
-      context "JCGM" do
-        it "JCGM 200:2012", vcr: "jcgm_200_2012" do
-          bib = Relaton::Bipm::Bibliography.get "JCGM 200:2012"
-          expect(bib.docidentifier[0].content).to eq "JCGM 200:2012"
-        end
-
-        it "JCGM GUM-6:2020", vcr: "jcgm_gum_6_2020" do
-          bib = Relaton::Bipm::Bibliography.get "JCGM GUM-6:2020"
-          expect(bib.docidentifier[0].content).to eq "JCGM GUM-6:2020"
-        end
-
-        it "JCGM GUM", vcr: "jcgm_gum" do
-          bib = Relaton::Bipm::Bibliography.get "JCGM GUM"
-          expect(bib.docidentifier[0].content).to eq "JCGM GUM"
-        end
-
-        it "JCGM VIM-3", vcr: "jcgm_vim_3" do
-          bib = Relaton::Bipm::Bibliography.get "JCGM VIM-3"
-          expect(bib.docidentifier[0].content).to eq "JCGM VIM-3"
-        end
-
-        it "JCGM 200:2008 Corrigendum", vcr: "jcgm_200_2008_corrigendum" do
-          bib = Relaton::Bipm::Bibliography.get "JCGM 200:2008 Corrigendum"
-          expect(bib.docidentifier[0].content).to eq "JCGM 200:2008 Corrigendum"
-        end
-      end
-    end
+    # JCGM retrieval moved to the dedicated `Relaton::Jcgm` flavor
+    # (spec/jcgm/); the BIPM flavor no longer serves JCGM documents.
   end
 end

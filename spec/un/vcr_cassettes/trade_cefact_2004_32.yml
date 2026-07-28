@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://documents.un.org/api/search?l=en&rid=03504540-6cc3-47d5-a707-20d455e1a01e
+    uri: https://documents.un.org/api/search?l=en&rid=704c847c-24a0-4096-989e-732f2c90cc31
     body:
       encoding: UTF-8
       string: '{"symbol":"TRADE/CEFACT/2004/32","jobNumber":"","publicationDate":"*
@@ -27,7 +27,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 10 Jul 2026 16:09:00 GMT
+      - Sat, 18 Jul 2026 01:48:37 GMT
       Content-Type:
       - application/json; charset=utf-8
       Content-Length:
@@ -82,5 +82,5 @@ http_interactions:
         REVIEW OF UN/LOCODE, 19 DECEMBER 2003 / SUBMITTED BY THE SECRETARIAT","subjects":["TRADE
         DATA INTERCHANGE","CODES","PORTS","TRANSPORT TERMINALS","TRADE FACILITATION","PROJECT
         EVALUATION","DATABASES","WEBSITES"]}],"meta":{"matches":1,"numberOfGroups":1}}}'
-  recorded_at: Fri, 10 Jul 2026 16:09:00 GMT
+  recorded_at: Sat, 18 Jul 2026 01:48:37 GMT
 recorded_with: VCR 6.4.0

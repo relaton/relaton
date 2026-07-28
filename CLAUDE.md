@@ -67,6 +67,27 @@ NameErrors on the cold path (reachable via `Db#fetch` → `Cache.grammar_hash` a
 flavor (3gpp → `ThreeGpp`). Referencing a flavor namespace before a `Db` is
 built loads it on demand. When adding a flavor, add an autoload line here.
 
+**SDO org/logo store (`Relaton::Sdo`).** A **non-flavor** lazy component
+(`lib/relaton/sdo/`, autoloaded like the flavors) that answers metanorma#346
+(central logo store) and relaton-db#132 (abbreviation → org name). Public entry
+point `Relaton.organization("ISO")` (delegates to `Sdo::Store.instance`, mirroring
+the `Relaton.prefix_flavor` idiom) returns an org with `name`/`name(lang)` and
+`logo_query`/`logo` over logo variants keyed by style/format/size. It has **no
+processor and no `Db::Registry` entry** — consistent with the scope note in
+`lib/relaton/db/CLAUDE.md` (org metadata stays out of the processors). It fetches
+a single `index.yaml` manifest from the `relaton-data-sdo` data repo and caches it
+under `~/.relaton/sdo` (reusing `Relaton::Index::FileStorage`). See
+`lib/relaton/sdo/CLAUDE.md`.
+
+**`Index::FileStorage#write` must be a binary write.** It caches raw `Net::HTTP`
+bodies, which are `ASCII-8BIT` strings; it uses `File.binwrite` (not
+`File.write(..., encoding: "UTF-8")`, which would *transcode* ASCII-8BIT→UTF-8 and
+raise `Encoding::UndefinedConversionError` on any non-ASCII byte — e.g. the `\xC3`
+in a French/Cyrillic org name). `read` decodes back as UTF-8, so a byte-verbatim
+write round-trips for both ASCII and UTF-8 content. This was latent until
+`Relaton::Sdo` cached the first index with non-ASCII names; don't reintroduce an
+`encoding:` transcode on write.
+
 **Single `VERSION`.** `lib/relaton/version.rb` defines `Relaton::VERSION` — the
 one version constant. There are **no** per-flavor `version.rb` files or
 `Relaton::<Flavor>::VERSION` constants anymore: since this is one gem they'd all
@@ -95,6 +116,19 @@ gem). Its `Gemfile.lock` is **gitignored** (untracked), so a clean checkout has
 none and `bundle install` regenerates a correct one. A leftover local lock with
 `remote: ../relaton-<flavor>` entries is monorepo-era rot — delete it and
 `bundle install` (that's what a stale `spec:cli` bundle-install failure means).
+
+**JCGM flavor & temporary pubid pin.** `Relaton::Jcgm` (`lib/relaton/jcgm/`) is a
+pubid-backed flavor split out of BIPM (JCGM records moved to their own
+`relaton-data-jcgm` repo, stored as `_type: pubid:jcgm:{guide,gum-guide,amendment,
+corrigendum,meeting}`). It needs the JCGM support (meetings, bare `GUM`/`VIM-N`
+guides, the `Corrigendum` type, and the flattened compact `to_hash`) that lives on
+pubid **`main`** but isn't in the released `2.0.0.pre.alpha.8` that
+`relaton.gemspec` pins — so the root `Gemfile` **temporarily pins** `pubid` to
+`git: …/pubid.git, branch: main`. This is the **same pubid that built the published
+`relaton-data-jcgm` index**, so the flavor deserializes it (an older/mismatched
+pubid would make `Relaton::Index` reject the whole index). Revert the pin to the
+released `pubid ~> 2.0.0.pre.alpha.8` once these changes ship in a release. See
+`lib/relaton/jcgm/CLAUDE.md`.
 
 ## Testing
 

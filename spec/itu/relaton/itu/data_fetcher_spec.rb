@@ -117,16 +117,49 @@ describe Relaton::Itu::DataFetcher do
         expect(File).to receive(:write).with("data/itu-r-m-1234.yaml", :content, encoding: "UTF-8")
       end
 
-      it do
+      it "writes the file and indexes the primary id" do
+        expect(subject).to receive(:index_primary).with("ITU-R M.1234", "data/itu-r-m-1234.yaml")
         subject.write_file bib
         expect(subject.instance_variable_get(:@files)).to eq Set["data/itu-r-m-1234.yaml"]
       end
 
       it "file exists" do
+        allow(subject).to receive(:index_primary)
         subject.instance_variable_set :@files, Set["data/itu-r-m-1234.yaml"]
         expect do
           subject.write_file bib
         end.to output(/File data\/itu-r-m-1234\.yaml exists./).to_stderr_from_any_process
+      end
+    end
+
+    context "#index_primary (unparseable id handling, mirrors ISO)" do
+      let(:index_double) { double("index") }
+
+      before { allow(subject).to receive(:index).and_return(index_double) }
+
+      it "indexes the parsed pubid" do
+        expect(index_double).to receive(:add_or_update)
+          .with(kind_of(::Pubid::Itu::Identifier), "data/itu-r-bo-600-1.yaml")
+        subject.send(:index_primary, "ITU-R BO.600-1", "data/itu-r-bo-600-1.yaml")
+        expect(subject.send(:unparseable_ids)).to be_empty
+      end
+
+      it "records an unparseable id instead of indexing a raw string" do
+        # ITU-R RR (Radio Regulations) is not modelled by pubid, so it must be
+        # recorded (and surfaced as a GitHub issue) rather than corrupt the index.
+        expect(index_double).not_to receive(:add_or_update)
+        subject.send(:index_primary, "ITU-R RR", "data/itu-r-rr.yaml")
+        expect(subject.send(:unparseable_ids))
+          .to eq([["ITU-R RR", "data/itu-r-rr.yaml"]])
+      end
+
+      it "reports recorded unparseable ids through the error machinery" do
+        subject.send(:unparseable_ids) << ["ITU-R RR", "f.yaml"]
+        allow(subject).to receive(:gh_issue)
+        allow(subject).to receive(:log_error)
+        subject.send(:report_errors)
+        expect(subject).to have_received(:log_error)
+          .with(%r{Unparseable primary id `ITU-R RR`.*f\.yaml})
       end
     end
 

@@ -20,7 +20,7 @@ bundle exec rake spec:update_index   # refresh the OIML index fixture from relat
 
 Namespace: `Relaton::Oiml`. Retrieval flow:
 
-1. **Bibliography** (`lib/relaton/oiml/bibliography.rb`) — `get(code, year)` / `search`; parses the reference with `Pubid::Oiml.parse`, looks it up in the index, and fetches the matching YAML.
+1. **Bibliography** (`lib/relaton/oiml/bibliography.rb`) — `get(code, year)` / `search`; parses the reference with `Pubid::Oiml.parse`, looks it up in the index, and fetches the matching YAML. `get` suppresses the edition year for an **undated** citation (mirroring ISO): when the reference carries no year (and `opts[:keep_year]` is not set) it returns `item.to_most_recent_reference`, so `OIML B 18` renders undated, while a dated citation (`OIML B 18:2022`, or an explicit `year`) still pins that edition. This relies on `Oiml::Docidentifier#remove_date!` refreshing `content` from the dateless pubid — mutating the wrapped `@pubid` alone leaves the rendered `content` dated (issue #72).
 2. **Index** — `Relaton::Index.find_or_create(:oiml, url: ..., pubid_class: Pubid::Oiml::Identifier)`; matches by pubid then filters by year/language (`pubid_match?`). `INDEXFILE` is defined in `lib/relaton/oiml.rb`.
 3. **Item / ItemData / Ext** (`item.rb`, `item_data.rb`, `ext.rb`) — `Item` extends `Bib::Item`; `Ext` carries OIML-specific fields (scope, quantity, measuring_instrument, focus_area, sustainability_framework, doi). `Item.from_yaml` deserializes the fetched document.
 4. **Processor** (`lib/relaton/oiml/processor.rb`) — registry integration; `@prefix = "OIML"`, `@defaultprefix = %r{^OIML\s}`. Lazy-`require_relative`s `../oiml` in its methods, including `remove_index_file`.

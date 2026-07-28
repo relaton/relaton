@@ -420,6 +420,56 @@ db.load_entry("ISO(ISO 19011)")
 => nil
 ----
 
+== Organization metadata
+
+Besides bibliographic references, Relaton exposes a lightweight store of
+standards-development-organization (SDO) metadata: an organization's names (with
+translations) and its logos. This is a separate, non-flavor concern -- it does
+not go through `Relaton::Db` -- reached through the top-level
+`Relaton.organization` method.
+
+The data (names, translations and logo variants) is served as an `index.yaml`
+manifest by the https://github.com/relaton/relaton-data-sdo[`relaton-data-sdo`]
+data repository, downloaded on first use and cached under `~/.relaton/sdo`.
+
+[source,ruby]
+----
+org = Relaton.organization("ISO")   # case-insensitive; nil if unknown
+
+# Names (relaton-db#132) -- default, or a translation by language code
+# (passed positionally or as the language: keyword)
+org.name                   # => "International Organization for Standardization"
+org.name("fr")             # => "Organisation internationale de normalisation"
+org.name(language: "fr")   # => "Organisation internationale de normalisation"
+
+# Logos (metanorma#346). A single organization can have several logo variants,
+# distinguished by style (the primary discriminator), format and size.
+# All arguments are optional; omitting one matches any value.
+org.logo_query(format: "eps", size: "700x300", style: "default")
+# => [#<Relaton::Sdo::Logo style="default" format="eps" size="700x300" url=...>, ...]
+
+org.logo_query   # => every logo variant for the organization
+
+# Fetch one logo. Returns nil if nothing matches, the sole match if one does,
+# and raises Relaton::Sdo::Error if the filter is ambiguous.
+logo = org.logo(format: "eps", style: "default")
+logo.content    # raw binary content (fetched lazily, memoized)
+logo.data_uri   # "data:application/postscript;base64,..."  -- ready to embed
+logo.save                 # write to a filename derived from the URL; returns the path
+logo.save("/tmp/iso.eps") # ...or to a custom path
+----
+
+The store is configurable -- the manifest URL, the cache directory, a swappable
+storage backend (e.g. an S3-backed object), and the cache TTL:
+
+[source,ruby]
+----
+Relaton::Sdo.configure do |config|
+  config.url         = "https://example.org/my-index.yaml"
+  config.storage_dir = "/var/cache/relaton-sdo"
+end
+----
+
 == Layout
 
 ----
@@ -430,6 +480,7 @@ lib/
     ├── version.rb       # Relaton::VERSION — the single source of truth
     ├── db.rb, db/       # Relaton::Db: registry, cache, workers pool
     ├── core/ bib/ index/ logger/   # shared infrastructure
+    ├── sdo/             # Relaton.organization: SDO org/logo store (non-flavor)
     └── iso/ iec/ ietf/ … 3gpp/     # ~29 flavor plugins
 spec/<flavor>/           # each flavor's spec suite
 grammar/                 # shared RelaxNG test schemas (test-only, not shipped)

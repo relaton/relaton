@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '2699'
+      - '2698'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"4263fa69d4d2d40522f7d5f86951755e6daacdf32fec3a3ebd58ade71723552e"
+      - W/"fe623451a8f91ef1e95851e0ff91ed3ed0dcfada5bf73aa92d770981ba6ba3c9"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,21 +41,21 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 64A6:C5701:F19BB:142C43:6A512F1C
+      - 79D4:30CAA7:CC0C0:158B1F:6A5ADBCD
       Accept-Ranges:
       - bytes
       Date:
-      - Fri, 10 Jul 2026 17:42:55 GMT
+      - Sat, 18 Jul 2026 01:50:12 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-pdk-kfty8610081-PDK
+      - cache-pdk-kpdk2140044-PDK
       X-Cache:
       - HIT
       X-Cache-Hits:
       - '1'
       X-Timer:
-      - S1783705375.189382,VS0,VE2
+      - S1784339413.983856,VS0,VE3
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -63,11 +63,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 66287d23cd5e0dcb2228d31daa06413d3688483a
+      - 441509c2f6e6364f0e478c1be7124fce849fa2bd
       Expires:
-      - Fri, 10 Jul 2026 17:47:55 GMT
+      - Sat, 18 Jul 2026 01:55:12 GMT
       Source-Age:
-      - '3'
+      - '6'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -130,6 +130,6 @@ http_interactions:
         bmN5IHJlcG9ydDsgTklTVCBpbnRlcm5hbCByZXBvcnQKICBudW1iZXI6ICc4
         MjAwJwpwbGFjZToKLSBjaXR5OiBHYWl0aGVyc2J1cmcKICByZWdpb246CiAg
         LSBpc286IE1ECmV4dDoKICBzY2hlbWFfdmVyc2lvbjogdjEuMS4yCiAgZG9j
-        dHlwZToKICAgIGNvbnRlbnQ6IHN0YW5kYXJkCiAgZmxhdm9yOiBuaWxzdAo=
-  recorded_at: Fri, 10 Jul 2026 17:42:55 GMT
+        dHlwZToKICAgIGNvbnRlbnQ6IHN0YW5kYXJkCiAgZmxhdm9yOiBuaXN0Cg==
+  recorded_at: Sat, 18 Jul 2026 01:50:12 GMT
 recorded_with: VCR 6.4.0

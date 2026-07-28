@@ -57,14 +57,53 @@ All code lives in `lib/relaton/plateau/`. The gem uses LutaML::Model::Serializab
 ### Data Sources
 - Handbooks: `https://www.mlit.go.jp/plateau/_next/data/1.3.0/libraries/handbooks.json`
 - Technical Reports: `https://www.mlit.go.jp/plateau/_next/data/1.3.0/libraries/technical-reports.json`
-- Pre-fetched index: `https://raw.githubusercontent.com/relaton/relaton-data-plateau/data-v2/`
+- Pre-fetched index: `https://raw.githubusercontent.com/relaton/relaton-data-plateau/v2/` (`HitCollection::ENDPOINT`)
+
+### Pubid-backed index (index-v2)
+
+The index is **pubid-structured** (`_type: pubid:plateau:*` rows), mirroring
+NIST/CIE. All three `Relaton::Index.find_or_create` call sites
+(`data_fetcher.rb`, `hit_collection.rb`, `processor.rb`) pass
+`pubid_class: ::Pubid::Plateau::Identifier`, and `INDEXFILE = "index-v2"`.
+
+**Ids are pubid-canonical.** The parsers emit the form `Pubid::Plateau.parse`
+accepts, which also matches the MLIT source:
+- Handbook: `PLATEAU Handbook #NN 第X.Y版` (Japanese edition label — the parser
+  keeps the source `第X.Y版`; the Latinized `#edition` is retained only for the
+  structured `Bib::Edition`/`ext` fields).
+- Technical Report: `PLATEAU Technical Report #NN` (**no edition** — pubid TRs
+  carry none; the document still has a `1.0` `Bib::Edition`).
+- Sub-numbers use a hyphen (`#46-1`), not the source underscore (`#46_1`).
+
+`DataFetcher#save_document` parses the canonical id via `#pubid` (a round-trip
+guard: `from_hash(to_hash) == to_hash`) and stores the `Pubid::Plateau::Identifier`
+object; unparseable ids are warned and skipped (defensive — the parser already
+emits canonical, so nothing is expected to skip).
+
+**Search accepts both forms.** `HitCollection#find` parses the query via `#ref`
+(`Pubid::Plateau.parse`, memoized) and matches on **pubid objects**, mirroring the
+other pubid flavors (ETSI `matches?`, JCGM `exclude`): an exact edition uses
+`row[:id] == ref` (pubid `==` compares type + number + annex + edition); a
+family query (`ref.edition.nil?` — an edition-less handbook, or any Technical
+Report) uses `ref.matches?(row[:id], ignore: [:edition])`. This keeps the
+family-vs-exact decision and the match on the *same* parsed identifier (no raw
+`@ref` regex). Canonical (`第1.0版`), edition-less (`#00`), and **legacy Latin**
+(`#00 1.0`) references all resolve — `Pubid::Plateau` normalizes Latin input to
+the canonical id (metanorma/pubid #269; needs the pubid `main` pin). No
+relaton-side Latin shim exists by design.
+
+`EDITION_SUFFIX` is **not** used for matching; it lives only in `#to_all_editions`,
+which strips the edition off the fetched document's `Bib::Docidentifier`/docnumber
+**strings** (relaton-bib content, not pubid) to build the family record — it
+matches both Japanese and Latin suffixes so it works against the current (Latin)
+VCR-cassette documents and future canonical ones.
 
 ### Schema Validation
 RNG grammar files in `grammars/` define the XML schema. Tests validate fixtures against `relaton-plateau-compile.rng` using the `ruby-jing` gem.
 
 ## Testing
 
-- **Index fixture:** `spec/fixtures/index-v1.zip` is pre-loaded into `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-plateau.
+- **Index fixture:** `spec/fixtures/index-v2.zip` (pubid-backed, `_type: pubid:plateau:*` rows) is pre-loaded into the `Relaton::Index` pool in `before(:suite)` via a `Relaton::Index::Type` built with `::Pubid::Plateau::Identifier` (configured in `spec/support/webmock.rb`, mirroring NIST/CIE). Run `rake spec:update_index` to refresh from relaton-data-plateau.
 - RSpec with `expect` syntax (no monkey-patching)
 - VCR cassettes record HTTP interactions (in `spec/fixtures/vcr_cassettes/`)
 - `equivalent-xml` for XML comparison assertions
@@ -73,7 +112,7 @@ RNG grammar files in `grammars/` define the XML schema. Tests validate fixtures 
 
 ## Key Conventions
 
-- Document identifiers follow pattern: `PLATEAU Handbook #XX Y.Z` or `PLATEAU Technical Report #XX Y.Z`
+- Document identifiers are pubid-canonical: `PLATEAU Handbook #XX 第Y.Z版` (Japanese edition) or `PLATEAU Technical Report #XX` (no edition); sub-numbers use a hyphen (`#XX-N`). See "Pubid-backed index" above.
 - The gem supports multi-format serialization: XML, YAML, BibXML (RFC XML)
 - RuboCop follows Ribose OSS style guide; target Ruby version is 3.0
 - The `ext` element in XML/YAML carries PLATEAU-specific metadata (doctype, flavor, editorialgroup, etc.)

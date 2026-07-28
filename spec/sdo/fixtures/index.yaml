@@ -1,0 +1,27 @@
+---
+organizations:
+  ISO:
+    name:
+      - content: International Organization for Standardization
+      - language: fr
+        content: Organisation internationale de normalisation
+    logo:
+      - style: default
+        format: eps
+        size: 700x300
+        url: https://sdo.example/iso/default-700x300.eps
+      - style: default
+        format: png
+        size: 700x300
+        url: https://sdo.example/iso/default-700x300.png
+      - style: red
+        format: svg
+        url: https://sdo.example/iso/red-latest.svg
+        applicability: "stage>=60; latest layout"
+  IEC:
+    name:
+      - content: International Electrotechnical Commission
+    logo:
+      - style: default
+        format: svg
+        url: https://sdo.example/iec/default.svg

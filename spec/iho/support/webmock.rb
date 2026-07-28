@@ -17,7 +17,7 @@ RSpec.configure do |config|
 
     # Pass pubid_class so each row's :id is rebuilt into a Pubid::Iho::Identifiers::*
     # via from_hash; force the offline read + deserialize now, before net is blocked.
-    type = Relaton::Index::Type.new(:iho, nil, index_file, nil, ::Pubid::Iho::Identifiers::Base)
+    type = Relaton::Index::Type.new(:iho, nil, index_file, nil, ::Pubid::Iho::Identifier)
     type.index
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
 

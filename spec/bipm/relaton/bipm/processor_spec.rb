@@ -4,7 +4,7 @@ describe Relaton::Bipm::Processor do
   it "#intialize" do
     expect(subject.instance_variable_get(:@short)).to eq :relaton_bipm
     expect(subject.instance_variable_get(:@prefix)).to eq "BIPM"
-    expect(subject.instance_variable_get(:@defaultprefix)).to eq %r{^(?:BIPM|CCTF|CCDS|CGPM|CIPM|JCRB|JCGM)(?!\w)}
+    expect(subject.instance_variable_get(:@defaultprefix)).to eq %r{^(?:BIPM|CCTF|CCDS|CGPM|CIPM|JCRB)(?!\w)}
     expect(subject.instance_variable_get(:@idtype)).to eq "BIPM"
     expect(subject.instance_variable_get(:@datasets)).to eq %w[bipm-data-outcomes bipm-si-brochure rawdata-bipm-metrologia]
   end
