@@ -22,7 +22,13 @@ module Relaton
       end
 
       def remove_date!
-        @pubid&.date = nil
+        return unless @pubid
+
+        @pubid.date = nil
+        # Re-sync `content` from the now-dateless pubid: it is the string that
+        # actually renders (e.g. `OIML R 138`, or `OIML R 138 (E)` keeping the
+        # language). Mutating `@pubid` alone leaves the dated `content` in place.
+        self.content = @pubid.to_s
       end
 
       def to_all_parts!

@@ -48,9 +48,29 @@ module Relaton
           raise Relaton::RequestError, "Could not access #{uri}: #{e.message}"
         end
 
+        # Fetch an OIML publication, suppressing the edition year for an undated
+        # citation so the designation renders undated (`OIML B 18`), the way the
+        # ISO fetcher does. A dated citation (`OIML B 18:2022`, or an explicit
+        # `year`) still pins that edition. Mirrors `Relaton::Iso::Bibliography#get`.
+        #
+        # @param opts [Hash] options
+        # @option opts [Boolean] :keep_year retain the edition year even for an
+        #   undated citation (or, when false, strip it even for a dated one)
+        #
         # @see #search
         def get(ref, year = nil, opts = {})
-          search(ref, year, opts)
+          item = search(ref, year, opts)
+          return item unless item
+
+          pubid = ref.is_a?(String) ? ::Pubid::Oiml.parse(ref) : ref
+          dated = pubid.year || year
+          # Keep the year only when the citation genuinely asks for it: a resolved
+          # year (unless keep_year is explicitly false), or keep_year truthy. (ISO
+          # also keeps for :all_parts; OIML has no all-parts retrieval, so search
+          # ignores opts and there is nothing to mirror here.)
+          return item if (dated && opts[:keep_year].nil?) || opts[:keep_year]
+
+          item.to_most_recent_reference
         end
 
         private
