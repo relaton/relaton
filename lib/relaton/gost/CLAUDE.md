@@ -65,10 +65,10 @@ bundle exec rspec -I . .`). Coverage:
 - `bibliography_spec.rb` — retrieval, fully **WebMock-stubbed** (stubbed index + `Net::HTTP`);
   asserts a hit returns a populated `Gost::ItemData`, a miss returns `nil`, and a non-200
   raises `Relaton::RequestError`. **No live network.**
-- `bibdata_spec.rb` — serializes `to_xml` and **Jing-validates** it against
-  `../../grammar/relaton-gost-compile.rng`, then round-trips the ext elements back through XML.
 - `processor_spec.rb` — processor shape + Latin/Cyrillic prefix routing.
 
-The `grammar/relaton-gost{,-compile}.rng` pair extends the shared `BibDataExtensionType` with
-the GOST ext elements and overrides `DocumentType` with the GOST vocabulary. Test-only — not
-shipped in the gem (the gemspec `files` glob covers only `lib/`), like this doc.
+There is **no RelaxNG grammar** for GOST and no XML-schema validation spec: the metanorma
+document model (`metanorma-model-iso/grammars/`) defines no GOST grammar, so there is nothing
+to copy into `grammar/` and nothing to validate `to_xml` against. This matches the sibling
+`easc` flavor (also grammar-less). If an official GOST grammar is ever added upstream, copy the
+`<flavor>{,-compile}.rng` pair into `grammar/` and add a Jing-validation spec then.
