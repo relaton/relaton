@@ -8,53 +8,66 @@ This file provides guidance to Claude Code (claude.ai/code) when working with th
 `Relaton::Gost` retrieves **GOST** standards — the interstate/national standards of the
 former-Soviet space (Государственный стандарт), published by Rosstandart and the
 Euro-Asian Council for Standardization (EASC/МГС). It is **index-backed** (no scraping):
-it searches a pre-built index via `Relaton::Index` and fetches per-document YAML from the
-`relaton/relaton-data-gost` GitHub repo. Sibling to `Relaton::Easc` — same model layer,
-same structure.
+it searches a pre-built **pubid-structured** index via `Relaton::Index` and fetches
+per-document YAML from the `relaton/relaton-data-gost` GitHub repo. The model layer mirrors
+the `Relaton::Easc` sibling; the pubid-backed retrieval mirrors `Relaton::Oiml`.
 
 ## Architecture
 
 Namespace: `Relaton::Gost`. Retrieval flow:
 
-1. **Bibliography** (`bibliography.rb`) — `get(code, year, opts)` delegates to `search`,
-   which looks the citation up in the index and fetches the matching `row[:file]` YAML over
-   `Net::HTTP`, returning `Item.from_yaml` (raising `Relaton::RequestError` on non-200) and
-   stamping `fetched`. **Plain-string (pubid-free) matching:** `index.search(text)` keys on
-   the bare citation string, not a parsed identifier — see the pubid note below. Mirrors
-   `lib/relaton/iala/bibliography.rb`.
+1. **Bibliography** (`bibliography.rb`) — `get(code, year, opts)` parses the citation with
+   `Pubid::Gost.parse`, looks it up in the **pubid-structured** index, fetches the matching
+   `row[:file]` YAML over `Net::HTTP` (`Item.from_yaml`, raising `Relaton::RequestError` on
+   non-200), and stamps `fetched`. `search` picks the **latest edition** (`max_by { year }`)
+   among number-matched candidates; `get` then strips the year for an **undated** citation via
+   `to_most_recent_reference` (so `GOST 1.0` renders undated but resolves the newest edition),
+   while a dated citation (`GOST 1.0-92`) or explicit `year` pins that edition. Mirrors
+   `lib/relaton/oiml/bibliography.rb`.
 2. **Index** — `Relaton::Index.find_or_create(:gost, url: "#{ENDPOINT}index-v2.zip",
-   file: "index-v2.yaml")` (no `pubid_class`). `INDEXFILE = "index-v2"` is defined in
-   `lib/relaton/gost.rb`.
+   file: "index-v2.yaml", pubid_class: ::Pubid::Gost::Identifier)`. Each row's `:id` is a
+   `_type: pubid:gost:{interstate,national}-standard` hash that `Relaton::Index` rebuilds into
+   a `Pubid::Gost` identifier via `from_hash`; passing the parsed pubid to `#search` lets it
+   binary-search candidates by number before the block runs `pubid_match?`. `INDEXFILE =
+   "index-v2"` is in `lib/relaton/gost.rb`.
 3. **Item / ItemData / Ext** (`item.rb`, `item_data.rb`, `ext.rb`) — `Item` extends
-   `Bib::Item` and re-declares `ext` to the typed `Gost::Ext`, whose GOST-specific fields
-   (`urn`, `webpage`, `ics_code`, `developer`, `keywords` [collection], `pages`,
-   `designation_original`) round-trip natively through YAML **and** XML (mapped in both the
-   `xml` and `key_value` blocks) — no per-repo merge hacks.
+   `Bib::Item`, re-declares `ext` to the typed `Gost::Ext` and `docidentifier` to the pubid
+   `Gost::Docidentifier`. `Ext`'s GOST fields (`urn`, `webpage`, `ics_code`, `developer`,
+   `keywords` [collection], `pages`, `designation_original`) round-trip natively through YAML
+   **and** XML (mapped in both `xml` and `key_value`). (The live dataset uses `urn`/`webpage`/
+   `ics_code`/`pages`/`designation_original`; `developer`/`keywords` are declared but unused.)
 4. **Doctype** (`doctype.rb`) — `TYPES = %w[interstate national preliminary methodological]`
    (GOST, GOST R, PST, OD categories). Carried in the inherited `content` attribute.
-5. **Docidentifier** (`docidentifier.rb`) — a plain `Bib::Docidentifier`; the docid string is
-   the canonical citation form. Subclassed so a future `Pubid::Gost` can hook in via `#pubid`
-   without changing the public interface.
+5. **Docidentifier** (`docidentifier.rb`) — wraps a `Pubid::Gost` identifier (`attr_reader
+   :pubid`); `content=` re-parses to keep `@pubid` in sync, and `remove_date!` nil-s the pubid
+   `year` and re-renders `content` (GOST carries the edition as `year`, not `date`) so
+   `to_most_recent_reference` yields `GOST R 34.12`. Mirrors `Oiml::Docidentifier`.
 6. **Processor** (`processor.rb`) — registry integration; `@short = :relaton_gost`,
-   `@prefix = "GOST"`, `@idtype = "GOST"`, and `@defaultprefix = %r{^(?:GOST|ГОСТ)}` so **both
-   the Latin `GOST` and Cyrillic `ГОСТ` surface forms route here**. Every method that touches
-   a flavor constant lazy-`require_relative`s `../gost` first (the lazy-registry invariant;
+   `@prefix = "GOST"`, `@idtype = "GOST"`, and `@defaultprefix = %r{^(?:GOST|ГОСТ)\b}` so **both
+   the Latin `GOST` and Cyrillic `ГОСТ` surface forms route here** (the `\b` stops it swallowing
+   longer tokens). `remove_index_file` passes the same `pubid_class`. Every method touching a
+   flavor constant lazy-`require_relative`s `../gost` first (the lazy-registry invariant;
    `spec/relaton/lazy_loading_spec.rb` guards it).
 
 There are no scrapers — everything comes from the curated index + GitHub YAML.
 
-## Pubid status (temporary)
+## Pubid
 
-`Pubid::Gost` (metanorma/pubid#108) is **not yet in the bundle**, so retrieval matches on the
-plain citation string and `Docidentifier` is a plain `Bib::Docidentifier`. Once #108 ships,
-swap `Bibliography#index` to a `pubid_class:`-keyed index and match on parsed identifiers
-(mirroring `lib/relaton/oiml/bibliography.rb`) — the public `get`/`search` interface stays the
-same. No new gemspec deps are needed today.
+The flavor is **pubid-backed** via `Pubid::Gost` (metanorma/pubid#108), which is on the
+`pubid` `main` branch the root `Gemfile` already pins (for JCGM). GOST matching is explicit
+rather than `pubid.matches?`/`exclude(:year)`: those do not give GOST nil-year-matches-any
+semantics, so `pubid_match?` compares the concrete subtype **class** (interstate vs national
+— same number is a different document across the two), the base `root.number`, and a
+nil-tolerant year. The `relaton-data-gost` `index-v2.yaml` was built with this **same** pubid,
+so the rows deserialize (a mismatched pubid would make `Relaton::Index` reject the whole
+index — cf. the root `CLAUDE.md` JCGM note). If the root `Gemfile` reverts the pubid pin to a
+release, that release must carry `Pubid::Gost`.
 
 ## Dataset
 
-`relaton/relaton-data-gost` is the (future) data repo behind `ENDPOINT`. Until it is
-populated, live fetches return nothing; the specs are fully offline.
+`relaton/relaton-data-gost` is the live data repo behind `ENDPOINT` (a real pubid-structured
+`index-v2.yaml` + `data/*.yaml`). The specs run fully offline against a small committed subset
+(see Testing).
 
 ## Testing
 
@@ -62,10 +75,18 @@ populated, live fetches return nothing; the specs are fully offline.
 bundle exec rspec -I . .`). Coverage:
 
 - `ext_spec.rb`, `item_spec.rb` — YAML round-trip of the typed ext fields.
-- `bibliography_spec.rb` — retrieval, fully **WebMock-stubbed** (stubbed index + `Net::HTTP`);
-  asserts a hit returns a populated `Gost::ItemData`, a miss returns `nil`, and a non-200
-  raises `Relaton::RequestError`. **No live network.**
+- `bibliography_spec.rb` — retrieval against real records copied from `relaton-data-gost`:
+  the pubid-structured index fixture `fixtures/index-v2.zip` is pre-loaded into the
+  `Relaton::Index` pool in `before(:suite)` (with `pubid_class`), and `fixtures/data/*.yaml`
+  are served by WebMock (`support/webmock.rb`) — **no live network**. Covers dated/undated/
+  Cyrillic lookups, undated→latest-edition, year-pinning, not-found (`nil`), and non-200
+  (`Relaton::RequestError`). Fixture docs: interstate `GOST 1.0` (editions 2015 + 92) and
+  national `GOST R 34.12-2015`.
 - `processor_spec.rb` — processor shape + Latin/Cyrillic prefix routing.
+
+To refresh the fixture, copy the wanted rows from `relaton-data-gost/index-v2.yaml` into
+`fixtures/index-v2.yaml`, re-zip it to `fixtures/index-v2.zip`, and copy the matching
+`data/*.yaml` files.
 
 There is **no RelaxNG grammar** for GOST and no XML-schema validation spec: the metanorma
 document model (`metanorma-model-iso/grammars/`) defines no GOST grammar, so there is nothing

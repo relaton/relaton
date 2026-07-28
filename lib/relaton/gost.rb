@@ -2,6 +2,7 @@
 
 require "relaton/bib"
 require "relaton/index"
+require "pubid"
 require "relaton/version"
 
 # Relaton::Gost is the GOST (Russian federal standards — Гостстандарт)
