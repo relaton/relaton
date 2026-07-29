@@ -53,15 +53,18 @@ There are no scrapers — everything comes from the curated index + GitHub YAML.
 
 ## Pubid
 
-The flavor is **pubid-backed** via `Pubid::Gost` (metanorma/pubid#108), which is on the
-`pubid` `main` branch the root `Gemfile` already pins (for JCGM). GOST matching is explicit
-rather than `pubid.matches?`/`exclude(:year)`: those do not give GOST nil-year-matches-any
-semantics, so `pubid_match?` compares the concrete subtype **class** (interstate vs national
-— same number is a different document across the two), the base `root.number`, and a
-nil-tolerant year. The `relaton-data-gost` `index-v2.yaml` was built with this **same** pubid,
-so the rows deserialize (a mismatched pubid would make `Relaton::Index` reject the whole
-index — cf. the root `CLAUDE.md` JCGM note). If the root `Gemfile` reverts the pubid pin to a
-release, that release must carry `Pubid::Gost`.
+The flavor is **pubid-backed** via `Pubid::Gost` (metanorma/pubid#108), on the `pubid` `main`
+branch the root `Gemfile` already pins (for JCGM). `pubid_match?` uses the idiomatic
+`query.matches?(row_id, ignore: [:year])` for an undated citation (matches every edition
+sharing subtype + number; interstate vs national and `1.1` vs `1.10` stay distinct because
+`matches?` compares the full identifier) and an exact `matches?` for a dated one. This relies
+on `Pubid::Gost#exclude(:year)` honouring GOST's `year` attribute — that pubid fix (base
+`exclude` no longer *deletes* `:year` when mapping to `:date`) is what unblocked the idiom; an
+older pubid where `exclude(:year)` no-ops would make undated lookups match nothing. The
+`relaton-data-gost` `index-v2.yaml` was built with this **same** pubid, so the rows deserialize
+(a mismatched pubid would make `Relaton::Index` reject the whole index — cf. the root
+`CLAUDE.md` JCGM note). If the root `Gemfile` reverts the pubid pin to a release, that release
+must carry both `Pubid::Gost` and the `exclude(:year)` fix.
 
 ## Dataset
 

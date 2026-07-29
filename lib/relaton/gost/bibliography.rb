@@ -83,18 +83,18 @@ module Relaton
           )
         end
 
-        # Both `row_id` and `query` are Pubid::Gost identifiers. Match on the
-        # concrete subtype (interstate vs national — same number is a different
-        # document across the two) and the base number; year is nil-tolerant so
-        # an unqualified query finds the latest edition (selected by `max_by` in
-        # #search). The `year` argument lets a caller pin an edition the
-        # reference string omitted. (GOST pubid `matches?`/`exclude(:year)` do
-        # not support the nil-year-matches-any semantics, so this is explicit.)
+        # Both `row_id` and `query` are Pubid::Gost identifiers. A dated citation
+        # matches exactly; an undated one matches every edition sharing the
+        # subtype + number (`ignore: [:year]` — interstate vs national, and
+        # `1.1` vs `1.10`, stay distinct because `matches?` compares the full
+        # identifier). The `year` argument pins an edition the reference string
+        # omitted. (Relies on Pubid::Gost `exclude(:year)` honouring its `year`
+        # attribute — metanorma/pubid, the fix that unblocked this idiom.)
         def pubid_match?(row_id, query, year)
-          wanted_year = (query.year || year)&.to_s
-          row_id.class == query.class &&
-            row_id.root.number.to_s == query.root.number.to_s &&
-            (wanted_year.nil? || row_id.year.to_s == wanted_year)
+          return query.matches?(row_id) if query.year
+
+          query.matches?(row_id, ignore: [:year]) &&
+            (year.nil? || row_id.year.to_s == year.to_s)
         end
       end
     end
