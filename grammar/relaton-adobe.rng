@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="biblio-standoc.rng">
+    <define name="DocumentType">
+      <choice>
+        <value>tech-note</value>
+        <value>publication</value>
+      </choice>
+    </define>
+  </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <optional>
+      <ref name="urn">
+        <a:documentation>URN identifying the Adobe document, e.g. urn:adobe:tech-note:5014</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="webpage">
+        <a:documentation>Canonical web location of the document</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="tech_note_number">
+        <a:documentation>Adobe Technical Note number, for tech-note documents</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="source_repo_path">
+        <a:documentation>Path within the source repository (adobe-type-tools/font-tech-notes)</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="publication_slug">
+        <a:documentation>Slug identifying a named publication, e.g. adobe-glyph-list</a:documentation>
+      </ref>
+    </optional>
+  </define>
+  <define name="urn">
+    <element name="urn">
+      <text/>
+    </element>
+  </define>
+  <define name="webpage">
+    <element name="webpage">
+      <text/>
+    </element>
+  </define>
+  <define name="tech_note_number">
+    <element name="tech_note_number">
+      <text/>
+    </element>
+  </define>
+  <define name="source_repo_path">
+    <element name="source_repo_path">
+      <text/>
+    </element>
+  </define>
+  <define name="publication_slug">
+    <element name="publication_slug">
+      <text/>
+    </element>
+  </define>
+</grammar>

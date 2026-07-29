@@ -23,6 +23,8 @@ module Relaton
     autoload :Bibitem,       "relaton/adobe/bibitem"
     autoload :Bibdata,       "relaton/adobe/bibdata"
     autoload :Docidentifier, "relaton/adobe/docidentifier"
+    autoload :Util,          "relaton/adobe/util"
+    autoload :Bibliography,  "relaton/adobe/bibliography"
     autoload :Processor,     "relaton/adobe/processor"
 
     # Returns hash of XML grammar

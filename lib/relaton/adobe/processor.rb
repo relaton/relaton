@@ -18,10 +18,7 @@ module Relaton
 
       def get(code, date, opts)
         require_relative "../adobe"
-        # Delegate to Relaton::Db for cache + index lookup. Once a
-        # Bibliography class is added (cf. relaton/iala/bibliography),
-        # this should call Bibliography.get directly.
-        ::Relaton::Db.instance.fetch("Adobe", code, date, opts)
+        Bibliography.get(code, date, opts)
       end
 
       def from_xml(xml)
