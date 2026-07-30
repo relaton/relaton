@@ -3,6 +3,7 @@
 require "relaton/bib"
 require "relaton/index"
 require "relaton/version"
+require "pubid"
 
 # Relaton::Easc is the EASC (Евразийский экономический совет /
 # Eurasian Economic Standards Council) flavor of the unified relaton
@@ -23,6 +24,8 @@ module Relaton
     autoload :Bibitem,       "relaton/easc/bibitem"
     autoload :Bibdata,       "relaton/easc/bibdata"
     autoload :Docidentifier, "relaton/easc/docidentifier"
+    autoload :Util,          "relaton/easc/util"
+    autoload :Bibliography,  "relaton/easc/bibliography"
     autoload :Processor,     "relaton/easc/processor"
 
     def self.grammar_hash
