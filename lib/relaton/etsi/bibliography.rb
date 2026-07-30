@@ -15,7 +15,7 @@ module Relaton
         # refinements (version/date/part) left blank.
         pubid = ::Pubid::Etsi.parse text
 
-        index = Relaton::Index.find_or_create :etsi, url: "#{SOURCE}index-v2.zip", file: INDEX_FILE,
+        index = Relaton::Index.find_or_create :etsi, url: "#{SOURCE}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
                                                      pubid_class: ::Pubid::Etsi::Identifier
         row = best_match(index, pubid)
         return unless row

@@ -13,7 +13,7 @@ require_relative "etsi/bibliography"
 
 module Relaton
   module Etsi
-    INDEX_FILE = "index-v2.yaml"
+    INDEXFILE = "index-v2".freeze
 
     # Returns hash of gem versions used to generate data model.
     # @return [String]

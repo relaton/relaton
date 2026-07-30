@@ -1,6 +1,10 @@
 require "relaton/bipm/processor"
 
 describe Relaton::Bipm::Processor do
+  it "exposes a normalized INDEXFILE constant (base name, no extension)" do
+    expect(Relaton::Bipm::INDEXFILE).to eq "index-v1"
+  end
+
   it "#intialize" do
     expect(subject.instance_variable_get(:@short)).to eq :relaton_bipm
     expect(subject.instance_variable_get(:@prefix)).to eq "BIPM"
@@ -38,7 +42,7 @@ describe Relaton::Bipm::Processor do
   it "#remove_index_file" do
     index = instance_double Relaton::Index::Type
     expect(Relaton::Index).to receive(:find_or_create)
-      .with(:bipm, url: true, file: Relaton::Bipm::INDEXFILE)
+      .with(:bipm, url: true, file: "#{Relaton::Bipm::INDEXFILE}.yaml")
       .and_return index
     expect(index).to receive(:remove_file)
     subject.remove_index_file

@@ -18,7 +18,7 @@ module Relaton
 
       def index
         @index ||= Relaton::Index.find_or_create(
-          :etsi, file: INDEX_FILE, pubid_class: ::Pubid::Etsi::Identifier
+          :etsi, file: "#{INDEXFILE}.yaml", pubid_class: ::Pubid::Etsi::Identifier
         )
       end
 

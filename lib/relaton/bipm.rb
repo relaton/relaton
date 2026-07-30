@@ -16,7 +16,7 @@ module Relaton
   module Bipm
     class Error < StandardError; end
 
-    INDEXFILE = "index-v1.yaml".freeze
+    INDEXFILE = "index-v1".freeze
 
     # Returns hash of gems versions used to generate the data model.
     # @return [String]

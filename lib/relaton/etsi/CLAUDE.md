@@ -77,7 +77,7 @@ compact** shape (`type`/`number`/`version`/`year`/`month` as scalars under
 it ships in a pubid release. The wiring mirrors NIST/JCGM:
 
 - **Producer** (`DataFetcher`): `index` calls `find_or_create(:etsi, file:
-  INDEX_FILE, pubid_class: ::Pubid::Etsi::Identifier)`; `#save` parses the
+  "#{INDEXFILE}.yaml", pubid_class: ::Pubid::Etsi::Identifier)`; `#save` parses the
   docid via `#pubid` and stores the **pubid object** (`index.add_or_update pid,
   file`) so `Relaton::Index` sorts by id number and serializes each id to its
   `_type:` hash on save. `#pubid` returns nil (skipping the whole record) for any

@@ -1,0 +1,204 @@
+= Relaton data repository format
+
+This document specifies the layout of a *Relaton data repository* (a
+`relaton-data-*` dataset) and the *index file* that makes its documents
+discoverable — both for the Relaton gems that consume it and for anyone who
+wants to maintain their own Relaton dataset.
+
+It is the authoritative companion to the `Relaton::Index` library
+(`lib/relaton/index/`, see `lib/relaton/index/README.adoc` for the Ruby API).
+
+== Overview
+
+A Relaton dataset is a Git repository holding one bibliographic record per file,
+plus a small *index* that maps each record's identifier to its file. Consumers
+download the index (not the whole corpus), look up a reference in it, then fetch
+only the matching record. A GitHub Pages site is generated from the same index so
+the dataset is browsable by humans and indexable by search engines.
+
+== Repository layout
+
+[source]
+----
+relaton-data-<flavor>/
+├── data/                 # one bibliographic record per file (YAML or XML)
+│   ├── <slug-1>.yaml
+│   └── <slug-2>.yaml
+├── index-vN.yaml         # the index (see below); N encodes the structure version
+├── index-vN.zip          # zipped index — the artifact consumers download
+├── _config.yml           # GitHub Pages / jekyll-index configuration
+├── crawler.rb            # rebuilds data/ + index via the flavor's DataFetcher
+└── .github/workflows/
+    ├── crawler.yml       # scheduled re-crawl
+    └── deploy.yml        # builds & deploys the Pages site
+----
+
+Some flavors store records under `static/` instead of `data/`; the directory name
+is not significant — the index's `:file` values are what locate each record.
+
+== Index file specification
+
+The index is a *YAML sequence of mappings*, each with exactly two keys:
+
+`:id`:: the document identifier (see *Identifier shapes* below).
+`:file`:: the record's path, **relative to the repository root**, e.g.
+  `data/oasis-amqp-core.yaml`.
+
+No other keys are permitted. This two-key invariant is enforced on load by
+`Relaton::Index::FileIO#check_basic_format` (`lib/relaton/index/file_io.rb`) — an
+entry with extra or missing keys makes the whole index invalid, triggering a
+re-download or removal. In particular, *titles are not stored in the index*; they
+live inside each record file. The index is a pure identifier→file manifest, kept
+small so consumers can download it cheaply.
+
+=== Identifier shapes
+
+There are two index *generations*, distinguished by the shape of `:id` and by the
+version number in the filename:
+
+`index-v1` — plain string id::
++
+[source,yaml]
+----
+---
+- :id: OASIS amqp-core
+  :file: data/oasis-amqp-core.yaml
+----
+
+`index-v2` — structured pubid hash::
+The id is a link:https://github.com/metanorma/pubid[pubid] identifier serialised
+to its `_type: pubid:<flavor>:*` hash. This lets consumers deserialise it back
+into a structured `Pubid::*::Identifier` (via the `pubid_class:` option) and
+narrow searches by number.
++
+[source,yaml]
+----
+---
+- :id:
+    _type: pubid:iso:directives-supplement
+    year: '2010'
+    publisher: IEC
+    base:
+      _type: pubid:iso:directives
+      copublishers:
+      - IEC
+  :file: static/iso-iec-dir-iec-sup-2010.yaml
+----
+
+=== Versioned filenames
+
+The index is named `index-vN` (`.yaml` locally, `.zip` when published). The
+version number encodes the index *structure*, not the data — bumping it (e.g. the
+`v1` → `v2` string-to-pubid migration) lets an older gem line keep reading the
+previous file while the new structure is published under a new name. A flavor
+mid-migration may publish both (jis ships `index-v1` and `index-v2` at once).
+
+In the relaton gem each flavor pins its current name in a single constant —
+`INDEXFILE = "index-vN"` (base name, no extension) in `lib/relaton/<flavor>.rb` —
+and appends the extension at call sites (`"#{INDEXFILE}.yaml"` / `.zip"`). See the
+"Adding a flavor" note in the repo-root `CLAUDE.md`.
+
+== Producing the index
+
+The flavor's `DataFetcher` (`lib/relaton/<flavor>/data_fetcher.rb`) builds the
+index while crawling, through the `Relaton::Index` API:
+
+[source,ruby]
+----
+index = Relaton::Index.find_or_create(:iso, file: "#{INDEXFILE}.yaml",
+                                       pubid_class: ::Pubid::Iso::Identifier)
+# for each record written to data/:
+index.add_or_update(pubid_or_string_id, "data/<slug>.yaml")
+index.save   # writes index-vN.yaml, sorted by id number
+----
+
+For v2 indexes, pass the parsed pubid *object* (not its hash) to
+`add_or_update`; `Relaton::Index` sorts by id number and serialises each id to its
+`_type:` hash on `save`. A record whose id cannot be parsed/serialised is skipped
+defensively so one bad record can never abort the crawl or corrupt the index.
+
+The `.zip` companion is produced by the data repository's own build tooling, not
+by `save`.
+
+== Consuming the index
+
+A flavor's `Bibliography`/`HitCollection` fetches the published zip and searches
+it:
+
+[source,ruby]
+----
+index = Relaton::Index.find_or_create(:iso,
+          url: "https://raw.githubusercontent.com/relaton/relaton-data-iso/main/#{INDEXFILE}.zip",
+          file: "#{INDEXFILE}.yaml",
+          pubid_class: ::Pubid::Iso::Identifier)
+index.search(pubid) # => [{ id:, file: }, ...]
+----
+
+The zip is downloaded from `raw.githubusercontent.com/relaton/relaton-data-<flavor>/<branch>/index-vN.zip`
+and cached under `~/.relaton/<type>/index-vN.yaml` for 24 hours; a stale or
+schema-mismatched cache is re-fetched automatically.
+
+== GitHub Pages publishing
+
+The browsable/searchable site is generated by Jekyll from the same index:
+
+* the shared reusable workflow
+  link:https://github.com/relaton/support/blob/main/.github/workflows/data-deploy.yml[`relaton/support` → `data-deploy.yml`]
+  checks out the theme repo
+  link:https://github.com/relaton/jekyll-theme-relaton-data-index[`relaton/jekyll-theme-relaton-data-index`]
+  (which provides the `jekyll-index` plugin), merges its base `_config.yml` with
+  the dataset's, runs `jekyll build`, and deploys to GitHub Pages;
+* each dataset's `.github/workflows/deploy.yml` simply calls that reusable
+  workflow:
++
+[source,yaml]
+----
+name: Deploy
+on:
+  push: { branches: [main] }
+  schedule: [{ cron: '0 15 * * *' }]
+  workflow_dispatch:
+jobs:
+  deploy:
+    uses: relaton/support/.github/workflows/data-deploy.yml@main
+----
+
+* each dataset provides a `_config.yml` with a `jekyll-index:` block naming its
+  index and rendering options:
++
+[source,yaml]
+----
+title: OASIS Index
+description: >-
+  Welcome to the OASIS standards index site!
+paginate: 100
+jekyll-index:
+  favicon: 'https://www.oasis-open.org/.../favicon-32x32.png'
+  source: 'index-v1.yaml'        # which index file to render
+  baseurl: 'https://raw.githubusercontent.com/relaton/relaton-data-oasis/main/'
+  add_type_to_reference: true    # show the flavor prefix in each DocID
+  # for pubid (v2) indexes, tell the plugin how to render structured ids:
+  # pubid_class:   'Relaton::W3c::PubId'
+  # pubid_require: 'relaton/w3c/pubid'
+----
+
+`jekyll-index` keys, from the live oasis/w3c configs: `favicon`, `source`,
+`baseurl`, `add_type_to_reference`, and (for pubid indexes) `pubid_class` +
+`pubid_require`; `title`, `description`, and `paginate` are standard Jekyll keys.
+
+== Exceptions and notes
+
+* *`relaton-data-sdo`* is **not** a document index. Its `index.yaml` is an
+  `organizations:` map (org names + logo variants) consumed by `Relaton::Sdo`
+  (see `lib/relaton/sdo/CLAUDE.md`), not by `Relaton::Index`. It does not follow
+  this spec.
+* Some source repos (e.g. `relaton-data-ietf`, `relaton-data-misc`) hold inputs
+  rather than a published document index; IETF's indexes are published under
+  `relaton-data-rfcs`, `relaton-data-rfcsubseries`, and `relaton-data-ids`.
+
+== See also
+
+* `lib/relaton/index/README.adoc` — the `Relaton::Index` Ruby API.
+* `lib/relaton/index/CLAUDE.md` — index library architecture + the `INDEXFILE`
+  convention.
+* Repo-root `CLAUDE.md` — "Adding a flavor".

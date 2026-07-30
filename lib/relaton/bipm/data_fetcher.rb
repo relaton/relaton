@@ -9,7 +9,7 @@ module Relaton::Bipm
     attr_reader :output, :format, :ext, :files, :index, :errors
 
     def index
-      @index ||= Relaton::Index.find_or_create :bipm, file: INDEXFILE
+      @index ||= Relaton::Index.find_or_create :bipm, file: "#{INDEXFILE}.yaml"
     end
 
     def log_error(msg)
