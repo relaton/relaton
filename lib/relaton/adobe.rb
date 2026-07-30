@@ -2,6 +2,7 @@
 
 require "relaton/bib"
 require "relaton/index"
+require "pubid"
 require "relaton/version"
 
 # Relaton::Adobe is the Adobe (font tech notes, character collections,
