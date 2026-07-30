@@ -19,7 +19,7 @@ module Relaton
 
       def get(code, date, opts)
         require_relative "../easc"
-        ::Relaton::Db.instance.fetch("EASC", code, date, opts)
+        Bibliography.get(code, date, opts)
       end
 
       def from_xml(xml)
