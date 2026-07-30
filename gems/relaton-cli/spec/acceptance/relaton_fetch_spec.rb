@@ -196,7 +196,7 @@ RSpec.describe "Relaton Fetch" do
       it "calls supported_type_message method" do
         io = double "IO"
         expect(io).to receive(:puts).with(
-          "Recognised types: 3GPP, BIPM, BSI, CC, CCSDS, CEN, CIE, CN, DOI, " \
+          "Recognised types: 3GPP, Adobe, BIPM, BSI, CC, CCSDS, CEN, CIE, CN, DOI, " \
           "EASC, ECMA, ETSI, GOST, IANA, IEC, IEEE, IETF, IHO, ISBN, ISO, ITU, JCGM, JIS, NIST, OASIS, " \
           "OGC, OIML, OMG, PLATEAU, UN, W3C, XEP"
         )
