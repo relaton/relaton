@@ -54,7 +54,31 @@ bin/console
 
 ### Index Format
 
-YAML array of hashes with `:id` (string or structured hash) and `:file` (path string). Supports backward compatibility with old string-based format and newer pubid object format.
+YAML array of hashes with `:id` (string or structured hash) and `:file` (path string). Supports backward compatibility with old string-based format and newer pubid object format. The full data-repository/index specification (schema, `:id` v1/v2 shapes, publishing + GitHub Pages contract) lives in `docs/data-repository-format.adoc` at the repo root.
+
+### Flavor `INDEXFILE` convention
+
+Each flavor names its published index via a single constant in its top-level
+`lib/relaton/<flavor>.rb`:
+
+```ruby
+INDEXFILE = "index-vN".freeze   # base name only — no extension
+```
+
+**Rules:**
+- The constant is spelled **`INDEXFILE`** (one word, no underscore) and holds the
+  **base name without extension** — `"index-v1"`, `"index-v2"`, etc.
+- Call sites append the extension: `"#{INDEXFILE}.yaml"` for the local file passed
+  as `file:`, `"#{INDEXFILE}.zip"` for the published artifact appended to the
+  consumer `url:`. Never embed `.yaml`/`.zip` in the constant, and never hardcode
+  `index-vN.zip` at a call site — derive it from `INDEXFILE` so a version bump is
+  a one-line change.
+- The version number encodes the index **structure** (`v1` = plain-string `:id`,
+  `v2` = pubid-hash `:id`); bumping it lets the previous gem line keep reading the
+  old file while the new structure is published under a new name.
+- **Exception — jis** carries two constants (`INDEXFILE = "index-v1"` and
+  `INDEXFILE_V2 = "index-v2"`) because it dual-writes both index generations during
+  its pubid migration. Both still follow the no-extension rule.
 
 ### Key Design Decisions
 

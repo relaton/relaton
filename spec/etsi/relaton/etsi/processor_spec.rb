@@ -2,6 +2,11 @@ require "relaton/etsi/processor"
 require "relaton/etsi/data_fetcher"
 
 describe Relaton::Etsi::Processor do
+  it "exposes a normalized INDEXFILE constant (base name, no extension)" do
+    expect(Relaton::Etsi::INDEXFILE).to eq "index-v2"
+    expect(defined?(Relaton::Etsi::INDEX_FILE)).to be_nil
+  end
+
   it "#initialize" do
     expect(subject.instance_variable_get(:@short)).to eq :relaton_etsi
     expect(subject.instance_variable_get(:@prefix)).to eq "ETSI"
@@ -37,7 +42,7 @@ describe Relaton::Etsi::Processor do
   it "#remove_index_file" do
     index = double("index")
     expect(Relaton::Index).to receive(:find_or_create)
-      .with(:etsi, url: true, file: Relaton::Etsi::INDEX_FILE,
+      .with(:etsi, url: true, file: "#{Relaton::Etsi::INDEXFILE}.yaml",
             pubid_class: ::Pubid::Etsi::Identifier).and_return(index)
     expect(index).to receive(:remove_file)
     subject.remove_index_file

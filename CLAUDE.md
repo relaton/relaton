@@ -201,6 +201,14 @@ its version and its exact `relaton` pin from that same root file at build time
   `lib/relaton.rb`, add the prefix to `Relaton::Db::Registry::SUPPORTED_GEMS`,
   add its external deps to `relaton.gemspec`, put `<flavor>(-compile).rng` in
   `grammar/`, add specs under `spec/<flavor>/`, and a `lib/relaton/<flavor>/CLAUDE.md`.
+- **Index-file constant.** A flavor that publishes an index names it with a single
+  `INDEXFILE = "index-vN"` constant (one word, **no extension**) in its top-level
+  `lib/relaton/<flavor>.rb`; call sites append `.yaml`/`.zip` (`"#{INDEXFILE}.yaml"`,
+  `"#{INDEXFILE}.zip"`). Don't embed the extension in the constant or hardcode
+  `index-vN.zip` at a call site. (jis is the one sanctioned exception — it carries
+  both `INDEXFILE`/`INDEXFILE_V2` for its dual-write migration.) The index schema
+  and data-repo publishing/Pages contract are specified in
+  `docs/data-repository-format.adoc`; see also `lib/relaton/index/CLAUDE.md`.
 - Don't reintroduce per-flavor gems/gemspecs or the combined-build step — it's
   one gem now.
 - Don't add `relaton-cli` as a runtime dep of `relaton`.

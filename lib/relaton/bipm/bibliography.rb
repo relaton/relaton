@@ -62,7 +62,8 @@ module Relaton::Bipm
 
       def index
         Relaton::Index.find_or_create(
-          :bipm, url: "#{GH_ENDPOINT}index-v1.zip", file: INDEXFILE, id_keys: %i[group type number year corr part append]
+          :bipm, url: "#{GH_ENDPOINT}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
+          id_keys: %i[group type number year corr part append]
         )
       end
 
