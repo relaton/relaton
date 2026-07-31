@@ -1,6 +1,7 @@
 require "digest/md5"
 require "faraday"
 require "yaml"
+require "pubid"
 require "relaton/index"
 require "relaton/bib"
 require_relative "version"
@@ -15,7 +16,7 @@ module Relaton
   module Ieee
     class Error < StandardError; end
 
-    INDEXFILE = "index-v1".freeze
+    INDEXFILE = "index-v2".freeze
 
     # Returns hash of XML reammar
     # @return [String]

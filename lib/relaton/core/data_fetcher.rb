@@ -66,7 +66,7 @@ module Relaton
       # @param [String] document ID
       # @return [String] filename based on PubID identifier
       def output_file(docid)
-        id = docid.downcase.gsub(/[.\s\/:()-]+/, "-").delete_suffix("-")
+        id = docid.downcase.gsub(/[.,\s\/:()-]+/, "-").delete_suffix("-")
         File.join @output, "#{id}.#{@ext}"
       end
 
