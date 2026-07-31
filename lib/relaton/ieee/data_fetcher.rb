@@ -20,6 +20,84 @@ module Relaton
         "E" => false, "B" => false, "W" => false
       }.freeze
 
+      class << self
+        #
+        # Build the pubid-structured `index-v2` from a directory of already
+        # generated per-document BibYAML files (the output of {.fetch}). This is
+        # a **separate step** from doc fetching: `relaton-data-ieee`'s crawler
+        # runs it after obtaining `data/` (a fresh crawl, or a clone of the
+        # published data repo). It parses each document's primary IEEE
+        # docidentifier into a `Pubid::Ieee::Identifier` and writes the index
+        # keyed by `pubid_class: ::Pubid::Ieee::Identifier`, so rows serialize to
+        # the `_type: pubid:ieee:*` structured form.
+        #
+        # Ids that pubid can't parse/round-trip are skipped (they'd otherwise
+        # break the all-pubid index that FileIO deserializes and number-sorts);
+        # the per-file skip and the final coverage summary are logged so the loss
+        # is never silent.
+        #
+        # @param dir [String] directory holding the per-document `*.yaml` files
+        # @param index_file [String] output index filename
+        # @return [Hash] `{ total:, indexed:, skipped: }` counts
+        #
+        def build_index(dir: "data", index_file: "#{INDEXFILE}.yaml")
+          index = Relaton::Index.find_or_create(
+            :ieee, file: index_file, pubid_class: ::Pubid::Ieee::Identifier
+          )
+          total = indexed = 0
+          Dir["#{dir}/*.yaml"].sort.each do |file|
+            total += 1
+            docid = primary_docid(file)
+            pid = docid && pubid(docid)
+            if pid
+              index.add_or_update pid, file
+              indexed += 1
+            else
+              Util.warn "Skipped (unparseable id): `#{docid || '<none>'}` (#{file})"
+            end
+          end
+          index.save
+          Util.info "IEEE #{index_file}: #{indexed}/#{total} indexed, " \
+                    "#{total - indexed} skipped " \
+                    "(#{total.zero? ? 0 : (100.0 * indexed / total).round(1)}% coverage)"
+          { total: total, indexed: indexed, skipped: total - indexed }
+        end
+
+        private
+
+        # Extract the primary, non-trademark IEEE docidentifier string from a
+        # BibYAML file, or nil when absent/unreadable.
+        #
+        # @param file [String]
+        # @return [String, nil]
+        def primary_docid(file)
+          yaml = YAML.safe_load(File.read(file, encoding: "UTF-8"),
+                                permitted_classes: [Symbol, Date, Time])
+          id = yaml && yaml["docidentifier"]&.find do |i|
+            i["type"] == "IEEE" && i["primary"] == true && i["trademark"].nil?
+          end
+          id && id["content"]
+        rescue StandardError
+          nil
+        end
+
+        # Parse a docid string into a Pubid::Ieee::Identifier, or nil if pubid
+        # can't parse it or the structured id won't round-trip through the index
+        # (matching FileIO's `id_supported?` acceptance test).
+        #
+        # @param id [String]
+        # @return [::Pubid::Ieee::Identifier, nil]
+        def pubid(id)
+          pid = ::Pubid::Ieee::Identifier.parse id
+          hash = pid.to_hash
+          return nil unless ::Pubid::Ieee::Identifier.from_hash(hash).to_hash == hash
+
+          pid
+        rescue StandardError
+          nil
+        end
+      end
+
       #
       # Convert documents from `ieee-rawbib` dir (IEEE dataset) to BibYAML/BibXML
       #
@@ -232,7 +310,7 @@ module Relaton
         docnumber = nil
         if normtitle && stdnumber
           pubid = RawbibIdParser.parse(normtitle, stdnumber)
-          docnumber = pubid&.to_id
+          docnumber = pubid&.to_s
         end
         [idx, file, docnumber, file.include?("/updates.")]
       rescue StandardError

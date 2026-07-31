@@ -43,23 +43,24 @@ module Relaton
       #
       # Parse docnumber
       #
-      # @return [String] PubID
+      # @return [String, nil] canonical pubid string, or nil when unparseable
       #
       def docnumber
-        @docnumber ||= pubid&.to_id
+        @docnumber ||= pubid&.to_s
       end
 
       #
-      # Create PubID
+      # Resolve the document's IEEE identifier (pubid-first, RawbibIdParser
+      # fallback).
       #
-      # @return [Relaton::Ieee::RawbibIdParser] PubID
+      # @return [::Pubid::Ieee::Identifier, nil]
       #
       def pubid
-        @pubid ||= begin
-          normtitle = @doc.normtitle
-          stdnumber = @doc.publicationinfo.stdnumber
-          RawbibIdParser.parse(normtitle, stdnumber)
-        end
+        return @pubid if defined?(@pubid)
+
+        normtitle = @doc.normtitle
+        stdnumber = @doc.publicationinfo.stdnumber
+        @pubid = RawbibIdParser.parse(normtitle, stdnumber)
       end
 
       #
@@ -92,8 +93,10 @@ module Relaton
       def parse_docidentifier # rubocop:disable Metrics/MethodLength
         ids = @doc.isbn_doi.map { |id| id[:content] = id.delete(:id); id }
 
-        ids.unshift(content: pubid.to_s(trademark: true), scope: "trademark", type: "IEEE", primary: true)
-        ids.unshift(content: pubid.to_s, type: "IEEE", primary: true)
+        if pubid
+          ids.unshift(content: pubid.to_s(trademark: true), scope: "trademark", type: "IEEE", primary: true)
+          ids.unshift(content: pubid.to_s, type: "IEEE", primary: true)
+        end
 
         result = ids.map { |dcid| Bib::Docidentifier.new(**dcid) }
         @errors[:docidentifier] &&= result.empty?

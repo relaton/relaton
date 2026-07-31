@@ -5,7 +5,7 @@ RSpec.describe Relaton::Ieee::DataFetcher do
     expect(FileUtils).to receive(:mkdir_p).with("data")
     files = Dir["fixtures/rawbib/**/*.{xml,zip}"]
     expect(Dir).to receive(:[]).with("ieee-rawbib/**/*.{xml,zip}").and_return files
-    expect(File).to receive(:write).with("data/ieee-p802-22-d-3-0-2011-03.yaml", kind_of(String), encoding: "UTF-8")
+    expect(File).to receive(:write).with("data/ieee-p802-22-d3-0-march-2011.yaml", kind_of(String), encoding: "UTF-8")
     described_class.fetch
   end
 
