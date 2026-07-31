@@ -33,6 +33,17 @@ describe Relaton::Bib::Sanitizer do
       expect(described_class.sanitize(input)).to eq input
     end
 
+    # relaton-bib#122: <link> is basicdoc's inline hyperlink (valid inside a
+    # biblionote via TextElement); it must survive with its target attribute
+    # rather than being unwrapped to bare text.
+    it "preserves an inline <link> with its target attribute" do
+      input = 'a <link target="https://x.org">L</link> b'
+      output = described_class.sanitize(input)
+      expect(output).to eq input
+      # Negative: pre-fix the tag was unwrapped, collapsing to "a L b".
+      expect(output).not_to eq "a L b"
+    end
+
     it "preserves <br/> self-closing tag" do
       expect(described_class.sanitize("a<br/>b")).to eq "a<br/>b"
     end
