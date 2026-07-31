@@ -3,8 +3,13 @@ require "nokogiri"
 module Relaton
   module Bib
     # Strips inline markup not in the basicdoc PureTextElement set
-    # (plus <p>, <eref>, <xref>, <fn>) from raw marked-up content strings.
-    # Disallowed elements are unwrapped: tags removed, inner text kept.
+    # (plus <p>, <eref>, <xref>, <fn>, <link>) from raw marked-up content
+    # strings. Disallowed elements are unwrapped: tags removed, inner text kept.
+    #
+    # <link> (basicdoc's inline hyperlink) is admitted because it is a valid
+    # TextElement child of a biblionote and carries a target URL that must
+    # survive the from_xml/to_xml round-trip — dropping it silently loses
+    # every URL in amended note.display references (relaton-bib#122).
     #
     # <fn> is admitted beyond strict PureTextElement because bibliographic
     # titles in real Metanorma input routinely carry footnotes (e.g. ISO
@@ -22,7 +27,7 @@ module Relaton
     module Sanitizer
       ALLOWED = %w[
         em strong sub sup tt underline strike smallcap br stem
-        p eref xref fn
+        p eref xref fn link
       ].freeze
 
       # Elements whose children are non-basicdoc inline notation
