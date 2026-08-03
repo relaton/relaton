@@ -404,12 +404,16 @@ module Relaton
 
         # Stragglers: any remaining staged files (losing duplicates,
         # or bib filenames that didn't end up in saved_writes due to a
-        # crash) get cleaned up so they don't pollute `data/`.
-        Dir.glob(File.join(@output, "*.#{@ext}.*")).each do |f|
+        # crash) get cleaned up so they don't pollute `data/`. Log the
+        # count so an unexpectedly large sweep (e.g. a worker that lost
+        # its state) is visible instead of silent.
+        stragglers = Dir.glob(File.join(@output, "*.#{@ext}.*"))
+        stragglers.each do |f|
           File.unlink(f)
         rescue StandardError
           # ignore — best-effort cleanup
         end
+        Util.info "Reconcile: cleaned #{stragglers.size} staged straggler(s)" unless stragglers.empty?
       end
 
       #
@@ -485,12 +489,7 @@ module Relaton
         pid = Process.fork do
           batch_files.each_with_index do |file, i|
             glob_idx = base_idx + i
-            result = parse_entry(glob_idx, file)
-            next unless result
-
-            _, _, doc, bib, local_errors = result
-            merge_errors(local_errors)
-            commit_doc(doc, bib, file, glob_idx)
+            commit_entry(glob_idx, file, glob_idx)
           end
           File.binwrite(state_path, Marshal.dump(
             backrefs:     backrefs,
@@ -547,12 +546,32 @@ module Relaton
       def run_shard(shard, _shard_idx)
         shard.each_with_index do |entry, i|
           idx, file = entry.is_a?(Array) ? entry : [i, entry]
-          result = parse_entry(idx, file)
-          next unless result
+          commit_entry(idx, file)
+        end
+      end
 
-          _, _, doc, bib, local_errors = result
-          merge_errors(local_errors)
-          commit_doc(doc, bib, file)
+      #
+      # Parse one file and commit it, guarding the commit so a single bad
+      # document (e.g. a pathological docnumber that would raise
+      # Errno::ENAMETOOLONG) logs and is skipped rather than aborting the
+      # serial crawl or killing a parallel worker before it persists its
+      # state. Shared by the serial (`run_shard`) and parallel
+      # (`spawn_batch`) paths.
+      #
+      # @param [Integer] idx original glob index (preserves dedup order)
+      # @param [String] file path to rawbib file
+      # @param [Integer, nil] glob_idx staging index for parallel mode
+      #
+      def commit_entry(idx, file, glob_idx = nil)
+        result = parse_entry(idx, file)
+        return unless result
+
+        _, _, doc, bib, local_errors = result
+        merge_errors(local_errors)
+        begin
+          commit_doc(doc, bib, file, glob_idx)
+        rescue StandardError => e
+          Util.error "commit failed for `#{file}`: #{e.class}: #{e.message}"
         end
       end
 
