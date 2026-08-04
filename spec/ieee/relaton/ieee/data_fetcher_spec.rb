@@ -200,6 +200,31 @@ RSpec.describe Relaton::Ieee::DataFetcher do
         df.send :save_doc, bib
       end
     end
+
+    context "commit resilience" do
+      it "rescues and logs a raising commit_doc instead of propagating" do
+        allow(df).to receive(:parse_entry).with(0, "bad.xml").and_return [0, "bad.xml", :doc, :bib, {}]
+        allow(df).to receive(:commit_doc).and_raise(Errno::ENAMETOOLONG)
+        expect do
+          df.send(:commit_entry, 0, "bad.xml")
+        end.to output(/commit failed for `bad\.xml`: Errno::ENAMETOOLONG/).to_stderr_from_any_process
+      end
+
+      it "does nothing when parse_entry returns nil" do
+        allow(df).to receive(:parse_entry).with(0, "skip.xml").and_return nil
+        expect(df).not_to receive(:commit_doc)
+        df.send(:commit_entry, 0, "skip.xml")
+      end
+
+      it "run_shard survives a failing doc and still commits the rest" do
+        allow(df).to receive(:parse_entry) { |idx, file| [idx, file, :doc, :bib, {}] }
+        allow(df).to receive(:commit_doc).with(:doc, :bib, "bad.xml", nil).and_raise(Errno::ENAMETOOLONG)
+        expect(df).to receive(:commit_doc).with(:doc, :bib, "good.xml", nil)
+        expect do
+          df.send(:run_shard, ["bad.xml", "good.xml"], 0)
+        end.to output(/commit failed for `bad\.xml`/).to_stderr_from_any_process
+      end
+    end
   end
 
   # it do

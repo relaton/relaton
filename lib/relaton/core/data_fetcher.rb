@@ -63,11 +63,31 @@ module Relaton
         raise NoMatchingPatternError, "#{self.class}#log_error method must be implemented"
       end
 
+      # Most filesystems cap a single path component at 255 bytes.
+      MAX_BASENAME_BYTES = 255
+
       # @param [String] document ID
       # @return [String] filename based on PubID identifier
+      #
+      # A docid can be pathologically long (pubid's `to_s` for amendment docs
+      # embeds the full "(Amendment to … as amended by …)" clause), which would
+      # make the basename exceed the OS limit and raise Errno::ENAMETOOLONG on
+      # write. When that happens, truncate the sanitized id and append a short
+      # digest of the full docid so the filename stays bounded, unique, and
+      # deterministic (every call site round-trips through this method).
       def output_file(docid)
         id = docid.downcase.gsub(/[.,\s\/:()-]+/, "-").delete_suffix("-")
-        File.join @output, "#{id}.#{@ext}"
+        ext = ".#{@ext}"
+        limit = MAX_BASENAME_BYTES - ext.bytesize
+        if id.bytesize > limit
+          require "digest"
+          suffix = "-#{Digest::SHA1.hexdigest(docid)[0, 12]}"
+          # `id` has no consecutive "-" (gsub collapsed runs above), so
+          # truncation leaves at most one trailing "-" — delete_suffix is
+          # enough and avoids a polynomial-ReDoS regex on the docid.
+          id = id.byteslice(0, limit - suffix.bytesize).scrub("").delete_suffix("-") + suffix
+        end
+        File.join @output, "#{id}#{ext}"
       end
 
       #

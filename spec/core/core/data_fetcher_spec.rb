@@ -103,6 +103,39 @@ describe Relaton::Core::DataFetcher do
       fetcher = described_class.new("data", "yaml")
       expect(fetcher.output_file("ISO 123")).to eq("data/iso-123.yaml")
     end
+
+    context "with a pathologically long docid" do
+      # A 313-char amendment docnumber (pubid embeds the full
+      # "(Amendment to … as amended by …)" clause) would otherwise produce a
+      # >255-byte basename and make File.write raise Errno::ENAMETOOLONG.
+      let(:long_id) { "IEEE Std 802.3bs-2017 (Amendment to IEEE Std 802.3-2015 as amended by " + (["IEEE Std 802.3bw-2015"] * 10).join(", ") + ")" }
+
+      it "caps the basename at or below the OS 255-byte limit" do
+        expect(long_id.bytesize).to be > 255
+        expect(File.basename(subject.output_file(long_id)).bytesize).to be <= 255
+      end
+
+      it "is deterministic for the same docid" do
+        expect(subject.output_file(long_id)).to eq(subject.output_file(long_id))
+      end
+
+      it "produces distinct filenames for distinct long docids" do
+        expect(subject.output_file("#{long_id} A")).not_to eq(subject.output_file("#{long_id} B"))
+      end
+
+      it "keeps a readable prefix and appends a short digest" do
+        base = File.basename(subject.output_file(long_id), ".xml")
+        expect(base).to start_with("ieee-std-802-3bs-2017")
+        expect(base).to match(/-[0-9a-f]{12}\z/)
+      end
+
+      it "stays valid UTF-8 even when truncation splits a multibyte char" do
+        multibyte = "café-" + ("é" * 300)
+        base = File.basename(subject.output_file(multibyte))
+        expect(base.bytesize).to be <= 255
+        expect(base).to be_valid_encoding
+      end
+    end
   end
 
   describe "#serialize"  do

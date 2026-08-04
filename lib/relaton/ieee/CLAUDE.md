@@ -54,6 +54,26 @@ canonical string pubid then parses (→ 98.7% pubid objects, 100% coverage).
   update_codes one-offs). `Core::DataFetcher#output_file` also sanitizes commas so
   pubid's `", Mar 2011"` dates don't leak into filenames.
 
+## Fetch robustness (no silent corpus loss)
+
+Amendment docnumbers can be pathologically long — pubid's `to_s` embeds the full
+"(Amendment to … as amended by …)" clause (300+ chars). Two guards keep one such
+id from silently halving the crawl (see the `data_fetcher.rb` history):
+
+- **Bounded filenames.** `Core::DataFetcher#output_file` caps the basename at
+  `MAX_BASENAME_BYTES` (255): when the sanitized id exceeds the OS limit it
+  byte-truncates (`byteslice(…).scrub("")`, valid UTF-8) and appends a 12-char
+  SHA1 of the **full** docid — bounded, unique, and **deterministic** so
+  `save_doc`/`reconcile_staged_outputs`/`read_bib` all resolve the same name.
+  Without this, `File.write` raised `Errno::ENAMETOOLONG`.
+- **Per-document commit guard.** Both the serial (`run_shard`) and parallel
+  (`spawn_batch` fork) paths route through one `commit_entry` helper that wraps
+  `commit_doc` in a `rescue` (logs via `Util.error`, continues). A single bad doc
+  no longer aborts a serial crawl, and a forked worker still reaches its
+  `File.binwrite(state_path, …)` so `merge_state_files` sees its `saved_writes`
+  and `reconcile_staged_outputs` doesn't delete the whole batch's staged files.
+  Reconcile also logs the straggler-cleanup count so an anomaly isn't silent.
+
 ## Testing
 
 - **Framework:** RSpec with VCR cassettes and WebMock.
