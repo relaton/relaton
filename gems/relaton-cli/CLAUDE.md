@@ -82,6 +82,55 @@ constant resolves even when an unrelated exception (e.g. an `ArgumentError` from
 - `lib/relaton/cli/yaml_convertor.rb` — YAML → XML conversion (includes processor detection via doctype)
 - `lib/relaton/cli/xml_to_html_renderer.rb` — Renders XML/YAML to HTML using Liquid templates from `templates/`
 
+### Data index site generator (`relaton index`)
+
+`relaton index [DATA-DIR]` builds the modern, browsable GitHub Pages index for
+`relaton-data-<flavor>` repos (e.g. https://relaton.github.io/relaton-data-bipm/),
+replacing the shared Jekyll theme (`relaton/jekyll-theme-relaton-data-index`) +
+`relaton/support` `data-deploy.yml` build. Pieces:
+
+- `lib/relaton/cli/index_site_generator.rb` — scans `DATA-DIR/**/*.{yaml,yml}`
+  (default `./data`, skips `index-v*.yaml`), normalizes each doc, and renders a
+  self-contained `index.html` + `search.json` into `--output` (default `_site`).
+  Three `--mode`s: `embedded` (crawler DOM + `window.RELATON_INDEX_DATA` JSON —
+  default), `dom` (crawler DOM only), `static-json` (`search.json` sidecar,
+  fetched; not crawlable). JSON is `script_escape`d (`</`→`<\/`, U+2028/9) so it
+  can't break out of the `<script>`.
+- `lib/relaton/cli/index_item_normalizer.rb` — doc-hash → `{id,title,doctype,
+  stage,date,link,yaml}`. Reads the doc's own rendered fields (primary
+  `docidentifier`, main/en `title`, `date[].at|on` preferring `published`,
+  `ext.doctype`), so **no pubid reconstruction** is needed.
+- `lib/relaton/cli/frontend_assets.rb` — reads the compiled bundle from
+  `frontend/dist/` (one relative path works for both gem and git checkout);
+  raises `BuildMissingError` with a "run `rake build_frontend`" message if absent.
+  `dist_dir` is overridable so specs point at a fixture dist (no Node build).
+- `templates/index/{page.liquid,_document.liquid}` — the page shell (inlines the
+  IIFE + CSS + JSON) and the crawler-indexable `.document` row (data-* attributes
+  the frontend hydrates from). Rendered via a Liquid `Environment` (not the
+  deprecated global `Template.file_system=`).
+- `--flavor <f>` / `--repo <org/name>` shallow-clone the data repo to a tempdir
+  and read its `data/`; the checked-out branch is auto-detected (bipm's is `v2`)
+  and used for the raw-YAML `--base-url`. Default (no flavor/repo) reads the local
+  folder — the in-Action path where the repo is already checked out.
+
+**Frontend (`frontend/`).** A Vite 8 **library-mode** project
+(`@vitejs/plugin-vue` + `@tailwindcss/vite` + Vue 3) that builds ONE
+`frontend/dist/app.iife.js` + `style.css` (the lutaml-xsd embedding pattern,
+modernized). `src/` is committed; `dist/` + `node_modules/` are gitignored and
+built at package time. The island (`src/App.vue`) does search / doctype+stage
+facets / sort / list-grid / dark-mode / copy-DocID / client pagination, hydrating
+from `window.RELATON_INDEX_DATA`, the crawler DOM, or a fetched `search.json`
+(`src/lib/hydrate.ts`). Pure filter/sort logic is `src/lib/filter.ts`. Tests:
+`npm run typecheck` + `vitest` (filter/hydrate/App via happy-dom).
+
+**Build wiring.** `rake build_frontend` (`npm ci`/`install` + `npm run build`) is
+a prerequisite of `build`/`release`; the root `rake build_all` runs it before
+`gem build`. The gemspec ships the gitignored `frontend/dist/*` explicitly
+(`git ls-files` can't see it) and excludes the tracked `frontend/` sources.
+**Release note:** the release pipeline must have Node available or the gem ships
+without the bundle. `ci/data-deploy.yml` is the reusable-workflow proposal that
+runs `relaton index` and deploys to Pages.
+
 ### File Operations
 
 `lib/relaton/cli/relaton_file.rb` — Static methods for extract (pull bibdata from Metanorma XML), concatenate (combine files into a collection), and split (break a collection into individual files).

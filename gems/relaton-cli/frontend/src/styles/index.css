@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+/* Drive the `dark:` variant from a `.dark` class on any ancestor (we toggle it
+   on <html>), rather than the OS media query alone, so the in-page theme toggle
+   works. Falls back to the OS preference on first load (see app.ts). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Design tokens. Kept small; components use Tailwind utilities on top. */
+@theme {
+  --color-brand: #1e6bb8;
+  --color-brand-dark: #4a9fe0;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Scope a couple of base rules to the app so we don't fight a host page's CSS. */
+#relaton-index-app {
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Hide the server-rendered crawler DOM once Vue has taken over (Vue mounts into
+   the same node and replaces its children, but guard against a flash). */
+#relaton-index-app > .documents[hidden] {
+  display: none;
+}

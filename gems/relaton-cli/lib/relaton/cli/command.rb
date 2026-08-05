@@ -1,9 +1,12 @@
 require "date"
+require "tmpdir"
+require "shellwords"
 require "parslet"
 require "relaton/cli/relaton_file"
 require "relaton/cli/xml_convertor"
 require "relaton/cli/yaml_convertor"
 require "relaton/cli/data_fetcher"
+require "relaton/cli/index_site_generator"
 require "relaton/cli/subcommand_collection"
 require "relaton/cli/subcommand_db"
 require "fcntl"
@@ -133,6 +136,36 @@ module Relaton
         Relaton::Cli::YAMLConvertor.to_html(file, style, template)
       end
 
+      desc "index [DATA-DIR]",
+           "Build a browsable HTML index site from a folder of Relaton YAML docs (default ./data)"
+      option :output, aliases: :o, default: "_site",
+                      desc: "Output directory for the generated site"
+      option :flavor,
+             desc: "Build from relaton/relaton-data-<flavor> (shallow-cloned) instead of a local folder"
+      option :repo,
+             desc: "Build from a GitHub repo ORG/NAME (shallow-cloned) instead of a local folder"
+      option :branch, desc: "Branch to clone when --flavor/--repo is used"
+      option :title, aliases: :t, desc: "Index page title"
+      option :"base-url",
+             desc: "Base URL for raw YAML links (defaults to the raw GitHub URL when cloning)"
+      option :mode, aliases: :m, default: "embedded",
+                    desc: "Data delivery mode: embedded, dom, or static-json"
+      option :overwrite, aliases: :f, type: :boolean, default: true,
+                         desc: "Overwrite existing output files"
+
+      def index(data_dir = nil)
+        with_index_source(data_dir) do |dir, default_base_url, default_title|
+          Relaton::Cli::IndexSiteGenerator.generate(
+            dir,
+            output: options[:output],
+            mode: options[:mode],
+            title: options[:title] || default_title,
+            base_url: options[:"base-url"] || default_base_url,
+            overwrite: options[:overwrite],
+          )
+        end
+      end
+
       desc "convert XML", "Convert Relaton XML document"
       option :format, aliases: :f, required: true, desc: "Output format (yaml, bibtex, asciibib)"
       option :output, aliases: :o, desc: "Output to the specified file"
@@ -176,6 +209,41 @@ module Relaton
               conf.logger_pool[:default].remove_level :info
             end
           end
+        end
+
+        # Resolve the source folder for `index`. Locally it's just DATA-DIR
+        # (default ./data). With --flavor/--repo it shallow-clones the GitHub
+        # repo into a temp dir and yields its data/ subfolder plus sensible
+        # defaults for the raw-YAML base URL and page title. The temp clone is
+        # removed after the block returns.
+        def with_index_source(data_dir)
+          subdir = data_dir || "data"
+          if options[:flavor] || options[:repo]
+            repo = options[:repo] || "relaton/relaton-data-#{options[:flavor]}"
+            flavor = options[:flavor] ||
+              repo.split("/").last.sub(/\Arelaton-data-/, "")
+            Dir.mktmpdir("relaton-index-") do |tmp|
+              branch = clone_data_repo(repo, options[:branch], tmp)
+              base = "https://raw.githubusercontent.com/#{repo}/#{branch}"
+              yield File.join(tmp, subdir), base, "#{flavor.upcase} Index"
+            end
+          else
+            yield subdir, nil, nil
+          end
+        end
+
+        # Shallow-clone ORG/NAME into `dest`; return the checked-out branch name.
+        def clone_data_repo(repo, branch, dest)
+          url = "https://github.com/#{repo}.git"
+          cmd = ["git", "clone", "--depth", "1", "--single-branch"]
+          cmd += ["--branch", branch] if branch
+          cmd += [url, dest]
+          Relaton::Cli::Util.info "Cloning #{url}…"
+          unless system(*cmd, out: File::NULL, err: File::NULL)
+            raise Thor::Error,
+                  "Failed to clone #{url}. Check the repo/branch name and that git is installed."
+          end
+          branch || `git -C #{Shellwords.escape(dest)} rev-parse --abbrev-ref HEAD`.strip
         end
       end
     end
