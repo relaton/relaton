@@ -17,9 +17,13 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/metanorma/relaton-cli"
   spec.license       = "BSD-2-Clause"
 
-  spec.files         = `git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(test|spec|features|docs)/})
-  end
+  # Ship lib/, exe/, templates/ and the COMPILED frontend, but not the frontend
+  # sources/tooling. `frontend/dist` is gitignored (built by `rake build_frontend`
+  # at package/release time), so `git ls-files` won't list it — append it
+  # explicitly. Reject the tracked `frontend/` sources so they don't bloat the gem.
+  spec.files         = (`git ls-files -z`.split("\x0").reject do |f|
+    f.match(%r{^(test|spec|features|docs|frontend)/})
+  end + Dir.glob("frontend/dist/*")).uniq
   spec.extra_rdoc_files = %w[docs/README.adoc LICENSE]
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }

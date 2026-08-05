@@ -3,4 +3,19 @@ require "rspec/core/rake_task"
 
 RSpec::Core::RakeTask.new(:spec)
 
+FRONTEND_DIR = File.expand_path("frontend", __dir__)
+
+desc "Build the JS/CSS frontend (Vite → frontend/dist/app.iife.js + style.css)"
+task :build_frontend do
+  Dir.chdir(FRONTEND_DIR) do
+    # `npm ci` when a lockfile is present (reproducible), else `npm install`.
+    sh(File.exist?("package-lock.json") ? "npm ci" : "npm install")
+    sh "npm run build"
+  end
+end
+
+# The gem must ship the compiled frontend, so build it before packaging/release.
+task build: :build_frontend
+task release: :build_frontend
+
 task default: :spec

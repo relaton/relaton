@@ -190,6 +190,14 @@ its version and its exact `relaton` pin from that same root file at build time
 (see **Single `VERSION`**), one bump + one tag publishes `relaton` and
 `relaton-cli` together at the same version — no per-gem version bump needed.
 
+**Node in the release env (relaton-cli frontend).** relaton-cli's `relaton index`
+command ships a compiled Vue+Tailwind bundle built from `gems/relaton-cli/frontend/`.
+`rake build_all` now runs `rake build_frontend` (`npm ci` + `vite build`) before
+`gem build`, so the **release job must have Node available** (the built
+`frontend/dist/*` is gitignored and packaged explicitly by the gemspec). If Node
+is absent the gem builds without the bundle and `relaton index` raises
+`FrontendAssets::BuildMissingError`. See `gems/relaton-cli/CLAUDE.md`.
+
 ## Conventions to keep
 
 - **Per-flavor docs.** Each flavor keeps its own `lib/relaton/<flavor>/CLAUDE.md`

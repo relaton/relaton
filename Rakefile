@@ -112,7 +112,11 @@ desc "Build the combined relaton gem + relaton-cli"
 task :build_all do
   Rake::Task["build"].invoke # relaton (root gemspec)
   Bundler.with_unbundled_env do
-    Dir.chdir("gems/relaton-cli") { sh "gem build *.gemspec" }
+    Dir.chdir("gems/relaton-cli") do
+      # Compile the frontend into frontend/dist so the gemspec can ship it.
+      sh "bundle exec rake build_frontend"
+      sh "gem build *.gemspec"
+    end
   end
 end
 

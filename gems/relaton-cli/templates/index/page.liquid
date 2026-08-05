@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title | strip_html }}</title>
+    <meta name="generator" content="relaton-cli index">
+    <style>{{ css }}</style>
+  </head>
+  <body>
+    <div id="relaton-index-app" data-title="{{ title | escape }}" data-generated="{{ generated }}"{% if mode == "static-json" %} data-src="{{ json_url }}"{% endif %}>
+    {%- if mode != "static-json" -%}
+      <div class="documents">
+      {%- for d in documents -%}
+        {% include 'document', d: d %}
+      {%- endfor -%}
+      </div>
+    {%- endif -%}
+    </div>
+    {%- if mode == "embedded" -%}
+    <script>window.RELATON_INDEX_DATA = {{ data_json }};</script>
+    {%- endif -%}
+    <script>{{ iife }}</script>
+  </body>
+</html>

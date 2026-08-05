@@ -16,3 +16,7 @@
 Gemfile.lock
 .DS_Store
 .claude/
+
+# Frontend: source under frontend/src is committed; build output and deps are not.
+/frontend/node_modules/
+/frontend/dist/
