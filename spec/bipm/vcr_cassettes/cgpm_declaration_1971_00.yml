@@ -23,21 +23,15 @@ http_interactions:
       - '300'
   response:
     status:
-      code: 200
-      message: OK
+      code: 404
+      message: Not Found
     headers:
       Connection:
       - keep-alive
       Content-Length:
-      - '762'
-      Cache-Control:
-      - max-age=300
+      - '14'
       Content-Security-Policy:
       - default-src 'none'; style-src 'unsafe-inline'; sandbox
-      Content-Type:
-      - text/plain; charset=utf-8
-      Etag:
-      - W/"7ccdcddf096f9813a9bda38ce80983eee63f82af8dff6f625e1897de00212793"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -46,24 +40,26 @@ http_interactions:
       - deny
       X-Xss-Protection:
       - 1; mode=block
+      Content-Type:
+      - text/plain; charset=utf-8
       X-Github-Request-Id:
-      - 0DBA:2B481A:96724:E871F:6A5ADB1E
-      Content-Encoding:
-      - gzip
+      - 8B96:237A82:D1ADB:170AB2:6A726353
+      X-Github-Edge-Region:
+      - iad
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 18 Jul 2026 01:47:10 GMT
+      - Tue, 04 Aug 2026 22:10:31 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-pdk-kpdk2140060-PDK
+      - cache-pdk-kpdk2140035-PDK
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1784339230.223740,VS0,VE72
+      - S1785881432.662287,VS0,VE38
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -71,30 +67,15 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 9bd181faaeafbf3f62fa994ce6d4ddd016de0ceb
+      - 0b961dd00a810783af4787df0d7cf16023ee519a
       Expires:
-      - Sat, 18 Jul 2026 01:52:10 GMT
+      - Tue, 04 Aug 2026 22:15:31 GMT
       Source-Age:
       - '0'
     body:
-      encoding: ASCII-8BIT
-      base64_string: |
-        H4sIAAAAAAAAA7VWy27bMBC86yt4cwuUkuVHHKu3pKkRoAYM9NBjQVErmYBE
-        CnzYdf8o35Ef61J2FMWP2C5awYBFUDuznNldiVIaiCwh97PF/MvD/bd+P55O
-        4sDwJVTs5wq0EUomZBWH4/AmsJsaElJrxQEyIQsTWGFLSAJKSiYLxwrcBhkQ
-        YrgWtU3IN2b9kitpQeJ6wQxnJWEyI0ZABdK8ic31+djPbaRRTvML2Ldpc2GZ
-        xdN0IZfW1iaJovV6HaairkKliwhkxFVVCWsBTMQL/NVVFI+olybSYFTpPBA9
-        m/qVxLn+G+LTJzaaH+PUbB0Wwi5d6gzo3XaIzFEFlkmlKxb5nGjGLKPKWdzC
-        fCom5DajCsB69ykqtbun8SjcVOWFivz3xFDJg8R2xZvlZ33IFHdYYNZEg348
-        uIniyTAeTW9vI98liIcY0XA4zuN8GFOY9sc0H/MBzaaTKZ3w/mDIx6NxlsYB
-        AokMgUQuQPs6bXk9EvENRz54cz+20tw9Lua4qLWomN4kxGoHl7fXHuwn8nAF
-        8rvNd4D89Z/m/B1bxDe1PaYHLZUsLk/1FSsDjNkSvAP7fiYkuhIQTZeuStHw
-        Q5excJt5tatFl5bCLCFDFIb8Pf8Qjfu0P+kFPistUmdVUzla+TlLyH6sFwJr
-        lknxuxky/hlCnBbbm87puiXe7ElWwctTe175a09ef7VYj/ivZUOIE/nOaWCO
-        qJz8AFEsrWnm+xyYwQ1zwNCYd45hhyneEGVgSK1EZghYgq3fwrM01bASHQXI
-        1YS+iA91Zs4u1TYe2Zv4lqMjbju3j9rRVfpsDk2iLs3ESpgO1SvGCb+OHq8D
-        PgMJGkW8VzIHDZIDUfK0Yyc8O8fi0Z+ftvCz5yeJ96yExrnFi3Nz6NIc8+6o
-        e2epZzv12hdva0qLhg6jYNSD7sBw0cDVJdt+S+DreuM/NrQwAfyySTNpDj6H
-        4nCAG9jrDVXwJhHzMi98KA5DbvG4WfdN0JTT65zo9XvBH6BP5u2KCQAA
-  recorded_at: Mon, 27 Jul 2026 01:47:10 GMT
+      encoding: UTF-8
+      base64_string: 'NDA0OiBOb3QgRm91bmQ=
+
+        '
+  recorded_at: Tue, 04 Aug 2026 22:10:31 GMT
 recorded_with: VCR 6.4.0
