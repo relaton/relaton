@@ -128,8 +128,11 @@ a prerequisite of `build`/`release`; the root `rake build_all` runs it before
 `gem build`. The gemspec ships the gitignored `frontend/dist/*` explicitly
 (`git ls-files` can't see it) and excludes the tracked `frontend/` sources.
 **Release note:** the release pipeline must have Node available or the gem ships
-without the bundle. `ci/data-deploy.yml` is the reusable-workflow proposal that
-runs `relaton index` and deploys to Pages.
+without the bundle. The reusable Pages-deploy workflow (install relaton-cli →
+`relaton index` → deploy-pages) belongs in `relaton/support` — data repos call it
+via `uses: relaton/support/.github/workflows/data-deploy.yml@main` — not in this
+repo (a reusable workflow only runs from the calling repo's `.github/workflows/`,
+and an in-tree copy would also get packaged into the gem).
 
 ### File Operations
 
