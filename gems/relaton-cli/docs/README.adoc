@@ -276,8 +276,18 @@ must exist first: run `bundle exec rake build_frontend` (or
 `cd frontend && npm install && npm run build`). The released gem already ships
 the compiled bundle, so installed users need only Ruby.
 
-To publish these indexes from CI, see the reusable workflow proposal in
-`ci/data-deploy.yml`.
+To publish these indexes from CI (GitHub Pages), a `relaton-data-<flavor>` repo
+calls the shared reusable workflow in `relaton/support`:
+
+[source,yaml]
+----
+jobs:
+  deploy:
+    uses: relaton/support/.github/workflows/data-deploy.yml@main
+----
+
+That workflow installs relaton-cli, runs `relaton index`, and deploys the result
+to GitHub Pages.
 
 === relaton version
 
