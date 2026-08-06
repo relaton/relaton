@@ -139,9 +139,14 @@ RSpec.describe Relaton::Bipm::Bibliography do
           end
         end
 
-        it "CGPM Declaration 1971-00", vcr: "cgpm_declaration_1971_00" do
-          result = Relaton::Bipm::Bibliography.get "CGPM Declaration 1971-00"
-          expect(result.docidentifier.first.content).to eq "CGPM DECL (1971)"
+        # "CGPM DECL (1971)" (the "Pascal and siemens" statement) was intentionally
+        # removed from BIPM's upstream source as a cross-referenced duplicate
+        # (bipm-data-outcomes dedup commit 6293712, 2026-07-22; the 1901 statements
+        # were reclassified as resolutions at the same time). The consumed
+        # relaton-data-bipm@v2 correctly reflects that — the record no longer exists —
+        # so this identifier resolves to nil. Guard against it silently resolving again.
+        it "CGPM Declaration 1971-00 (removed upstream)", vcr: "cgpm_declaration_1971_00" do
+          expect(Relaton::Bipm::Bibliography.get("CGPM Declaration 1971-00")).to be_nil
         end
 
         it "CIPM resolution", vcr: "cipm_resolution_1879" do
