@@ -120,7 +120,12 @@ modernized). `src/` is committed; `dist/` + `node_modules/` are gitignored and
 built at package time. The island (`src/App.vue`) does search / doctype+stage
 facets / sort / list-grid / dark-mode / copy-DocID / client pagination, hydrating
 from `window.RELATON_INDEX_DATA`, the crawler DOM, or a fetched `search.json`
-(`src/lib/hydrate.ts`). Pure filter/sort logic is `src/lib/filter.ts`. UI icons
+(`src/lib/hydrate.ts`). Pagination is **viewport-adaptive**: `computePageSize()`
+sizes a page from the available height and grid/list row density (recomputed on
+resize — debounced — and on view-mode change, clamped `10..100`) rather than a
+fixed 100 rows, and the Prev/Next/page controls live in a shared
+`src/components/Pagination.vue` rendered **both above and below** the list. Pure
+filter/sort logic is `src/lib/filter.ts`. UI icons
 are inline Heroicons-outline SVGs via the shared `src/components/Icon.vue`
 (`<Icon name="…" />`, a name→path map — `fill=none stroke=currentColor` so they
 inherit text colour + dark mode), matching the CalConnect standards site — **not**
