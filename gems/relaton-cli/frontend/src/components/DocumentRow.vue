@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import type { IndexDocument } from "../lib/types";
+import Icon from "./Icon.vue";
 
 defineProps<{ doc: IndexDocument; view: "list" | "grid" }>();
 
@@ -37,7 +38,7 @@ async function copyId(id: string) {
             :title="copied ? 'Copied!' : 'Copy DocID'"
             @click="copyId(doc.id)"
           >
-            <span aria-hidden="true">{{ copied ? "✓" : "⧉" }}</span>
+            <Icon :name="copied ? 'check' : 'copy'" class="h-4 w-4" />
           </button>
         </div>
         <p class="mt-1 text-sm text-slate-700 dark:text-slate-300">{{ doc.title }}</p>
@@ -60,8 +61,8 @@ async function copyId(id: string) {
           :href="doc.yaml"
           target="_blank"
           rel="noopener"
-          class="text-brand hover:underline dark:text-brand-dark"
-        >YAML</a>
+          class="inline-flex items-center text-brand hover:underline dark:text-brand-dark"
+        ><Icon name="document" class="mr-1 h-3.5 w-3.5" />YAML</a>
       </div>
     </div>
   </article>
