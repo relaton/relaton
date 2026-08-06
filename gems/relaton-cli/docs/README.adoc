@@ -240,7 +240,7 @@ repositories (e.g. https://relaton.github.io/relaton-data-bipm/).
 
 The generated `index.html` is self-contained: it inlines a compiled
 Vue + Tailwind frontend (search, doctype/stage filters, sort, list/grid,
-dark mode, copy-DocID, pagination) and carries the document data so no server is
+dark mode, copy-DocID, responsive pagination) and carries the document data so no server is
 required. Output is written to `_site/` (`index.html` + `search.json`).
 
 .Options
@@ -267,8 +267,17 @@ required. Output is written to `_site/` (`index.html` + `search.json`).
 $ relaton index data --output _site --base-url \
     https://raw.githubusercontent.com/relaton/relaton-data-bipm/v2
 
-# Ad-hoc, cloning the repo by flavor:
+# From a local folder of YAML docs (default ./data), with a custom title:
+$ relaton index ./my-docs --title "My Standards Index"
+
+# Ad-hoc, cloning the official data repo by flavor:
 $ relaton index --flavor bipm --output _site
+
+# From an arbitrary GitHub repo, pinning the branch to clone:
+$ relaton index --repo relaton/relaton-data-bipm --branch v2 --output _site
+
+# Emit a fetched search.json sidecar instead of the embedded payload:
+$ relaton index data --mode static-json --output _site
 ----
 
 NOTE: When building from a git checkout of relaton-cli, the compiled frontend
