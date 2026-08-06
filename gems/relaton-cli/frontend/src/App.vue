@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import type { IndexData } from "./lib/types";
 import {
   applyFilters,
@@ -8,6 +8,7 @@ import {
   type SortKey,
 } from "./lib/filter";
 import DocumentRow from "./components/DocumentRow.vue";
+import Pagination from "./components/Pagination.vue";
 
 const props = defineProps<{ data: IndexData }>();
 
@@ -37,13 +38,46 @@ const visible = computed(() =>
 );
 
 // Client-side pagination keeps rendering fast for large indexes (e.g. BIPM's
-// ~8k docs) — only the current page is rendered to the DOM at a time.
-const PAGE_SIZE = 100;
+// ~8k docs) — only the current page is rendered to the DOM at a time. The page
+// size adapts to the viewport so a page fills roughly one screen instead of a
+// fixed 100 rows. Row heights are estimates (px); grid packs two columns wide.
+const listEl = ref<HTMLElement | null>(null);
+const ROW_H = { list: 76, grid: 128 };
+const RESERVE = 120; // bottom pagination + breathing room below the list
+const MIN_ROWS = 10;
+const MAX_ROWS = 100;
+
+function computePageSize(): number {
+  const vh = window.innerHeight || 800;
+  const top = listEl.value?.getBoundingClientRect().top ?? 300;
+  const avail = Math.max(vh - top - RESERVE, ROW_H.list);
+  const cols = view.value === "grid" && window.innerWidth >= 640 ? 2 : 1;
+  const rows = Math.floor(avail / ROW_H[view.value]) * cols;
+  return Math.min(MAX_ROWS, Math.max(MIN_ROWS, rows));
+}
+
+const pageSize = ref(computePageSize());
 const page = ref(1);
-const pageCount = computed(() => Math.max(1, Math.ceil(visible.value.length / PAGE_SIZE)));
+const pageCount = computed(() => Math.max(1, Math.ceil(visible.value.length / pageSize.value)));
 const paged = computed(() => {
-  const start = (page.value - 1) * PAGE_SIZE;
-  return visible.value.slice(start, start + PAGE_SIZE);
+  const start = (page.value - 1) * pageSize.value;
+  return visible.value.slice(start, start + pageSize.value);
+});
+
+function refreshPageSize() {
+  const next = computePageSize();
+  if (next !== pageSize.value) pageSize.value = next;
+}
+let resizeTimer: ReturnType<typeof setTimeout> | undefined;
+function onResize() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(refreshPageSize, 150);
+}
+// Grid/list density differs, so recompute when the view mode changes.
+watch(view, () => nextTick(refreshPageSize));
+// Keep the current page valid after the page size changes (e.g. on resize).
+watch(pageSize, () => {
+  page.value = Math.min(page.value, pageCount.value);
 });
 // Reset to the first page whenever the filtered set changes.
 watch([query, activeDoctypes, activeStages, sortKey, sortDir], () => {
@@ -117,8 +151,17 @@ function onKey(e: KeyboardEvent) {
     searchEl.value?.blur();
   }
 }
-onMounted(() => window.addEventListener("keydown", onKey));
-onUnmounted(() => window.removeEventListener("keydown", onKey));
+onMounted(() => {
+  window.addEventListener("keydown", onKey);
+  window.addEventListener("resize", onResize);
+  // Measure the real layout once rows have rendered, then size the page.
+  nextTick(refreshPageSize);
+});
+onUnmounted(() => {
+  window.removeEventListener("keydown", onKey);
+  window.removeEventListener("resize", onResize);
+  clearTimeout(resizeTimer);
+});
 </script>
 
 <template>
@@ -229,9 +272,13 @@ onUnmounted(() => window.removeEventListener("keydown", onKey));
         </div>
       </div>
 
+      <!-- Pagination (top, mirrors the bottom controls) -->
+      <Pagination class="mb-4" :page="page" :page-count="pageCount" @go="goto" />
+
       <!-- List -->
       <div
         v-if="visible.length"
+        ref="listEl"
         :class="view === 'grid'
           ? 'grid grid-cols-1 gap-3 sm:grid-cols-2'
           : 'flex flex-col divide-y divide-slate-200 dark:divide-slate-800'"
@@ -247,26 +294,8 @@ onUnmounted(() => window.removeEventListener("keydown", onKey));
         No documents match your filters.
       </p>
 
-      <!-- Pagination -->
-      <nav
-        v-if="pageCount > 1"
-        class="mt-6 flex items-center justify-center gap-2 text-sm"
-        aria-label="Pagination"
-      >
-        <button
-          type="button"
-          class="rounded-md border border-slate-300 px-3 py-1 disabled:opacity-40 dark:border-slate-700"
-          :disabled="page === 1"
-          @click="goto(page - 1)"
-        >Prev</button>
-        <span class="text-slate-500 dark:text-slate-400">Page {{ page }} of {{ pageCount }}</span>
-        <button
-          type="button"
-          class="rounded-md border border-slate-300 px-3 py-1 disabled:opacity-40 dark:border-slate-700"
-          :disabled="page === pageCount"
-          @click="goto(page + 1)"
-        >Next</button>
-      </nav>
+      <!-- Pagination (bottom) -->
+      <Pagination class="mt-6" :page="page" :page-count="pageCount" @go="goto" />
     </main>
 
     <footer class="border-t border-slate-200 py-8 text-center text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
