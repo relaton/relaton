@@ -120,8 +120,12 @@ modernized). `src/` is committed; `dist/` + `node_modules/` are gitignored and
 built at package time. The island (`src/App.vue`) does search / doctype+stage
 facets / sort / list-grid / dark-mode / copy-DocID / client pagination, hydrating
 from `window.RELATON_INDEX_DATA`, the crawler DOM, or a fetched `search.json`
-(`src/lib/hydrate.ts`). Pure filter/sort logic is `src/lib/filter.ts`. Tests:
-`npm run typecheck` + `vitest` (filter/hydrate/App via happy-dom).
+(`src/lib/hydrate.ts`). Pure filter/sort logic is `src/lib/filter.ts`. UI icons
+are inline Heroicons-outline SVGs via the shared `src/components/Icon.vue`
+(`<Icon name="…" />`, a name→path map — `fill=none stroke=currentColor` so they
+inherit text colour + dark mode), matching the CalConnect standards site — **not**
+Unicode emoji; add a new glyph to `Icon.vue`'s `PATHS` rather than inlining an
+emoji. Tests: `npm run typecheck` + `vitest` (filter/hydrate/App/Icon via happy-dom).
 
 **Build wiring.** `rake build_frontend` (`npm ci`/`install` + `npm run build`) is
 a prerequisite of `build`/`release`; the root `rake build_all` runs it before

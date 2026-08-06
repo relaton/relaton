@@ -9,6 +9,7 @@ import {
 } from "./lib/filter";
 import DocumentRow from "./components/DocumentRow.vue";
 import Pagination from "./components/Pagination.vue";
+import Icon from "./components/Icon.vue";
 
 const props = defineProps<{ data: IndexData }>();
 
@@ -181,8 +182,7 @@ onUnmounted(() => {
           :title="isDark ? 'Light theme' : 'Dark theme'"
           @click="toggleTheme"
         >
-          <span v-if="isDark" aria-hidden="true">☀️</span>
-          <span v-else aria-hidden="true">🌙</span>
+          <Icon :name="isDark ? 'sun' : 'moon'" class="h-5 w-5" />
         </button>
       </div>
     </header>
@@ -192,7 +192,9 @@ onUnmounted(() => {
       <div class="sticky top-0 z-10 -mx-4 mb-4 bg-slate-50/90 px-4 py-3 backdrop-blur dark:bg-slate-950/90">
         <div class="flex flex-wrap items-center gap-3">
           <div class="relative min-w-56 flex-1">
-            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">🔎</span>
+            <span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-slate-400">
+              <Icon name="search" class="h-4 w-4" />
+            </span>
             <input
               ref="searchEl"
               v-model="query"
@@ -215,7 +217,11 @@ onUnmounted(() => {
                 : 'text-slate-600 hover:bg-slate-200 dark:text-slate-300 dark:hover:bg-slate-800'"
               @click="setSort(k)"
             >
-              {{ k }}<span v-if="sortKey === k">{{ sortDir === "asc" ? " ↑" : " ↓" }}</span>
+              {{ k }}<Icon
+                v-if="sortKey === k"
+                :name="sortDir === 'asc' ? 'chevron-up' : 'chevron-down'"
+                class="ml-0.5 inline h-3.5 w-3.5"
+              />
             </button>
           </div>
 
@@ -226,14 +232,14 @@ onUnmounted(() => {
               :class="view === 'list' ? 'bg-brand text-white' : 'text-slate-600 dark:text-slate-300'"
               aria-label="List view"
               @click="setView('list')"
-            >☰</button>
+            ><Icon name="list" class="h-4 w-4" /></button>
             <button
               type="button"
               class="rounded-md px-2 py-1 text-sm"
               :class="view === 'grid' ? 'bg-brand text-white' : 'text-slate-600 dark:text-slate-300'"
               aria-label="Grid view"
               @click="setView('grid')"
-            >▦</button>
+            ><Icon name="grid" class="h-4 w-4" /></button>
           </div>
         </div>
 
