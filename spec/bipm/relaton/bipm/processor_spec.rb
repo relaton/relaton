@@ -2,7 +2,7 @@ require "relaton/bipm/processor"
 
 describe Relaton::Bipm::Processor do
   it "exposes a normalized INDEXFILE constant (base name, no extension)" do
-    expect(Relaton::Bipm::INDEXFILE).to eq "index-v1"
+    expect(Relaton::Bipm::INDEXFILE).to eq "index-v2"
   end
 
   it "#intialize" do

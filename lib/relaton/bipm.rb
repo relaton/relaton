@@ -4,8 +4,10 @@ require "parslet"
 require "relaton/bib"
 require "relaton/index"
 require "relaton/core"
+require "pubid"
 require_relative "version"
 require_relative "bipm/util"
+require_relative "bipm/id_parser"
 require_relative "bipm/item_data"
 require_relative "bipm/model/item"
 require_relative "bipm/model/bibitem"
@@ -16,7 +18,11 @@ module Relaton
   module Bipm
     class Error < StandardError; end
 
-    INDEXFILE = "index-v1".freeze
+    # The runtime index is the pubid-backed `index-v2` (`_type: pubid:bipm:*`).
+    # The legacy bespoke `{group,type,number,year}` `index-v1` is still published
+    # by `relaton-data-bipm`'s crawler (using the retained `Relaton::Bipm::Id`),
+    # but this flavor no longer reads or writes it.
+    INDEXFILE = "index-v2".freeze
 
     # Returns hash of gems versions used to generate the data model.
     # @return [String]

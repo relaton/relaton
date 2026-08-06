@@ -270,9 +270,8 @@ module Relaton::Bipm
     # @param [Relaton::Bipm::ItemData] item bibliographic item
     # @param [String] path path to YAML file
     #
-    def add_to_index(item, path) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-      key = Id.new.parse(item.docnumber).to_hash
-      @data_fetcher.index.add_or_update key, path
+    def add_to_index(item, path)
+      @data_fetcher.add_to_index item.docnumber, path
     end
 
     #

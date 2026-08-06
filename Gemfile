@@ -4,10 +4,13 @@ source "https://rubygems.org"
 
 gemspec
 
-# TEMP PIN: the `jcgm`, `etsi`, `cie`, `itu` and `ieee` flavors need pubid support
-# not yet in the released 2.0.0.pre.alpha.8 that relaton.gemspec pins:
+# TEMP PIN: the `jcgm`, `bipm`, `etsi`, `cie`, `itu` and `ieee` flavors need pubid
+# support not yet in the released 2.0.0.pre.alpha.8 that relaton.gemspec pins:
 #   - JCGM: meetings, bare GUM/VIM-N guides, the Corrigendum suffix, and the
 #     flattened compact `to_hash`.
+#   - BIPM: the whole `Pubid::Bipm` grammar (committee documents, meetings,
+#     Metrologia articles, SI Brochure) that the migrated flavor uses to build and
+#     read its pubid `index-v2` (`_type: pubid:bipm:*`); see lib/relaton/bipm.
 #   - ETSI: the flattened compact `to_hash` (`_type: pubid:etsi:*` with scalar
 #     type/number/version/year/month) that the published `relaton-data-etsi`
 #     index-v2 carries (the older nested shape can't deserialize it).

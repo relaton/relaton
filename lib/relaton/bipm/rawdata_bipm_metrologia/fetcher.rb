@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_relative "../id_parser"
 require_relative "niso_jats_parser"
 
 module Relaton::Bipm
@@ -37,8 +36,7 @@ module Relaton::Bipm
           item = NisoJatsParser.parse path, @data_fetcher.errors
           file = "#{item.docidentifier.first.content.downcase.tr(' ', '-')}.#{@data_fetcher.ext}"
           out_path = File.join(@data_fetcher.output, file)
-          key = Relaton::Bipm::Id.new.parse(item.docidentifier.first.content).to_hash
-          @data_fetcher.index.add_or_update key, out_path
+          @data_fetcher.add_to_index item.docidentifier.first.content, out_path
           @data_fetcher.write_file out_path, item
         end
       end
@@ -80,7 +78,7 @@ module Relaton::Bipm
         )
         file = "#{id.downcase.gsub(' ', '-')}.#{@data_fetcher.ext}"
         path = File.join(@data_fetcher.output, file)
-        @data_fetcher.index.add_or_update Id.new.parse(id).to_hash, path
+        @data_fetcher.add_to_index id, path
         @data_fetcher.write_file path, item
       end
 

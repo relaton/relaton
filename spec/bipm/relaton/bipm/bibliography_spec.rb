@@ -4,11 +4,12 @@ RSpec.describe Relaton::Bipm::Bibliography do
   context "raise RequestError" do
     it "fetch from GitHub" do
       index = double "index"
-      expect(index).to receive(:search).and_return [{ id: { year: "156" }, path: "data/doc.yaml" }]
+      row_id = ::Pubid::Bipm.parse "Metrologia 156"
+      expect(index).to receive(:search).and_return [{ id: row_id, file: "data/doc.yaml" }]
       expect(Relaton::Index).to receive(:find_or_create).with(
         :bipm,
-        url: "https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/v2/index-v1.zip",
-        file: "index-v1.yaml", id_keys: %i[group type number year corr part append]
+        url: "https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/v2/index-v2.zip",
+        file: "index-v2.yaml", pubid_class: ::Pubid::Bipm::Identifier
       ).and_return index
       agent = double(:agent)
       expect(agent).to receive(:get).and_raise Mechanize::ResponseCodeError.new(Mechanize::Page.new)
@@ -16,6 +17,16 @@ RSpec.describe Relaton::Bipm::Bibliography do
       expect do
         Relaton::Bipm::Bibliography.search "Metrologia"
       end.to raise_error Relaton::RequestError
+    end
+  end
+
+  context "unparseable reference" do
+    it "returns nil (a graceful miss), not a raised error" do
+      result = nil
+      expect do
+        result = Relaton::Bipm::Bibliography.get "not a real bipm ref ((("
+      end.not_to raise_error
+      expect(result).to be_nil
     end
   end
 

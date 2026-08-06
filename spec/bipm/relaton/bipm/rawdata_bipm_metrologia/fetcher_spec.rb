@@ -28,7 +28,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
           expect(item.source[0].content.to_s).to eq "https://iopscience.iop.org/volume/0026-1394/1A"
           expect(item.source[0].type).to eq "src"
         end
-        expect(index).to receive(:add_or_update).with({ group: "Metrologia", number: "1A" }, "output/metrologia-1a.yaml")
+        expect(data_fetcher).to receive(:add_to_index).with("Metrologia 1A", "output/metrologia-1a.yaml")
         subject.fetch_metrologia "volume_1A"
       end
 
@@ -44,7 +44,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
           expect(item.source[0].content.to_s).to eq "https://iopscience.iop.org/issue/0026-1394/1/2"
           expect(item.source[0].type).to eq "src"
         end
-        expect(index).to receive(:add_or_update).with({ group: "Metrologia", number: "1 2" }, "output/metrologia-1-2.yaml")
+        expect(data_fetcher).to receive(:add_to_index).with("Metrologia 1 2", "output/metrologia-1-2.yaml")
         subject.fetch_metrologia "volume_1", "issue_2"
       end
     end
@@ -82,7 +82,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Fetcher do
       expect(Relaton::Bipm::RawdataBipmMetrologia::NisoJatsParser).to receive(:parse)
         .with(path_new, errors).ordered.and_return item
       expect(data_fetcher).to receive(:write_file).with("output/metrologia.yaml", item).twice
-      expect(index).to receive(:add_or_update).with({ group: "Metrologia" }, "output/metrologia.yaml").twice
+      expect(data_fetcher).to receive(:add_to_index).with("Metrologia", "output/metrologia.yaml").twice
       subject.fetch_articles
     end
 

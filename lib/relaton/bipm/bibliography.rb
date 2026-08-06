@@ -46,11 +46,13 @@ module Relaton::Bipm
       # @return [RelatonBipm::BipmBibliographicItem]
       #
       def get_bipm(reference) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-        ref_id = Id.new.parse reference
-        rows = index.search { |r| ref_id == r[:id] }
-        return unless rows.any?
+        ref_id = parse_ref reference
+        return unless ref_id
 
-        row = rows.sort_by { |r| r[:id][:year] }.last
+        rows = index.search { |r| ref_id == id_hash(r[:id]) }
+        return if rows.empty?
+
+        row = rows.max_by { |r| r[:id].year.to_i }
         url = "#{GH_ENDPOINT}#{row[:file]}"
         resp = Mechanize.new.get url
         return unless resp.code == "200"
@@ -60,10 +62,50 @@ module Relaton::Bipm
         item
       end
 
+      # Parse a user reference with the flexible bespoke `Id` grammar, which
+      # accepts the loose consumer forms (`CCTF Meeting 14 (1999)`,
+      # `CCDS …`, `… (2009, EN)`, `SI Brochure Part 1`, …) that the stricter
+      # `Pubid::Bipm` grammar rejects. A malformed reference is a graceful miss
+      # (nil), not a raised `Relaton::RequestError`.
+      #
+      # @param reference [String]
+      # @return [Relaton::Bipm::Id, nil]
+      def parse_ref(reference)
+        Id.new.parse reference
+      rescue Relaton::RequestError
+        nil
+      end
+
+      # Project an index row's `Pubid::Bipm` identifier back to the bespoke
+      # `{group,type,number,year,…}` hash so the flexible `Id#==` can match it
+      # against a parsed user reference. The index stores pubid objects
+      # (`_type: pubid:bipm:*`); consumer matching stays on `Id`'s fuzzy
+      # equality (number/year/lang collapsing) rather than pubid's stricter
+      # stem match, preserving the loose query forms above.
+      #
+      # @param pubid [Pubid::Bipm::Identifier]
+      # @return [Hash]
+      def id_hash(pubid) # rubocop:disable Metrics/MethodLength
+        case pubid
+        when ::Pubid::Bipm::Identifiers::CommitteeDocument
+          { group: pubid.group, type: pubid.type_code, number: pubid.number,
+            year: pubid.year&.to_s, lang: pubid.language }
+        when ::Pubid::Bipm::Identifiers::Meeting
+          { group: pubid.group, type: "Meeting", number: pubid.number,
+            year: pubid.year&.to_s }
+        when ::Pubid::Bipm::Identifiers::MetrologiaArticle
+          num = [pubid.volume, pubid.issue, pubid.article].compact.join(" ")
+          { group: "Metrologia", number: (num unless num.empty?) }
+        when ::Pubid::Bipm::Identifiers::SiBrochure
+          { group: "SI", type: "Brochure" }
+        else {}
+        end.compact
+      end
+
       def index
         Relaton::Index.find_or_create(
           :bipm, url: "#{GH_ENDPOINT}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
-          id_keys: %i[group type number year corr part append]
+          pubid_class: ::Pubid::Bipm::Identifier
         )
       end
 

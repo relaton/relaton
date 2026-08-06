@@ -89,7 +89,7 @@ describe Relaton::Bipm::DataOutcomesParser do
           body: "CGPM", en: kind_of(Hash), fr: kind_of(Hash),
           dir: "data/cgpm/meeting", src: kind_of(Array), num: "1"
         )
-        expect(index).to receive(:add_or_update).with({ group: "CGPM", type: "Meeting", number: "1", year: "1889" }, "data/cgpm/meeting/1.yaml")
+        expect(data_fetcher).to receive(:add_to_index).with("CGPM 1st Meeting (1889)", "data/cgpm/meeting/1.yaml")
         subject.fetch_meeting "fixtures/cgpm/meetings-en/meeting-01.yml", "CGPM", "Meeting", "data/cgpm/meeting"
       end
 
@@ -122,9 +122,9 @@ describe Relaton::Bipm::DataOutcomesParser do
           dir: "data/cipm/meeting", src: kind_of(Array), num: /\d+/
         ).twice
 
-        expect(index).to receive(:add_or_update).with({ group: "CIPM", type: "Meeting", number: "101-1", year: "2012" }, "data/cipm/meeting/101-1.yaml")
-        expect(index).to receive(:add_or_update).with({ group: "CIPM", type: "Meeting", number: "101-2", year: "2012" }, "data/cipm/meeting/101-2.yaml")
-        expect(index).to receive(:add_or_update).with({ group: "CIPM", type: "Meeting", number: "101", year: "2012" }, "data/cipm/meeting/101.yaml")
+        expect(data_fetcher).to receive(:add_to_index).with("CIPM 101-1st Meeting (2012)", "data/cipm/meeting/101-1.yaml")
+        expect(data_fetcher).to receive(:add_to_index).with("CIPM 101-2st Meeting (2012)", "data/cipm/meeting/101-2.yaml")
+        expect(data_fetcher).to receive(:add_to_index).with("CIPM 101st Meeting (2012)", "data/cipm/meeting/101.yaml")
         subject.fetch_meeting "fixtures/cipm/meetings-en/meeting-101-1.yml", "CIPM", "Meeting", "data/cipm/meeting"
         subject.fetch_meeting "fixtures/cipm/meetings-en/meeting-101-2.yml", "CIPM", "Meeting", "data/cipm/meeting"
       end
@@ -138,24 +138,12 @@ describe Relaton::Bipm::DataOutcomesParser do
           expect(item_hash).to eq(YAML.load_file(path))
         end.exactly(6).times
 
-        expect(index).to receive(:add_or_update).with(
-          { group: "JCRB", type: "Meeting", number: "48", year: "2024" }, "#{outdir}/48.yaml"
-        )
-        expect(index).to receive(:add_or_update).with(
-          { group: "JCRB", type: "ACT", number: "48-1", year: "2024" }, "#{outdir}/action/2024-48-1.yaml"
-        )
-        expect(index).to receive(:add_or_update).with(
-          { group: "JCRB", type: "ACT", number: "48-2", year: "2024" }, "#{outdir}/action/2024-48-2.yaml"
-        )
-        expect(index).to receive(:add_or_update).with(
-          { group: "JCRB", type: "ACT", number: "48-3", year: "2024" }, "#{outdir}/action/2024-48-3.yaml"
-        )
-        expect(index).to receive(:add_or_update).with(
-          { group: "JCRB", type: "RES", number: "48-1", year: "2024" }, "#{outdir}/resolution/2024-48-1.yaml"
-        )
-        expect(index).to receive(:add_or_update).with(
-          { group: "JCRB", type: "RES", number: "48-2", year: "2024" }, "#{outdir}/resolution/2024-48-2.yaml"
-        )
+        expect(data_fetcher).to receive(:add_to_index).with("JCRB 48th Meeting (2024)", "#{outdir}/48.yaml")
+        expect(data_fetcher).to receive(:add_to_index).with("JCRB ACT 48-1 (2024)", "#{outdir}/action/2024-48-1.yaml")
+        expect(data_fetcher).to receive(:add_to_index).with("JCRB ACT 48-2 (2024)", "#{outdir}/action/2024-48-2.yaml")
+        expect(data_fetcher).to receive(:add_to_index).with("JCRB ACT 48-3 (2024)", "#{outdir}/action/2024-48-3.yaml")
+        expect(data_fetcher).to receive(:add_to_index).with("JCRB RES 48-1 (2024)", "#{outdir}/resolution/2024-48-1.yaml")
+        expect(data_fetcher).to receive(:add_to_index).with("JCRB RES 48-2 (2024)", "#{outdir}/resolution/2024-48-2.yaml")
 
         subject.fetch_meeting "fixtures/jcrb/meetings-en/meeting-48.yml", "JCRB", "Meeting", outdir
       end
@@ -186,9 +174,7 @@ describe Relaton::Bipm::DataOutcomesParser do
         fr = YAML.load_file "fixtures/cgpm/meetings-fr/meeting-01.yml"
         src = [Relaton::Bib::Uri.new(type: "src", content: "http://www.bipm.org/publications/cgpm/meeting-01.html")]
 
-        expect(index).to receive(:add_or_update).with(
-          { group: "CGPM", type: "RES", year: "1889" }, "data/cgpm/meeting/resolution/1889-00.yaml"
-        )
+        expect(data_fetcher).to receive(:add_to_index).with("CGPM RES (1889)", "data/cgpm/meeting/resolution/1889-00.yaml")
         subject.fetch_resolution(
           body: "CGPM", en: en, fr: fr, dir: "data/cgpm/meeting", src: src, num: "1",
         )
@@ -209,7 +195,7 @@ describe Relaton::Bipm::DataOutcomesParser do
         fr = YAML.load_file "fixtures/cipm/meetings-fr/meeting-101-1.yml"
         src = [Relaton::Bib::Uri.new(type: "src", content: "http://www.bipm.org/publications/cipm/meeting-01.html")]
 
-        expect(index).to receive(:add_or_update).with(kind_of(Hash), kind_of(String)).exactly(40).times
+        expect(data_fetcher).to receive(:add_to_index).with(kind_of(String), kind_of(String)).exactly(40).times
         subject.fetch_resolution(
           body: "CIPM", en: en, fr: fr, dir: "data/cipm/meeting", src: src, num: "1",
         )

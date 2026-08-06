@@ -1,5 +1,4 @@
 require "nokogiri"
-require_relative "id_parser"
 
 module Relaton::Bipm
   class SiBrochureParser
@@ -51,8 +50,11 @@ module Relaton::Bipm
         fix_si_brochure_id item1
         basename = File.join @data_fetcher.output, File.basename(f).sub(/(?:-(?:en|fr))?\.rxl$/, "")
         outfile = "#{basename}.#{@data_fetcher.ext}"
-        key = item1.docnumber || basename
-        @data_fetcher.index.add_or_update Id.new.parse(key).to_hash, outfile
+        # Index by the primary docidentifier content ("BIPM SI Brochure 9e
+        # v3.01 (2019/2024, E)"), which `Pubid::Bipm` parses — unlike the bare
+        # `docnumber` ("SI Brochure 9e …", no "BIPM" prefix), which it rejects.
+        key = primary_id(item1) || item1.docnumber || basename
+        @data_fetcher.add_to_index key, outfile
         item =
           if File.exist? outfile
             warn_duplicate = false

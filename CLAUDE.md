@@ -214,7 +214,12 @@ is absent the gem builds without the bundle and `relaton index` raises
   `lib/relaton/<flavor>.rb`; call sites append `.yaml`/`.zip` (`"#{INDEXFILE}.yaml"`,
   `"#{INDEXFILE}.zip"`). Don't embed the extension in the constant or hardcode
   `index-vN.zip` at a call site. (jis is the one sanctioned exception — it carries
-  both `INDEXFILE`/`INDEXFILE_V2` for its dual-write migration.) The index schema
+  both `INDEXFILE`/`INDEXFILE_V2` for its dual-write migration.) The BIPM flavor
+  advanced its single `INDEXFILE` to the pubid `index-v2` (`_type: pubid:bipm:*`,
+  built/read via `pubid_class: ::Pubid::Bipm::Identifier`); the legacy bespoke
+  `index-v1` is no longer produced here — `relaton-data-bipm`'s crawler still
+  emits it using the retained public `Relaton::Bipm::Id`. See
+  `lib/relaton/bipm/CLAUDE.md`. The index schema
   and data-repo publishing/Pages contract are specified in
   `docs/data-repository-format.adoc`; see also `lib/relaton/index/CLAUDE.md`.
 - Don't reintroduce per-flavor gems/gemspecs or the combined-build step — it's
