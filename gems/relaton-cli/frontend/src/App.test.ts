@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it } from "vitest";
-import { mount } from "@vue/test-utils";
+import { flushPromises, mount } from "@vue/test-utils";
 import App from "./App.vue";
 import type { IndexData } from "./lib/types";
 
@@ -35,5 +35,32 @@ describe("App island", () => {
   it("shows the count summary", () => {
     const w = mount(App, { props: { data } });
     expect(w.text()).toContain("3 of 3 documents");
+  });
+
+  it("paginates to the viewport and mirrors the controls top and bottom", async () => {
+    const many: IndexData = {
+      title: "Big Index",
+      documents: Array.from({ length: 60 }, (_, i) => ({
+        id: `DOC ${i + 1}`, title: `Title ${i + 1}`,
+        doctype: "report", stage: "published", date: "2020-01-01",
+        link: null, yaml: `d/${i + 1}.yaml`,
+      })),
+    };
+    const original = window.innerHeight;
+    Object.defineProperty(window, "innerHeight", { value: 400, configurable: true });
+    try {
+      const w = mount(App, { props: { data: many } });
+      await flushPromises();
+
+      const rows = w.findAll(".document").length;
+      expect(rows).toBeGreaterThan(0);
+      expect(rows).toBeLessThan(60); // paginated, not all 60 at once
+
+      // Pagination is rendered both above and below the list.
+      const navs = w.findAll('nav[aria-label="Pagination"]');
+      expect(navs).toHaveLength(2);
+    } finally {
+      Object.defineProperty(window, "innerHeight", { value: original, configurable: true });
+    }
   });
 });
