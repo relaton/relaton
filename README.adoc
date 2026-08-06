@@ -6,7 +6,8 @@ image:https://github.com/relaton/relaton/actions/workflows/rake.yml/badge.svg["B
 Gem for importing and caching bibliographic references to technical standards.
 Every standards-body flavor ships inside this single gem; flavor code loads on
 demand via `autoload`, and the `Relaton::Db` API routes a reference to the right
-flavor by its prefix. The command-line interface, `relaton-cli`, is a separate gem.
+flavor by its prefix. The command-line interface,
+link:gems/relaton-cli/docs/README.adoc[`relaton-cli`], is a separate gem.
 
 == Installation
 
