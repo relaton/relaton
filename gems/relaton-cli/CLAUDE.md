@@ -90,8 +90,20 @@ replacing the shared Jekyll theme (`relaton/jekyll-theme-relaton-data-index`) +
 `relaton/support` `data-deploy.yml` build. Pieces:
 
 - `lib/relaton/cli/index_site_generator.rb` — scans `DATA-DIR/**/*.{yaml,yml}`
-  (default `./data`, skips `index-v*.yaml`), normalizes each doc, and renders a
+  (default `./data`, skips `index-v*.yaml`) **plus an auto-detected sibling
+  `static/` folder** (`STATIC_DIRNAME`, a sibling of `DATA-DIR` = `repo_root/static`;
+  `--no-static`/`static: false` opts out), normalizes each doc, and renders a
   self-contained `index.html` + `search.json` into `--output` (default `_site`).
+  Both source dirs go through the same `SKIP_BASENAMES`/`document?` filters. De-dup
+  is **cross-folder only**: `data/` is scanned first, so a `static/` doc whose
+  normalized id already appeared in `data/` is skipped with a warning (data wins);
+  duplicates *within* a single folder are left as-is (preserving the pre-static
+  data-scan behavior), and a blank/empty normalized id never de-dups (so docid-less
+  title-only docs aren't collapsed). Static docs get correct `static/<path>`
+  raw-YAML links for free because `relative_path` is taken from `repo_root` (the
+  parent of both `data/` and `static/`). `static/` holds manually-curated bib
+  records the crawler can't fetch (ISO/IEC Directives, JCGM/GUM guides, NIST
+  research-library metadata) that are already part of the corpus (in `index-vN.yaml`).
   Three `--mode`s: `embedded` (crawler DOM + `window.RELATON_INDEX_DATA` JSON —
   default), `dom` (crawler DOM only), `static-json` (`search.json` sidecar,
   fetched; not crawlable). JSON is `script_escape`d (`</`→`<\/`, U+2028/9) so it

@@ -32,4 +32,23 @@ RSpec.describe "Relaton index" do
     expect(html).to include('data-src="search.json"')
     expect(html).not_to include("window.RELATON_INDEX_DATA = {")
   end
+
+  context "with a sibling static/ folder" do
+    let(:data_dir) { "spec/index_fixtures_static/data" }
+
+    it "includes the static/ docs in the generated site by default" do
+      Relaton::Cli.start(["index", data_dir, "-o", @out])
+
+      html = File.read(File.join(@out, "index.html"))
+      expect(html).to include("NIST Research Library (2022)")
+      expect(html).to include("JCGM 100 (2008)")
+    end
+
+    it "omits the static/ docs with --no-static" do
+      Relaton::Cli.start(["index", data_dir, "-o", @out, "--no-static"])
+
+      html = File.read(File.join(@out, "index.html"))
+      expect(html).not_to include("NIST Research Library (2022)")
+    end
+  end
 end
