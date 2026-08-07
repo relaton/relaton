@@ -111,4 +111,68 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     expect { described_class.generate(data_dir, output: @out, mode: "bogus") }
       .to raise_error(ArgumentError, /Unknown mode/)
   end
+
+  context "with a sibling static/ folder" do
+    let(:data_dir) { "spec/index_fixtures_static/data" }
+    let(:base) { "https://raw.githubusercontent.com/relaton/relaton-data-nist/main" }
+
+    def gen(opts = {})
+      described_class.generate(
+        data_dir,
+        { output: @out, generated: "2026-01-01", base_url: base }.merge(opts),
+      )
+      File.read(File.join(@out, "index.html"), encoding: "utf-8")
+    end
+
+    it "indexes the sibling static/ docs alongside the data docs by default" do
+      html = gen
+      # data/example.yaml (1) + static/nist + static/jcgm/100 (2); the duplicate
+      # static/dup.yaml is de-duped away -> 3 documents total.
+      expect(html.scan(/class="document"/).size).to eq(3)
+      expect(html).to include("NIST Research Library (2022)")
+    end
+
+    it "builds a static doc's yaml link as base_url + static/<path>" do
+      html = gen
+      expect(html).to include(
+        %(data-href="#{base}/static/nist-research-library-2022.yaml"),
+      )
+    end
+
+    it "indexes nested static docs" do
+      html = gen
+      expect(html).to include(%(data-href="#{base}/static/jcgm/100-2008.yaml"))
+    end
+
+    it "omits the static docs when static: false" do
+      html = gen(static: false)
+      expect(html.scan(/class="document"/).size).to eq(1)
+      expect(html).not_to include("NIST Research Library (2022)")
+      expect(html).not_to include("static/nist-research-library-2022.yaml")
+    end
+
+    it "de-dups an id present in both data/ and static/, letting data/ win" do
+      html = gen
+      expect(html).to include("#{base}/data/example.yaml")
+      expect(html).not_to include("static/dup.yaml")
+    end
+  end
+
+  context "with docid-less (title-only) documents" do
+    it "does not collapse distinct docs whose normalized id is blank" do
+      Dir.mktmpdir("blankid-") do |repo|
+        FileUtils.mkdir_p(File.join(repo, "data"))
+        File.write(File.join(repo, "data", "a.yaml"),
+                   "---\ntitle:\n- content: First title-only doc\n  language: en\n")
+        File.write(File.join(repo, "data", "b.yaml"),
+                   "---\ntitle:\n- content: Second title-only doc\n  language: en\n")
+        described_class.generate(File.join(repo, "data"),
+                                 output: @out, generated: "2026-01-01")
+        html = File.read(File.join(@out, "index.html"), encoding: "utf-8")
+        expect(html.scan(/class="document"/).size).to eq(2)
+        expect(html).to include("First title-only doc")
+        expect(html).to include("Second title-only doc")
+      end
+    end
+  end
 end

@@ -150,6 +150,8 @@ module Relaton
              desc: "Base URL for raw YAML links (defaults to the raw GitHub URL when cloning)"
       option :mode, aliases: :m, default: "embedded",
                     desc: "Data delivery mode: embedded, dom, or static-json"
+      option :static, type: :boolean, default: true,
+                      desc: "Also index a sibling static/ folder next to DATA-DIR (auto-detected); --no-static disables"
       option :overwrite, aliases: :f, type: :boolean, default: true,
                          desc: "Overwrite existing output files"
 
@@ -161,6 +163,7 @@ module Relaton
             mode: options[:mode],
             title: options[:title] || default_title,
             base_url: options[:"base-url"] || default_base_url,
+            static: options[:static],
             overwrite: options[:overwrite],
           )
         end

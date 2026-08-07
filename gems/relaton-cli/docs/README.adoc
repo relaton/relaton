@@ -257,8 +257,18 @@ required. Output is written to `_site/` (`index.html` + `search.json`).
   * `embedded` — crawler-indexable DOM **and** an embedded JSON payload (recommended).
   * `dom` — crawler-indexable DOM only.
   * `static-json` — a `search.json` sidecar the page fetches (not crawler-indexable).
+| `--[no-]static` | Also index a sibling `static/` folder next to `DATA-DIR` (auto-detected, default `true`). Pass `--no-static` to index `DATA-DIR` only.
 | `-f, --overwrite` | Overwrite existing output files (default `true`).
 |===
+
+NOTE: Some `relaton-data-<flavor>` repos keep manually-curated bibliographic YAML
+records (documents the crawler can't fetch — e.g. ISO/IEC Directives, JCGM/GUM
+guides, NIST research-library metadata) in a `static/` folder alongside `data/`.
+These are part of the served corpus (they appear in the repo's `index-vN.yaml`),
+so `relaton index` includes them by default: it auto-detects a `static/` sibling
+of `DATA-DIR` and folds its docs into the same site, with the raw-YAML links
+resolving to `static/<path>`. If a document id appears in both folders the `data/`
+copy wins. Use `--no-static` to suppress this.
 
 .Examples
 [source,console]

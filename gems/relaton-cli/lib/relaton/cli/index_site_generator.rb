@@ -23,6 +23,11 @@ module Relaton
       MODES = %w[embedded dom static-json].freeze
       # index YAMLs that are machine indexes, not documents.
       SKIP_BASENAMES = /\Aindex(-v\d+)?\.ya?ml\z/i
+      # Sibling of the data folder holding manually-curated bib docs (ISO/IEC
+      # Directives, JCGM/GUM guides, NIST research-library metadata, …) that the
+      # crawler can't fetch. Part of the corpus (referenced by index-vN.yaml), so
+      # it belongs in the browsable site too.
+      STATIC_DIRNAME = "static".freeze
 
       # @param data_dir [String]
       # @param options [Hash] :output :title :base_url :mode :overwrite :lang :generated
@@ -40,13 +45,15 @@ module Relaton
         @base_url = options[:base_url]
         @title = options[:title] || "Relaton Index"
         @generated = options.fetch(:generated) { Time.now.utc.strftime("%Y-%m-%d") }
+        @include_static = options.fetch(:static, true)
         validate!
       end
 
       # @return [String] path to the written index.html
       def generate
         documents = collect_documents
-        Util.info "Indexed #{documents.size} document(s) from #{data_dir}"
+        Util.info "Indexed #{documents.size} document(s) from " \
+                  "#{sources_description}"
 
         FileUtils.mkdir_p(output)
         write_file(File.join(output, "search.json"), search_json(documents))
@@ -58,7 +65,7 @@ module Relaton
       private
 
       attr_reader :data_dir, :options, :output, :mode, :lang, :overwrite,
-                  :base_url, :title, :generated
+                  :base_url, :title, :generated, :include_static
 
       def validate!
         unless MODES.include?(mode)
@@ -69,20 +76,79 @@ module Relaton
         end
       end
 
+      # Human-readable description of the folders scanned, for the info log.
+      # Keeps data_dir as given (no absolute-path noise) and only notes when a
+      # sibling static/ was folded in.
+      def sources_description
+        repo_root = File.dirname(File.expand_path(data_dir))
+        static_source_dir(repo_root) ? "#{data_dir} (+ #{STATIC_DIRNAME}/)" : data_dir
+      end
+
+      # Collect index items from every source dir. De-dup is **cross-dir only**:
+      # an id already indexed from an *earlier* dir (i.e. static/ duplicating a
+      # data/ doc) is skipped, so data/ wins — but duplicates *within* a single
+      # dir are left as-is, preserving the pre-static behavior of the data scan.
       def collect_documents
         repo_root = File.dirname(File.expand_path(data_dir))
-        files = Dir.glob(File.join(data_dir, "**", "*.{yaml,yml}")).sort
-        files.each_with_object([]) do |file, acc|
-          next if File.basename(file).match?(SKIP_BASENAMES)
+        seen = {}
+        source_dirs(repo_root).each_with_object([]) do |dir, acc|
+          dir_ids = {}
+          Dir.glob(File.join(dir, "**", "*.{yaml,yml}")).sort.each do |file|
+            item = index_file(file, repo_root)
+            next unless item
 
-          doc = load_yaml(file)
-          next unless document?(doc)
-
-          rel = relative_path(file, repo_root)
-          acc << IndexItemNormalizer.normalize(doc, lang: lang, yaml_ref: yaml_ref(rel))
-        rescue Psych::SyntaxError => e
-          Util.warn "Skipping #{file}: #{e.message}"
+            id = dedup_key(item)
+            if id && seen.key?(id)
+              Util.warn "Skipping #{item['yaml']} (duplicate id #{id}); " \
+                        "already indexed from #{seen[id]}"
+              next
+            end
+            dir_ids[id] ||= item["yaml"] if id
+            acc << item
+          end
+          seen.merge!(dir_ids)
         end
+      end
+
+      # The data folder, plus an auto-detected sibling static/ folder (its bib
+      # docs are part of the corpus). Data is scanned first so it wins on a
+      # cross-dir duplicate id. Enabled by default; --no-static opts out.
+      def source_dirs(repo_root)
+        [data_dir, static_source_dir(repo_root)].compact
+      end
+
+      # The sibling static/ dir to fold in, or nil when disabled, absent, or the
+      # same folder as data_dir (guards `relaton index static` double-scanning).
+      def static_source_dir(repo_root)
+        return nil unless include_static
+
+        static = File.join(repo_root, STATIC_DIRNAME)
+        return nil unless File.directory?(static)
+        return nil if File.expand_path(static) == File.expand_path(data_dir)
+
+        static
+      end
+
+      # The id we de-dup on, or nil when the doc has no usable id (a blank/empty
+      # id must NOT collapse distinct docid-less documents together).
+      def dedup_key(item)
+        id = item["id"]
+        id unless id.nil? || id.empty?
+      end
+
+      # Normalize one YAML file to an index item, or nil if it's a machine index,
+      # not a document, or unparseable.
+      def index_file(file, repo_root)
+        return if File.basename(file).match?(SKIP_BASENAMES)
+
+        doc = load_yaml(file)
+        return unless document?(doc)
+
+        rel = relative_path(file, repo_root)
+        IndexItemNormalizer.normalize(doc, lang: lang, yaml_ref: yaml_ref(rel))
+      rescue Psych::SyntaxError => e
+        Util.warn "Skipping #{file}: #{e.message}"
+        nil
       end
 
       def load_yaml(file)
