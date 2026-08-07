@@ -86,6 +86,36 @@ describe Relaton::Bipm::DataFetcher do
       end
     end
 
+    context "#add_to_index" do
+      it "stores the parsed Pubid::Bipm identifier" do
+        expect(subject.index).to receive(:add_or_update) do |id, path|
+          expect(id).to be_a ::Pubid::Bipm::Identifier
+          expect(id.to_s).to eq "CGPM RES 1 (1927)"
+          expect(path).to eq "data/cgpm/res-1.yaml"
+        end
+        subject.add_to_index "CGPM RES 1 (1927)", "data/cgpm/res-1.yaml"
+      end
+
+      it "warns and skips an id Pubid::Bipm can't parse" do
+        expect(subject.index).not_to receive(:add_or_update)
+        expect do
+          subject.add_to_index "CIPM 2005-06", "static/cipm/2005-06.yaml"
+        end.to output(/Skipping index entry for `CIPM 2005-06`/).to_stderr_from_any_process
+      end
+
+      # Guards the pubid parse boundary for Metrologia (the parser specs mock
+      # add_to_index, so they can't). Real ids — including issue-level
+      # alphanumerics like "1A" — parse and index; only an alphanumeric *volume*
+      # ("Metrologia 1A"), which does not occur in the real dataset, would skip.
+      it "indexes real Metrologia ids (incl. alphanumeric issue)" do
+        expect(subject.index).to receive(:add_or_update).twice
+        expect do
+          subject.add_to_index "Metrologia 55 1A 06007", "data/metrologia-55-1a-06007.yaml"
+          subject.add_to_index "Metrologia 51 1 128", "data/metrologia-51-1-128.yaml"
+        end.not_to output(/Skipping/).to_stderr_from_any_process
+      end
+    end
+
     context "#serialize" do
       it "xml" do
         subject.instance_variable_set(:@format, "xml")

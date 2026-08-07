@@ -1,4 +1,3 @@
-require_relative "id_parser"
 require_relative "../bipm"
 require_relative "data_outcomes_parser"
 require_relative "si_brochure_parser"
@@ -9,11 +8,36 @@ module Relaton::Bipm
     attr_reader :output, :format, :ext, :files, :index, :errors
 
     def index
-      @index ||= Relaton::Index.find_or_create :bipm, file: "#{INDEXFILE}.yaml"
+      @index ||= Relaton::Index.find_or_create(
+        :bipm, file: "#{INDEXFILE}.yaml", pubid_class: ::Pubid::Bipm::Identifier
+      )
     end
 
     def log_error(msg)
       Util.error msg
+    end
+
+    #
+    # Index a document by its pubid. Guarded defensively: a docnumber the
+    # `Pubid::Bipm` grammar can't parse (a legacy/inconsistent id, or a
+    # wrong-flavor orphan) is skipped with a warning rather than allowed to
+    # corrupt the whole index (`Relaton::Index` rejects an index if a single
+    # row fails to deserialize). Mirrors `Relaton::Jcgm::DataFetcher#add_to_index`.
+    #
+    # Public so `relaton-data-bipm`'s crawler can index its curated `static/`
+    # docs through the same guarded, sorted, `_type: pubid:bipm:*` path.
+    #
+    # @param [String] docnumber the record's primary docidentifier / docnumber
+    # @param [String] path repo-relative path to the YAML file
+    #
+    def add_to_index(docnumber, path)
+      # Store the Pubid::Bipm identifier object (not a hash): with pubid_class
+      # set, Relaton::Index sorts the index by id number on save and serializes
+      # each id to its `_type: pubid:bipm:*` hash, so the published index is
+      # already sorted (no "not sorted by id number" warning on consumer fetch).
+      index.add_or_update ::Pubid::Bipm.parse(docnumber), path
+    rescue StandardError => e
+      Util.warn "Skipping index entry for `#{docnumber}` (#{path}): #{e.message}"
     end
 
     #

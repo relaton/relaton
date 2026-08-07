@@ -42,8 +42,11 @@ describe Relaton::Bipm::SiBrochureParser do
         m.call path.sub(/^data\/si-brochure\.yaml/, "fixtures/data/si-brochure_1.yaml")
       end
 
-      expect(index).to receive(:add_or_update)
-        .with({group: "SI", type: "Brochure", part: "1" }, "data/si-brochure.yaml").twice
+      # The parser indexes by the primary docidentifier content (fixture:
+      # "BIPM SI Brochure Part 1"); DataFetcher#add_to_index (mocked here) is
+      # what parses it with Pubid::Bipm and guards unparseable ids.
+      expect(data_fetcher).to receive(:add_to_index)
+        .with("BIPM SI Brochure Part 1", "data/si-brochure.yaml").twice
       subject.parse
     end
 
