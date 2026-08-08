@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { flushPromises, mount } from "@vue/test-utils";
 import App from "./App.vue";
 import type { IndexData } from "./lib/types";
@@ -13,9 +13,20 @@ const data: IndexData = {
   ],
 };
 
+const many: IndexData = {
+  title: "Big Index",
+  documents: Array.from({ length: 60 }, (_, i) => ({
+    id: `DOC ${i + 1}`, title: `Title ${i + 1}`,
+    doctype: "report", stage: "published", date: "2020-01-01",
+    link: null, yaml: `d/${i + 1}.yaml`,
+  })),
+};
+
 beforeEach(() => {
   // A mount node is expected to exist (goto() scrolls it into view).
   document.body.innerHTML = '<div id="relaton-index-app"></div>';
+  // Reset the URL so ?page= from one test doesn't leak into the next.
+  window.history.replaceState(null, "", "/");
 });
 
 describe("App island", () => {
@@ -38,14 +49,6 @@ describe("App island", () => {
   });
 
   it("paginates to the viewport and mirrors the controls top and bottom", async () => {
-    const many: IndexData = {
-      title: "Big Index",
-      documents: Array.from({ length: 60 }, (_, i) => ({
-        id: `DOC ${i + 1}`, title: `Title ${i + 1}`,
-        doctype: "report", stage: "published", date: "2020-01-01",
-        link: null, yaml: `d/${i + 1}.yaml`,
-      })),
-    };
     const original = window.innerHeight;
     Object.defineProperty(window, "innerHeight", { value: 400, configurable: true });
     try {
@@ -62,5 +65,81 @@ describe("App island", () => {
     } finally {
       Object.defineProperty(window, "innerHeight", { value: original, configurable: true });
     }
+  });
+});
+
+describe("page number in the URL", () => {
+  const withSmallViewport = async (fn: () => Promise<void>) => {
+    const original = window.innerHeight;
+    Object.defineProperty(window, "innerHeight", { value: 400, configurable: true });
+    try {
+      await fn();
+    } finally {
+      Object.defineProperty(window, "innerHeight", { value: original, configurable: true });
+    }
+  };
+
+  it("restores the current page from ?page= on mount", async () => {
+    window.history.replaceState(null, "", "/?page=2");
+    await withSmallViewport(async () => {
+      const w = mount(App, { props: { data: many } });
+      await flushPromises();
+      expect(w.text()).toContain("Page 2 of");
+    });
+  });
+
+  it("pushes a new history entry and updates the URL when paging next", async () => {
+    await withSmallViewport(async () => {
+      const w = mount(App, { props: { data: many } });
+      await flushPromises();
+      const push = vi.spyOn(window.history, "pushState");
+
+      // Click the first Prev/Next nav's "Next" button.
+      await w.findAll('nav[aria-label="Pagination"] button')
+        .find((b) => b.text() === "Next")!.trigger("click");
+      await flushPromises();
+
+      expect(push).toHaveBeenCalledTimes(1);
+      expect(new URLSearchParams(window.location.search).get("page")).toBe("2");
+    });
+  });
+
+  it("clamps an out-of-range ?page= to the last page on mount", async () => {
+    window.history.replaceState(null, "", "/?page=999");
+    await withSmallViewport(async () => {
+      const w = mount(App, { props: { data: many } });
+      await flushPromises();
+      // 60 docs at the small-viewport page size → 6 pages.
+      expect(w.text()).toContain("Page 6 of 6");
+      expect(new URLSearchParams(window.location.search).get("page")).toBe("6");
+    });
+  });
+
+  it("syncs the page from the URL on Back/Forward (popstate)", async () => {
+    await withSmallViewport(async () => {
+      const w = mount(App, { props: { data: many } });
+      await flushPromises();
+      expect(w.text()).toContain("Page 1 of");
+
+      // Simulate the browser navigating Back to a ?page=3 history entry.
+      window.history.replaceState(null, "", "/?page=3");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+      await flushPromises();
+      expect(w.text()).toContain("Page 3 of");
+    });
+  });
+
+  it("resets to page 1 and clears the param when the filter changes", async () => {
+    window.history.replaceState(null, "", "/?page=3");
+    await withSmallViewport(async () => {
+      const w = mount(App, { props: { data: many } });
+      await flushPromises();
+      expect(w.text()).toContain("Page 3 of");
+
+      await w.find('input[type="search"]').setValue("Title 1");
+      await flushPromises();
+
+      expect(new URLSearchParams(window.location.search).has("page")).toBe(false);
+    });
   });
 });
