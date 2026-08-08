@@ -136,13 +136,19 @@ from `window.RELATON_INDEX_DATA`, the crawler DOM, or a fetched `search.json`
 sizes a page from the available height and grid/list row density (recomputed on
 resize — debounced — and on view-mode change, clamped `10..100`) rather than a
 fixed 100 rows, and the Prev/Next/page controls live in a shared
-`src/components/Pagination.vue` rendered **both above and below** the list. Pure
+`src/components/Pagination.vue` rendered **both above and below** the list. The
+current page is the **only URL-synced state**, reflected as `?page=N` (page 1
+omits the param) via `src/lib/url.ts` (`readPageFromUrl`/`writePageToUrl`) so a
+reload/share/bookmark preserves it; user paging uses `history.pushState` (Back/
+Forward walk pages, synced by a `popstate` listener), while restore-clamp and
+filter-reset use `replaceState`. Search/facets/sort stay in-memory (view/theme
+still use the `localStorage` `relaton-index-*` keys). Pure
 filter/sort logic is `src/lib/filter.ts`. UI icons
 are inline Heroicons-outline SVGs via the shared `src/components/Icon.vue`
 (`<Icon name="…" />`, a name→path map — `fill=none stroke=currentColor` so they
 inherit text colour + dark mode), matching the CalConnect standards site — **not**
 Unicode emoji; add a new glyph to `Icon.vue`'s `PATHS` rather than inlining an
-emoji. Tests: `npm run typecheck` + `vitest` (filter/hydrate/App/Icon via happy-dom).
+emoji. Tests: `npm run typecheck` + `vitest` (filter/hydrate/url/App/Icon via happy-dom).
 
 **Build wiring.** `rake build_frontend` (`npm ci`/`install` + `npm run build`) is
 a prerequisite of `build`/`release`; the root `rake build_all` runs it before

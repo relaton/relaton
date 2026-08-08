@@ -10,6 +10,7 @@ import {
 import DocumentRow from "./components/DocumentRow.vue";
 import Pagination from "./components/Pagination.vue";
 import Icon from "./components/Icon.vue";
+import { readPageFromUrl, writePageToUrl } from "./lib/url";
 
 const props = defineProps<{ data: IndexData }>();
 
@@ -58,7 +59,10 @@ function computePageSize(): number {
 }
 
 const pageSize = ref(computePageSize());
-const page = ref(1);
+// The current page is reflected in the URL (?page=N) so reload/share/bookmark
+// preserves it; restore it here on load (clamped to a valid page after the
+// adaptive pageSize settles — see onMounted).
+const page = ref(readPageFromUrl());
 const pageCount = computed(() => Math.max(1, Math.ceil(visible.value.length / pageSize.value)));
 const paged = computed(() => {
   const start = (page.value - 1) * pageSize.value;
@@ -78,15 +82,32 @@ function onResize() {
 watch(view, () => nextTick(refreshPageSize));
 // Keep the current page valid after the page size changes (e.g. on resize).
 watch(pageSize, () => {
-  page.value = Math.min(page.value, pageCount.value);
+  const clamped = Math.min(page.value, pageCount.value);
+  if (clamped !== page.value) {
+    page.value = clamped;
+    writePageToUrl(clamped, "replace");
+  }
 });
 // Reset to the first page whenever the filtered set changes.
 watch([query, activeDoctypes, activeStages, sortKey, sortDir], () => {
-  page.value = 1;
+  if (page.value !== 1) {
+    page.value = 1;
+    writePageToUrl(1, "replace");
+  }
 });
 function goto(p: number) {
-  page.value = Math.min(pageCount.value, Math.max(1, p));
+  const next = Math.min(pageCount.value, Math.max(1, p));
+  if (next !== page.value) {
+    page.value = next;
+    // User navigation → a new history entry so Back/Forward walk pages.
+    writePageToUrl(next, "push");
+  }
   document.getElementById("relaton-index-app")?.scrollIntoView({ block: "start" });
+}
+// Back/Forward navigation: sync the page from the URL without writing it back
+// (which would otherwise clobber the history entry we just navigated to).
+function onPopState() {
+  page.value = Math.min(pageCount.value, Math.max(1, readPageFromUrl()));
 }
 
 function toggle(set: Set<string>, value: string): Set<string> {
@@ -155,12 +176,23 @@ function onKey(e: KeyboardEvent) {
 onMounted(() => {
   window.addEventListener("keydown", onKey);
   window.addEventListener("resize", onResize);
-  // Measure the real layout once rows have rendered, then size the page.
-  nextTick(refreshPageSize);
+  window.addEventListener("popstate", onPopState);
+  // Measure the real layout once rows have rendered, then size the page. Only
+  // then is pageCount final, so clamp a URL-provided page (e.g. ?page=99, or a
+  // smaller viewport with fewer pages) and normalize the URL in place.
+  nextTick(() => {
+    refreshPageSize();
+    const clamped = Math.min(page.value, pageCount.value);
+    if (clamped !== page.value) {
+      page.value = clamped;
+      writePageToUrl(clamped, "replace");
+    }
+  });
 });
 onUnmounted(() => {
   window.removeEventListener("keydown", onKey);
   window.removeEventListener("resize", onResize);
+  window.removeEventListener("popstate", onPopState);
   clearTimeout(resizeTimer);
 });
 </script>
