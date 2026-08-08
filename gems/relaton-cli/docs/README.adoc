@@ -243,6 +243,13 @@ Vue + Tailwind frontend (search, doctype/stage filters, sort, list/grid,
 dark mode, copy-DocID, responsive pagination) and carries the document data so no server is
 required. Output is written to `_site/` (`index.html` + `search.json`).
 
+Clicking a document opens a shareable **detail page** (`?doc=<id>`) showing its
+full bibliographic details — abstract, contributors, all identifiers and dates,
+edition, languages, keywords, publisher, and the landing/raw-YAML links. These
+richer fields are embedded in the page (in `embedded` mode) so the detail page
+works offline with no extra requests; a `dom`/`static-json` build shows the
+summary fields and links.
+
 .Options
 [cols="1,3"]
 |===

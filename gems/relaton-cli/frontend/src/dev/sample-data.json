@@ -9,7 +9,18 @@
       "stage": "published",
       "date": "2009-06-19",
       "link": "https://www.bipm.org/en/committees/cc/ccri/21-2009",
-      "yaml": "https://raw.githubusercontent.com/relaton/relaton-data-bipm/v2/data/ccri/meeting/21.yaml"
+      "yaml": "https://raw.githubusercontent.com/relaton/relaton-data-bipm/v2/data/ccri/meeting/21.yaml",
+      "abstract": "Report of the 21st meeting of the Consultative Committee for Ionizing Radiation (CCRI), held at the BIPM.",
+      "languages": ["en", "fr"],
+      "publisher": "International Bureau of Weights and Measures",
+      "contributors": [
+        { "name": "International Bureau of Weights and Measures", "role": "publisher" }
+      ],
+      "docids": [
+        { "id": "CCRI 21st Meeting (2009)", "type": "BIPM", "language": "en" },
+        { "id": "CCRI 21e réunion (2009)", "type": "BIPM", "language": "fr" }
+      ],
+      "dates": [{ "type": "published", "value": "2009-06-19" }]
     },
     {
       "id": "BIPM CCRI 22 (2013)",
@@ -36,7 +47,20 @@
       "stage": "published",
       "date": "2019-05-20",
       "link": null,
-      "yaml": "https://raw.githubusercontent.com/relaton/relaton-data-bipm/v2/data/si-brochure.yaml"
+      "yaml": "https://raw.githubusercontent.com/relaton/relaton-data-bipm/v2/data/si-brochure.yaml",
+      "abstract": "The SI Brochure is the defining document for the International System of Units, published by the BIPM.",
+      "edition": "9",
+      "languages": ["en", "fr"],
+      "keywords": ["metrology", "SI units", "base units"],
+      "publisher": "International Bureau of Weights and Measures",
+      "contributors": [
+        { "name": "International Bureau of Weights and Measures", "role": "publisher" }
+      ],
+      "docids": [{ "id": "SI Brochure (2019)", "type": "BIPM", "language": "en" }],
+      "dates": [
+        { "type": "published", "value": "2019-05-20" },
+        { "type": "created", "value": "2018" }
+      ]
     }
   ]
 }

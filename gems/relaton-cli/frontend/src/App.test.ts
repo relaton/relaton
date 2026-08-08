@@ -143,3 +143,65 @@ describe("page number in the URL", () => {
     });
   });
 });
+
+describe("document detail page", () => {
+  const isDetail = (w: ReturnType<typeof mount>) =>
+    w.find('[aria-label="Back to index"]').exists();
+
+  it("opens the detail view and sets ?doc= when a row is clicked", async () => {
+    const w = mount(App, { props: { data } });
+    // The first row's DocID link.
+    await w.find(".document a").trigger("click");
+    await flushPromises();
+
+    expect(isDetail(w)).toBe(true);
+    expect(w.find('input[type="search"]').exists()).toBe(false);
+    expect(new URLSearchParams(window.location.search).get("doc")).toBe("CCRI 2");
+  });
+
+  it("restores the open document from ?doc= on mount", async () => {
+    window.history.replaceState(null, "", "/?doc=SI%20Brochure");
+    const w = mount(App, { props: { data } });
+    await flushPromises();
+
+    expect(isDetail(w)).toBe(true);
+    expect(w.text()).toContain("The SI");
+  });
+
+  it("returns to the list on Back/Forward (popstate)", async () => {
+    const w = mount(App, { props: { data } });
+    await w.find(".document a").trigger("click");
+    await flushPromises();
+    expect(isDetail(w)).toBe(true);
+
+    // Simulate the browser navigating Back to the param-free list URL.
+    window.history.replaceState(null, "", "/");
+    window.dispatchEvent(new PopStateEvent("popstate"));
+    await flushPromises();
+
+    expect(isDetail(w)).toBe(false);
+    expect(w.find('input[type="search"]').exists()).toBe(true);
+  });
+
+  it("falls back to the list for an unknown ?doc=", async () => {
+    window.history.replaceState(null, "", "/?doc=NOPE");
+    const w = mount(App, { props: { data } });
+    await flushPromises();
+
+    expect(isDetail(w)).toBe(false);
+    expect(w.find('input[type="search"]').exists()).toBe(true);
+  });
+
+  it("goes back to the list when the detail Back control is clicked", async () => {
+    const w = mount(App, { props: { data } });
+    await w.find(".document a").trigger("click");
+    await flushPromises();
+    expect(isDetail(w)).toBe(true);
+
+    await w.find('[aria-label="Back to index"]').trigger("click");
+    await flushPromises();
+
+    expect(isDetail(w)).toBe(false);
+    expect(new URLSearchParams(window.location.search).has("doc")).toBe(false);
+  });
+});

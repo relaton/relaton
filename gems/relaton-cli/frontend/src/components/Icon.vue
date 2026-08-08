@@ -18,6 +18,9 @@ const PATHS: Record<string, string[]> = {
   search: ["M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"],
   "chevron-up": ["M5 15l7-7 7 7"],
   "chevron-down": ["M19 9l-7 7-7-7"],
+  "chevron-right": ["M9 5l7 7-7 7"],
+  "arrow-left": ["M10 19l-7-7m0 0l7-7m-7 7h18"],
+  external: ["M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"],
   list: ["M4 6h16M4 12h16M4 18h16"],
   grid: [
     "M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z",
