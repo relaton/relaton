@@ -8,9 +8,15 @@ import {
   type SortKey,
 } from "./lib/filter";
 import DocumentRow from "./components/DocumentRow.vue";
+import DocumentDetail from "./components/DocumentDetail.vue";
 import Pagination from "./components/Pagination.vue";
 import Icon from "./components/Icon.vue";
-import { readPageFromUrl, writePageToUrl } from "./lib/url";
+import {
+  readDocFromUrl,
+  readPageFromUrl,
+  writeDocToUrl,
+  writePageToUrl,
+} from "./lib/url";
 
 const props = defineProps<{ data: IndexData }>();
 
@@ -28,6 +34,28 @@ const searchEl = ref<HTMLInputElement | null>(null);
 const docs = computed(() => props.data.documents);
 const doctypes = computed(() => distinctValues(docs.value, "doctype"));
 const stages = computed(() => distinctValues(docs.value, "stage"));
+
+// Detail-page routing: `?doc=<id>` selects a document to show in full instead of
+// the list. A missing/unknown id falls back to the list. This is the second
+// piece of URL-synced state alongside `?page=N` (see lib/url.ts).
+const selectedId = ref<string | null>(readDocFromUrl());
+const selectedDoc = computed(() =>
+  selectedId.value == null
+    ? null
+    : (docs.value.find((d) => d.id === selectedId.value) ?? null),
+);
+function openDoc(id: string) {
+  selectedId.value = id;
+  // New history entry so Back returns to the list at the same page.
+  writeDocToUrl(id, "push");
+  window.scrollTo({ top: 0 });
+}
+function closeDoc() {
+  selectedId.value = null;
+  // Replace (not push) so we don't leave a forward "detail" entry that Forward
+  // would re-open; the list entry we opened from stays behind us for Back.
+  writeDocToUrl(null, "replace");
+}
 
 const visible = computed(() =>
   applyFilters(docs.value, {
@@ -80,6 +108,23 @@ function onResize() {
 }
 // Grid/list density differs, so recompute when the view mode changes.
 watch(view, () => nextTick(refreshPageSize));
+// The list is unmounted while a detail page is open (listEl is null, so the page
+// size can't be measured); re-measure once we return to the list. A stale/unknown
+// `?doc=` id (whose doc isn't found) resolves to no detail — drop the param so the
+// URL matches the list we actually show. `immediate` handles an unknown id present
+// at load time (a deep link to a since-removed doc).
+watch(
+  selectedDoc,
+  (doc) => {
+    if (doc) return;
+    if (selectedId.value != null) {
+      selectedId.value = null;
+      writeDocToUrl(null, "replace");
+    }
+    nextTick(refreshPageSize);
+  },
+  { immediate: true },
+);
 // Keep the current page valid after the page size changes (e.g. on resize).
 watch(pageSize, () => {
   const clamped = Math.min(page.value, pageCount.value);
@@ -104,9 +149,11 @@ function goto(p: number) {
   }
   document.getElementById("relaton-index-app")?.scrollIntoView({ block: "start" });
 }
-// Back/Forward navigation: sync the page from the URL without writing it back
-// (which would otherwise clobber the history entry we just navigated to).
+// Back/Forward navigation: sync both the open detail doc and the page from the
+// URL without writing them back (which would otherwise clobber the history
+// entry we just navigated to).
 function onPopState() {
+  selectedId.value = readDocFromUrl();
   page.value = Math.min(pageCount.value, Math.max(1, readPageFromUrl()));
 }
 
@@ -220,6 +267,8 @@ onUnmounted(() => {
     </header>
 
     <main class="mx-auto max-w-5xl px-4 py-6">
+      <DocumentDetail v-if="selectedDoc" :doc="selectedDoc" @back="closeDoc" />
+      <template v-else>
       <!-- Toolbar -->
       <div class="sticky top-0 z-10 -mx-4 mb-4 bg-slate-50/90 px-4 py-3 backdrop-blur dark:bg-slate-950/90">
         <div class="flex flex-wrap items-center gap-3">
@@ -326,6 +375,7 @@ onUnmounted(() => {
           :key="doc.id + '|' + (doc.yaml ?? '')"
           :doc="doc"
           :view="view"
+          @open="openDoc"
         />
       </div>
       <p v-else class="py-16 text-center text-slate-500 dark:text-slate-400">
@@ -334,6 +384,7 @@ onUnmounted(() => {
 
       <!-- Pagination (bottom) -->
       <Pagination class="mt-6" :page="page" :page-count="pageCount" @go="goto" />
+      </template>
     </main>
 
     <footer class="border-t border-slate-200 py-8 text-center text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">

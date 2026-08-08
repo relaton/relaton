@@ -109,9 +109,17 @@ replacing the shared Jekyll theme (`relaton/jekyll-theme-relaton-data-index`) +
   fetched; not crawlable). JSON is `script_escape`d (`</`→`<\/`, U+2028/9) so it
   can't break out of the `<script>`.
 - `lib/relaton/cli/index_item_normalizer.rb` — doc-hash → `{id,title,doctype,
-  stage,date,link,yaml}`. Reads the doc's own rendered fields (primary
-  `docidentifier`, main/en `title`, `date[].at|on` preferring `published`,
-  `ext.doctype`), so **no pubid reconstruction** is needed.
+  stage,date,link,yaml}` (the always-present summary core) **plus optional
+  detail-page fields** (`abstract, edition, languages, keywords, publisher,
+  contributors, docids, dates`) added by `details`. Reads the doc's own rendered
+  fields (primary `docidentifier`, main/en `title`, `date[].at|on` preferring
+  `published`, `ext.doctype`), so **no pubid reconstruction** is needed. Detail
+  fields are dropped when empty (via `reject`), so a summary-only doc keeps the
+  compact 7-key shape. They ride **only** in the embedded `window.RELATON_INDEX_DATA`
+  payload: `search_json` projects only the compact summary keys and the crawler
+  `_document.liquid` DOM carries only summary `data-*` attributes, so `dom` /
+  `static-json` builds stay lean and the detail page falls back to summary+links
+  there. The frontend `types.ts` `IndexDocument` interface mirrors this contract.
 - `lib/relaton/cli/frontend_assets.rb` — reads the compiled bundle from
   `frontend/dist/` (one relative path works for both gem and git checkout);
   raises `BuildMissingError` with a "run `rake build_frontend`" message if absent.
@@ -137,18 +145,29 @@ sizes a page from the available height and grid/list row density (recomputed on
 resize — debounced — and on view-mode change, clamped `10..100`) rather than a
 fixed 100 rows, and the Prev/Next/page controls live in a shared
 `src/components/Pagination.vue` rendered **both above and below** the list. The
-current page is the **only URL-synced state**, reflected as `?page=N` (page 1
-omits the param) via `src/lib/url.ts` (`readPageFromUrl`/`writePageToUrl`) so a
-reload/share/bookmark preserves it; user paging uses `history.pushState` (Back/
-Forward walk pages, synced by a `popstate` listener), while restore-clamp and
-filter-reset use `replaceState`. Search/facets/sort stay in-memory (view/theme
-still use the `localStorage` `relaton-index-*` keys). Pure
+URL-synced state is **two params**, both in `src/lib/url.ts` (History API,
+preserving each other + any other params, synced back by the `popstate`
+listener): the current page `?page=N` (page 1 omits it —
+`readPageFromUrl`/`writePageToUrl`) and the open **detail document** `?doc=<id>`
+(`readDocFromUrl`/`writeDocToUrl`) so a reload/share/bookmark restores it. User
+paging and opening/closing a detail use `history.pushState` (Back/Forward walk
+pages and in/out of the detail), while restore-clamp and filter-reset use
+`replaceState`. Search/facets/sort stay in-memory (view/theme still use the
+`localStorage` `relaton-index-*` keys).
+
+**Detail page.** Clicking a `DocumentRow` (its id/title/chevron — real
+`?doc=<id>` anchors, click-intercepted to SPA-navigate) opens
+`src/components/DocumentDetail.vue` in place of the list (`App.vue` swaps on the
+`selectedDoc` computed; an unknown `?doc=` falls back to the list). It renders the
+enriched fields (abstract, metadata grid, keywords, contributors, all identifiers,
+all dates) and the landing + raw-YAML links, each block shown only when present so
+a summary-only doc degrades gracefully. Pure
 filter/sort logic is `src/lib/filter.ts`. UI icons
 are inline Heroicons-outline SVGs via the shared `src/components/Icon.vue`
 (`<Icon name="…" />`, a name→path map — `fill=none stroke=currentColor` so they
 inherit text colour + dark mode), matching the CalConnect standards site — **not**
 Unicode emoji; add a new glyph to `Icon.vue`'s `PATHS` rather than inlining an
-emoji. Tests: `npm run typecheck` + `vitest` (filter/hydrate/url/App/Icon via happy-dom).
+emoji. Tests: `npm run typecheck` + `vitest` (filter/hydrate/url/App/Icon/DocumentDetail via happy-dom).
 
 **Build wiring.** `rake build_frontend` (`npm ci`/`install` + `npm run build`) is
 a prerequisite of `build`/`release`; the root `rake build_all` runs it before

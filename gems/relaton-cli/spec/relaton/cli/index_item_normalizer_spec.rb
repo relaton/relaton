@@ -23,7 +23,7 @@ RSpec.describe Relaton::Cli::IndexItemNormalizer do
     end
 
     it "picks the primary English DocID, title, doctype, date, link" do
-      expect(record).to eq(
+      expect(record.slice("id", "title", "doctype", "stage", "date", "link", "yaml")).to eq(
         "id" => "CCRI 21st Meeting (2009)",
         "title" => "21st meeting of the CCRI",
         "doctype" => "meeting-report",
@@ -67,5 +67,90 @@ RSpec.describe Relaton::Cli::IndexItemNormalizer do
   it "falls back to another language when the preferred one is absent" do
     doc = { "title" => [{ "language" => "fr", "content" => "Titre" }] }
     expect(described_class.normalize(doc, lang: "en")["title"]).to eq("Titre")
+  end
+
+  describe "detail fields for the per-document page" do
+    let(:doc) do
+      {
+        "docidentifier" => [
+          { "language" => "en", "content" => "ISO 1234:2020", "type" => "ISO", "primary" => true },
+          { "content" => "10.1000/xyz", "type" => "DOI" },
+        ],
+        "title" => [{ "language" => "en", "content" => "A title" }],
+        "abstract" => [
+          { "language" => "en", "content" => "An <p>English</p> abstract." },
+          { "language" => "fr", "content" => "Un résumé." },
+        ],
+        "edition" => { "content" => "2" },
+        "language" => %w[en fr],
+        "keyword" => ["metrology", { "content" => "units" }],
+        "date" => [
+          { "type" => "published", "at" => "2020-05-01" },
+          { "type" => "created", "on" => "2019" },
+        ],
+        "contributor" => [
+          { "role" => [{ "type" => "publisher" }],
+            "organization" => { "name" => [
+              { "language" => "en", "content" => "International Organization for Standardization" },
+              { "language" => "fr", "content" => "Organisation internationale de normalisation" },
+            ] } },
+          { "role" => [{ "type" => "author" }],
+            "person" => { "name" => { "completename" => { "content" => "Ada Lovelace" } } } },
+        ],
+      }
+    end
+
+    it "extracts a preferred-language, HTML-stripped abstract" do
+      expect(record["abstract"]).to eq("An English abstract.")
+    end
+
+    it "extracts the edition, languages and keywords" do
+      expect(record["edition"]).to eq("2")
+      expect(record["languages"]).to eq(%w[en fr])
+      expect(record["keywords"]).to eq(%w[metrology units])
+    end
+
+    it "extracts all identifiers with their type" do
+      expect(record["docids"]).to include(
+        a_hash_including("id" => "ISO 1234:2020", "type" => "ISO"),
+        a_hash_including("id" => "10.1000/xyz", "type" => "DOI"),
+      )
+    end
+
+    it "extracts all dates with their type and value" do
+      expect(record["dates"]).to eq(
+        [{ "type" => "published", "value" => "2020-05-01" },
+         { "type" => "created", "value" => "2019" }],
+      )
+    end
+
+    it "extracts contributors (org + person names) with roles" do
+      expect(record["contributors"]).to eq(
+        [{ "name" => "International Organization for Standardization", "role" => "publisher" },
+         { "name" => "Ada Lovelace", "role" => "author" }],
+      )
+    end
+
+    it "derives the publisher from the publisher-role contributor" do
+      expect(record["publisher"]).to eq("International Organization for Standardization")
+    end
+
+    it "omits empty detail fields on a minimal document" do
+      minimal = described_class.normalize({ "id" => "RAW9" })
+      expect(minimal.keys).to contain_exactly(
+        "id", "title", "doctype", "stage", "date", "link", "yaml",
+      )
+    end
+
+    it "handles single unwrapped Hash entries without Array() explosion" do
+      doc = {
+        "contributor" => { "role" => { "type" => "author" },
+                            "organization" => { "name" => { "content" => "Solo Org" } } },
+        "date" => { "type" => "published", "at" => "2021-01-01" },
+      }
+      r = described_class.normalize(doc)
+      expect(r["contributors"]).to eq([{ "name" => "Solo Org", "role" => "author" }])
+      expect(r["dates"]).to eq([{ "type" => "published", "value" => "2021-01-01" }])
+    end
   end
 end

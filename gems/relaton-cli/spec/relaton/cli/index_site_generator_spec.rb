@@ -70,6 +70,17 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       expect(json).to be_a(String)
       expect(JSON.parse(json)["documents"].size).to eq(2)
     end
+
+    it "carries the per-document detail fields in the embedded payload" do
+      html = generate
+      json = html[/window\.RELATON_INDEX_DATA = (.+?);<\/script>/m, 1]
+      ccri = JSON.parse(json)["documents"]
+        .find { |d| d["id"] == "CCRI 21st Meeting (2009)" }
+      expect(ccri["languages"]).to eq(%w[en fr])
+      expect(ccri["publisher"]).to eq("International Bureau of Weights and Measures")
+      expect(ccri["docids"]).to include(a_hash_including("id" => "CCRI 21st Meeting (2009)"))
+      expect(ccri["dates"]).to include("type" => "published", "value" => "2009-06-19")
+    end
   end
 
   context "dom mode" do
@@ -93,6 +104,12 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       rows = JSON.parse(File.read(File.join(@out, "search.json")))
       expect(rows.size).to eq(2)
       expect(rows.first.keys).to include("r", "c", "t", "d", "u")
+    end
+
+    it "keeps search.json summary-only (no detail fields)" do
+      generate(mode: "static-json")
+      rows = JSON.parse(File.read(File.join(@out, "search.json")))
+      expect(rows.first.keys).to contain_exactly("r", "c", "t", "s", "d", "u", "l")
     end
   end
 

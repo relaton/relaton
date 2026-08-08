@@ -7,7 +7,9 @@ module Relaton
     # DocIDs.
     #
     # Output record keys (shared contract with frontend/src/lib/types.ts):
-    #   id, title, doctype, stage, date, link, yaml
+    #   id, title, doctype, stage, date, link, yaml  (always present) plus the
+    #   optional detail-page fields (only when non-empty): abstract, edition,
+    #   languages, keywords, publisher, contributors, docids, dates.
     module IndexItemNormalizer
       module_function
 
@@ -24,13 +26,30 @@ module Relaton
           "date" => date(doc),
           "link" => link(doc, lang),
           "yaml" => yaml_ref,
-        }
+        }.merge(details(doc, lang))
+      end
+
+      # Richer, structured fields the detail page renders. Empty/nil values are
+      # dropped so a summary-only doc keeps the compact core shape and the
+      # embedded JSON payload stays lean. These ride only in the embedded
+      # payload; search.json and the crawler DOM stay summary-only.
+      def details(doc, lang)
+        {
+          "abstract" => abstract(doc, lang),
+          "edition" => edition(doc),
+          "languages" => languages(doc),
+          "keywords" => keywords(doc),
+          "publisher" => publisher(doc, lang),
+          "contributors" => contributors(doc, lang),
+          "docids" => docids(doc),
+          "dates" => dates(doc),
+        }.reject { |_, v| v.nil? || (v.respond_to?(:empty?) && v.empty?) }
       end
 
       # Pick the primary, preferred-language rendered DocID; fall back to
       # docnumber / id. Values can be plain strings or {content, ...} hashes.
       def docidentifier(doc, lang)
-        ids = Array(doc["docidentifier"])
+        ids = wrap(doc["docidentifier"])
         primary = ids.select { |d| d.is_a?(Hash) && truthy(d["primary"]) }
         primary = ids if primary.empty?
 
@@ -42,7 +61,7 @@ module Relaton
       end
 
       def title(doc, lang)
-        titles = Array(doc["title"])
+        titles = wrap(doc["title"])
         # A title entry may be {type: "main", ...} and/or language-tagged.
         main = titles.select { |t| t.is_a?(Hash) && t["type"] == "main" }
         pool = main.empty? ? titles : main
@@ -65,7 +84,7 @@ module Relaton
         dates = doc["date"]
         return normalize_date(dates) if dates.is_a?(String)
 
-        arr = Array(dates)
+        arr = wrap(dates)
         chosen = arr.find { |d| d.is_a?(Hash) && d["type"] == "published" } ||
                  arr.find { |d| d.is_a?(Hash) } || arr.first
         val = chosen.is_a?(Hash) ? (chosen["at"] || chosen["on"] || chosen["from"]) : chosen
@@ -85,7 +104,141 @@ module Relaton
         strip(content_of(chosen))
       end
 
+      # --- detail-page fields --------------------------------------------------
+
+      # Preferred-language abstract (String or [{language, content}]), HTML-stripped.
+      def abstract(doc, lang)
+        value = doc["abstract"]
+        return strip(value) if value.is_a?(String)
+
+        entries = Array(value)
+        strip(content_of(pick_lang(entries, lang) || entries.first))
+      end
+
+      def edition(doc)
+        strip(content_of(doc["edition"]))
+      end
+
+      # The document's language codes, e.g. ["en", "fr"].
+      def languages(doc)
+        wrap(doc["language"]).map { |l| strip(content_of(l)) }.compact
+      end
+
+      def keywords(doc)
+        wrap(doc["keyword"]).map { |k| strip(content_of(k)) }.compact
+      end
+
+      # Name of the first publisher-role contributor, if any.
+      def publisher(doc, lang)
+        entry = wrap(doc["contributor"]).find { |c| role?(c, "publisher") }
+        entry && contributor_name(entry, lang)
+      end
+
+      # All contributors as {name, role}. Entries without a resolvable name are
+      # skipped so the detail page never shows a blank author line.
+      def contributors(doc, lang)
+        wrap(doc["contributor"]).filter_map { |c| contributor(c, lang) }
+      end
+
+      def contributor(entry, lang)
+        return nil unless entry.is_a?(Hash)
+
+        name = contributor_name(entry, lang)
+        return nil unless name
+
+        role = strip(content_of(roles_of(entry).first))
+        { "name" => name, "role" => role }.reject { |_, v| v.nil? }
+      end
+
+      # Prefer an organization name, then a person name, then a bare "name".
+      def contributor_name(entry, lang)
+        org = entry["organization"]
+        return org_name(org, lang) if org.is_a?(Hash)
+
+        person = entry["person"]
+        return person_name(person, lang) if person.is_a?(Hash)
+
+        strip(content_of(entry["name"]))
+      end
+
+      def org_name(org, lang)
+        names = wrap(org["name"])
+        strip(content_of(pick_lang(names, lang) || names.first))
+      end
+
+      def person_name(person, lang)
+        name = person["name"]
+        return strip(content_of(name)) unless name.is_a?(Hash)
+
+        complete = name["completename"] || name["completeName"]
+        return strip(content_of(pick_lang(wrap(complete), lang) || complete)) if complete
+
+        given = strip(content_of(name["forename"] || name["given"]))
+        surname = strip(content_of(name["surname"]))
+        joined = [given, surname].compact.join(" ")
+        joined.empty? ? nil : joined
+      end
+
+      # role[].type for a contributor, as an array of raw values.
+      def roles_of(entry)
+        roles = entry["role"]
+        roles = [roles] unless roles.is_a?(Array)
+        roles.map { |r| r.is_a?(Hash) ? r["type"] : r }
+      end
+
+      def role?(entry, type)
+        return false unless entry.is_a?(Hash)
+
+        roles_of(entry).any? { |r| strip(content_of(r)) == type }
+      end
+
+      # Every docidentifier as {id, type?, language?} (blank ids dropped).
+      def docids(doc)
+        wrap(doc["docidentifier"]).filter_map do |d|
+          id = strip(content_of(d))
+          next nil unless id
+
+          hash = d.is_a?(Hash) ? d : {}
+          { "id" => id,
+            "type" => strip(content_of(hash["type"])),
+            "language" => strip(content_of(hash["language"])) }
+            .reject { |_, v| v.nil? }
+        end
+      end
+
+      # Every date as {type?, value}; a plain string date becomes {value}.
+      def dates(doc)
+        value = doc["date"]
+        entries = value.is_a?(String) ? [value] : wrap(value)
+        entries.filter_map { |d| date_entry(d) }
+      end
+
+      def date_entry(entry)
+        unless entry.is_a?(Hash)
+          val = normalize_date(entry)
+          return val && { "value" => val }
+        end
+
+        val = normalize_date(entry["at"] || entry["on"] || entry["from"])
+        return nil unless val
+
+        { "type" => strip(content_of(entry["type"])), "value" => val }
+          .reject { |_, v| v.nil? }
+      end
+
       # --- helpers -------------------------------------------------------------
+
+      # Wrap a value as an array WITHOUT `Array()`'s Hash-to-pairs explosion: a
+      # bare Hash (a single unwrapped entry) becomes a one-element array, not a
+      # list of [key, value] pairs. RelatonBib normally emits arrays for these
+      # repeatable fields, but a hand-written YAML may carry a lone Hash.
+      def wrap(value)
+        case value
+        when nil then []
+        when Array then value
+        else [value]
+        end
+      end
 
       def pick_lang(entries, lang)
         entries.find do |e|
@@ -98,6 +251,7 @@ module Relaton
       def content_of(value)
         case value
         when String then value
+        when Numeric then value.to_s
         when Hash then content_of(value["content"] || value["name"])
         when Array then content_of(value.first)
         end

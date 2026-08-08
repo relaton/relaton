@@ -1,6 +1,11 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { readPageFromUrl, writePageToUrl } from "./url";
+import {
+  readDocFromUrl,
+  readPageFromUrl,
+  writeDocToUrl,
+  writePageToUrl,
+} from "./url";
 
 beforeEach(() => {
   // Start every test from a clean, param-free URL.
@@ -67,5 +72,64 @@ describe("writePageToUrl", () => {
     writePageToUrl(3, "push");
     expect(push).toHaveBeenCalledTimes(1);
     expect(replace).not.toHaveBeenCalled();
+  });
+});
+
+describe("readDocFromUrl", () => {
+  it("returns the decoded doc id when present", () => {
+    expect(readDocFromUrl("?doc=CCRI%2021%20(2009)")).toBe("CCRI 21 (2009)");
+  });
+
+  it("returns null when the param is missing or blank", () => {
+    expect(readDocFromUrl("")).toBeNull();
+    expect(readDocFromUrl("?page=2")).toBeNull();
+    expect(readDocFromUrl("?doc=")).toBeNull();
+  });
+
+  it("reads the doc param alongside other params", () => {
+    expect(readDocFromUrl("?page=3&doc=ISO%201234")).toBe("ISO 1234");
+  });
+
+  it("defaults to the live location when no search string is given", () => {
+    window.history.replaceState(null, "", "/?doc=X%201");
+    expect(readDocFromUrl()).toBe("X 1");
+  });
+});
+
+describe("writeDocToUrl", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("sets ?doc=ID (encoded) while preserving other params", () => {
+    window.history.replaceState(null, "", "/?page=2");
+    writeDocToUrl("CCRI 21 (2009)");
+    const params = new URLSearchParams(window.location.search);
+    expect(params.get("doc")).toBe("CCRI 21 (2009)");
+    expect(params.get("page")).toBe("2");
+    expect(window.location.search).toContain("doc=CCRI+21");
+  });
+
+  it("round-trips an id with spaces and parens", () => {
+    writeDocToUrl("BIPM SI Brochure (2019)");
+    expect(readDocFromUrl()).toBe("BIPM SI Brochure (2019)");
+  });
+
+  it("deletes the doc param when passed null", () => {
+    window.history.replaceState(null, "", "/?doc=X&page=2");
+    writeDocToUrl(null);
+    const params = new URLSearchParams(window.location.search);
+    expect(params.has("doc")).toBe(false);
+    expect(params.get("page")).toBe("2");
+  });
+
+  it("uses replaceState by default and pushState when asked", () => {
+    const replace = vi.spyOn(window.history, "replaceState");
+    const push = vi.spyOn(window.history, "pushState");
+    writeDocToUrl("A");
+    expect(replace).toHaveBeenCalledTimes(1);
+    expect(push).not.toHaveBeenCalled();
+    writeDocToUrl("B", "push");
+    expect(push).toHaveBeenCalledTimes(1);
   });
 });
