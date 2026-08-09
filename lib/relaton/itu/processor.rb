@@ -8,7 +8,7 @@ module Relaton
         @prefix = "ITU"
         @defaultprefix = %r{^ITU\s}
         @idtype = "ITU"
-        @datasets = %w[itu-r]
+        @datasets = %w[itu-r itu-t]
       end
 
       # @param code [String]

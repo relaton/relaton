@@ -77,6 +77,54 @@ describe Relaton::Itu::DataFetcher do
       end
     end
 
+    context "#fetch itu-t routing" do
+      it "harvests recommendations via search_recs for the itu-t source" do
+        bib = double "bib"
+        agent = double "agent"
+        row1 = { "rec_name" => "A.1 (10/2000)" }
+        row2 = { "rec_name" => "A.2 (11/2006)" }
+
+        allow(subject).to receive(:rec_agent).and_return agent
+        expect(subject).not_to receive(:search_request)
+        expect(subject).to receive(:search_recs).and_return [row1, row2]
+        expect(Relaton::Itu::DataParserT).to receive(:parse).with(row1, agent, kind_of(Hash)).and_return bib
+        expect(Relaton::Itu::DataParserT).to receive(:parse).with(row2, agent, kind_of(Hash)).and_return nil
+        expect(subject).to receive(:write_file).with(bib).once
+        expect(subject.index).to receive(:save)
+
+        subject.fetch("itu-t")
+      end
+    end
+
+    context "#search_recs" do
+      it "sends a GET to the searchRecs endpoint and returns Data" do
+        response = double "response", body: '{"Total":1,"Data":[{"rec_name":"A.1 (10/2000)"}]}'
+        http = double "http"
+        expect(Net::HTTP).to receive(:new).with("www.itu.int", 443).and_return http
+        expect(http).to receive(:use_ssl=).with(true)
+        expect(http).to receive(:request) do |req|
+          expect(req).to be_instance_of Net::HTTP::Get
+          expect(req.path).to include "/mws/api/recommendations/searchRecs"
+          expect(req.path).to include "main_edition_flag=0"
+          expect(req["Accept"]).to eq "application/json"
+          expect(req["User-Agent"]).to start_with "Mozilla/5.0"
+          response
+        end
+
+        expect(subject.send(:search_recs)).to eq [{ "rec_name" => "A.1 (10/2000)" }]
+      end
+
+      it "returns empty array when no Data key" do
+        response = double "response", body: "{}"
+        http = double "http"
+        expect(Net::HTTP).to receive(:new).and_return http
+        expect(http).to receive(:use_ssl=)
+        expect(http).to receive(:request).and_return response
+
+        expect(subject.send(:search_recs)).to eq []
+      end
+    end
+
     context "#search_request" do
       it "sends POST with correct parameters" do
         response = double "response", body: '{"results": [{"Title": "ITU-R M.1"}]}'
@@ -141,6 +189,13 @@ describe Relaton::Itu::DataFetcher do
         expect(index_double).to receive(:add_or_update)
           .with(kind_of(::Pubid::Itu::Identifier), "data/itu-r-bo-600-1.yaml")
         subject.send(:index_primary, "ITU-R BO.600-1", "data/itu-r-bo-600-1.yaml")
+        expect(subject.send(:unparseable_ids)).to be_empty
+      end
+
+      it "indexes a dated ITU-T recommendation id per edition" do
+        expect(index_double).to receive(:add_or_update)
+          .with(kind_of(::Pubid::Itu::Identifier), "data/itu-t-a-1-10-2000.yaml")
+        subject.send(:index_primary, "ITU-T A.1 (10/2000)", "data/itu-t-a-1-10-2000.yaml")
         expect(subject.send(:unparseable_ids)).to be_empty
       end
 

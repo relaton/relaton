@@ -78,7 +78,7 @@ module Relaton
       def parser
         @parser ||= begin
           if idrec
-            RecommendationParser.new hit, idrec, imp
+            RecommendationParser.new hit.hit_collection.agent, idrec, imp
           else
             RadioRegulationsParser.new hit
           end
