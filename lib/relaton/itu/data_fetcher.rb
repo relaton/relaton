@@ -1,13 +1,24 @@
 require "net/http"
 require "json"
 require "uri"
+require "mechanize"
 require_relative "../itu"
 require_relative "data_parser_r"
+require_relative "data_parser_t"
 
 module Relaton
   module Itu
     class DataFetcher < Core::DataFetcher
       SEARCH_URL = "https://www.itu.int/net4/ITU-T/search/GlobalSearch/RunSearch".freeze
+      # ITU-T recommendation index (issue relaton-itu#80). main_edition_flag=0
+      # returns one row per edition, including supplements; a single request
+      # enumerates the whole ITU-T corpus.
+      SEARCH_RECS_URL = "https://www.itu.int/mws/api/recommendations/searchRecs".freeze
+      # A browser User-Agent — www.itu.int sits behind an F5 WAF that rejects
+      # non-browser clients (it is what killed the old RunSearch endpoint), so
+      # Net::HTTP's default "Ruby" UA must not be sent.
+      USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) " \
+                   "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15".freeze
       ROWS = 100
       MAX_EMPTY_PAGES = 3
 
@@ -21,7 +32,42 @@ module Relaton
         Util.error msg
       end
 
-      def fetch(_source = nil)
+      # @param source [String, nil] "itu-t" harvests ITU-T recommendations via
+      #   the searchRecs index (issue #80); "itu-r" (and nil, legacy) harvests
+      #   ITU-R publications via the RunSearch endpoint.
+      def fetch(source = nil)
+        source == "itu-t" ? fetch_recommendations : fetch_publications
+        index.save
+        report_errors
+      end
+
+      # ITU-T harvester: one searchRecs request enumerates every edition and
+      # supplement; each row is then enriched with getRecHdrDetail-sourced fields
+      # (abstract, ISO co-id, editorial-group contributors, status) via a shared
+      # browser-UA agent, so harvested records match the live runtime output.
+      # This is ~one getRecHdrDetail (+ one rec.aspx for the workgroup) per
+      # record — the bulk of the crawl's cost — so progress is logged.
+      def fetch_recommendations
+        agent = rec_agent
+        rows = search_recs
+        rows.each_with_index do |row, i|
+          bib = DataParserT.parse(row, agent, @errors)
+          write_file(bib) if bib
+          Util.info "ITU-T: enriched #{i + 1}/#{rows.size}" if ((i + 1) % 500).zero?
+        rescue => e # rubocop:disable Style/RescueStandardError
+          Util.error "#{e.message}\n#{e.backtrace}"
+        end
+      end
+
+      # Mechanize agent for per-record enrichment. A browser User-Agent is
+      # required — www.itu.int sits behind the F5 WAF that rejects non-browser
+      # clients (mirrors HitCollection#agent).
+      def rec_agent
+        Mechanize.new.tap { |a| a.user_agent_alias = "Mac Safari" }
+      end
+
+      # ITU-R harvester (legacy RunSearch pagination).
+      def fetch_publications
         start = 0
         empty_pages = 0
         loop do
@@ -44,8 +90,6 @@ module Relaton
 
           start += ROWS
         end
-        index.save
-        report_errors
       end
 
       # @param bib [Relaton::Itu::ItemData]
@@ -127,6 +171,28 @@ module Relaton
       end
 
       private
+
+      # Fetch the full ITU-T recommendation index in one request.
+      # @return [Array<Hash>] rows from the searchRecs "Data" array
+      def search_recs
+        uri = URI(SEARCH_RECS_URL)
+        uri.query = URI.encode_www_form(
+          series: -1, type_of_text: -1, sg: -1, main_edition_flag: 0,
+          rows: 100_000, page: 1, status: "Z", sort_order: "asc"
+        )
+
+        http = Net::HTTP.new(uri.host, uri.port)
+        http.use_ssl = true
+
+        request = Net::HTTP::Get.new(uri)
+        request["Accept"] = "application/json"
+        request["Referer"] = "https://www.itu.int/myworkspace/"
+        request["User-Agent"] = USER_AGENT
+
+        response = http.request(request)
+        json = JSON.parse(response.body)
+        json["Data"] || []
+      end
 
       # @param start [Integer] pagination offset
       # @return [Array<Hash>] search result items

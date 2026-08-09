@@ -23,7 +23,7 @@ RSpec.describe Relaton::Itu::Processor do
     end
 
     it "sets datasets" do
-      expect(processor.datasets).to eq %w[itu-r]
+      expect(processor.datasets).to eq %w[itu-r itu-t]
     end
   end
 

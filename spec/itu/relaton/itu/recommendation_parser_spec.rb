@@ -2,11 +2,9 @@ require "relaton/itu/recommendation_parser"
 
 RSpec.describe Relaton::Itu::RecommendationParser do
   let(:agent) { instance_double Mechanize }
-  let(:hit_collection) { double("Hit collection", agent: agent) }
-  let(:hit) { double("Hit", hit_collection: hit_collection) }
   let(:idrec) { 12345 }
   let(:imp) { false }
-  subject(:parser) { described_class.new hit, idrec, imp }
+  subject(:parser) { described_class.new agent, idrec, imp }
 
   describe "#doc" do
     it "raises RequestError on SocketError" do
