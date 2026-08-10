@@ -96,11 +96,27 @@ describe Relaton::Bipm::DataFetcher do
         subject.add_to_index "CGPM RES 1 (1927)", "data/cgpm/res-1.yaml"
       end
 
+      # `CIPM 2005-06` was the unparseable case until pubid #306 made it a
+      # first-class CommitteeDocument. Pin the new behaviour so a pubid regression
+      # can't silently drop these rows from the real index again.
+      it "stores the first-class CIPM YYYY-MM committee document" do
+        expect(subject.index).to receive(:add_or_update) do |id, path|
+          expect(id).to be_a ::Pubid::Bipm::Identifier
+          expect(id.to_s).to eq "CIPM 2005-06"
+          expect(path).to eq "static/cipm/2005-06.yaml"
+        end
+        expect do
+          subject.add_to_index "CIPM 2005-06", "static/cipm/2005-06.yaml"
+        end.not_to output(/Skipping/).to_stderr_from_any_process
+      end
+
+      # An alphanumeric Metrologia *volume* is the standing unparseable case (see
+      # the example below) now that `CIPM 2005-06` parses.
       it "warns and skips an id Pubid::Bipm can't parse" do
         expect(subject.index).not_to receive(:add_or_update)
         expect do
-          subject.add_to_index "CIPM 2005-06", "static/cipm/2005-06.yaml"
-        end.to output(/Skipping index entry for `CIPM 2005-06`/).to_stderr_from_any_process
+          subject.add_to_index "Metrologia 1A", "data/metrologia-1a.yaml"
+        end.to output(/Skipping index entry for `Metrologia 1A`/).to_stderr_from_any_process
       end
 
       # Guards the pubid parse boundary for Metrologia (the parser specs mock

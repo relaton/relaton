@@ -130,6 +130,16 @@ pubid would make `Relaton::Index` reject the whole index). Revert the pin to the
 released `pubid ~> 2.0.0.pre.alpha.8` once these changes ship in a release. See
 `lib/relaton/jcgm/CLAUDE.md`.
 
+**Stale-pubid-lock trap.** Because that pin is a **git branch** and `Gemfile.lock`
+is gitignored, the installed pubid is whatever a past `bundle install` froze —
+and `bundle install` does **not** refloat an already-locked git source. A lock
+left behind by an earlier session therefore keeps reproducing *old* pubid
+rendering, producing IEEE/BIPM spec failures that don't reproduce on CI (which
+resolves fresh). Before diagnosing any pubid-shaped rendering failure, check
+`grep -A2 pubid.git Gemfile.lock` against `git ls-remote …/pubid.git main` and
+run **`bundle update pubid`** (not `bundle install`). Only after that is a
+failure worth treating as a code bug.
+
 ## Testing
 
 Each flavor's specs live in `spec/<flavor>/` and run **self-contained** against

@@ -54,6 +54,18 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
     expect(pubid.to_s).to eq "IEEE Std 802.15.4j-2013"
   end
 
+  # The bespoke Renderer is only *returned* when a pubid parse loses a digit, so
+  # `parse` alone can't pin its rendering while pubid handles this id. Assert it
+  # directly: the fallback must spell the amendment in pubid's canonical spaced
+  # form, so an id that does miss the faithfulness guard still renders `/Amd N`.
+  it "renders the amendment in the canonical spaced form in the fallback" do
+    nt = "IS0/IEC/IEEE 8802-11:2012/Amd.5:2015(E) (Adoption of IEEE Std 802.11af-2014)"
+    rendered = described_class.parse_fallback(nt, "")
+    expect(rendered.to_s).to eq "ISO/IEC/IEEE 802.11/Amd 5-2012"
+    # `to_id` is fed back to pubid, so the spaced form must stay parseable.
+    expect(described_class.pubid_parse(rendered.to_id)).not_to be_nil
+  end
+
   shared_examples "parse normtitle" do |nt, id|
     it "parse #{nt}" do
       expect(described_class.parse(nt, "").to_s).to eq id
