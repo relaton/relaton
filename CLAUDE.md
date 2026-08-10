@@ -182,6 +182,16 @@ suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
 
 - Umbrella (`Relaton::Db`) specs are in `spec/relaton/` directly (flattened — a
   cache-dir named `relaton` would otherwise collide with a `relaton/` subdir).
+- **Umbrella specs test routing, not retrieval.** `spec/relaton/`'s job is that
+  `Db#fetch` picks the right flavor processor and hands back that flavor's item,
+  so they stub `Relaton::<Flavor>::Bibliography.get` and assert the returned
+  class/docid. A flavor's own retrieval — index download, document fetch — is
+  covered by `spec/<flavor>/`, which owns the fixtures for it. Don't drive an
+  umbrella example through a real index/cassette: it duplicates flavor coverage
+  and silently rots when the flavor moves. That is how `f7ae1d721` (BIPM
+  `INDEXFILE` → `index-v2`) broke `db_spec.rb`'s "BIPM Meeting" example — its
+  cassette still held the dead `index-v1.zip`, so VCR raised
+  `UnhandledHTTPRequestError` even though nothing about routing had changed.
 - **Known issue:** `spec/oiml/` marks 8 tests pending — `Pubid::Oiml::Identifier.from_hash`
   fails only inside the combined-gem bundle (a runtime-dep interaction; identical
   pubid/lutaml versions pass in isolation), so the OIML index can't deserialize.

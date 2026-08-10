@@ -481,9 +481,21 @@ RSpec.describe Relaton::Db do
       expect(subject.fetch(" ISO 19115-1 ", nil, {})).to be :doc
     end
 
-    it "BIPM Meeting", vcr: "cipm_meeting_43" do
+    # Routing check: a bare `CIPM ...` reference carries no `BIPM` prefix, so
+    # this asserts the registry still resolves it to the BIPM processor and that
+    # `#fetch` hands back the flavor's own item. The flavor's retrieval (index
+    # lookup, document fetch) belongs to spec/bipm, so `Bibliography.get` is
+    # stubbed — no cassette, no index download.
+    it "BIPM Meeting" do
+      docid = Relaton::Bib::Docidentifier.new(
+        content: "CIPM 43rd Meeting (1950)", type: "BIPM",
+      )
+      item = Relaton::Bipm::ItemData.new docidentifier: [docid]
+      expect(Relaton::Bipm::Bibliography).to receive(:get)
+        .with("CIPM Meeting 43", nil, {}).and_return item
       bib = subject.fetch("CIPM Meeting 43")
       expect(bib).to be_instance_of Relaton::Bipm::ItemData
+      expect(bib.docidentifier.first.content).to eq "CIPM 43rd Meeting (1950)"
     end
   end
 
