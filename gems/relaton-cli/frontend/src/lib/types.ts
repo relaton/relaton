@@ -62,6 +62,8 @@ export interface IndexDocument {
 
 export interface IndexData {
   title: string;
+  /** Site blurb shown as the header subtitle (optional; also the meta description). */
+  description?: string | null;
   documents: IndexDocument[];
   /** ISO timestamp the site was generated (optional, for the footer). */
   generated?: string | null;

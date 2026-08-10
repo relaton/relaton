@@ -46,6 +46,47 @@ describe("resolveIndexData", () => {
     });
   });
 
+  it("prefers the embedded description over the mount-node one", async () => {
+    window.RELATON_INDEX_DATA = {
+      title: "T",
+      description: "From JSON",
+      documents: [],
+    } as IndexData;
+    const el = document.createElement("div");
+    el.dataset.description = "From DOM";
+    const data = await resolveIndexData(el);
+    expect(data.description).toBe("From JSON");
+  });
+
+  it("falls back to the mount-node data-description", async () => {
+    window.RELATON_INDEX_DATA = { title: "T", documents: [] } as IndexData;
+    const el = document.createElement("div");
+    el.dataset.description = "From DOM";
+    const data = await resolveIndexData(el);
+    expect(data.description).toBe("From DOM");
+  });
+
+  it("reads data-description in dom mode", async () => {
+    const el = document.createElement("div");
+    el.dataset.description = "A blurb";
+    el.innerHTML = `
+      <div class="documents">
+        <article class="document" data-id="B 2" data-title="Two"></article>
+      </div>`;
+    const data = await resolveIndexData(el);
+    expect(data.description).toBe("A blurb");
+  });
+
+  it("leaves the description null when none is given", async () => {
+    const el = document.createElement("div");
+    el.innerHTML = `
+      <div class="documents">
+        <article class="document" data-id="B 2" data-title="Two"></article>
+      </div>`;
+    const data = await resolveIndexData(el);
+    expect(data.description).toBeNull();
+  });
+
   it("returns an empty set when there is no data", async () => {
     const el = document.createElement("div");
     const data = await resolveIndexData(el);

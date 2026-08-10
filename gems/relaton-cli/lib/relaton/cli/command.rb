@@ -146,6 +146,11 @@ module Relaton
              desc: "Build from a GitHub repo ORG/NAME (shallow-cloned) instead of a local folder"
       option :branch, desc: "Branch to clone when --flavor/--repo is used"
       option :title, aliases: :t, desc: "Index page title"
+      option :description,
+             desc: "Index page description (<meta name=\"description\"> and the header subtitle)"
+      option :favicon,
+             desc: "Favicon href for <link rel=\"icon\">, used verbatim (a relative " \
+                   "path must be placed in the deployed site by the caller)"
       option :"base-url",
              desc: "Base URL for raw YAML links (defaults to the raw GitHub URL when cloning)"
       option :mode, aliases: :m, default: "embedded",
@@ -162,6 +167,8 @@ module Relaton
             output: options[:output],
             mode: options[:mode],
             title: options[:title] || default_title,
+            description: options[:description],
+            favicon: options[:favicon],
             base_url: options[:"base-url"] || default_base_url,
             static: options[:static],
             overwrite: options[:overwrite],

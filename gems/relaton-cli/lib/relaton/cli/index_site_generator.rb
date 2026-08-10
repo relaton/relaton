@@ -28,9 +28,16 @@ module Relaton
       # crawler can't fetch. Part of the corpus (referenced by index-vN.yaml), so
       # it belongs in the browsable site too.
       STATIC_DIRNAME = "static".freeze
+      # <link rel="icon"> type hints, keyed by the favicon href's extension. An
+      # unlisted extension emits no type at all and lets the browser sniff.
+      FAVICON_TYPES = {
+        ".svg" => "image/svg+xml", ".png" => "image/png", ".ico" => "image/x-icon",
+        ".gif" => "image/gif", ".jpg" => "image/jpeg", ".jpeg" => "image/jpeg"
+      }.freeze
 
       # @param data_dir [String]
-      # @param options [Hash] :output :title :base_url :mode :overwrite :lang :generated
+      # @param options [Hash] :output :title :description :favicon :base_url
+      #   :mode :overwrite :lang :generated :static
       def self.generate(data_dir, options = {})
         new(data_dir, options).generate
       end
@@ -43,7 +50,9 @@ module Relaton
         @lang = options[:lang] || "en"
         @overwrite = options.fetch(:overwrite, true)
         @base_url = options[:base_url]
-        @title = options[:title] || "Relaton Index"
+        @title = presence(options[:title]) || "Relaton Index"
+        @description = presence(options[:description])
+        @favicon = presence(options[:favicon])
         @generated = options.fetch(:generated) { Time.now.utc.strftime("%Y-%m-%d") }
         @include_static = options.fetch(:static, true)
         validate!
@@ -65,7 +74,17 @@ module Relaton
       private
 
       attr_reader :data_dir, :options, :output, :mode, :lang, :overwrite,
-                  :base_url, :title, :generated, :include_static
+                  :base_url, :title, :description, :favicon, :generated,
+                  :include_static
+
+      # nil for a nil/blank option value. A caller workflow that forwards an
+      # unset input renders it as an empty string (`--favicon ""`), which must
+      # mean "not set" — an empty href in <link rel="icon"> resolves to the page
+      # itself, and an empty <meta name="description"> is worse than none.
+      def presence(value)
+        str = value.to_s.strip
+        str unless str.empty?
+      end
 
       def validate!
         unless MODES.include?(mode)
@@ -192,6 +211,9 @@ module Relaton
         )
         template.render!(
           "title" => title,
+          "description" => description,
+          "favicon" => favicon,
+          "favicon_type" => favicon_type,
           "css" => FrontendAssets.stylesheet,
           "iife" => FrontendAssets.iife,
           "mode" => mode,
@@ -202,14 +224,28 @@ module Relaton
         )
       end
 
+      # The <link rel="icon"> type for the configured favicon, or nil when there
+      # is none or its extension isn't a known image type. The href is passed
+      # through verbatim (absolute URL or output-relative path alike), so any
+      # ?query/#fragment is stripped before looking at the extension.
+      def favicon_type
+        return nil unless favicon
+
+        FAVICON_TYPES[File.extname(favicon.split(/[?#]/, 2).first.to_s).downcase]
+      end
+
       # Embedded JSON payload for window.RELATON_INDEX_DATA. Escaped so it can
-      # never break out of the surrounding <script> tag.
+      # never break out of the surrounding <script> tag. The description key is
+      # omitted when unset, keeping the payload byte-identical for sites that
+      # don't pass one.
       def embed_json(documents)
         return "null" if mode == "static-json"
 
-        script_escape(JSON.generate("title" => title,
-                                    "generated" => generated,
-                                    "documents" => documents))
+        payload = { "title" => title }
+        payload["description"] = description if description
+        payload["generated"] = generated
+        payload["documents"] = documents
+        script_escape(JSON.generate(payload))
       end
 
       def search_json(documents)

@@ -251,7 +251,7 @@ onUnmounted(() => {
         <div>
           <h1 class="text-2xl font-semibold tracking-tight">{{ data.title }}</h1>
           <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Please use the provided Relaton DocID to refer to an item.
+            {{ data.description || "Please use the provided Relaton DocID to refer to an item." }}
           </p>
         </div>
         <button
