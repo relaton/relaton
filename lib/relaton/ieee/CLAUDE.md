@@ -48,11 +48,20 @@ canonical string pubid then parses (→ 98.7% pubid objects, 100% coverage).
   rendering survives only as the private `RawbibIdParser::Renderer` used by the
   fallback. pubid (`::Pubid::Ieee::Identifier`) is the identifier abstraction.
 - **Coordination with pubid.** IEEE ids now render in pubid's canonical form
-  (`/D-5`→`/D5`, `802.16-2012 - Redline`, trademark `™`/`®` appended at the end,
-  full corrigendum expansion). This required a batch of pubid fixes (draft-verbatim,
-  redline, revision incl. numbered `RevN`, edition, trademark, historical formats,
-  update_codes one-offs). `Core::DataFetcher#output_file` also sanitizes commas so
-  pubid's `", Mar 2011"` dates don't leak into filenames.
+  (`/D-5`→`/D5`, `/Amd 5-2012` with a space, `802.16-2012 - Redline`, trademark
+  `™`/`®` appended at the end, full corrigendum expansion). This required a batch
+  of pubid fixes (draft-verbatim, redline, revision incl. numbered `RevN`, edition,
+  trademark, historical formats, update_codes one-offs).
+  `Core::DataFetcher#output_file` also sanitizes commas so pubid's `", Mar 2011"`
+  dates don't leak into filenames. The fallback `Renderer`'s suffix strings are
+  **not** the canonical spellings and shouldn't be "fixed" to match: they are the
+  input to `to_id`, which pubid re-parses, so `/D-N`, `/R-N`, `/E-N` are
+  deliberately the *parseable* forms pubid canonicalizes to `/DN` etc. The one
+  exception is `amd_to_s`, which emits the **spaced** `/Amd N`: pubid parses both
+  spellings, so the spaced one costs nothing and keeps the rendering canonical
+  for the ~1.3% of ids that miss the faithfulness guard and keep the `Renderer`
+  string. Changing any of these also moves the `extract_index_entry` dedup key in
+  `data_fetcher.rb`.
 
 ## Fetch robustness (no silent corpus loss)
 

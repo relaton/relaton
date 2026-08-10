@@ -656,7 +656,7 @@ module Relaton
           def draft_to_s   = draft ? "/D-#{draft}" : ""
           def rev_to_s     = rev ? "/R-#{rev}" : ""
           def corr_to_s    = corr ? "/Cor#{corr}" : ""
-          def amd_to_s     = amd ? "/Amd#{amd}" : ""
+          def amd_to_s     = amd ? "/Amd #{amd}" : ""
           def year_to_s    = year ? "-#{year}" : ""
           def month_to_s   = month ? "-#{month}" : ""
           def redline_to_s = redline ? " Redline" : ""
