@@ -85,12 +85,22 @@ module Relaton
         end
       end
 
-      # Fetch docid.
+      # The primary docid comes from the hit's code; a recommendation additionally
+      # carries the equivalent ISO/IEC(/IEEE) identifier, which used to be part of
+      # the search result's media name and now comes from the recommendation
+      # header's `iso_number` via the shared `RecommendationFields#iso_docid`.
+      # Both are guarded on `idrec` — `RadioRegulationsParser` (RR/OB) parses an
+      # HTML page and has neither `rec_name` nor `iso_docid`.
+      #
       # @return [Array<Relaton::Bib::Docidentifier>]
       def docid
         @docid ||= begin
           docids = hit.hit[:code].to_s.split(" | ").map { |c| createdocid(c) }
-          docids << createdocid(doc["rec_name"]) if docids.empty?
+          if idrec
+            docids << createdocid("ITU-T #{parser.doc['rec_name']}") if docids.empty?
+            iso = parser.iso_docid
+            docids << iso if iso
+          end
           docids
         end
       end

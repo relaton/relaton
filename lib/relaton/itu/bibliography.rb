@@ -43,10 +43,13 @@ module Relaton
 
       def fetch_ref_err(refid, missed_years)
         Util.info "Not found.", key: refid.to_s
-        if missed_years.any?
-          plural = missed_years.size > 1 ? "s" : ""
+        # one hit per edition means a year can repeat (a recommendation and its
+        # amendment); the requested year itself is not a "different year" hint
+        years = missed_years.uniq.reject { |y| y == refid.year }
+        if years.any?
+          plural = years.size > 1 ? "s" : ""
           Util.info "There was no match for `#{refid.year}` year, though there were matches " \
-                    "found for `#{missed_years.join('`, `')}` year#{plural}.", key: refid.to_s
+                    "found for `#{years.join('`, `')}` year#{plural}.", key: refid.to_s
         end
         nil
       end
@@ -70,7 +73,9 @@ module Relaton
             return { ret: ret } if ret
           end
 
-          missed_years << pyear
+          # a hit whose code carries no year contributes nothing to the
+          # "matches found for `<year>`" hint
+          missed_years << pyear if pyear
         end
         { years: missed_years }
       end

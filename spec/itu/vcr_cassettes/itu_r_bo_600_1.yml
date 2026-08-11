@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-itu-r/refs/heads/v2/data/itu-r-bo-600-1.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-itu/refs/heads/main/data/itu-r-bo-600-1.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -48,7 +48,7 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - C838:34A416:577F0:858DC:6A726387
+      - 25DA:AC389:149BB6:1D33C0:6A7A0B51
       X-Github-Edge-Region:
       - iad
       Content-Encoding:
@@ -56,17 +56,17 @@ http_interactions:
       Accept-Ranges:
       - bytes
       Date:
-      - Tue, 04 Aug 2026 22:11:19 GMT
+      - Mon, 10 Aug 2026 17:33:05 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-pdk-kfty8610036-PDK
+      - cache-pdk-kpdk2140043-PDK
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1785881479.499832,VS0,VE77
+      - S1786383186.604377,VS0,VE81
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -74,9 +74,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 783219179823543d71a028d275466aac0b23b798
+      - a51a2a7690caea2bf504056ab371afccc8d09e6b
       Expires:
-      - Tue, 04 Aug 2026 22:16:19 GMT
+      - Mon, 10 Aug 2026 17:38:05 GMT
       Source-Age:
       - '0'
     body:
@@ -90,5 +90,5 @@ http_interactions:
         cYvO4jmD6G7R4MAakpeAG6QT1mLTagScrk90OG5gdt2sWyjjPaoMTm8tmU5c
         BYiU3fvEOJ17yVcOmHMg2m23uxp5rQFgEhE8AgBYIuBvvEss/0JtNk9o4KML
         /eLD+kllnwZkEBYr0et6NydtSWyqfgHExVmgNAIAAA==
-  recorded_at: Tue, 04 Aug 2026 22:11:19 GMT
+  recorded_at: Mon, 10 Aug 2026 17:33:05 GMT
 recorded_with: VCR 6.4.0
