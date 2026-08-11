@@ -4,11 +4,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ title | strip_html }}</title>
+    {%- if description %}
+    <meta name="description" content="{{ description | escape }}">
+    {%- endif %}
     <meta name="generator" content="relaton-cli index">
+    {%- if favicon %}
+    <link rel="icon" href="{{ favicon | escape }}"{% if favicon_type %} type="{{ favicon_type }}"{% endif %}>
+    {%- endif %}
     <style>{{ css }}</style>
   </head>
   <body>
-    <div id="relaton-index-app" data-title="{{ title | escape }}" data-generated="{{ generated }}"{% if mode == "static-json" %} data-src="{{ json_url }}"{% endif %}>
+    <div id="relaton-index-app" data-title="{{ title | escape }}" data-generated="{{ generated }}"{% if description %} data-description="{{ description | escape }}"{% endif %}{% if mode == "static-json" %} data-src="{{ json_url }}"{% endif %}>
     {%- if mode != "static-json" -%}
       <div class="documents">
       {%- for d in documents -%}

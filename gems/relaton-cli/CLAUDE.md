@@ -107,7 +107,22 @@ replacing the shared Jekyll theme (`relaton/jekyll-theme-relaton-data-index`) +
   Three `--mode`s: `embedded` (crawler DOM + `window.RELATON_INDEX_DATA` JSON —
   default), `dom` (crawler DOM only), `static-json` (`search.json` sidecar,
   fetched; not crawlable). JSON is `script_escape`d (`</`→`<\/`, U+2028/9) so it
-  can't break out of the `<script>`.
+  can't break out of the `<script>`. **Per-flavor branding** beyond `--title` is
+  `--description` and `--favicon` (both `nil` by default — the per-flavor values the
+  deleted Jekyll `_config.yml`s carried, now supplied by the caller workflow). The
+  description becomes `<meta name="description">`, `data-description` on the mount
+  node **and** a `description` key in the embedded payload (added only when set, so
+  an unbranded site's JSON is unchanged); the favicon becomes `<link rel="icon">`
+  with its href passed through **verbatim** and a `type` sniffed from the extension
+  via `FAVICON_TYPES` (unknown extension → no `type`, the browser sniffs). The
+  generator copies **no assets** (only `index.html` + `search.json`), so a relative
+  favicon href is the caller's job to place in the deployed site — normally it's an
+  absolute URL. Both tags are emitted by `{%- if … %}` branches in `page.liquid`, so
+  a build with neither option is **byte-identical** to before they existed — keep it
+  that way when touching that template. `title`/`description`/`favicon` all go
+  through `presence`, which maps a blank string to `nil`: the deploy workflow
+  forwards unset inputs as `--favicon ""`, and an empty `href` would make the
+  browser re-fetch the page as its own icon.
 - `lib/relaton/cli/index_item_normalizer.rb` — doc-hash → `{id,title,doctype,
   stage,date,link,yaml}` (the always-present summary core) **plus optional
   detail-page fields** (`abstract, edition, languages, keywords, publisher,
@@ -140,7 +155,12 @@ modernized). `src/` is committed; `dist/` + `node_modules/` are gitignored and
 built at package time. The island (`src/App.vue`) does search / doctype+stage
 facets / sort / list-grid / dark-mode / copy-DocID / client pagination, hydrating
 from `window.RELATON_INDEX_DATA`, the crawler DOM, or a fetched `search.json`
-(`src/lib/hydrate.ts`). Pagination is **viewport-adaptive**: `computePageSize()`
+(`src/lib/hydrate.ts`). All three paths also resolve the site `description`
+(`IndexData.description`): the embedded payload's value wins, otherwise
+`pageDescription(el)` reads `data-description` off the mount node — so `dom` and
+`static-json` builds get it too. `App.vue` renders it as the header subtitle,
+falling back to the default "Please use the provided Relaton DocID…" sentence.
+Pagination is **viewport-adaptive**: `computePageSize()`
 sizes a page from the available height and grid/list row density (recomputed on
 resize — debounced — and on view-mode change, clamped `10..100`) rather than a
 fixed 100 rows, and the Prev/Next/page controls live in a shared

@@ -258,6 +258,8 @@ summary fields and links.
 | `--repo` | Build from a GitHub repo `ORG/NAME` (shallow-cloned) instead of a local folder.
 | `--branch` | Branch to clone when `--flavor`/`--repo` is used (default: the repo's default branch).
 | `-t, --title` | Index page title.
+| `--description` | Index page description. Emitted as `<meta name="description">` (search-result blurb) and rendered as the header subtitle in place of the default sentence.
+| `--favicon` | Favicon href for `<link rel="icon">`, emitted **verbatim**. Normally an absolute URL (e.g. the SDO's own logo). A site-relative path also works, but `relaton index` copies no assets — only `index.html` and `search.json` are written — so the caller must put that file into the deployed site itself. A known image extension (`.svg`, `.png`, `.ico`, `.gif`, `.jpg`) also sets `type`; anything else is left for the browser to sniff.
 | `--base-url` | Base URL for the raw-YAML links (defaults to the raw GitHub URL when cloning).
 | `-m, --mode` | Data delivery mode (default `embedded`):
 
@@ -286,6 +288,11 @@ $ relaton index data --output _site --base-url \
 
 # From a local folder of YAML docs (default ./data), with a custom title:
 $ relaton index ./my-docs --title "My Standards Index"
+
+# Branded per flavor — title, search-result blurb and tab icon:
+$ relaton index data --title "W3C Index" \
+    --description "Welcome to the World Wide Web Consortium standards index site!" \
+    --favicon https://www.w3.org/assets/logos/w3c/w3c-no-bars.svg
 
 # Ad-hoc, cloning the official data repo by flavor:
 $ relaton index --flavor bipm --output _site

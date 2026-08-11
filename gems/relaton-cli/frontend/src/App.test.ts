@@ -36,6 +36,17 @@ describe("App island", () => {
     expect(w.findAll(".document")).toHaveLength(3);
   });
 
+  it("renders the description as the header subtitle when given", () => {
+    const w = mount(App, { props: { data: { ...data, description: "The BIPM index." } } });
+    expect(w.text()).toContain("The BIPM index.");
+    expect(w.text()).not.toContain("Please use the provided Relaton DocID");
+  });
+
+  it("falls back to the default subtitle without a description", () => {
+    const w = mount(App, { props: { data } });
+    expect(w.text()).toContain("Please use the provided Relaton DocID to refer to an item.");
+  });
+
   it("filters by the search query", async () => {
     const w = mount(App, { props: { data } });
     await w.find('input[type="search"]').setValue("brochure");

@@ -83,6 +83,83 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     end
   end
 
+  context "with a description" do
+    let(:blurb) { "Welcome to the BIPM standards index site." }
+
+    it "emits a meta description and carries it on the mount node" do
+      html = generate(description: blurb)
+      expect(html).to include(%(<meta name="description" content="#{blurb}">))
+      expect(html).to include(%(data-description="#{blurb}"))
+    end
+
+    it "carries the description in the embedded payload" do
+      html = generate(description: blurb)
+      json = html[/window\.RELATON_INDEX_DATA = (.+?);<\/script>/m, 1]
+      expect(JSON.parse(json)["description"]).to eq(blurb)
+    end
+
+    it "HTML-escapes the description" do
+      html = generate(description: %(Tom & Jerry's "<b>index</b>"))
+      expect(html).to include(
+        %(<meta name="description" content="Tom &amp; Jerry&#39;s &quot;&lt;b&gt;index&lt;/b&gt;&quot;">),
+      )
+    end
+
+    it "still emits the mount-node description in static-json mode" do
+      html = generate(description: blurb, mode: "static-json")
+      expect(html).to include(%(data-description="#{blurb}"))
+    end
+  end
+
+  context "with a favicon" do
+    it "links an SVG favicon with its MIME type" do
+      html = generate(favicon: "https://www.w3.org/assets/logos/w3c/w3c-no-bars.svg")
+      expect(html).to include(
+        %(<link rel="icon" href="https://www.w3.org/assets/logos/w3c/w3c-no-bars.svg" type="image/svg+xml">),
+      )
+    end
+
+    it "derives the MIME type for other known extensions" do
+      expect(generate(favicon: "favicon.png")).to include(%(type="image/png"))
+      expect(generate(favicon: "favicon.ico")).to include(%(type="image/x-icon"))
+    end
+
+    it "ignores a query string when sniffing the type" do
+      html = generate(favicon: "/assets/icon.svg?v=2")
+      expect(html).to include(
+        %(<link rel="icon" href="/assets/icon.svg?v=2" type="image/svg+xml">),
+      )
+    end
+
+    it "omits the type for an unknown extension and passes the href through verbatim" do
+      html = generate(favicon: "assets/icon")
+      expect(html).to include(%(<link rel="icon" href="assets/icon">))
+    end
+  end
+
+  context "without a description or favicon" do
+    # A caller workflow forwarding an unset input passes "" — that must mean
+    # "not set", not an empty meta/self-referencing icon href.
+    [{}, { description: "", favicon: "" }, { description: "  ", favicon: "  " }].each do |opts|
+      it "emits neither tag nor a description key in the payload (#{opts.inspect})" do
+        html = generate(opts)
+        expect(html).not_to include('name="description"')
+        expect(html).not_to include('rel="icon"')
+        expect(html).not_to include("data-description")
+
+        json = html[/window\.RELATON_INDEX_DATA = (.+?);<\/script>/m, 1]
+        expect(JSON.parse(json)).not_to have_key("description")
+      end
+    end
+
+    it "falls back to the default title when the title is blank" do
+      described_class.generate(data_dir, output: @out, generated: "2026-01-01", title: "")
+      html = File.read(File.join(@out, "index.html"), encoding: "utf-8")
+      expect(html).to include("<title>Relaton Index</title>")
+    end
+
+  end
+
   context "dom mode" do
     it "omits the injected JSON but keeps the crawler DOM" do
       html = generate(mode: "dom")

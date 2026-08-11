@@ -10,7 +10,7 @@ import type { CompactRecord, IndexData, IndexDocument } from "./types";
 // three are handled uniformly.
 export function resolveIndexData(el: HTMLElement): Promise<IndexData> {
   if (window.RELATON_INDEX_DATA) {
-    return Promise.resolve(normalize(window.RELATON_INDEX_DATA));
+    return Promise.resolve(normalize(window.RELATON_INDEX_DATA, el));
   }
 
   const fromDom = readFromDom(el);
@@ -19,12 +19,17 @@ export function resolveIndexData(el: HTMLElement): Promise<IndexData> {
   const src = el.dataset.src;
   if (src) return fetchSearchJson(src, el);
 
-  return Promise.resolve({ title: pageTitle(el), documents: [] });
+  return Promise.resolve({
+    title: pageTitle(el),
+    description: pageDescription(el),
+    documents: [],
+  });
 }
 
-function normalize(data: IndexData): IndexData {
+function normalize(data: IndexData, el: HTMLElement): IndexData {
   return {
     title: data.title || "Relaton Index",
+    description: data.description ?? pageDescription(el),
     documents: Array.isArray(data.documents) ? data.documents : [],
     generated: data.generated ?? null,
   };
@@ -37,6 +42,12 @@ function pageTitle(el: HTMLElement): string {
     document.title ||
     "Relaton Index"
   );
+}
+
+// The site blurb, carried on the mount node in every mode (the embedded JSON
+// also has it, and wins there — see normalize()).
+function pageDescription(el: HTMLElement): string | null {
+  return el.dataset.description || null;
 }
 
 // Parse the server-rendered crawler DOM: each `.document` node carries the
@@ -55,7 +66,12 @@ function readFromDom(el: HTMLElement): IndexData | null {
     yaml: n.dataset.href || null,
   }));
 
-  return { title: pageTitle(el), documents, generated: el.dataset.generated || null };
+  return {
+    title: pageTitle(el),
+    description: pageDescription(el),
+    documents,
+    generated: el.dataset.generated || null,
+  };
 }
 
 async function fetchSearchJson(src: string, el: HTMLElement): Promise<IndexData> {
@@ -71,8 +87,8 @@ async function fetchSearchJson(src: string, el: HTMLElement): Promise<IndexData>
       link: r.l || null,
       yaml: r.u || null,
     }));
-    return { title: pageTitle(el), documents };
+    return { title: pageTitle(el), description: pageDescription(el), documents };
   } catch {
-    return { title: pageTitle(el), documents: [] };
+    return { title: pageTitle(el), description: pageDescription(el), documents: [] };
   }
 }

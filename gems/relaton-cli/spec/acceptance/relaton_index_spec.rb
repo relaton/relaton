@@ -25,6 +25,27 @@ RSpec.describe "Relaton index" do
     expect(html).to include("BIPM Index")
   end
 
+  it "honours --description and --favicon" do
+    Relaton::Cli.start(["index", data_dir, "-o", @out,
+                        "--description", "The BIPM standards index.",
+                        "--favicon", "https://www.bipm.org/favicon.svg"])
+
+    html = File.read(File.join(@out, "index.html"))
+    expect(html).to include('<meta name="description" content="The BIPM standards index.">')
+    expect(html).to include(
+      '<link rel="icon" href="https://www.bipm.org/favicon.svg" type="image/svg+xml">',
+    )
+    expect(html).to include('data-description="The BIPM standards index."')
+  end
+
+  it "omits the description and favicon tags when the flags are absent" do
+    Relaton::Cli.start(["index", data_dir, "-o", @out])
+
+    html = File.read(File.join(@out, "index.html"))
+    expect(html).not_to include('name="description"')
+    expect(html).not_to include('rel="icon"')
+  end
+
   it "honours --mode static-json" do
     Relaton::Cli.start(["index", data_dir, "-o", @out, "-m", "static-json"])
 
