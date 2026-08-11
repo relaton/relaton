@@ -1,6 +1,16 @@
 require "relaton/itu/data_fetcher"
 
 describe Relaton::Itu::DataFetcher do
+  # Run a block with RELATON_ITU_CONCURRENCY set (nil = unset), restoring it
+  # afterwards so worker-pool size never leaks between examples.
+  def with_concurrency(value)
+    was = ENV["RELATON_ITU_CONCURRENCY"]
+    ENV["RELATON_ITU_CONCURRENCY"] = value
+    yield
+  ensure
+    ENV["RELATON_ITU_CONCURRENCY"] = was
+  end
+
   it "::fetch" do
     expect(FileUtils).to receive(:mkdir_p).with("data")
     df = double "df"
@@ -78,9 +88,13 @@ describe Relaton::Itu::DataFetcher do
     end
 
     context "#fetch itu-t routing" do
+      # One worker keeps the expectations order-independent; the pool itself is
+      # exercised in "#fetch_recommendations concurrency" below.
+      around { |ex| with_concurrency("1") { ex.run } }
+
       it "harvests recommendations via search_recs for the itu-t source" do
-        bib = double "bib"
-        agent = double "agent"
+        bib = double "bib", contributor: [double("publisher")]
+        agent = double "agent", shutdown: nil
         row1 = { "rec_name" => "A.1 (10/2000)" }
         row2 = { "rec_name" => "A.2 (11/2006)" }
 
@@ -89,10 +103,90 @@ describe Relaton::Itu::DataFetcher do
         expect(subject).to receive(:search_recs).and_return [row1, row2]
         expect(Relaton::Itu::DataParserT).to receive(:parse).with(row1, agent, kind_of(Hash)).and_return bib
         expect(Relaton::Itu::DataParserT).to receive(:parse).with(row2, agent, kind_of(Hash)).and_return nil
-        expect(subject).to receive(:write_file).with(bib).once
+        expect(subject).to receive(:write_file).with(bib, 0).once
         expect(subject.index).to receive(:save)
 
         subject.fetch("itu-t")
+      end
+
+      it "reports records whose enrichment degraded them to the thin shape" do
+        thin = double "bib", contributor: []
+        agent = double "agent", shutdown: nil
+
+        allow(subject).to receive(:rec_agent).and_return agent
+        allow(subject).to receive(:write_file)
+        allow(subject.index).to receive(:save)
+        expect(subject).to receive(:search_recs).and_return [{ "rec_name" => "A.1 (10/2000)" }]
+        expect(Relaton::Itu::DataParserT).to receive(:parse).and_return thin
+
+        expect { subject.fetch("itu-t") }
+          .to output(/enrichment failed for 1\/1 records/).to_stderr_from_any_process
+      end
+    end
+
+    context "#fetch_recommendations concurrency" do
+      it "defaults to DEFAULT_CONCURRENCY and honours the env var" do
+        with_concurrency(nil) { expect(described_class.concurrency).to eq described_class::DEFAULT_CONCURRENCY }
+        with_concurrency("3") { expect(described_class.concurrency).to eq 3 }
+        with_concurrency("0") { expect(described_class.concurrency).to eq 1 }
+      end
+
+      it "gives every worker its own agent and shuts them all down" do
+        agents = Array.new(3) { |i| double("agent#{i}", shutdown: nil) }
+        agents.each { |a| expect(a).to receive(:shutdown) }
+
+        with_concurrency("3") do
+          expect(subject).to receive(:rec_agent).and_return(*agents)
+          expect(subject).to receive(:search_recs).and_return []
+          subject.fetch_recommendations
+        end
+      end
+
+      it "parses every row exactly once across the pool" do
+        rows = Array.new(50) { |i| { "rec_name" => "A.#{i} (10/2000)" } }
+        parsed = Queue.new
+
+        with_concurrency("4") do
+          allow(subject).to receive(:rec_agent) { double("agent", shutdown: nil) }
+          expect(subject).to receive(:search_recs).and_return rows
+          allow(Relaton::Itu::DataParserT).to receive(:parse) { |row, *| parsed << row; nil }
+          subject.fetch_recommendations
+        end
+
+        expect(Array.new(parsed.size) { parsed.pop }).to match_array(rows)
+      end
+    end
+
+    context "#index_files" do
+      def write_record(dir, name, id)
+        item = Relaton::Itu::ItemData.new(
+          docidentifier: [Relaton::Itu::Docidentifier.new(type: "ITU", content: id, primary: true)],
+          title: [Relaton::Bib::Title.new(type: "main", content: "T", language: "en", script: "Latn")],
+          language: ["en"], script: ["Latn"], type: "standard",
+          ext: Relaton::Itu::Ext.new(doctype: Relaton::Itu::Doctype.new(content: "recommendation")),
+        )
+        File.join(dir, name).tap { |f| File.write f, item.to_yaml }
+      end
+
+      it "indexes records already on disk and reports the ids it can't parse" do
+        Dir.mktmpdir do |dir|
+          good = write_record dir, "itu-r-bo-600-1.yaml", "ITU-R BO.600-1"
+          bad = write_record dir, "itu-r-rr.yaml", "ITU-R RR"
+          index = double "index"
+          allow(subject).to receive(:index).and_return index
+          expect(index).to receive(:add_or_update).with(kind_of(::Pubid::Itu::Identifier), good).once
+
+          expect(subject.index_files("#{dir}/*.yaml")).to eq 1
+          expect(subject.unparseable_ids).to eq [["ITU-R RR", bad]]
+        end
+      end
+
+      it "logs and skips a file it cannot read as a record" do
+        Dir.mktmpdir do |dir|
+          File.write File.join(dir, "broken.yaml"), "not: [a, record"
+          expect { expect(subject.index_files("#{dir}/*.yaml")).to eq 0 }
+            .to output(/Failed to index/).to_stderr_from_any_process
+        end
       end
     end
 

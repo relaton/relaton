@@ -30,20 +30,24 @@ module Relaton
         /\bAnnex\b/ => "recommendation-annex",
       }.freeze
 
+      # The `errors` hash is threaded through the fetch_* helpers rather than
+      # held in an ivar: this module is `extend self`, so an ivar would be state
+      # shared by every caller — and DataFetcher#fetch_recommendations parses
+      # rows from a pool of threads.
+      #
       # @param row [Hash] single row from searchRecs Data
       # @param agent [Mechanize, nil] when present, enrich via getRecHdrDetail
       # @param errors [Hash]
       # @return [Relaton::Itu::ItemData, nil]
       def parse(row, agent = nil, errors = {})
-        @errors = errors
-        docid = fetch_docid(row)
+        docid = fetch_docid(row, errors)
         return if docid.empty?
 
         enr = enrichment(row, agent)
-        date = fetch_date(row)
+        date = fetch_date(row, errors)
         Relaton::Itu::ItemData.new(
           docidentifier: docid + enr.fetch(:iso, []),
-          title: fetch_title(row),
+          title: fetch_title(row, errors),
           edition: enr[:edition],
           abstract: enr.fetch(:abstract, []),
           date: date, language: ["en"],
@@ -52,9 +56,9 @@ module Relaton
           contributor: enr.fetch(:contributor, []),
           copyright: fetch_copyright(date),
           place: [Relaton::Bib::Place.new(city: "Geneva")],
-          source: fetch_source(row), script: ["Latn"],
+          source: fetch_source(row, errors), script: ["Latn"],
           type: "standard",
-          ext: Relaton::Itu::Ext.new(doctype: fetch_doctype(row), flavor: "itu"),
+          ext: Relaton::Itu::Ext.new(doctype: fetch_doctype(row, errors), flavor: "itu"),
         )
       end
 
@@ -109,24 +113,24 @@ module Relaton
       #
       # @param row [Hash]
       # @return [Array<Relaton::Itu::Docidentifier>]
-      def fetch_docid(row)
+      def fetch_docid(row, errors = {})
         name = row["rec_name"].to_s.strip
         if name.empty?
-          @errors[:docid] &&= true
+          errors[:docid] &&= true
           return []
         end
 
         r = [Docidentifier.new(type: "ITU", content: "ITU-T #{name}", primary: true)]
-        @errors[:docid] &&= r.empty?
+        errors[:docid] &&= r.empty?
         r
       end
 
       # @param row [Hash]
       # @return [Array<Relaton::Bib::Title>]
-      def fetch_title(row)
+      def fetch_title(row, errors = {})
         content = row["title"].to_s.strip
         r = content.empty? ? [] : [Relaton::Bib::Title.new(type: "main", content: content, language: "en", script: "Latn")]
-        @errors[:title] &&= r.empty?
+        errors[:title] &&= r.empty?
         r
       end
 
@@ -138,39 +142,39 @@ module Relaton
       #
       # @param row [Hash]
       # @return [Array<Relaton::Bib::Date>]
-      def fetch_date(row)
+      def fetch_date(row, errors = {})
         approval = row["approval_date"].to_s
         date = approval[/\d{4}-\d{2}-\d{2}/] || rec_name_date(row["rec_name"]) || approval[/\d{4}(-\d{2})?/]
         if date.nil? || date.empty?
-          @errors[:date] &&= true
+          errors[:date] &&= true
           return []
         end
 
         r = [Relaton::Bib::Date.new(type: "published", at: date)]
-        @errors[:date] &&= r.empty?
+        errors[:date] &&= r.empty?
         r
       end
 
       # @param row [Hash]
       # @return [Array<Relaton::Bib::Uri>]
-      def fetch_source(row)
+      def fetch_source(row, errors = {})
         link = row["dms_link"].to_s.strip
         if link.empty? || link == "-"
-          @errors[:source] &&= true
+          errors[:source] &&= true
           return []
         end
 
         r = [Relaton::Bib::Uri.new(type: "src", content: link)]
-        @errors[:source] &&= r.empty?
+        errors[:source] &&= r.empty?
         r
       end
 
       # @param row [Hash]
       # @return [Relaton::Itu::Doctype]
-      def fetch_doctype(row)
+      def fetch_doctype(row, errors = {})
         name = row["rec_name"].to_s
         content = DOCTYPE_MARKERS.find { |re, _| name.match?(re) }&.last || "recommendation"
-        @errors[:doctype] &&= false
+        errors[:doctype] &&= false
         Doctype.new(content: content)
       end
 

@@ -21,6 +21,32 @@ module Relaton
                    "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15".freeze
       ROWS = 100
       MAX_EMPTY_PAGES = 3
+      DEFAULT_CONCURRENCY = 8
+
+      # Number of ITU-T enrichment worker threads. Each record costs ~4
+      # www.itu.int round-trips (~3.7 s wall clock), so a ~16k-record corpus is
+      # ~17 h single-threaded — past the 6 h GitHub Actions job cap. The work is
+      # pure I/O wait, so a small pool is close to linear. Tunable via env var so
+      # a run can dial it down when the F5 WAF in front of www.itu.int starts
+      # throttling (or up to 1 to reproduce the serial order). Never below 1.
+      def self.concurrency
+        [(ENV["RELATON_ITU_CONCURRENCY"] || DEFAULT_CONCURRENCY).to_i, 1].max
+      end
+
+      def initialize(output, format)
+        super
+        # Guards the shared bookkeeping (@files, @seen, @errors, @unparseable_ids,
+        # @enrichment_failures) and the index mutation while workers fetch detail
+        # pages in parallel. The slow HTTP runs outside this lock; only the cheap
+        # build+write is held.
+        @mutex = Mutex.new
+        # output file => searchRecs position of the row that claimed it, so a
+        # duplicate filename resolves to the same last-by-position winner the
+        # serial crawl picked, regardless of worker completion order.
+        @seen = {}
+        @done = 0
+        @enrichment_failures = 0
+      end
 
       def index
         @index ||= Relaton::Index.find_or_create(
@@ -43,27 +69,104 @@ module Relaton
 
       # ITU-T harvester: one searchRecs request enumerates every edition and
       # supplement; each row is then enriched with getRecHdrDetail-sourced fields
-      # (abstract, ISO co-id, editorial-group contributors, status) via a shared
-      # browser-UA agent, so harvested records match the live runtime output.
-      # This is ~one getRecHdrDetail (+ one rec.aspx for the workgroup) per
-      # record — the bulk of the crawl's cost — so progress is logged.
+      # (abstract, ISO co-id, editorial-group contributors, status), so harvested
+      # records match the live runtime output. Enrichment is ~4 requests per
+      # record — the bulk of the crawl's cost — so the rows are spread over a
+      # worker pool (see .concurrency) and progress is logged.
+      #
+      # Each worker owns its own Mechanize agent: Mechanize is not thread-safe,
+      # and per-worker agents also keep one worker's cookie/history state out of
+      # another's. Rows carry their searchRecs position so #write_file can pick a
+      # deterministic winner for duplicate filenames.
       def fetch_recommendations
-        agent = rec_agent
         rows = search_recs
-        rows.each_with_index do |row, i|
-          bib = DataParserT.parse(row, agent, @errors)
-          write_file(bib) if bib
-          Util.info "ITU-T: enriched #{i + 1}/#{rows.size}" if ((i + 1) % 500).zero?
-        rescue => e # rubocop:disable Style/RescueStandardError
-          Util.error "#{e.message}\n#{e.backtrace}"
+        n = self.class.concurrency
+        agents = Array.new(n) { rec_agent }
+        queue = SizedQueue.new(n * 2)
+        workers = agents.map { |agent| spawn_rec_worker(queue, agent, rows.size) }
+        rows.each_with_index { |row, pos| queue << [row, pos] }
+        n.times { queue << nil } # poison pills
+        workers.each(&:join)
+        report_enrichment_failures rows.size
+      ensure
+        agents&.each(&:shutdown)
+      end
+
+      # One pool worker: drains the queue with its own agent until the poison
+      # pill (nil). Per-row errors are logged and skipped, so one bad row never
+      # kills a worker and leaves the queue undrained.
+      def spawn_rec_worker(queue, agent, total)
+        Thread.new do
+          while (item = queue.pop)
+            row, pos = item
+            begin
+              errors = Hash.new(true)
+              bib = DataParserT.parse(row, agent, errors)
+              if bib
+                # DataParserT#enrichment adds the ITU publisher unconditionally
+                # when it succeeds, so an empty contributor list is exactly the
+                # set of records whose detail fetch failed and degraded to the
+                # thin searchRecs shape.
+                count_enrichment_failure if bib.contributor.empty?
+                write_file bib, pos
+              end
+              merge_errors errors
+            rescue => e # rubocop:disable Style/RescueStandardError
+              Util.error "#{e.message}\n#{e.backtrace}"
+            end
+            progress total
+          end
         end
+      end
+
+      # Each parse gets its own errors hash (DataParserT is per-call state, but
+      # the flags are AND-folded across all rows), merged back under the lock.
+      def merge_errors(errors)
+        @mutex.synchronize { errors.each { |k, v| @errors[k] &&= v } }
+      end
+
+      def progress(total)
+        done = @mutex.synchronize { @done += 1 }
+        Util.info "ITU-T: enriched #{done}/#{total}" if (done % 500).zero?
+      end
+
+      def count_enrichment_failure
+        @mutex.synchronize { @enrichment_failures += 1 }
+      end
+
+      # Enrichment is best-effort: a failed detail fetch degrades that record to
+      # the thin searchRecs shape instead of losing it, and the crawl runs to
+      # completion either way. That is right for one flaky record and dangerous
+      # in bulk — a WAF block would quietly republish a metadata-thin corpus — so
+      # say how many records lost their enrichment.
+      def report_enrichment_failures(total)
+        return if @enrichment_failures.zero?
+
+        Util.warn "ITU-T: enrichment failed for #{@enrichment_failures}/#{total} records"
       end
 
       # Mechanize agent for per-record enrichment. A browser User-Agent is
       # required — www.itu.int sits behind the F5 WAF that rejects non-browser
       # clients (mirrors HitCollection#agent).
+      #
+      # max_history: Mechanize retains every response it fetches, unbounded by
+      #   default. Enrichment issues ~4 requests per record and one of them is
+      #   the ~90 KB rec.aspx page that #fetch_workgroup parses into a DOM; over
+      #   a 16k-record corpus (times one agent per worker) that history grows
+      #   into the gigabytes.
+      # timeouts: Mechanize sets none, so a single stalled www.itu.int socket
+      #   would park a worker indefinitely with no error and no progress. A
+      #   timeout raises Net::{Open,Read}Timeout < Timeout::Error, which
+      #   RecommendationFields#request_document already turns into a
+      #   Relaton::RequestError and DataParserT#enrichment rescues — so it costs
+      #   one thin record rather than the run.
       def rec_agent
-        Mechanize.new.tap { |a| a.user_agent_alias = "Mac Safari" }
+        Mechanize.new.tap do |a|
+          a.user_agent_alias = "Mac Safari"
+          a.max_history = 1
+          a.open_timeout = 15
+          a.read_timeout = 60
+        end
       end
 
       # ITU-R harvester (legacy RunSearch pagination).
@@ -93,16 +196,62 @@ module Relaton
       end
 
       # @param bib [Relaton::Itu::ItemData]
-      def write_file(bib) # rubocop:disable Metrics/AbcSize
+      # @param pos [Integer, nil] source position of the row this came from, used
+      #   only to break filename collisions deterministically (nil for the
+      #   single-threaded ITU-R path)
+      def write_file(bib, pos = nil) # rubocop:disable Metrics/AbcSize
         id = bib.docidentifier.find(&:primary).content
         file = output_file(id)
-        if @files.include? file
-          Util.warn "File #{file} exists."
-        else
-          @files << file
+        content = serialize(bib) # outside the lock: it is the expensive part
+        @mutex.synchronize do
+          if @files.include? file
+            Util.warn "File #{file} exists."
+            # Distinct docids can sanitize to one filename, in which case the
+            # serial crawl left the last row's version on disk. Keep that
+            # outcome whatever order the workers finish in.
+            return if pos && @seen[file] && @seen[file] > pos
+          else
+            @files << file
+          end
+          @seen[file] = pos
+          index_primary(id, file)
+          File.write file, content, encoding: "UTF-8"
         end
-        index_primary(id, file)
-        File.write file, serialize(bib), encoding: "UTF-8"
+      end
+
+      # Index records that are already on disk instead of harvesting them.
+      #
+      # ITU-R cannot be re-harvested — ITU decommissioned the bulk RunSearch
+      # enumeration this class's #fetch_publications still targets — so the
+      # published ITU-R records are preserved and only re-indexed on each run of
+      # relaton-data-itu's crawler. Doing that here rather than in the data repo
+      # gives the pass the same pubid guard and the same unparseable-id reporting
+      # as the ITU-T harvest, instead of a copy of both living downstream. Drive
+      # it and #fetch off one instance so there is a single index, a single
+      # unparseable-id list and a single error report:
+      #
+      #   fetcher = DataFetcher.new("data", "yaml")
+      #   fetcher.index_files "data/itu-r-*.yaml"
+      #   fetcher.fetch "itu-t"
+      #
+      # @param glob [String] e.g. "data/itu-r-*.yaml"
+      # @return [Integer] number of files indexed
+      def index_files(glob)
+        indexed = 0
+        files = Dir[glob].sort
+        files.each do |file|
+          item = Item.from_yaml(File.read(file, encoding: "UTF-8"))
+          id = (item.docidentifier.find(&:primary) || item.docidentifier.first)&.content
+          if id
+            indexed += 1 if index_primary(id, file)
+          else
+            unparseable_ids << ["(no docidentifier)", file]
+          end
+        rescue => e # rubocop:disable Style/RescueStandardError
+          Util.error "Failed to index #{file}: #{e.message}"
+        end
+        Util.info "ITU: indexed #{indexed}/#{files.size} existing records from #{glob}"
+        indexed
       end
 
       # Index the id's parsed pubid. If it can't be parsed/round-tripped, record
@@ -112,11 +261,14 @@ module Relaton
       #
       # @param id [String] primary docidentifier content, e.g. "ITU-R BO.600-1"
       # @param file [String] file name of the document
+      # @return [Boolean] whether the id was indexed
       def index_primary(id, file)
         if (pid = pubid(id))
           index.add_or_update pid, file
+          true
         else
           unparseable_ids << [id, file]
+          false
         end
       end
 
