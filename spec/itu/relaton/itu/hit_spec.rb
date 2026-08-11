@@ -33,6 +33,21 @@ describe Relaton::Itu::Hit do
     end
   end
 
+  context "with an index-derived hit (:file)" do
+    let(:hit_collection) { double("Hit collection") }
+    let(:hit_hash) do
+      { code: "ITU-T L.163 (11/2018)", url: "https://example.com/data/itu-t-l-163-11-2018.yaml",
+        file: "data/itu-t-l-163-11-2018.yaml" }
+    end
+
+    it "loads the item from the data repository instead of scraping" do
+      item = double("item")
+      expect(hit_collection).to receive(:fetch_item).with(hit_hash[:url]).once.and_return(item)
+      expect(scraper).not_to receive(:parse_page)
+      2.times { expect(subject.item).to eq item }
+    end
+  end
+
   describe "#item=" do
     it "allows setting item directly" do
       item = double("item")

@@ -61,9 +61,21 @@ describe Relaton::Itu::DataParserT do
       page
     end
 
+    let(:editions) do
+      [{ "idrec" => 5194, "rec_name" => "A.1 (10/2000)", "title" => "Work methods", "Version" => "3" },
+       { "idrec" => 5195, "rec_name" => "A.1 (11/1988)", "title" => "Work methods" }].to_json
+    end
+    let(:supplements) do
+      [{ "rec_name" => "A Suppl. 2 (12/2022)", "title_text" => "Guidelines" }].to_json
+    end
+
     before do
       allow(agent).to receive(:get).with(a_string_including("getRecHdrDetail"))
         .and_return(double("resp", body: detail))
+      allow(agent).to receive(:get).with(a_string_including("getRecEditions"))
+        .and_return(double("resp", body: editions))
+      allow(agent).to receive(:get).with(a_string_including("getRecSupplements"))
+        .and_return(double("resp", body: supplements))
       allow(agent).to receive(:get).with(a_string_including("rec.aspx")).and_return(wg_page)
     end
 
@@ -80,12 +92,39 @@ describe Relaton::Itu::DataParserT do
       expect(bib.date.first.at.to_s).to eq "2000-10-06" # day-precision, unchanged by enrichment
     end
 
+    it "adds the edition and the other editions/supplements as relations" do
+      bib = described_class.parse(row, agent)
+      expect(bib.edition.content).to eq "3"
+      types = bib.relation.map(&:type)
+      expect(types).to eq %w[hasEdition complementOf]
+      # the record's own edition is not related to itself
+      expect(bib.relation.first.bibitem.docidentifier.first.content).to eq "A.1 (11/1988)"
+      expect(bib.relation.last.bibitem.docidentifier.first.content).to eq "A Suppl. 2 (12/2022)"
+    end
+
     it "degrades to the thin record when the detail fetch fails" do
       allow(agent).to receive(:get).and_raise(SocketError)
       bib = described_class.parse(row, agent)
       expect(bib.docidentifier.map { |d| d.content }).to eq ["ITU-T A.1 (10/2000)"]
       expect(bib.abstract).to eq []
       expect(bib.contributor).to eq []
+      expect(bib.relation).to eq []
+      expect(bib.edition).to be_nil
+    end
+  end
+
+  context "fields that need no detail fetch" do
+    it "sets the publisher's place and the copyright from the record's year" do
+      bib = described_class.parse(row)
+      expect(bib.place.first.city).to eq "Geneva"
+      expect(bib.copyright.first.from).to eq "2000"
+      expect(bib.copyright.first.owner.first.organization.abbreviation.content).to eq "ITU"
+    end
+
+    it "omits the copyright when the row has no date" do
+      row["rec_name"] = "A.1"
+      row.delete("approval_date")
+      expect(described_class.parse(row).copyright).to eq []
     end
   end
 

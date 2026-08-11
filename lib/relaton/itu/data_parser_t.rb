@@ -40,13 +40,18 @@ module Relaton
         return if docid.empty?
 
         enr = enrichment(row, agent)
+        date = fetch_date(row)
         Relaton::Itu::ItemData.new(
           docidentifier: docid + enr.fetch(:iso, []),
           title: fetch_title(row),
+          edition: enr[:edition],
           abstract: enr.fetch(:abstract, []),
-          date: fetch_date(row), language: ["en"],
+          date: date, language: ["en"],
           status: enr[:status],
+          relation: enr.fetch(:relation, []),
           contributor: enr.fetch(:contributor, []),
+          copyright: fetch_copyright(date),
+          place: [Relaton::Bib::Place.new(city: "Geneva")],
           source: fetch_source(row), script: ["Latn"],
           type: "standard",
           ext: Relaton::Itu::Ext.new(doctype: fetch_doctype(row), flavor: "itu"),
@@ -65,15 +70,37 @@ module Relaton
         return {} unless agent && row["idrec"]
 
         f = RecommendationParser.new(agent, row["idrec"], false)
+        ed = f.fetch_edition
         {
           iso: Array(f.iso_docid),
           abstract: f.fetch_abstract,
           status: f.fetch_status,
+          edition: (Relaton::Bib::Edition.new(content: ed) if ed),
+          relation: f.fetch_relations,
           contributor: [f.publisher("ITU"), f.editorial_group("T")].compact,
         }
       rescue StandardError => e
         Util.warn "ITU-T enrichment failed for idrec=#{row['idrec']}: #{e.message}"
         {}
+      end
+
+      # The ITU copyright, from the record's own publication year — no detail
+      # fetch needed, so a thin (un-enriched) record carries it too. Mirrors
+      # `Scraper#fetch_copyright` on the live path.
+      #
+      # @param date [Array<Relaton::Bib::Date>] the record's dates
+      # @return [Array<Relaton::Bib::Copyright>]
+      def fetch_copyright(date)
+        year = date.first&.at.to_s[/\d{4}/]
+        return [] unless year
+
+        org = Relaton::Bib::Organization.new(
+          name: [Relaton::Bib::TypedLocalizedString.new(content: "International Telecommunication Union")],
+          abbreviation: Relaton::Bib::LocalizedString.new(content: "ITU"),
+          uri: [Relaton::Bib::Uri.new(content: "www.itu.int")],
+        )
+        owner = [Relaton::Bib::ContributionInfo.new(organization: org)]
+        [Relaton::Bib::Copyright.new(from: year, owner: owner)]
       end
 
       # The primary docid is the rec_name prefixed with "ITU-T", keeping the
