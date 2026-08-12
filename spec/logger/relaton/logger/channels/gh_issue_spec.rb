@@ -120,6 +120,24 @@ describe Relaton::Logger::Channels::GhIssue do
     expect(subject.send :issue_body).to eq({ title: "title", body: "string" })
   end
 
+  context "body" do
+    it "passes a short log through unchanged" do
+      subject.write "one"
+      subject.write "two"
+      expect(subject.send(:body)).to eq "one\ntwo"
+    end
+
+    it "truncates on whole lines and says how many were dropped" do
+      line = "x" * 1000
+      2_000.times { |i| subject.write "#{i} #{line}" } # ~2MB, far over the API limit
+      body = subject.send :body
+      expect(body.length).to be <= described_class::MAX_BODY
+      expect(body).to match(/\n…and \d+ more \(see the run log\)\z/)
+      # whole lines only — the last kept line is not cut mid-way
+      expect(body.lines[-3]).to end_with "#{line}\n"
+    end
+  end
+
   it "headers" do
     expect(ENV).to receive(:[]).with("GITHUB_TOKEN").and_return("token").twice
     expect(subject.send :headers).to eq({

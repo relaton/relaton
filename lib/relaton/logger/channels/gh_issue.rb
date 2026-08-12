@@ -99,11 +99,34 @@ module Relaton
 
         def post_comment(number)
           post URI("https://api.github.com/repos/#{@repo}/issues/#{number}/comments"),
-               { body: @log.join("\n") }
+               { body: body }
         end
 
         def issue_body
-          { title: @title, body: @log.join("\n") }
+          { title: @title, body: body }
+        end
+
+        # GitHub rejects an issue or comment body longer than this with a 422,
+        # which loses the whole report — and these reports get long (a crawl can
+        # log hundreds of ids it could not index). Keep as many whole lines as
+        # fit and say how many were left out.
+        MAX_BODY = 65_536
+        TRUNCATION_ROOM = 200
+
+        def body
+          lines = @log.to_a
+          text = lines.join("\n")
+          return text if text.length <= MAX_BODY
+
+          kept = []
+          size = 0
+          lines.each do |line|
+            break if size + line.length + 1 > MAX_BODY - TRUNCATION_ROOM
+
+            kept << line
+            size += line.length + 1
+          end
+          "#{kept.join("\n")}\n\n…and #{lines.size - kept.size} more (see the run log)"
         end
 
         def headers
