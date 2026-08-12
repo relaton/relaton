@@ -79,6 +79,9 @@ RSpec.describe Relaton::Logger do
         config.logger_pool[:default] = Relaton::Logger::Log.new(log, levels: [:error])
       end
       Relaton.logger_pool.error "Test log", "Prog Name", key: "Key"
+      # No open issue with this title, so the log opens a new one (the
+      # comment-on-existing path is covered in the GhIssue spec).
+      expect(log).to receive(:open_issue_number).and_return nil
       http = double "http"
       expect(http).to receive(:use_ssl=).with true
       expect(Net::HTTP).to receive(:new).and_return http
