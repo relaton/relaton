@@ -80,13 +80,13 @@ publication arm must come first):
   `Hit#gi_imp`, which would route an Implementers' Guide onto the `getImplGuides`
   endpoints; the live `G.Imp712` record is built from `getRecHdrDetail` like any
   other. (`gi_imp` has been inert since the RunSearch hits never set `:ref`.)
-- **Metadata asymmetry, temporary:** an indexed Recommendation is only as rich as
-  the published data record, and today's `relaton-data-itu` was crawled before the
-  enriched `DataParserT` (below) — so no abstract, ISO co-identifier, contributors,
-  status, edition or relations. A live-fallback record has all of them. Two
-  `spec/relaton/itu_spec.rb` examples (`itu_t_y_3500`, `itu_t_a_13`) are relaxed
-  with a `TODO` until the data repo re-crawls; see the repo-root hand-off
-  `relaton__relaton-data-itu__recrawl-with-enriched-dataparsert.md`.
+- **Metadata parity:** an indexed Recommendation is only as rich as the published
+  data record. `relaton-data-itu` was re-crawled with the enriched `DataParserT`
+  (below) on 2026-08-12, so an indexed record now carries the same abstract, ISO
+  co-identifier, contributors, status, edition and relations a live-fallback
+  record does — `itu_t_y_3500` and `itu_t_a_13` assert exactly that. A crawl
+  predating the enrichment would silently reintroduce the asymmetry, so the data
+  repo's own suite guards against republishing thin records.
 
 ### Data Fetching
 

@@ -57,16 +57,13 @@ RSpec.describe Relaton::Itu do
     end
   end
 
-  # TODO: the ISO/IEC co-identifier (`ISO/IEC 17788`) is missing because the
-  # published relaton-data-itu records predate the enriched DataParserT; assert
-  # it again once the data repo re-crawls (see the repo-root hand-off
-  # `relaton__relaton-data-itu__recrawl-with-enriched-dataparsert.md`).
-  # `DataParserT`/`RecommendationFields` cover the ISO co-id in the meantime.
   it "gets a documet with 2 identifier" do
     VCR.use_cassette "itu_t_y_3500" do
       result = Relaton::Itu::Bibliography.get "ITU-T Y.3500", "2014"
       expect(result.docidentifier[0].content).to eq "ITU-T Y.3500 (08/2014)"
       expect(result.docidentifier[0].type).to eq "ITU"
+      expect(result.docidentifier[1].content).to eq "ISO/IEC 17788"
+      expect(result.docidentifier[1].type).to eq "ISO"
     end
   end
 
@@ -86,15 +83,14 @@ RSpec.describe Relaton::Itu do
     end
   end
 
-  # TODO: the editorial-group contributor is missing for the same reason as the
-  # ISO co-identifier above — the published records predate the enriched
-  # DataParserT. `RecommendationFields#editorial_group` and the DataParserT
-  # enrichment specs cover it until the data repo re-crawls.
   it "fetch bureau from code" do
     VCR.use_cassette "itu_t_a_13" do
       result = Relaton::Itu::Bibliography.get "ITU-T A.13"
       expect(result.docidentifier.first.content).to eq "ITU-T A.13"
-      expect(result.contributor).to eq []
+      editorial_group = result.contributor.find { |c| c.role.any? { |r| r.type.include? "author" } }
+      expect(editorial_group.organization.abbreviation.content).to eq "ITU-T"
+      expect(editorial_group.organization.subdivision.first.name.first.content)
+        .to eq "Telecommunication Standardization Advisory Group"
     end
   end
 
