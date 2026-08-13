@@ -21,9 +21,13 @@ module Relaton
       end
 
       #
-      # Fetch all the documents from https://extranet.itu.int/brdocsearch/
+      # Harvest a dataset. Only "itu-t" harvests (the searchRecs corpus); "itu-r"
+      # raises — its bulk-enumeration endpoint is gone (issue #75) — and it stays
+      # in @datasets on purpose, so a stray `relaton fetch-data itu-r` surfaces
+      # that error instead of the registry's warn-and-exit-0 for an unknown
+      # dataset.
       #
-      # @param [String] source source name (itu-r)
+      # @param [String] source source name (itu-t; itu-r raises)
       # @param [Hash] opts
       # @option opts [String] :output directory to output documents, default is data
       # @option opts [String] :format output format, default is yaml

@@ -132,23 +132,23 @@ item = Relaton::Itu::Item.from_yaml File.read("spec/fixtures/item.yaml")
 
 === Fetch data
 
-This gem uses the https://extranet.itu.int/brdocsearch dataset as a data source.
-
-The method `Relaton::Itu::DataFetcher.fetch("itu-r", output: "data", format: "yaml")` fetches all the documents from the dataset and saves them to the `./data` folder in YAML format.
+The method `Relaton::Itu::DataFetcher.fetch("itu-t", output: "data", format: "yaml")` harvests every ITU-T recommendation edition (from the `mws/api/recommendations/searchRecs` index) and saves the documents to the `./data` folder in YAML format.
 Arguments:
 
-- `source` - source name (`itu-r`).
+- `source` - source name (`itu-t`).
 - `output` - folder to save documents (default `data`).
 - `format` - the format in which the documents are saved. Possible formats are: `yaml`, `xml`, `bibxxml` (default `yaml`).
 
 [source,ruby]
 ----
-Relaton::Itu::DataFetcher.fetch "itu-r", output: "dir", format: "xml"
-Started at: 2023-05-27 09:21:16 -0400
-Stopped at: 2023-05-27 09:27:45 -0400
-Done in: 390 sec.
+Relaton::Itu::DataFetcher.fetch "itu-t", output: "dir", format: "xml"
+Started at: 2026-08-12 09:21:16 -0400
+Stopped at: 2026-08-12 11:27:45 -0400
+Done in: 7589 sec.
 => nil
 ----
+
+NOTE: **ITU-R harvesting is disabled.** ITU decommissioned the RunSearch bulk-enumeration endpoint the ITU-R crawler paged through, so `fetch("itu-r")` (and the argument-less `fetch`) raises a `Relaton::RequestError` pointing at https://github.com/relaton/relaton/issues/75[issue #75] instead of rebuilding an empty dataset. The published ITU-R records are preserved in https://github.com/relaton/relaton-data-itu[relaton-data-itu] and re-indexed on each crawl via `DataFetcher#index_files("data/itu-r-*.yaml")`; runtime ITU-R lookups are unaffected.
 
 === Logging
 
@@ -158,7 +158,7 @@ RelatonItu uses the relaton-logger gem for logging. By default, it logs to STDOU
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-The index test fixture (used by tests) is the published pubid-structured `spec/fixtures/index-v2.zip` (rows are `_type: pubid:itu:…` hashes) from the `v2` branch of the https://github.com/relaton/relaton-data-itu-r[relaton-data-itu-r] repository. Refresh it by re-downloading that `index-v2.zip` (it must deserialize under the pinned pubid).
+The index test fixture (used by tests) is a trimmed copy of the published pubid-structured `index-v2.zip` (rows are `_type: pubid:itu:…` hashes) from the `main` branch of the combined https://github.com/relaton/relaton-data-itu[relaton-data-itu] repository, kept at `spec/fixtures/index-v2.zip`. Refresh it with the regeneration snippet in `lib/relaton/itu/CLAUDE.md` (it must deserialize under the pinned pubid).
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 

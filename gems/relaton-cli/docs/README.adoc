@@ -81,7 +81,8 @@ The following datasets are available:
 * `bipm-data-outcomes` - looks for the BIPM dataset in the local `./bipm-data-outcomes` directory. The dataset can be downloaded from https://github.com/metanorma/bipm-data-outcomes
 * `si-brochure` - looks for the SI-Brochure dataset in the local `./bipm-si-brochure` directory. The dataset can be downloaded from https://github.com/metanorma/bipm-si-brochure
 * `ecma-standards` - https://www.ecma-international.org/publications/standards/
-* `itu-r` - https://extranet.itu.int/brdocsearch
+* `itu-t` - https://www.itu.int/mws/api/recommendations/searchRecs
+* `itu-r` - **unavailable**: ITU decommissioned the bulk-enumeration endpoint this crawler used, so it raises rather than harvesting (see https://github.com/relaton/relaton/issues/75)
 * `ccsds` - https://public.ccsds.org/Publications/AllPubs.aspx
 * `etsi-csv` - https://www.etsi.org/
 * `plateau-handbooks` - https://www.mlit.go.jp/plateau/_next/data/1.3.0/libraries/handbooks.json
