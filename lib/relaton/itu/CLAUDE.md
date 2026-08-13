@@ -92,13 +92,21 @@ publication arm must come first):
 
 - **`DataFetcher`** extends `Core::DataFetcher`. `#fetch(source)` routes on the
   dataset name (from `Processor#@datasets = %w[itu-r itu-t]`): `"itu-t"` →
-  `#fetch_recommendations`, everything else (`"itu-r"`, `nil`) →
-  `#fetch_publications` (the legacy path). `index.save` + `report_errors` run once
-  in `#fetch` after either harvester.
-- **ITU-R harvester** (`#fetch_publications` + `DataParserR`) — paginates the
-  `net4/.../RunSearch` endpoint and parses ITU-R JSON results. **This endpoint is
-  WAF-dead** (F5 "Request Rejected"); the ITU-R crawler is broken pending a
-  replacement enumeration source (see the repo-root hand-offs).
+  `#fetch_recommendations`, then `index.save` + `report_errors`. **Anything else
+  (`"itu-r"`, `nil`) raises `Relaton::RequestError`** (`ITU_R_DISABLED`) naming
+  the dead endpoint and issue #75 — the old `#fetch_publications`/`#search_request`
+  RunSearch pagination is gone, so a stray run says why it can't run instead of
+  dying on a `JSON::ParserError` from the WAF's HTML 500 or rebuilding an empty
+  dataset. `itu-r` deliberately **stays** in `@datasets`: the CLI's
+  `Registry#find_processor_by_dataset` only warns and exits **0** for an unknown
+  dataset, so removing it would turn a stray `relaton fetch-data itu-r` into a
+  silent success. (`Core::DataFetcher.fetch` mkdir_p's the output dir before the
+  raise — a harmless empty `data/`.)
+- **ITU-R records are preserved, not re-harvested** — `#index_files(glob)` indexes
+  the published `data/itu-r-*.yaml` through the same pubid guard and
+  unparseable-id reporting as the ITU-T harvest; `relaton-data-itu`'s crawler
+  drives it off the same instance as `#fetch "itu-t"`. `DataParserR` is left in
+  place but has no producer until a replacement enumeration source lands.
 - **ITU-T harvester** (`#fetch_recommendations` + `DataParserT`) — added for issue
   relaton-itu#80. `#search_recs` issues **one** GET to
   `mws/api/recommendations/searchRecs?…&main_edition_flag=0&rows=100000&…`, which

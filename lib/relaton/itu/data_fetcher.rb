@@ -3,13 +3,11 @@ require "json"
 require "uri"
 require "mechanize"
 require_relative "../itu"
-require_relative "data_parser_r"
 require_relative "data_parser_t"
 
 module Relaton
   module Itu
     class DataFetcher < Core::DataFetcher
-      SEARCH_URL = "https://www.itu.int/net4/ITU-T/search/GlobalSearch/RunSearch".freeze
       # ITU-T recommendation index (issue relaton-itu#80). main_edition_flag=0
       # returns one row per edition, including supplements; a single request
       # enumerates the whole ITU-T corpus.
@@ -19,9 +17,21 @@ module Relaton
       # Net::HTTP's default "Ruby" UA must not be sent.
       USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) " \
                    "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15".freeze
-      ROWS = 100
-      MAX_EMPTY_PAGES = 3
       DEFAULT_CONCURRENCY = 8
+
+      # Why there is no ITU-R harvester. The crawler used to page
+      # `POST net4/ITU-T/search/GlobalSearch/RunSearch` with `Input: "*"`, which
+      # returned enumeration *and* full metadata in one shot; ITU decommissioned
+      # it (the endpoint now answers HTTP 500 with the search SPA's HTML shell,
+      # so the old path died on a `JSON::ParserError` that named neither the
+      # endpoint nor the cause). Say so instead.
+      ITU_R_DISABLED = <<~MSG.freeze
+        ITU-R harvesting is disabled: ITU decommissioned the RunSearch bulk-enumeration
+        endpoint (POST https://www.itu.int/net4/ITU-T/search/GlobalSearch/RunSearch) that
+        this crawler paged through, and no replacement enumeration source is wired up.
+        Published ITU-R records are preserved in relaton-data-itu and re-indexed by
+        DataFetcher#index_files. See https://github.com/relaton/relaton/issues/75
+      MSG
 
       # Number of ITU-T enrichment worker threads. Each record costs ~4
       # www.itu.int round-trips (~3.7 s wall clock), so a ~16k-record corpus is
@@ -59,10 +69,14 @@ module Relaton
       end
 
       # @param source [String, nil] "itu-t" harvests ITU-T recommendations via
-      #   the searchRecs index (issue #80); "itu-r" (and nil, legacy) harvests
-      #   ITU-R publications via the RunSearch endpoint.
+      #   the searchRecs index (issue #80). "itu-r" (and nil, the legacy default)
+      #   has no harvester any more — see ITU_R_DISABLED and issue #75; the
+      #   published ITU-R records are preserved and re-indexed by #index_files.
+      # @raise [Relaton::RequestError] for any source but "itu-t"
       def fetch(source = nil)
-        source == "itu-t" ? fetch_recommendations : fetch_publications
+        raise Relaton::RequestError, ITU_R_DISABLED unless source == "itu-t"
+
+        fetch_recommendations
         index.save
         report_errors
       end
@@ -169,32 +183,6 @@ module Relaton
         end
       end
 
-      # ITU-R harvester (legacy RunSearch pagination).
-      def fetch_publications
-        start = 0
-        empty_pages = 0
-        loop do
-          results = search_request(start)
-          if results.empty?
-            empty_pages += 1
-            break if empty_pages >= MAX_EMPTY_PAGES
-
-            start += ROWS
-            next
-          end
-
-          empty_pages = 0
-          results.each do |result|
-            bib = DataParserR.parse(result, @errors)
-            write_file(bib) if bib
-          rescue => e # rubocop:disable Style/RescueStandardError
-            Util.error "#{e.message}\n#{e.backtrace}"
-          end
-
-          start += ROWS
-        end
-      end
-
       # @param bib [Relaton::Itu::ItemData]
       # @param pos [Integer, nil] source position of the row this came from, used
       #   only to break filename collisions deterministically (nil for the
@@ -222,7 +210,8 @@ module Relaton
       # Index records that are already on disk instead of harvesting them.
       #
       # ITU-R cannot be re-harvested — ITU decommissioned the bulk RunSearch
-      # enumeration this class's #fetch_publications still targets — so the
+      # enumeration, which is why #fetch now refuses the "itu-r" source
+      # (ITU_R_DISABLED, issue #75) — so the
       # published ITU-R records are preserved and only re-indexed on each run of
       # relaton-data-itu's crawler. Doing that here rather than in the data repo
       # gives the pass the same pubid guard and the same unparseable-id reporting
@@ -344,33 +333,6 @@ module Relaton
         response = http.request(request)
         json = JSON.parse(response.body)
         json["Data"] || []
-      end
-
-      # @param start [Integer] pagination offset
-      # @return [Array<Hash>] search result items
-      def search_request(start)
-        payload = {
-          "Input" => "*", "Start" => start, "Rows" => ROWS,
-          "SortBy" => "DATE_NEW", "ExactPhrase" => false,
-          "CollectionName" => "ITU-R Publications",
-          "CollectionGroup" => "Publications", "Sector" => "r",
-          "Criterias" => [], "Topics" => "", "ClientData" => {},
-          "Language" => "en", "SearchType" => "All",
-        }
-
-        uri = URI(SEARCH_URL)
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = true
-
-        request = Net::HTTP::Post.new(uri)
-        request["Content-Type"] = "application/x-www-form-urlencoded; charset=UTF-8"
-        request["X-Requested-With"] = "XMLHttpRequest"
-        request["Referer"] = "https://www.itu.int/net4/itu-t/search/"
-        request.body = "json=#{URI.encode_www_form_component(payload.to_json)}"
-
-        response = http.request(request)
-        json = JSON.parse(response.body)
-        json["results"] || []
       end
     end
   end

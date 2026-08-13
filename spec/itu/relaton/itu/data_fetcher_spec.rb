@@ -33,57 +33,19 @@ describe Relaton::Itu::DataFetcher do
 
     it("#index") { expect(subject.index).to be_instance_of Relaton::Index::Type }
 
-    context "#fetch" do
-      it "paginates through search results" do
-        bib = double "bib"
-        result1 = { "Title" => "ITU-R M.1" }
-        result2 = { "Title" => "ITU-R M.2" }
+    context "#fetch ITU-R harvesting disabled" do
+      # ITU decommissioned the RunSearch bulk-enumeration endpoint the ITU-R
+      # harvester paged through (issue #75). A stray run must say so instead of
+      # dying on a JSON::ParserError parsing the WAF's HTML 500 — or, worse,
+      # quietly rebuilding an empty dataset.
+      [nil, "itu-r"].each do |source|
+        it "raises a RequestError naming the issue for source #{source.inspect}" do
+          expect(subject.index).not_to receive(:save)
 
-        expect(subject).to receive(:search_request).with(0).and_return [result1, result2]
-        expect(subject).to receive(:search_request).with(100).and_return []
-        expect(subject).to receive(:search_request).with(200).and_return []
-        expect(subject).to receive(:search_request).with(300).and_return []
-
-        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result1, kind_of(Hash)).and_return bib
-        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result2, kind_of(Hash)).and_return nil
-
-        expect(subject).to receive(:write_file).with(bib).once
-        expect(subject.index).to receive(:save)
-
-        subject.fetch
-      end
-
-      it "skips empty pages and continues fetching" do
-        bib = double "bib"
-        result1 = { "Title" => "ITU-R M.1" }
-        result2 = { "Title" => "ITU-R M.2" }
-
-        expect(subject).to receive(:search_request).with(0).and_return [result1]
-        expect(subject).to receive(:search_request).with(100).and_return []
-        expect(subject).to receive(:search_request).with(200).and_return [result2]
-        expect(subject).to receive(:search_request).with(300).and_return []
-        expect(subject).to receive(:search_request).with(400).and_return []
-        expect(subject).to receive(:search_request).with(500).and_return []
-
-        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result1, kind_of(Hash)).and_return bib
-        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result2, kind_of(Hash)).and_return bib
-
-        expect(subject).to receive(:write_file).with(bib).twice
-        expect(subject.index).to receive(:save)
-
-        subject.fetch
-      end
-
-      it "handles parse errors gracefully" do
-        result = { "Title" => "ITU-R M.1" }
-        expect(subject).to receive(:search_request).with(0).and_return [result]
-        expect(subject).to receive(:search_request).with(100).and_return []
-        expect(subject).to receive(:search_request).with(200).and_return []
-        expect(subject).to receive(:search_request).with(300).and_return []
-        expect(Relaton::Itu::DataParserR).to receive(:parse).with(result, kind_of(Hash)).and_raise "parse error"
-        expect(subject.index).to receive(:save)
-
-        expect { subject.fetch }.to output(/parse error/).to_stderr_from_any_process
+          expect { subject.fetch(source) }.to raise_error(
+            Relaton::RequestError, %r{decommissioned the RunSearch.*issues/75}m
+          )
+        end
       end
     end
 
@@ -99,7 +61,6 @@ describe Relaton::Itu::DataFetcher do
         row2 = { "rec_name" => "A.2 (11/2006)" }
 
         allow(subject).to receive(:rec_agent).and_return agent
-        expect(subject).not_to receive(:search_request)
         expect(subject).to receive(:search_recs).and_return [row1, row2]
         expect(Relaton::Itu::DataParserT).to receive(:parse).with(row1, agent, kind_of(Hash)).and_return bib
         expect(Relaton::Itu::DataParserT).to receive(:parse).with(row2, agent, kind_of(Hash)).and_return nil
@@ -216,40 +177,6 @@ describe Relaton::Itu::DataFetcher do
         expect(http).to receive(:request).and_return response
 
         expect(subject.send(:search_recs)).to eq []
-      end
-    end
-
-    context "#search_request" do
-      it "sends POST with correct parameters" do
-        response = double "response", body: '{"results": [{"Title": "ITU-R M.1"}]}'
-        http = double "http"
-        expect(Net::HTTP).to receive(:new).with("www.itu.int", 443).and_return http
-        expect(http).to receive(:use_ssl=).with(true)
-        expect(http).to receive(:request) do |req|
-          expect(req).to be_instance_of Net::HTTP::Post
-          expect(req["Content-Type"]).to eq "application/x-www-form-urlencoded; charset=UTF-8"
-          expect(req["X-Requested-With"]).to eq "XMLHttpRequest"
-          expect(req["Referer"]).to eq "https://www.itu.int/net4/itu-t/search/"
-          expect(req.body).to start_with("json=")
-          payload = JSON.parse(URI.decode_www_form_component(req.body.sub(/^json=/, "")))
-          expect(payload["Start"]).to eq 0
-          expect(payload["Rows"]).to eq 100
-          expect(payload["CollectionName"]).to eq "ITU-R Publications"
-          response
-        end
-
-        results = subject.send(:search_request, 0)
-        expect(results).to eq [{ "Title" => "ITU-R M.1" }]
-      end
-
-      it "returns empty array when no results key" do
-        response = double "response", body: '{}'
-        http = double "http"
-        expect(Net::HTTP).to receive(:new).and_return http
-        expect(http).to receive(:use_ssl=)
-        expect(http).to receive(:request).and_return response
-
-        expect(subject.send(:search_request, 0)).to eq []
       end
     end
 

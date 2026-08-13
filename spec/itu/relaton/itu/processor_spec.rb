@@ -44,10 +44,10 @@ RSpec.describe Relaton::Itu::Processor do
       require "relaton/itu/data_fetcher"
       allow(Relaton::Itu::DataFetcher).to receive(:fetch)
 
-      processor.fetch_data("itu-r", output: "data", format: "yaml")
+      processor.fetch_data("itu-t", output: "data", format: "yaml")
 
       expect(Relaton::Itu::DataFetcher).to have_received(:fetch)
-        .with("itu-r", output: "data", format: "yaml")
+        .with("itu-t", output: "data", format: "yaml")
     end
   end
 
