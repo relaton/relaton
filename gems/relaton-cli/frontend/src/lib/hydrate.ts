@@ -1,37 +1,42 @@
-import type { CompactRecord, IndexData, IndexDocument } from "./types";
+import type { IndexData, ShardInfo } from "./types";
 
-// Resolve the index data for the mounted app in priority order, matching the
-// three delivery modes the generator can emit:
-//   1. `window.RELATON_INDEX_DATA`  — embedded JSON in a <script> tag
-//   2. pre-rendered `.document` DOM  — crawler-indexable data-* attributes
-//   3. `fetch(data-src)`             — a static search.json sidecar
-//
-// (1) and (2) return synchronously; (3) is async. Callers get a Promise so all
-// three are handled uniformly.
-export function resolveIndexData(el: HTMLElement): Promise<IndexData> {
-  if (window.RELATON_INDEX_DATA) {
-    return Promise.resolve(normalize(window.RELATON_INDEX_DATA, el));
-  }
-
-  const fromDom = readFromDom(el);
-  if (fromDom) return Promise.resolve(fromDom);
-
-  const src = el.dataset.src;
-  if (src) return fetchSearchJson(src, el);
-
-  return Promise.resolve({
-    title: pageTitle(el),
-    description: pageDescription(el),
-    documents: [],
-  });
+// Read the page's index metadata off the mount node. There is exactly one
+// delivery mode: the shell carries branding plus the shard layout, and the
+// documents themselves arrive from the `search-NNNN.json` shards (see
+// ./shards.ts). Nothing is fetched here, so this is synchronous and the app can
+// paint immediately instead of waiting on a manifest round-trip.
+export interface HydratedIndex {
+  /** Branding + an empty document list for the app to fill as shards land. */
+  data: IndexData;
+  shards: ShardInfo;
 }
 
-function normalize(data: IndexData, el: HTMLElement): IndexData {
+export function resolveIndex(el: HTMLElement): HydratedIndex {
   return {
-    title: data.title || "Relaton Index",
-    description: data.description ?? pageDescription(el),
-    documents: Array.isArray(data.documents) ? data.documents : [],
-    generated: data.generated ?? null,
+    data: {
+      title: pageTitle(el),
+      description: pageDescription(el),
+      documents: [],
+      generated: el.dataset.generated || null,
+    },
+    shards: readShardInfo(el),
+  };
+}
+
+// A missing or unparseable attribute reads as 0 — an index with no shards,
+// which renders as an empty (but correctly branded) page rather than throwing.
+function count(value: string | undefined): number {
+  const n = Number.parseInt(value ?? "", 10);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+export function readShardInfo(el: HTMLElement): ShardInfo {
+  return {
+    total: count(el.dataset.total),
+    shards: count(el.dataset.shards),
+    shardSize: count(el.dataset.shardSize),
+    detailShards: count(el.dataset.detailShards),
+    detailShardSize: count(el.dataset.detailShardSize),
   };
 }
 
@@ -44,51 +49,7 @@ function pageTitle(el: HTMLElement): string {
   );
 }
 
-// The site blurb, carried on the mount node in every mode (the embedded JSON
-// also has it, and wins there — see normalize()).
+/** The site blurb, carried on the mount node (also the meta description). */
 function pageDescription(el: HTMLElement): string | null {
   return el.dataset.description || null;
-}
-
-// Parse the server-rendered crawler DOM: each `.document` node carries the
-// document fields as data-* attributes.
-function readFromDom(el: HTMLElement): IndexData | null {
-  const nodes = el.querySelectorAll<HTMLElement>(".documents .document");
-  if (!nodes.length) return null;
-
-  const documents: IndexDocument[] = Array.from(nodes).map((n) => ({
-    id: n.dataset.id ?? "",
-    title: n.dataset.title ?? "",
-    doctype: n.dataset.doctype || null,
-    stage: n.dataset.stage || null,
-    date: n.dataset.date || null,
-    link: n.dataset.link || null,
-    yaml: n.dataset.href || null,
-  }));
-
-  return {
-    title: pageTitle(el),
-    description: pageDescription(el),
-    documents,
-    generated: el.dataset.generated || null,
-  };
-}
-
-async function fetchSearchJson(src: string, el: HTMLElement): Promise<IndexData> {
-  try {
-    const res = await fetch(src);
-    const rows = (await res.json()) as CompactRecord[];
-    const documents: IndexDocument[] = rows.map((r) => ({
-      id: r.r ?? "",
-      title: r.c ?? "",
-      doctype: r.t || null,
-      stage: r.s || null,
-      date: r.d || null,
-      link: r.l || null,
-      yaml: r.u || null,
-    }));
-    return { title: pageTitle(el), description: pageDescription(el), documents };
-  } catch {
-    return { title: pageTitle(el), description: pageDescription(el), documents: [] };
-  }
 }

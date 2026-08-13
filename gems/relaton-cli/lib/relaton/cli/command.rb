@@ -18,6 +18,16 @@ module Relaton
       class_before :relaton_config
       class_option :verbose, aliases: :v, type: :boolean, desc: "Output warnings"
 
+      # Exit non-zero when Thor itself rejects an invocation (unknown argument,
+      # wrong arity, a raised Thor::Error). Thor's legacy default is to print the
+      # error and exit **0**, which in CI reads as success: a caller passing a
+      # removed flag would write no site at all and still go green. The Pages
+      # deploy in relaton/support runs unattended across ~29 data repos, so a
+      # silent green there publishes an empty index nobody notices.
+      def self.exit_on_failure?
+        true
+      end
+
       desc "version", "Show Relaton version"
 
       def version
@@ -153,8 +163,12 @@ module Relaton
                    "path must be placed in the deployed site by the caller)"
       option :"base-url",
              desc: "Base URL for raw YAML links (defaults to the raw GitHub URL when cloning)"
-      option :mode, aliases: :m, default: "embedded",
-                    desc: "Data delivery mode: embedded, dom, or static-json"
+      option :"shard-size", type: :numeric, default: 5000,
+                            desc: "Summary records per search-NNNN.json shard"
+      option :"detail-shard-size", type: :numeric, default: 500,
+                                   desc: "Detail records per detail-NNNN.json shard"
+      option :detail, type: :boolean, default: true,
+                      desc: "Emit the detail shards the document panel fetches; --no-detail disables"
       option :static, type: :boolean, default: true,
                       desc: "Also index a sibling static/ folder next to DATA-DIR (auto-detected); --no-static disables"
       option :overwrite, aliases: :f, type: :boolean, default: true,
@@ -165,7 +179,9 @@ module Relaton
           Relaton::Cli::IndexSiteGenerator.generate(
             dir,
             output: options[:output],
-            mode: options[:mode],
+            shard_size: options[:"shard-size"].to_i,
+            detail_shard_size: options[:"detail-shard-size"].to_i,
+            detail: options[:detail],
             title: options[:title] || default_title,
             description: options[:description],
             favicon: options[:favicon],

@@ -1,8 +1,13 @@
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { reactive } from "vue";
 import { flushPromises, mount } from "@vue/test-utils";
 import App from "./App.vue";
-import type { IndexData } from "./lib/types";
+import type { DetailRecord, Hydration, IndexData } from "./lib/types";
+
+function hydration(over: Partial<Hydration> = {}): Hydration {
+  return { loading: false, total: null, requestAll: () => {}, ...over };
+}
 
 const data: IndexData = {
   title: "BIPM Index",
@@ -214,5 +219,192 @@ describe("document detail page", () => {
 
     expect(isDetail(w)).toBe(false);
     expect(new URLSearchParams(window.location.search).has("doc")).toBe(false);
+  });
+});
+
+// Summary shards arrive progressively, so for a while the app holds a corpus it
+// knows is incomplete. Anything that treats "absent" as "does not exist" has to
+// wait for `loading` to clear, or every deep link into a large index breaks.
+describe("progressive shard loading", () => {
+  const isDetail = (w: ReturnType<typeof mount>) =>
+    w.find('[aria-label="Back to index"]').exists();
+
+  it("reports the corpus total, not just what has landed", () => {
+    const w = mount(App, {
+      props: { data, hydration: hydration({ loading: true, total: 166658 }) },
+    });
+    expect(w.text()).toContain("3 of 166658 documents");
+    expect(w.text()).toContain("loading…");
+  });
+
+  it("shows no loading hint once every shard has landed", () => {
+    const w = mount(App, { props: { data, hydration: hydration({ total: 3 }) } });
+    expect(w.text()).not.toContain("loading…");
+  });
+
+  it("keeps an unresolved ?doc= while loading instead of bouncing to the list", async () => {
+    window.history.replaceState(null, "", "/?doc=NOT%20YET");
+    const w = mount(App, {
+      props: { data, hydration: hydration({ loading: true, total: 99 }) },
+    });
+    await flushPromises();
+
+    expect(new URLSearchParams(window.location.search).get("doc")).toBe("NOT YET");
+    expect(isDetail(w)).toBe(false);
+  });
+
+  it("asks for the rest of the corpus when a deep link is unresolved", async () => {
+    window.history.replaceState(null, "", "/?doc=NOT%20YET");
+    const requestAll = vi.fn();
+    mount(App, {
+      props: { data, hydration: hydration({ loading: true, total: 99, requestAll }) },
+    });
+    await flushPromises();
+
+    expect(requestAll).toHaveBeenCalled();
+  });
+
+  it("drops a still-unresolved ?doc= once loading finishes", async () => {
+    window.history.replaceState(null, "", "/?doc=NEVER%20ARRIVES");
+    const hyd = reactive(hydration({ loading: true, total: 99 }));
+    const w = mount(App, { props: { data, hydration: hyd } });
+    await flushPromises();
+    expect(new URLSearchParams(window.location.search).get("doc")).toBe("NEVER ARRIVES");
+
+    hyd.loading = false;
+    await flushPromises();
+
+    expect(new URLSearchParams(window.location.search).has("doc")).toBe(false);
+    expect(isDetail(w)).toBe(false);
+  });
+
+  it("does not clamp ?page= against a partial corpus, then clamps when complete", async () => {
+    window.history.replaceState(null, "", "/?page=999");
+    const original = window.innerHeight;
+    Object.defineProperty(window, "innerHeight", { value: 400, configurable: true });
+    try {
+      const hyd = reactive(hydration({ loading: true, total: 60 }));
+      const w = mount(App, { props: { data: many, hydration: hyd } });
+      await flushPromises();
+      expect(new URLSearchParams(window.location.search).get("page")).toBe("999");
+
+      hyd.loading = false;
+      await flushPromises();
+
+      expect(w.text()).toContain("Page 6 of 6");
+      expect(new URLSearchParams(window.location.search).get("page")).toBe("6");
+    } finally {
+      Object.defineProperty(window, "innerHeight", { value: original, configurable: true });
+    }
+  });
+
+  it("hurries the load along when the user searches", async () => {
+    const requestAll = vi.fn();
+    const w = mount(App, {
+      props: { data, hydration: hydration({ loading: true, total: 99, requestAll }) },
+    });
+    requestAll.mockClear();
+
+    await w.find('input[type="search"]').setValue("brochure");
+    await flushPromises();
+
+    expect(requestAll).toHaveBeenCalled();
+  });
+});
+
+describe("on-demand detail fields", () => {
+  it("fetches the detail record when a document is opened and fills the panel in", async () => {
+    const loadDetail = vi.fn(
+      async (): Promise<DetailRecord> => ({
+        r: "CCRI 2",
+        abstract: "A late-arriving abstract.",
+      }),
+    );
+    const w = mount(App, { props: { data, loadDetail } });
+
+    await w.find(".document a").trigger("click");
+    await flushPromises();
+
+    // Position in the corpus is what addresses the detail shard.
+    expect(loadDetail).toHaveBeenCalledWith(0, "CCRI 2");
+    expect(w.text()).toContain("A late-arriving abstract.");
+  });
+
+  // A failed summary shard leaves a hole, after which array index and corpus
+  // position disagree. The position stamped on by the loader is authoritative —
+  // using indexOf here would address the wrong detail shard for every document
+  // after the hole.
+  it("addresses the detail shard by corpus position, not array index", async () => {
+    const holed: IndexData = {
+      title: "Holed",
+      documents: [
+        { ...data.documents[0], pos: 0 },
+        // its shard failed, so this one sits at array index 1 but position 5000
+        { ...data.documents[1], pos: 5000 },
+      ],
+    };
+    const loadDetail = vi.fn(async (): Promise<DetailRecord | null> => null);
+    const w = mount(App, { props: { data: holed, loadDetail } });
+
+    const links = w.findAll(".document a");
+    await links[links.length - 1].trigger("click");
+    await flushPromises();
+
+    expect(loadDetail).toHaveBeenCalledWith(5000, "CCRI 10");
+  });
+
+  it("asks for each document at most once", async () => {
+    const loadDetail = vi.fn(async (): Promise<DetailRecord | null> => null);
+    const w = mount(App, { props: { data, loadDetail } });
+
+    await w.find(".document a").trigger("click");
+    await flushPromises();
+    await w.find('[aria-label="Back to index"]').trigger("click");
+    await flushPromises();
+    await w.find(".document a").trigger("click");
+    await flushPromises();
+
+    expect(loadDetail).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders the summary fields when no detail shard is available", async () => {
+    const w = mount(App, { props: { data } });
+    await w.find(".document a").trigger("click");
+    await flushPromises();
+
+    expect(w.find('[aria-label="Back to index"]').exists()).toBe(true);
+    expect(w.text()).toContain("Second meeting");
+  });
+
+  // loadSearchShards emits a NEW array each batch, carrying the previous
+  // batches' element objects forward. Detail fields are merged into one of those
+  // objects, and each document is only ever fetched once — so if a later batch
+  // replaced the objects rather than re-listing them, an open panel would
+  // silently lose its abstract with no second chance to refetch.
+  it("keeps merged detail fields when a later shard batch arrives", async () => {
+    const state = reactive<IndexData>({
+      title: "Big Index",
+      documents: data.documents.slice(0, 2),
+    });
+    const loadDetail = vi.fn(
+      async (): Promise<DetailRecord> => ({
+        r: "CCRI 2",
+        abstract: "Merged before the next batch.",
+      }),
+    );
+    const w = mount(App, {
+      props: { data: state, hydration: hydration({ loading: true, total: 3 }), loadDetail },
+    });
+
+    await w.find(".document a").trigger("click");
+    await flushPromises();
+    expect(w.text()).toContain("Merged before the next batch.");
+
+    // A further shard lands: same element objects, plus a new one.
+    state.documents = [...state.documents, data.documents[2]];
+    await flushPromises();
+
+    expect(w.text()).toContain("Merged before the next batch.");
+    expect(loadDetail).toHaveBeenCalledTimes(1);
   });
 });

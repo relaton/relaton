@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
-import type { IndexData } from "./lib/types";
+import type { Hydration, IndexData, IndexDocument } from "./lib/types";
+import type { DetailLoader } from "./lib/shards";
 import {
   applyFilters,
   distinctValues,
@@ -18,7 +19,22 @@ import {
   writePageToUrl,
 } from "./lib/url";
 
-const props = defineProps<{ data: IndexData }>();
+const props = defineProps<{
+  data: IndexData;
+  hydration?: Hydration;
+  loadDetail?: DetailLoader;
+}>();
+
+// Mounted without progressive loading (every existing test, and any embedder
+// passing a complete document list) behaves exactly as before: nothing is
+// loading, and the total is just what's in hand.
+const STATIC_HYDRATION: Hydration = {
+  loading: false,
+  total: null,
+  requestAll: () => {},
+};
+const hyd = computed<Hydration>(() => props.hydration ?? STATIC_HYDRATION);
+const loading = computed(() => hyd.value.loading);
 
 const query = ref("");
 const activeDoctypes = ref<Set<string>>(new Set());
@@ -34,6 +50,13 @@ const searchEl = ref<HTMLInputElement | null>(null);
 const docs = computed(() => props.data.documents);
 const doctypes = computed(() => distinctValues(docs.value, "doctype"));
 const stages = computed(() => distinctValues(docs.value, "stage"));
+// The corpus size is known from the mount node before any shard has landed, so
+// the count line reads "12 of 166658" rather than a denominator that grows.
+// Never report fewer than we actually hold: a shell with a missing or wrong
+// data-total would otherwise render nonsense like "3 of 0 documents".
+const total = computed(() =>
+  Math.max(hyd.value.total ?? 0, docs.value.length),
+);
 
 // Detail-page routing: `?doc=<id>` selects a document to show in full instead of
 // the list. A missing/unknown id falls back to the list. This is the second
@@ -101,6 +124,13 @@ function refreshPageSize() {
   const next = computePageSize();
   if (next !== pageSize.value) pageSize.value = next;
 }
+function clampPage() {
+  const clamped = Math.min(page.value, pageCount.value);
+  if (clamped !== page.value) {
+    page.value = clamped;
+    writePageToUrl(clamped, "replace");
+  }
+}
 let resizeTimer: ReturnType<typeof setTimeout> | undefined;
 function onResize() {
   clearTimeout(resizeTimer);
@@ -113,25 +143,35 @@ watch(view, () => nextTick(refreshPageSize));
 // `?doc=` id (whose doc isn't found) resolves to no detail — drop the param so the
 // URL matches the list we actually show. `immediate` handles an unknown id present
 // at load time (a deep link to a since-removed doc).
+//
+// While shards are still arriving, "not found" does NOT mean "removed": the
+// document's shard may simply not have landed. Bouncing then would break every
+// deep link on a large index, so the drop waits for loading to finish — and we
+// hurry the load along, since someone is waiting on that exact document.
 watch(
-  selectedDoc,
-  (doc) => {
+  [selectedDoc, loading] as const,
+  ([doc, isLoading]) => {
     if (doc) return;
-    if (selectedId.value != null) {
-      selectedId.value = null;
-      writeDocToUrl(null, "replace");
-    }
     nextTick(refreshPageSize);
+    if (selectedId.value == null) return;
+    if (isLoading) {
+      hyd.value.requestAll();
+      return;
+    }
+    selectedId.value = null;
+    writeDocToUrl(null, "replace");
   },
   { immediate: true },
 );
 // Keep the current page valid after the page size changes (e.g. on resize).
+// Skipped while loading: pageCount over a partial corpus would clamp a URL
+// ?page=N down to a page that only exists because the rest hasn't arrived yet.
 watch(pageSize, () => {
-  const clamped = Math.min(page.value, pageCount.value);
-  if (clamped !== page.value) {
-    page.value = clamped;
-    writePageToUrl(clamped, "replace");
-  }
+  if (!loading.value) clampPage();
+});
+// …so do it once, when the corpus is finally complete.
+watch(loading, (isLoading) => {
+  if (!isLoading) clampPage();
 });
 // Reset to the first page whenever the filtered set changes.
 watch([query, activeDoctypes, activeStages, sortKey, sortDir], () => {
@@ -139,6 +179,43 @@ watch([query, activeDoctypes, activeStages, sortKey, sortDir], () => {
     page.value = 1;
     writePageToUrl(1, "replace");
   }
+  // Searching or faceting a partial corpus gives partial answers, so stop
+  // waiting for idle time and pull the rest now.
+  hyd.value.requestAll();
+});
+
+// Detail fields live in their own shards and are fetched when a panel opens.
+// `doc.pos` — the corpus position stamped on by the shard loader — is what
+// addresses the detail shard. It is used in preference to the array index
+// because a summary shard that failed to load leaves a hole, after which the
+// two stop agreeing. indexOf remains the fallback for a document list supplied
+// whole (no shards), where position and index are the same thing.
+// Each document is attempted at most once; DocumentDetail guards every rich
+// block with v-if, so the sections simply fill in on arrival.
+const detailTried = new Set<string>();
+function docKey(doc: IndexDocument): string {
+  return `${doc.id}|${doc.yaml ?? ""}`;
+}
+watch(selectedDoc, (doc) => {
+  const load = props.loadDetail;
+  if (!doc || !load) return;
+
+  const key = docKey(doc);
+  if (detailTried.has(key)) return;
+  detailTried.add(key);
+
+  const index = doc.pos ?? docs.value.indexOf(doc);
+  if (index < 0) return;
+
+  void load(index, doc.id)
+    .then((detail) => {
+      if (!detail) return;
+      const { r: _id, ...fields } = detail;
+      Object.assign(doc, fields);
+    })
+    .catch(() => {
+      /* detail is optional enrichment; the panel already renders without it */
+    });
 });
 function goto(p: number) {
   const next = Math.min(pageCount.value, Math.max(1, p));
@@ -154,7 +231,12 @@ function goto(p: number) {
 // entry we just navigated to).
 function onPopState() {
   selectedId.value = readDocFromUrl();
-  page.value = Math.min(pageCount.value, Math.max(1, readPageFromUrl()));
+  const requested = Math.max(1, readPageFromUrl());
+  // Same reasoning as the pageSize watcher: don't clamp against a pageCount
+  // computed from a corpus that is still arriving.
+  page.value = loading.value
+    ? requested
+    : Math.min(pageCount.value, requested);
 }
 
 function toggle(set: Set<string>, value: string): Set<string> {
@@ -229,11 +311,9 @@ onMounted(() => {
   // smaller viewport with fewer pages) and normalize the URL in place.
   nextTick(() => {
     refreshPageSize();
-    const clamped = Math.min(page.value, pageCount.value);
-    if (clamped !== page.value) {
-      page.value = clamped;
-      writePageToUrl(clamped, "replace");
-    }
+    // Only meaningful once the corpus is complete; the `loading` watcher above
+    // clamps when the last shard lands.
+    if (!loading.value) clampPage();
   });
 });
 onUnmounted(() => {
@@ -349,7 +429,8 @@ onUnmounted(() => {
         </div>
 
         <div class="mt-3 flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-          <span>{{ visible.length }} of {{ docs.length }} documents</span>
+          <span>{{ visible.length }} of {{ total }} documents</span>
+          <span v-if="loading" class="text-slate-400 dark:text-slate-500">loading…</span>
           <button
             v-if="hasFilters"
             type="button"

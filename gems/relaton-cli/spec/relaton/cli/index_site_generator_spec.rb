@@ -23,28 +23,68 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     File.read(File.join(@out, "index.html"), encoding: "utf-8")
   end
 
-  it "returns the path to index.html and writes search.json" do
+  # --- shard readers -------------------------------------------------------
+
+  def shard_files(prefix = "search")
+    Dir[File.join(@out, "#{prefix}-*.json")].sort
+  end
+
+  # Every summary record, in corpus order (shards concatenate in file order).
+  def summary_records
+    shard_files.flat_map { |f| JSON.parse(File.read(f)) }
+  end
+
+  # Every detail slot, in corpus order — including the nils for docs that have
+  # no detail fields, since position is what the frontend indexes by.
+  def detail_slots
+    shard_files("detail").flat_map { |f| JSON.parse(File.read(f)) }
+  end
+
+  def attr(html, name)
+    html[/\sdata-#{name}="([^"]*)"/, 1]
+  end
+
+  # Write `n` trivial documents into a fresh repo and index them.
+  def with_corpus(count, opts = {})
+    Dir.mktmpdir("corpus-") do |repo|
+      FileUtils.mkdir_p(File.join(repo, "data"))
+      (1..count).each do |i|
+        File.write(
+          File.join(repo, "data", format("doc-%03d.yaml", i)),
+          "---\ndocidentifier:\n- content: DOC #{format('%03d', i)}\n  primary: true\n" \
+          "title:\n- content: Document #{i}\n  language: en\n  type: main\n",
+        )
+      end
+      described_class.generate(
+        File.join(repo, "data"),
+        { output: @out, generated: "2026-01-01" }.merge(opts),
+      )
+      yield File.read(File.join(@out, "index.html"), encoding: "utf-8")
+    end
+  end
+
+  it "returns the path to index.html" do
     path = described_class.generate(data_dir, output: @out, generated: "2026-01-01")
     expect(path).to eq(File.join(@out, "index.html"))
-    expect(File).to exist(File.join(@out, "search.json"))
   end
 
   it "skips the machine index-v*.yaml and indexes only documents" do
-    html = generate
+    generate
     # 2 documents (ccri/21, cgpm/26); index-v1.yaml is skipped.
-    expect(html.scan(/class="document"/).size).to eq(2)
+    expect(summary_records.size).to eq(2)
   end
 
   it "renders the rendered primary DocID and title from the document itself" do
-    html = generate
-    expect(html).to include('data-id="CCRI 21st Meeting (2009)"')
-    expect(html).to include("21st meeting of the CCRI")
+    generate
+    ccri = summary_records.find { |r| r["r"] == "CCRI 21st Meeting (2009)" }
+    expect(ccri).not_to be_nil
+    expect(ccri["c"]).to include("21st meeting of the CCRI")
   end
 
   it "builds the raw-YAML link from base_url + repo-relative path" do
-    html = generate
-    expect(html).to include(
-      'data-href="https://raw.githubusercontent.com/relaton/relaton-data-bipm/v2/data/ccri/meeting/21.yaml"',
+    generate
+    expect(summary_records.map { |r| r["u"] }).to include(
+      "https://raw.githubusercontent.com/relaton/relaton-data-bipm/v2/data/ccri/meeting/21.yaml",
     )
   end
 
@@ -55,33 +95,230 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     expect(html).to include('id="relaton-index-app"')
   end
 
-  context "embedded mode (default)" do
-    it "emits both the crawler DOM and the escaped JSON payload" do
+  # --- the shell carries no document data ----------------------------------
+
+  context "the page shell" do
+    it "carries no crawler DOM and no embedded payload" do
       html = generate
-      expect(html).to include("window.RELATON_INDEX_DATA = {")
-      expect(html).to include('class="document"')
-      # crawler DOM present for indexing
-      expect(html).to include("data-search=")
+      expect(html).not_to include("window.RELATON_INDEX_DATA")
+      expect(html).not_to include('class="document"')
+      expect(html).not_to include("data-src=")
     end
 
-    it "escapes </ inside the embedded JSON so it can't close the script tag" do
-      html = generate
-      json = html[/window\.RELATON_INDEX_DATA = (.+?);<\/script>/m, 1]
-      expect(json).to be_a(String)
-      expect(JSON.parse(json)["documents"].size).to eq(2)
+    it "does not write a monolithic search.json" do
+      generate
+      expect(File).not_to exist(File.join(@out, "search.json"))
     end
 
-    it "carries the per-document detail fields in the embedded payload" do
+    it "matches the recorded golden shell" do
+      golden = File.expand_path("spec/index_fixtures/golden/index.html")
+      expect(generate).to eq(File.read(golden, encoding: "utf-8"))
+    end
+  end
+
+  # --- mount-node scalars: the only index-shape contract -------------------
+
+  context "mount-node scalars" do
+    it "reports the corpus total and the shard counts actually on disk" do
       html = generate
-      json = html[/window\.RELATON_INDEX_DATA = (.+?);<\/script>/m, 1]
-      ccri = JSON.parse(json)["documents"]
-        .find { |d| d["id"] == "CCRI 21st Meeting (2009)" }
+      expect(attr(html, "total")).to eq("2")
+      expect(attr(html, "shards")).to eq(shard_files.size.to_s)
+      expect(attr(html, "detail-shards")).to eq(shard_files("detail").size.to_s)
+    end
+
+    it "reports the configured shard sizes" do
+      html = generate(shard_size: 5000, detail_shard_size: 500)
+      expect(attr(html, "shard-size")).to eq("5000")
+      expect(attr(html, "detail-shard-size")).to eq("500")
+    end
+
+    it "keeps the counts honest when the corpus spans several shards" do
+      with_corpus(7, shard_size: 3, detail_shard_size: 2) do |html|
+        expect(attr(html, "total")).to eq("7")
+        expect(attr(html, "shards")).to eq("3")
+        expect(shard_files.size).to eq(3)
+      end
+    end
+  end
+
+  # --- sharding ------------------------------------------------------------
+
+  context "summary shards" do
+    it "splits at shard_size and names them zero-padded in order" do
+      with_corpus(7, shard_size: 3) do
+        expect(shard_files.map { |f| File.basename(f) })
+          .to eq(%w[search-0000.json search-0001.json search-0002.json])
+        expect(shard_files.map { |f| JSON.parse(File.read(f)).size }).to eq([3, 3, 1])
+      end
+    end
+
+    it "preserves corpus order across the shard boundary" do
+      with_corpus(7, shard_size: 3) do
+        expect(summary_records.map { |r| r["r"] })
+          .to eq((1..7).map { |i| "DOC #{format('%03d', i)}" })
+      end
+    end
+
+    it "emits no trailing empty shard when the count divides exactly" do
+      with_corpus(6, shard_size: 3) do
+        expect(shard_files.size).to eq(2)
+        expect(summary_records.size).to eq(6)
+      end
+    end
+
+    it "keeps records summary-only, with exactly the seven compact keys" do
+      generate
+      expect(summary_records.first.keys)
+        .to contain_exactly("r", "c", "t", "s", "d", "u", "l")
+    end
+  end
+
+  context "detail shards" do
+    it "carries the rich fields keyed by id, and nothing from the summary" do
+      generate
+      ccri = detail_slots.compact.find { |e| e["r"] == "CCRI 21st Meeting (2009)" }
       expect(ccri["languages"]).to eq(%w[en fr])
       expect(ccri["publisher"]).to eq("International Bureau of Weights and Measures")
       expect(ccri["docids"]).to include(a_hash_including("id" => "CCRI 21st Meeting (2009)"))
       expect(ccri["dates"]).to include("type" => "published", "value" => "2009-06-19")
+      # summary keys never duplicated into the detail record
+      expect(ccri.keys).not_to include("title", "doctype", "stage", "link", "yaml")
+    end
+
+    it "aligns positionally with the summary records" do
+      generate
+      expect(detail_slots.size).to eq(summary_records.size)
+      summary_records.each_with_index do |rec, i|
+        slot = detail_slots[i]
+        expect(slot["r"]).to eq(rec["r"]) if slot
+      end
+    end
+
+    # A title-only doc normalizes to the seven summary keys and nothing else, so
+    # its detail record is empty. The slot must still be written, or every later
+    # document's positional lookup would be off by one.
+    it "writes a null slot for a document with no detail fields" do
+      Dir.mktmpdir("nodetail-") do |repo|
+        FileUtils.mkdir_p(File.join(repo, "data"))
+        %w[a b c].each_with_index do |name, i|
+          File.write(File.join(repo, "data", "#{name}.yaml"),
+                     "---\ntitle:\n- content: Title only #{i}\n  language: en\n")
+        end
+        described_class.generate(File.join(repo, "data"),
+                                 output: @out, generated: "2026-01-01",
+                                 detail_shard_size: 5)
+        expect(detail_slots).to eq([nil, nil, nil])
+        expect(summary_records.size).to eq(3)
+      end
+    end
+
+    it "shards independently of the summary shard size" do
+      with_corpus(7, shard_size: 3, detail_shard_size: 2) do
+        expect(shard_files("detail").size).to eq(4)
+        expect(detail_slots.size).to eq(7)
+      end
+    end
+
+    it "is suppressed by detail: false" do
+      html = generate(detail: false)
+      expect(shard_files("detail")).to be_empty
+      expect(attr(html, "detail-shards")).to eq("0")
     end
   end
+
+  context "an empty corpus" do
+    it "writes a valid shell with no shards" do
+      with_corpus(0) do |html|
+        expect(attr(html, "total")).to eq("0")
+        expect(attr(html, "shards")).to eq("0")
+        expect(attr(html, "detail-shards")).to eq("0")
+        expect(shard_files).to be_empty
+        expect(html).to include('id="relaton-index-app"')
+      end
+    end
+  end
+
+  # --- streaming -----------------------------------------------------------
+
+  # Asserting "the corpus is never materialized" by expecting some method NOT to
+  # be called is worthless — it passes just as happily when that method no longer
+  # exists. Observe the actual property instead: a completed shard must be on
+  # disk while the corpus is still being read.
+  it "flushes each shard as it fills, not after reading the whole corpus" do
+    Dir.mktmpdir("stream-") do |repo|
+      FileUtils.mkdir_p(File.join(repo, "data"))
+      (1..6).each do |i|
+        File.write(File.join(repo, "data", format("d%02d.yaml", i)),
+                   "---\ndocidentifier:\n- content: DOC #{i}\n  primary: true\n")
+      end
+
+      gen = described_class.new(File.join(repo, "data"), output: @out,
+                                            generated: "2026-01-01", shard_size: 2)
+      shard0 = File.join(@out, "search-0000.json")
+      written_early = false
+      stream = gen.method(:each_document)
+
+      allow(gen).to receive(:each_document) do |&block|
+        index = 0
+        stream.call do |item|
+          index += 1
+          # By the 5th document, docs 1-4 have filled two shards; the first must
+          # already be on disk. A generator that buffered the corpus would not
+          # have written anything yet.
+          written_early = File.exist?(shard0) if index == 5
+          block.call(item)
+        end
+      end
+
+      gen.generate
+      expect(written_early).to be true
+    end
+  end
+
+  # --- output hygiene ------------------------------------------------------
+
+  context "stale output" do
+    it "removes shards left by a previous, larger build" do
+      orphan_summary = File.join(@out, "search-0099.json")
+      orphan_detail = File.join(@out, "detail-0099.json")
+      legacy = File.join(@out, "search.json")
+      [orphan_summary, orphan_detail, legacy].each { |f| File.write(f, "[]") }
+
+      generate
+
+      expect(File).not_to exist(orphan_summary)
+      expect(File).not_to exist(orphan_detail)
+      expect(File).not_to exist(legacy)
+    end
+
+    it "leaves them alone when overwrite is false" do
+      orphan = File.join(@out, "search-0099.json")
+      File.write(orphan, "[]")
+      generate(overwrite: false)
+      expect(File).to exist(orphan)
+    end
+  end
+
+  # --- options -------------------------------------------------------------
+
+  context "option validation" do
+    it "rejects a non-positive shard size" do
+      expect { described_class.generate(data_dir, output: @out, shard_size: 0) }
+        .to raise_error(ArgumentError, /shard_size/)
+    end
+
+    it "rejects a non-positive detail shard size" do
+      expect { described_class.generate(data_dir, output: @out, detail_shard_size: -1) }
+        .to raise_error(ArgumentError, /detail_shard_size/)
+    end
+
+    it "no longer accepts a mode" do
+      expect { described_class.generate(data_dir, output: @out, mode: "embedded") }
+        .to raise_error(ArgumentError, /mode/)
+    end
+  end
+
+  # --- branding (unchanged behaviour) --------------------------------------
 
   context "with a description" do
     let(:blurb) { "Welcome to the BIPM standards index site." }
@@ -92,22 +329,11 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       expect(html).to include(%(data-description="#{blurb}"))
     end
 
-    it "carries the description in the embedded payload" do
-      html = generate(description: blurb)
-      json = html[/window\.RELATON_INDEX_DATA = (.+?);<\/script>/m, 1]
-      expect(JSON.parse(json)["description"]).to eq(blurb)
-    end
-
     it "HTML-escapes the description" do
       html = generate(description: %(Tom & Jerry's "<b>index</b>"))
       expect(html).to include(
         %(<meta name="description" content="Tom &amp; Jerry&#39;s &quot;&lt;b&gt;index&lt;/b&gt;&quot;">),
       )
-    end
-
-    it "still emits the mount-node description in static-json mode" do
-      html = generate(description: blurb, mode: "static-json")
-      expect(html).to include(%(data-description="#{blurb}"))
     end
   end
 
@@ -141,14 +367,11 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     # A caller workflow forwarding an unset input passes "" — that must mean
     # "not set", not an empty meta/self-referencing icon href.
     [{}, { description: "", favicon: "" }, { description: "  ", favicon: "  " }].each do |opts|
-      it "emits neither tag nor a description key in the payload (#{opts.inspect})" do
+      it "emits neither tag (#{opts.inspect})" do
         html = generate(opts)
         expect(html).not_to include('name="description"')
         expect(html).not_to include('rel="icon"')
         expect(html).not_to include("data-description")
-
-        json = html[/window\.RELATON_INDEX_DATA = (.+?);<\/script>/m, 1]
-        expect(JSON.parse(json)).not_to have_key("description")
       end
     end
 
@@ -156,37 +379,6 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       described_class.generate(data_dir, output: @out, generated: "2026-01-01", title: "")
       html = File.read(File.join(@out, "index.html"), encoding: "utf-8")
       expect(html).to include("<title>Relaton Index</title>")
-    end
-
-  end
-
-  context "dom mode" do
-    it "omits the injected JSON but keeps the crawler DOM" do
-      html = generate(mode: "dom")
-      expect(html).not_to include("window.RELATON_INDEX_DATA = {")
-      expect(html.scan(/class="document"/).size).to eq(2)
-    end
-  end
-
-  context "static-json mode" do
-    it "adds data-src and omits the crawler DOM and injected JSON" do
-      html = generate(mode: "static-json")
-      expect(html).to include('data-src="search.json"')
-      expect(html).not_to include("window.RELATON_INDEX_DATA = {")
-      expect(html).not_to include('class="document"')
-    end
-
-    it "writes a search.json with compact records" do
-      generate(mode: "static-json")
-      rows = JSON.parse(File.read(File.join(@out, "search.json")))
-      expect(rows.size).to eq(2)
-      expect(rows.first.keys).to include("r", "c", "t", "d", "u")
-    end
-
-    it "keeps search.json summary-only (no detail fields)" do
-      generate(mode: "static-json")
-      rows = JSON.parse(File.read(File.join(@out, "search.json")))
-      expect(rows.first.keys).to contain_exactly("r", "c", "t", "s", "d", "u", "l")
     end
   end
 
@@ -201,10 +393,7 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     end
   end
 
-  it "rejects an unknown mode" do
-    expect { described_class.generate(data_dir, output: @out, mode: "bogus") }
-      .to raise_error(ArgumentError, /Unknown mode/)
-  end
+  # --- corpus assembly (unchanged behaviour) -------------------------------
 
   context "with a sibling static/ folder" do
     let(:data_dir) { "spec/index_fixtures_static/data" }
@@ -215,40 +404,39 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
         data_dir,
         { output: @out, generated: "2026-01-01", base_url: base }.merge(opts),
       )
-      File.read(File.join(@out, "index.html"), encoding: "utf-8")
     end
 
     it "indexes the sibling static/ docs alongside the data docs by default" do
-      html = gen
+      gen
       # data/example.yaml (1) + static/nist + static/jcgm/100 (2); the duplicate
       # static/dup.yaml is de-duped away -> 3 documents total.
-      expect(html.scan(/class="document"/).size).to eq(3)
-      expect(html).to include("NIST Research Library (2022)")
+      expect(summary_records.size).to eq(3)
+      expect(summary_records.map { |r| r["r"] }).to include("NIST Research Library (2022)")
     end
 
     it "builds a static doc's yaml link as base_url + static/<path>" do
-      html = gen
-      expect(html).to include(
-        %(data-href="#{base}/static/nist-research-library-2022.yaml"),
-      )
+      gen
+      expect(summary_records.map { |r| r["u"] })
+        .to include("#{base}/static/nist-research-library-2022.yaml")
     end
 
     it "indexes nested static docs" do
-      html = gen
-      expect(html).to include(%(data-href="#{base}/static/jcgm/100-2008.yaml"))
+      gen
+      expect(summary_records.map { |r| r["u"] })
+        .to include("#{base}/static/jcgm/100-2008.yaml")
     end
 
     it "omits the static docs when static: false" do
-      html = gen(static: false)
-      expect(html.scan(/class="document"/).size).to eq(1)
-      expect(html).not_to include("NIST Research Library (2022)")
-      expect(html).not_to include("static/nist-research-library-2022.yaml")
+      gen(static: false)
+      expect(summary_records.size).to eq(1)
+      expect(summary_records.map { |r| r["r"] }).not_to include("NIST Research Library (2022)")
     end
 
     it "de-dups an id present in both data/ and static/, letting data/ win" do
-      html = gen
-      expect(html).to include("#{base}/data/example.yaml")
-      expect(html).not_to include("static/dup.yaml")
+      gen
+      urls = summary_records.map { |r| r["u"] }
+      expect(urls).to include("#{base}/data/example.yaml")
+      expect(urls.grep(/static\/dup\.yaml/)).to be_empty
     end
   end
 
@@ -262,10 +450,8 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
                    "---\ntitle:\n- content: Second title-only doc\n  language: en\n")
         described_class.generate(File.join(repo, "data"),
                                  output: @out, generated: "2026-01-01")
-        html = File.read(File.join(@out, "index.html"), encoding: "utf-8")
-        expect(html.scan(/class="document"/).size).to eq(2)
-        expect(html).to include("First title-only doc")
-        expect(html).to include("Second title-only doc")
+        titles = summary_records.map { |r| r["c"] }
+        expect(titles).to contain_exactly("First title-only doc", "Second title-only doc")
       end
     end
   end
