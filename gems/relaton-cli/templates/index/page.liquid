@@ -14,18 +14,7 @@
     <style>{{ css }}</style>
   </head>
   <body>
-    <div id="relaton-index-app" data-title="{{ title | escape }}" data-generated="{{ generated }}"{% if description %} data-description="{{ description | escape }}"{% endif %}{% if mode == "static-json" %} data-src="{{ json_url }}"{% endif %}>
-    {%- if mode != "static-json" -%}
-      <div class="documents">
-      {%- for d in documents -%}
-        {% include 'document', d: d %}
-      {%- endfor -%}
-      </div>
-    {%- endif -%}
-    </div>
-    {%- if mode == "embedded" -%}
-    <script>window.RELATON_INDEX_DATA = {{ data_json }};</script>
-    {%- endif -%}
+    <div id="relaton-index-app" data-title="{{ title | escape }}" data-generated="{{ generated }}"{% if description %} data-description="{{ description | escape }}"{% endif %} data-total="{{ total }}" data-shards="{{ shards }}" data-shard-size="{{ shard_size }}" data-detail-shards="{{ detail_shards }}" data-detail-shard-size="{{ detail_shard_size }}"></div>
     <script>{{ iife }}</script>
   </body>
 </html>

@@ -238,17 +238,54 @@ bibliographic YAML documents (default `./data`, arbitrarily nested). This is the
 command that generates the GitHub Pages index for `relaton-data-<flavor>`
 repositories (e.g. https://relaton.github.io/relaton-data-bipm/).
 
-The generated `index.html` is self-contained: it inlines a compiled
-Vue + Tailwind frontend (search, doctype/stage filters, sort, list/grid,
-dark mode, copy-DocID, responsive pagination) and carries the document data so no server is
-required. Output is written to `_site/` (`index.html` + `search.json`).
+The generated `index.html` inlines a compiled Vue + Tailwind frontend (search,
+doctype/stage filters, sort, list/grid, dark mode, copy-DocID, responsive
+pagination). It carries **no document data of its own** — the page is a fixed
+~110 KB regardless of whether the corpus holds 200 documents or 200,000. The
+documents live in numbered JSON shards written alongside it, which the page
+fetches:
+
+[source]
+----
+_site/index.html            branding + the inlined bundle + the shard layout
+_site/search-0000.json      summary records, --shard-size each
+_site/search-0001.json      …loaded progressively: the first shard paints,
+                            the rest stream in behind it
+_site/detail-0000.json      the richer fields, --detail-shard-size each
+_site/detail-0001.json      …fetched only when a detail page is opened
+----
+
+This keeps page weight a function of what the reader is looking at rather than
+of corpus size. It matters at the top of the fleet: in the previous
+single-page design `relaton-data-3gpp` (88,464 documents) published a
+151,688,883-byte `index.html`, and `relaton-data-ids` (166,658 documents) would
+have published roughly twice that. The cost is not really the download —
+GitHub Pages gzips, so that page transfers in ~6.4 MB — but the browser still
+has to parse it and build a DOM node per document before anything appears.
 
 Clicking a document opens a shareable **detail page** (`?doc=<id>`) showing its
 full bibliographic details — abstract, contributors, all identifiers and dates,
-edition, languages, keywords, publisher, and the landing/raw-YAML links. These
-richer fields are embedded in the page (in `embedded` mode) so the detail page
-works offline with no extra requests; a `dom`/`static-json` build shows the
-summary fields and links.
+edition, languages, keywords, publisher, and the landing/raw-YAML links. Those
+fields come from the `detail-NNNN.json` shard holding that document, fetched
+when the panel opens; each block renders as it arrives, and a document with no
+such fields simply shows its summary and links.
+
+[NOTE]
+====
+Because the page fetches its data, it must be served over `http(s)://`. Opening
+`_site/index.html` straight off the filesystem shows an empty index — browsers
+block `fetch` from `file://`. To preview a build locally:
+
+[source,console]
+----
+$ cd _site && python3 -m http.server
+----
+
+Do **not** pre-compress the shards. GitHub Pages already serves them gzipped
+(verified: a 32.9 MB `search.json` transfers in 4.8 MB); a stored `.json.gz`
+would be served as `application/gzip` with no `Content-Encoding`, so the browser
+would not transparently inflate it.
+====
 
 .Options
 [cols="1,3"]
@@ -259,13 +296,11 @@ summary fields and links.
 | `--branch` | Branch to clone when `--flavor`/`--repo` is used (default: the repo's default branch).
 | `-t, --title` | Index page title.
 | `--description` | Index page description. Emitted as `<meta name="description">` (search-result blurb) and rendered as the header subtitle in place of the default sentence.
-| `--favicon` | Favicon href for `<link rel="icon">`, emitted **verbatim**. Normally an absolute URL (e.g. the SDO's own logo). A site-relative path also works, but `relaton index` copies no assets — only `index.html` and `search.json` are written — so the caller must put that file into the deployed site itself. A known image extension (`.svg`, `.png`, `.ico`, `.gif`, `.jpg`) also sets `type`; anything else is left for the browser to sniff.
+| `--favicon` | Favicon href for `<link rel="icon">`, emitted **verbatim**. Normally an absolute URL (e.g. the SDO's own logo). A site-relative path also works, but `relaton index` copies no assets — only the HTML shell and the JSON shards are written — so the caller must put that file into the deployed site itself. A known image extension (`.svg`, `.png`, `.ico`, `.gif`, `.jpg`) also sets `type`; anything else is left for the browser to sniff.
 | `--base-url` | Base URL for the raw-YAML links (defaults to the raw GitHub URL when cloning).
-| `-m, --mode` | Data delivery mode (default `embedded`):
-
-  * `embedded` — crawler-indexable DOM **and** an embedded JSON payload (recommended).
-  * `dom` — crawler-indexable DOM only.
-  * `static-json` — a `search.json` sidecar the page fetches (not crawler-indexable).
+| `--shard-size` | Summary records per `search-NNNN.json` (default `5000`, ≈1 MB per shard). Smaller shards paint sooner and cost more requests.
+| `--detail-shard-size` | Detail records per `detail-NNNN.json` (default `500`). This is how much is fetched to open one detail page, so keep it modest.
+| `--[no-]detail` | Emit the detail shards (default `true`). `--no-detail` roughly halves the deployed site and degrades detail pages to the summary fields plus links.
 | `--[no-]static` | Also index a sibling `static/` folder next to `DATA-DIR` (auto-detected, default `true`). Pass `--no-static` to index `DATA-DIR` only.
 | `-f, --overwrite` | Overwrite existing output files (default `true`).
 |===
@@ -300,9 +335,21 @@ $ relaton index --flavor bipm --output _site
 # From an arbitrary GitHub repo, pinning the branch to clone:
 $ relaton index --repo relaton/relaton-data-bipm --branch v2 --output _site
 
-# Emit a fetched search.json sidecar instead of the embedded payload:
-$ relaton index data --mode static-json --output _site
+# Tune the shard layout for a very large corpus:
+$ relaton index data --shard-size 10000 --detail-shard-size 250 --output _site
+
+# Skip the detail shards entirely (smaller site, summary-only detail pages):
+$ relaton index data --no-detail --output _site
 ----
+
+[IMPORTANT]
+====
+`--mode` (`embedded` / `dom` / `static-json`) has been **removed**. Those modes
+existed to trade the crawler-indexable DOM against page weight; there is now one
+delivery mode, so there is nothing to choose. A caller still passing `--mode`
+fails with a usage error and a non-zero exit — deliberately loud, because
+silently ignoring it would publish a site nobody asked for.
+====
 
 NOTE: When building from a git checkout of relaton-cli, the compiled frontend
 must exist first: run `bundle exec rake build_frontend` (or
