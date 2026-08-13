@@ -1,6 +1,7 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  docHref,
   readDocFromUrl,
   readPageFromUrl,
   writeDocToUrl,
@@ -131,5 +132,16 @@ describe("writeDocToUrl", () => {
     expect(push).not.toHaveBeenCalled();
     writeDocToUrl("B", "push");
     expect(push).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("docHref", () => {
+  it("builds a relative ?doc= link", () => {
+    expect(docHref("ISO 1234:2020")).toBe("?doc=ISO+1234%3A2020");
+  });
+
+  it("encodes ids so they round-trip through readDocFromUrl", () => {
+    const id = "CCRI 21st Meeting (2009)";
+    expect(readDocFromUrl(docHref(id))).toBe(id);
   });
 });

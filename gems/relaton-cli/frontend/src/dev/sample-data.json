@@ -20,7 +20,12 @@
         { "id": "CCRI 21st Meeting (2009)", "type": "BIPM", "language": "en" },
         { "id": "CCRI 21e réunion (2009)", "type": "BIPM", "language": "fr" }
       ],
-      "dates": [{ "type": "published", "value": "2009-06-19" }]
+      "dates": [{ "type": "published", "value": "2009-06-19" }],
+      "relations": [
+        { "type": "obsoletedBy", "id": "BIPM CCRI 22 (2013)" },
+        { "type": "partOf", "id": "BIPM CGPM 26 (2018)" },
+        { "type": "updates", "id": "ISO/IEC/IEEE 60559:2011" }
+      ]
     },
     {
       "id": "BIPM CCRI 22 (2013)",

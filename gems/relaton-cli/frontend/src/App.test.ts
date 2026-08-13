@@ -408,3 +408,94 @@ describe("on-demand detail fields", () => {
     expect(loadDetail).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("relations on the detail page", () => {
+  const isDetail = (w: ReturnType<typeof mount>) =>
+    w.find('[aria-label="Back to index"]').exists();
+
+  // "SI Brochure" is in this dataset; "ISO 9999" is not.
+  const withRelations = (): DetailRecord => ({
+    r: "CCRI 2",
+    relations: [
+      { type: "obsoletedBy", id: "SI Brochure" },
+      { type: "updates", id: "ISO 9999" },
+    ],
+  });
+
+  it("navigates to the related document when its link is clicked", async () => {
+    const loadDetail = vi.fn(async () => withRelations());
+    const w = mount(App, { props: { data, loadDetail } });
+
+    await w.find(".document a").trigger("click");
+    await flushPromises();
+
+    const link = w.findAll("a").find((a) => a.text() === "SI Brochure");
+    expect(link).toBeDefined();
+    await link!.trigger("click");
+    await flushPromises();
+
+    expect(isDetail(w)).toBe(true);
+    expect(w.text()).toContain("The SI");
+    expect(new URLSearchParams(window.location.search).get("doc")).toBe("SI Brochure");
+  });
+
+  it("leaves a target outside the dataset unlinked but visible", async () => {
+    const loadDetail = vi.fn(async () => withRelations());
+    const w = mount(App, { props: { data, loadDetail } });
+
+    await w.find(".document a").trigger("click");
+    await flushPromises();
+
+    expect(w.findAll("a").map((a) => a.text())).not.toContain("ISO 9999");
+    expect(w.text()).toContain("ISO 9999");
+  });
+
+  // While summary shards are still arriving the corpus is incomplete, so a real
+  // intra-dataset target can look absent. Hurry the load rather than render it
+  // permanently as plain text.
+  it("hurries the shard load when the opened document has relations", async () => {
+    const requestAll = vi.fn();
+    const loadDetail = vi.fn(async () => withRelations());
+    const w = mount(App, {
+      props: { data, loadDetail, hydration: reactive(hydration({ loading: true, requestAll })) },
+    });
+
+    await w.find(".document a").trigger("click");
+    await flushPromises();
+
+    expect(requestAll).toHaveBeenCalled();
+  });
+});
+
+// The corpus loads progressively, so a relation target can be genuinely present
+// yet not loaded yet. Resolution reads a computed id set through the `hasDoc`
+// predicate, so the link must appear on its own once the shard carrying the
+// target lands — without reopening the detail panel.
+describe("relation links upgrade as the corpus loads", () => {
+  it("turns a plain-text target into a link when its shard arrives", async () => {
+    const partial: IndexData = reactive({
+      title: "Loading",
+      documents: [{ ...data.documents[0], pos: 0 }],
+    });
+    const loadDetail = vi.fn(
+      async (): Promise<DetailRecord> => ({
+        r: "CCRI 2",
+        relations: [{ type: "obsoletedBy", id: "SI Brochure" }],
+      }),
+    );
+    const w = mount(App, { props: { data: partial, loadDetail } });
+
+    await w.find(".document a").trigger("click");
+    await flushPromises();
+
+    // Target not loaded yet -> shown, but not a link.
+    expect(w.text()).toContain("SI Brochure");
+    expect(w.findAll("a").map((a) => a.text())).not.toContain("SI Brochure");
+
+    // A later shard delivers it.
+    partial.documents.push({ ...data.documents[2], pos: 1 });
+    await flushPromises();
+
+    expect(w.findAll("a").map((a) => a.text())).toContain("SI Brochure");
+  });
+});

@@ -9,7 +9,7 @@ module Relaton
     # Output record keys (shared contract with frontend/src/lib/types.ts):
     #   id, title, doctype, stage, date, link, yaml  (always present) plus the
     #   optional detail-page fields (only when non-empty): abstract, edition,
-    #   languages, keywords, publisher, contributors, docids, dates.
+    #   languages, keywords, publisher, contributors, docids, dates, relations.
     module IndexItemNormalizer
       module_function
 
@@ -43,12 +43,21 @@ module Relaton
           "contributors" => contributors(doc, lang),
           "docids" => docids(doc),
           "dates" => dates(doc),
+          "relations" => relations(doc, lang),
         }.reject { |_, v| v.nil? || (v.respond_to?(:empty?) && v.empty?) }
       end
 
       # Pick the primary, preferred-language rendered DocID; fall back to
       # docnumber / id. Values can be plain strings or {content, ...} hashes.
       def docidentifier(doc, lang)
+        primary_docidentifier(doc, lang) || strip(doc["docnumber"]) || doc["id"].to_s
+      end
+
+      # Just the rendered primary DocID, with no docnumber/id fallback — nil when
+      # the item carries no docidentifier. Split out because a relation's target
+      # needs the DocID *only*: its `id` is an internal XML anchor, which must not
+      # outrank the formattedref (see `relation_id`).
+      def primary_docidentifier(doc, lang)
         ids = wrap(doc["docidentifier"])
         primary = ids.select { |d| d.is_a?(Hash) && truthy(d["primary"]) }
         primary = ids if primary.empty?
@@ -57,7 +66,7 @@ module Relaton
           pick_lang(primary, lang) ||
           primary.find { |d| d.is_a?(Hash) && d["language"].nil? } ||
           primary.first
-        strip(content_of(chosen)) || strip(doc["docnumber"]) || doc["id"].to_s
+        strip(content_of(chosen))
       end
 
       def title(doc, lang)
@@ -224,6 +233,51 @@ module Relaton
 
         { "type" => strip(content_of(entry["type"])), "value" => val }
           .reject { |_, v| v.nil? }
+      end
+
+      # Related documents as {type, id}, e.g. {"type" => "obsoletedBy",
+      # "id" => "ISO 29862:2024"}. The id is what the detail page matches against
+      # the rest of the corpus to decide whether the relation can be rendered as
+      # an intra-dataset link, so it must be rendered exactly as a document's own
+      # `id` is — hence the shared `docidentifier` helper below.
+      #
+      # Self-references are dropped (BIPM's Metrologia articles relate to
+      # themselves once per carrier, which would render as a link to the page you
+      # are already on) and identical {type, id} pairs are collapsed.
+      def relations(doc, lang)
+        own = docidentifier(doc, lang)
+        wrap(doc["relation"])
+          .filter_map { |r| relation(r, lang) }
+          .reject { |r| r["id"] == own }
+          .uniq
+      end
+
+      def relation(entry, lang)
+        return nil unless entry.is_a?(Hash)
+
+        id = relation_id(entry["bibitem"], lang)
+        return nil unless id
+
+        { "type" => strip(content_of(entry["type"])), "id" => id }.reject { |_, v| v.nil? }
+      end
+
+      # A relation's bibitem carries the same docidentifier shape as a top-level
+      # document, so the primary-DocID logic is shared — that is what makes the
+      # emitted id string-identical to the dataset id it must match.
+      #
+      # Order matters. `docidentifier` is NOT reused whole: its last fallback is
+      # the item's `id`, which on a relation bibitem is an internal XML anchor
+      # ("CENISO/TS21003-7-2008/A1-2010", as CEN records carry). That anchor can
+      # never match a document in the corpus, so letting it outrank the rendered
+      # formattedref would strand a target that IS present as plain text under a
+      # mangled label. The anchor stays only as the last resort.
+      def relation_id(bibitem, lang)
+        return strip(content_of(bibitem)) unless bibitem.is_a?(Hash)
+
+        primary_docidentifier(bibitem, lang) ||
+          strip(content_of(bibitem["formattedref"])) ||
+          strip(bibitem["docnumber"]) ||
+          strip(bibitem["id"])
       end
 
       # --- helpers -------------------------------------------------------------

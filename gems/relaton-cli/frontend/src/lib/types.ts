@@ -11,6 +11,15 @@ export interface DocIdentifier {
   language?: string | null;
 }
 
+// One related document, e.g. { type: "obsoletedBy", id: "ISO 29862:2024" }.
+// Only the target's DocID is carried — no title or date — because the id is both
+// the label and the key the detail page matches against the rest of the corpus
+// to decide whether it can be rendered as an intra-dataset link.
+export interface Relation {
+  type?: string | null;
+  id: string;
+}
+
 /** One dated event, e.g. { type: "published", value: "2009-06-19" }. */
 export interface DocDate {
   type?: string | null;
@@ -65,6 +74,8 @@ export interface IndexDocument {
   docids?: DocIdentifier[];
   /** All dated events. */
   dates?: DocDate[];
+  /** Related documents (obsoletes, updatedBy, partOf, …). */
+  relations?: Relation[];
 }
 
 export interface IndexData {
@@ -102,6 +113,7 @@ export type DetailRecord = Pick<
   | "contributors"
   | "docids"
   | "dates"
+  | "relations"
 > & { r: string };
 
 // The shard layout, read from the mount node's data-* attributes. There is

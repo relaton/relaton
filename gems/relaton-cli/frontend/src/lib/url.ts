@@ -42,6 +42,16 @@ export function writePageToUrl(
 }
 
 /**
+ * A relative, shareable link to a document's detail page. Used for the real
+ * anchors that SPA-navigation intercepts — the list rows and the intra-dataset
+ * relation links — so middle-click / open-in-new-tab still work. Built with the
+ * same `URLSearchParams` encoding as `writeDocToUrl`, so the two agree exactly.
+ */
+export function docHref(id: string): string {
+  return `?${new URLSearchParams({ [DOC_PARAM]: id }).toString()}`;
+}
+
+/**
  * Parse the `doc` query param (the open detail document's id). Returns the
  * decoded id, or null when absent/blank. `URLSearchParams` handles decoding, so
  * ids with spaces/parens round-trip with `writeDocToUrl`.

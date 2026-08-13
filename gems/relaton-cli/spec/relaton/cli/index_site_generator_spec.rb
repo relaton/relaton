@@ -185,6 +185,28 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       expect(ccri.keys).not_to include("title", "doctype", "stage", "link", "yaml")
     end
 
+    # Relations are a normalizer field that is NOT in COMPACT_KEYS, so the
+    # generator routes them to the detail shards with no code of its own. This
+    # pins that routing: the summary record must stay the seven compact keys.
+    it "routes relations into the detail shard, never the summary record" do
+      Dir.mktmpdir("relations-") do |repo|
+        FileUtils.mkdir_p(File.join(repo, "data"))
+        File.write(
+          File.join(repo, "data", "iso-29862-2018.yaml"),
+          "---\ndocidentifier:\n- content: ISO 29862:2018\n  primary: true\n" \
+          "title:\n- content: Self adhesive tapes\n  language: en\n  type: main\n" \
+          "relation:\n- type: obsoletes\n  bibitem:\n    docidentifier:\n" \
+          "    - content: ISO 29862:2007\n      primary: true\n",
+        )
+        described_class.generate(File.join(repo, "data"),
+                                 output: @out, generated: "2026-01-01")
+        expect(detail_slots.first["relations"])
+          .to eq([{ "type" => "obsoletes", "id" => "ISO 29862:2007" }])
+        expect(summary_records.first.keys)
+          .to contain_exactly("r", "c", "t", "s", "d", "u", "l")
+      end
+    end
+
     it "aligns positionally with the summary records" do
       generate
       expect(detail_slots.size).to eq(summary_records.size)

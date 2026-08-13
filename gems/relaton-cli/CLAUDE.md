@@ -160,7 +160,7 @@ either without reading this will lead you back to a 150 MB page:
 - `lib/relaton/cli/index_item_normalizer.rb` — doc-hash → `{id,title,doctype,
   stage,date,link,yaml}` (the always-present summary core) **plus optional
   detail-page fields** (`abstract, edition, languages, keywords, publisher,
-  contributors, docids, dates`) added by `details`. Reads the doc's own rendered
+  contributors, docids, dates, relations`) added by `details`. Reads the doc's own rendered
   fields (primary `docidentifier`, main/en `title`, `date[].at|on` preferring
   `published`, `ext.doctype`), so **no pubid reconstruction** is needed. Detail
   fields are dropped when empty (via `reject`), so a summary-only doc keeps the
@@ -171,6 +171,26 @@ either without reading this will lead you back to a 150 MB page:
   it is a detail field by definition, so a new normalizer field lands in the
   detail shards automatically and never silently bloats the summary. The frontend
   `types.ts` `IndexDocument` / `DetailRecord` interfaces mirror both halves.
+
+  **`relations` carries only `{type, id}`, and the id must render exactly like a
+  document's own.** The whole point of the field is that the detail page can match
+  the target against the rest of the corpus and turn it into a `?doc=` link, so
+  `relation_id` shares the primary-DocID logic that computes each document's `id`
+  (a relation's nested `bibitem` carries the same `docidentifier`/`primary`
+  shape). Don't "improve" it into a separate id renderer — the two would drift and
+  every link would silently degrade to plain text. It deliberately shares
+  `primary_docidentifier` and **not** `docidentifier` itself: the latter bottoms
+  out at the item's `id`, which on a relation bibitem is an internal XML anchor
+  (`CENISO/TS21003-7-2008/A1-2010` — CEN records carry exactly this). An anchor can
+  never match a corpus document, so the fallback order is docidentifier →
+  `formattedref` → `docnumber` → anchor; putting the anchor any earlier strands a
+  target that *is* present as plain text under a mangled label. No title/date is
+  carried: measured on
+  `relaton-data-iso` (79,402 docs) that is 83,074 relations, of which **99.9%
+  resolve in-dataset**; the remaining 48 are genuinely-absent `ISO/DIS …` drafts.
+  Two guards are load-bearing on real data — **self-references are dropped**
+  (BIPM's Metrologia articles relate to themselves once per carrier) and
+  identical `{type, id}` pairs are **de-duplicated**.
 
   **Detail lookup is positional, verified by id.** A detail shard is a *dense*
   array: slot `i` is either `null` (that document has no detail fields) or
@@ -283,8 +303,23 @@ pages and in/out of the detail), while restore-clamp and filter-reset use
 `src/components/DocumentDetail.vue` in place of the list (`App.vue` swaps on the
 `selectedDoc` computed; an unknown `?doc=` falls back to the list). It renders the
 enriched fields (abstract, metadata grid, keywords, contributors, all identifiers,
-all dates) and the landing + raw-YAML links, each block shown only when present so
-a summary-only doc degrades gracefully. Pure
+**relations**, all dates) and the landing + raw-YAML links, each block shown only
+when present so a summary-only doc degrades gracefully.
+
+**Relations link within the dataset.** A relation whose target DocID is a document
+in this corpus renders as a real `?doc=<id>` anchor (same `docHref` helper and
+click-intercept as `DocumentRow` — `lib/url.ts` owns that one builder, don't
+re-inline `URLSearchParams`); a target that isn't stays visible as plain text
+rather than linking to a page that would bounce back to the list. Resolution is
+**frontend-side against the loaded corpus**, not baked in at build time — the
+generator is a single streaming pass (`each_document`) that never holds the corpus,
+so it cannot know the full id set when it writes a detail shard. The consequence is
+the usual loading gate: while summary shards are still arriving a real target can
+look absent, so `DocumentDetail` takes a **`hasDoc(id)` predicate** rather than a
+built `Set` (a `computed` Set over 166k ids stays lazy behind the function, and only
+materializes for a document that actually has relations), and `App.vue` calls
+`hydration.requestAll()` when an opened document's detail carries relations. Links
+then upgrade from plain text to anchors as shards land. Pure
 filter/sort logic is `src/lib/filter.ts`. UI icons
 are inline Heroicons-outline SVGs via the shared `src/components/Icon.vue`
 (`<Icon name="…" />`, a name→path map — `fill=none stroke=currentColor` so they
