@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { IndexDocument } from "../lib/types";
+import { docHref } from "../lib/url";
 import Icon from "./Icon.vue";
 
 const props = defineProps<{ doc: IndexDocument; view: "list" | "grid" }>();
@@ -8,11 +9,8 @@ defineEmits<{ open: [id: string] }>();
 
 // A real, shareable link to the detail page (?doc=<id>) — crawlable and
 // middle-click/new-tab friendly — while a plain click is intercepted by App.vue
-// to SPA-navigate (preserving the current ?page= etc.). Built with
-// URLSearchParams so the encoding matches writeDocToUrl (lib/url.ts) exactly.
-const detailHref = computed(
-  () => `?${new URLSearchParams({ doc: props.doc.id }).toString()}`,
-);
+// to SPA-navigate (preserving the current ?page= etc.).
+const detailHref = computed(() => docHref(props.doc.id));
 
 const copied = ref(false);
 async function copyId(id: string) {
@@ -40,7 +38,7 @@ async function copyId(id: string) {
             <a
               :href="detailHref"
               class="hover:underline"
-              @click.prevent="$emit('open', doc.id)"
+              @click.exact.prevent="$emit('open', doc.id)"
             >{{ doc.id }}</a>
           </h2>
           <button
@@ -58,7 +56,7 @@ async function copyId(id: string) {
             :href="detailHref"
             class="hover:underline"
             tabindex="-1"
-            @click.prevent="$emit('open', doc.id)"
+            @click.exact.prevent="$emit('open', doc.id)"
           >{{ doc.title }}</a>
         </p>
       </div>
@@ -82,7 +80,7 @@ async function copyId(id: string) {
           class="mt-0.5 text-slate-300 transition group-hover:text-brand dark:text-slate-600 dark:group-hover:text-brand-dark"
           aria-hidden="true"
           tabindex="-1"
-          @click.prevent="$emit('open', doc.id)"
+          @click.exact.prevent="$emit('open', doc.id)"
         ><Icon name="chevron-right" class="h-5 w-5" /></a>
       </div>
     </div>

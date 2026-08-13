@@ -67,16 +67,30 @@ const selectedDoc = computed(() =>
     ? null
     : (docs.value.find((d) => d.id === selectedId.value) ?? null),
 );
+// Opening a document — from a list row, or from a relation link on another
+// document's detail page (detail -> detail).
 function openDoc(id: string) {
   selectedId.value = id;
-  // New history entry so Back returns to the list at the same page.
+  // New history entry so Back retraces the path that got here.
   writeDocToUrl(id, "push");
   window.scrollTo({ top: 0 });
 }
+// Which DocIDs exist in this dataset — the set that decides whether a relation
+// on the detail page can be rendered as a link. A `computed` is lazy, so this is
+// only ever built when a detail panel with relations actually asks (via the
+// `hasDoc` predicate below), never during ordinary list browsing; it then
+// re-derives as summary shards land, so links appear as the corpus fills in.
+const docIdSet = computed(() => new Set(docs.value.map((d) => d.id)));
+function hasDoc(id: string): boolean {
+  return docIdSet.value.has(id);
+}
+
 function closeDoc() {
   selectedId.value = null;
   // Replace (not push) so we don't leave a forward "detail" entry that Forward
-  // would re-open; the list entry we opened from stays behind us for Back.
+  // would re-open. Back then steps to whatever preceded this detail — the list
+  // for a document opened from a row, or the referring document when a relation
+  // link brought us here. That mirrors the trail the reader actually walked.
   writeDocToUrl(null, "replace");
 }
 
@@ -212,6 +226,11 @@ watch(selectedDoc, (doc) => {
       if (!detail) return;
       const { r: _id, ...fields } = detail;
       Object.assign(doc, fields);
+      // Relation links resolve against the loaded corpus, so a partially loaded
+      // one would show real intra-dataset targets as plain text. Same remedy as
+      // the unresolved-?doc= watcher: hurry the load rather than let "absent"
+      // read as "not in this dataset".
+      if (fields.relations?.length) props.hydration?.requestAll();
     })
     .catch(() => {
       /* detail is optional enrichment; the panel already renders without it */
@@ -347,7 +366,13 @@ onUnmounted(() => {
     </header>
 
     <main class="mx-auto max-w-5xl px-4 py-6">
-      <DocumentDetail v-if="selectedDoc" :doc="selectedDoc" @back="closeDoc" />
+      <DocumentDetail
+        v-if="selectedDoc"
+        :doc="selectedDoc"
+        :has-doc="hasDoc"
+        @back="closeDoc"
+        @open="openDoc"
+      />
       <template v-else>
       <!-- Toolbar -->
       <div class="sticky top-0 z-10 -mx-4 mb-4 bg-slate-50/90 px-4 py-3 backdrop-blur dark:bg-slate-950/90">

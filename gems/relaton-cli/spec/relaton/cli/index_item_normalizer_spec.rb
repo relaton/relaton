@@ -135,6 +135,111 @@ RSpec.describe Relaton::Cli::IndexItemNormalizer do
       expect(record["publisher"]).to eq("International Organization for Standardization")
     end
 
+    it "extracts relations as {type, id} from the nested bibitem's primary DocID" do
+      doc = {
+        "docidentifier" => [{ "content" => "ISO 29862:2018", "primary" => true }],
+        "relation" => [
+          { "type" => "obsoletes",
+            "bibitem" => {
+              "formattedref" => { "content" => "ISO 29862:2007" },
+              "docidentifier" => [
+                { "content" => "ISO 29862:2007", "type" => "ISO", "primary" => true },
+              ],
+            } },
+          { "type" => "obsoletedBy",
+            "bibitem" => {
+              "docidentifier" => [
+                { "content" => "not primary", "type" => "DOI" },
+                { "content" => "ISO 29862:2024", "type" => "ISO", "primary" => true },
+              ],
+            } },
+        ],
+      }
+      expect(described_class.normalize(doc)["relations"]).to eq(
+        [{ "type" => "obsoletes", "id" => "ISO 29862:2007" },
+         { "type" => "obsoletedBy", "id" => "ISO 29862:2024" }],
+      )
+    end
+
+    it "falls back to the bibitem's formattedref when it carries no docidentifier" do
+      doc = { "relation" => [
+        { "type" => "updates",
+          "bibitem" => { "formattedref" => { "content" => "NIST HB 150-3e2006" } } },
+        { "type" => "related", "bibitem" => { "formattedref" => "Plain ref" } },
+      ] }
+      expect(described_class.normalize(doc)["relations"]).to eq(
+        [{ "type" => "updates", "id" => "NIST HB 150-3e2006" },
+         { "type" => "related", "id" => "Plain ref" }],
+      )
+    end
+
+    it "drops self-referencing relations and de-duplicates identical ones" do
+      # BIPM's metrologia records relate to themselves twice (print + online
+      # carriers); a self-link would be noise on the detail page.
+      doc = {
+        "docidentifier" => [{ "content" => "Metrologia 40 2 1", "primary" => true }],
+        "relation" => [
+          { "type" => "hasManifestation",
+            "bibitem" => { "docidentifier" => [
+              { "content" => "Metrologia 40 2 1", "primary" => true },
+            ] } },
+          { "type" => "hasManifestation",
+            "bibitem" => { "docidentifier" => [
+              { "content" => "Metrologia 40 2 1", "primary" => true },
+            ] } },
+          { "type" => "updates",
+            "bibitem" => { "docidentifier" => [
+              { "content" => "Metrologia 39 1 1", "primary" => true },
+            ] } },
+          { "type" => "updates",
+            "bibitem" => { "docidentifier" => [
+              { "content" => "Metrologia 39 1 1", "primary" => true },
+            ] } },
+        ],
+      }
+      expect(described_class.normalize(doc)["relations"]).to eq(
+        [{ "type" => "updates", "id" => "Metrologia 39 1 1" }],
+      )
+    end
+
+    # A bibitem's `id:` is an internal XML anchor ("CENISO/TS21003-7-2008/A1-2010"),
+    # not a DocID: it can never match a document in the dataset, so preferring it
+    # over the rendered formattedref would strand a target that IS in the corpus
+    # as plain text under a mangled label. CEN records carry exactly this shape.
+    it "prefers the formattedref over a bibitem's internal id anchor" do
+      doc = { "relation" => [
+        { "type" => "obsoletes",
+          "bibitem" => {
+            "id" => "CENISO/TS21003-7-2008/A1-2010",
+            "formattedref" => { "content" => "CEN ISO/TS 21003-7:2008/A1:2010" },
+          } },
+      ] }
+      expect(described_class.normalize(doc)["relations"]).to eq(
+        [{ "type" => "obsoletes", "id" => "CEN ISO/TS 21003-7:2008/A1:2010" }],
+      )
+    end
+
+    it "still falls back to the id anchor when nothing better is carried" do
+      doc = { "relation" => [
+        { "type" => "related", "bibitem" => { "id" => "ANCHOR1" } },
+        { "type" => "updates", "bibitem" => { "docnumber" => "DN 5" } },
+      ] }
+      expect(described_class.normalize(doc)["relations"]).to eq(
+        [{ "type" => "related", "id" => "ANCHOR1" },
+         { "type" => "updates", "id" => "DN 5" }],
+      )
+    end
+
+    it "drops relations whose target has no resolvable id" do
+      doc = { "relation" => [
+        { "type" => "related", "bibitem" => { "title" => [{ "content" => "No id here" }] } },
+        { "type" => "updates", "bibitem" => { "docidentifier" => [{ "content" => "OK 1" }] } },
+      ] }
+      expect(described_class.normalize(doc)["relations"]).to eq(
+        [{ "type" => "updates", "id" => "OK 1" }],
+      )
+    end
+
     it "omits empty detail fields on a minimal document" do
       minimal = described_class.normalize({ "id" => "RAW9" })
       expect(minimal.keys).to contain_exactly(

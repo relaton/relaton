@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import type { IndexDocument } from "../lib/types";
+import { docHref } from "../lib/url";
 import Icon from "./Icon.vue";
 
-const props = defineProps<{ doc: IndexDocument }>();
-defineEmits<{ back: [] }>();
+const props = defineProps<{
+  doc: IndexDocument;
+  // Does this DocID exist in the current dataset? Deliberately a predicate
+  // rather than a Set: App builds that set from the whole corpus, which is
+  // expensive at 166k documents, and passing the built value would materialize
+  // it for every detail panel — including the majority that have no relations.
+  // A function stays lazy while still registering the reactive dependency, so
+  // unresolved targets upgrade from plain text to links as summary shards land.
+  hasDoc?: (id: string) => boolean;
+}>();
+defineEmits<{ back: []; open: [id: string] }>();
 
 const copied = ref(false);
 async function copyId() {
@@ -42,6 +52,24 @@ const hasMeta = computed(
 
 function docidLabel(d: { type?: string | null; language?: string | null }): string {
   return [d.type, d.language].filter(Boolean).join(" · ");
+}
+
+// Relations, each paired with whether its target is a document in this dataset.
+// A target that isn't (it may live in another relaton-data repo) is still listed
+// — just as plain text, so nothing links to a page that doesn't exist here.
+const relations = computed(() =>
+  (props.doc.relations ?? []).map((r) => ({
+    ...r,
+    label: relationLabel(r.type),
+    href: props.hasDoc?.(r.id) ? docHref(r.id) : null,
+  })),
+);
+
+// "obsoletedBy" -> "Obsoleted by"; "partOf" -> "Part of".
+function relationLabel(type?: string | null): string {
+  if (!type) return "Related";
+  const words = type.replace(/([a-z0-9])([A-Z])/g, "$1 $2").toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 </script>
 
@@ -143,6 +171,27 @@ function docidLabel(d: { type?: string | null; language?: string | null }): stri
         <li v-for="(d, i) in docids" :key="i" class="flex flex-wrap items-baseline gap-2">
           <span class="font-mono text-slate-700 dark:text-slate-300">{{ d.id }}</span>
           <span v-if="docidLabel(d)" class="text-xs text-slate-500 dark:text-slate-400">{{ docidLabel(d) }}</span>
+        </li>
+      </ul>
+    </section>
+
+    <section v-if="relations.length" class="mb-6">
+      <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        Relations
+      </h3>
+      <ul class="space-y-1 text-sm">
+        <li v-for="(r, i) in relations" :key="i" class="flex flex-wrap items-baseline gap-2">
+          <span class="w-28 shrink-0 text-slate-500 dark:text-slate-400">{{ r.label }}</span>
+          <!-- A real ?doc= anchor whose plain click App.vue turns into an
+               in-page navigation. `.exact` leaves modified clicks (Cmd/Ctrl/Shift
+               = open in new tab/window) to the browser, so the href stays useful. -->
+          <a
+            v-if="r.href"
+            :href="r.href"
+            class="font-mono text-brand hover:underline dark:text-brand-dark"
+            @click.exact.prevent="$emit('open', r.id)"
+          >{{ r.id }}</a>
+          <span v-else class="font-mono text-slate-700 dark:text-slate-300">{{ r.id }}</span>
         </li>
       </ul>
     </section>
