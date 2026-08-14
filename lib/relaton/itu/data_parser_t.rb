@@ -114,7 +114,7 @@ module Relaton
       # @param row [Hash]
       # @return [Array<Relaton::Itu::Docidentifier>]
       def fetch_docid(row, errors = {})
-        name = row["rec_name"].to_s.strip
+        name = normalize_rec_name row["rec_name"]
         if name.empty?
           errors[:docid] &&= true
           return []
@@ -123,6 +123,21 @@ module Relaton
         r = [Docidentifier.new(type: "ITU", content: "ITU-T #{name}", primary: true)]
         errors[:docid] &&= r.empty?
         r
+      end
+
+      # searchRecs serves a few rec_names with a doubled space ("D.271  (10/2016)")
+      # or a `Suppl.` run into its number ("D.211 Suppl.1 (05/2010)"). Both
+      # spellings are rejected by `::Pubid::Itu`, so #index_primary drops them and
+      # the record is written but never indexed — reachable only through the live
+      # `rec.aspx` fallback. The canonical spelling parses, and since
+      # `Core::DataFetcher#output_file` already collapses runs of whitespace and
+      # punctuation alike, normalising here changes no filename: the affected
+      # records simply gain an index row, and a well-formed name is untouched.
+      #
+      # @param rec_name [String, nil]
+      # @return [String]
+      def normalize_rec_name(rec_name)
+        rec_name.to_s.gsub(/\s+/, " ").sub(/Suppl\.(\S)/, 'Suppl. \1').strip
       end
 
       # @param row [Hash]
