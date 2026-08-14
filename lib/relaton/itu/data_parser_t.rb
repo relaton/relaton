@@ -125,19 +125,38 @@ module Relaton
         r
       end
 
-      # searchRecs serves a few rec_names with a doubled space ("D.271  (10/2016)")
-      # or a `Suppl.` run into its number ("D.211 Suppl.1 (05/2010)"). Both
-      # spellings are rejected by `::Pubid::Itu`, so #index_primary drops them and
-      # the record is written but never indexed — reachable only through the live
-      # `rec.aspx` fallback. The canonical spelling parses, and since
-      # `Core::DataFetcher#output_file` already collapses runs of whitespace and
-      # punctuation alike, normalising here changes no filename: the affected
-      # records simply gain an index row, and a well-formed name is untouched.
+      # searchRecs spells a handful of rec_names in ways `::Pubid::Itu` rejects,
+      # even though it models the underlying form perfectly well under another
+      # spelling. `#index_primary` drops those ids, so the record is written but
+      # never indexed — reachable only through the live `rec.aspx` fallback.
+      # Each rule below rewrites to the spelling pubid already parses:
+      #
+      #   "D.271  (10/2016)"            doubled space
+      #   "D.211 Suppl.1 (05/2010)"     `Suppl.` run into its number
+      #   "H.222.0 v10 (04/2025)"       bare version -> "(V10)", as pubid spells it
+      #   "G 231 (10/1976)"             space where the series dot belongs
+      #
+      # This changes **no filename**: `Core::DataFetcher#output_file` collapses
+      # runs of whitespace and punctuation alike, so `"H.222.0 v10 (04/2025)"` and
+      # `"H.222.0 (V10) (04/2025)"` both yield `itu-t-h-222-0-v10-04-2025.yaml`.
+      # The affected records simply gain an index row. Verified against the
+      # published dataset (2026-08-14): of 16,149 ITU-T records the rules touch
+      # 54, **none** of them currently indexed — so no working id is rewritten.
+      #
+      # Forms pubid cannot parse at all (Appendices, `bis`/`ter`, the D-series `R`
+      # suffix, series supplements, joint numbering) are deliberately left alone:
+      # guessing a spelling for those would invent identifiers rather than
+      # canonicalise them. They need upstream support.
       #
       # @param rec_name [String, nil]
       # @return [String]
       def normalize_rec_name(rec_name)
-        rec_name.to_s.gsub(/\s+/, " ").sub(/Suppl\.(\S)/, 'Suppl. \1').strip
+        rec_name.to_s
+          .gsub(/\s+/, " ")
+          .sub(/Suppl\.(\S)/, 'Suppl. \1')
+          .sub(/ [vV](\d+)\b/, ' (V\1)')
+          .sub(/\A([A-Z]+) (\d)/, '\1.\2')
+          .strip
       end
 
       # @param row [Hash]
