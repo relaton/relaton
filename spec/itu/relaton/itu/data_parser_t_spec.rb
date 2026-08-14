@@ -143,6 +143,27 @@ describe Relaton::Itu::DataParserT do
       row.delete("rec_name")
       expect(described_class.fetch_docid(row)).to eq []
     end
+
+    # searchRecs serves a handful of rec_names with a doubled space or a
+    # `Suppl.` run together with its number. `Pubid::Itu` rejects both spellings,
+    # so those records were written but left out of the index; the canonical
+    # spelling parses. Measured against the published dataset: 15 records.
+    {
+      "a doubled space" => ["D.271  (10/2016)", "ITU-T D.271 (10/2016)"],
+      "Suppl. run into its number" => ["D.211 Suppl.1 (05/2010)", "ITU-T D.211 Suppl. 1 (05/2010)"],
+      "a series supplement" => ["E Suppl.1 (10/1976)", "ITU-T E Suppl. 1 (10/1976)"],
+    }.each do |what, (rec_name, expected)|
+      it "normalizes #{what} so the id can be indexed" do
+        expect(described_class.fetch_docid(row.merge("rec_name" => rec_name)).first.content).to eq expected
+      end
+    end
+
+    it "leaves a well-formed rec_name byte-identical" do
+      # The other ~16k records must serialize exactly as before.
+      %w[A.1\ (10/2000) G.711\ (11/1988) H.264\ (V14)\ (08/2021) A\ Suppl.\ 2\ (12/2022)].each do |name|
+        expect(described_class.fetch_docid(row.merge("rec_name" => name)).first.content).to eq "ITU-T #{name}"
+      end
+    end
   end
 
   context "fetch_date" do

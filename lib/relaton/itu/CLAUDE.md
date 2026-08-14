@@ -50,13 +50,12 @@ publication arm must come first):
 - **Recommendations** prefer the index (offline, every edition, no scraping) and
   fall back to the live `rec.aspx?rec={code}` → `11.1002/1000/{idrec}` →
   `getRecEditions` pair, which is the discovery half of relaton-itu#89. The
-  fallback is **load-bearing**, not a safety net: ~930 ITU-T data files are
-  unindexed in the **published** index because the crawl that built it ran with a
-  pubid that couldn't round-trip `(V##)`/`Annex` forms — e.g. the
-  `ITU-T H.264 (V14) (08/2021)` record the specs ask for (pubid #320 parses both
-  now, so a re-crawl closes this), Implementers' Guides
-  (`ITU-T G.Imp712`) aren't harvested at all, and newly approved editions appear on
-  `rec.aspx` before the next crawl. It triggers when the index has **no** row *or*
+  fallback is **load-bearing**, not a safety net, and stays so: **706 ITU-T data
+  files are unindexed** in the published index because `Pubid::Itu` cannot parse
+  their ids at all (Appendices, `bis`/`ter`, the D-series `R` suffix, series
+  supplements, joint numbering — see **Index/data gap** below, which no re-crawl
+  fixes). Implementers' Guides (`ITU-T G.Imp712`) aren't harvested at all, and
+  newly approved editions appear on `rec.aspx` before the next crawl. It triggers when the index has **no** row *or*
   when the reference names a year no indexed edition has (a heuristic — a hit that
   `Bibliography#search_filter` later discards still counts as satisfying); if the
   live path then finds nothing, the indexed editions are kept so the "no match for
@@ -236,12 +235,30 @@ The wiring mirrors NIST/ETSI/CIE:
   `max_by { |i| i[:id].code&.parts&.last.to_i }` then returns the latest edition by
   its numeric `code.parts` edition (pubid identifiers aren't Comparable, so a
   numeric key is needed; the index isn't ordered by edition).
-- **Index/data gap (stale, closes on re-crawl):** the crawler only indexes ids that
-  round-trip through `::Pubid::Itu`, and the pubid that built the **published**
-  index parsed neither `(V##)` nor `Annex` — so ~979 of the 21,451 data files (930
-  ITU-T) have no index row and are reachable only through the ITU-T live fallback.
-  pubid #320 parses both, so re-crawling `relaton-data-itu` closes it; the fallback
-  then only covers Implementers' Guides and records newer than the last crawl.
+- **Index/data gap — it does NOT close on a re-crawl.** Two re-crawls have now
+  happened (2026-08-12, 2026-08-14) and the gap went 979 → **755 of 21,483 data
+  files** (706 ITU-T, 49 ITU-R). Every one of the 755 fails at **`Pubid::Itu.parse`**;
+  none is a round-trip failure, so this is a parser-coverage gap, not a
+  serialization bug. Measured breakdown of the ITU-T residue — all legitimate ITU
+  naming pubid does not model:
+
+  | count | form | example |
+  |---|---|---|
+  | 203 | Appendix | `ITU-T G.101 App. I` |
+  | 166 | Amd/Cor on a series-code base | `ITU-T EMC-3 (1974) Amd. 1` |
+  | 102 | `bis` / `ter` | `ITU-T E.250 bis`, `ITU-T V.25 ter` |
+  | 92 | D-series `R` suffix | `ITU-T D.200 R` |
+  | 75 | series-code Supplement | `ITU-T E-100 Suppl. 2` |
+  | 27 | series-level Supplement | `ITU-T E-100 series Suppl. 1` |
+  | 24 | joint numbering | `ITU-T D.301 R/F.66` |
+
+  The remaining 49 are **malformed ITU-R docids** left by the decommissioned
+  RunSearch crawler (`ITU-R BO`, `ITU-R BT-1543-1`, `ITU-R 111-2:`, `ITU-R IV.IX`)
+  — data to correct, not identifiers to parse. Fifteen records were merely
+  whitespace/`Suppl.N` spellings and are fixed here by
+  `DataParserT#normalize_rec_name`. **Consequence:** the ITU-T live `rec.aspx`
+  fallback stays load-bearing for those 706 records no matter how often the data
+  repo is re-crawled; closing the rest needs upstream pubid support.
 - **Processor** `#remove_index_file` passes the same `pubid_class:`.
 
 The local `Relaton::Itu::Pubid` (a Parslet **ref** parser in `pubid.rb`) is
