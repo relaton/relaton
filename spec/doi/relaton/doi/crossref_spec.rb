@@ -48,5 +48,22 @@ describe Relaton::Doi::Crossref do
         described_class.get_by_id("10.6028/nist.ir.8245")
       end.to raise_error Relaton::RequestError
     end
+
+    it "still backs off when the response carries no rate-limit headers" do
+      # The 429s Crossref actually returned had only Date/Content-Length/
+      # Connection. Reading a missing header as 0 would retry with no delay at
+      # all, hammering the endpoint that just asked us to slow down.
+      error_page = double(body: "", response: {})
+      error = Mechanize::ResponseCodeError.new(double(code: "429", body: ""))
+      allow(error).to receive(:page).and_return(error_page)
+      expect(agent).to receive(:get).with(
+        "https://api.crossref.org/works/10.6028%2Fnist.ir.8245",
+      ).exactly(3).times.and_raise(error)
+      expect_any_instance_of(Kernel).to receive(:sleep).with(1)
+      expect_any_instance_of(Kernel).to receive(:sleep).with(2)
+      expect do
+        described_class.get_by_id("10.6028/nist.ir.8245")
+      end.to raise_error Relaton::RequestError
+    end
   end
 end

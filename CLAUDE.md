@@ -192,6 +192,42 @@ suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
   `INDEXFILE` → `index-v2`) broke `db_spec.rb`'s "BIPM Meeting" example — its
   cassette still held the dead `index-v1.zip`, so VCR raised
   `UnhandledHTTPRequestError` even though nothing about routing had changed.
+- **Cassettes are refreshed on purpose — never revert them.** Every
+  `spec/<flavor>/support/vcr.rb` sets `re_record_interval: 7 * 24 * 3600` with
+  `clean_outdated_http_interactions: true`, so a full run re-records anything
+  older than a week against the live services. That is **deliberate**: periodic
+  re-recording is how the suite notices that a data source changed its format.
+  A `rake spec` that leaves hundreds of modified cassettes in the working tree is
+  therefore normal and expected — **don't `git checkout` them, and don't pin
+  cassettes to `record: :none`**, which would blind the suite to exactly the
+  drift the interval exists to catch. When a refresh turns a spec red, the
+  default assumption is that upstream moved and **this repo must be reconciled
+  to it**, not that the cassette is wrong.
+- **A 404 on a data-repo document usually means a stale cached index fixture.**
+  The common way a refresh turns a suite red: `relaton-data-<flavor>` renamed its
+  documents and republished its index, but the suite's **cached** index —
+  `spec/<flavor>/fixtures/index-v*.zip`, a curated subset, present in ~28 suites —
+  still names the old files, so the document fetch 404s and `Bibliography.search`
+  returns nil (surfacing as a `NoMethodError on nil` at the assertion). The fix is
+  to **refresh the cached index fixture from the live published `index-v*.zip`**;
+  do not revert the cassette and do not re-point the spec at some other document.
+  Copy the live row **wholesale** — the `:id:` shape drifts along with the
+  filename, and it can change the reference string a spec has to query. Observed
+  in `spec/ieee/`, where the corrigendum row moved from
+  `data/ieee-std-p802-16-2004-d-5-cor1-2005.yaml` to
+  `data/ieee-p802-16-d5-cor-1-2005.yaml` *and* its base id went from
+  `_type: pubid:ieee:standard` (with `year`, `prefix: P`) to
+  `_type: pubid:ieee:project-draft-identifier` (with `type: P`, no year).
+- **The one thing that is not upstream drift: a recorded transport failure.** A
+  cassette that captured a 429/5xx (typically an empty body) recorded no data at
+  all, so there is nothing to reconcile — re-record it cleanly. `rake spec` runs
+  the suites **in parallel** by default, which is how this happens: Crossref caps
+  at 10 req/s with 3 concurrent connections, and a parallel full run tripped it,
+  writing `429 Too Many Requests` into 8 `spec/doi` cassettes. Re-record a
+  rate-limited flavor by running **that suite alone** (`cd spec/doi && bundle exec
+  rspec -I . .`), never under parallel `rake spec`. Diagnostic shortcut:
+  `git diff <cassette> | grep 'code:'` — a `200` → `4xx` flip is never a code
+  regression.
 - **Known issue:** `spec/oiml/` marks 8 tests pending — `Pubid::Oiml::Identifier.from_hash`
   fails only inside the combined-gem bundle (a runtime-dep interaction; identical
   pubid/lutaml versions pass in isolation), so the OIML index can't deserialize.

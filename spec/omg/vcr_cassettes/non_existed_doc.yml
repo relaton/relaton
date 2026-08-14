@@ -12,7 +12,7 @@ http_interactions:
       Accept:
       - "*/*"
       User-Agent:
-      - Mechanize/2.14.0 Ruby/3.4.7p58 (http://github.com/sparklemotion/mechanize/)
+      - Mechanize/2.14.0 Ruby/3.4.10p104 (http://github.com/sparklemotion/mechanize/)
       Accept-Language:
       - en-us,en;q=0.5
       Host:
@@ -27,7 +27,7 @@ http_interactions:
       message: Not Found
     headers:
       Date:
-      - Tue, 04 Aug 2026 22:11:30 GMT
+      - Fri, 14 Aug 2026 17:17:13 GMT
       Content-Type:
       - application/json
       Transfer-Encoding:
@@ -43,7 +43,7 @@ http_interactions:
       Content-Disposition:
       - inline;filename=f.txt
       Report-To:
-      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=8jDZbEs1dhqI1dT1Ae%2BPrXHEKyKgm%2BkBbAvlBCLzubH3TGe3znRBBIGE%2Fz4Nvexfp6949mAAKOPaSlCp5E4SkgdsqFtHQjNP8rfpYoqe%2BJvs2T8UqJA9HobzZDZDksdSLuN4vp1ChxtF"}]}'
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=WRlxwZ4RSE5BQBP%2Fsx4Am0ht83PyiVjE6Y2qslLDGcxRusP4LWXFAqMBrOdde2fHZnyOjjIASqVIbVu%2FcVLQOuGgW23Bc39ulCU80m110mS7KO%2F8vpAawMqMdtj8"}]}'
       Cf-Cache-Status:
       - EXPIRED
       Vary:
@@ -51,12 +51,12 @@ http_interactions:
       Content-Encoding:
       - gzip
       Cf-Ray:
-      - a260e5f599318c00-ATL
+      - a2b19c9d9dd2b20a-ATL
       Alt-Svc:
       - h3=":443"; ma=86400
     body:
       encoding: ASCII-8BIT
       string: !binary |-
-        H4sIAAAAAAAA/6tWKsnMTS0uScwtULJSMjIwMtM1sNA1MAkxMrIyNLQyNtCzsDDWNjCwMjBQ0lECqispLVayMjEw0VFKLSrKLwJq8ssvUXDLL81LASooSCzJAArpFxekJuv7+Ye4RngGh+gb6hkq1QIAd4vMe2oAAAA=
-  recorded_at: Tue, 04 Aug 2026 22:11:30 GMT
+        H4sIAAAAAAAA/6pWKsnMTS0uScwtULJSMjIwMtM1sNA1NAkxNLcCIWM9IwsjbQMDKwMDJR0loLqS0mIlKxMDEx2l1KKi/CKgJr/8EgW3/NK8FKCCgsSSDKCQfnFBarK+n3+Ia4RncIi+oZ6hUi0AAAD//wMAQeSlbWoAAAA=
+  recorded_at: Fri, 14 Aug 2026 17:17:13 GMT
 recorded_with: VCR 6.4.0

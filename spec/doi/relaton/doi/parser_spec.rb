@@ -32,6 +32,78 @@ RSpec.describe Relaton::Doi::Parser do
       end
     end
 
+    context "when response is 429" do
+      # A throttle is not "no such record". Collapsing 429 into the 4xx nil
+      # return made a rate-limited parent-book lookup indistinguishable from a
+      # missing parent, so #parent_item returned nil and the item came back with
+      # no editors at all -- a silently incomplete document rather than an error.
+      def throttled(headers = {})
+        error = Mechanize::ResponseCodeError.new(double(code: "429", body: ""))
+        allow(error).to receive(:page).and_return(double(body: "", response: headers))
+        error
+      end
+
+      # Stub sleep on the parser itself rather than any_instance_of(Kernel): a
+      # global argument-constrained expectation fails on any unrelated sleep and
+      # never proves the parser was the one that backed off.
+      def throttle_once(headers)
+        page = double(body: success_body)
+        call_count = 0
+        allow(agent).to receive(:get).with(url) do
+          call_count += 1
+          raise throttled(headers) if call_count == 1
+
+          page
+        end
+        allow(parser).to receive(:sleep)
+      end
+
+      it "backs off using X-Rate-Limit-Interval, then returns items" do
+        throttle_once("x-rate-limit-interval" => "1s")
+        expect(parser.fetch_crossref(query: query, filter: filter)).to eq items
+        expect(parser).to have_received(:sleep).with(1)
+      end
+
+      it "prefers Retry-After over X-Rate-Limit-Interval" do
+        throttle_once("retry-after" => "2", "x-rate-limit-interval" => "1s")
+        expect(parser.fetch_crossref(query: query, filter: filter)).to eq items
+        expect(parser).to have_received(:sleep).with(2)
+      end
+
+      it "ignores the HTTP-date form of Retry-After" do
+        # RFC 9110 allows a date here. Scanning digits out of it would yield the
+        # day-of-month (21), so fall back to X-Rate-Limit-Interval instead.
+        throttle_once("retry-after" => "Wed, 21 Oct 2026 07:28:00 GMT",
+                      "x-rate-limit-interval" => "1s")
+        expect(parser.fetch_crossref(query: query, filter: filter)).to eq items
+        expect(parser).to have_received(:sleep).with(1)
+      end
+
+      it "caps the backoff even when the header is large" do
+        throttle_once("retry-after" => "600")
+        expect(parser.fetch_crossref(query: query, filter: filter)).to eq items
+        expect(parser).to have_received(:sleep).with(Relaton::Doi::Parser::MAX_RETRY_DELAY)
+      end
+
+      it "falls back to a one second floor when the 429 carries no headers" do
+        throttle_once({})
+        expect(parser.fetch_crossref(query: query, filter: filter)).to eq items
+        expect(parser).to have_received(:sleep).with(1)
+      end
+
+      it "raises rather than returning nil when the limit never clears" do
+        # A header-less, empty-bodied 429 is what Crossref actually returned when
+        # the parallel suite tripped its 3-connection cap.
+        expect(agent).to receive(:get).with(url)
+          .exactly(Relaton::Doi::Parser::MAX_RETRIES + 1).times
+          .and_raise(throttled)
+        allow(parser).to receive(:sleep)
+        expect do
+          parser.fetch_crossref(query: query, filter: filter)
+        end.to raise_error(Relaton::RequestError, /rate limit not cleared after 3 retries/)
+      end
+    end
+
     context "when response is 5xx" do
       it "raises RequestError" do
         error = Mechanize::ResponseCodeError.new(
