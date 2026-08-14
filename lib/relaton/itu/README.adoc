@@ -150,6 +150,23 @@ Done in: 7589 sec.
 
 NOTE: **ITU-R harvesting is disabled.** ITU decommissioned the RunSearch bulk-enumeration endpoint the ITU-R crawler paged through, so `fetch("itu-r")` (and the argument-less `fetch`) raises a `Relaton::RequestError` pointing at https://github.com/relaton/relaton/issues/75[issue #75] instead of rebuilding an empty dataset. The published ITU-R records are preserved in https://github.com/relaton/relaton-data-itu[relaton-data-itu] and re-indexed on each crawl via `DataFetcher#index_files("data/itu-r-*.yaml")`; runtime ITU-R lookups are unaffected.
 
+`Relaton::Itu::DataCrawlerR` prototypes a replacement crawl over ITU's still-server-rendered `/pub` + `/rec` pages (Recommendations and Reports), and `Relaton::Itu::DataMergeR` merges what it finds into the existing dataset without ever rewriting a published date. Neither is wired into `fetch` — reaching them takes an explicit `require`:
+
+[source,ruby]
+----
+require "relaton/itu/data_crawler_r"
+require "relaton/itu/data_merge_r"
+
+fetcher = Relaton::Itu::DataFetcher.new "data", "yaml"
+crawler = Relaton::Itu::DataCrawlerR.new
+items = crawler.harvest("BO", only: %w[R-REC-BO.1130 R-REC-BO.1212]) +
+        crawler.harvest("BO", family: "R-REP", only: %w[R-REP-BO.1227 R-REP-BO.2006])
+Relaton::Itu::DataMergeR.write_all items, fetcher
+=> {added: 0, backfilled: 4, unchanged: 6, skipped: 0, collisions: []}
+----
+
+Those counts are from that ten-record run against the published dataset: four records gained the PDF link they were missing, six were left byte-identical, and no publication date was touched. Drop `only:` to harvest a whole series (54 recommendation documents / 82 editions for `BO`).
+
 === Logging
 
 RelatonItu uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.

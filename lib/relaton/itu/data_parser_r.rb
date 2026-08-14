@@ -1,139 +1,144 @@
 module Relaton
   module Itu
+    # Map one normalized ITU-R row to an ItemData.
+    #
+    # The row comes from DataCrawlerR's three-level `/pub` + `/rec` crawl (issue
+    # #75), which replaced the decommissioned RunSearch result hash this module
+    # used to consume. The split mirrors DataParserT: the crawler owns the HTTP
+    # and the page scraping, this module owns the mapping, so it stays a pure
+    # unit with no network in its specs. Row keys:
+    #
+    #   :id      "R-REC-BO.1130-5-202602-I"  page id
+    #   :code    "BO.1130-5 (02/2026)"       displayed code -> primary docid
+    #   :title   English title
+    #   :status  "In force (Main)" | "Superseded" | …   (scraped, not modelled)
+    #   :date    "2026-02-18" | "2026-02"    approval date for a Recommendation,
+    #                                        publication date for a Report
+    #   :url     the record's landing page
+    #   :pdf     absolute dms_pubrec/dms_pub URL
+    #   :family  "R-REC" | "R-REP" | "R-QUE" | "R-RES" | "R-HDB"
     module DataParserR
       extend self
 
-      TYPE_MAP = {
-        "ITU-R Recommendations" => "recommendation",
-        "ITU-R Questions" => "question",
-        "ITU-R Reports" => "technical-report",
-        "Handbooks" => "handbook",
-        "ITU-R Resolutions" => "resolution",
+      FAMILY_DOCTYPE = {
+        "R-REC" => "recommendation",
+        "R-REP" => "technical-report",
+        "R-QUE" => "question",
+        "R-RES" => "resolution",
+        "R-HDB" => "handbook",
       }.freeze
 
       #
-      # Parse ITU-R document from search API result.
+      # Parse an ITU-R document from a normalized crawler row.
       #
-      # @param result [Hash] single search result from the API
+      # @param row [Hash] see the key list above
+      # @param errors [Hash] shared error tally, `&&=`-narrowed per field so a
+      #   field that succeeded once is never reported as missing
       #
-      # @return [Relaton::Itu::ItemData] bibliographic item
+      # @return [Relaton::Itu::ItemData, nil] nil when the family is unknown
       #
-      def parse(result, errors = {})
-        @errors = errors
-        doctype = fetch_doctype(result)
+      def parse(row, errors = {})
+        doctype = fetch_doctype(row, errors)
         return unless doctype
 
+        docid = fetch_docid(row, errors)
+        # A record with no primary docid can't be written or indexed —
+        # DataFetcher#write_file reads `docidentifier.find(&:primary).content` —
+        # so drop it here, as DataParserT does.
+        return if docid.empty?
+
         Relaton::Itu::ItemData.new(
-          docidentifier: fetch_docid(result), title: fetch_title(result),
-          date: fetch_date(result), language: ["en"],
-          source: fetch_source(result), script: ["Latn"],
+          docidentifier: docid, title: fetch_title(row, errors),
+          date: fetch_date(row, errors), language: ["en"],
+          source: fetch_source(row, errors), script: ["Latn"],
           type: "standard", ext: Relaton::Itu::Ext.new(doctype: doctype, flavor: "itu"),
         )
       end
 
-      # @param result [Hash]
+      # The docid comes from the **displayed** code, never the page id: the id's
+      # `-0` for a single-edition document (`R-REC-BO.1212-0-199510-I`) would
+      # give "ITU-R BO.1212-0", while the published record is "ITU-R BO.1212"
+      # (data/itu-r-bo-1212.yaml). Stripping the trailing " (MM/YYYY)" reproduces
+      # the published docidentifiers — and so the published filenames and index
+      # rows — exactly.
+      #
+      # @param row [Hash]
       # @return [Array<Relaton::Bib::Docidentifier>]
-      def fetch_docid(result)
-        title = result["Title"].to_s
-        id = title.match(/^(ITU-R\s+\S+)/)&.captures&.first
-        return(@errors[:docid] &&= true; []) unless id
-
-        id = id.sub(/\s*\(.*/, "")
-        result_ids = [Docidentifier.new(type: "ITU", content: id, primary: true)]
-        @errors[:docid] &&= result_ids.empty?
-        result_ids
-      end
-
-      # @param result [Hash]
-      # @return [Array<Relaton::Bib::Title>]
-      def fetch_title(result)
-        title = result["Title"].to_s
-        content = title.sub(/^[^:]+:\s*/, "").strip
-        content = title unless content.length > 0
-        r = [Relaton::Bib::Title.new(type: "main", content: content, language: "en", script: "Latn")]
-        @errors[:title] &&= r.empty?
-        r
-      end
-
-      # @param result [Hash]
-      # @return [Array<Relaton::Bib::Date>]
-      def fetch_date(result)
-        prop = property(result, "Publication date")
-        unless prop
-          @errors[:date] &&= true
+      def fetch_docid(row, errors = {})
+        # The cells are padded with `&nbsp;`, which neither `\s` nor String#strip
+        # match — an NBSP left in the code produces a docid that sanitizes to a
+        # filename with an NBSP in it and that Pubid::Itu cannot parse.
+        code = row[:code].to_s.tr(" ", " ").sub(/\s*\(.*\z/m, "").strip
+        if code.empty?
+          errors[:docid] &&= true
           return []
         end
 
-        date = parse_pub_date(prop)
-        unless date
-          @errors[:date] &&= true
+        r = [Docidentifier.new(type: "ITU", content: "ITU-R #{code}", primary: true)]
+        errors[:docid] &&= r.empty?
+        r
+      end
+
+      # @param row [Hash]
+      # @return [Array<Relaton::Bib::Title>]
+      def fetch_title(row, errors = {})
+        content = row[:title].to_s.strip
+        if content.empty?
+          errors[:title] &&= true
+          return []
+        end
+
+        r = [Relaton::Bib::Title.new(type: "main", content: content, language: "en", script: "Latn")]
+        errors[:title] &&= r.empty?
+        r
+      end
+
+      # Whatever date the crawler could see: for a **Recommendation** that is the
+      # approval date — *not* the publication date the preserved records carry,
+      # which died with RunSearch (issue #75), which is why DataMergeR never
+      # rewrites one — and for a **Report** it is the publication date itself,
+      # read off the edition page's posted files. Day precision when it comes
+      # from the page, month or year precision when derived from the page id.
+      #
+      # @param row [Hash]
+      # @return [Array<Relaton::Bib::Date>]
+      def fetch_date(row, errors = {})
+        date = row[:date].to_s.strip
+        if date.empty?
+          errors[:date] &&= true
           return []
         end
 
         r = [Relaton::Bib::Date.new(type: "published", at: date)]
-        @errors[:date] &&= r.empty?
+        errors[:date] &&= r.empty?
         r
       end
 
-      # @param result [Hash]
+      # @param row [Hash]
       # @return [Array<Relaton::Bib::Uri>]
-      def fetch_source(result)
-        locations = result["Locations"]
-        unless locations.is_a?(Array)
-          @errors[:source] &&= true
+      def fetch_source(row, errors = {})
+        pdf = row[:pdf].to_s.strip
+        if pdf.empty?
+          errors[:source] &&= true
           return []
         end
 
-        pdf = locations.find { |l| l["Type"] == "pdf" }
-        unless pdf && pdf["RawHref"]
-          @errors[:source] &&= true
-          return []
-        end
-
-        r = [Relaton::Bib::Uri.new(type: "pdf", content: pdf["RawHref"])]
-        @errors[:source] &&= r.empty?
+        r = [Relaton::Bib::Uri.new(type: "pdf", content: pdf)]
+        errors[:source] &&= r.empty?
         r
       end
 
-      # @param result [Hash]
+      # @param row [Hash]
       # @return [Relaton::Itu::Doctype, nil]
-      def fetch_doctype(result)
-        type_value = property(result, "Type")
-        mapped = TYPE_MAP[type_value]
+      def fetch_doctype(row, errors = {})
+        mapped = FAMILY_DOCTYPE[row[:family]]
         unless mapped
-          @errors[:doctype] &&= true
+          errors[:doctype] &&= true
           return
         end
 
-        @errors[:doctype] &&= false
+        errors[:doctype] &&= false
         Doctype.new(content: mapped)
-      end
-
-      private
-
-      # Find a property value from the result's Properties array.
-      # @param result [Hash]
-      # @param name [String]
-      # @return [String, nil]
-      def property(result, name)
-        props = result["Properties"]
-        return unless props.is_a?(Array)
-
-        entry = props.find { |p| p["Title"] == name }
-        entry&.[]("Value")
-      end
-
-      # Parse publication date string like "January, 2024" or "2024".
-      # @param value [String]
-      # @return [String, nil]
-      def parse_pub_date(value)
-        case value
-        when /(\w+),?\s+(\d{4})/
-          month = Date::MONTHNAMES.index($1)
-          month ? "#{$2}-#{format('%02d', month)}" : $2
-        when /(\d{4})/
-          $1
-        end
       end
     end
   end

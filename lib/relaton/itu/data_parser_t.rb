@@ -9,7 +9,7 @@ module Relaton
     # are distinguished by "Suppl" in rec_name; each edition is its own row, so
     # the docid keeps the (MM/YYYY) edition date (e.g. "ITU-T A.1 (10/2000)") —
     # which Pubid::Itu parses per edition, keeping index rows and filenames
-    # unique across editions. Mirrors DataParserR (the ITU-R search parser).
+    # unique across editions. Mirrors DataParserR (the ITU-R row parser).
     #
     # The searchRecs row is metadata-thin (docid/title/date/source/doctype). When
     # an `agent` is given, each record is **enriched** with the same
