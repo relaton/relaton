@@ -125,38 +125,30 @@ module Relaton
         r
       end
 
-      # searchRecs spells a handful of rec_names in ways `::Pubid::Itu` rejects,
-      # even though it models the underlying form perfectly well under another
-      # spelling. `#index_primary` drops those ids, so the record is written but
-      # never indexed — reachable only through the live `rec.aspx` fallback.
-      # Each rule below rewrites to the spelling pubid already parses:
-      #
-      #   "D.271  (10/2016)"            doubled space
-      #   "D.211 Suppl.1 (05/2010)"     `Suppl.` run into its number
-      #   "H.222.0 v10 (04/2025)"       bare version -> "(V10)", as pubid spells it
-      #   "G 231 (10/1976)"             space where the series dot belongs
+      # One rule, for the one spelling `::Pubid::Itu` deliberately will not take:
+      # a space where the series dot belongs ("G 231 (10/1976)"). pubid rejects it
+      # on purpose, because a space there is ambiguous against the series-only
+      # supplement form ("G Suppl. 1"), so relaton canonicalises it rather than
+      # leaving 4 records unindexed. `#index_primary` drops ids pubid rejects, and
+      # a dropped record is written but never indexed — reachable only through the
+      # live `rec.aspx` fallback.
       #
       # This changes **no filename**: `Core::DataFetcher#output_file` collapses
-      # runs of whitespace and punctuation alike, so `"H.222.0 v10 (04/2025)"` and
-      # `"H.222.0 (V10) (04/2025)"` both yield `itu-t-h-222-0-v10-04-2025.yaml`.
-      # The affected records simply gain an index row. Verified against the
-      # published dataset (2026-08-14): of 16,149 ITU-T records the rules touch
-      # 54, **none** of them currently indexed — so no working id is rewritten.
+      # runs of whitespace and punctuation alike, so `"G 231 (10/1976)"` and
+      # `"G.231 (10/1976)"` both yield `itu-t-g-231-10-1976.yaml`. The affected
+      # records simply gain an index row.
       #
-      # Forms pubid cannot parse at all (Appendices, `bis`/`ter`, the D-series `R`
-      # suffix, series supplements, joint numbering) are deliberately left alone:
-      # guessing a spelling for those would invent identifiers rather than
-      # canonicalise them. They need upstream support.
+      # Everything else searchRecs spells oddly — the doubled space, `Suppl.1` run
+      # into its number, and bare `v10`/`V2`/`v.1` versions — **parses natively**
+      # as of pubid #325, so the rules that used to rewrite those are gone: pubid
+      # now canonicalises on `to_s` itself and ITU's own spelling is kept in the
+      # docid. Forms pubid cannot parse are still left alone; guessing a spelling
+      # would invent identifiers rather than canonicalise them.
       #
       # @param rec_name [String, nil]
       # @return [String]
       def normalize_rec_name(rec_name)
-        rec_name.to_s
-          .gsub(/\s+/, " ")
-          .sub(/Suppl\.(\S)/, 'Suppl. \1')
-          .sub(/ [vV](\d+)\b/, ' (V\1)')
-          .sub(/\A([A-Z]+) (\d)/, '\1.\2')
-          .strip
+        rec_name.to_s.strip.sub(/\A([A-Z]+) (\d)/, '\1.\2')
       end
 
       # @param row [Hash]

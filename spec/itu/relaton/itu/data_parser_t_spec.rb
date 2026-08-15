@@ -144,31 +144,24 @@ describe Relaton::Itu::DataParserT do
       expect(described_class.fetch_docid(row)).to eq []
     end
 
-    # searchRecs serves a handful of rec_names with a doubled space or a
-    # `Suppl.` run together with its number. `Pubid::Itu` rejects both spellings,
-    # so those records were written but left out of the index; the canonical
-    # spelling parses. Measured against the published dataset: 15 records.
-    {
-      "a doubled space" => ["D.271  (10/2016)", "ITU-T D.271 (10/2016)"],
-      "Suppl. run into its number" => ["D.211 Suppl.1 (05/2010)", "ITU-T D.211 Suppl. 1 (05/2010)"],
-      "a series supplement" => ["E Suppl.1 (10/1976)", "ITU-T E Suppl. 1 (10/1976)"],
-      # pubid parses "(V10)" but not the bare "v10" ITU also emits.
-      "a bare lowercase version" => ["H.222.0 v10 (04/2025)", "ITU-T H.222.0 (V10) (04/2025)"],
-      "a bare uppercase version" => ["H.764 V2 (11/2019)", "ITU-T H.764 (V2) (11/2019)"],
-      "a version on an amended edition" => ["H.222.0 v8 (2021) Amd. 1 (12/2022)",
-                                           "ITU-T H.222.0 (V8) (2021) Amd. 1 (12/2022)"],
-      "a space where the series dot belongs" => ["G 231 (10/1976)", "ITU-T G.231 (10/1976)"],
-    }.each do |what, (rec_name, expected)|
-      it "normalizes #{what} so the id can be indexed" do
-        expect(described_class.fetch_docid(row.merge("rec_name" => rec_name)).first.content).to eq expected
-      end
+    # The one spelling pubid deliberately will not take: a space where the series
+    # dot belongs is ambiguous against the series-only supplement form
+    # ("G Suppl. 1"), so relaton canonicalises it rather than leave the records
+    # unindexed. 4 records in the published dataset.
+    it "normalizes a space where the series dot belongs" do
+      expect(described_class.fetch_docid(row.merge("rec_name" => "G 231 (10/1976)")).first.content)
+        .to eq "ITU-T G.231 (10/1976)"
     end
 
-    it "leaves a well-formed rec_name byte-identical" do
-      # The other ~16k records must serialize exactly as before — including the
-      # canonical "(V14)" spelling and forms pubid cannot parse at all, which are
-      # deliberately not guessed at.
-      ["A.1 (10/2000)", "G.711 (11/1988)", "H.264 (V14) (08/2021)", "A Suppl. 2 (12/2022)",
+    # Everything below parses natively as of pubid #325, so relaton keeps ITU's
+    # own spelling in the docid instead of rewriting it — pubid canonicalises on
+    # `to_s` itself. If a future change reintroduces a rewrite here, these fail.
+    it "keeps the spellings pubid now parses, and every form it cannot" do
+      ["A.1 (10/2000)", "G.711 (11/1988)", "A Suppl. 2 (12/2022)",
+       # parse natively since #325 — no longer rewritten
+       "D.271  (10/2016)", "D.211 Suppl.1 (05/2010)", "H.222.0 v10 (04/2025)",
+       "H.764 V2 (11/2019)", "Q.3403 v.1 (02/2016)", "H.264 (V14) (08/2021)",
+       # pubid cannot parse these at all; guessing a spelling would invent ids
        "D.200 R (10/1976)", "E.250 bis (12/1972)", "G.101 App. I (05/2000)",
        "E-100 series Suppl. 1 (02/2019)", "D.301 R/F.66 (12/1972)"].each do |name|
         expect(described_class.fetch_docid(row.merge("rec_name" => name)).first.content).to eq "ITU-T #{name}"
