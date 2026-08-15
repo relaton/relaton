@@ -75,6 +75,8 @@ module Relaton
 
       CROSSREF_API_URL = "https://api.crossref.org/works?query=%{query}&filter=%{filter}".freeze
       MAX_RETRIES = 3
+      RATE_LIMITED = "429".freeze
+      MAX_RETRY_DELAY = 60
 
       #
       # Initialize instance.
@@ -800,17 +802,36 @@ module Relaton
       # @param [String] query The query string.
       # @param [String] filter The filter string.
       #
-      # @return [Array<Hash>, nil] Items array from response or nil for 4xx responses.
+      # @return [Array<Hash>, nil] Items array from response or nil for 4xx responses
+      #   other than 429.
       #
-      # @raise [Relaton::RequestError] If request fails after retries.
+      # @raise [Relaton::RequestError] If request fails after retries, or if the
+      #   rate limit does not clear.
       #
-      def fetch_crossref(query:, filter:) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength
+      def fetch_crossref(query:, filter:) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
         url = format(CROSSREF_API_URL, query: query, filter: filter)
         retries = 0
+        throttled = 0
         begin
           resp = Crossref.agent.get url
           JSON.parse(resp.body).dig("message", "items")
         rescue Mechanize::ResponseCodeError => e
+          # 429 must be handled before the 4xx nil return: a throttle is not
+          # "no such record". Returning nil here made a rate-limited lookup look
+          # like a missing document, so callers such as #parent_item silently
+          # produced an incomplete item instead of failing.
+          if e.response_code == RATE_LIMITED
+            throttled += 1
+            if throttled <= MAX_RETRIES
+              # Cap the backoff itself, not just the header value: escalating by
+              # attempt would otherwise let a single `Retry-After: 60` stall one
+              # lookup for 60+120+180s.
+              sleep [retry_delay(e) * throttled, MAX_RETRY_DELAY].min
+              retry
+            end
+            raise Relaton::RequestError,
+                  "Crossref rate limit not cleared after #{MAX_RETRIES} retries: #{url}"
+          end
           return nil if e.response_code.start_with?("4")
 
           raise Relaton::RequestError, "Crossref request failed: #{e.response_code} #{e.page.body}"
@@ -821,6 +842,37 @@ module Relaton
         rescue JSON::ParserError => e
           raise Relaton::RequestError, "Crossref JSON parsing error: #{e.message}"
         end
+      end
+
+      #
+      # Base seconds to wait before retrying a throttled Crossref request.
+      # Prefers Retry-After, falls back to Crossref's X-Rate-Limit-Interval
+      # (formatted "1s", hence the digit scan). An empty-bodied 429 carries
+      # neither header, so this never assumes one is present.
+      #
+      # @param [Mechanize::ResponseCodeError] err The rate-limit error.
+      #
+      # @return [Integer] Delay in seconds, at least 1 and at most MAX_RETRY_DELAY.
+      #
+      def retry_delay(err)
+        headers = err.page&.response || {}
+        secs = retry_after_seconds(headers["retry-after"]) ||
+               headers["x-rate-limit-interval"].to_s[/\d+/].to_i
+        secs.positive? ? [secs, MAX_RETRY_DELAY].min : 1
+      end
+
+      #
+      # Parse a Retry-After header value, which RFC 9110 allows to be either
+      # delta-seconds or an HTTP-date. Only the numeric form is usable as a
+      # delay: scanning digits out of a date would pick up the day-of-month,
+      # silently turning a long server-mandated backoff into a few seconds.
+      #
+      # @param [String, nil] value The raw header value.
+      #
+      # @return [Integer, nil] Seconds, or nil if absent or in the date form.
+      #
+      def retry_after_seconds(value)
+        value.to_s.strip.match?(/\A\d+\z/) ? value.to_i : nil
       end
     end
   end

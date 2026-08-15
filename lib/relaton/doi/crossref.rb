@@ -49,7 +49,7 @@ module Relaton
           end
 
           n += 1
-          sleep resp.response["x-rate-limit-interval"].to_i * n
+          sleep backoff(resp.response, n)
         rescue Mechanize::ResponseCodeError => e
           return nil if e.response_code == "404"
 
@@ -58,8 +58,25 @@ module Relaton
           end
 
           n += 1
-          sleep e.page.response["x-rate-limit-interval"].to_i * n
+          sleep backoff(e.page.response, n)
         end
+      end
+
+      #
+      # Seconds to wait before retry n. Crossref sends X-Rate-Limit-Interval as
+      # "1s", but a throttled response can carry no rate-limit headers at all —
+      # the 429s seen here had only Date/Content-Length/Connection. Without the
+      # floor that degenerates to `sleep 0`, i.e. hammering the endpoint that
+      # just asked us to slow down.
+      #
+      # @param [Hash, nil] headers The response headers.
+      # @param [Integer] num The attempt number.
+      #
+      # @return [Integer] Delay in seconds, at least 1.
+      #
+      def backoff(headers, num)
+        interval = headers.to_h["x-rate-limit-interval"].to_s[/\d+/].to_i
+        [interval, 1].max * num
       end
 
       def agent
