@@ -50,12 +50,12 @@ publication arm must come first):
 - **Recommendations** prefer the index (offline, every edition, no scraping) and
   fall back to the live `rec.aspx?rec={code}` → `11.1002/1000/{idrec}` →
   `getRecEditions` pair, which is the discovery half of relaton-itu#89. The
-  fallback is **load-bearing**, not a safety net, and stays so: **706 ITU-T data
-  files are unindexed** in the published index because `Pubid::Itu` cannot parse
-  their ids at all (Appendices, `bis`/`ter`, the D-series `R` suffix, series
-  supplements, joint numbering — see **Index/data gap** below, which no re-crawl
-  fixes). Implementers' Guides (`ITU-T G.Imp712`) aren't harvested at all, and
-  newly approved editions appear on `rec.aspx` before the next crawl. It triggers when the index has **no** row *or*
+  fallback is a **narrowing** safety net. It used to be load-bearing for 706
+  ITU-T records whose ids `Pubid::Itu` could not parse; pubid #325 parses every
+  one of them, so after the next crawl **no ITU-T record is unindexed for that
+  reason** (see **Index/data gap** below). What still needs it: Implementers'
+  Guides (`ITU-T G.Imp712`) aren't harvested at all, and newly approved editions
+  appear on `rec.aspx` before the next crawl. It triggers when the index has **no** row *or*
   when the reference names a year no indexed edition has (a heuristic — a hit that
   `Bibliography#search_filter` later discards still counts as satisfying); if the
   live path then finds nothing, the indexed editions are kept so the "no match for
@@ -404,12 +404,15 @@ The wiring mirrors NIST/ETSI/CIE:
   a lossless round-trip (`Identifier.from_hash(to_hash).to_hash == to_hash`, the
   index loader's own `Index::FileIO#id_supported?` acceptance test), returning nil
   otherwise. The pinned pubid models recommendations, **handbooks**
-  (`ITU-R 23.HDB`), **questions** (`ITU-R 37-7/5:`) and — since #320 — ITU-T
-  `(V##)` versions and labelled `Annex`es, so the guard now skips only the residual
-  forms it still can't parse, chiefly `ITU-R RR` (Radio Regulations, which the
-  consumer serves via `#request_publication` anyway) and the space-separated `ter`
-  suffix (`ITU-T V.25 ter`). The **published** index predates #320, hence the
-  ~930-file gap below. A skipped id is **not indexed** but
+  (`ITU-R 23.HDB`), **questions** (`ITU-R 37-7/5:`), ITU-T `(V##)` versions and
+  labelled `Annex`es (#320), and — since **#325** — every remaining ITU-T print
+  form the corpus carries: `Technical Cor.`, Appendices, `bis`/`ter`
+  (`ITU-T V.25 ter`), the D-series `R` suffix, series supplements, joint
+  numbering, `Add. N`, and bare `v10`/`V2`/`v.1` versions. What the guard still
+  skips is `ITU-R RR` (Radio Regulations, which the consumer serves via
+  `#request_publication` anyway) and the malformed ITU-R docids described under
+  **Index/data gap** below. The **published** index predates #325, so the gap
+  closes on the next crawl. A skipped id is **not indexed** but
   its data file is still written; `#index_primary` records it in `#unparseable_ids`,
   and `#report_errors` (ISO-style) surfaces them at `:error` through the `gh_issue`
   channel, raising the "Error fetching documents" GitHub issue in CI
@@ -446,30 +449,27 @@ The wiring mirrors NIST/ETSI/CIE:
   `max_by { |i| i[:id].code&.parts&.last.to_i }` then returns the latest edition by
   its numeric `code.parts` edition (pubid identifiers aren't Comparable, so a
   numeric key is needed; the index isn't ordered by edition).
-- **Index/data gap — it does NOT close on a re-crawl.** Two re-crawls have now
-  happened (2026-08-12, 2026-08-14) and the gap went 979 → **755 of 21,483 data
-  files** (706 ITU-T, 49 ITU-R). Every one of the 755 fails at **`Pubid::Itu.parse`**;
-  none is a round-trip failure, so this is a parser-coverage gap, not a
-  serialization bug. Measured breakdown of the ITU-T residue — all legitimate ITU
-  naming pubid does not model:
+- **Index/data gap — now ITU-R data quality only.** History: 979 unindexed → 755
+  after two re-crawls → **47 after pubid #325**, which parses every ITU-T print
+  form the dataset carries (`Technical Cor.`, Appendices, `bis`/`ter`, the
+  D-series `R` suffix, series supplements, joint numbering, `Add. N`, bare
+  `v10`/`V2`/`v.1` versions). Verified against `relaton-data-itu@9ecdaec5` with
+  pubid `ac2fd517`: of the 755 then-unindexed records **708 index on the next
+  crawl**, and re-parsing all 20,728 already-indexed ids produces **zero** hash
+  changes — so no published index row changes shape.
 
-  | count | form | example |
-  |---|---|---|
-  | 203 | Appendix | `ITU-T G.101 App. I` |
-  | 166 | Amd/Cor on a series-code base | `ITU-T EMC-3 (1974) Amd. 1` |
-  | 102 | `bis` / `ter` | `ITU-T E.250 bis`, `ITU-T V.25 ter` |
-  | 92 | D-series `R` suffix | `ITU-T D.200 R` |
-  | 75 | series-code Supplement | `ITU-T E-100 Suppl. 2` |
-  | 27 | series-level Supplement | `ITU-T E-100 series Suppl. 1` |
-  | 24 | joint numbering | `ITU-T D.301 R/F.66` |
+  The 47 that remain are **all ITU-R**, and none is an identifier problem: they
+  are malformed docids left by the decommissioned RunSearch crawler — series
+  letters with no document number (`ITU-R BO`, `ITU-R BT`), Roman-numeral
+  fragments (`ITU-R IV.IX`), study-group fragments (`ITU-R M.5-BL-13`) and
+  trailing colons (`ITU-R 111-2:`). They have no number to key an index row on,
+  so they are data to correct in `relaton-data-itu`, not identifiers to parse.
 
-  The remaining 49 are **malformed ITU-R docids** left by the decommissioned
-  RunSearch crawler (`ITU-R BO`, `ITU-R BT-1543-1`, `ITU-R 111-2:`, `ITU-R IV.IX`)
-  — data to correct, not identifiers to parse. Fifteen records were merely
-  whitespace/`Suppl.N` spellings and are fixed here by
-  `DataParserT#normalize_rec_name`. **Consequence:** the ITU-T live `rec.aspx`
-  fallback stays load-bearing for those 706 records no matter how often the data
-  repo is re-crawled; closing the rest needs upstream pubid support.
+  relaton keeps exactly **one** normalisation (`DataParserT#normalize_rec_name`):
+  a space where the series dot belongs (`G 231` → `G.231`, 4 records). pubid
+  rejects that spelling deliberately — a space there is ambiguous against the
+  series-only supplement form (`G Suppl. 1`) — so canonicalising it here is the
+  agreed division of labour, not a workaround.
 - **Processor** `#remove_index_file` passes the same `pubid_class:`.
 
 The local `Relaton::Itu::Pubid` (a Parslet **ref** parser in `pubid.rb`) is

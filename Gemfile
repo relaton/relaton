@@ -20,7 +20,11 @@ gemspec
 #   - ITU: `Pubid::Itu` handbook/question identifier types plus the flattened
 #     compact ITU `to_hash` (scalar sector/series/number/parts, e.g.
 #     `_type: pubid:itu:handbook`) that the published `relaton-data-itu-r` index-v2
-#     carries (the older nested shape can't deserialize it).
+#     carries (the older nested shape can't deserialize it); and pubid #325, which
+#     parses the ITU-T print forms (`Technical Cor.`, Appendices, `bis`/`ter`, the
+#     D-series `R` suffix, series supplements, joint numbering, `Add. N`, bare
+#     `v10`/`V2`/`v.1` versions) that 702 published records use — without it those
+#     records index only if relaton rewrites their docids, which it no longer does.
 #   - IEEE: the full IEEE identifier work (historical formats, draft-verbatim,
 #     redline, numbered/letter revision, edition, trademark rendering, update_codes
 #     one-offs) that lets `relaton-data-ieee` migrate to a pubid `index-v2` and
