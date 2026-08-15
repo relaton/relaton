@@ -1,206 +1,170 @@
 require "relaton/itu/data_crawler_r"
 require "relaton/itu/data_fetcher"
 
-# The ITU-R crawl prototype (issue #75). Counts and dates are what the live
-# pages returned on 2026-08-12; the cassettes are pinned with record: :none so
-# the suite's 7-day re_record_interval cannot silently refresh them out from
-# under those numbers.
+# The ITU-R crawl prototype (issue #75).
+#
+# **One cassette per example, deliberately.** VCR re-records per cassette
+# *insertion*, so a cassette shared across several examples is truncated to the
+# first example's requests when the suite's 7-day `re_record_interval` fires —
+# verified: `itu_r_rec_bo` went from 10 interactions to 1 and took 15 examples
+# down with it. Each cassette below is therefore owned by exactly one example,
+# which is what lets the refresh work as intended (see the cassette conventions
+# in the repo-root CLAUDE.md). The counts and dates are what the live pages
+# returned when the cassette was recorded; when a refresh makes one fail, ITU
+# published something and the expectation is what gets reconciled.
 describe Relaton::Itu::DataCrawlerR do
   subject { described_class.new delay: 0 }
 
-  context "#series", vcr: { cassette_name: "itu_r_rec_series_index", record: :none, re_record_interval: nil } do
-    it "enumerates every ITU-R recommendation series" do
-      series = subject.series
-      expect(series.size).to eq 16
-      expect(series.first(4)).to eq %w[BO BR BS BT]
-      expect(series).to include "BO"
-    end
+  it "enumerates every ITU-R recommendation series",
+     :aggregate_failures, vcr: { cassette_name: "itu_r_rec_series_index" } do
+    series = subject.series
+    expect(series.size).to eq 16
+    expect(series.first(4)).to eq %w[BO BR BS BT]
+    expect(series).to include "BO"
   end
 
-  context "with the BO cassette", vcr: { cassette_name: "itu_r_rec_bo", record: :none, re_record_interval: nil } do
-    context "#documents" do
-      it "lists every document in the series with its title" do
-        docs = subject.documents "BO"
-        expect(docs.size).to eq 54
-        expect(docs.first[:id]).to eq "R-REC-BO.566"
-        expect(docs).to include(
-          id: "R-REC-BO.1130", code: "BO.1130",
-          title: a_string_matching(/^Systems for digital satellite broadcasting/),
-        )
-      end
+  it "walks the BO recommendation series end to end",
+     :aggregate_failures, vcr: { cassette_name: "itu_r_rec_bo" } do
+    docs = subject.documents "BO"
+    expect(docs.size).to eq 54
+    expect(docs.first[:id]).to eq "R-REC-BO.566"
+    expect(docs).to include(
+      id: "R-REC-BO.1130", code: "BO.1130",
+      title: a_string_matching(/^Systems for digital satellite broadcasting/),
+    )
+    # the red suppression note is not part of the title
+    expect(docs.find { |d| d[:id] == "R-REC-BO.566" }[:title])
+      .to eq "Terminology relating to the use of space communication techniques for broadcasting"
 
-      it "drops the red suppression note from the title" do
-        title = subject.documents("BO").find { |d| d[:id] == "R-REC-BO.566" }[:title]
-        expect(title).to eq "Terminology relating to the use of space communication techniques for broadcasting"
-      end
-    end
+    eds = subject.editions "R-REC-BO.1130"
+    expect(eds.map { |e| e[:code] }).to eq [
+      "BO.1130-5 (02/2026)", "BO.1130-4 (04/2001)", "BO.1130-3 (07/00)",
+      "BO.1130-2 (10/99)", "BO.1130-1 (10/95)", "BO.1130-0 (08/94)"
+    ]
+    expect(eds.first[:id]).to eq "R-REC-BO.1130-5-202602-I"
+    expect(eds.first[:status]).to match(/In force/)
+    expect(eds.last[:status]).to match(/Superseded/)
 
-    context "#editions" do
-      it "lists every edition newest-first with its status" do
-        eds = subject.editions "R-REC-BO.1130"
-        expect(eds.map { |e| e[:code] }).to eq [
-          "BO.1130-5 (02/2026)", "BO.1130-4 (04/2001)", "BO.1130-3 (07/00)",
-          "BO.1130-2 (10/99)", "BO.1130-1 (10/95)", "BO.1130-0 (08/94)"
-        ]
-        expect(eds.first[:id]).to eq "R-REC-BO.1130-5-202602-I"
-        expect(eds.first[:status]).to match(/In force/)
-        expect(eds.last[:status]).to match(/Superseded/)
-      end
+    # a single-edition document's code carries no -0, though its id does
+    single = subject.editions "R-REC-BO.1212"
+    expect(single.size).to eq 1
+    expect(single.first[:code]).to eq "BO.1212 (10/95)"
+    expect(single.first[:id]).to eq "R-REC-BO.1212-0-199510-I"
 
-      it "keeps a single-edition document's code free of the id's -0" do
-        eds = subject.editions "R-REC-BO.1212"
-        expect(eds.size).to eq 1
-        expect(eds.first[:code]).to eq "BO.1212 (10/95)"
-        expect(eds.first[:id]).to eq "R-REC-BO.1212-0-199510-I"
-      end
-    end
+    expect(subject.edition("R-REC-BO.1130-5-202602-I")).to eq(
+      date: "2026-02-18",
+      pdf: "https://www.itu.int/dms_pubrec/itu-r/rec/bo/R-REC-BO.1130-5-202602-I!!PDF-E.pdf",
+    )
+    # some older editions are Word-only: the deep page is the authority, so no
+    # source beats a fabricated !!PDF-E.pdf URL
+    expect(subject.edition("R-REC-BO.1130-0-199408-S")).to eq(date: "1994-08-15", pdf: nil)
 
-    context "#edition" do
-      it "reads the approval day and the PDF href off the edition page" do
-        expect(subject.edition("R-REC-BO.1130-5-202602-I")).to eq(
-          date: "2026-02-18",
-          pdf: "https://www.itu.int/dms_pubrec/itu-r/rec/bo/R-REC-BO.1130-5-202602-I!!PDF-E.pdf",
-        )
-      end
+    # ITU served R-REC-BO.1130-4-200104-S as a 200 with an empty body when the
+    # cassette was recorded — a degraded deep crawl must not look clean.
+    items = nil
+    expect { items = subject.harvest("BO", only: %w[R-REC-BO.1130 R-REC-BO.1212]) }
+      .to output(%r{No date on .*BO\.1130-4}).to_stderr_from_any_process
 
-      it "returns a nil pdf for an edition page that offers no PDF-E" do
-        # Some older editions are Word-only; #row falls back to the derived URL.
-        expect(subject.edition("R-REC-BO.1130-0-199408-S"))
-          .to eq(date: "1994-08-15", pdf: nil)
-      end
-    end
+    ids = items.map { |i| i.docidentifier.find(&:primary).content }
+    expect(items.size).to eq 7
+    expect(items).to all(be_instance_of(Relaton::Itu::ItemData))
+    expect(ids).to eq [
+      "ITU-R BO.1130-5", "ITU-R BO.1130-4", "ITU-R BO.1130-3", "ITU-R BO.1130-2",
+      "ITU-R BO.1130-1", "ITU-R BO.1130-0", "ITU-R BO.1212"
+    ]
 
-    context "#harvest" do
-      let(:items) { subject.harvest("BO", only: %w[R-REC-BO.1130 R-REC-BO.1212]) }
-      let(:ids) { items.map { |i| i.docidentifier.find(&:primary).content } }
+    bib = items.first
+    expect(bib.title.first.content).to match(/^Systems for digital satellite broadcasting/)
+    expect(bib.date.first.type).to eq "published"
+    expect(bib.date.first.at.to_s).to eq "2026-02-18"
+    expect(bib.source.first.content.to_s)
+      .to eq "https://www.itu.int/dms_pubrec/itu-r/rec/bo/R-REC-BO.1130-5-202602-I!!PDF-E.pdf"
+    expect(bib.ext.doctype.content).to eq "recommendation"
+    expect(bib.ext.flavor).to eq "itu"
 
-      it "parses every edition into an ItemData" do
-        expect(items.size).to eq 7
-        expect(items).to all(be_instance_of(Relaton::Itu::ItemData))
-        expect(ids).to eq [
-          "ITU-R BO.1130-5", "ITU-R BO.1130-4", "ITU-R BO.1130-3", "ITU-R BO.1130-2",
-          "ITU-R BO.1130-1", "ITU-R BO.1130-0", "ITU-R BO.1212"
-        ]
-      end
+    # the empty-body edition degrades to the id's YYYYMM rather than losing its date
+    expect(items.find { |i| i.docidentifier.find(&:primary).content == "ITU-R BO.1130-4" }
+                .date.first.at.to_s).to eq "2001-04"
+    # and the PDF-less one stays sourceless
+    expect(items.find { |i| i.docidentifier.find(&:primary).content == "ITU-R BO.1130-0" }
+                .source).to be_empty
 
-      it "carries the fields a data record needs" do
-        bib = items.first
-        expect(bib.title.first.content).to match(/^Systems for digital satellite broadcasting/)
-        expect(bib.date.first.type).to eq "published"
-        expect(bib.date.first.at.to_s).to eq "2026-02-18"
-        expect(bib.source.first.content.to_s)
-          .to eq "https://www.itu.int/dms_pubrec/itu-r/rec/bo/R-REC-BO.1130-5-202602-I!!PDF-E.pdf"
-        expect(bib.ext.doctype.content).to eq "recommendation"
-        expect(bib.ext.flavor).to eq "itu"
-      end
-
-      # What makes this a proof rather than a demo: the harvested ids land on the
-      # published dataset's own filenames and every one of them indexes.
-      it "reproduces the published filenames and indexes every id" do
-        fetcher = Relaton::Itu::DataFetcher.new "data", "yaml"
-        expect(ids.map { |id| fetcher.output_file id }).to eq %w[
-          data/itu-r-bo-1130-5.yaml data/itu-r-bo-1130-4.yaml data/itu-r-bo-1130-3.yaml
-          data/itu-r-bo-1130-2.yaml data/itu-r-bo-1130-1.yaml data/itu-r-bo-1130-0.yaml
-          data/itu-r-bo-1212.yaml
-        ]
-        expect(ids.map { |id| fetcher.pubid id }).to all(be_truthy)
-      end
-
-      it "leaves an edition with no PDF-E sourceless instead of guessing a 404" do
-        # R-REC-BO.1130-0-199408-S offers only MSW-E/PDF-A; the deep page is the
-        # authority, so no source beats a fabricated !!PDF-E.pdf URL.
-        bib = items.find { |i| i.docidentifier.find(&:primary).content == "ITU-R BO.1130-0" }
-        expect(bib.source).to be_empty
-      end
-
-      it "warns when an edition page comes back without an approval date" do
-        # ITU served R-REC-BO.1130-4-200104-S as a 200 with an empty body when
-        # the cassette was recorded — a degraded deep crawl must not look clean.
-        expect { items }.to output(%r{No date on .*BO\.1130-4}).to_stderr_from_any_process
-        bib = items.find { |i| i.docidentifier.find(&:primary).content == "ITU-R BO.1130-4" }
-        expect(bib.date.first.at.to_s).to eq "2001-04" # the id's YYYYMM
-      end
-
-      it "skips the per-edition requests when deep is false" do
-        expect(subject).not_to receive(:edition)
-
-        bib = subject.harvest("BO", only: %w[R-REC-BO.1130], deep: false).first
-        # Month precision from the id's YYYYMM, and the PDF URL derived from it.
-        expect(bib.date.first.at.to_s).to eq "2026-02"
-        expect(bib.source.first.content.to_s)
-          .to eq "https://www.itu.int/dms_pubrec/itu-r/rec/bo/R-REC-BO.1130-5-202602-I!!PDF-E.pdf"
-      end
-    end
+    # What makes this a proof rather than a demo: the harvested ids land on the
+    # published dataset's own filenames and every one of them indexes.
+    fetcher = Relaton::Itu::DataFetcher.new "data", "yaml"
+    expect(ids.map { |id| fetcher.output_file id }).to eq %w[
+      data/itu-r-bo-1130-5.yaml data/itu-r-bo-1130-4.yaml data/itu-r-bo-1130-3.yaml
+      data/itu-r-bo-1130-2.yaml data/itu-r-bo-1130-1.yaml data/itu-r-bo-1130-0.yaml
+      data/itu-r-bo-1212.yaml
+    ]
+    expect(ids.map { |id| fetcher.pubid id }).to all(be_truthy)
   end
 
-  context "#series for reports", vcr: { cassette_name: "itu_r_rep_series_index", record: :none, re_record_interval: nil } do
-    it "enumerates the report series (14 — no SNG or V)" do
-      expect(subject.series("R-REP")).to eq %w[BO BR BS BT F M P RA RS S SA SF SM TF]
-    end
+  it "skips the per-edition requests when deep is false",
+     :aggregate_failures, vcr: { cassette_name: "itu_r_rec_bo_shallow" } do
+    expect(subject).not_to receive(:edition)
+
+    bib = subject.harvest("BO", only: %w[R-REC-BO.1130], deep: false).first
+    # Month precision from the id's YYYYMM, and the PDF URL derived from it.
+    expect(bib.date.first.at.to_s).to eq "2026-02"
+    expect(bib.source.first.content.to_s)
+      .to eq "https://www.itu.int/dms_pubrec/itu-r/rec/bo/R-REC-BO.1130-5-202602-I!!PDF-E.pdf"
+  end
+
+  it "enumerates the report series (14 — no SNG or V)",
+     vcr: { cassette_name: "itu_r_rep_series_index" } do
+    expect(subject.series("R-REP")).to eq %w[BO BR BS BT F M P RA RS S SA SF SM TF]
   end
 
   # Reports live under /pub instead of /rec and date their files rather than
   # their approval — which is what makes them reproduce the published `date:`
   # exactly, where recommendations cannot.
-  context "with the BO reports cassette", vcr: { cassette_name: "itu_r_rep_bo", record: :none, re_record_interval: nil } do
-    it "lists the documents in the report series" do
-      docs = subject.documents "BO", family: "R-REP"
-      expect(docs.size).to eq 36
-      # Reports must land in the same cells as recommendations do — the title in
-      # the second — or a family would silently harvest blank titles.
-      expect(docs.first).to eq(id: "R-REP-BO.215", code: "BO.215",
-                               title: "Systems for the broadcasting satellite service (sound and television)")
-    end
+  it "walks the BO report series end to end",
+     :aggregate_failures, vcr: { cassette_name: "itu_r_rep_bo" } do
+    docs = subject.documents "BO", family: "R-REP"
+    expect(docs.size).to eq 36
+    # Reports must land in the same cells as recommendations do — the title in
+    # the second — or a family would silently harvest blank titles.
+    expect(docs.first).to eq(id: "R-REP-BO.215", code: "BO.215",
+                             title: "Systems for the broadcasting satellite service (sound and television)")
 
-    it "lists report editions, whose codes carry the year" do
-      eds = subject.editions "R-REP-BO.1227"
-      expect(eds.map { |e| e[:code] }).to eq ["BO.1227-2 (1998)", "BO.1227-1 (1994)"]
-      expect(eds.first[:title]).to eq "Satellite broadcasting systems of integrated services digital broadcasting"
-      expect(eds.first[:status]).to eq "In force (Main)"
-    end
+    eds = subject.editions "R-REP-BO.1227"
+    expect(eds.map { |e| e[:code] }).to eq ["BO.1227-2 (1998)", "BO.1227-1 (1994)"]
+    expect(eds.first[:title]).to eq "Satellite broadcasting systems of integrated services digital broadcasting"
+    expect(eds.first[:status]).to eq "In force (Main)"
 
-    it "keeps ITU's own -0 for a single-edition report" do
-      # The page displays "BO.2006-0 (1995)" even though its id is
-      # R-REP-BO.2006-1995, so the displayed-code rule needs no family special case.
-      expect(subject.editions("R-REP-BO.2006").map { |e| e[:code] }).to eq ["BO.2006-0 (1995)"]
-    end
+    # The page displays "BO.2006-0 (1995)" even though its id is
+    # R-REP-BO.2006-1995, so the displayed-code rule needs no family special case.
+    expect(subject.editions("R-REP-BO.2006").map { |e| e[:code] }).to eq ["BO.2006-0 (1995)"]
 
-    it "reads the posted date and the PDF href off the report edition page" do
-      expect(subject.edition("R-REP-BO.1227-2-1998")).to eq(
-        date: "1998-01",
-        pdf: "https://www.itu.int/dms_pub/itu-r/opb/rep/R-REP-BO.1227-2-1998-PDF-E.pdf",
-      )
-    end
+    expect(subject.edition("R-REP-BO.1227-2-1998")).to eq(
+      date: "1998-01",
+      pdf: "https://www.itu.int/dms_pub/itu-r/opb/rep/R-REP-BO.1227-2-1998-PDF-E.pdf",
+    )
 
-    context "#harvest" do
-      let(:items) { subject.harvest("BO", family: "R-REP", only: %w[R-REP-BO.1227 R-REP-BO.2006]) }
+    items = subject.harvest "BO", family: "R-REP", only: %w[R-REP-BO.1227 R-REP-BO.2006]
+    expect(items.map { |i| i.docidentifier.find(&:primary).content })
+      .to eq ["ITU-R BO.1227-2", "ITU-R BO.1227-1", "ITU-R BO.2006-0"]
+    expect(items.map { |i| i.date.first.at.to_s }).to eq %w[1998-01 1994-01 1995-01]
+    expect(items.map { |i| i.ext.doctype.content }).to all(eq("technical-report"))
+    expect(items.first.source.first.content.to_s)
+      .to eq "https://www.itu.int/dms_pub/itu-r/opb/rep/R-REP-BO.1227-2-1998-PDF-E.pdf"
 
-      it "parses reports as technical-reports and reproduces the published dates" do
-        expect(items.map { |i| i.docidentifier.find(&:primary).content })
-          .to eq ["ITU-R BO.1227-2", "ITU-R BO.1227-1", "ITU-R BO.2006-0"]
-        expect(items.map { |i| i.date.first.at.to_s }).to eq %w[1998-01 1994-01 1995-01]
-        expect(items.map { |i| i.ext.doctype.content }).to all(eq("technical-report"))
-        expect(items.first.source.first.content.to_s)
-          .to eq "https://www.itu.int/dms_pub/itu-r/opb/rep/R-REP-BO.1227-2-1998-PDF-E.pdf"
-      end
+    fetcher = Relaton::Itu::DataFetcher.new "data", "yaml"
+    expect(items.map { |i| fetcher.output_file i.docidentifier.find(&:primary).content })
+      .to eq %w[data/itu-r-bo-1227-2.yaml data/itu-r-bo-1227-1.yaml data/itu-r-bo-2006-0.yaml]
+  end
 
-      it "lands on the published filenames" do
-        fetcher = Relaton::Itu::DataFetcher.new "data", "yaml"
-        expect(items.map { |i| fetcher.output_file i.docidentifier.find(&:primary).content })
-          .to eq %w[data/itu-r-bo-1227-2.yaml data/itu-r-bo-1227-1.yaml data/itu-r-bo-2006-0.yaml]
-      end
+  it "falls back to the id's year and derived PDF when deep is false for a report",
+     :aggregate_failures, vcr: { cassette_name: "itu_r_rep_bo_shallow" } do
+    # A report id ends in its publication year, so shallow mode loses only the
+    # month — no per-edition request at all.
+    expect(subject).not_to receive(:edition)
 
-      it "falls back to the id's year and derived PDF when deep is false" do
-        # A report id ends in its publication year, so shallow mode loses only
-        # the month — no per-edition request at all.
-        expect(subject).not_to receive(:edition)
-
-        bib = subject.harvest("BO", family: "R-REP", only: %w[R-REP-BO.1227], deep: false).first
-        expect(bib.date.first.at.to_s).to eq "1998"
-        expect(bib.source.first.content.to_s)
-          .to eq "https://www.itu.int/dms_pub/itu-r/opb/rep/R-REP-BO.1227-2-1998-PDF-E.pdf"
-      end
-    end
+    bib = subject.harvest("BO", family: "R-REP", only: %w[R-REP-BO.1227], deep: false).first
+    expect(bib.date.first.at.to_s).to eq "1998"
+    expect(bib.source.first.content.to_s)
+      .to eq "https://www.itu.int/dms_pub/itu-r/opb/rep/R-REP-BO.1227-2-1998-PDF-E.pdf"
   end
 
   # /rec/R-REC-M.2083/en, verbatim: one edition, two rows — the second a `…-P`

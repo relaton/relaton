@@ -514,6 +514,25 @@ without collision.
   re-seat a later consumer lookup would rebuild a network-backed `Type` and hit the
   blocked net. The rows must deserialize under the pinned pubid — see the `Gemfile`
   pin note.
+- **Crawler cassettes: one per example, and re-record this suite alone.** The
+  `spec/itu/vcr_cassettes/itu_r_re*` cassettes back `data_crawler_r_spec.rb`, and
+  each is owned by **exactly one example**. That is not stylistic: VCR re-records
+  per cassette *insertion*, so a cassette shared across several examples is
+  truncated to the first example's requests the moment the 7-day
+  `re_record_interval` fires (verified — `itu_r_rec_bo` went 10 interactions → 1
+  and took 15 examples down with it). If you add a crawler example, give it its
+  own cassette rather than reusing one.
+
+  `www.itu.int` sits behind a rate-limiting F5 WAF, so a refresh can bake a
+  **block page** into a cassette instead of data — and ITU blocks the two path
+  families differently: `/rec` answers **HTTP 503**, `/pub` answers a **302 to
+  `notfound.aspx`**, which replays as a page with no rows rather than an error.
+  That is the "recorded transport failure" case from the repo-root conventions:
+  nothing to reconcile, just re-record. Re-record this suite **alone**
+  (`cd spec/itu && bundle exec rspec -I . relaton/itu/data_crawler_r_spec.rb`),
+  never under parallel `rake spec`, and sanity-check the counts afterwards — an
+  empty series or a document count that collapsed to 0 is a block, not ITU
+  deleting its corpus.
 - **Framework:** RSpec with VCR cassettes for HTTP mocking and WebMock
 - **Fixtures:** `spec/fixtures/` contains sample YAML/XML documents for round-trip tests
 - **VCR cassettes:** `spec/vcr_cassettes/` — 19 cassettes recording real HTTP
