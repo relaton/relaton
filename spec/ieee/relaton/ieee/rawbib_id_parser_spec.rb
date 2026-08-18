@@ -66,6 +66,29 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
     expect(described_class.pubid_parse(rendered.to_id)).not_to be_nil
   end
 
+  # `IdamsParser` renders the `scope: trademark` docidentifier with
+  # `to_s(trademark: true)` on whatever `parse` returned, so the fallback's ®/™
+  # rule has to agree with pubid's (metanorma/pubid#322): the mark attaches to
+  # the document number, and the 802/8802/2030 registered series keep ® even
+  # behind a project `P`.
+  context "trademark rendering in the fallback" do
+    def render(nt)
+      described_class.parse_fallback(nt, "").to_s(trademark: true)
+    end
+
+    it "attaches the mark to the number, ahead of the draft and year" do
+      expect(render("IEEE Std P1073.2.0/D0.05")).to eq "IEEE Std P1073.2.0™/D-0.05"
+    end
+
+    it "keeps ® on a registered series behind a project P" do
+      expect(render("IEEE Std P802.8/D3.2")).to eq "IEEE Std P802.8®/D-3.2"
+    end
+
+    it "keeps ™ off the registered series" do
+      expect(render("IEEE Std P1073.1.3.11/D3.0")).to eq "IEEE Std P1073.1.3.11™/D-3.0"
+    end
+  end
+
   shared_examples "parse normtitle" do |nt, id|
     it "parse #{nt}" do
       expect(described_class.parse(nt, "").to_s).to eq id

@@ -49,14 +49,21 @@ canonical string pubid then parses (→ 98.7% pubid objects, 100% coverage).
   fallback. pubid (`::Pubid::Ieee::Identifier`) is the identifier abstraction.
 - **Coordination with pubid.** IEEE ids now render in pubid's canonical form
   (`/D-5`→`/D5`, `/Amd 5-2012` with a space, `802.16-2012 - Redline`, trademark
-  `™`/`®` appended at the end, full corrigendum expansion). This required a batch
-  of pubid fixes (draft-verbatim, redline, revision incl. numbered `RevN`, edition,
-  trademark, historical formats, update_codes one-offs).
+  `™`/`®` attached to the document **number**, full corrigendum expansion). This
+  required a batch of pubid fixes (draft-verbatim, redline, revision incl.
+  numbered `RevN`, edition, trademark, historical formats, update_codes one-offs).
   `Core::DataFetcher#output_file` also sanitizes commas so pubid's `", Mar 2011"`
   dates don't leak into filenames. The fallback `Renderer`'s suffix strings are
   **not** the canonical spellings and shouldn't be "fixed" to match: they are the
   input to `to_id`, which pubid re-parses, so `/D-N`, `/R-N`, `/E-N` are
-  deliberately the *parseable* forms pubid canonicalizes to `/DN` etc. The one
+  deliberately the *parseable* forms pubid canonicalizes to `/DN` etc. The
+  **trademark** rendering is the exception that must track pubid: `IdamsParser`
+  emits the `scope: trademark` docidentifier with `to_s(trademark: true)` on
+  whatever `parse` returned, so the `Renderer`'s ®/™ rule
+  (`Renderer::Id::REGISTERED_SERIES`) mirrors pubid#322 — series read off the
+  *number* with a leading project `P` stripped, `8802` ungated, everything else
+  gated on IEEE being a (co)publisher. Otherwise a `P802.x` draft would print ™
+  down the fallback path and ® down the pubid path. The one
   exception is `amd_to_s`, which emits the **spaced** `/Amd N`: pubid parses both
   spellings, so the spaced one costs nothing and keeps the rendering canonical
   for the ~1.3% of ids that miss the faithfulness guard and keep the `Renderer`
@@ -91,5 +98,15 @@ id from silently halving the crawl (see the `data_fetcher.rb` history):
   pre-loaded into the `Relaton::Index` pool in `before(:suite)`
   (`spec/ieee/support/webmock.rb`, NIST recipe). `index_builder_spec.rb` covers
   `build_index` (structured rows + skip logging).
+  When a document 404s after a cassette refresh, the fixture has gone stale
+  against the republished index: copy the matching row **wholesale** (`:id:` *and*
+  `:file:`) out of the live `…/relaton-data-ieee/refs/heads/v2/index-v2.zip`,
+  rewrite the zip with the single `index-v2.yaml` entry, and **delete the cassette**
+  so it re-records — `record: :once` will not re-record a *changed* request URI, it
+  raises `UnhandledHTTPRequestError` instead.
+- **Expected-XML fixtures self-heal only when absent.** `ieee_spec.rb` and
+  `idams_parser_spec.rb` write `fixtures/<name>.xml` with `unless File.exist?`, so
+  reconciling a pubid rendering change means deleting the fixture, re-running, and
+  reviewing the diff — not hand-editing it.
 - **VCR cassettes:** `spec/ieee/vcr_cassettes/` — `index-v2.zip` downloads are
   ignored by VCR (handled by the fixture).

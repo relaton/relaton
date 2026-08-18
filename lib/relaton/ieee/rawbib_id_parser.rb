@@ -618,6 +618,16 @@ module Relaton
       # normalize the ~12% of normtitles pubid can't parse directly.
       class Renderer
         class Id
+          # Series IEEE registers as trademarks, so they take ® rather than ™.
+          # Mirrors pubid's rule (metanorma/pubid#322): the series is read off
+          # the *number*, with a leading project `P` stripped, so `P802.8` counts
+          # as 802 while a letter series like `C802.1` does not.
+          REGISTERED_SERIES = %w[802 8802 2030].freeze
+          # 8802 is the ISO-adopted form of 802 and carries ® on the number
+          # alone; every other registered series also needs IEEE as (co)publisher,
+          # so `AIEE Std No. 802` and `ANSI 802.1-1985` stay ™.
+          ISO_ADOPTED_SERIES = "8802".freeze
+
           attr_reader :number, :publisher, :std, :stage, :part, :status, :approval,
                       :edition, :draft, :rev, :corr, :amd, :redline, :year, :month
 
@@ -647,9 +657,18 @@ module Relaton
             out = "#{status} #{out}" if status
             out = "#{publisher} #{out}" if publisher
             out += ".#{part}" if part
-            out += out.match?(/^IEEE\s(Std\s)?(802|2030)/) ? "®" : "™" if trademark
+            out += trademark_symbol if trademark
             out += edition_to_s + draft_to_s + rev_to_s + corr_to_s + amd_to_s
             out + year_to_s + month_to_s + redline_to_s
+          end
+
+          # ® for a registered series, ™ otherwise. See REGISTERED_SERIES.
+          def trademark_symbol
+            series = number.to_s.sub(/\AP/, "")[/\A\d+/]
+            return "™" unless REGISTERED_SERIES.include?(series)
+            return "®" if series == ISO_ADOPTED_SERIES
+
+            publisher.to_s.split("/").include?("IEEE") ? "®" : "™"
           end
 
           def edition_to_s = edition ? "/E-#{edition}" : ""
