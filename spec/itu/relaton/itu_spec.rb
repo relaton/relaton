@@ -16,11 +16,14 @@ RSpec.describe Relaton::Itu do
       results = Relaton::Itu::Bibliography.get("ITU-T L.163", nil, {}).to_xml
       expect(results).to include %(type="standard")
       expect(results).to include %(schema-version=)
-      # month precision: the data record's date, not the day-precision approval
-      # date the live getRecHdrDetail path used to report
-      expect(results).to include %(<on>2018-11</on>)
+      # Day precision since the 2026-08-12 re-crawl: the harvester enriches each
+      # record from getRecHdrDetail, so the data record now carries the approval
+      # day where it used to carry the month. Polarity unchanged: the date shows
+      # up only inside <relation> — the record itself renders no top-level
+      # <date>, which is what the second assertion pins.
+      expect(results).to include %(<on>2018-11-29</on>)
       expect(results.gsub(/<relation.*<\/relation>/m, ""))
-        .not_to include %(<on>2018-11</on>)
+        .not_to include %(<on>2018-11-29</on>)
       expect(results)
         .to include %{<docidentifier type="ITU" primary="true">ITU-T L.163 (11/2018)</docidentifier>}
     end
@@ -46,7 +49,7 @@ RSpec.describe Relaton::Itu do
   it "gets a referece with an year in a code" do
     VCR.use_cassette "year_in_code" do
       result = Relaton::Itu::Bibliography.get("ITU-T L.163 (11/2018)").to_xml
-      expect(result).to include %(<on>2018-11</on>)
+      expect(result).to include %(<on>2018-11-29</on>)
     end
   end
 

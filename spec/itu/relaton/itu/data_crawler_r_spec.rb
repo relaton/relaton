@@ -144,7 +144,7 @@ describe Relaton::Itu::DataCrawlerR do
 
     items = subject.harvest "BO", family: "R-REP", only: %w[R-REP-BO.1227 R-REP-BO.2006]
     expect(items.map { |i| i.docidentifier.find(&:primary).content })
-      .to eq ["ITU-R BO.1227-2", "ITU-R BO.1227-1", "ITU-R BO.2006-0"]
+      .to eq ["Report ITU-R BO.1227-2", "Report ITU-R BO.1227-1", "Report ITU-R BO.2006-0"]
     expect(items.map { |i| i.date.first.at.to_s }).to eq %w[1998-01 1994-01 1995-01]
     expect(items.map { |i| i.ext.doctype.content }).to all(eq("technical-report"))
     expect(items.first.source.first.content.to_s)
@@ -152,7 +152,8 @@ describe Relaton::Itu::DataCrawlerR do
 
     fetcher = Relaton::Itu::DataFetcher.new "data", "yaml"
     expect(items.map { |i| fetcher.output_file i.docidentifier.find(&:primary).content })
-      .to eq %w[data/itu-r-bo-1227-2.yaml data/itu-r-bo-1227-1.yaml data/itu-r-bo-2006-0.yaml]
+      .to eq %w[data/report-itu-r-bo-1227-2.yaml data/report-itu-r-bo-1227-1.yaml
+              data/report-itu-r-bo-2006-0.yaml]
   end
 
   it "falls back to the id's year and derived PDF when deep is false for a report",

@@ -1,4 +1,5 @@
 require "relaton/itu/data_parser_r"
+require "relaton/itu/data_fetcher"
 
 describe Relaton::Itu::DataParserR do
   # A normalized row as DataCrawlerR emits it — the RunSearch result hash this
@@ -66,6 +67,23 @@ describe Relaton::Itu::DataParserR do
       # record is "ITU-R BO.1212" (data/itu-r-bo-1212.yaml).
       docid = described_class.fetch_docid(row.merge(id: "R-REC-BO.1212-0-199510-I", code: "BO.1212 (10/95)"))
       expect(docid.first.content).to eq "ITU-R BO.1212"
+    end
+
+    # A Report and a Recommendation can carry the same series/number/edition, so
+    # the docid has to say which — otherwise they collide on one filename and the
+    # dataset keeps whichever was written last (52 editions are in that state).
+    it "marks a Report so it cannot be mistaken for the Recommendation" do
+      row = { code: "BT.2020-1 (2000)", family: "R-REP", title: "T", date: "2000-01", pdf: "x" }
+      expect(described_class.fetch_docid(row).first.content).to eq "Report ITU-R BT.2020-1"
+    end
+
+    it "gives a Report its own filename instead of colliding" do
+      fetcher = Relaton::Itu::DataFetcher.new "data", "yaml"
+      rec = described_class.fetch_docid(row.merge(code: "BT.2020-1 (06/2014)")).first.content
+      rep = described_class.fetch_docid(row.merge(code: "BT.2020-1 (2000)", family: "R-REP")).first.content
+
+      expect(fetcher.output_file(rec)).to eq "data/itu-r-bt-2020-1.yaml"
+      expect(fetcher.output_file(rep)).to eq "data/report-itu-r-bt-2020-1.yaml"
     end
 
     it "returns an empty array and flags the error for a blank code" do

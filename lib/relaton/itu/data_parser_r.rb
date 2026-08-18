@@ -74,10 +74,27 @@ module Relaton
           return []
         end
 
-        r = [Docidentifier.new(type: "ITU", content: "ITU-R #{code}", primary: true)]
+        r = [Docidentifier.new(type: "ITU", content: "#{id_prefix row}#{code}", primary: true)]
         errors[:docid] &&= r.empty?
         r
       end
+
+# ITU-R Recommendations and Reports number **independently**, so the bare
+# "ITU-R BT.2020-1" names two different documents — the 2014 UHDTV
+# parameter values and the 2000 objective-quality report. ITU disambiguates
+# with the leading word ("Report BT.2020-1" vs "Recommendation BT.2020-1"),
+# and so does `Pubid::Itu` since #327: "Report ITU-R BT.2020-1" parses as
+# `pubid:itu:report` and is `!=` the Recommendation of the same number.
+# Emitting that form is what stops Reports being indexed as Recommendations
+# (984 of the 1,001 published ones are, today) and what lets both documents
+# coexist — `output_file` derives the filename from the docid, so a Report
+# lands on `data/report-itu-r-*.yaml` instead of colliding.
+#
+# @param row [Hash]
+# @return [String] "" for a Recommendation, "Report " for a Report
+def id_prefix(row)
+  row[:family] == "R-REP" ? "Report ITU-R " : "ITU-R "
+end
 
       # @param row [Hash]
       # @return [Array<Relaton::Bib::Title>]
