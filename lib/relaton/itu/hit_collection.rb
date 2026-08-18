@@ -31,7 +31,10 @@ module Relaton
         # code "Operational" and drops the year, which no route can resolve.
         when %r{^ITU-R\sRR}, %r{\bOB\.} then request_publication
         when /^ITU-T/ then request_recommendation
-        when /^ITU-R\s/ then request_document
+        # A Report reference renders "Report ITU-R …" (the discriminator leads,
+        # as ITU cites it), so it no longer starts with the sector — but it is
+        # still served from the index like any other ITU-R document.
+        when /^ITU-R\s/, /^Report\sITU-R\s/ then request_document
         end
       rescue Mechanize::ResponseCodeError, SocketError, Timeout::Error, Errno::ECONNRESET,
               EOFError, Net::ProtocolError, OpenSSL::SSL::SSLError => e

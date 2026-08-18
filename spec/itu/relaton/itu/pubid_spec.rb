@@ -6,6 +6,29 @@ describe Relaton::Itu::Pubid do
       it { expect(described_class.parse(ref).to_s).to eq id }
     end
 
+    # The reference is what the index is searched with, so the round trip that
+    # matters is ref -> #to_ref -> Pubid::Itu: a Report must not arrive at the
+    # index as a Recommendation, or it would resolve to the wrong document.
+    it "keeps a Report distinct from the Recommendation of the same number" do
+      report = ::Pubid::Itu.parse described_class.parse("Report ITU-R BT.2020-1").to_ref
+      rec = ::Pubid::Itu.parse described_class.parse("ITU-R BT.2020-1").to_ref
+
+      expect(report.to_hash["_type"]).to eq "pubid:itu:report"
+      expect(rec.to_hash["_type"]).to eq "pubid:itu:recommendation"
+      expect(report).not_to eq rec
+    end
+
+    # ITU-R Recommendations and Reports number independently, so the bare
+    # "ITU-R BT.2020-1" is ambiguous — it names both Rec. BT.2020-1 (06/2014,
+    # UHDTV parameter values) and Report BT.2020-1 (2000, objective quality
+    # assessment). ITU puts the discriminator first; both citation orders are
+    # accepted and normalise to that form, which is what `Pubid::Itu` parses as
+    # `pubid:itu:report`.
+    it_behaves_like "parse", "Report ITU-R BT.2020-1", "Report ITU-R BT.2020-1"
+    it_behaves_like "parse", "ITU-R Report BT.2020-1", "Report ITU-R BT.2020-1"
+    it_behaves_like "parse", "Report ITU-R BO.1227-2 (1998)", "Report ITU-R BO.1227-2 (1998)"
+    it_behaves_like "parse", "ITU-R BT.2020-1", "ITU-R BT.2020-1"
+
     it_behaves_like "parse", "ITU-T T.4", "ITU-T T.4"
     it_behaves_like "parse", "ITU T-REC-T.4", "ITU-T REC T.4"
     it_behaves_like "parse", "ITU-T REC-T.4", "ITU-T REC T.4"

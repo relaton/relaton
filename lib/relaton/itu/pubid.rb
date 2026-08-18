@@ -11,7 +11,15 @@ module Relaton
 
         rule(:prefix) { str("ITU").as(:prefix) }
         rule(:sector) { separator >> match("[A-Z]").as(:sector) }
-        rule(:type) { separator >> str("REC").as(:type) }
+        # "Report" is not decoration: ITU-R Recommendations and Reports number
+        # independently, so "ITU-R BT.2020-1" alone names two different documents
+        # (Rec. BT.2020-1, 06/2014 vs Report BT.2020-1, 2000). ITU writes the
+        # discriminator first ("Report ITU-R BT.2020-1"), which is the form
+        # `Pubid::Itu` parses as `pubid:itu:report`; the sector-first spelling is
+        # accepted too because bibliographies use both.
+        rule(:report) { (str("Report") | str("REP")).as(:type) >> space }
+        rule(:report?) { report.maybe }
+        rule(:type) { separator >> (str("REC") | str("Report") | str("REP")).as(:type) }
         rule(:type?) { type.maybe }
         rule(:code) { separator >> (match["A-Z0-9"].repeat(1) >> match["[:alnum:]/.-"].repeat).as(:code) }
         rule(:year) { (match["12"] >> num.repeat(3, 3)).as(:year) }
@@ -41,7 +49,7 @@ module Relaton
 
         rule(:itu_pubid_sector) { prefix >> sector >> type? >> code >> sup? >> annex? >> ver? >> date? >> amd? >> any.repeat }
         rule(:itu_pubid_no_sector) { prefix >> type? >> code >> sup? >> annex? >> ver? >> date? >> amd? >> any.repeat }
-        rule(:itu_pubid) { itu_pubid_sector | itu_pubid_no_sector }
+        rule(:itu_pubid) { report? >> (itu_pubid_sector | itu_pubid_no_sector) }
         root(:itu_pubid)
       end
 
@@ -96,10 +104,20 @@ module Relaton
         to_s ref: true
       end
 
+      # @return [Boolean] whether this reference names an ITU-R Report rather
+      #   than a Recommendation — the one type that must survive into #to_ref,
+      #   because it is what tells the two apart (see the `report` parser rule).
+      def report?
+        %w[Report REP].include? type
+      end
+
       def to_s(ref: false) # rubocop:disable Metrics/AbcSize
-        s = prefix.dup
+        # "Report" leads, the way ITU cites it and the way Pubid::Itu parses it;
+        # `REC` stays dropped from a reference because it is redundant there.
+        s = report? ? +"Report " : +""
+        s << prefix
         s << "-#{sector}" if sector
-        s << " #{type}" if type && !ref
+        s << " #{type}" if type && !ref && !report?
         s << " #{code}"
         s << " Suppl. #{suppl}" if suppl
         s << " Annex #{annex}" if annex
