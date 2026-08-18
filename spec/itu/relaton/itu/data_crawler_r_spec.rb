@@ -168,6 +168,49 @@ describe Relaton::Itu::DataCrawlerR do
       .to eq "https://www.itu.int/dms_pub/itu-r/opb/rep/R-REP-BO.1227-2-1998-PDF-E.pdf"
   end
 
+# Resolutions are flat — /pub/R-RES/en links all 75 documents with no grouping
+# level — and their docid comes from the page id, because the displayed code
+# ("Res.1-9 (2023)") is not what the published record carries ("ITU-R R.1-9").
+it "walks the flat Resolution family", :aggregate_failures,
+   vcr: { cassette_name: "itu_r_res" } do
+  expect(subject.series("R-RES")).to eq [nil] # no grouping level at all
+
+  docs = subject.documents nil, family: "R-RES"
+  expect(docs.size).to eq 73
+  expect(docs.first).to include(id: "R-RES-R.1", code: "Res.1")
+
+  eds = subject.editions "R-RES-R.1"
+  expect(eds.first).to include(id: "R-RES-R.1-9-2023", code: "Res.1-9 (2023)")
+
+  items = subject.harvest nil, family: "R-RES", only: %w[R-RES-R.1]
+  ids = items.map { |i| i.docidentifier.find(&:primary).content }
+  expect(ids.first(3)).to eq ["ITU-R R.1-9", "ITU-R R.1-8", "ITU-R R.1-7"]
+  expect(items.map { |i| i.ext.doctype.content }).to all(eq("resolution"))
+
+  fetcher = Relaton::Itu::DataFetcher.new "data", "yaml"
+  expect(fetcher.output_file(ids.first)).to eq "data/itu-r-r-1-9.yaml"
+end
+
+# Questions nest one level deeper: the family index lists study groups, and a
+# Question docid ends in a colon ("ITU-R 202-2/1:").
+it "walks the Question family through its study groups", :aggregate_failures,
+   vcr: { cassette_name: "itu_r_que" } do
+  expect(subject.series("R-QUE")).to eq %w[SG01 SG03 SG04 SG05 SG06 SG07]
+
+  docs = subject.documents "SG01", family: "R-QUE"
+  expect(docs.size).to eq 41
+  expect(docs.map { |d| d[:id] }).to include "R-QUE-SG01.202"
+
+  items = subject.harvest "SG01", family: "R-QUE", only: %w[R-QUE-SG01.202]
+  expect(items.map { |i| i.docidentifier.find(&:primary).content }).to eq ["ITU-R 202-2/1:"]
+  expect(items.first.ext.doctype.content).to eq "question"
+  # A Question edition page offers no PDF of its own, and no URL is invented.
+  expect(items.first.source).to be_empty
+
+  fetcher = Relaton::Itu::DataFetcher.new "data", "yaml"
+  expect(fetcher.output_file("ITU-R 202-2/1:")).to eq "data/itu-r-202-2-1.yaml"
+end
+
   # /rec/R-REC-M.2083/en, verbatim: one edition, two rows — the second a `…-P`
   # id whose displayed Number is the associated Question. Harvesting it would
   # mint "ITU-R M.5/BL/22" as a Recommendation.
@@ -230,8 +273,12 @@ describe Relaton::Itu::DataCrawlerR do
     expect(subject.edition("R-REP-BO.215-7-1990")).to eq(date: "1990-01", pdf: nil)
   end
 
+  # Handbooks are the one family still unimplemented: their pages expose several
+  # editions per handbook, but the published dataset carries a single record per
+  # handbook number ("ITU-R 01.HDB", 60 records / 60 docids), so harvesting every
+  # edition would collide them onto one file. #config raises rather than guess.
   it "rejects a family it does not implement" do
-    expect { subject.series("R-QUE") }.to raise_error ArgumentError, /unknown ITU-R family/
+    expect { subject.series("R-HDB") }.to raise_error ArgumentError, /unknown ITU-R family/
   end
 
   context "throttling" do

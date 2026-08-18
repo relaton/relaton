@@ -86,6 +86,25 @@ describe Relaton::Itu::DataParserR do
       expect(fetcher.output_file(rep)).to eq "data/report-itu-r-bt-2020-1.yaml"
     end
 
+# Each family spells its identifier differently and the published dataset is
+# the authority; these are the four live conventions.
+{
+  "a Question, which ends in a colon" =>
+    [{ family: "R-QUE", code: "202-2/1", id: "R-QUE-SG01.202-2-2002" }, "ITU-R 202-2/1:"],
+  "a Resolution, which comes from the id, not the code" =>
+    [{ family: "R-RES", code: "Res.1-9 (2023)", id: "R-RES-R.1-9-2023" }, "ITU-R R.1-9"],
+}.each do |what, (row, expected)|
+  it "builds #{what}" do
+    expect(described_class.fetch_docid(row).first.content).to eq expected
+  end
+end
+
+it "flags a Resolution row whose id carries no number" do
+  errors = Hash.new true
+  expect(described_class.fetch_docid({ family: "R-RES", id: "R-RES-", code: "Res." }, errors)).to eq []
+  expect(errors[:docid]).to be true
+end
+
     it "returns an empty array and flags the error for a blank code" do
       errors = Hash.new true
       expect(described_class.fetch_docid(row.merge(code: ""), errors)).to eq []

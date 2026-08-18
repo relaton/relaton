@@ -51,12 +51,34 @@ module Relaton
           page: "#{DOMAIN}/rec/%<id>s/en",
           pdf: "#{DOMAIN}/dms_pubrec/itu-r/rec/%<series>s/%<id>s!!PDF-E.pdf",
           date: :approved,
+          group: :series,
         }.freeze,
         "R-REP" => {
           index: "#{DOMAIN}/pub/R-REP/en",
           page: "#{DOMAIN}/pub/%<id>s/en",
           pdf: "#{DOMAIN}/dms_pub/itu-r/opb/rep/%<id>s-PDF-E.pdf",
           date: :posted,
+          group: :series,
+        }.freeze,
+        # Questions nest one level deeper: the family index lists **study
+        # groups** (R-QUE-SG01), not series letters. No `pdf:` template — a
+        # Question edition page usually offers no PDF of its own (verified on
+        # R-QUE-SG01.202-2-2002), and deriving a URL that 404s is worse than
+        # leaving the record sourceless.
+        "R-QUE" => {
+          index: "#{DOMAIN}/pub/R-QUE/en",
+          page: "#{DOMAIN}/pub/%<id>s/en",
+          date: :posted,
+          group: :sub_index,
+        }.freeze,
+        # Resolutions are **flat**: /pub/R-RES/en links all 75 documents
+        # directly, with no grouping level at all.
+        "R-RES" => {
+          index: "#{DOMAIN}/pub/R-RES/en",
+          page: "#{DOMAIN}/pub/%<id>s/en",
+          pdf: "#{DOMAIN}/dms_pub/itu-r/opb/res/%<id>s-PDF-E.pdf",
+          date: :posted,
+          group: :flat,
         }.freeze,
       }.freeze
       DEFAULT_FAMILY = "R-REC".freeze
@@ -101,13 +123,27 @@ module Relaton
         end
       end
 
-      # @param family [String] "R-REC" (16 series) or "R-REP" (14)
-      # @return [Array<String>] %w[BO BR BS BT F M P RA RS S SA SF SM SNG TF V]
+      # The grouping level between a family index and its documents. Three
+      # topologies, all real:
+      #
+      #   :series     R-REC/R-REP — 16 and 14 series letters (BO, BR, …)
+      #   :sub_index  R-QUE       — 6 study groups (SG01, SG03, …)
+      #   :flat       R-RES       — none; the index links all 75 documents
+      #
+      # A flat family yields a single nil group so the walk below stays one
+      # shape: index -> group -> document -> edition.
+      #
+      # @param family [String]
+      # @return [Array<String, nil>]
       def series(family = DEFAULT_FAMILY)
-        found = get(config(family)[:index]).search("//a").filter_map do |a|
-          a[:href].to_s[%r{/(?:rec|pub)/#{Regexp.escape family}-([A-Z]+)/en\z}, 1]
+        conf = config(family)
+        return [nil] if conf[:group] == :flat
+
+        pattern = conf[:group] == :sub_index ? "(SG\\d+)" : "([A-Z]+)"
+        found = get(conf[:index]).search("//a").filter_map do |a|
+          a[:href].to_s[%r{/(?:rec|pub)/#{Regexp.escape family}-#{pattern}/en\z}, 1]
         end.uniq
-        warn_if_empty found, "#{family} series"
+        warn_if_empty found, "#{family} groups"
       end
 
       # Level 1 — every document in a series.
@@ -116,15 +152,19 @@ module Relaton
       # @param family [String] "R-REC" or "R-REP"
       # @return [Array<Hash>] { id:, code:, title: }
       def documents(series, family: DEFAULT_FAMILY)
-        prefix = "#{family}-#{series}"
-        found = rows(page_url(prefix)).filter_map do |id, anchor, cells|
-          # The series page also links itself (parent=R-REC-BO) for the language
-          # switcher; only document ids carry the ".NNN" part.
-          next unless id.start_with? "#{prefix}."
+        conf = config(family)
+        # A flat family lists its documents on the family index itself; the
+        # others list them on the group page.
+        url, prefix = series ? [page_url("#{family}-#{series}"), "#{family}-#{series}."] : [conf[:index], "#{family}-"]
+        found = rows(url).filter_map do |id, anchor, cells|
+          # Every one of these pages links itself (parent=R-REC-BO,
+          # parent=R-QUE-SG01) for the language switcher, and a flat index links
+          # only documents — so the prefix test is what separates the two.
+          next unless id.start_with?(prefix) && id != prefix.chomp(".")
 
           { id: id, code: squish(anchor.text), title: title_text(cells[1]) }
         end
-        warn_if_empty found, "documents in #{prefix}"
+        warn_if_empty found, "documents in #{series ? "#{family}-#{series}" : family}"
       end
 
       # Level 2 — every edition of a document ("Main" first, then "Previous
@@ -143,8 +183,10 @@ module Relaton
           # is the associated *Question* (`/rec/R-REC-M.2083/en` shows both
           # "M.2083-0 (09/2015)" and "M.5/BL/22 (09/2015)" for one edition) —
           # taking that at face value mints a Recommendation docid out of a
-          # question number.
-          next unless code.start_with? number
+          # question number. Only the `/rec` pages carry those rows, and only
+          # there does the code start with the document number: a Resolution
+          # renders "Res.1-9 (2023)" against the id `R-RES-R.1-9-2023`.
+          next if family_of(doc_id) == "R-REC" && !code.start_with?(number)
 
           { id: id, code: code, title: title_text(cells[1]), status: squish(cells[2]&.text) }
         end
@@ -319,6 +361,7 @@ module Relaton
       # @return [String, nil]
       def pdf_url(id)
         template = config(family_of(id))[:pdf]
+        return nil unless template # R-QUE editions rarely have one; never guess
         return format(template, id: id) unless template.include? "%<series>s"
 
         series = id[/-([A-Za-z]+)\./, 1]

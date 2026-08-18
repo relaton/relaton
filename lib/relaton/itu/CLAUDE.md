@@ -122,10 +122,12 @@ publication arm must come first):
   metadata is still fully server-rendered, so enumeration *is* possible without
   RunSearch; `data_crawler_r.rb` proves it. Three levels, per family (`FAMILIES`):
 
-  | family | index | page URL | date on the edition page |
-  |---|---|---|---|
-  | `R-REC` recommendations | `/pub/R-REC/en` (16 series) | `/rec/<id>/en` | `Approved in YYYY-MM-DD` — **approval** |
-  | `R-REP` reports | `/pub/R-REP/en` (14 series) | `/pub/<id>/en` | the files' "Posted" date — **publication** |
+| family | index | grouping level | page URL | date |
+|---|---|---|---|---|
+| `R-REC` Recommendations | `/pub/R-REC/en` | 16 series letters | `/rec/<id>/en` | `Approved in …` — **approval** |
+| `R-REP` Reports | `/pub/R-REP/en` | 14 series letters | `/pub/<id>/en` | files' "Posted" — **publication** |
+| `R-QUE` Questions | `/pub/R-QUE/en` | 6 study groups (`SG01`…) | `/pub/<id>/en` | files' "Posted" |
+| `R-RES` Resolutions | `/pub/R-RES/en` | **none — flat** | `/pub/<id>/en` | files' "Posted" |
 
   e.g. `/rec/R-REC-BO/en` (54 documents) → `/rec/R-REC-BO.1130/en` (Main +
   Previous versions, one row per edition) → `/rec/R-REC-BO.1130-5-202602-I/en`.
@@ -144,6 +146,20 @@ publication arm must come first):
     itself a `…-PDF-E.pdf`, so an unanchored match would give a report edition
     with no English PDF the catalogue's URL — which `DataMergeR` would then
     backfill into the dataset permanently.
+- **Each family spells its identifier differently**, and the published dataset
+  is the authority (`DataParserR#family_docid`). `R-REC` uses the displayed
+  code; `R-REP` prefixes it (`Report ITU-R BT.2020-1`, see the collisions note);
+  `R-QUE` appends a colon (`202-2/1` → `ITU-R 202-2/1:`); and `R-RES` cannot use
+  its code at all — the page renders `Res.1-9 (2023)` while the record is
+  `ITU-R R.1-9`, which only the **page id** (`R-RES-R.1-9-2023`) carries. All
+  four reproduce the published filenames exactly, verified live.
+- **`R-HDB` is deliberately not implemented.** Its pages expose several editions
+  per handbook, but the published dataset carries **one record per handbook
+  number** (`ITU-R 01.HDB`; 60 records, 60 distinct docids, no edition in the
+  id), so harvesting every edition would collapse them onto one filename and
+  the merge would report collisions instead of records. Implementing it needs a
+  decision first: harvest only the current edition, or change the identifier
+  convention for 60 published records. `#config` raises meanwhile.
   - The docid comes from the **displayed code** minus ` (MM/YYYY)` — `BO.1212
     (10/95)` → `ITU-R BO.1212`, *not* the page id's `ITU-R BO.1212-0`. That
     reproduces the published filenames and index rows exactly (the spec asserts
@@ -194,8 +210,7 @@ publication arm must come first):
     offers only the cart flow — so `source` is legitimately empty for them.
   - **Missing before promotion:** no per-row rescue in `#harvest` (unlike
     `DataFetcher#spawn_rec_worker`), results accumulated in memory rather than
-    streamed, and only 2 of the 5 families implemented (`R-QUE`/`R-RES`/`R-HDB`
-    have the same page shape; `#config` raises for them rather than guessing).
+    streamed, and and `R-HDB` still unimplemented (see the handbook note above).
   - `status` is scraped (`In force (Main)` / `Superseded`) but **not** modelled —
     no published ITU-R record has one; it is the first candidate enrichment.
   - Same F5-WAF hardening as `#rec_agent` (browser UA, `max_history = 1`,
