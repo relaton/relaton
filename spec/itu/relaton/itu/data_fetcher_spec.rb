@@ -1,3 +1,5 @@
+require "relaton/itu/data_crawler_r"
+require "relaton/itu/data_merge_r"
 require "relaton/itu/data_fetcher"
 
 describe Relaton::Itu::DataFetcher do
@@ -33,18 +35,101 @@ describe Relaton::Itu::DataFetcher do
 
     it("#index") { expect(subject.index).to be_instance_of Relaton::Index::Type }
 
-    context "#fetch ITU-R harvesting disabled" do
-      # ITU decommissioned the RunSearch bulk-enumeration endpoint the ITU-R
-      # harvester paged through (issue #75). A stray run must say so instead of
-      # dying on a JSON::ParserError parsing the WAF's HTML 500 — or, worse,
-      # quietly rebuilding an empty dataset.
-      [nil, "itu-r"].each do |source|
-        it "raises a RequestError naming the issue for source #{source.inspect}" do
-          expect(subject.index).not_to receive(:save)
+    context "#fetch itu-r routing" do
+      # The ITU-R harvester is back (issue #75): enumeration now walks the
+      # /pub + /rec pages ITU still renders, and the result is *merged* rather
+      # than written as a rebuild, because the crawl sees less than the
+      # preserved dataset holds.
+      before do
+        allow(subject).to receive(:migrate_report_ids)
+        allow(subject.index).to receive(:save)
+      end
 
-          expect { subject.fetch(source) }.to raise_error(
-            Relaton::RequestError, %r{decommissioned the RunSearch.*issues/75}m
-          )
+      [nil, "itu-r"].each do |source|
+        it "harvests every family for source #{source.inspect}" do
+          crawler = double "crawler"
+          allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return crawler
+          allow(crawler).to receive(:series).with("R-REC").and_return %w[BO]
+          allow(crawler).to receive(:series).with("R-REP").and_return %w[BT]
+          expect(crawler).to receive(:harvest).with("BO", hash_including(family: "R-REC")).and_return [:rec]
+          expect(crawler).to receive(:harvest).with("BT", hash_including(family: "R-REP")).and_return [:rep]
+          expect(Relaton::Itu::DataMergeR).to receive(:write_all).twice
+            .and_return({ added: 1, backfilled: 0, unchanged: 0, skipped: 0, collisions: [] })
+
+          subject.fetch source
+        end
+      end
+
+      it "tallies the merge across families" do
+        crawler = double "crawler", series: %w[BO]
+        allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return crawler
+        allow(crawler).to receive(:harvest).and_return [:item]
+        allow(Relaton::Itu::DataMergeR).to receive(:write_all)
+          .and_return({ added: 1, backfilled: 2, unchanged: 3, skipped: 0, collisions: [] })
+
+        # one series per family, so every count doubles
+        expect(subject.fetch_publications).to include added: 2, backfilled: 4, unchanged: 6
+      end
+
+      it "migrates the Report docids before harvesting, so nothing is added twice" do
+        # A Report's docid now leads with "Report " (#110). Harvesting before the
+        # published records are rewritten would add a second copy of each one.
+        allow(subject).to receive(:migrate_report_ids).and_call_original
+        expect(subject).to receive(:migrate_report_ids).ordered
+        expect(Relaton::Itu::DataCrawlerR).to receive(:new).ordered.and_return double("c", series: [])
+
+        subject.fetch "itu-r"
+      end
+
+      it "loses only the series that fails, not the run" do
+        crawler = double "crawler"
+        allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return crawler
+        allow(crawler).to receive(:series).and_return %w[BO BT]
+        allow(crawler).to receive(:harvest).with("BO", anything).and_raise Relaton::RequestError, "throttled"
+        allow(crawler).to receive(:harvest).with("BT", anything).and_return []
+        allow(Relaton::Itu::DataMergeR).to receive(:write_all).and_return({})
+
+        expect { subject.fetch "itu-r" }.to output(/BO skipped: throttled/).to_stderr_from_any_process
+      end
+    end
+
+    context "#migrate_report_ids" do
+      def write(dir, name, id, doctype)
+        item = Relaton::Itu::ItemData.new(
+          docidentifier: [Relaton::Itu::Docidentifier.new(type: "ITU", content: id, primary: true)],
+          title: [Relaton::Bib::Title.new(type: "main", content: "T", language: "en", script: "Latn")],
+          language: ["en"], script: ["Latn"], type: "standard",
+          ext: Relaton::Itu::Ext.new(doctype: Relaton::Itu::Doctype.new(content: doctype), flavor: "itu"),
+        )
+        File.write File.join(dir, name), item.to_yaml
+      end
+
+      it "rewrites Reports onto their Report docid and leaves Recommendations alone" do
+        Dir.mktmpdir do |dir|
+          write dir, "itu-r-bt-2020-1.yaml", "ITU-R BT.2020-1", "technical-report"
+          write dir, "itu-r-bo-1130-5.yaml", "ITU-R BO.1130-5", "recommendation"
+          fetcher = described_class.new dir, "yaml"
+          allow(fetcher).to receive(:index).and_return double("index", add_or_update: nil)
+
+          expect(fetcher.migrate_report_ids("#{dir}/itu-r-*.yaml")).to eq 1
+
+          moved = File.join dir, "report-itu-r-bt-2020-1.yaml"
+          expect(File).to exist(moved)
+          expect(File).not_to exist(File.join(dir, "itu-r-bt-2020-1.yaml"))
+          expect(Relaton::Itu::Item.from_yaml(File.read(moved)).docidentifier.first.content)
+            .to eq "Report ITU-R BT.2020-1"
+          expect(File).to exist(File.join(dir, "itu-r-bo-1130-5.yaml")) # untouched
+        end
+      end
+
+      it "is idempotent, so a second crawl does not re-prefix" do
+        Dir.mktmpdir do |dir|
+          write dir, "report-itu-r-bt-2020-1.yaml", "Report ITU-R BT.2020-1", "technical-report"
+          fetcher = described_class.new dir, "yaml"
+
+          expect(fetcher.migrate_report_ids("#{dir}/*.yaml")).to eq 0
+          expect(Relaton::Itu::Item.from_yaml(File.read("#{dir}/report-itu-r-bt-2020-1.yaml"))
+            .docidentifier.first.content).to eq "Report ITU-R BT.2020-1"
         end
       end
     end

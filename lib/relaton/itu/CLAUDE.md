@@ -91,22 +91,34 @@ publication arm must come first):
 
 - **`DataFetcher`** extends `Core::DataFetcher`. `#fetch(source)` routes on the
   dataset name (from `Processor#@datasets = %w[itu-r itu-t]`): `"itu-t"` →
-  `#fetch_recommendations`, then `index.save` + `report_errors`. **Anything else
-  (`"itu-r"`, `nil`) raises `Relaton::RequestError`** (`ITU_R_DISABLED`) naming
-  the dead endpoint and issue #75 — the old `#fetch_publications`/`#search_request`
-  RunSearch pagination is gone, so a stray run says why it can't run instead of
-  dying on a `JSON::ParserError` from the WAF's HTML 500 or rebuilding an empty
-  dataset. `itu-r` deliberately **stays** in `@datasets`: the CLI's
-  `Registry#find_processor_by_dataset` only warns and exits **0** for an unknown
-  dataset, so removing it would turn a stray `relaton fetch-data itu-r` into a
-  silent success. (`Core::DataFetcher.fetch` mkdir_p's the output dir before the
-  raise — a harmless empty `data/`.)
-- **ITU-R records are preserved, not re-harvested** — `#index_files(glob)` indexes
-  the published `data/itu-r-*.yaml` through the same pubid guard and
-  unparseable-id reporting as the ITU-T harvest; `relaton-data-itu`'s crawler
-  drives it off the same instance as `#fetch "itu-t"`. `DataParserR` is left in
-  place and is now fed by `DataCrawlerR` (below), which is not wired into `#fetch`.
-- **ITU-R crawl prototype (`DataCrawlerR`, issue #75 — NOT wired in)** — ITU-R
+  `#fetch_recommendations`, anything else (`"itu-r"`, `nil`) →
+  `#fetch_publications`, then `index.save` + `report_errors` for either.
+- **ITU-R harvester** (`#fetch_publications`) — restored on the crawl that
+  replaced the decommissioned RunSearch enumeration (issue #75). It walks
+  `DataCrawlerR::FAMILIES` series by series, so a series ITU throttles costs that
+  series rather than the run, and writes through **`DataMergeR`** rather than
+  `#write_file`: the crawl is a partial, lossier view of the corpus, so a
+  rebuild-style write would rewrite dates it cannot re-derive and drop records it
+  never saw. `RELATON_ITU_DELAY` (default 1 s) tunes politeness.
+
+  It **migrates first** (`#migrate_report_ids`): a Report's docid leads with
+  "Report " since #110, the published records predate that, and harvesting before
+  the rewrite would add a second copy of every report the crawl sees. The rewrite
+  is offline, idempotent, keyed on each record's own `technical-report` doctype,
+  and reaches the ~350 reports the crawl cannot.
+
+  **Measured end to end** against a copy of the real BO records (2026-08-18, both
+  families, one series each): 23 reports migrated, then 22 added / 37 backfilled /
+  68 unchanged / **0 skipped, 0 collisions, 0 records lost**, 106/106 published
+  dates preserved, and the slice's index types went from all-recommendation to 82
+  recommendation + 45 report + 1 question. Cost ~230 requests in 484 s, so the
+  full corpus is roughly **4 h** — split the families across jobs to stay inside
+  the 6 h Actions cap.
+- **`#index_files(glob)`** indexes records already on disk through the same pubid
+  guard and unparseable-id reporting as the harvests. It is what
+  `relaton-data-itu`'s crawler used while ITU-R had no harvester; a run that now
+  calls `#fetch "itu-r"` gets that indexing as a side effect of the merge.
+- **ITU-R crawler (`DataCrawlerR`, issue #75)** — ITU-R
   metadata is still fully server-rendered, so enumeration *is* possible without
   RunSearch; `data_crawler_r.rb` proves it. Three levels, per family (`FAMILIES`):
 
@@ -187,9 +199,9 @@ publication arm must come first):
   - `status` is scraped (`In force (Main)` / `Superseded`) but **not** modelled —
     no published ITU-R record has one; it is the first candidate enrichment.
   - Same F5-WAF hardening as `#rec_agent` (browser UA, `max_history = 1`,
-    timeouts) plus a `delay:` politeness pause. Not required from `itu.rb` and
-    not reachable from `#fetch`, so no scheduled job can run it; the promotion
-    snippet is in the class comment.
+timeouts) plus a `delay:` politeness pause. Driven by
+`DataFetcher#fetch_publications`; `itu.rb` still does not require it, so a
+consumer-only load never pulls the crawler in.
 - **Incremental write path (`DataMergeR`, `data_merge_r.rb`)** — the crawl is a
   *partial, lossier* view of the corpus, so a harvest must never be written as a
   rebuild. `DataMergeR.write_all(items, fetcher)` merges each record into the

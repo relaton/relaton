@@ -19,19 +19,6 @@ module Relaton
                    "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15".freeze
       DEFAULT_CONCURRENCY = 8
 
-      # Why there is no ITU-R harvester. The crawler used to page
-      # `POST net4/ITU-T/search/GlobalSearch/RunSearch` with `Input: "*"`, which
-      # returned enumeration *and* full metadata in one shot; ITU decommissioned
-      # it (the endpoint now answers HTTP 500 with the search SPA's HTML shell,
-      # so the old path died on a `JSON::ParserError` that named neither the
-      # endpoint nor the cause). Say so instead.
-      ITU_R_DISABLED = <<~MSG.freeze
-        ITU-R harvesting is disabled: ITU decommissioned the RunSearch bulk-enumeration
-        endpoint (POST https://www.itu.int/net4/ITU-T/search/GlobalSearch/RunSearch) that
-        this crawler paged through, and no replacement enumeration source is wired up.
-        Published ITU-R records are preserved in relaton-data-itu and re-indexed by
-        DataFetcher#index_files. See https://github.com/relaton/relaton/issues/75
-      MSG
 
       # Number of ITU-T enrichment worker threads. Each record costs ~4
       # www.itu.int round-trips (~3.7 s wall clock), so a ~16k-record corpus is
@@ -69,16 +56,79 @@ module Relaton
       end
 
       # @param source [String, nil] "itu-t" harvests ITU-T recommendations via
-      #   the searchRecs index (issue #80). "itu-r" (and nil, the legacy default)
-      #   has no harvester any more — see ITU_R_DISABLED and issue #75; the
-      #   published ITU-R records are preserved and re-indexed by #index_files.
-      # @raise [Relaton::RequestError] for any source but "itu-t"
+      #   the searchRecs index (issue #80); "itu-r" (and nil, the legacy default)
+      #   harvests ITU-R Recommendations and Reports by crawling ITU's
+      #   server-rendered pages (issue #75, see #fetch_publications).
       def fetch(source = nil)
-        raise Relaton::RequestError, ITU_R_DISABLED unless source == "itu-t"
-
-        fetch_recommendations
+        source == "itu-t" ? fetch_recommendations : fetch_publications
         index.save
         report_errors
+      end
+
+      # ITU-R harvester. ITU decommissioned the RunSearch bulk-enumeration
+      # endpoint this used to page through, so enumeration now walks the
+      # `/pub` + `/rec` pages ITU still renders server-side (`DataCrawlerR`),
+      # and the result is **merged**, never written as a rebuild (`DataMergeR`):
+      # the crawl is a partial, lossier view of the corpus — a Recommendation
+      # page publishes only its approval date, where the preserved record holds
+      # the publication date RunSearch served — so a merge that rewrote dates or
+      # deleted unseen records would corrupt what it cannot re-derive.
+      #
+      # Two consequences worth knowing before running it:
+      #
+      # * **Reports are migrated first** (#migrate_report_ids). A Report's docid
+      #   now leads with "Report " (#110), which the published records predate;
+      #   without the rewrite the harvest would add a second copy of every
+      #   report it sees under the new name. The rewrite is offline and
+      #   idempotent, and it covers the ~350 reports the crawl cannot reach.
+      # * Only R-REC and R-REP are implemented, so Questions, Resolutions and
+      #   Handbooks are left untouched — safe, because the merge only adds and
+      #   backfills.
+      #
+      # Cost, measured: the BO series of both families is ~230 requests in 484 s
+      # at the 1 s default — ~2.1 s per request once ITU's own latency is added —
+      # so the whole ~7k-request corpus is roughly **4 hours**, uncomfortably
+      # close to the 6 h GitHub Actions cap. Run the two families as separate
+      # jobs there, or lower RELATON_ITU_DELAY and watch for the WAF answering
+      # 503 on /rec and redirecting /pub to notfound.aspx (0.4 s tripped it
+      # mid-run; 1 s did not).
+      #
+      # @return [Hash] the merge tally, `collisions` being a count
+      def fetch_publications
+        require_relative "data_crawler_r"
+        require_relative "data_merge_r"
+        migrate_report_ids
+        crawler = DataCrawlerR.new delay: self.class.delay
+        stats = Hash.new 0
+        DataCrawlerR::FAMILIES.each_key { |family| harvest_family crawler, family, stats }
+        Util.info "ITU-R: #{stats.reject { |k, _| k == :collisions }.map { |k, v| "#{k} #{v}" }.join ', '}"
+        stats
+      end
+
+      # One family, series by series, so a series that fails — ITU throttles by
+      # path family and a blocked series raises — costs that series rather than
+      # the whole run.
+      #
+      # @return [void]
+      def harvest_family(crawler, family, stats)
+        crawler.series(family).each do |series|
+          items = crawler.harvest series, family: family, errors: @errors
+          # `collisions` comes back as the offending pairs; the run-level tally
+          # keeps their count and leaves the detail to DataMergeR's own errors.
+          DataMergeR.write_all(items, self).each { |k, v| stats[k] += v.is_a?(Array) ? v.size : v }
+          Util.info "ITU-R #{family}-#{series}: #{items.size} harvested"
+        rescue => e # rubocop:disable Style/RescueStandardError
+          log_error "ITU-R #{family}-#{series} skipped: #{e.message}"
+        end
+      rescue => e # rubocop:disable Style/RescueStandardError
+        log_error "ITU-R #{family} series index unavailable: #{e.message}"
+      end
+
+      # Seconds to wait before each crawl request. ITU's WAF answers 503 on
+      # `/rec` and a 302 to notfound.aspx on `/pub` when pushed; 0.4 s tripped it
+      # mid-run, 1 s did not.
+      def self.delay
+        (ENV["RELATON_ITU_DELAY"] || 1.0).to_f
       end
 
       # ITU-T harvester: one searchRecs request enumerates every edition and
@@ -205,6 +255,43 @@ module Relaton
           index_primary(id, file)
           File.write file, content, encoding: "UTF-8"
         end
+      end
+
+      # Rewrite published ITU-R Report records onto their Report docid.
+      #
+      # ITU-R Recommendations and Reports number independently, so
+      # "ITU-R BT.2020-1" names two different documents; since #110 a Report's
+      # docid leads with "Report " and its file follows (`report-itu-r-*.yaml`).
+      # The published records predate that, which leaves 984 of them indexed as
+      # `pubid:itu:recommendation` — and would make the harvest add a *second*
+      # copy of every report it saw, under the new name.
+      #
+      # This is a pure local rewrite keyed on each record's own
+      # `ext.doctype: technical-report`: no network, idempotent (a record whose
+      # docid already leads with "Report " is skipped), and it reaches the ~350
+      # reports the crawl never sees. The old file is removed only after the new
+      # one is written.
+      #
+      # @param glob [String] e.g. "data/itu-r-*.yaml"
+      # @return [Integer] number of records migrated
+      def migrate_report_ids(glob = "#{@output}/itu-r-*.yaml")
+        migrated = 0
+        Dir[glob].sort.each do |file|
+          item = Item.from_yaml File.read(file, encoding: "UTF-8")
+          docid = item.docidentifier.find(&:primary)
+          next unless item.ext&.doctype&.content == "technical-report"
+          next if docid.nil? || docid.content.to_s.start_with?("Report ")
+
+          docid.content = "Report #{docid.content}"
+          moved = output_file docid.content
+          File.write moved, serialize(item), encoding: "UTF-8"
+          File.delete file unless moved == file
+          migrated += 1
+        rescue => e # rubocop:disable Style/RescueStandardError
+          log_error "Failed to migrate #{file}: #{e.message}"
+        end
+        Util.info "ITU-R: migrated #{migrated} Report records onto their Report docid" if migrated.positive?
+        migrated
       end
 
       # Index records that are already on disk instead of harvesting them.
