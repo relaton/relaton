@@ -96,32 +96,6 @@ it "asks for everything on a full rebuild" do
   subject.fetch_publications mode: :full
 end
 
-# The first full rebuild retires the pre-#110 Report names for good; until
-# it has run, a top-up would add a second copy of every report.
-it "refuses to top up a dataset that has never been rebuilt" do
-  Dir.mktmpdir do |dir|
-    item = Relaton::Itu::ItemData.new(
-      docidentifier: [Relaton::Itu::Docidentifier.new(type: "ITU", content: "ITU-R BT.2020-1", primary: true)],
-      title: [Relaton::Bib::Title.new(type: "main", content: "T", language: "en", script: "Latn")],
-      language: ["en"], script: ["Latn"], type: "standard",
-      ext: Relaton::Itu::Ext.new(doctype: Relaton::Itu::Doctype.new(content: "technical-report"), flavor: "itu"),
-    )
-    File.write File.join(dir, "itu-r-bt-2020-1.yaml"), item.to_yaml
-
-    expect { described_class.new(dir, "yaml").fetch_publications(mode: :top_up) }
-      .to raise_error Relaton::RequestError, /pre-#110 docid.*Run a full rebuild first/m
-  end
-end
-
-it "tops up happily once the reports carry their Report docid" do
-  Dir.mktmpdir do |dir|
-    fetcher = described_class.new dir, "yaml"
-    allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return double("c", series: [])
-
-    expect { fetcher.fetch_publications(mode: :top_up) }.not_to raise_error
-  end
-end
-
       it "loses only the series that fails, not the run" do
               crawler = double "crawler"
               allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return crawler

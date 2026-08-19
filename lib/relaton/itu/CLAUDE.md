@@ -105,11 +105,13 @@ publication arm must come first):
   | `:full` (default) | ~7k requests, ~4 h | the weekly rebuild: wipe `data/itu-r-*` first and let ITU be the sole author of the result |
   | `:top_up` | enumeration + one request per **new** edition | the daily job: same document walk, but `#held?` answers from the level-2 row whether the dataset already has an edition, so the expensive per-edition page is never fetched for one we hold |
 
-  **A top-up refuses to run before the first full rebuild** (`#legacy_reports`).
-  Until then the published Reports still carry their pre-#110 bare docids, and
-  topping up would add a second copy of each under its `Report …` name. One
-  wipe-and-rebuild retires those names for good — which is why the harvester
-  needs no migration step: the rebuild *is* the migration.
+  **A top-up assumes a previous `:full` run built the dataset.** Against the
+  pre-#110 dataset it would add every Report a second time under its `Report …`
+  name, so the data repo runs the rebuild first and enables the daily job after.
+  That ordering lives in the schedule, next to the wipe it depends on, rather
+  than in the gem: it can only go wrong in the single window before the first
+  rebuild, and it announces itself as a commit adding ~650 files. The rebuild
+  *is* the migration, which is why the harvester carries no migration step.
 
 **Measured** on the BO slice of R-REC + R-REP, back to back (2026-08-19): a
 full rebuild is **221 requests / 548 s** for 127 records; the top-up
