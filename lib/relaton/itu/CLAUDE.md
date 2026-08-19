@@ -95,25 +95,38 @@ publication arm must come first):
   `#fetch_publications`, then `index.save` + `report_errors` for either.
 - **ITU-R harvester** (`#fetch_publications`) — restored on the crawl that
   replaced the decommissioned RunSearch enumeration (issue #75). It walks
-  `DataCrawlerR::FAMILIES` series by series, so a series ITU throttles costs that
-  series rather than the run, and writes through **`DataMergeR`** rather than
-  `#write_file`: the crawl is a partial, lossier view of the corpus, so a
-  rebuild-style write would rewrite dates it cannot re-derive and drop records it
-  never saw. `RELATON_ITU_DELAY` (default 1 s) tunes politeness.
+  `DataCrawlerR::FAMILIES` series by series, so a series ITU throttles costs
+  that series rather than the run. `RELATON_ITU_DELAY` (default 1 s) tunes
+  politeness; `RELATON_ITU_MODE` picks the mode, so two scheduled jobs differ
+  by environment rather than by code:
 
-  It **migrates first** (`#migrate_report_ids`): a Report's docid leads with
-  "Report " since #110, the published records predate that, and harvesting before
-  the rewrite would add a second copy of every report the crawl sees. The rewrite
-  is offline, idempotent, keyed on each record's own `technical-report` doctype,
-  and reaches the ~350 reports the crawl cannot.
+  | mode | cost | what it is for |
+  |---|---|---|
+  | `:full` (default) | ~7k requests, ~4 h | the weekly rebuild: wipe `data/itu-r-*` first and let ITU be the sole author of the result |
+  | `:top_up` | enumeration + one request per **new** edition | the daily job: same document walk, but `#held?` answers from the level-2 row whether the dataset already has an edition, so the expensive per-edition page is never fetched for one we hold |
 
-  **Measured end to end** against a copy of the real BO records (2026-08-18, both
-  families, one series each): 23 reports migrated, then 22 added / 37 backfilled /
-  68 unchanged / **0 skipped, 0 collisions, 0 records lost**, 106/106 published
-  dates preserved, and the slice's index types went from all-recommendation to 82
-  recommendation + 45 report + 1 question. Cost ~230 requests in 484 s, so the
-  full corpus is roughly **4 h** — split the families across jobs to stay inside
-  the 6 h Actions cap.
+  **A top-up refuses to run before the first full rebuild** (`#legacy_reports`).
+  Until then the published Reports still carry their pre-#110 bare docids, and
+  topping up would add a second copy of each under its `Report …` name. One
+  wipe-and-rebuild retires those names for good — which is why the harvester
+  needs no migration step: the rebuild *is* the migration.
+
+**Measured** on the BO slice of R-REC + R-REP, back to back (2026-08-19): a
+full rebuild is **221 requests / 548 s** for 127 records; the top-up
+immediately after is **94 requests / 268 s** and adds nothing — it saves
+exactly the 127 per-edition pages, 57% of the requests. Corpus-wide that
+scales to roughly **7k requests (~4 h) full** against **~2.5k (~1.4 h)
+top-up**: cheaper, but not cheap — the enumeration still costs one request per
+document, because a new edition cannot be noticed without reading the document
+page. (`/rec/new.asp?lang=en`, linked from every series page, may be a real
+delta feed; unexplored.) Earlier corpus figures still hold: ~2.1 s per request
+at the 1 s delay, and 0 dates rewritten / 0 records lost across 3,600 merged
+records.
+
+  Pair the modes with the data repo's existing collapse guard
+  (`guard_itut_harvest`, which aborts a publish whose file count halves) — a
+  wipe makes that guard the only thing between a throttled crawl and a
+  published hole, and ITU-R wants its own, per family.
 - **`#index_files(glob)`** indexes records already on disk through the same pubid
   guard and unparseable-id reporting as the harvests. It is what
   `relaton-data-itu`'s crawler used while ITU-R had no harvester; a run that now

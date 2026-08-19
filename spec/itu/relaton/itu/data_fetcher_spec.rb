@@ -41,7 +41,6 @@ describe Relaton::Itu::DataFetcher do
       # than written as a rebuild, because the crawl sees less than the
       # preserved dataset holds.
       before do
-        allow(subject).to receive(:migrate_report_ids)
         allow(subject.index).to receive(:save)
       end
 
@@ -74,17 +73,56 @@ describe Relaton::Itu::DataFetcher do
           .to include added: families, backfilled: families * 2, unchanged: families * 3
       end
 
-            it "migrates the Report docids before harvesting, so nothing is added twice" do
-              # A Report's docid now leads with "Report " (#110). Harvesting before the
-              # published records are rewritten would add a second copy of each one.
-              allow(subject).to receive(:migrate_report_ids).and_call_original
-              expect(subject).to receive(:migrate_report_ids).ordered
-              expect(Relaton::Itu::DataCrawlerR).to receive(:new).ordered.and_return double("c", series: [])
+      # A top-up pays the enumeration but not the per-edition pages, which is the
+# expensive half — so it decides from the level-2 row whether the dataset
+# already holds an edition.
+it "skips editions it already holds when topping up" do
+  crawler = double "crawler", series: %w[X]
+  allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return crawler
+  allow(Relaton::Itu::DataMergeR).to receive(:write_all).and_return({})
+  expect(crawler).to receive(:harvest)
+    .with("X", hash_including(skip: kind_of(Method))).at_least(:once).and_return []
 
-              subject.fetch "itu-r"
-            end
+  subject.fetch_publications mode: :top_up
+end
 
-            it "loses only the series that fails, not the run" do
+it "asks for everything on a full rebuild" do
+  crawler = double "crawler", series: %w[X]
+  allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return crawler
+  allow(Relaton::Itu::DataMergeR).to receive(:write_all).and_return({})
+  expect(crawler).to receive(:harvest)
+    .with("X", hash_including(skip: nil)).at_least(:once).and_return []
+
+  subject.fetch_publications mode: :full
+end
+
+# The first full rebuild retires the pre-#110 Report names for good; until
+# it has run, a top-up would add a second copy of every report.
+it "refuses to top up a dataset that has never been rebuilt" do
+  Dir.mktmpdir do |dir|
+    item = Relaton::Itu::ItemData.new(
+      docidentifier: [Relaton::Itu::Docidentifier.new(type: "ITU", content: "ITU-R BT.2020-1", primary: true)],
+      title: [Relaton::Bib::Title.new(type: "main", content: "T", language: "en", script: "Latn")],
+      language: ["en"], script: ["Latn"], type: "standard",
+      ext: Relaton::Itu::Ext.new(doctype: Relaton::Itu::Doctype.new(content: "technical-report"), flavor: "itu"),
+    )
+    File.write File.join(dir, "itu-r-bt-2020-1.yaml"), item.to_yaml
+
+    expect { described_class.new(dir, "yaml").fetch_publications(mode: :top_up) }
+      .to raise_error Relaton::RequestError, /pre-#110 docid.*Run a full rebuild first/m
+  end
+end
+
+it "tops up happily once the reports carry their Report docid" do
+  Dir.mktmpdir do |dir|
+    fetcher = described_class.new dir, "yaml"
+    allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return double("c", series: [])
+
+    expect { fetcher.fetch_publications(mode: :top_up) }.not_to raise_error
+  end
+end
+
+      it "loses only the series that fails, not the run" do
               crawler = double "crawler"
               allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return crawler
               allow(crawler).to receive(:series).and_return %w[BO BT]
@@ -93,47 +131,6 @@ describe Relaton::Itu::DataFetcher do
               allow(Relaton::Itu::DataMergeR).to receive(:write_all).and_return({})
 
               expect { subject.fetch "itu-r" }.to output(/BO skipped: throttled/).to_stderr_from_any_process
-            end
-          end
-
-          context "#migrate_report_ids" do
-            def write(dir, name, id, doctype)
-              item = Relaton::Itu::ItemData.new(
-                docidentifier: [Relaton::Itu::Docidentifier.new(type: "ITU", content: id, primary: true)],
-                title: [Relaton::Bib::Title.new(type: "main", content: "T", language: "en", script: "Latn")],
-                language: ["en"], script: ["Latn"], type: "standard",
-                ext: Relaton::Itu::Ext.new(doctype: Relaton::Itu::Doctype.new(content: doctype), flavor: "itu"),
-              )
-              File.write File.join(dir, name), item.to_yaml
-            end
-
-            it "rewrites Reports onto their Report docid and leaves Recommendations alone" do
-              Dir.mktmpdir do |dir|
-                write dir, "itu-r-bt-2020-1.yaml", "ITU-R BT.2020-1", "technical-report"
-                write dir, "itu-r-bo-1130-5.yaml", "ITU-R BO.1130-5", "recommendation"
-                fetcher = described_class.new dir, "yaml"
-                allow(fetcher).to receive(:index).and_return double("index", add_or_update: nil)
-
-                expect(fetcher.migrate_report_ids("#{dir}/itu-r-*.yaml")).to eq 1
-
-                moved = File.join dir, "report-itu-r-bt-2020-1.yaml"
-                expect(File).to exist(moved)
-                expect(File).not_to exist(File.join(dir, "itu-r-bt-2020-1.yaml"))
-                expect(Relaton::Itu::Item.from_yaml(File.read(moved)).docidentifier.first.content)
-                  .to eq "Report ITU-R BT.2020-1"
-                expect(File).to exist(File.join(dir, "itu-r-bo-1130-5.yaml")) # untouched
-              end
-            end
-
-            it "is idempotent, so a second crawl does not re-prefix" do
-              Dir.mktmpdir do |dir|
-                write dir, "report-itu-r-bt-2020-1.yaml", "Report ITU-R BT.2020-1", "technical-report"
-                fetcher = described_class.new dir, "yaml"
-
-                expect(fetcher.migrate_report_ids("#{dir}/*.yaml")).to eq 0
-                expect(Relaton::Itu::Item.from_yaml(File.read("#{dir}/report-itu-r-bt-2020-1.yaml"))
-                  .docidentifier.first.content).to eq "Report ITU-R BT.2020-1"
-              end
             end
           end
 

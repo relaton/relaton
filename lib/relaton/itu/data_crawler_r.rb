@@ -230,11 +230,15 @@ module Relaton
       #   request per edition for the page's own date and PDF href.
       # @param errors [Hash] shared error tally, as DataParserR expects
       # @return [Array<Relaton::Itu::ItemData>]
-      def harvest(series, family: DEFAULT_FAMILY, only: nil, deep: true, errors: Hash.new(true))
+      def harvest(series, family: DEFAULT_FAMILY, only: nil, deep: true, errors: Hash.new(true), skip: nil)
         docs = documents(series, family: family)
         docs = docs.select { |d| only.include? d[:id] } if only
-        docs.flat_map { |d| editions(d[:id]) }
-            .filter_map { |ed| DataParserR.parse(row(ed, deep: deep), errors) }
+        editions = docs.flat_map { |d| editions(d[:id]) }
+                       .map { |ed| ed.merge(family: family_of(ed[:id])) }
+        # `skip` is what makes a top-up cheap: it decides from the level-2 row,
+        # before the per-edition page — the expensive half — is ever requested.
+        editions = editions.reject { |ed| skip.call ed } if skip
+        editions.filter_map { |ed| DataParserR.parse(row(ed, deep: deep), errors) }
       end
 
       private

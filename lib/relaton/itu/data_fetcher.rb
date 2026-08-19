@@ -65,71 +65,114 @@ module Relaton
         report_errors
       end
 
-      # ITU-R harvester. ITU decommissioned the RunSearch bulk-enumeration
-      # endpoint this used to page through, so enumeration now walks the
-      # `/pub` + `/rec` pages ITU still renders server-side (`DataCrawlerR`),
-      # and the result is **merged**, never written as a rebuild (`DataMergeR`):
-      # the crawl is a partial, lossier view of the corpus — a Recommendation
-      # page publishes only its approval date, where the preserved record holds
-      # the publication date RunSearch served — so a merge that rewrote dates or
-      # deleted unseen records would corrupt what it cannot re-derive.
-      #
-      # Two consequences worth knowing before running it:
-      #
-      # * **Reports are migrated first** (#migrate_report_ids). A Report's docid
-      #   now leads with "Report " (#110), which the published records predate;
-      #   without the rewrite the harvest would add a second copy of every
-      #   report it sees under the new name. The rewrite is offline and
-      #   idempotent, and it covers the ~350 reports the crawl cannot reach.
-      # * Only R-REC and R-REP are implemented, so Questions, Resolutions and
-      #   Handbooks are left untouched — safe, because the merge only adds and
-      #   backfills.
-      #
-      # Cost, measured: the BO series of both families is ~230 requests in 484 s
-      # at the 1 s default — ~2.1 s per request once ITU's own latency is added —
-      # so the whole ~7k-request corpus is roughly **4 hours**, uncomfortably
-      # close to the 6 h GitHub Actions cap. Run the two families as separate
-      # jobs there, or lower RELATON_ITU_DELAY and watch for the WAF answering
-      # 503 on /rec and redirecting /pub to notfound.aspx (0.4 s tripped it
-      # mid-run; 1 s did not).
-      #
-      # @return [Hash] the merge tally, `collisions` being a count
-      def fetch_publications
-        require_relative "data_crawler_r"
-        require_relative "data_merge_r"
-        migrate_report_ids
-        crawler = DataCrawlerR.new delay: self.class.delay
-        stats = Hash.new 0
-        DataCrawlerR::FAMILIES.each_key { |family| harvest_family crawler, family, stats }
-        Util.info "ITU-R: #{stats.reject { |k, _| k == :collisions }.map { |k, v| "#{k} #{v}" }.join ', '}"
-        stats
-      end
+# ITU-R harvester. ITU decommissioned the RunSearch bulk-enumeration
+# endpoint this used to page through, so enumeration walks the `/pub` +
+# `/rec` pages ITU still renders server-side (`DataCrawlerR`).
+#
+# Two modes, because a full crawl is ~7k requests and ~4 h:
+#
+# * **`:full`** (default) — every edition of every document, deep. Pair it
+#   with wiping `data/itu-r-*` first: ITU is then the sole author of the
+#   result, which is the point of crawling it at all.
+# * **`:top_up`** — enumerate the same documents, but deep-fetch only the
+#   editions the dataset does not already hold. Costs the enumeration
+#   (~1 request per document) plus one per genuinely new edition, so a day
+#   with no new publications is a small fraction of a full run.
+#
+# Set with `RELATON_ITU_MODE=top_up`, so the two scheduled jobs differ by
+# environment rather than by code.
+#
+# A top-up **refuses to run against a dataset that has never been rebuilt**
+# (see #legacy_reports). Before the first full rebuild the published Reports
+# still carry their pre-#110 bare docids, and topping up would add a second
+# copy of each under its `Report …` name. One wipe-and-rebuild retires those
+# names for good, which is why no migration step is needed.
+#
+# Cost, measured: the BO series of both families is ~230 requests in 484 s
+# at the 1 s default — ~2.1 s per request once ITU's own latency is added.
+# Lower RELATON_ITU_DELAY at your peril: 0.4 s tripped the WAF mid-run
+# (503 on /rec, a 302 to notfound.aspx on /pub), 1 s did not.
+#
+# @param mode [Symbol] :full or :top_up
+# @return [Hash] the merge tally, `collisions` being a count
+def fetch_publications(mode: self.class.mode)
+  require_relative "data_crawler_r"
+  require_relative "data_merge_r"
+  refuse_top_up_before_rebuild if mode == :top_up
+  crawler = DataCrawlerR.new delay: self.class.delay
+  stats = Hash.new 0
+  DataCrawlerR::FAMILIES.each_key { |family| harvest_family crawler, family, stats, mode }
+  Util.info "ITU-R (#{mode}): #{stats.reject { |k, _| k == :collisions }.map { |k, v| "#{k} #{v}" }.join ', '}"
+  stats
+end
 
-      # One family, series by series, so a series that fails — ITU throttles by
-      # path family and a blocked series raises — costs that series rather than
-      # the whole run.
-      #
-      # @return [void]
-      def harvest_family(crawler, family, stats)
-        crawler.series(family).each do |series|
-          items = crawler.harvest series, family: family, errors: @errors
-          # `collisions` comes back as the offending pairs; the run-level tally
-          # keeps their count and leaves the detail to DataMergeR's own errors.
-          DataMergeR.write_all(items, self).each { |k, v| stats[k] += v.is_a?(Array) ? v.size : v }
-          Util.info "ITU-R #{family}-#{series}: #{items.size} harvested"
-        rescue => e # rubocop:disable Style/RescueStandardError
-          log_error "ITU-R #{family}-#{series} skipped: #{e.message}"
-        end
-      rescue => e # rubocop:disable Style/RescueStandardError
-        log_error "ITU-R #{family} series index unavailable: #{e.message}"
-      end
+# One family, series by series, so a series that fails — ITU throttles by
+# path family and a blocked series raises — costs that series rather than
+# the whole run.
+#
+# @return [void]
+def harvest_family(crawler, family, stats, mode = :full)
+  crawler.series(family).each do |series|
+    items = crawler.harvest series, family: family, errors: @errors,
+                                    skip: (method(:held?) if mode == :top_up)
+    # `collisions` comes back as the offending pairs; the run-level tally
+    # keeps their count and leaves the detail to DataMergeR's own errors.
+    DataMergeR.write_all(items, self).each { |k, v| stats[k] += v.is_a?(Array) ? v.size : v }
+    Util.info "ITU-R #{family}-#{series}: #{items.size} harvested"
+  rescue => e # rubocop:disable Style/RescueStandardError
+    log_error "ITU-R #{family}-#{series} skipped: #{e.message}"
+  end
+rescue => e # rubocop:disable Style/RescueStandardError
+  log_error "ITU-R #{family} series index unavailable: #{e.message}"
+end
 
-      # Seconds to wait before each crawl request. ITU's WAF answers 503 on
-      # `/rec` and a 302 to notfound.aspx on `/pub` when pushed; 0.4 s tripped it
-      # mid-run, 1 s did not.
-      def self.delay
-        (ENV["RELATON_ITU_DELAY"] || 1.0).to_f
-      end
+# Does the dataset already hold this edition? Answered from the level-2 row
+# alone — the id and displayed code are enough to derive the docid, and so
+# the filename — which is what lets a top-up decide *before* paying for the
+# edition page.
+#
+# @param row [Hash] a level-2 edition row, with :family
+# @return [Boolean]
+def held?(row)
+  docid = DataParserR.family_docid row
+  docid && File.exist?(output_file(docid))
+end
+
+# Published Reports that still carry their pre-#110 bare docid, i.e. a
+# dataset no full rebuild has touched yet.
+#
+# @return [Array<String>]
+def legacy_reports
+  Dir["#{@output}/itu-r-*.yaml"].select do |file|
+    Item.from_yaml(File.read(file, encoding: "UTF-8")).ext&.doctype&.content == "technical-report"
+  rescue StandardError
+    false
+  end
+end
+
+# @raise [Relaton::RequestError] when a top-up would duplicate Reports
+def refuse_top_up_before_rebuild
+  legacy = legacy_reports
+  return if legacy.empty?
+
+  raise Relaton::RequestError,
+        "#{legacy.size} Report records still carry their pre-#110 docid (e.g. " \
+        "#{File.basename legacy.first}). A top-up would add a second copy of each under its " \
+        "`Report ITU-R …` name. Run a full rebuild first: wipe data/itu-r-* and " \
+        "RELATON_ITU_MODE=full."
+end
+
+# Seconds to wait before each crawl request. ITU's WAF answers 503 on
+# `/rec` and a 302 to notfound.aspx on `/pub` when pushed; 0.4 s tripped it
+# mid-run, 1 s did not.
+def self.delay
+  (ENV["RELATON_ITU_DELAY"] || 1.0).to_f
+end
+
+# @return [Symbol] :top_up or :full
+def self.mode
+  ENV["RELATON_ITU_MODE"].to_s == "top_up" ? :top_up : :full
+end
 
       # ITU-T harvester: one searchRecs request enumerates every edition and
       # supplement; each row is then enriched with getRecHdrDetail-sourced fields
@@ -255,43 +298,6 @@ module Relaton
           index_primary(id, file)
           File.write file, content, encoding: "UTF-8"
         end
-      end
-
-      # Rewrite published ITU-R Report records onto their Report docid.
-      #
-      # ITU-R Recommendations and Reports number independently, so
-      # "ITU-R BT.2020-1" names two different documents; since #110 a Report's
-      # docid leads with "Report " and its file follows (`report-itu-r-*.yaml`).
-      # The published records predate that, which leaves 984 of them indexed as
-      # `pubid:itu:recommendation` — and would make the harvest add a *second*
-      # copy of every report it saw, under the new name.
-      #
-      # This is a pure local rewrite keyed on each record's own
-      # `ext.doctype: technical-report`: no network, idempotent (a record whose
-      # docid already leads with "Report " is skipped), and it reaches the ~350
-      # reports the crawl never sees. The old file is removed only after the new
-      # one is written.
-      #
-      # @param glob [String] e.g. "data/itu-r-*.yaml"
-      # @return [Integer] number of records migrated
-      def migrate_report_ids(glob = "#{@output}/itu-r-*.yaml")
-        migrated = 0
-        Dir[glob].sort.each do |file|
-          item = Item.from_yaml File.read(file, encoding: "UTF-8")
-          docid = item.docidentifier.find(&:primary)
-          next unless item.ext&.doctype&.content == "technical-report"
-          next if docid.nil? || docid.content.to_s.start_with?("Report ")
-
-          docid.content = "Report #{docid.content}"
-          moved = output_file docid.content
-          File.write moved, serialize(item), encoding: "UTF-8"
-          File.delete file unless moved == file
-          migrated += 1
-        rescue => e # rubocop:disable Style/RescueStandardError
-          log_error "Failed to migrate #{file}: #{e.message}"
-        end
-        Util.info "ITU-R: migrated #{migrated} Report records onto their Report docid" if migrated.positive?
-        migrated
       end
 
       # Index records that are already on disk instead of harvesting them.
