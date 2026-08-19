@@ -95,6 +95,30 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     expect(machine_shards).to be_empty
   end
 
+
+  it "also publishes the monolithic index-v1.yaml in the fleet format" do
+    with_corpus(5) do
+      rows = YAML.safe_load(File.read(File.join(@out, "index-v1.yaml")), permitted_classes: [Symbol], aliases: true)
+      expect(rows.size).to eq(5)
+      row = rows.find { |r| r[:id] == "DOC 001" }
+      expect(row).to eq(id: "DOC 001", file: "data/doc-001.yaml")
+    end
+  end
+
+  it "does not copy the corpus by default" do
+    with_corpus(3) do
+      expect(File).not_to exist(File.join(@out, "data", "doc-001.yaml"))
+    end
+  end
+
+  it "copies the corpus onto the site with publish_data: true" do
+    with_corpus(3, publish_data: true) do
+      copied = File.join(@out, "data", "doc-002.yaml")
+      expect(File).to exist(copied)
+      expect(File.read(copied)).to include("Document 2", "DOC 002")
+    end
+  end
+
   # --- shard readers -------------------------------------------------------
 
   def shard_files(prefix = "search")

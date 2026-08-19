@@ -5,6 +5,7 @@ require "pathname"
 require "fileutils"
 require "liquid"
 require "relaton/cli/frontend_assets"
+require "relaton/index"
 require "relaton/cli/index_item_normalizer"
 
 module Relaton
@@ -117,6 +118,17 @@ module Relaton
           }
         end
 
+        # The monolithic flat index (the index-v1.yaml shape every data
+        # repo publishes), written with Relaton::Index's own serializer
+        # so the site copy is format-identical to the git-published one.
+        def save_yaml(path)
+          idx = Relaton::Index.find_or_create(:site, file: path)
+          @buckets.each do |bucket|
+            bucket.each { |row| idx.add_or_update(row["id"], row["file"]) }
+          end
+          idx.save
+        end
+
         # Emits every non-empty shard; empty shards are simply absent — a
         # client treating a 404 as "not found" needs no empty placeholders.
         def flush!
@@ -155,6 +167,7 @@ module Relaton
         @detail_shard_size = options.fetch(:detail_shard_size, 500)
         @emit_detail = options.fetch(:detail, true)
         @emit_index = options.fetch(:machine_index, true)
+        @publish_data = options.fetch(:publish_data, false)
         validate!
       end
 
@@ -168,6 +181,7 @@ module Relaton
         purge_stale!
         counts = write_shards
         counts[:index_shards] = write_machine_index_manifest(counts[:total]) if emit_index?
+        publish_data! if @publish_data
 
         index_path = File.join(output, "index.html")
         write_file(index_path, render(assets, counts))
@@ -238,11 +252,30 @@ module Relaton
         machine = @machine_index or return 0
 
         machine.flush!
+        machine.save_yaml(File.join(output, "index-v1.yaml"))
         write_file(
           File.join(output, "index", "manifest.json"),
           JSON.pretty_generate(machine.manifest(count: total, generated: @generated)),
         )
         machine.count
+      end
+
+      # Copy the scanned corpus onto the site so clients can fetch
+      # documents (the index rows' `file` paths) from the same origin.
+      # Opt-in: for most repos raw.githubusercontent already serves the
+      # committed data, and duplicating a large corpus would double the
+      # published-site size against the 1 GB cap.
+      def publish_data!
+        repo_root = File.dirname(File.expand_path(data_dir))
+        source_dirs(repo_root).each do |dir|
+          Dir.glob(File.join(dir, "**", "*.{yaml,yml}")).sort.each do |src|
+            rel = Pathname.new(File.expand_path(src))
+                      .relative_path_from(Pathname.new(repo_root)).to_s
+            dest = File.join(output, rel)
+            FileUtils.mkdir_p(File.dirname(dest))
+            FileUtils.cp(src, dest)
+          end
+        end
       end
 
       # One pass over the corpus, fanning each document out to both shard
