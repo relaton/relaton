@@ -245,7 +245,7 @@ module Relaton
 
       # The index-v1 row shape: rendered primary docid -> yaml path.
       def machine_record(item)
-        { "id" => item["id"], "file" => item["yaml"] }
+        { "id" => item["id"], "file" => item["yaml_path"] }
       end
 
       def write_machine_index_manifest(total)
@@ -322,6 +322,10 @@ module Relaton
               next
             end
             dir_ids[id] ||= item["yaml"] if id
+            # The machine index needs the repo-relative path: clients
+            # prefix their own baseurl onto row[:file], so an absolutized
+            # ref (yaml_ref with --base-url) would double-prefix.
+            item["yaml_path"] = relative_path(file, repo_root)
             yield item
           end
           seen.merge!(dir_ids)
@@ -338,7 +342,8 @@ module Relaton
       # record. nil when the document has no detail fields at all — the slot is
       # still written (as null) so position stays aligned with the summary shards.
       def detail_record(item)
-        rest = item.reject { |key, _| COMPACT_KEYS.key?(key) }
+        # "yaml_path" is transport for the machine index, not a detail field.
+        rest = item.reject { |key, _| COMPACT_KEYS.key?(key) || key == "yaml_path" }
         return nil if rest.empty?
 
         { "r" => item["id"] }.merge(rest)

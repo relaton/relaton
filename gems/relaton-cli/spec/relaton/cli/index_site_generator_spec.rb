@@ -119,6 +119,18 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     end
   end
 
+
+  it "keeps machine rows repo-relative even when --base-url is set" do
+    with_corpus(3, base_url: "https://relaton.github.io/relaton-data-x") do
+      all_machine_records.each do |rec|
+        expect(rec["file"]).to start_with("data/")
+        expect(rec["file"]).not_to include("http")
+      end
+      # while the UI-facing search shard links are absolutized
+      expect(summary_records.first["u"]).to start_with("https://relaton.github.io/")
+    end
+  end
+
   # --- shard readers -------------------------------------------------------
 
   def shard_files(prefix = "search")
