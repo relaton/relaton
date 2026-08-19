@@ -185,6 +185,7 @@ module Relaton
 
         index_path = File.join(output, "index.html")
         write_file(index_path, render(assets, counts))
+        copy_404_fallback
         Util.info "Indexed #{counts[:total]} document(s) from #{sources_description} " \
                   "into #{counts[:shards]} search shard(s), " \
                   "#{counts[:detail_shards]} detail shard(s) and " \
@@ -458,6 +459,16 @@ module Relaton
       # Drop shards from a previous build. Without a manifest, an orphan shard
       # left by a larger corpus is invisible — nothing points at it — so it would
       # sit in the deployed site indefinitely.
+      # Path-based document URLs (/doc/<id>) are served by this fallback:
+      # GitHub Pages has no rewrites, so unknown paths resolve to 404.html,
+      # whose script forwards the id into the app as ?doc=<id>.
+      def copy_404_fallback
+        fallback = File.join(FrontendAssets.dist_dir, "404.html")
+        return unless File.exist?(fallback)
+
+        write_file(File.join(output, "404.html"), File.read(fallback))
+      end
+
       def purge_stale!
         return unless overwrite
 

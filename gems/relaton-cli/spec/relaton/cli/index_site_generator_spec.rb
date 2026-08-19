@@ -131,6 +131,15 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     end
   end
 
+
+  it "emits a 404 fallback that forwards /doc/<id> paths into the app" do
+    generate
+
+    fallback = File.join(@out, "404.html")
+    expect(File).to exist(fallback)
+    expect(File.read(fallback)).to include("location.replace")
+  end
+
   # --- shard readers -------------------------------------------------------
 
   def shard_files(prefix = "search")
