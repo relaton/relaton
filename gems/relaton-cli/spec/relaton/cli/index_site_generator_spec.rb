@@ -1,5 +1,6 @@
 require "tmpdir"
 require "json"
+require "zlib"
 require "relaton/cli/index_site_generator"
 
 RSpec.describe Relaton::Cli::IndexSiteGenerator do
@@ -21,6 +22,77 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
         base_url: "https://raw.githubusercontent.com/relaton/relaton-data-bipm/v2" }.merge(opts),
     )
     File.read(File.join(@out, "index.html"), encoding: "utf-8")
+  end
+
+
+  # --- machine index (index/manifest.json + hash shards) ------------------
+
+  def manifest
+    JSON.parse(File.read(File.join(@out, "index", "manifest.json")))
+  end
+
+  def machine_shards
+    Dir[File.join(@out, "index", "shard-*.json")].sort
+  end
+
+  def all_machine_records
+    machine_shards.flat_map { |f| JSON.parse(File.read(f)) }
+  end
+
+  it "emits a manifest describing the sharding contract" do
+    generate
+
+    m = manifest
+    expect(m).to include(
+      "version" => 1, "algorithm" => "crc32",
+      "shards" => 256, "count" => anything, "generated" => "2026-01-01",
+    )
+  end
+
+  it "puts every document in exactly one shard, at crc32(id) % shards" do
+    with_corpus(40) do
+    end
+
+    records = all_machine_records
+    expect(records.size).to eq(40)
+
+    records.each do |rec|
+      shard = format("shard-%03d.json", Zlib.crc32(rec["id"]) % 256)
+      expect(File).to exist(File.join(@out, "index", shard))
+    end
+    ids = records.map { |r| r["id"] }
+    expect(ids.uniq.size).to eq(ids.size)
+  end
+
+  it "carries the index-v1 row shape: rendered docid -> yaml path" do
+    with_corpus(3) do
+    end
+
+    rec = all_machine_records.find { |r| r["id"] == "DOC 001" }
+    expect(rec["file"]).to eq("data/doc-001.yaml")
+  end
+
+  it "declares the corpus size in the manifest" do
+    with_corpus(7) do
+    end
+
+    expect(manifest["count"]).to eq(7)
+  end
+
+  it "writes no empty shards" do
+    with_corpus(3) do
+    end
+
+    machine_shards.each do |f|
+      expect(JSON.parse(File.read(f))).not_to be_empty
+    end
+  end
+
+  it "can be disabled with machine_index: false" do
+    generate(machine_index: false)
+
+    expect(File).not_to exist(File.join(@out, "index", "manifest.json"))
+    expect(machine_shards).to be_empty
   end
 
   # --- shard readers -------------------------------------------------------

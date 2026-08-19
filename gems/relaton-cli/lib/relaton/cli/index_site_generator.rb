@@ -1,5 +1,6 @@
 require "json"
 require "yaml"
+require "zlib"
 require "pathname"
 require "fileutils"
 require "liquid"
@@ -33,7 +34,7 @@ module Relaton
       DETAIL_PATTERN = "detail-%04d.json".freeze
       # Output written by a previous build that must not survive into this one:
       # a shrunken corpus would otherwise leave orphan shards nothing points at.
-      STALE_GLOBS = ["search.json", "search-*.json", "detail-*.json"].freeze
+      STALE_GLOBS = ["search.json", "search-*.json", "detail-*.json", "index/*.json"].freeze
       # Normalized key -> compact key. Order defines the key order in a shard
       # record; a key NOT listed here is a detail field (see #detail_record).
       COMPACT_KEYS = {
@@ -79,6 +80,57 @@ module Relaton
         end
       end
 
+      # The machine-consumable index: the same docid -> file rows a data
+      # repo's index-v1.yaml carries, emitted as JSON shards on the Pages
+      # site so a client can fetch one small shard per lookup instead of
+      # downloading and parsing a monolithic YAML index. A client computes
+      # its shard as Zlib.crc32(id) % MachineIndex::SHARD_COUNT (crc32 is
+      # available in every language's zlib binding) and reads the count
+      # from index/manifest.json, which also carries the build date for
+      # cache-busting.
+      class MachineIndex
+        SHARD_COUNT = 256
+        PATTERN = "index/shard-%03d.json"
+
+        def initialize(dir, &write)
+          @dir = dir
+          @write = write
+          @buckets = Array.new(SHARD_COUNT) { [] }
+        end
+
+        def <<(record)
+          @buckets[Zlib.crc32(record["id"]) % SHARD_COUNT] << record
+          self
+        end
+
+        def count
+          @count ||= @buckets.count { |b| !b.empty? }
+        end
+
+        def manifest(count:, generated:)
+          {
+            "version" => 1,
+            "algorithm" => "crc32",
+            "shards" => SHARD_COUNT,
+            "count" => count,
+            "generated" => generated,
+          }
+        end
+
+        # Emits every non-empty shard; empty shards are simply absent — a
+        # client treating a 404 as "not found" needs no empty placeholders.
+        def flush!
+          FileUtils.mkdir_p(File.join(@dir, "index"))
+          @buckets.each_with_index do |bucket, i|
+            next if bucket.empty?
+
+            @write.call(File.join(@dir, format(PATTERN, i)), JSON.generate(bucket))
+          end
+          @count = @buckets.count { |b| !b.empty? }
+          self
+        end
+      end
+
       # @param data_dir [String]
       # @param options [Hash] :output :title :description :favicon :base_url
       #   :overwrite :lang :generated :static :shard_size :detail_shard_size
@@ -102,6 +154,7 @@ module Relaton
         @shard_size = options.fetch(:shard_size, 5000)
         @detail_shard_size = options.fetch(:detail_shard_size, 500)
         @emit_detail = options.fetch(:detail, true)
+        @emit_index = options.fetch(:machine_index, true)
         validate!
       end
 
@@ -114,12 +167,14 @@ module Relaton
         FileUtils.mkdir_p(output)
         purge_stale!
         counts = write_shards
+        counts[:index_shards] = write_machine_index_manifest(counts[:total]) if emit_index?
 
         index_path = File.join(output, "index.html")
         write_file(index_path, render(assets, counts))
         Util.info "Indexed #{counts[:total]} document(s) from #{sources_description} " \
-                  "into #{counts[:shards]} search shard(s) and " \
-                  "#{counts[:detail_shards]} detail shard(s)"
+                  "into #{counts[:shards]} search shard(s), " \
+                  "#{counts[:detail_shards]} detail shard(s) and " \
+                  "#{counts[:index_shards]} machine-index shard(s)"
         index_path
       end
 
@@ -131,6 +186,10 @@ module Relaton
 
       def emit_detail?
         @emit_detail
+      end
+
+      def emit_index?
+        @emit_index
       end
 
       # nil for a nil/blank option value. A caller workflow that forwards an
@@ -170,21 +229,40 @@ module Relaton
 
       # ---- streaming ----------------------------------------------------------
 
+      # The index-v1 row shape: rendered primary docid -> yaml path.
+      def machine_record(item)
+        { "id" => item["id"], "file" => item["yaml"] }
+      end
+
+      def write_machine_index_manifest(total)
+        machine = @machine_index or return 0
+
+        machine.flush!
+        write_file(
+          File.join(output, "index", "manifest.json"),
+          JSON.pretty_generate(machine.manifest(count: total, generated: @generated)),
+        )
+        machine.count
+      end
+
       # One pass over the corpus, fanning each document out to both shard
       # families. Nothing accumulates: peak memory is one shard of each kind.
       def write_shards
         writer = method(:write_file)
         summary = ShardWriter.new(output, SHARD_PATTERN, shard_size, &writer)
         detail = ShardWriter.new(output, DETAIL_PATTERN, detail_shard_size, &writer)
+        machine = MachineIndex.new(output, &writer)
         total = 0
 
         each_document do |doc|
           total += 1
           summary << compact_record(doc)
           detail << detail_record(doc) if emit_detail?
+          machine << machine_record(doc) if emit_index?
         end
         summary.flush
         detail.flush
+        @machine_index = machine
 
         { total: total, shards: summary.count, detail_shards: detail.count }
       end
