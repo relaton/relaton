@@ -177,6 +177,9 @@ module Relaton
                               desc: "Copy the corpus onto the site so document fetches " \
                                     "share the Pages origin (for repos whose data is " \
                                     "served only from there); --no-publish-data disables"
+      option :"pubid-flavor",
+             desc: "Pubid flavor whose Identifier parses docids into structured " \
+                   "index rows (e.g. iso, iho, iec); omit for a flat index"
 
       def index(data_dir = nil)
         with_index_source(data_dir) do |dir, default_base_url, default_title|
@@ -193,6 +196,7 @@ module Relaton
             static: options[:static],
             overwrite: options[:overwrite],
             publish_data: options[:"publish-data"],
+            flavor: options[:"pubid-flavor"],
           )
         end
       end

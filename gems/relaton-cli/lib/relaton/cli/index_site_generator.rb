@@ -6,6 +6,7 @@ require "fileutils"
 require "liquid"
 require "relaton/cli/frontend_assets"
 require "relaton/index"
+require "zip"
 require "relaton/cli/index_item_normalizer"
 
 module Relaton
@@ -35,7 +36,7 @@ module Relaton
       DETAIL_PATTERN = "detail-%04d.json".freeze
       # Output written by a previous build that must not survive into this one:
       # a shrunken corpus would otherwise leave orphan shards nothing points at.
-      STALE_GLOBS = ["search.json", "search-*.json", "detail-*.json", "index/*.json"].freeze
+      STALE_GLOBS = ["search.json", "search-*.json", "detail-*.json", "index/*.json", "index-v*.yaml", "index-v*.zip"].freeze
       # Normalized key -> compact key. Order defines the key order in a shard
       # record; a key NOT listed here is a detail field (see #detail_record).
       COMPACT_KEYS = {
@@ -81,65 +82,125 @@ module Relaton
         end
       end
 
-      # The machine-consumable index: the same docid -> file rows a data
-      # repo's index-v1.yaml carries, emitted as JSON shards on the Pages
-      # site so a client can fetch one small shard per lookup instead of
-      # downloading and parsing a monolithic YAML index. A client computes
-      # its shard as Zlib.crc32(id) % MachineIndex::SHARD_COUNT (crc32 is
-      # available in every language's zlib binding) and reads the count
-      # from index/manifest.json, which also carries the build date for
-      # cache-busting.
+      # The machine-consumable index: docid -> file rows a data repo
+      # publishes as index-v1/v3.yaml, emitted on the Pages site as JSON
+      # shards plus a monolith, per the contract documented in
+      # relaton/relaton#113 (contract v2).
+      #
+      # Shard key: the pubid ROOT NUMBER when a flavor parser is given
+      # (a document family — base, parts, amendments — shares one root
+      # and lands in one shard, matching how Relaton::Index narrows by
+      # `candidates_by_number`); rows without a root number (Internet
+      # Draft names) fall back to the rendered id, as do flat corpora
+      # built without a parser.
       class MachineIndex
-        SHARD_COUNT = 256
-        PATTERN = "index/shard-%03d.json"
+        TARGET_ROWS = 15
+        MIN_ROWS = 2000
+        MIN_SHARDS = 16
+        MAX_SHARDS = 65_536
+        # A corpus counts as structured when at least this share of rows
+        # parse; a stray parseable id in a flat corpus stays flat.
+        STRUCTURED_RATIO = 0.8
 
-        def initialize(dir, &write)
-          @dir = dir
-          @write = write
-          @buckets = Array.new(SHARD_COUNT) { [] }
+        Row = Struct.new(:pubid, :rendered, :file)
+
+        attr_reader :rows
+
+        def initialize(pubid_class: nil)
+          @pubid_class = pubid_class
+          @rows = []
         end
 
-        def <<(record)
-          @buckets[Zlib.crc32(record["id"]) % SHARD_COUNT] << record
-          self
+        def add(rendered, file)
+          @rows << Row.new(parse(rendered), rendered, file)
         end
 
         def count
-          @count ||= @buckets.count { |b| !b.empty? }
+          @rows.size
         end
 
-        def manifest(count:, generated:)
+        def structured?
+          return false unless @pubid_class && count.positive?
+
+          @rows.count(&:pubid).to_f / count >= STRUCTURED_RATIO
+        end
+
+        def index_generation
+          structured? ? "v3" : "v1"
+        end
+
+        def key_strategy
+          @pubid_class ? "root-number" : "id"
+        end
+
+        def shard_count
+          return 0 if count < MIN_ROWS
+
+          next_pow2((count.to_f / TARGET_ROWS).ceil).clamp(MIN_SHARDS, MAX_SHARDS)
+        end
+
+        def key_of(row)
+          return row.rendered unless @pubid_class
+
+          row.pubid&.root&.number&.to_s || row.rendered
+        rescue StandardError
+          row.rendered
+        end
+
+        def manifest(generated:)
           {
-            "version" => 1,
-            "algorithm" => "crc32",
-            "shards" => SHARD_COUNT,
+            "version" => 2,
+            "index" => index_generation,
             "count" => count,
+            "shards" => shard_count,
+            "key" => key_strategy,
+            "algorithm" => "crc32",
             "generated" => generated,
           }
         end
 
-        # The monolithic flat index (the index-v1.yaml shape every data
-        # repo publishes), written with Relaton::Index's own serializer
-        # so the site copy is format-identical to the git-published one.
-        def save_yaml(path)
-          idx = Relaton::Index.find_or_create(:site, file: path)
-          @buckets.each do |bucket|
-            bucket.each { |row| idx.add_or_update(row["id"], row["file"]) }
-          end
-          idx.save
+        # { "r" => rendered, "file" => path } with the structured "id"
+        # present only when the row parsed.
+        def row_record(row)
+          record = { "r" => row.rendered, "file" => row.file }
+          record["id"] = row.pubid.to_hash if row.pubid
+          record
         end
 
-        # Emits every non-empty shard; empty shards are simply absent — a
-        # client treating a 404 as "not found" needs no empty placeholders.
-        def flush!
-          FileUtils.mkdir_p(File.join(@dir, "index"))
-          @buckets.each_with_index do |bucket, i|
-            next if bucket.empty?
+        # Rows bucketed by shard, in deterministic (key, rendered) order;
+        # empty buckets are absent — a client treats a 404 as not-found.
+        def each_shard
+          n = shard_count
+          return enum_for(:each_shard) unless block_given? && n.positive?
 
-            @write.call(File.join(@dir, format(PATTERN, i)), JSON.generate(bucket))
-          end
-          @count = @buckets.count { |b| !b.empty? }
-          self
+          buckets = Array.new(n) { [] }
+          @rows.sort_by { |row| [key_of(row), row.rendered] }
+               .each { |row| buckets[Zlib.crc32(key_of(row)) % n] << row_record(row) }
+          buckets.each_with_index { |rows, i| yield(format("%05d", i), rows) unless rows.empty? }
+        end
+
+        def monolith_filename
+          "index-#{index_generation}.yaml"
+        end
+
+        def monolith_id(row)
+          structured? && row.pubid ? row.pubid : row.rendered
+        end
+
+        private
+
+        def next_pow2(value)
+          bit = 0
+          bit += 1 while (1 << bit) < value
+          1 << bit
+        end
+
+        def parse(rendered)
+          return nil unless @pubid_class
+
+          @pubid_class.parse(rendered)
+        rescue StandardError
+          nil
         end
       end
 
@@ -168,6 +229,7 @@ module Relaton
         @emit_detail = options.fetch(:detail, true)
         @emit_index = options.fetch(:machine_index, true)
         @publish_data = options.fetch(:publish_data, false)
+        @pubid_class = pubid_class_for(options[:flavor])
         validate!
       end
 
@@ -201,6 +263,19 @@ module Relaton
 
       def emit_detail?
         @emit_detail
+      end
+
+      # `flavor` names the pubid flavor ("iso", "iho", ...) whose
+      # Identifier class parses docids into structured ids. nil builds a
+      # flat index. Resolved from the pubid gem's own namespaces — no
+      # hand-maintained map.
+      def pubid_class_for(flavor)
+        return nil if flavor.nil? || flavor.to_s.strip.empty?
+
+        namespace = Pubid.const_get(flavor.to_s.split(/[_-]/).map(&:capitalize).join)
+        namespace.const_get(:Identifier)
+      rescue NameError
+        raise ArgumentError, "unknown pubid flavor: #{flavor}"
       end
 
       def emit_index?
@@ -244,21 +319,49 @@ module Relaton
 
       # ---- streaming ----------------------------------------------------------
 
-      # The index-v1 row shape: rendered primary docid -> yaml path.
+      # The machine-index input: rendered primary docid + repo-relative
+      # path (clients prefix their own baseurl onto file).
       def machine_record(item)
-        { "id" => item["id"], "file" => item["yaml_path"] }
+        [item["id"], item["yaml_path"]]
       end
 
       def write_machine_index_manifest(total)
         machine = @machine_index or return 0
 
-        machine.flush!
-        machine.save_yaml(File.join(output, "index-v1.yaml"))
+        FileUtils.mkdir_p(File.join(output, "index"))
+        machine.each_shard do |number, rows|
+          write_file(File.join(output, "index", "shard-#{number}.json"), JSON.generate(rows))
+        end
+
+        monolith = File.join(output, machine.monolith_filename)
+        # The index pool caches by type; drop any earlier instance so a
+        # second generate in the same process doesn't inherit its rows
+        # or pubid_class.
+        Relaton::Index.close(:site)
+        idx = Relaton::Index.find_or_create(
+          :site, file: monolith,
+          pubid_class: machine.structured? ? @pubid_class : nil,
+        )
+        machine.rows.each { |row| idx.add_or_update(machine.monolith_id(row), row.file) }
+        idx.save
+        zip_file(monolith)
+
         write_file(
           File.join(output, "index", "manifest.json"),
-          JSON.pretty_generate(machine.manifest(count: total, generated: @generated)),
+          JSON.pretty_generate(machine.manifest(generated: @generated)),
         )
-        machine.count
+        machine.shard_count
+      end
+
+      # Zip sibling of a monolith — the form `Relaton::Index url:`
+      # fetches today. The zip stores the yaml at its bare basename,
+      # matching the layout data repos publish in git.
+      def zip_file(yaml_path)
+        zip_path = yaml_path.sub(/\.yaml\z/, ".zip")
+        File.delete(zip_path) if File.exist?(zip_path)
+        Zip::File.open(zip_path, create: true) do |archive|
+          archive.add(File.basename(yaml_path), yaml_path)
+        end
       end
 
       # Copy the scanned corpus onto the site so clients can fetch
@@ -285,14 +388,14 @@ module Relaton
         writer = method(:write_file)
         summary = ShardWriter.new(output, SHARD_PATTERN, shard_size, &writer)
         detail = ShardWriter.new(output, DETAIL_PATTERN, detail_shard_size, &writer)
-        machine = MachineIndex.new(output, &writer)
+        machine = MachineIndex.new(pubid_class: @pubid_class)
         total = 0
 
         each_document do |doc|
           total += 1
           summary << compact_record(doc)
           detail << detail_record(doc) if emit_detail?
-          machine << machine_record(doc) if emit_index?
+          machine.add(*machine_record(doc)) if emit_index?
         end
         summary.flush
         detail.flush
