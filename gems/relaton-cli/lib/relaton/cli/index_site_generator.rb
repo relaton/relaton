@@ -103,7 +103,7 @@ module Relaton
         # parse; a stray parseable id in a flat corpus stays flat.
         STRUCTURED_RATIO = 0.8
 
-        Row = Struct.new(:pubid, :rendered, :file)
+        Row = Struct.new(:pubid, :rendered, :file, :key, :id_hash)
 
         attr_reader :rows
 
@@ -113,7 +113,15 @@ module Relaton
         end
 
         def add(rendered, file)
-          @rows << Row.new(parse(rendered), rendered, file)
+          pubid = parse(rendered)
+          row = Row.new(pubid, rendered, file)
+          # Precompute the expensive derived values (root.number walk,
+          # lutaml to_hash) once during the streaming pass — computing
+          # them at monolith-write time is pathological on 177k rows
+          # because each involves object-graph traversal.
+          row.key = key_string(pubid, rendered)
+          row.id_hash = pubid.to_hash if pubid
+          @rows << row
         end
 
         def count
@@ -141,11 +149,7 @@ module Relaton
         end
 
         def key_of(row)
-          return row.rendered unless @pubid_class
-
-          row.pubid&.root&.number&.to_s || row.rendered
-        rescue StandardError
-          row.rendered
+          row.key
         end
 
         def manifest(generated:)
@@ -164,7 +168,7 @@ module Relaton
         # present only when the row parsed.
         def row_record(row)
           record = { "r" => row.rendered, "file" => row.file }
-          record["id"] = row.pubid.to_hash if row.pubid
+          record["id"] = row.id_hash if row.id_hash
           record
         end
 
@@ -175,8 +179,8 @@ module Relaton
           return enum_for(:each_shard) unless block_given? && n.positive?
 
           buckets = Array.new(n) { [] }
-          @rows.sort_by { |row| [key_of(row), row.rendered] }
-               .each { |row| buckets[Zlib.crc32(key_of(row)) % n] << row_record(row) }
+          @rows.sort_by { |row| [row.key, row.rendered] }
+               .each { |row| buckets[Zlib.crc32(row.key) % n] << row_record(row) }
           buckets.each_with_index { |rows, i| yield(format("%05d", i), rows) unless rows.empty? }
         end
 
@@ -196,11 +200,11 @@ module Relaton
         # to_hash), so hand-rendering is straightforward and the output
         # is indistinguishable from what Psych produces.
         def write_monolith(path)
-          sorted = @rows.sort_by { |row| [key_of(row), row.rendered] }
+          sorted = @rows.sort_by { |row| [row.key, row.rendered] }
           File.open(path, "w:utf-8") do |f|
             f << "---\n"
             sorted.each do |row|
-              id_hash = (structured? && row.pubid) ? row.pubid.to_hash : nil
+              id_hash = structured? ? row.id_hash : nil
               if id_hash
                 f << "- :id:\n"
                 yaml_nested(f, id_hash, "    ")
@@ -251,6 +255,14 @@ module Relaton
           @pubid_class.parse(rendered)
         rescue StandardError
           nil
+        end
+
+        def key_string(pubid, rendered)
+          return rendered unless @pubid_class && pubid
+
+          pubid.root.number.to_s
+        rescue StandardError
+          rendered
         end
       end
 
