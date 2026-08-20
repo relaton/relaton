@@ -184,8 +184,15 @@ module Relaton
           "index-#{index_generation}.yaml"
         end
 
-        def monolith_id(row)
-          structured? && row.pubid ? row.pubid : row.rendered
+        # Same shape Relaton::Index::FileIO#save emits: an Array of
+        # {id:, file:} hashes, id a pubid to_hash when structured and
+        # parseable, else the rendered string. Sorted for determinism.
+        def monolith_yaml
+          rows = @rows.sort_by { |row| [key_of(row), row.rendered] }.map do |row|
+            id = (structured? && row.pubid) ? row.pubid.to_hash : row.rendered
+            { id: id, file: row.file }
+          end
+          rows.to_yaml
         end
 
         private
@@ -336,16 +343,12 @@ module Relaton
         end
 
         monolith = File.join(output, machine.monolith_filename)
-        # The index pool caches by type; drop any earlier instance so a
-        # second generate in the same process doesn't inherit its rows
-        # or pubid_class.
-        Relaton::Index.close(:site)
-        idx = Relaton::Index.find_or_create(
-          :site, file: monolith,
-          pubid_class: machine.structured? ? @pubid_class : nil,
-        )
-        machine.rows.each { |row| idx.add_or_update(machine.monolith_id(row), row.file) }
-        idx.save
+        # Written by hand rather than via Relaton::Index#save: a mixed
+        # corpus (structured pubids + unparsed string ids, e.g. IETF
+        # with drafts) trips FileIO's sort_structured_index, which
+        # assumes every id responds to #root once the first one does.
+        # The row shape is identical to what FileIO emits.
+        write_file(monolith, machine.monolith_yaml)
         zip_file(monolith)
 
         write_file(
