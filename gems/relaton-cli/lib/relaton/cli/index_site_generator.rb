@@ -381,9 +381,11 @@ module Relaton
         repo_root = File.dirname(File.expand_path(data_dir))
         source_dirs(repo_root).each do |dir|
           Dir.glob(File.join(dir, "**", "*.{yaml,yml}")).sort.each do |src|
+            # Relative to the data dir itself, so the copy lives at
+            # output/data/<name>.yaml matching the index rows' file paths.
             rel = Pathname.new(File.expand_path(src))
-                      .relative_path_from(Pathname.new(repo_root)).to_s
-            dest = File.join(output, rel)
+                      .relative_path_from(Pathname.new(dir)).to_s
+            dest = File.join(output, "data", rel)
             FileUtils.mkdir_p(File.dirname(dest))
             FileUtils.cp(src, dest)
           end
