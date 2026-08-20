@@ -186,14 +186,22 @@ module Relaton
 
         # Same shape Relaton::Index::FileIO#save emits: an Array of
         # {id:, file:} hashes, id a pubid to_hash when structured and
-        # parseable, else the rendered string. Sorted for determinism.
-        def monolith_yaml
-          rows = @rows.sort_by { |row| [key_of(row), row.rendered] }.map do |row|
-            id = (structured? && row.pubid) ? row.pubid.to_hash : row.rendered
-            { id: id, file: row.file }
+        # parseable, else the rendered string. Streamed one row at a
+        # time — building the full array and calling to_yaml is
+        # pathological on six-figure corpora (Psych re-allocates on
+        # every nested hash, and the whole array sits in memory).
+        def write_monolith(path)
+          sorted = @rows.sort_by { |row| [key_of(row), row.rendered] }
+          File.open(path, "w:utf-8") do |f|
+            f << "---\n"
+            sorted.each do |row|
+              id = (structured? && row.pubid) ? row.pubid.to_hash : row.rendered
+              f << [{ id: id, file: row.file }].to_yaml[4..]
+            end
           end
-          rows.to_yaml
         end
+
+
 
         private
 
@@ -343,12 +351,7 @@ module Relaton
         end
 
         monolith = File.join(output, machine.monolith_filename)
-        # Written by hand rather than via Relaton::Index#save: a mixed
-        # corpus (structured pubids + unparsed string ids, e.g. IETF
-        # with drafts) trips FileIO's sort_structured_index, which
-        # assumes every id responds to #root once the first one does.
-        # The row shape is identical to what FileIO emits.
-        write_file(monolith, machine.monolith_yaml)
+        machine.write_monolith(monolith)
         zip_file(monolith)
 
         write_file(
