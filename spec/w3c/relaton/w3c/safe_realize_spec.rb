@@ -10,7 +10,18 @@ RSpec.describe Relaton::W3c::SafeRealize do
 
   subject(:handler) { dummy_class.new }
 
-  before { Relaton::W3c::SafeRealize.skipped.clear }
+  # A governor whose cooldowns are instant, so throttle paths are exercised
+  # without the suite waiting out real minute-scale backoffs.
+  let(:governor) do
+    Relaton::W3c::Governor.new(base: 0, max: 0, jitter: ->(_) { 0 }, sleeper: ->(_) {})
+  end
+
+  before do
+    Relaton::W3c::SafeRealize.reset!
+    Relaton::W3c::SafeRealize.governor = governor
+  end
+
+  after { Relaton::W3c::SafeRealize.reset! }
 
   describe "#resolve_href" do
     it "returns obj.href when present" do
@@ -86,11 +97,11 @@ RSpec.describe Relaton::W3c::SafeRealize do
     context "when a definitive upstream error reaches the handler" do
       before { allow(Relaton.logger_pool).to receive(:warn) }
 
-      it "skips a persistent 403 (W3C rate-limit) without retrying" do
+      it "skips an unclassified upstream error without retrying" do
         call_count = 0
         allow(obj).to receive(:realize) do
           call_count += 1
-          raise Lutaml::Hal::Error, "Status: 403"
+          raise Lutaml::Hal::Error, "Status: 418"
         end
 
         result = handler.realize(obj)
@@ -112,13 +123,114 @@ RSpec.describe Relaton::W3c::SafeRealize do
         expect(call_count).to eq 1
         expect(Relaton::W3c::SafeRealize.skipped.key?(href)).to be true
       end
+    end
 
-      it "skips a 429 without retrying" do
-        allow(obj).to receive(:realize).and_raise(Lutaml::Hal::TooManyRequestsError, "429")
+    # Regression for the Aug-2026 relaton-data-w3c crawl, which permanently
+    # blacklisted 1,412 rate-limited resources over four hours because a 429
+    # was rescued as a definitive upstream error. A throttle is not a broken
+    # resource — see Relaton::W3c::Governor.
+    context "when a 429 reaches the handler" do
+      before { allow(Relaton.logger_pool).to receive(:warn) }
 
-        result = handler.realize(obj)
-        expect(result).to be_nil
-        expect(Relaton::W3c::SafeRealize.skipped.key?(href)).to be true
+      it "never blacklists the href, so the resource stays recoverable" do
+        allow(obj).to receive(:realize).and_raise(Lutaml::Hal::TooManyRequestsError, "Status: 429")
+
+        expect(handler.realize(obj)).to be_nil
+        expect(Relaton::W3c::SafeRealize.skipped.key?(href)).to be false
+      end
+
+      # 403 is how api.w3.org signals rate limiting (w3c_api's faraday-retry
+      # layer is built around exactly that), so it must not be blacklisted
+      # either — the same bug the 429 handling above exists to prevent.
+      # lutaml-hal >= 0.2.5 gives it its own ForbiddenError class.
+      it "treats a 403 as a throttle too, not a broken resource" do
+        allow(obj).to receive(:realize).and_raise(Lutaml::Hal::ForbiddenError, "Status: 403")
+
+        expect(handler.realize(obj)).to be_nil
+        expect(Relaton::W3c::SafeRealize.skipped.key?(href)).to be false
+        expect(Relaton::W3c::SafeRealize.throttled.key?(href)).to be true
+        expect(obj).to have_received(:realize)
+          .exactly(Relaton::W3c::SafeRealize::THROTTLE_ATTEMPTS).times
+      end
+
+      it "backs off and retries, returning the object once the limiter releases" do
+        call_count = 0
+        allow(obj).to receive(:realize) do
+          call_count += 1
+          raise Lutaml::Hal::TooManyRequestsError, "Status: 429" if call_count < 2
+
+          realized
+        end
+
+        expect(handler.realize(obj)).to eq realized
+        expect(call_count).to eq 2
+        expect(governor.throttle_count).to eq 1
+      end
+
+      it "gives up after THROTTLE_ATTEMPTS and records a throttle loss" do
+        allow(obj).to receive(:realize).and_raise(Lutaml::Hal::TooManyRequestsError, "Status: 429")
+
+        expect(handler.realize(obj)).to be_nil
+        expect(obj).to have_received(:realize)
+          .exactly(Relaton::W3c::SafeRealize::THROTTLE_ATTEMPTS).times
+        # Tracked separately from `skipped`: this is the dataset-completeness
+        # signal DataFetcher's throttle budget checks.
+        expect(Relaton::W3c::SafeRealize.throttled.key?(href)).to be true
+        expect(Relaton::W3c::SafeRealize.skipped.key?(href)).to be false
+        expect(Relaton.logger_pool).to have_received(:warn).with(/Throttled/, anything)
+      end
+
+      it "feeds the response's Retry-After to the governor" do
+        error = Lutaml::Hal::TooManyRequestsError.new("Status: 429")
+        error.define_singleton_method(:response) do
+          { status: 429, headers: { "retry-after" => "300" } }
+        end
+        allow(obj).to receive(:realize).and_raise(error)
+
+        expect(governor).to receive(:throttled!).with(retry_after: 300)
+          .at_least(:once).and_return(false)
+        handler.realize(obj)
+      end
+
+      it "waits on the shared cooldown before each attempt" do
+        allow(obj).to receive(:realize).and_raise(Lutaml::Hal::TooManyRequestsError, "Status: 429")
+
+        expect(governor).to receive(:wait)
+          .exactly(Relaton::W3c::SafeRealize::THROTTLE_ATTEMPTS).times
+        handler.realize(obj)
+      end
+
+      it "stops retrying once the governor declares the crawl rate-limited" do
+        allow(obj).to receive(:realize).and_raise(Lutaml::Hal::TooManyRequestsError, "Status: 429")
+        allow(governor).to receive(:throttled!).and_return(true)
+
+        expect(handler.realize(obj)).to be_nil
+        expect(obj).to have_received(:realize).once
+      end
+    end
+
+    context "when a request succeeds" do
+      before { allow(obj).to receive(:realize).and_return(realized) }
+
+      it "tells the governor the limiter has released" do
+        expect(governor).to receive(:succeeded!)
+        handler.realize(obj)
+      end
+
+      # lutaml-hal serves a link from its parent page's `_embedded` payload
+      # without any HTTP ("Priority 1: check embedded content first"), and that
+      # is the common path — one per specification. Counting those as successes
+      # would reset the escalation ladder between every pair of version-history
+      # 429s, so the governor could never reach its give-up threshold.
+      it "says nothing about the limiter when the object came from embedded data" do
+        expect(governor).not_to receive(:succeeded!)
+        handler.realize(obj, parent_resource: double("page"))
+      end
+
+      it "clears an earlier throttle loss, since the document did make it in" do
+        Relaton::W3c::SafeRealize.throttled[href] = true
+        handler.realize(obj)
+        expect(Relaton::W3c::SafeRealize.throttled.key?(href)).to be false
       end
     end
   end

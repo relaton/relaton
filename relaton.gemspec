@@ -61,6 +61,11 @@ Gem::Specification.new do |spec|
   spec.add_dependency "isoics", "~> 0.1.6"
   spec.add_dependency "loc_mods", "~> 0.3.0"
   spec.add_dependency "logger", "~> 1.6"
+  # Declared explicitly even though w3c_api pulls it in: lib/relaton/w3c rescues
+  # Lutaml::Hal error classes by name, and ForbiddenError (403, the W3C
+  # rate-limit signal) only exists from 0.2.5 — w3c_api's own `~> 0.2.1` would
+  # happily resolve to an older one and NameError at rescue time.
+  spec.add_dependency "lutaml-hal", "~> 0.2", ">= 0.2.5"
   spec.add_dependency "lutaml-model", "~> 0.8.0"
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "mini_portile2", "~> 2.8.0"
@@ -73,7 +78,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.8"
   spec.add_dependency "rfcxml", "~> 0.4.3"
   spec.add_dependency "rubyzip", "~> 2.3.0"
-  spec.add_dependency "w3c_api", "~> 0.3.2"
+  # 0.3.3 is the floor, not a preference: it sets an identifying User-Agent
+  # (a bare Faraday one trips Cloudflare's bot heuristics on api.w3.org) and
+  # makes its 403 retry actually fire. See lib/relaton/w3c/CLAUDE.md.
+  spec.add_dependency "w3c_api", "~> 0.3.3"
 
   spec.metadata["rubygems_mfa_required"] = "true"
 end

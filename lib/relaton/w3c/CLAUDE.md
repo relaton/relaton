@@ -47,9 +47,10 @@ All classes live under `lib/relaton/w3c/` in the `Relaton::W3c` namespace:
 - **`Processor`** (`processor.rb`) — extends `Relaton::Core::Processor`, registers the W3C flavor (prefix `W3C`, dataset `w3c-api`)
 
 **Data fetching:**
-- **`DataFetcher`** (`data_fetcher.rb`) — extends `Core::DataFetcher`, fetches all W3C specs via the W3C API. Fetches the specification index with `embed: true` so each spec is realized from the page's embedded payload instead of a per-spec HTTP request, and paginates by page number (only the `fetch` path repopulates `_embedded`, unlike realizing the `next` link). Runs `fetch_spec` across a small thread pool. A SIGINT (Ctrl-C) is handled gracefully — the producer stops queuing and workers stop after their in-flight spec, then the index of everything fetched so far is saved (the prior INT handler is restored afterwards, so the trap doesn't leak into the host process). If an index page fails to fetch after retries, or pagination ends before the API's advertised last page, `enqueue_specs` raises `CrawlIncompleteError` and the crawl aborts **without** saving the index — a transient rate-limit must never silently truncate the dataset (`crawler.rb` wipes `data/` before each run, so a partial crawl would otherwise commit mass deletions). The worker pool is still drained in an `ensure` so the abort doesn't deadlock. See **Crawler tuning** for the env-var knobs.
+- **`DataFetcher`** (`data_fetcher.rb`) — extends `Core::DataFetcher`, fetches all W3C specs via the W3C API. Fetches the specification index with `embed: true` so each spec is realized from the page's embedded payload instead of a per-spec HTTP request, and paginates by page number (only the `fetch` path repopulates `_embedded`, unlike realizing the `next` link). Runs `fetch_spec` across a small thread pool. A SIGINT (Ctrl-C) is handled gracefully — the producer stops queuing and workers stop after their in-flight spec, then the index of everything fetched so far is saved (the prior INT handler is restored afterwards, so the trap doesn't leak into the host process). The crawl refuses to save a truncated dataset — `crawler.rb` wipes `data/` before each run, so saving one commits mass deletions. Three guards enforce that, all raising `CrawlIncompleteError`: an index page that fails after retries or pagination ending before the API's advertised last page (`enqueue_specs`); the governor concluding the crawl is banned (`guard_rate_limited`); and more than `max_throttled_losses` resources dropped to rate limiting (`guard_throttle_budget` — the per-resource counterpart, since pagination can complete cleanly while the documents behind it were quietly hollowed out). A **deliberate** `@interrupted` (Ctrl-C) is exempt: it already means "give me what you have". The worker pool is still drained in an `ensure` so an abort doesn't deadlock. See **Crawler tuning** for the env-var knobs.
 - **`DataParser`** (`data_parser.rb`) — converts W3C API spec objects into `Relaton::W3c::Item` instances
-- **`SafeRealize`** (`safe_realize.rb`) — mixin that, on a terminal error, skips the resource (returns `nil`) so one bad link doesn't abort the crawl (see Rate limiting & retries). It does not retry or cache successes — those live upstream.
+- **`Governor`** (`governor.rb`) — process-wide, thread-safe rate-limit back-pressure shared by the whole worker pool (see Rate limiting & retries). Kept flavor-local for now; if a second flavor needs cross-thread throttling it is the natural thing to promote into `lib/relaton/core/`.
+- **`SafeRealize`** (`safe_realize.rb`) — mixin that, on a terminal error, skips the resource (returns `nil`) so one bad link doesn't abort the crawl, and that routes rate limiting through the `Governor` instead (see Rate limiting & retries). It does not cache successes — that lives upstream.
 - **`PubId`** (`pubid.rb`) — parses and compares W3C document identifiers (stage, code, date parts)
 
 **Utilities:**
@@ -63,23 +64,100 @@ The entry module is defined in `lib/relaton/w3c.rb` and exposes `grammar_hash`.
 
 - **`RELATON_W3C_FETCH_CONCURRENCY`** (default `4`) — number of `fetch_spec` worker threads. Kept conservative so the version-history requests don't burst fast enough to trip the W3C API rate limiter (429s); raise it for a faster run, lower it for debugging or if 429 skips appear.
 - **`RELATON_W3C_FETCH_VERSIONS`** (default enabled) — set to `false`/`0`/`no`/`off` for a faster, shallower crawl that emits only the top-level specifications and skips each spec's version-history fan-out (version_history, predecessor/successor versions — the bulk of the API requests). Leave it set (the default) for a complete dataset.
+- **`RELATON_W3C_THROTTLE_BASE`** / **`_MAX`** / **`_GIVEUP`** (defaults `60` / `900` / `5` — see `Governor`) — first cooldown, cooldown ceiling, and how many consecutive throttle rounds without a success end the crawl. Non-positive values are ignored. These three are read by the governor on construction **and on each `SafeRealize.reset!`** (i.e. at the start of every `fetch`), so like the others they can be set any time before the crawl rather than before the flavor is autoloaded.
+- **`RELATON_W3C_MAX_THROTTLED`** (default `25`) — how many resources may be lost to rate limiting before `fetch` refuses to save the index. `0` is accepted and means "tolerate none".
 
 `embed: true` (always on) inlines each specification into its index page, so the per-spec realize is served from memory rather than an HTTP request — the largest single reduction in request count.
 
 ### Rate limiting & retries
 
-Transient-failure resilience is layered upstream, not in this gem:
-- **w3c_api** builds its HAL client with `faraday-retry` to retry HTTP 403 (the W3C rate-limit signal) and connection/timeout errors.
-- **lutaml-hal** (beneath w3c_api) retries 429 and 5xx with exponential backoff.
+Per-request retries are layered upstream; **pool-wide back-pressure is this
+gem's job** (`Governor`), because upstream has no notion of the crawl as a whole.
 
-Successful objects are cached by **w3c_api** (lutaml-hal caches realized objects keyed by URL, thread-safely as of lutaml-hal 0.2.1), so `SafeRealize` doesn't cache them. It only **retries nothing** and remembers hrefs that failed terminally (in a `Concurrent::Map`), returning `nil` for them so one bad link doesn't abort the crawl and isn't re-fetched on every reference. Network errors are not remembered, so a later reference can try again.
+- **w3c_api** (>= 0.3.3, pinned in the gemspec) builds its HAL client with
+  `faraday-retry` for HTTP 403 — the W3C rate-limit signal — plus
+  connection/timeout errors, and sends an identifying `User-Agent`. Both landed
+  in 0.3.3 (relaton/w3c_api#22, #23); before it, requests went out as
+  `Faraday v2.x` (a Cloudflare bot-heuristic trigger, and the most likely reason
+  a crawl flipped into the banned mode at all) and the 403 retry never fired.
+- **lutaml-hal** (>= 0.2.5, declared directly in the gemspec because this flavor
+  rescues its error classes by name) retries 429 and 5xx with exponential
+  backoff. `DataFetcher` **shortens** that policy via
+  `W3cApi::Hal.instance.configure_rate_limiting(UPSTREAM_RATE_LIMITING)`: its
+  defaults burn ~31 s (1+2+4+8+16) before a 429 ever reaches us, which only
+  delays the back-pressure that actually works. `max_retries` stays at 5 — one
+  count covers both 429 and 5xx, and a 5xx is still a permanent skip here.
+  From 0.3.3 that call rebuilds w3c_api's register itself; **don't** follow it
+  with `reset_register`, which would leave the register absent from lutaml-hal's
+  `GlobalRegister`, where `Link#realize` raises.
+
+**`Governor` (`governor.rb`) is the important piece.** `api.w3.org` is behind
+Cloudflare, whose rate limiting is **bimodal**: a run either never trips it or
+trips it and stays banned for hours. Second-scale backoff cannot climb out of
+that, and per-worker backoff is worse than useless — the retries are what keep
+the limiter engaged. So all workers share one cooldown:
+
+- Any thread seeing a 429 opens/extends it; every other thread observes it in
+  `#wait`. Cooldowns escalate **per round** (60 s → 120 → … → 900 s cap), where a
+  "round" is one open cooldown — four workers tripping the same limiter must not
+  fast-forward the ladder four steps.
+- A `Retry-After` header raises the floor but never lowers our own ladder, and is
+  itself capped (a hostile value must not park a worker for an hour). Both RFC
+  9110 forms are honoured: delta-seconds, and an HTTP-date parsed properly
+  (digit-scanning one would pick up the day-of-month).
+- A success calls `#succeeded!`, which clears the cooldown and **decays**
+  (halves) the penalty rather than resetting it, so a flapping limiter still
+  climbs. **Only a realize that actually went to the network counts** — with a
+  `parent_resource`, lutaml-hal serves the object out of the page's `_embedded`
+  payload and issues no request (`link.rb`: *"Priority 1: check embedded content
+  first"*). That is the common path, one per specification, and counting those
+  would reset the ladder between every pair of version-history 429s, so the
+  governor could never reach its threshold.
+- After `GIVE_UP_AFTER` consecutive rounds with no success (~15 min) the crawl is
+  declared banned: `#exhausted?` goes true, `#wait` stops blocking so shutdown is
+  immediate, and `fetch` aborts.
+- The mutex is never held across a sleep, and wake-ups are jittered so workers
+  don't resume in lockstep.
+
+`SafeRealize` sits on top of it and makes the distinction that matters: **a
+throttle is not a broken resource.** `Governor::THROTTLE_ERRORS` is the single
+list of what counts — `TooManyRequestsError` **and `ForbiddenError`**, because
+api.w3.org signals rate limiting with 403 as well as 429 (w3c_api's whole retry
+layer is built around that). Blacklisting a 403 would be the same bug as
+blacklisting a 429. It retries a rate-limited realize
+`THROTTLE_ATTEMPTS` times behind the shared cooldown and records a give-up in
+`SafeRealize.throttled` — *never* in `skipped`. An href that a later attempt does
+realize is removed from `throttled` again, so a briefly-throttled-then-recovered
+resource doesn't count against the budget for a document that is in fact present.
+`fetch_specifications_page` is the exception to `THROTTLE_ATTEMPTS`: an index page
+retries until the *governor* gives up, since a 3-attempt cap would pre-empt the
+escalation ladder and report a pagination fault instead of the real reason.
+Everything else is unchanged:
+`NotFoundError` and other terminal `Lutaml::Hal::Error`s (403, 5xx) still go into
+`skipped` (a `Concurrent::Map`) so a broken link isn't re-fetched for every
+reference, and network errors are remembered nowhere so a later reference can try
+again. 5xx deliberately stays a permanent skip — the handful of persistent
+per-resource 500s a healthy crawl sees are broken records, and routing them
+through the governor would open a pool-wide cooldown for each.
+
+Successful objects are cached by **w3c_api** (lutaml-hal caches realized objects
+keyed by URL, thread-safely as of lutaml-hal 0.2.1), so `SafeRealize` doesn't
+cache them.
+
+> **Why this exists.** The 2026-08-19 `relaton-data-w3c` crawl ran **4 h 56 m**
+> (healthy runs take ~1 h 30 m), permanently blacklisted **1,412** rate-limited
+> resources, and only then aborted on a failed index page. Every 429 warning in
+> that log is ~31 s apart — one exhausted lutaml-hal chain — i.e. *every* request
+> for four hours was rate-limited. Had the last index page happened to succeed,
+> a dataset missing 1,412 documents would have been committed.
 
 ### Key Dependencies
 
 - **relaton-bib** (~> 2.2.0) — provides base `Bib::Item`, `Bib::Ext`, `Bib::Doctype` and serialization mixins (LutaML model layer)
 - **relaton-core** — provides base `Core::Processor` and `Core::DataFetcher`
 - **relaton-index** — index-based search for bibliographic references; also unpacks the index zip at runtime
-- **w3c_api** (~> 0.3.2) — W3C API (HAL/REST) client used by `DataFetcher` to retrieve specifications; owns rate-limit and transient-error retries, and the (thread-safe) object cache
+- **w3c_api** (~> 0.3.3) — W3C API (HAL/REST) client used by `DataFetcher` to retrieve specifications; owns the `User-Agent`, the 403 retry, and the object cache. The 0.3.3 floor is load-bearing, not cosmetic — see **Rate limiting & retries**.
+- **lutaml-hal** (~> 0.2, >= 0.2.5) — HAL layer beneath w3c_api. Declared directly because this flavor rescues `Lutaml::Hal::*` error classes by name; `ForbiddenError` only exists from 0.2.5, and w3c_api's own `~> 0.2.1` would resolve happily to an older one and NameError at rescue time. 0.2.5 also made `Client#get`'s last-response bookkeeping thread-local (lutaml/lutaml-hal#21), which matters directly to the worker pool.
 
 The W3C data is fetched entirely through `w3c_api`; the older RDF/SPARQL/scraping stack (linkeddata, rdf, sparql, shex, mechanize, …) has been removed.
 
