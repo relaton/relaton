@@ -19,19 +19,6 @@ module Relaton
                    "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15".freeze
       DEFAULT_CONCURRENCY = 8
 
-      # Why there is no ITU-R harvester. The crawler used to page
-      # `POST net4/ITU-T/search/GlobalSearch/RunSearch` with `Input: "*"`, which
-      # returned enumeration *and* full metadata in one shot; ITU decommissioned
-      # it (the endpoint now answers HTTP 500 with the search SPA's HTML shell,
-      # so the old path died on a `JSON::ParserError` that named neither the
-      # endpoint nor the cause). Say so instead.
-      ITU_R_DISABLED = <<~MSG.freeze
-        ITU-R harvesting is disabled: ITU decommissioned the RunSearch bulk-enumeration
-        endpoint (POST https://www.itu.int/net4/ITU-T/search/GlobalSearch/RunSearch) that
-        this crawler paged through, and no replacement enumeration source is wired up.
-        Published ITU-R records are preserved in relaton-data-itu and re-indexed by
-        DataFetcher#index_files. See https://github.com/relaton/relaton/issues/75
-      MSG
 
       # Number of ITU-T enrichment worker threads. Each record costs ~4
       # www.itu.int round-trips (~3.7 s wall clock), so a ~16k-record corpus is
@@ -69,16 +56,98 @@ module Relaton
       end
 
       # @param source [String, nil] "itu-t" harvests ITU-T recommendations via
-      #   the searchRecs index (issue #80). "itu-r" (and nil, the legacy default)
-      #   has no harvester any more — see ITU_R_DISABLED and issue #75; the
-      #   published ITU-R records are preserved and re-indexed by #index_files.
-      # @raise [Relaton::RequestError] for any source but "itu-t"
+      #   the searchRecs index (issue #80); "itu-r" (and nil, the legacy default)
+      #   harvests ITU-R Recommendations and Reports by crawling ITU's
+      #   server-rendered pages (issue #75, see #fetch_publications).
       def fetch(source = nil)
-        raise Relaton::RequestError, ITU_R_DISABLED unless source == "itu-t"
-
-        fetch_recommendations
+        source == "itu-t" ? fetch_recommendations : fetch_publications
         index.save
         report_errors
+      end
+
+      # ITU-R harvester. ITU decommissioned the RunSearch bulk-enumeration
+      # endpoint this used to page through, so enumeration walks the `/pub` +
+      # `/rec` pages ITU still renders server-side (`DataCrawlerR`).
+      #
+      # Two modes, because a full crawl is ~7k requests and ~4 h:
+      #
+      # * **`:full`** (default) — every edition of every document, deep. Pair it
+      #   with wiping `data/itu-r-*` first: ITU is then the sole author of the
+      #   result, which is the point of crawling it at all.
+      # * **`:top_up`** — enumerate the same documents, but deep-fetch only the
+      #   editions the dataset does not already hold. Costs the enumeration
+      #   (~1 request per document) plus one per genuinely new edition, so a day
+      #   with no new publications is a small fraction of a full run.
+      #
+      # Set with `RELATON_ITU_MODE=top_up`, so the two scheduled jobs differ by
+      # environment rather than by code.
+      #
+      # A top-up assumes the dataset it tops up was built by a previous `:full`
+      # run. Against the pre-#110 dataset it would add every Report a second time
+      # under its `Report …` name, so the data repo runs the rebuild first and
+      # enables the daily job after — an ordering that belongs to the schedule, not
+      # to this class. That one wipe retires the old names for good, which is why
+      # the harvester carries no migration step.
+      #
+      # Cost, measured: the BO series of both families is ~230 requests in 484 s
+      # at the 1 s default — ~2.1 s per request once ITU's own latency is added.
+      # Lower RELATON_ITU_DELAY at your peril: 0.4 s tripped the WAF mid-run
+      # (503 on /rec, a 302 to notfound.aspx on /pub), 1 s did not.
+      #
+      # @param mode [Symbol] :full or :top_up
+      # @return [Hash] the merge tally, `collisions` being a count
+      def fetch_publications(mode: self.class.mode)
+        require_relative "data_crawler_r"
+        require_relative "data_merge_r"
+        crawler = DataCrawlerR.new delay: self.class.delay
+        stats = Hash.new 0
+        DataCrawlerR::FAMILIES.each_key { |family| harvest_family crawler, family, stats, mode }
+        Util.info "ITU-R (#{mode}): #{stats.reject { |k, _| k == :collisions }.map { |k, v| "#{k} #{v}" }.join ', '}"
+        stats
+      end
+
+      # One family, series by series, so a series that fails — ITU throttles by
+      # path family and a blocked series raises — costs that series rather than
+      # the whole run.
+      #
+      # @return [void]
+      def harvest_family(crawler, family, stats, mode = :full)
+        crawler.series(family).each do |series|
+          items = crawler.harvest series, family: family, errors: @errors,
+                                          skip: (method(:held?) if mode == :top_up)
+          # `collisions` comes back as the offending pairs; the run-level tally
+          # keeps their count and leaves the detail to DataMergeR's own errors.
+          DataMergeR.write_all(items, self).each { |k, v| stats[k] += v.is_a?(Array) ? v.size : v }
+          Util.info "ITU-R #{family}-#{series}: #{items.size} harvested"
+        rescue => e # rubocop:disable Style/RescueStandardError
+          log_error "ITU-R #{family}-#{series} skipped: #{e.message}"
+        end
+      rescue => e # rubocop:disable Style/RescueStandardError
+        log_error "ITU-R #{family} series index unavailable: #{e.message}"
+      end
+
+      # Does the dataset already hold this edition? Answered from the level-2 row
+      # alone — the id and displayed code are enough to derive the docid, and so
+      # the filename — which is what lets a top-up decide *before* paying for the
+      # edition page.
+      #
+      # @param row [Hash] a level-2 edition row, with :family
+      # @return [Boolean]
+      def held?(row)
+        docid = DataParserR.family_docid row
+        docid && File.exist?(output_file(docid))
+      end
+
+      # Seconds to wait before each crawl request. ITU's WAF answers 503 on
+      # `/rec` and a 302 to notfound.aspx on `/pub` when pushed; 0.4 s tripped it
+      # mid-run, 1 s did not.
+      def self.delay
+        (ENV["RELATON_ITU_DELAY"] || 1.0).to_f
+      end
+
+      # @return [Symbol] :top_up or :full
+      def self.mode
+        ENV["RELATON_ITU_MODE"].to_s == "top_up" ? :top_up : :full
       end
 
       # ITU-T harvester: one searchRecs request enumerates every edition and
