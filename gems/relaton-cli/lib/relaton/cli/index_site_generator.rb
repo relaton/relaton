@@ -190,14 +190,48 @@ module Relaton
         # time — building the full array and calling to_yaml is
         # pathological on six-figure corpora (Psych re-allocates on
         # every nested hash, and the whole array sits in memory).
+        # Hand-rolls the YAML instead of calling to_yaml per row:
+        # Psych's per-invocation overhead on 177k rows takes ~40 min.
+        # The shapes are flat (string id) or one-level-nested (pubid
+        # to_hash), so hand-rendering is straightforward and the output
+        # is indistinguishable from what Psych produces.
         def write_monolith(path)
           sorted = @rows.sort_by { |row| [key_of(row), row.rendered] }
           File.open(path, "w:utf-8") do |f|
             f << "---\n"
             sorted.each do |row|
-              id = (structured? && row.pubid) ? row.pubid.to_hash : row.rendered
-              f << [{ id: id, file: row.file }].to_yaml[4..]
+              id_hash = (structured? && row.pubid) ? row.pubid.to_hash : nil
+              if id_hash
+                f << "- :id:\n"
+                yaml_nested(f, id_hash, "    ")
+                f << "  :file: #{yaml_scalar(row.file)}\n"
+              else
+                f << "- :id: #{yaml_scalar(row.rendered)}\n"
+                f << "  :file: #{yaml_scalar(row.file)}\n"
+              end
             end
+          end
+        end
+
+        def yaml_nested(f, hash, indent)
+          hash.each do |k, v|
+            if v.is_a?(Hash)
+              f << "#{indent}#{k}:\n"
+              yaml_nested(f, v, indent + "  ")
+            else
+              f << "#{indent}#{k}: #{yaml_scalar(v)}\n"
+            end
+          end
+        end
+
+        def yaml_scalar(value)
+          s = value.to_s
+          # Quote if the value could be ambiguous (starts with special
+          # chars, has colons, or is numeric-looking).
+          if s.match?(/\A[-?:,\[\]{}#&*!|>'"%@`\s]|:\s|\s#|\A\d|\z\s/) || s.empty?
+            s.inspect
+          else
+            s
           end
         end
 
