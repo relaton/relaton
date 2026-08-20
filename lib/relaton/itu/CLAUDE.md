@@ -143,6 +143,7 @@ records.
 | `R-REP` Reports | `/pub/R-REP/en` | 14 series letters | `/pub/<id>/en` | files' "Posted" — **publication** |
 | `R-QUE` Questions | `/pub/R-QUE/en` | 6 study groups (`SG01`…) | `/pub/<id>/en` | files' "Posted" |
 | `R-RES` Resolutions | `/pub/R-RES/en` | **none — flat** | `/pub/<id>/en` | files' "Posted" |
+| `R-HDB` Handbooks | `/pub/R-HDB/en` | **none — flat** | `/pub/<id>/en` | **the id** — no page carries one |
 
   e.g. `/rec/R-REC-BO/en` (54 documents) → `/rec/R-REC-BO.1130/en` (Main +
   Previous versions, one row per edition) → `/rec/R-REC-BO.1130-5-202602-I/en`.
@@ -164,17 +165,38 @@ records.
 - **Each family spells its identifier differently**, and the published dataset
   is the authority (`DataParserR#family_docid`). `R-REC` uses the displayed
   code; `R-REP` prefixes it (`Report ITU-R BT.2020-1`, see the collisions note);
-  `R-QUE` appends a colon (`202-2/1` → `ITU-R 202-2/1:`); and `R-RES` cannot use
-  its code at all — the page renders `Res.1-9 (2023)` while the record is
-  `ITU-R R.1-9`, which only the **page id** (`R-RES-R.1-9-2023`) carries. All
-  four reproduce the published filenames exactly, verified live.
-- **`R-HDB` is deliberately not implemented.** Its pages expose several editions
-  per handbook, but the published dataset carries **one record per handbook
-  number** (`ITU-R 01.HDB`; 60 records, 60 distinct docids, no edition in the
-  id), so harvesting every edition would collapse them onto one filename and
-  the merge would report collisions instead of records. Implementing it needs a
-  decision first: harvest only the current edition, or change the identifier
-  convention for 60 published records. `#config` raises meanwhile.
+  `R-QUE` appends a colon (`202-2/1` → `ITU-R 202-2/1:`); and `R-RES` and
+  `R-HDB` cannot use their code at all — a Resolution page renders
+  `Res.1-9 (2023)` while the record is `ITU-R R.1-9`, and a Handbook shows its
+  *title* on the index and a bare year on the leaf, so both read the **page id**
+  (`R-RES-R.1-9-2023`, `R-HDB-43-2013`). The first four reproduce the published
+  filenames exactly, verified live; `R-HDB` deliberately does not (below).
+- **`R-HDB` Handbooks are keyed per edition — `ITU-R 43.HDB (2013)`.** ITU
+  publishes several editions per handbook (43 has 2002, 2013 and 2026) while the
+  published dataset carries **one record per handbook number** (`ITU-R 01.HDB`,
+  no edition in the id), so harvesting every edition under the old convention
+  would collapse them onto one filename. `Pubid::Itu` models the year, so the
+  year is what separates them; the four published records that carry a bare
+  `ITU-R 43` are worse than colliding — that parses as a **recommendation**,
+  claiming a number that belongs to another document. A full rebuild replaces
+  all 60 published handbook files with 63 edition-keyed ones.
+  The family publishes less per page than any other, so two things move
+  (`FAMILIES["R-HDB"]` carries `date: :id` and `title: :document`):
+  - **The date comes from the id.** No handbook page carries a date at all, and
+    the displayed codes disagree with each other and with themselves — one
+    handbook's three editions render "2026", "2014" (for id `R-HDB-43-2013`) and
+    "Edition of 2002". `#row` therefore does not warn about the missing page
+    date for this family; for every other family that warning means a degraded
+    fetch.
+  - **The title comes from the level-1 row**, the only place ITU prints it: the
+    index anchor holds the *title* where every other family's holds a number
+    (the number is in the id alone), and the edition rows hold only a year. So
+    `#harvest` copies the document row's title onto each of its editions —
+    nothing downstream sees the index again.
+  - **Measured live (2026-08-20):** 45 handbooks → **63 editions**, 46 requests
+    in 133 s shallow (`deep: true` adds one request per edition, ~109 / ~4 min).
+    All 63 docids are distinct, all pass the index gate as
+    `pubid:itu:handbook`, and none is missing a title, date or PDF.
   - The docid comes from the **displayed code** minus ` (MM/YYYY)` — `BO.1212
     (10/95)` → `ITU-R BO.1212`, *not* the page id's `ITU-R BO.1212-0`. That
     reproduces the published filenames and index rows exactly (the spec asserts
@@ -201,7 +223,9 @@ records.
     that returns no approval date — ITU served an empty 200 for
     `R-REC-BO.1130-4-200104-S` while the cassette was being recorded — is
     **warned about** before falling back to the id's date, so a degraded deep
-    crawl can't pass for a clean one. Every level also warns when it finds
+    crawl can't pass for a clean one — except for a family whose date lives in
+    the id by design (`R-HDB`), where finding none on the page is the norm and
+    warning would cry wolf on every record. Every level also warns when it finds
     nothing (a layout change would otherwise read as an empty corpus).
   - **Throttling has two shapes, and one is silent.** Measured over a full
     corpus run: `/rec` answers **HTTP 503**, `/pub` answers **302 →
@@ -225,7 +249,7 @@ records.
     offers only the cart flow — so `source` is legitimately empty for them.
   - **Missing before promotion:** no per-row rescue in `#harvest` (unlike
     `DataFetcher#spawn_rec_worker`), results accumulated in memory rather than
-    streamed, and and `R-HDB` still unimplemented (see the handbook note above).
+    streamed.
   - `status` is scraped (`In force (Main)` / `Superseded`) but **not** modelled —
     no published ITU-R record has one; it is the first candidate enrichment.
   - Same F5-WAF hardening as `#rec_agent` (browser UA, `max_history = 1`,

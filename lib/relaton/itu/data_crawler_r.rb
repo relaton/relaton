@@ -71,6 +71,20 @@ module Relaton
           date: :posted,
           group: :sub_index,
         }.freeze,
+        # Handbooks are flat like Resolutions, but they publish less per page
+        # than any other family, so two things move: the **date** comes from the
+        # id (an edition page carries no posted date, and the displayed codes
+        # disagree with each other — `R-HDB-43-2013` renders "2014" against its
+        # siblings' "2026" and "Edition of 2002"), and the **title** comes from
+        # the level-1 row, the only place ITU prints it.
+        "R-HDB" => {
+          index: "#{DOMAIN}/pub/R-HDB/en",
+          page: "#{DOMAIN}/pub/%<id>s/en",
+          pdf: "#{DOMAIN}/dms_pub/itu-r/opb/hdb/%<id>s-PDF-E.pdf",
+          date: :id,
+          title: :document,
+          group: :flat,
+        }.freeze,
         # Resolutions are **flat**: /pub/R-RES/en links all 75 documents
         # directly, with no grouping level at all.
         "R-RES" => {
@@ -162,7 +176,10 @@ module Relaton
           # only documents — so the prefix test is what separates the two.
           next unless id.start_with?(prefix) && id != prefix.chomp(".")
 
-          { id: id, code: squish(anchor.text), title: title_text(cells[1]) }
+          # The Handbook index lists *titles* where every other family lists
+          # numbers — its number is in the id alone and its title cell is empty.
+          name = squish(anchor.text)
+          { id: id, code: name, title: conf[:title] == :document ? name : title_text(cells[1]) }
         end
         warn_if_empty found, "documents in #{series ? "#{family}-#{series}" : family}"
       end
@@ -190,6 +207,10 @@ module Relaton
 
           { id: id, code: code, title: title_text(cells[1]), status: squish(cells[2]&.text) }
         end
+        # A Handbook edition is listed twice — once with an empty code, once with
+        # its year — so keep the richer row per id rather than harvesting the
+        # same edition twice.
+        found = found.group_by { |e| e[:id] }.map { |_, dupes| dupes.max_by { |e| e[:code].to_s.size } }
         warn_if_empty found, "editions of #{doc_id}"
       end
 
@@ -233,8 +254,15 @@ module Relaton
       def harvest(series, family: DEFAULT_FAMILY, only: nil, deep: true, errors: Hash.new(true), skip: nil)
         docs = documents(series, family: family)
         docs = docs.select { |d| only.include? d[:id] } if only
-        editions = docs.flat_map { |d| editions(d[:id]) }
-                       .map { |ed| ed.merge(family: family_of(ed[:id])) }
+        # A Handbook edition inherits the document's title (`title: :document`):
+        # its own row shows a year and nothing else, so this is the only chance
+        # to carry the title down — the level-3 fetch never sees the index.
+        inherited = config(family)[:title] == :document
+        editions = docs.flat_map do |d|
+          editions(d[:id]).map do |ed|
+            ed.merge(family: family_of(ed[:id]), **(inherited ? { title: d[:title] } : {}))
+          end
+        end
         # `skip` is what makes a top-up cheap: it decides from the level-2 row,
         # before the per-edition page — the expensive half — is ever requested.
         editions = editions.reject { |ed| skip.call ed } if skip
@@ -256,7 +284,11 @@ module Relaton
         return ed.merge(base_row(ed), date: id_date(ed[:id]), pdf: pdf_url(ed[:id])) unless deep
 
         detail = edition(ed[:id])
-        Util.warn "No date on #{page_url ed[:id]} — falling back to the id's date" if detail[:date].nil?
+        # A family whose date lives in the id (Handbooks) is expected to find
+        # none on the page; for the others a missing date means a degraded fetch.
+        if detail[:date].nil? && config(family_of(ed[:id]))[:date] != :id
+          Util.warn "No date on #{page_url ed[:id]} — falling back to the id's date"
+        end
         ed.merge(base_row(ed), date: detail[:date] || id_date(ed[:id]), pdf: detail[:pdf])
       end
 
@@ -299,6 +331,8 @@ module Relaton
         case config(family_of(id))[:date]
         when :approved then page_text(page)[APPROVED_RE, 1]
         when :posted then posted_date(page, id)
+        # :id — the page has no date to offer, so #row falls back to the id's
+        # year without treating it as a degraded crawl.
         end
       end
 

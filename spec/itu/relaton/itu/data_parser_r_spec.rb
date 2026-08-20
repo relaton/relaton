@@ -87,12 +87,22 @@ describe Relaton::Itu::DataParserR do
     end
 
 # Each family spells its identifier differently and the published dataset is
-# the authority; these are the four live conventions.
+# the authority; these are the live conventions.
 {
   "a Question, which ends in a colon" =>
     [{ family: "R-QUE", code: "202-2/1", id: "R-QUE-SG01.202-2-2002" }, "ITU-R 202-2/1:"],
   "a Resolution, which comes from the id, not the code" =>
     [{ family: "R-RES", code: "Res.1-9 (2023)", id: "R-RES-R.1-9-2023" }, "ITU-R R.1-9"],
+  # The page displays "2014" for this edition; the id says 2013 and wins.
+  "a Handbook, whose year comes from the id, not the code it contradicts" =>
+    [{ family: "R-HDB", code: "2014", id: "R-HDB-43-2013" }, "ITU-R 43.HDB (2013)"],
+  "a Handbook whose code is the edition wording" =>
+    [{ family: "R-HDB", code: "Edition of 2002", id: "R-HDB-43-2002" }, "ITU-R 43.HDB (2002)"],
+  # The leading zero is kept: the published records read "ITU-R 01.HDB".
+  "a Handbook with a zero-padded number" =>
+    [{ family: "R-HDB", code: "", id: "R-HDB-01-2015" }, "ITU-R 01.HDB (2015)"],
+  "an undated Handbook, which keeps its number alone" =>
+    [{ family: "R-HDB", code: "", id: "R-HDB-52" }, "ITU-R 52.HDB"],
 }.each do |what, (row, expected)|
   it "builds #{what}" do
     expect(described_class.fetch_docid(row).first.content).to eq expected
@@ -102,6 +112,14 @@ end
 it "flags a Resolution row whose id carries no number" do
   errors = Hash.new true
   expect(described_class.fetch_docid({ family: "R-RES", id: "R-RES-", code: "Res." }, errors)).to eq []
+  expect(errors[:docid]).to be true
+end
+
+# A Handbook ignores its code entirely, so an unreadable id is the only way
+# it can fail — and it must fail rather than mint "ITU-R .HDB".
+it "flags a Handbook row whose id carries no number" do
+  errors = Hash.new true
+  expect(described_class.fetch_docid({ family: "R-HDB", id: "R-HDB", code: "Spectrum Monitoring" }, errors)).to eq []
   expect(errors[:docid]).to be true
 end
 
