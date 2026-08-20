@@ -84,7 +84,13 @@ module Relaton
       def family_docid(row)
         # " " spelled as an escape on purpose: a literal NBSP here is invisible
         # and has been silently lost by tooling before.
-        code = row[:code].to_s.tr(" ", " ").sub(/\s*\(.*\z/m, "").strip
+        #
+        # The date suffix is cut at the bare `(`, leaving the space before it to
+        # #strip. A leading `\s*` would make this polynomial-time (CodeQL
+        # rb/polynomial-redos): unanchored, it can start matching anywhere in a
+        # run of spaces, so a code that never reaches a `(` costs one pass per
+        # space. Same result, no ambiguity.
+        code = row[:code].to_s.tr(" ", " ").sub(/\(.*\z/m, "").strip
         # The two id-derived families, before `code` gets a say.
         return "ITU-R #{resolution_number row}" if row[:family] == "R-RES"
         return handbook_docid(row) if row[:family] == "R-HDB"

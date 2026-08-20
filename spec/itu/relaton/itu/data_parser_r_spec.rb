@@ -52,7 +52,18 @@ describe Relaton::Itu::DataParserR do
     expect(docid.first.content).to eq "ITU-R BO.1130-5"
   end
 
-  context "fetch_docid" do
+  # The date suffix is cut at the bare "(" so the regex carries no ambiguous
+# leading `\s*` (CodeQL rb/polynomial-redos); #strip does the rest, so the
+# space before it must still disappear and a code that never reaches a "("
+# must survive whole.
+it "strips the space before the date without an ambiguous regex" do
+  expect(described_class.fetch_docid(row.merge(code: "BO.1130-5    (02/2026)")).first.content)
+    .to eq "ITU-R BO.1130-5"
+  expect(described_class.fetch_docid(row.merge(code: "  BO.1130-5  ")).first.content)
+    .to eq "ITU-R BO.1130-5"
+end
+
+context "fetch_docid" do
     it "takes the displayed code, not the page id" do
       docid = described_class.fetch_docid(row)
       expect(docid.size).to eq 1
