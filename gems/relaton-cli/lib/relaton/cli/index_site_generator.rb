@@ -7,6 +7,7 @@ require "liquid"
 require "relaton/cli/frontend_assets"
 require "relaton/index"
 require "zip"
+require "pubid"
 require "relaton/cli/index_item_normalizer"
 
 module Relaton
@@ -272,7 +273,8 @@ module Relaton
       def pubid_class_for(flavor)
         return nil if flavor.nil? || flavor.to_s.strip.empty?
 
-        namespace = Pubid.const_get(flavor.to_s.split(/[_-]/).map(&:capitalize).join)
+        name = flavor.to_s.split(/[_-]/).map(&:capitalize).join
+        namespace = ::Pubid.const_get(name)
         namespace.const_get(:Identifier)
       rescue NameError
         raise ArgumentError, "unknown pubid flavor: #{flavor}"
