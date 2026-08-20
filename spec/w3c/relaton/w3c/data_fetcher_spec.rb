@@ -61,6 +61,26 @@ RSpec.describe Relaton::W3c::DataFetcher do
         allow(index).to receive(:save)
       end
 
+      # A one-page crawl that queues nothing interesting — the shared setup for
+      # the completeness guards below, which care about what happens after the
+      # worker pool drains rather than about pagination.
+      def single_page_client
+        allow(specs).to receive_messages(page: 1, pages: 1)
+        allow(specs).to receive(:next?).and_return(false)
+        client = double("client")
+        allow(client).to receive(:specifications).with(embed: true).and_return(specs)
+        allow(subject).to receive_messages(client: client, fetch_spec: nil)
+        client
+      end
+
+      # Losses have to be produced from inside the crawl: #fetch resets the
+      # bookkeeping on entry, so anything seeded beforehand is wiped.
+      def throttle_losses(count)
+        allow(subject).to receive(:fetch_spec) do
+          count.times { |i| Relaton::W3c::SafeRealize.throttled["https://example.com/#{i}"] = true }
+        end
+      end
+
       it "iterates through paginated specifications by page number" do
         specs2_links = double("specs2_links", specifications: [spec_link])
         specs2 = double("specs2", links: specs2_links, page: 2)
@@ -156,6 +176,100 @@ RSpec.describe Relaton::W3c::DataFetcher do
         expect { subject.fetch }
           .to raise_error(described_class::CrawlIncompleteError, /page 1 of 3/)
       end
+
+      # The Aug-2026 crawl permanently dropped 1,412 rate-limited resources and
+      # would have committed that hollowed-out dataset had page 13 happened to
+      # succeed. crawler.rb wipes data/ before every run, so such a commit is a
+      # mass deletion — the completeness guard has to cover per-resource loss,
+      # not just pagination.
+      context "when resources were lost to rate limiting" do
+        before { single_page_client }
+
+        it "aborts without saving once the throttle budget is blown" do
+          throttle_losses described_class.max_throttled_losses + 1
+
+          expect(index).not_to receive(:save)
+          expect { subject.fetch }
+            .to raise_error(described_class::CrawlIncompleteError, /rate limiting/)
+        end
+
+        it "still saves when the losses stay within budget" do
+          throttle_losses described_class.max_throttled_losses
+
+          expect(index).to receive(:save)
+          expect { subject.fetch }.not_to raise_error
+        end
+
+        it "still saves a deliberately interrupted crawl" do
+          # Ctrl-C already means "give me what you have"; the budget must not
+          # turn that documented behaviour into a hard failure.
+          subject.instance_variable_set(:@interrupted, true)
+          throttle_losses described_class.max_throttled_losses + 1
+
+          expect(index).to receive(:save)
+          expect { subject.fetch }.not_to raise_error
+        end
+      end
+
+      it "aborts without saving once the governor gives up on the limiter" do
+        single_page_client
+        allow(Relaton::W3c::SafeRealize.governor).to receive(:exhausted?).and_return(true)
+
+        expect(index).not_to receive(:save)
+        expect { subject.fetch }
+          .to raise_error(described_class::CrawlIncompleteError, /rate-limited/)
+      end
+
+      it "stops paginating as soon as the governor gives up" do
+        allow(specs).to receive_messages(page: 1, pages: 9)
+        allow(specs).to receive(:next?).and_return(true)
+        client = double("client")
+        allow(client).to receive(:specifications).and_return(specs)
+        allow(subject).to receive_messages(client: client, fetch_spec: nil)
+        allow(Relaton::W3c::SafeRealize.governor).to receive(:exhausted?).and_return(true)
+
+        expect { subject.fetch }.to raise_error(described_class::CrawlIncompleteError)
+        # Never asked for page 2: giving up beats grinding on for hours.
+        expect(client).not_to have_received(:specifications).with(embed: true, page: 2)
+      end
+
+      it "shortens w3c_api's own retries so the governor sees a 429 promptly" do
+        single_page_client
+        hal = double("hal")
+        allow(W3cApi::Hal).to receive(:instance).and_return(hal)
+        expect(hal).to receive(:configure_rate_limiting)
+          .with(described_class::UPSTREAM_RATE_LIMITING)
+        # w3c_api >= 0.3.3 rebuilds the register itself. Calling reset_register
+        # on top would leave it unregistered in lutaml-hal's GlobalRegister,
+        # where Link#realize raises on a missing name.
+        expect(hal).not_to receive(:reset_register)
+
+        subject.fetch
+      end
+
+      it "keeps 5xx on its full retry allowance" do
+        # lutaml-hal shares one max_retries between 429 and 5xx, and a 5xx is
+        # still a permanent skip — shortening it would blacklist a burst of
+        # resources on a wobble the old policy rode out, invisibly (skipped
+        # resources are not counted by the throttle budget).
+        expect(described_class::UPSTREAM_RATE_LIMITING[:max_retries]).to eq 5
+      end
+
+      it "survives a w3c_api that no longer exposes the rate-limit setter" do
+        single_page_client
+        allow(W3cApi::Hal).to receive(:instance).and_return(double("hal"))
+
+        expect { subject.fetch }.not_to raise_error
+      end
+
+      it "resets the throttle bookkeeping so a re-run starts clean" do
+        single_page_client
+        Relaton::W3c::SafeRealize.throttled["stale"] = true
+
+        subject.fetch
+
+        expect(Relaton::W3c::SafeRealize.throttled).to be_empty
+      end
     end
 
     context "#fetch_specifications_page" do
@@ -188,6 +302,36 @@ RSpec.describe Relaton::W3c::DataFetcher do
         expect(client).to have_received(:specifications)
           .with(embed: true, page: 2).exactly(described_class::PAGE_FETCH_ATTEMPTS).times
         expect(subject).to have_received(:sleep).exactly(described_class::PAGE_FETCH_ATTEMPTS - 1).times
+      end
+
+      context "when the page is rate-limited" do
+        let(:governor) { Relaton::W3c::SafeRealize.governor }
+
+        before do
+          allow(client).to receive(:specifications).with(embed: true, page: 2)
+            .and_raise(Lutaml::Hal::TooManyRequestsError.new("Status: 429"))
+          allow(governor).to receive(:wait).and_return(0.0)
+        end
+
+        it "keeps retrying on the shared cooldown until the governor gives up" do
+          # PAGE_FETCH_ATTEMPTS must not decide this: giving up after ~3 minutes
+          # would pre-empt the escalation ladder and report a pagination fault
+          # instead of the real reason. A local sleep is also wrong — it would
+          # let the rest of the pool keep hammering the limiter.
+          calls = 0
+          allow(governor).to receive(:throttled!) { (calls += 1) >= 6 }
+
+          expect(subject.send(:fetch_specifications_page, 2)).to be_nil
+          expect(calls).to eq 6
+          expect(governor).to have_received(:wait).exactly(6).times
+          expect(subject).not_to have_received(:sleep)
+        end
+
+        it "does not spend a non-throttle attempt on a 429" do
+          allow(governor).to receive(:throttled!).and_return(true)
+          expect(subject.send(:fetch_specifications_page, 2)).to be_nil
+          expect(client).to have_received(:specifications).with(embed: true, page: 2).once
+        end
       end
     end
 

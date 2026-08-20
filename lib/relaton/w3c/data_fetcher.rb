@@ -27,6 +27,38 @@ module Relaton
       # (rate-limit/connection) before giving up and aborting the crawl.
       PAGE_FETCH_ATTEMPTS = 3
 
+      # How many resources may be lost to rate limiting before the dataset is
+      # considered too incomplete to save. Deliberately low: crawls are bimodal
+      # — a healthy run loses none (Aug 17 2026: 0), a rate-limited one loses
+      # hundreds (Aug 19 2026: 1,412) — so there is no middle ground to protect.
+      # Genuinely broken resources (permanent skips from 404s/5xx) are counted
+      # separately and stay tolerated.
+      DEFAULT_MAX_THROTTLED_LOSSES = 25
+
+      # Retry policy pushed into w3c_api. Its defaults spend ~31s (1+2+4+8+16)
+      # inside lutaml-hal before a 429 ever reaches us, which just delays the
+      # shared back-pressure that actually works; this compresses the same chain
+      # to ~11s (0.5+1+2+4+4) so the Governor can open its pool-wide cooldown
+      # while the ban window is still young.
+      #
+      # `max_retries` deliberately stays at 5. lutaml-hal applies one retry count
+      # to both 429 and 5xx, and unlike a 429 a 5xx is still a *permanent* skip
+      # here — cutting its attempts would blacklist a burst of resources on a
+      # brief upstream wobble that the old policy rode out, and `skipped` is not
+      # counted by guard_throttle_budget, so that loss would be invisible.
+      UPSTREAM_RATE_LIMITING = {
+        max_retries: 5, base_delay: 0.5, max_delay: 4.0, backoff_factor: 2.0
+      }.freeze
+
+      # Ceiling on resources dropped to rate limiting before the crawl refuses
+      # to save. Tunable via env var for a deliberately partial run; 0 is a
+      # meaningful setting (tolerate nothing), so it is accepted here unlike in
+      # the governor's duration knobs.
+      def self.max_throttled_losses
+        value = ENV["RELATON_W3C_MAX_THROTTLED"].to_s.strip
+        value.match?(/\A\d+\z/) ? value.to_i : DEFAULT_MAX_THROTTLED_LOSSES
+      end
+
       # Number of fetch_spec worker threads. Tunable via env var so CI or
       # local runs can dial it up for speed or down to lighten load on
       # api.w3.org (or for debugging).
@@ -75,6 +107,8 @@ module Relaton
       # of everything fetched so far is saved rather than the run being lost.
       #
       def fetch(_source = nil)
+        SafeRealize.reset!
+        configure_upstream_rate_limiting
         n_workers = self.class.concurrency
         queue = SizedQueue.new(n_workers * 4)
         workers = Array.new(n_workers) { spawn_worker(queue) }
@@ -89,11 +123,45 @@ module Relaton
             n_workers.times { queue << nil } # poison pills
             workers.each(&:join)
           end
-          Util.warn "Crawl interrupted — saving progress collected so far." if @interrupted
+          if @interrupted
+            # Ctrl-C means "give me what you have", so the completeness guards
+            # below are deliberately not applied to an interrupted crawl.
+            Util.warn "Crawl interrupted — saving progress collected so far."
+          else
+            guard_rate_limited
+            guard_throttle_budget
+          end
           index.save
         end
 
         report_errors
+      end
+
+      # Abort when the governor concluded we are banned rather than briefly
+      # throttled. Everything fetched so far is discarded on purpose: a partial
+      # dataset must never be saved (crawler.rb wipes data/ first, so saving one
+      # commits mass deletions).
+      def guard_rate_limited
+        return unless SafeRealize.governor.exhausted?
+
+        raise CrawlIncompleteError,
+              "crawl is rate-limited: gave up after " \
+              "#{SafeRealize.governor.throttle_rounds} consecutive backoffs " \
+              "(#{SafeRealize.governor.throttle_count} rate-limited responses); " \
+              "refusing to save a partial dataset"
+      end
+
+      # The per-resource counterpart to guard_complete_pagination: pagination can
+      # complete cleanly while rate limiting has quietly hollowed out the
+      # documents behind it.
+      def guard_throttle_budget
+        lost = SafeRealize.throttled.size
+        budget = self.class.max_throttled_losses
+        return if lost <= budget
+
+        raise CrawlIncompleteError,
+              "#{lost} resources were dropped to rate limiting (budget #{budget}); " \
+              "refusing to save a partial dataset"
       end
 
       #
@@ -113,11 +181,11 @@ module Relaton
         loop do
           page = specs
           page.links.specifications.each do |spec|
-            break if @interrupted
+            break if stopping?
 
             queue << [spec, page]
           end
-          break if @interrupted
+          break if stopping?
 
           last_page = page.page
           break unless page.next?
@@ -133,6 +201,11 @@ module Relaton
           # `break`ing prevents a rate-limit blip from silently truncating the
           # dataset: a partial crawl must never be saved/committed.
           unless next_page
+            # When the governor gave up, the page didn't fail — we stopped
+            # asking. Let guard_rate_limited report that with the accurate
+            # reason instead of dressing it up as a pagination fault.
+            break if SafeRealize.governor.exhausted?
+
             raise CrawlIncompleteError,
                   "specifications pagination stopped at page #{page.page}: " \
                   "failed to fetch page #{page.page + 1}"
@@ -141,9 +214,16 @@ module Relaton
           specs = next_page
         end
 
-        return if @interrupted
+        return if stopping?
 
         guard_complete_pagination(last_page, expected_pages)
+      end
+
+      # Reasons to stop feeding the queue: a Ctrl-C (save what we have) or the
+      # governor concluding the crawl is banned (abort). Both need the producer
+      # to stop; #fetch decides which of the two it was.
+      def stopping?
+        @interrupted || SafeRealize.governor.exhausted?
       end
 
       # Defense in depth: even when no page fetch raised, make sure pagination
@@ -262,15 +342,30 @@ module Relaton
       # embedded_data is populated. Transient 403/5xx/connection failures are
       # already retried upstream (w3c_api/lutaml-hal), but losing an index page
       # drops every spec on it, so retry a few more times here with backoff to
-      # ride out a brief rate-limit window. Returns nil only once the attempts
-      # are exhausted; the caller turns that into a CrawlIncompleteError so the
-      # crawl aborts instead of committing a truncated dataset.
+      # ride out a brief wobble. Rate limiting is handled separately, by the
+      # governor. Returns nil once the attempts are exhausted (or the crawl is
+      # declared banned); the caller turns that into a CrawlIncompleteError so
+      # the crawl aborts instead of committing a truncated dataset.
       def fetch_specifications_page(number)
         attempt = 0
         begin
-          attempt += 1
-          client.specifications(embed: true, page: number)
+          SafeRealize.governor.wait
+          page = client.specifications(embed: true, page: number)
+          SafeRealize.governor.succeeded!
+          page
+        rescue *Governor::THROTTLE_ERRORS => e
+          # How long to keep trying a rate-limited page is the governor's call,
+          # not this counter's: PAGE_FETCH_ATTEMPTS would give up after ~3
+          # minutes and report a *pagination* fault, hiding the real reason and
+          # pre-empting the escalation ladder. Retry until the governor declares
+          # the crawl banned; #wait above paces each attempt, and returns
+          # immediately once it has, so this cannot spin.
+          log_error "Rate-limited fetching specifications page #{number}: #{e.message}"
+          return nil if SafeRealize.governor.throttled!(retry_after: Governor.retry_after(e))
+
+          retry
         rescue Lutaml::Hal::Error, Faraday::Error => e
+          attempt += 1
           log_error "Failed to fetch specifications page #{number} " \
                     "(attempt #{attempt}/#{PAGE_FETCH_ATTEMPTS}): " \
                     "#{e.class}: #{e.message}"
@@ -282,12 +377,33 @@ module Relaton
         end
       end
 
+      # Point w3c_api's rate limiter at UPSTREAM_RATE_LIMITING. This mutates
+      # w3c_api's process-wide singleton and is not restored afterwards — the
+      # crawler is a standalone script, and a shorter inner retry is the right
+      # setting for any caller that has the governor in front of it anyway.
+      # Best-effort: the setter is w3c_api's only public knob and is not part of
+      # a stable contract, so losing it must not fail the run.
+      def configure_upstream_rate_limiting
+        hal = W3cApi::Hal.instance
+        return unless hal.respond_to?(:configure_rate_limiting)
+
+        # w3c_api >= 0.3.3 cascades this through reset_client -> rebuild_register
+        # itself, so the register no longer goes on serving the old policy.
+        # Do NOT add a reset_register call after this: rebuild_register
+        # re-registers eagerly on purpose (Link#realize raises when the name is
+        # absent from lutaml-hal's GlobalRegister), and tearing it back down
+        # would break realize for every model fetched before this point.
+        hal.configure_rate_limiting(UPSTREAM_RATE_LIMITING)
+      rescue StandardError => e
+        Util.warn "Could not configure w3c_api rate limiting: #{e.class}: #{e.message}"
+      end
+
       def spawn_worker(queue)
         Thread.new do
           while (item = queue.pop)
-            # Once interrupted, drain the queue without processing so the
-            # producer unblocks and the pool reaches its poison pills quickly.
-            next if @interrupted
+            # Once stopping, drain the queue without processing so the producer
+            # unblocks and the pool reaches its poison pills quickly.
+            next if stopping?
 
             spec, page = item
             begin
