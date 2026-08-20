@@ -173,6 +173,10 @@ module Relaton
                       desc: "Also index a sibling static/ folder next to DATA-DIR (auto-detected); --no-static disables"
       option :overwrite, aliases: :f, type: :boolean, default: true,
                          desc: "Overwrite existing output files"
+      option :"publish-data", type: :boolean, default: false,
+                              desc: "Copy the corpus onto the site so document fetches " \
+                                    "share the Pages origin (for repos whose data is " \
+                                    "served only from there); --no-publish-data disables"
 
       def index(data_dir = nil)
         with_index_source(data_dir) do |dir, default_base_url, default_title|
@@ -188,6 +192,7 @@ module Relaton
             base_url: options[:"base-url"] || default_base_url,
             static: options[:static],
             overwrite: options[:overwrite],
+            publish_data: options[:"publish-data"],
           )
         end
       end
