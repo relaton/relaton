@@ -51,12 +51,48 @@ module Relaton
           page: "#{DOMAIN}/rec/%<id>s/en",
           pdf: "#{DOMAIN}/dms_pubrec/itu-r/rec/%<series>s/%<id>s!!PDF-E.pdf",
           date: :approved,
+          group: :series,
         }.freeze,
         "R-REP" => {
           index: "#{DOMAIN}/pub/R-REP/en",
           page: "#{DOMAIN}/pub/%<id>s/en",
           pdf: "#{DOMAIN}/dms_pub/itu-r/opb/rep/%<id>s-PDF-E.pdf",
           date: :posted,
+          group: :series,
+        }.freeze,
+        # Questions nest one level deeper: the family index lists **study
+        # groups** (R-QUE-SG01), not series letters. No `pdf:` template — a
+        # Question edition page usually offers no PDF of its own (verified on
+        # R-QUE-SG01.202-2-2002), and deriving a URL that 404s is worse than
+        # leaving the record sourceless.
+        "R-QUE" => {
+          index: "#{DOMAIN}/pub/R-QUE/en",
+          page: "#{DOMAIN}/pub/%<id>s/en",
+          date: :posted,
+          group: :sub_index,
+        }.freeze,
+        # Handbooks are flat like Resolutions, but they publish less per page
+        # than any other family, so two things move: the **date** comes from the
+        # id (an edition page carries no posted date, and the displayed codes
+        # disagree with each other — `R-HDB-43-2013` renders "2014" against its
+        # siblings' "2026" and "Edition of 2002"), and the **title** comes from
+        # the level-1 row, the only place ITU prints it.
+        "R-HDB" => {
+          index: "#{DOMAIN}/pub/R-HDB/en",
+          page: "#{DOMAIN}/pub/%<id>s/en",
+          pdf: "#{DOMAIN}/dms_pub/itu-r/opb/hdb/%<id>s-PDF-E.pdf",
+          date: :id,
+          title: :document,
+          group: :flat,
+        }.freeze,
+        # Resolutions are **flat**: /pub/R-RES/en links all 75 documents
+        # directly, with no grouping level at all.
+        "R-RES" => {
+          index: "#{DOMAIN}/pub/R-RES/en",
+          page: "#{DOMAIN}/pub/%<id>s/en",
+          pdf: "#{DOMAIN}/dms_pub/itu-r/opb/res/%<id>s-PDF-E.pdf",
+          date: :posted,
+          group: :flat,
         }.freeze,
       }.freeze
       DEFAULT_FAMILY = "R-REC".freeze
@@ -101,13 +137,27 @@ module Relaton
         end
       end
 
-      # @param family [String] "R-REC" (16 series) or "R-REP" (14)
-      # @return [Array<String>] %w[BO BR BS BT F M P RA RS S SA SF SM SNG TF V]
+      # The grouping level between a family index and its documents. Three
+      # topologies, all real:
+      #
+      #   :series     R-REC/R-REP — 16 and 14 series letters (BO, BR, …)
+      #   :sub_index  R-QUE       — 6 study groups (SG01, SG03, …)
+      #   :flat       R-RES       — none; the index links all 75 documents
+      #
+      # A flat family yields a single nil group so the walk below stays one
+      # shape: index -> group -> document -> edition.
+      #
+      # @param family [String]
+      # @return [Array<String, nil>]
       def series(family = DEFAULT_FAMILY)
-        found = get(config(family)[:index]).search("//a").filter_map do |a|
-          a[:href].to_s[%r{/(?:rec|pub)/#{Regexp.escape family}-([A-Z]+)/en\z}, 1]
+        conf = config(family)
+        return [nil] if conf[:group] == :flat
+
+        pattern = conf[:group] == :sub_index ? "(SG\\d+)" : "([A-Z]+)"
+        found = get(conf[:index]).search("//a").filter_map do |a|
+          a[:href].to_s[%r{/(?:rec|pub)/#{Regexp.escape family}-#{pattern}/en\z}, 1]
         end.uniq
-        warn_if_empty found, "#{family} series"
+        warn_if_empty found, "#{family} groups"
       end
 
       # Level 1 — every document in a series.
@@ -116,15 +166,22 @@ module Relaton
       # @param family [String] "R-REC" or "R-REP"
       # @return [Array<Hash>] { id:, code:, title: }
       def documents(series, family: DEFAULT_FAMILY)
-        prefix = "#{family}-#{series}"
-        found = rows(page_url(prefix)).filter_map do |id, anchor, cells|
-          # The series page also links itself (parent=R-REC-BO) for the language
-          # switcher; only document ids carry the ".NNN" part.
-          next unless id.start_with? "#{prefix}."
+        conf = config(family)
+        # A flat family lists its documents on the family index itself; the
+        # others list them on the group page.
+        url, prefix = series ? [page_url("#{family}-#{series}"), "#{family}-#{series}."] : [conf[:index], "#{family}-"]
+        found = rows(url).filter_map do |id, anchor, cells|
+          # Every one of these pages links itself (parent=R-REC-BO,
+          # parent=R-QUE-SG01) for the language switcher, and a flat index links
+          # only documents — so the prefix test is what separates the two.
+          next unless id.start_with?(prefix) && id != prefix.chomp(".")
 
-          { id: id, code: squish(anchor.text), title: title_text(cells[1]) }
+          # The Handbook index lists *titles* where every other family lists
+          # numbers — its number is in the id alone and its title cell is empty.
+          name = squish(anchor.text)
+          { id: id, code: name, title: conf[:title] == :document ? name : title_text(cells[1]) }
         end
-        warn_if_empty found, "documents in #{prefix}"
+        warn_if_empty found, "documents in #{series ? "#{family}-#{series}" : family}"
       end
 
       # Level 2 — every edition of a document ("Main" first, then "Previous
@@ -143,11 +200,17 @@ module Relaton
           # is the associated *Question* (`/rec/R-REC-M.2083/en` shows both
           # "M.2083-0 (09/2015)" and "M.5/BL/22 (09/2015)" for one edition) —
           # taking that at face value mints a Recommendation docid out of a
-          # question number.
-          next unless code.start_with? number
+          # question number. Only the `/rec` pages carry those rows, and only
+          # there does the code start with the document number: a Resolution
+          # renders "Res.1-9 (2023)" against the id `R-RES-R.1-9-2023`.
+          next if family_of(doc_id) == "R-REC" && !code.start_with?(number)
 
           { id: id, code: code, title: title_text(cells[1]), status: squish(cells[2]&.text) }
         end
+        # A Handbook edition is listed twice — once with an empty code, once with
+        # its year — so keep the richer row per id rather than harvesting the
+        # same edition twice.
+        found = found.group_by { |e| e[:id] }.map { |_, dupes| dupes.max_by { |e| e[:code].to_s.size } }
         warn_if_empty found, "editions of #{doc_id}"
       end
 
@@ -188,11 +251,22 @@ module Relaton
       #   request per edition for the page's own date and PDF href.
       # @param errors [Hash] shared error tally, as DataParserR expects
       # @return [Array<Relaton::Itu::ItemData>]
-      def harvest(series, family: DEFAULT_FAMILY, only: nil, deep: true, errors: Hash.new(true))
+      def harvest(series, family: DEFAULT_FAMILY, only: nil, deep: true, errors: Hash.new(true), skip: nil)
         docs = documents(series, family: family)
         docs = docs.select { |d| only.include? d[:id] } if only
-        docs.flat_map { |d| editions(d[:id]) }
-            .filter_map { |ed| DataParserR.parse(row(ed, deep: deep), errors) }
+        # A Handbook edition inherits the document's title (`title: :document`):
+        # its own row shows a year and nothing else, so this is the only chance
+        # to carry the title down — the level-3 fetch never sees the index.
+        inherited = config(family)[:title] == :document
+        editions = docs.flat_map do |d|
+          editions(d[:id]).map do |ed|
+            ed.merge(family: family_of(ed[:id]), **(inherited ? { title: d[:title] } : {}))
+          end
+        end
+        # `skip` is what makes a top-up cheap: it decides from the level-2 row,
+        # before the per-edition page — the expensive half — is ever requested.
+        editions = editions.reject { |ed| skip.call ed } if skip
+        editions.filter_map { |ed| DataParserR.parse(row(ed, deep: deep), errors) }
       end
 
       private
@@ -210,7 +284,11 @@ module Relaton
         return ed.merge(base_row(ed), date: id_date(ed[:id]), pdf: pdf_url(ed[:id])) unless deep
 
         detail = edition(ed[:id])
-        Util.warn "No date on #{page_url ed[:id]} — falling back to the id's date" if detail[:date].nil?
+        # A family whose date lives in the id (Handbooks) is expected to find
+        # none on the page; for the others a missing date means a degraded fetch.
+        if detail[:date].nil? && config(family_of(ed[:id]))[:date] != :id
+          Util.warn "No date on #{page_url ed[:id]} — falling back to the id's date"
+        end
         ed.merge(base_row(ed), date: detail[:date] || id_date(ed[:id]), pdf: detail[:pdf])
       end
 
@@ -253,6 +331,8 @@ module Relaton
         case config(family_of(id))[:date]
         when :approved then page_text(page)[APPROVED_RE, 1]
         when :posted then posted_date(page, id)
+        # :id — the page has no date to offer, so #row falls back to the id's
+        # year without treating it as a degraded crawl.
         end
       end
 
@@ -319,6 +399,7 @@ module Relaton
       # @return [String, nil]
       def pdf_url(id)
         template = config(family_of(id))[:pdf]
+        return nil unless template # R-QUE editions rarely have one; never guess
         return format(template, id: id) unless template.include? "%<series>s"
 
         series = id[/-([A-Za-z]+)\./, 1]

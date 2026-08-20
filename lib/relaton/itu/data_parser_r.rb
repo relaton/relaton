@@ -55,46 +55,98 @@ module Relaton
         )
       end
 
-      # The docid comes from the **displayed** code, never the page id: the id's
-      # `-0` for a single-edition document (`R-REC-BO.1212-0-199510-I`) would
-      # give "ITU-R BO.1212-0", while the published record is "ITU-R BO.1212"
-      # (data/itu-r-bo-1212.yaml). Stripping the trailing " (MM/YYYY)" reproduces
-      # the published docidentifiers — and so the published filenames and index
-      # rows — exactly.
+      # Each ITU-R family spells its identifier differently, and the published
+      # dataset is the authority on which spelling. Verified against
+      # relaton-data-itu:
       #
+      #   R-REC  the displayed code    "BO.1130-5 (02/2026)" -> ITU-R BO.1130-5
+      #   R-REP  the same, prefixed    "BO.1227-2 (1998)"    -> Report ITU-R BO.1227-2
+      #   R-QUE  the same, + a colon   "202-2/1"             -> ITU-R 202-2/1:
+      #   R-RES  the **page id**       R-RES-R.1-9-2023      -> ITU-R R.1-9
+      #   R-HDB  the **page id**       R-HDB-43-2013         -> ITU-R 43.HDB (2013)
+      #
+      # Three of those need saying out loud. A **Report** is prefixed because
+      # Recommendations and Reports number independently, so `ITU-R BT.2020-1`
+      # alone names two different documents (pubid #327 types the prefixed form
+      # `pubid:itu:report`, and `output_file` sends it to `report-itu-r-*.yaml`
+      # instead of colliding). A **Resolution** cannot use its displayed code at
+      # all: the page renders "Res.1-9 (2023)" while the published record is
+      # `ITU-R R.1-9`, which only the id carries. A **Handbook** likewise: the
+      # index lists its *title* and the leaf shows only a year — see
+      # #handbook_docid.
+      #
+      # The code is NBSP-folded first — the cells are padded with `&nbsp;`, which
+      # neither `\s` nor String#strip match, and an NBSP left in a docid
+      # sanitizes into the filename and defeats `Pubid::Itu`.
+      #
+      # @param row [Hash]
+      # @return [String, nil] nil when the row carries nothing to build from
+      def family_docid(row)
+        # " " spelled as an escape on purpose: a literal NBSP here is invisible
+        # and has been silently lost by tooling before.
+        #
+        # The date suffix is cut at the bare `(`, leaving the space before it to
+        # #strip. A leading `\s*` would make this polynomial-time (CodeQL
+        # rb/polynomial-redos): unanchored, it can start matching anywhere in a
+        # run of spaces, so a code that never reaches a `(` costs one pass per
+        # space. Same result, no ambiguity.
+        code = row[:code].to_s.tr(" ", " ").sub(/\(.*\z/m, "").strip
+        # The two id-derived families, before `code` gets a say.
+        return "ITU-R #{resolution_number row}" if row[:family] == "R-RES"
+        return handbook_docid(row) if row[:family] == "R-HDB"
+        return nil if code.empty?
+
+        case row[:family]
+        when "R-REP" then "Report ITU-R #{code}"
+        when "R-QUE" then "ITU-R #{code}:"
+        else "ITU-R #{code}"
+        end
+      end
+
+      # "R-HDB-43-2013" -> "ITU-R 43.HDB (2013)".
+      #
+      # The displayed code is unusable twice over: the index cell holds the
+      # handbook's *title*, and the leaf holds a year that can disagree with its
+      # own id (`R-HDB-43-2013` displays "2014"). The id is the only consistent
+      # source, so the year comes from there.
+      #
+      # Keyed **per edition** because ITU publishes several per handbook (43 has
+      # 2002, 2013 and 2026) and `Pubid::Itu` models the year, so they stay
+      # distinct records. The bare `ITU-R 43` that four published records carry
+      # parses as a *recommendation*, claiming a number that is not its own —
+      # this is what replaces it.
+      #
+      # @param row [Hash]
+      # @return [String, nil]
+      def handbook_docid(row)
+        m = row[:id].to_s.match(/\AR-HDB-(?<number>\d+)(?:-(?<year>(?:19|20)\d{2}))?/)
+        return nil unless m
+
+        m[:year] ? "ITU-R #{m[:number]}.HDB (#{m[:year]})" : "ITU-R #{m[:number]}.HDB"
+      end
+
+      # "R-RES-R.1-9-2023" -> "R.1-9"
+      #
+      # @param row [Hash]
+      # @return [String, nil]
+      def resolution_number(row)
+        n = row[:id].to_s.sub(/\AR-RES-/, "").sub(/-(?:19|20)\d{2}\z/, "")
+        n.empty? ? nil : n
+      end
+
       # @param row [Hash]
       # @return [Array<Relaton::Bib::Docidentifier>]
       def fetch_docid(row, errors = {})
-        # The cells are padded with `&nbsp;`, which neither `\s` nor String#strip
-        # match — an NBSP left in the code produces a docid that sanitizes to a
-        # filename with an NBSP in it and that Pubid::Itu cannot parse.
-        code = row[:code].to_s.tr(" ", " ").sub(/\s*\(.*\z/m, "").strip
-        if code.empty?
+        content = family_docid row
+        if content.nil? || content == "ITU-R "
           errors[:docid] &&= true
           return []
         end
 
-        r = [Docidentifier.new(type: "ITU", content: "#{id_prefix row}#{code}", primary: true)]
+        r = [Docidentifier.new(type: "ITU", content: content, primary: true)]
         errors[:docid] &&= r.empty?
         r
       end
-
-# ITU-R Recommendations and Reports number **independently**, so the bare
-# "ITU-R BT.2020-1" names two different documents — the 2014 UHDTV
-# parameter values and the 2000 objective-quality report. ITU disambiguates
-# with the leading word ("Report BT.2020-1" vs "Recommendation BT.2020-1"),
-# and so does `Pubid::Itu` since #327: "Report ITU-R BT.2020-1" parses as
-# `pubid:itu:report` and is `!=` the Recommendation of the same number.
-# Emitting that form is what stops Reports being indexed as Recommendations
-# (984 of the 1,001 published ones are, today) and what lets both documents
-# coexist — `output_file` derives the filename from the docid, so a Report
-# lands on `data/report-itu-r-*.yaml` instead of colliding.
-#
-# @param row [Hash]
-# @return [String] "" for a Recommendation, "Report " for a Report
-def id_prefix(row)
-  row[:family] == "R-REP" ? "Report ITU-R " : "ITU-R "
-end
 
       # @param row [Hash]
       # @return [Array<Relaton::Bib::Title>]

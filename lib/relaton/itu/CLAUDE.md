@@ -91,29 +91,59 @@ publication arm must come first):
 
 - **`DataFetcher`** extends `Core::DataFetcher`. `#fetch(source)` routes on the
   dataset name (from `Processor#@datasets = %w[itu-r itu-t]`): `"itu-t"` →
-  `#fetch_recommendations`, then `index.save` + `report_errors`. **Anything else
-  (`"itu-r"`, `nil`) raises `Relaton::RequestError`** (`ITU_R_DISABLED`) naming
-  the dead endpoint and issue #75 — the old `#fetch_publications`/`#search_request`
-  RunSearch pagination is gone, so a stray run says why it can't run instead of
-  dying on a `JSON::ParserError` from the WAF's HTML 500 or rebuilding an empty
-  dataset. `itu-r` deliberately **stays** in `@datasets`: the CLI's
-  `Registry#find_processor_by_dataset` only warns and exits **0** for an unknown
-  dataset, so removing it would turn a stray `relaton fetch-data itu-r` into a
-  silent success. (`Core::DataFetcher.fetch` mkdir_p's the output dir before the
-  raise — a harmless empty `data/`.)
-- **ITU-R records are preserved, not re-harvested** — `#index_files(glob)` indexes
-  the published `data/itu-r-*.yaml` through the same pubid guard and
-  unparseable-id reporting as the ITU-T harvest; `relaton-data-itu`'s crawler
-  drives it off the same instance as `#fetch "itu-t"`. `DataParserR` is left in
-  place and is now fed by `DataCrawlerR` (below), which is not wired into `#fetch`.
-- **ITU-R crawl prototype (`DataCrawlerR`, issue #75 — NOT wired in)** — ITU-R
+  `#fetch_recommendations`, anything else (`"itu-r"`, `nil`) →
+  `#fetch_publications`, then `index.save` + `report_errors` for either.
+- **ITU-R harvester** (`#fetch_publications`) — restored on the crawl that
+  replaced the decommissioned RunSearch enumeration (issue #75). It walks
+  `DataCrawlerR::FAMILIES` series by series, so a series ITU throttles costs
+  that series rather than the run. `RELATON_ITU_DELAY` (default 1 s) tunes
+  politeness; `RELATON_ITU_MODE` picks the mode, so two scheduled jobs differ
+  by environment rather than by code:
+
+  | mode | cost | what it is for |
+  |---|---|---|
+  | `:full` (default) | ~7k requests, ~4 h | the weekly rebuild: wipe `data/itu-r-*` first and let ITU be the sole author of the result |
+  | `:top_up` | enumeration + one request per **new** edition | the daily job: same document walk, but `#held?` answers from the level-2 row whether the dataset already has an edition, so the expensive per-edition page is never fetched for one we hold |
+
+  **A top-up assumes a previous `:full` run built the dataset.** Against the
+  pre-#110 dataset it would add every Report a second time under its `Report …`
+  name, so the data repo runs the rebuild first and enables the daily job after.
+  That ordering lives in the schedule, next to the wipe it depends on, rather
+  than in the gem: it can only go wrong in the single window before the first
+  rebuild, and it announces itself as a commit adding ~650 files. The rebuild
+  *is* the migration, which is why the harvester carries no migration step.
+
+**Measured** on the BO slice of R-REC + R-REP, back to back (2026-08-19): a
+full rebuild is **221 requests / 548 s** for 127 records; the top-up
+immediately after is **94 requests / 268 s** and adds nothing — it saves
+exactly the 127 per-edition pages, 57% of the requests. Corpus-wide that
+scales to roughly **7k requests (~4 h) full** against **~2.5k (~1.4 h)
+top-up**: cheaper, but not cheap — the enumeration still costs one request per
+document, because a new edition cannot be noticed without reading the document
+page. (`/rec/new.asp?lang=en`, linked from every series page, may be a real
+delta feed; unexplored.) Earlier corpus figures still hold: ~2.1 s per request
+at the 1 s delay, and 0 dates rewritten / 0 records lost across 3,600 merged
+records.
+
+  Pair the modes with the data repo's existing collapse guard
+  (`guard_itut_harvest`, which aborts a publish whose file count halves) — a
+  wipe makes that guard the only thing between a throttled crawl and a
+  published hole, and ITU-R wants its own, per family.
+- **`#index_files(glob)`** indexes records already on disk through the same pubid
+  guard and unparseable-id reporting as the harvests. It is what
+  `relaton-data-itu`'s crawler used while ITU-R had no harvester; a run that now
+  calls `#fetch "itu-r"` gets that indexing as a side effect of the merge.
+- **ITU-R crawler (`DataCrawlerR`, issue #75)** — ITU-R
   metadata is still fully server-rendered, so enumeration *is* possible without
   RunSearch; `data_crawler_r.rb` proves it. Three levels, per family (`FAMILIES`):
 
-  | family | index | page URL | date on the edition page |
-  |---|---|---|---|
-  | `R-REC` recommendations | `/pub/R-REC/en` (16 series) | `/rec/<id>/en` | `Approved in YYYY-MM-DD` — **approval** |
-  | `R-REP` reports | `/pub/R-REP/en` (14 series) | `/pub/<id>/en` | the files' "Posted" date — **publication** |
+| family | index | grouping level | page URL | date |
+|---|---|---|---|---|
+| `R-REC` Recommendations | `/pub/R-REC/en` | 16 series letters | `/rec/<id>/en` | `Approved in …` — **approval** |
+| `R-REP` Reports | `/pub/R-REP/en` | 14 series letters | `/pub/<id>/en` | files' "Posted" — **publication** |
+| `R-QUE` Questions | `/pub/R-QUE/en` | 6 study groups (`SG01`…) | `/pub/<id>/en` | files' "Posted" |
+| `R-RES` Resolutions | `/pub/R-RES/en` | **none — flat** | `/pub/<id>/en` | files' "Posted" |
+| `R-HDB` Handbooks | `/pub/R-HDB/en` | **none — flat** | `/pub/<id>/en` | **the id** — no page carries one |
 
   e.g. `/rec/R-REC-BO/en` (54 documents) → `/rec/R-REC-BO.1130/en` (Main +
   Previous versions, one row per edition) → `/rec/R-REC-BO.1130-5-202602-I/en`.
@@ -132,6 +162,41 @@ publication arm must come first):
     itself a `…-PDF-E.pdf`, so an unanchored match would give a report edition
     with no English PDF the catalogue's URL — which `DataMergeR` would then
     backfill into the dataset permanently.
+- **Each family spells its identifier differently**, and the published dataset
+  is the authority (`DataParserR#family_docid`). `R-REC` uses the displayed
+  code; `R-REP` prefixes it (`Report ITU-R BT.2020-1`, see the collisions note);
+  `R-QUE` appends a colon (`202-2/1` → `ITU-R 202-2/1:`); and `R-RES` and
+  `R-HDB` cannot use their code at all — a Resolution page renders
+  `Res.1-9 (2023)` while the record is `ITU-R R.1-9`, and a Handbook shows its
+  *title* on the index and a bare year on the leaf, so both read the **page id**
+  (`R-RES-R.1-9-2023`, `R-HDB-43-2013`). The first four reproduce the published
+  filenames exactly, verified live; `R-HDB` deliberately does not (below).
+- **`R-HDB` Handbooks are keyed per edition — `ITU-R 43.HDB (2013)`.** ITU
+  publishes several editions per handbook (43 has 2002, 2013 and 2026) while the
+  published dataset carries **one record per handbook number** (`ITU-R 01.HDB`,
+  no edition in the id), so harvesting every edition under the old convention
+  would collapse them onto one filename. `Pubid::Itu` models the year, so the
+  year is what separates them; the four published records that carry a bare
+  `ITU-R 43` are worse than colliding — that parses as a **recommendation**,
+  claiming a number that belongs to another document. A full rebuild replaces
+  all 60 published handbook files with 63 edition-keyed ones.
+  The family publishes less per page than any other, so two things move
+  (`FAMILIES["R-HDB"]` carries `date: :id` and `title: :document`):
+  - **The date comes from the id.** No handbook page carries a date at all, and
+    the displayed codes disagree with each other and with themselves — one
+    handbook's three editions render "2026", "2014" (for id `R-HDB-43-2013`) and
+    "Edition of 2002". `#row` therefore does not warn about the missing page
+    date for this family; for every other family that warning means a degraded
+    fetch.
+  - **The title comes from the level-1 row**, the only place ITU prints it: the
+    index anchor holds the *title* where every other family's holds a number
+    (the number is in the id alone), and the edition rows hold only a year. So
+    `#harvest` copies the document row's title onto each of its editions —
+    nothing downstream sees the index again.
+  - **Measured live (2026-08-20):** 45 handbooks → **63 editions**, 46 requests
+    in 133 s shallow (`deep: true` adds one request per edition, ~109 / ~4 min).
+    All 63 docids are distinct, all pass the index gate as
+    `pubid:itu:handbook`, and none is missing a title, date or PDF.
   - The docid comes from the **displayed code** minus ` (MM/YYYY)` — `BO.1212
     (10/95)` → `ITU-R BO.1212`, *not* the page id's `ITU-R BO.1212-0`. That
     reproduces the published filenames and index rows exactly (the spec asserts
@@ -158,7 +223,9 @@ publication arm must come first):
     that returns no approval date — ITU served an empty 200 for
     `R-REC-BO.1130-4-200104-S` while the cassette was being recorded — is
     **warned about** before falling back to the id's date, so a degraded deep
-    crawl can't pass for a clean one. Every level also warns when it finds
+    crawl can't pass for a clean one — except for a family whose date lives in
+    the id by design (`R-HDB`), where finding none on the page is the norm and
+    warning would cry wolf on every record. Every level also warns when it finds
     nothing (a layout change would otherwise read as an empty corpus).
   - **Throttling has two shapes, and one is silent.** Measured over a full
     corpus run: `/rec` answers **HTTP 503**, `/pub` answers **302 →
@@ -182,14 +249,13 @@ publication arm must come first):
     offers only the cart flow — so `source` is legitimately empty for them.
   - **Missing before promotion:** no per-row rescue in `#harvest` (unlike
     `DataFetcher#spawn_rec_worker`), results accumulated in memory rather than
-    streamed, and only 2 of the 5 families implemented (`R-QUE`/`R-RES`/`R-HDB`
-    have the same page shape; `#config` raises for them rather than guessing).
+    streamed.
   - `status` is scraped (`In force (Main)` / `Superseded`) but **not** modelled —
     no published ITU-R record has one; it is the first candidate enrichment.
   - Same F5-WAF hardening as `#rec_agent` (browser UA, `max_history = 1`,
-    timeouts) plus a `delay:` politeness pause. Not required from `itu.rb` and
-    not reachable from `#fetch`, so no scheduled job can run it; the promotion
-    snippet is in the class comment.
+timeouts) plus a `delay:` politeness pause. Driven by
+`DataFetcher#fetch_publications`; `itu.rb` still does not require it, so a
+consumer-only load never pulls the crawler in.
 - **Incremental write path (`DataMergeR`, `data_merge_r.rb`)** — the crawl is a
   *partial, lossier* view of the corpus, so a harvest must never be written as a
   rebuild. `DataMergeR.write_all(items, fetcher)` merges each record into the
