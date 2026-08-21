@@ -1,4 +1,5 @@
 require "vcr"
+require "relaton/iana"
 
 VCR.configure do |config|
   config.cassette_library_dir = "vcr_cassettes"
@@ -11,8 +12,8 @@ VCR.configure do |config|
   config.hook_into :webmock
   config.configure_rspec_metadata!
 
-  # Index downloads are handled by pre-loaded fixtures in webmock.rb
+  # Index downloads are handled by the pre-loaded index-v2 fixture in webmock.rb
   config.ignore_request do |request|
-    URI(request.uri).path.end_with?("index-v1.zip")
+    URI(request.uri).path.end_with?("#{Relaton::Iana::INDEXFILE}.zip")
   end
 end

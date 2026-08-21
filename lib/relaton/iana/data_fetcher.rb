@@ -26,7 +26,28 @@ module Relaton
       private
 
       def index
-        @index ||= Relaton::Index.find_or_create :iana, file: "#{INDEXFILE}.yaml"
+        @index ||= Relaton::Index.find_or_create :iana, file: "#{INDEXFILE}.yaml",
+                                                        pubid_class: ::Pubid::Iana::Identifier
+      end
+
+      #
+      # Add a document to the pubid-keyed index-v2.
+      #
+      # Stores the Pubid::Iana identifier object (not its hash): with
+      # pubid_class set, Relaton::Index sorts the index by the id's number on
+      # save and serializes each id to its `_type: pubid:iana:registry` hash.
+      #
+      # The rescue is load-bearing. Relaton::Index rejects the WHOLE index if a
+      # single row fails to deserialize, so a slug pubid cannot parse has to be
+      # skipped here rather than raise and abort the crawl.
+      #
+      # @param [String] docnumber bare registry slug, `registry[/sub-registry]`
+      # @param [String] file path of the document file
+      #
+      def add_to_index(docnumber, file)
+        index.add_or_update ::Pubid::Iana::Identifier.parse(docnumber), file
+      rescue StandardError => e
+        Util.warn "Skipping index entry for `#{docnumber}` (#{file}): #{e.message}"
       end
 
       def parse(content)
@@ -45,13 +66,22 @@ module Relaton
       def save_doc(bib) # rubocop:disable Metrics/MethodLength
         return unless bib
 
-        file = output_file(bib.docnumber)
+        # Two distinct registries can sanitize to one filename (`/` and `-` both
+        # collapse to `-`), e.g. `rpki/signed-objects` and `rpki-signed-objects`.
+        # Take a path of our own rather than overwriting the other document, but
+        # keep the clash visible in the crawl log.
+        file = unique_output_file bib.docnumber
         if @files.include? file
+          # A reserved path only ever belongs to one docnumber, so this is the
+          # same document again: a genuine duplicate, not a collision. Checked
+          # FIRST, because a disambiguated path stays != output_file forever.
           Util.warn "File #{file} already exists. Document: #{bib.docnumber}"
-        else
-          @files << file
+        elsif file != output_file(bib.docnumber)
+          Util.warn "File #{output_file bib.docnumber} already exists. " \
+                    "Document: #{bib.docnumber}. Writing #{file} instead."
         end
-        index.add_or_update bib.docnumber, file
+        @files << file
+        add_to_index bib.docnumber, file
         File.write file, serialize(bib), encoding: "UTF-8"
       end
 

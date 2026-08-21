@@ -111,7 +111,15 @@ module Relaton
         id = bib.docidentifier.first.content
         pid = pubid(id) or return # skip ids pubid can't parse/serialize
 
-        file = output_file id
+        # Distinct docids can sanitize to one filename (`output_file` collapses
+        # `/`, `-`, `.`, `:` and `()` alike, and ETSI ids use all of them), which
+        # used to overwrite silently. Take a path of our own. There is no @files
+        # here, so a repeat of the SAME id still resolves to one path and
+        # overwrites itself, as before.
+        file = unique_output_file id
+        if file != output_file(id)
+          Util.warn "File #{output_file id} already exists. Docid: #{id}. Writing #{file} instead."
+        end
         File.write file, serialize(bib), encoding: "UTF-8"
         index.add_or_update pid, file
       end

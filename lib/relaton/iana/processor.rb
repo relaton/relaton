@@ -61,7 +61,10 @@ module Relaton
       #
       def remove_index_file
         require_relative "../iana"
-        Relaton::Index.find_or_create(:iana, url: true, file: "#{INDEXFILE}.yaml").remove_file
+        Relaton::Index.find_or_create(
+          :iana, url: true, file: "#{INDEXFILE}.yaml",
+                 pubid_class: ::Pubid::Iana::Identifier
+        ).remove_file
       end
     end
   end

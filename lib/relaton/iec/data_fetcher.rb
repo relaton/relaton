@@ -187,9 +187,15 @@ module Relaton
       def fetch_pub(pub) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         bib = DataParser.new(pub, @errors).parse
         did = bib.docidentifier.detect(&:primary)
-        file = output_file(did.to_s)
+        # Distinct docids can sanitize to one filename; take a path of our own
+        # rather than overwriting the other document. A reserved path only ever
+        # belongs to one docid, so an @files hit is the same document again.
+        file = unique_output_file(did.to_s)
         if @files.include? file then Util.warn "File #{file} exists."
         else
+          if file != output_file(did.to_s)
+            Util.warn "File #{output_file did.to_s} exists. Docid: #{did}. Writing #{file} instead."
+          end
           @files << file
           pubid = parse_pubid(did.to_s)
           index.add_or_update pubid, file if pubid

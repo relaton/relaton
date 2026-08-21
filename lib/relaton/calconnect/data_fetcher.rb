@@ -66,12 +66,17 @@ module Relaton::Calconnect
     end
 
     def write_doc(slug, bib) # rubocop:disable Metrics/MethodLength
-      file = output_file slug
+      # Distinct slugs can sanitize to one filename; take a path of our own
+      # rather than overwriting the other document (Core#unique_output_file).
+      file = unique_output_file slug
       if @files.include? file
+        # Same reserved path == same slug: a genuine duplicate. Checked FIRST,
+        # because a disambiguated path stays != output_file forever.
         Util.warn "#{file} exist"
-      else
-        @files << file
+      elsif file != output_file(slug)
+        Util.warn "#{output_file slug} exist; writing #{file} instead"
       end
+      @files << file
       index.add_or_update primary_docid(bib), file
       File.write file, serialize(bib), encoding: "UTF-8"
     end

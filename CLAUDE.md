@@ -275,7 +275,14 @@ is absent the gem builds without the bundle and `relaton index` raises
   built/read via `pubid_class: ::Pubid::Bipm::Identifier`); the legacy bespoke
   `index-v1` is no longer produced here — `relaton-data-bipm`'s crawler still
   emits it using the retained public `Relaton::Bipm::Id`. See
-  `lib/relaton/bipm/CLAUDE.md`. The index schema
+  `lib/relaton/bipm/CLAUDE.md`. **IANA** followed the same shape: its `INDEXFILE`
+  is now the pubid `index-v2` (`_type: pubid:iana:registry`, via
+  `pubid_class: ::Pubid::Iana::Identifier`), and `relaton-data-iana`'s crawler
+  derives the legacy `index-v1` from it. IANA ids carry no document number, so
+  the bsearch key `number` holds the **top-level registry slug** — it was empty
+  before pubid `feat/iana-index-number`, which would have bucketed all 3405 rows
+  together and silently degraded the search. See `lib/relaton/iana/CLAUDE.md`.
+  The index schema
   and data-repo publishing/Pages contract are specified in
   `docs/data-repository-format.adoc`; see also `lib/relaton/index/CLAUDE.md`.
 - Don't reintroduce per-flavor gems/gemspecs or the combined-build step — it's
