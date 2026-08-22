@@ -39,11 +39,11 @@ module Relaton
       # @param agent [Mechanize, nil] when present, enrich via getRecHdrDetail
       # @param errors [Hash]
       # @return [Relaton::Itu::ItemData, nil]
-      def parse(row, agent = nil, errors = {})
+      def parse(row, agent = nil, errors = {}, cache: NullCache.instance)
         docid = fetch_docid(row, errors)
         return if docid.empty?
 
-        enr = enrichment(row, agent)
+        enr = enrichment(row, agent, cache)
         date = fetch_date(row, errors)
         Relaton::Itu::ItemData.new(
           docidentifier: docid + enr.fetch(:iso, []),
@@ -69,11 +69,15 @@ module Relaton
       #
       # @param row [Hash]
       # @param agent [Mechanize, nil]
+      # @param cache [#fetch, #warm] shared across the worker pool, so the
+      #   family-invariant endpoints are fetched once per recommendation rather
+      #   than once per edition. Like `errors`, it is threaded through as a
+      #   parameter rather than held as state — DataParserT is `extend self`.
       # @return [Hash] { iso:, abstract:, status:, contributor: }
-      def enrichment(row, agent)
+      def enrichment(row, agent, cache = NullCache.instance)
         return {} unless agent && row["idrec"]
 
-        f = RecommendationParser.new(agent, row["idrec"], false)
+        f = RecommendationParser.new(agent, row["idrec"], false, cache: cache)
         ed = f.fetch_edition
         {
           iso: Array(f.iso_docid),

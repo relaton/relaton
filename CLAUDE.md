@@ -88,6 +88,18 @@ write round-trips for both ASCII and UTF-8 content. This was latent until
 `Relaton::Sdo` cached the first index with non-ASCII names; don't reintroduce an
 `encoding:` transcode on write.
 
+**Crawl politeness lives in `core`, bindings live in the flavor.** Two shared
+components under `lib/relaton/core/` carry the "don't get banned, don't burn the
+CI job" logic that more than one crawler needs: **`Pacer`** (one shared request
+pacer — the pool between them starts at most one request per `gap`, with the
+host's own latency counting *toward* the gap rather than being added to it) and
+**`Governor`** (one pool-wide rate-limit cooldown that escalates per round and
+latches a give-up, so a banned crawl fails fast). A flavor subclasses `Governor`
+and supplies only `THROTTLE_ERRORS`/`.throttle?` and `ENV_PREFIX`; see
+`Relaton::W3c::Governor` and `Relaton::Itu::Governor`. Do **not** confuse either
+with `Core::WorkersPool` (runtime search only, no per-worker resources) or with
+`Relaton::Cie::DataFetcher::Pacing`, whose gap is deliberately *per worker*.
+
 **Single `VERSION`.** `lib/relaton/version.rb` defines `Relaton::VERSION` — the
 one version constant. There are **no** per-flavor `version.rb` files or
 `Relaton::<Flavor>::VERSION` constants anymore: since this is one gem they'd all

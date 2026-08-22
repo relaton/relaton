@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "json"
+require_relative "family_cache"
 
 module Relaton
   module Itu
@@ -10,12 +11,23 @@ module Relaton
     # harvester (`DataParserT`), so producer output and runtime output stay
     # identical field-for-field.
     #
-    # The includer must provide three hooks:
+    # The includer must provide four hooks:
     #   #agent — a Mechanize agent (browser UA; www.itu.int is behind an F5 WAF)
     #   #idrec — the recommendation record id
     #   #imp   — whether this is an Implementers' Guide (live-only; harvester false)
+    #   #cache — a cross-row cache, defaulting to NullCache (see below)
     #
     # `#doc` (the getRecHdrDetail JSON) is memoised here from those hooks.
+    #
+    # **The cache and the runtime boundary.** `searchRecs` returns one row per
+    # *edition*, but two of the four endpoints below answer for the whole
+    # recommendation, so the offline harvester asks the same question once per
+    # edition — 21 times over for H.264. `#cache` lets it ask once instead. The
+    # live lookup path handles one recommendation per `Bibliography.get` and must
+    # not share state between calls, so the default is {NullCache}, whose
+    # `#fetch` is a bare yield: same behaviour, same requests, nothing retained.
+    # `Scraper` is deliberately left calling the three-argument constructor, so
+    # no path from `Bibliography.get` can reach a real cache.
     module RecommendationFields
       include Relaton::Core::ArrayWrapper
 
@@ -32,6 +44,30 @@ module Relaton
           resp = get_data url
           imp ? resp.first : resp
         end
+      end
+
+      # Cross-row cache for the family-invariant endpoints. Overridden by
+      # RecommendationParser when the harvester passes one in.
+      # @return [#fetch, #warm]
+      def cache
+        NullCache.instance
+      end
+
+      # Canonical id for the recommendation this edition belongs to: the
+      # smallest idrec ITU's own getRecEditions response lists.
+      #
+      # Derived from API output, never from parsing `rec_name`. That is the
+      # whole point — two recommendations whose names happen to normalize alike
+      # would silently share each other's metadata, and nothing downstream would
+      # notice (the data repo's `guard_enrichment` counts `contributor:` lines,
+      # which such a record still has).
+      #
+      # Free on the live path: `Scraper#parse_page` already calls
+      # `#fetch_relations`, which already calls `#editions`.
+      #
+      # @return [Integer, String]
+      def family_id
+        @family_id ||= (editions.filter_map { |e| e["idrec"] }.min || idrec)
       end
 
       # @return [String, nil]
@@ -161,17 +197,58 @@ module Relaton
       end
 
       # Fetch the study group name from the recommendation HTML page.
+      #
+      # The single most expensive request per record: `rec.aspx` is ~90-240 KB
+      # of HTML that then has to be parsed into a DOM. It is also the one field
+      # here that is a property of the *recommendation* rather than the edition
+      # — ITU renders the current owning study group even on an old edition's
+      # page, which is why `?rec=H.264` and `?rec=14659` both yield "ITU-T Study
+      # Group 21" in `spec/itu/vcr_cassettes/itu_t_h_264.yml`. So it is cached
+      # per family.
+      #
+      # The rescue sits outside the cache on purpose: a transient failure must
+      # not be stored as nil for the whole family. FamilyCache does not mark an
+      # entry computed when the block raises, so the next sibling retries.
       # @return [String, nil]
       def fetch_workgroup
-        url = "https://www.itu.int/ITU-T/recommendations/rec.aspx?rec=#{idrec}&lang=en"
-        page = agent.get(url)
-        wg = page.at('//span[contains(@id, "uc_rec_main_info1_rpt_main_ctl00_Label8")]/a')
-        wg&.text
+        # Short-circuited rather than keyed-then-yielded, because #family_id
+        # reads #editions: with the null cache that would add a getRecEditions
+        # request to a runtime lookup that did not need one. The live path must
+        # keep exactly the request count it had.
+        return workgroup_from_page unless cache.caching?
+
+        cache.fetch([:workgroup, family_id]) { workgroup_from_page }
       rescue StandardError
         nil
       end
 
       private
+
+      def workgroup_from_page
+        url = "https://www.itu.int/ITU-T/recommendations/rec.aspx?rec=#{idrec}&lang=en"
+        page = agent.get(url)
+        wg = page.at('//span[contains(@id, "uc_rec_main_info1_rpt_main_ctl00_Label8")]/a')
+        wg&.text
+      end
+
+      def fetch_editions
+        get_data(RECEDITIONS % { idrec: idrec }) || []
+      end
+
+      # The other editions this response answers for.
+      #
+      # Empty unless the response actually lists the idrec we asked for: if it
+      # does not, the endpoint's contract has changed under us and sharing the
+      # payload would hand a whole family another recommendation's data. Losing
+      # the dedup is the cheap failure; sharing wrongly is the expensive one.
+      def siblings_of(rows)
+        unless rows.any? { |r| r["idrec"] == idrec }
+          Util.warn "ITU-T: getRecEditions(#{idrec}) does not list #{idrec}; not sharing it across the family"
+          return []
+        end
+
+        rows.filter_map { |r| [:editions, r["idrec"]] unless r["idrec"] == idrec }
+      end
 
       def get_data(url)
         JSON.parse request_document(url).body
@@ -184,10 +261,20 @@ module Relaton
         raise Relaton::RequestError, "Could not access #{url}: #{e.message}"
       end
 
+      # Every edition of this recommendation, newest first.
+      #
+      # One request answers the whole family, and the response says so itself:
+      # it lists every sibling `idrec`, and the payload for each of them is the
+      # same one — verified byte-for-byte for 16818 and 14659 in
+      # `spec/itu/vcr_cassettes/itu_t_h_264.yml`. So the result is published
+      # under every sibling key, and the family's other 20 editions cost nothing.
       def editions
         @editions ||= begin
-          url = RECEDITIONS % { idrec: idrec }
-          get_data(url) || []
+          rows = cache.fetch([:editions, idrec]) { fetch_editions }
+          # Warmed after #fetch released the entry lock, so there is no
+          # lock-order inversion between the table lock and an entry lock.
+          cache.warm(siblings_of(rows), rows)
+          rows
         end
       end
 
@@ -219,6 +306,19 @@ module Relaton
         Relaton::Bib::Relation.new(type: type, bibitem: bibitem)
       end
 
+      # Supplements to this recommendation.
+      #
+      # **Deliberately not shared across the family**, unlike #editions and
+      # #fetch_workgroup. It very probably is family-invariant — supplements
+      # belong to a recommendation, not to an edition — but that is an
+      # assumption, and the only recording in the suite is a single
+      # `getRecSupplements?idrec=14659`. Sharing it wrongly would give a
+      # record another recommendation's `relation:` list, silently: the data
+      # repo's `guard_enrichment` counts `contributor:` lines, which a wrongly
+      # enriched record still has. What would settle it: add a
+      # `getRecSupplements?idrec=16818` interaction to
+      # `spec/itu/vcr_cassettes/itu_t_h_264.yml` and assert the two payloads
+      # are equal; then key this on #family_id like the other two.
       def supplements
         @supplements ||= begin
           if imp

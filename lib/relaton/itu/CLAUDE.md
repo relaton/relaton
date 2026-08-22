@@ -96,13 +96,17 @@ publication arm must come first):
 - **ITU-R harvester** (`#fetch_publications`) — restored on the crawl that
   replaced the decommissioned RunSearch enumeration (issue #75). It walks
   `DataCrawlerR::FAMILIES` series by series, so a series ITU throttles costs
-  that series rather than the run. `RELATON_ITU_DELAY` (default 1 s) tunes
-  politeness; `RELATON_ITU_MODE` picks the mode, so two scheduled jobs differ
+  that series rather than the run. **The series loop stays serial on purpose**:
+  `#harvest_family` rescues per series *and* per family, `DataMergeR.write_all`
+  runs per series, and the data repo's `guard_itur_harvest` is calibrated on
+  exactly that granularity. Parallelism lives *inside* a series, in
+  `DataCrawlerR#in_parallel`, over the two request-heavy levels.
+  `RELATON_ITU_MODE` picks the mode, so two scheduled jobs differ
   by environment rather than by code:
 
   | mode | cost | what it is for |
   |---|---|---|
-  | `:full` (default) | ~7k requests, ~4 h | the weekly rebuild: wipe `data/itu-r-*` first and let ITU be the sole author of the result |
+  | `:full` (default) | ~7k requests, ~2 h | the weekly rebuild: wipe `data/itu-r-*` first and let ITU be the sole author of the result |
   | `:top_up` | enumeration + one request per **new** edition | the daily job: same document walk, but `#held?` answers from the level-2 row whether the dataset already has an edition, so the expensive per-edition page is never fetched for one we hold |
 
   **A top-up assumes a previous `:full` run built the dataset.** Against the
@@ -113,12 +117,56 @@ publication arm must come first):
   rebuild, and it announces itself as a commit adding ~650 files. The rebuild
   *is* the migration, which is why the harvester carries no migration step.
 
+  **Pacing, and why the numbers changed.** `RELATON_ITU_DELAY` (default 1 s) is
+  the **minimum gap between request _starts_**, enforced by one
+  `Relaton::Core::Pacer` shared by the pool — not a `sleep` before each request.
+  The distinction is the whole speed-up: a sleep *adds* to ITU's own ~1.1 s
+  latency, so a 1 s delay yielded one request every ~2.1 s and a ~7k-request
+  crawl spent ~2 h of a ~4 h run idle. Under the pacer the latency counts
+  *toward* the gap, so www.itu.int sees at most 1/delay req/s however many
+  workers there are. Stated plainly: peak rate rises from the old ~0.48 req/s to
+  at most 1.0 req/s — the rate this file already records as safe, and 0.4 s as
+  not. `RELATON_ITU_R_CONCURRENCY` (default 4) sizes the pool; it is a separate
+  knob from ITU-T's `RELATON_ITU_CONCURRENCY` because the bottlenecks differ —
+  ITU-R throughput is `min(1/delay, concurrency/latency)`, so **the pacer, not
+  the pool, sets the rate** and two workers already saturate it.
+
+  **Rollback:** `RELATON_ITU_R_CONCURRENCY=1 RELATON_ITU_PACE=fixed` reproduces
+  the pre-pool request pattern exactly — one request per (delay + latency), one
+  thread.
+
+  A **scale model** of the crawl (300 requests, gap and latency both scaled by
+  1/100 to 0.01 s / 0.011 s, so it is the measured 1.0 s-against-~1.1 s shape)
+  gives 39.9 req/s for the old sleep-then-request loop against **99.8 req/s**
+  for the shared pacer at two or more workers — a **2.5x** speed-up, with the
+  rate pinned exactly at the 1/gap ceiling and never above it. Four workers
+  measure the same as two, which is the point: **the pacer, not the pool, sets
+  the rate.** This is a model, not ITU: confirm it with a timed dry run of one
+  series per family before trusting the projection.
+
+  **Throttling is a pool event.** `Relaton::Itu::Governor` (a
+  `Relaton::Core::Governor` binding) gives the workers one shared cooldown: any
+  thread seeing a throttle opens it, every other thread observes it, and it
+  escalates per round (60 s → 900 s) on the minute scale a WAF ban actually
+  needs, instead of four workers each running their own 5/10/15 s ladder and
+  keeping the limiter engaged. After five barren rounds the crawl is declared
+  rate-limited and gives up, so a banned run fails in ~15 min rather than
+  burning the job's remaining hours. Which failures count: **503** (what `/rec`
+  answers) and the gateway codes, plus the `/pub` soft block, which
+  `DataCrawlerR::SoftBlock` marks because Mechanize follows the 302 to a
+  perfectly good 200 that is otherwise indistinguishable from a 404. **404 and
+  a per-resource 500 deliberately do not** — a broken record must cost that
+  record, not a pool-wide cooldown.
+
 **Measured** on the BO slice of R-REC + R-REP, back to back (2026-08-19): a
 full rebuild is **221 requests / 548 s** for 127 records; the top-up
 immediately after is **94 requests / 268 s** and adds nothing — it saves
 exactly the 127 per-edition pages, 57% of the requests. Corpus-wide that
-scales to roughly **7k requests (~4 h) full** against **~2.5k (~1.4 h)
-top-up**: cheaper, but not cheap — the enumeration still costs one request per
+scales to roughly **7k requests full** against **~2.5k top-up**. Those request
+counts are unchanged by the pacer; the wall clock is not — at the 1 s gap a full
+ITU-R crawl is ~2 h rather than ~4 h, which is what took the combined
+relaton-data-itu job back under GitHub Actions' 6 h cap (run 32420518511 was
+cancelled at 6h00m19s). A top-up is cheaper, but not cheap — the enumeration still costs one request per
 document, because a new edition cannot be noticed without reading the document
 page. (`/rec/new.asp?lang=en`, linked from every series page, may be a real
 delta feed; unexplored.) Earlier corpus figures still hold: ~2.1 s per request
@@ -333,10 +381,53 @@ consumer-only load never pulls the crawler in.
   the Geneva **place** are derived from the row alone (`#fetch_copyright`), so
   even an un-enriched record carries them. Enrichment is **best-effort** — a
   detail-fetch failure is logged and degrades to the thin record rather than
-  losing it. It costs ~4 calls per record (`getRecHdrDetail`, `getRecEditions`,
+  losing it. It costs up to ~4 calls per record (`getRecHdrDetail`, `getRecEditions`,
   `getRecSupplements`, `rec.aspx`) — the bulk of the crawl — so progress is logged
   every 500 records. This is what makes an indexed runtime lookup as rich as the
   live one; the published dataset predates it (see **Runtime lookup** above).
+- **ITU-T request de-duplication** (`FamilyCache`, `family_cache.rb`) —
+  `searchRecs` returns one row per **edition**, but two of those four endpoints
+  answer for the whole **recommendation**, so the crawl was asking ITU the same
+  question once per edition: H.264 has 21 editions and issued 21 identical
+  `getRecEditions` requests. Corpus-wide the fan-out is ~2.1 editions per
+  recommendation (16,172 `data/itu-t-*` files over ~7,663 base recommendations).
+  Counted against that corpus: **64,688 -> 47,670 requests, ~26% fewer** — and it
+  removes them, it does not reorder or accelerate them: the crawl asks ITU for
+  *less*. Sharing `getRecSupplements` too (see the table) would take it to
+  39,161, ~40% fewer.
+
+  | endpoint | shared? | evidence |
+  |---|---|---|
+  | `getRecEditions` | **yes** | **Proven.** `?idrec=16818` and `?idrec=14659` return byte-identical 21-row payloads in `spec/itu/vcr_cassettes/itu_t_h_264.yml`. Structurally safe besides: the response *names every sibling `idrec`*, so one fetch warms the whole family with no name parsing at all. |
+  | `rec.aspx` (workgroup) | **yes** | Both recordings in that cassette (`?rec=H.264` and `?rec=14659`) render `ITU-T Study Group 21` — ITU shows the *current* owning study group even on an old edition's page. Also the most expensive request per record: ~90–240 KB of HTML plus a DOM parse. |
+  | `getRecSupplements` | **no** | Unverified, so deliberately left per-edition. It very probably is family-invariant, but the suite holds only one recording, and sharing it wrongly would give a record another recommendation's `relation:` list **silently** — the data repo's `guard_enrichment` counts `contributor:` lines, which such a record still has. To settle it: add a `getRecSupplements?idrec=16818` interaction to that cassette, assert the two payloads are equal, then key it on `#family_id`. |
+
+  **Keys come from ITU, never from parsing a name.** `#family_id` is the smallest
+  `idrec` the `getRecEditions` response itself lists. `DataFetcher.family_key`
+  (which *does* parse `rec_name`) is used only to order the queue and to group a
+  top-up; a wrong guess there costs a cache miss and nothing else.
+  `#siblings_of` refuses to warm a response that does not list the `idrec` it
+  asked for — losing the de-duplication is the cheap failure.
+
+  **The cache never touches the runtime path.** `RecommendationFields#cache`
+  defaults to `NullCache`, whose `#fetch` is a bare yield and whose `#caching?`
+  is false; `Scraper` keeps calling the three-argument
+  `RecommendationParser.new`, so no path from `Bibliography.get` can reach a real
+  cache, retains no state between lookups, and issues exactly the requests it did
+  before. `RELATON_ITU_CACHE_ENTRIES=0` turns it off for the crawl too; the
+  cache is otherwise a bounded LRU (512 entries), because ~7.7k families of
+  retained JSON would run to hundreds of MB on a CI runner.
+- **ITU-T top-up** (`#held_t?` / `#top_up_rows`) — `RELATON_ITU_MODE=top_up` now
+  governs **both** sectors. `#held_t?` is the ITU-T counterpart of `#held?` and is
+  HTTP-free: `DataParserT.fetch_docid` reads only `row["rec_name"]`, so the
+  decision happens before any of the four detail requests. The unit of work is
+  the **family, not the row**: a new edition changes its siblings' `hasEdition`
+  relations, so topping up only the new row would leave the rest of the family on
+  disk pointing at an incomplete edition list — a staleness the full run's
+  wipe-and-rebuild never had. **This needs the data repo to stop wiping
+  `data/itu-t-*` unconditionally and to `index_files` them on a top-up**, exactly
+  as it already does for ITU-R; until it does, `top_up` is inert for ITU-T
+  because every file has just been deleted.
 - **Shared extractor `RecommendationFields`** (`recommendation_fields.rb`) — a
   mixin keyed on `agent`/`idrec`/`imp` hooks. The **`getRecHdrDetail`-sourced field
   extraction** (`fetch_titles`/`fetch_status`/`fetch_dates`/`fetch_abstract`/

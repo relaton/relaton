@@ -47,7 +47,7 @@ describe Relaton::Itu::DataFetcher do
       [nil, "itu-r"].each do |source|
         it "harvests every implemented family for source #{source.inspect}" do
           families = Relaton::Itu::DataCrawlerR::FAMILIES.keys
-          crawler = double "crawler"
+          crawler = double "crawler", throttle_count: 0, abandoned?: false, shutdown: nil
           allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return crawler
           families.each { |f| allow(crawler).to receive(:series).with(f).and_return ["X"] }
           families.each do |f|
@@ -62,7 +62,7 @@ describe Relaton::Itu::DataFetcher do
 
       it "tallies the merge across families" do
         families = Relaton::Itu::DataCrawlerR::FAMILIES.size
-        crawler = double "crawler", series: %w[X]
+        crawler = double "crawler", series: %w[X], throttle_count: 0, abandoned?: false, shutdown: nil
         allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return crawler
         allow(crawler).to receive(:harvest).and_return [:item]
         allow(Relaton::Itu::DataMergeR).to receive(:write_all)
@@ -77,7 +77,7 @@ describe Relaton::Itu::DataFetcher do
 # expensive half — so it decides from the level-2 row whether the dataset
 # already holds an edition.
 it "skips editions it already holds when topping up" do
-  crawler = double "crawler", series: %w[X]
+  crawler = double "crawler", series: %w[X], throttle_count: 0, abandoned?: false, shutdown: nil
   allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return crawler
   allow(Relaton::Itu::DataMergeR).to receive(:write_all).and_return({})
   expect(crawler).to receive(:harvest)
@@ -87,7 +87,7 @@ it "skips editions it already holds when topping up" do
 end
 
 it "asks for everything on a full rebuild" do
-  crawler = double "crawler", series: %w[X]
+  crawler = double "crawler", series: %w[X], throttle_count: 0, abandoned?: false, shutdown: nil
   allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return crawler
   allow(Relaton::Itu::DataMergeR).to receive(:write_all).and_return({})
   expect(crawler).to receive(:harvest)
@@ -97,7 +97,7 @@ it "asks for everything on a full rebuild" do
 end
 
       it "loses only the series that fails, not the run" do
-              crawler = double "crawler"
+              crawler = double "crawler", throttle_count: 0, abandoned?: false, shutdown: nil
               allow(Relaton::Itu::DataCrawlerR).to receive(:new).and_return crawler
               allow(crawler).to receive(:series).and_return %w[BO BT]
               allow(crawler).to receive(:harvest).with("BO", anything).and_raise Relaton::RequestError, "throttled"
@@ -121,8 +121,8 @@ end
 
               allow(subject).to receive(:rec_agent).and_return agent
               expect(subject).to receive(:search_recs).and_return [row1, row2]
-              expect(Relaton::Itu::DataParserT).to receive(:parse).with(row1, agent, kind_of(Hash)).and_return bib
-              expect(Relaton::Itu::DataParserT).to receive(:parse).with(row2, agent, kind_of(Hash)).and_return nil
+              expect(Relaton::Itu::DataParserT).to receive(:parse).with(row1, agent, kind_of(Hash), cache: anything).and_return bib
+              expect(Relaton::Itu::DataParserT).to receive(:parse).with(row2, agent, kind_of(Hash), cache: anything).and_return nil
               expect(subject).to receive(:write_file).with(bib, 0).once
               expect(subject.index).to receive(:save)
 

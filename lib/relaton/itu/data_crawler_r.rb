@@ -1,11 +1,13 @@
 require "mechanize"
 require_relative "../itu"
+require_relative "../core/pacer"
 require_relative "data_parser_r"
+require_relative "governor"
 
 module Relaton
   module Itu
-    # PROTOTYPE (issue #75) — a replacement for the decommissioned RunSearch bulk
-    # enumeration, proven on one series.
+    # The ITU-R harvester (issue #75) — the replacement for the decommissioned
+    # RunSearch bulk enumeration.
     #
     # ITU-R metadata is still fully server-rendered under `/pub` + `/rec`, in
     # three levels — Recommendations:
@@ -22,11 +24,10 @@ module Relaton
     #   /pub/R-REP-BO.1227/en             -> one row per edition
     #   /pub/R-REP-BO.1227-2-1998/en      -> the files' posted date + PDF href
     #
-    # It is **not** wired into DataFetcher#fetch and nothing under lib/ requires
-    # it: reaching it takes an explicit `require`, so no scheduled crawl can run
-    # an unproven harvester. Promotion path, once the numbers justify it — note
-    # the write goes through DataMergeR, never straight to #write_file, so a
-    # partial harvest can't overwrite what it cannot see:
+    # `DataFetcher#fetch_publications` drives it, requiring this file lazily so
+    # an ITU-T-only crawl never loads it. Standalone use — note the write goes
+    # through DataMergeR, never straight to #write_file, so a partial harvest
+    # can't overwrite what it cannot see:
     #
     #   require "relaton/itu/data_merge_r"
     #   fetcher = Relaton::Itu::DataFetcher.new("data", "yaml")
@@ -34,6 +35,16 @@ module Relaton
     #   items = crawler.harvest("BO") + crawler.harvest("BO", family: "R-REP")
     #   Relaton::Itu::DataMergeR.write_all items, fetcher
     #   fetcher.index.save
+    #
+    # **Politeness is not this class's `sleep` any more.** Levels 2 and 3 run on
+    # a small worker pool (`#in_parallel`, one Mechanize agent per thread), and
+    # the rate is set by a shared `Relaton::Core::Pacer` — `delay:` is the
+    # minimum gap between request *starts*, so ITU's own latency counts toward it
+    # instead of being added on top. A `Relaton::Itu::Governor` gives the pool one
+    # shared cooldown for a WAF block. See `#get` and lib/relaton/itu/CLAUDE.md.
+    # The crawl is parallel **within** a series only: `DataFetcher#harvest_family`
+    # rescues per series and `DataMergeR` writes per series, and the data repo's
+    # collapse guard is calibrated on that granularity.
     #
     class DataCrawlerR
       DOMAIN = "https://www.itu.int".freeze
@@ -116,13 +127,76 @@ module Relaton
       RETRIES = 3
       RETRY_BACKOFF = 5 # seconds, multiplied by the attempt number
 
+      # The `/pub` soft block: a 302 to notfound.aspx, which Mechanize follows
+      # to a perfectly good 200. It stays a `Mechanize::ResponseCodeError`
+      # subclass so #get's rescue list is unchanged, and it mixes in the
+      # governor's marker so a rate limit can be told apart from the 404 it
+      # otherwise looks exactly like — which is the whole point: a 404 must cost
+      # one document, a soft block must pause the pool.
+      class SoftBlock < Mechanize::ResponseCodeError
+        include Governor::SoftBlock
+      end
+
+      # Worker threads for the two request-heavy levels of the walk. Deliberately
+      # small, and deliberately not the same knob as ITU-T's: the two halves have
+      # different bottlenecks. ITU-T is latency-bound. ITU-R is *pacer*-bound —
+      # throughput is min(1/delay, concurrency/latency), so at the 1 s default
+      # and ITU's ~1.1 s latency two workers already saturate the contract and
+      # four is only headroom for a slow page. More would buy nothing and only
+      # widen the burst the F5 WAF sees.
+      DEFAULT_CONCURRENCY = 4
+
+      # Each worker owns its agent, stashed here rather than passed down: every
+      # level of the walk calls #get, and threading an agent through
+      # #series/#documents/#editions/#edition would touch every signature for a
+      # value only #get uses.
+      AGENT_KEY = :relaton_itu_r_agent
+
       # @param agent [Mechanize] one agent per crawler (Mechanize is not
       #   thread-safe, so a parallel harvester needs one per worker)
       # @param delay [Numeric] politeness pause before each request — www.itu.int
       #   sits behind an F5 WAF that throttles, and a full crawl is ~10^4 pages
-      def initialize(agent: self.class.agent, delay: 0.5)
+      # @param concurrency [Integer] worker threads for the level-2/3 fetches
+      # @param pace_mode [Symbol] :slot (default) or :fixed — see Core::Pacer
+      # @param pacer [Relaton::Core::Pacer, nil] shared request pacer
+      # @param governor [Relaton::Itu::Governor, nil] pool-wide back-pressure
+      def initialize(agent: nil, delay: 0.5, concurrency: 1,
+                     pace_mode: Core::Pacer::DEFAULT_MODE, pacer: nil, governor: nil)
         @agent = agent
         @delay = delay
+        @concurrency = [concurrency.to_i, 1].max
+        # The pacer, not the pool, sets the rate: `delay` is the minimum gap
+        # between request *starts*, shared by every worker, so ITU's own latency
+        # counts toward it instead of being added on top.
+        @pacer = pacer || Core::Pacer.new(gap: delay, mode: pace_mode)
+        @governor = governor || Governor.new
+      end
+
+      # This thread's agent: a pool worker's own, or the crawler's shared one for
+      # the serial walk (and for every spec and direct #get). Built lazily so a
+      # crawler that only ever runs in workers never makes one.
+      def agent
+        Thread.current[AGENT_KEY] || (@agent ||= self.class.agent)
+      end
+
+      # @return [Integer] rate-limit responses seen this crawl, for the summary
+      def throttle_count
+        @governor.throttle_count
+      end
+
+      # @return [Boolean] the crawl was declared rate-limited and gave up
+      def abandoned?
+        @governor.exhausted?
+      end
+
+      # Release the pool's Mechanize agents and their persistent connections.
+      # The pool is memoised for the whole crawl (deliberately — rebuilding it
+      # per series would churn ~300 agents), so nothing else can close them;
+      # DataFetcher#fetch_publications calls this in an ensure, mirroring what
+      # #fetch_recommendations already does for the ITU-T pool.
+      def shutdown
+        @worker_agents&.each(&:shutdown)
+        @worker_agents = nil
       end
 
       # Same hardening as DataFetcher#rec_agent: the browser UA is mandatory (the
@@ -258,18 +332,98 @@ module Relaton
         # its own row shows a year and nothing else, so this is the only chance
         # to carry the title down — the level-3 fetch never sees the index.
         inherited = config(family)[:title] == :document
-        editions = docs.flat_map do |d|
+        # Level 2 — one request per document. Parallel, but only *within* this
+        # series: #harvest_family rescues per series and DataMergeR writes per
+        # series, and the data repo's guard_itur_harvest is calibrated on that
+        # granularity, so the series loop above stays strictly serial.
+        editions = in_parallel(docs) do |d|
           editions(d[:id]).map do |ed|
             ed.merge(family: family_of(ed[:id]), **(inherited ? { title: d[:title] } : {}))
           end
-        end
+        end.flatten(1)
         # `skip` is what makes a top-up cheap: it decides from the level-2 row,
         # before the per-edition page — the expensive half — is ever requested.
+        # It also needs the complete level-2 set, which is why the two levels are
+        # two phases with a barrier rather than one pool.
         editions = editions.reject { |ed| skip.call ed } if skip
-        editions.filter_map { |ed| DataParserR.parse(row(ed, deep: deep), errors) }
+        # Level 3 — one request per edition, ~70% of a full crawl.
+        #
+        # Each parse gets its OWN errors hash, folded on this thread after the
+        # join. `errors[k] &&= v` from four workers is exactly the hazard
+        # DataParserT documents at data_parser_t.rb:33-36; folding afterwards
+        # makes the tally deterministic and needs no lock.
+        parsed = in_parallel(editions) do |ed|
+          own = Hash.new(true)
+          [DataParserR.parse(row(ed, deep: deep), own), own]
+        end
+        parsed.each { |_, own| own.each { |k, v| errors[k] &&= v } }
+        parsed.filter_map(&:first)
+      end
+      private
+
+      # Map `items` through the block on the worker pool, results index-aligned
+      # with the input.
+      #
+      # Serial and thread-free at concurrency 1 or on a one-item list, so every
+      # existing single-threaded caller — and every cassette-backed spec — stays
+      # on exactly the code path it is on today.
+      #
+      # Failure semantics are deliberately today's: the first error aborts the
+      # whole call, because #harvest already loses the series on a raise and the
+      # data repo's guard_itur_harvest is calibrated on that. Returning the
+      # partial result instead would shrink a collapse below its 50% threshold
+      # and publish the hole the guard exists to catch. What changes is only the
+      # blast radius — the producer stops enqueueing at the first error, so at
+      # most `concurrency` further requests go out rather than a whole queue's.
+      #
+      # @param items [Array]
+      # @return [Array] one entry per item, in input order
+      def in_parallel(items)
+        return items.map { |i| yield i } if @concurrency < 2 || items.size < 2
+
+        # Pre-sized, so workers only ever assign to distinct existing indices —
+        # no lock, and no chance of racing a resize. That is the one thing that
+        # makes Core::WorkersPool unusable here.
+        results = Array.new(items.size)
+        error = nil
+        guard = Mutex.new
+        queue = SizedQueue.new(@concurrency * 2)
+        workers = worker_agents.map do |worker_agent|
+          Thread.new do
+            Thread.current[AGENT_KEY] = worker_agent
+            while (item = queue.pop)
+              value, idx = item
+              # `next`, never `break`: a worker that stopped popping would let
+              # the SizedQueue fill and deadlock the producer on its poison
+              # pills — a hung CI job, the worst failure available here.
+              next if guard.synchronize { !error.nil? }
+
+              begin
+                results[idx] = yield value
+              rescue StandardError => e
+                guard.synchronize { error ||= e }
+              end
+            end
+          end
+        end
+        items.each_with_index do |item, idx|
+          break if guard.synchronize { !error.nil? }
+
+          queue << [item, idx]
+        end
+        @concurrency.times { queue << nil }
+        workers.each(&:join)
+        raise error if error
+
+        results
       end
 
-      private
+      # One agent per worker, built once for the crawler rather than per phase:
+      # Mechanize is not thread-safe, and a per-worker agent also keeps one
+      # worker's cookie and history state out of another's.
+      def worker_agents
+        @worker_agents ||= Array.new(@concurrency) { self.class.agent }
+      end
 
       # In deep mode the edition page is the **authority**: an edition that
       # offers no `!!PDF-E.pdf` (older ones are Word-only) gets no source rather
@@ -459,14 +613,30 @@ module Relaton
         attempt = 0
         begin
           attempt += 1
-          sleep @delay if @delay.to_f.positive?
-          page = @agent.get url
-          raise Mechanize::ResponseCodeError.new(page), "redirected to notfound" if notfound? page
+          # A crawl the governor has abandoned must stop *now*: grinding out the
+          # remaining hours against a WAF ban is what put the job over the 6 h
+          # Actions cap in the first place.
+          raise Relaton::RequestError, "ITU-R crawl abandoned: rate-limited by www.itu.int" if @governor.exhausted?
 
+          @governor.wait # the pool-wide cooldown, if any worker opened one
+          @pacer.wait    # the shared minimum gap between request starts
+          page = agent.get url
+          raise SoftBlock.new(page), "redirected to notfound" if notfound? page
+
+          @governor.succeeded!
           page
         rescue Mechanize::ResponseCodeError, SocketError, Timeout::Error, Errno::ECONNRESET,
                EOFError, Net::ProtocolError, OpenSSL::SSL::SSLError => e
-          if attempt <= RETRIES
+          # A rate limit is a *pool* event and a transport error is not, so they
+          # get different treatment. Four workers each running their own 5/10/15 s
+          # ladder against a WAF ban keeps the limiter engaged; one shared
+          # cooldown on the ban's own minute scale is what outlasts it.
+          if Governor.throttle?(e)
+            gave_up = @governor.throttled!(retry_after: Governor.retry_after(e))
+            Util.warn "ITU-R crawl: #{url} throttled (#{e.message}); " \
+                      "pool cooldown round #{@governor.throttle_rounds}"
+            retry if !gave_up && attempt <= RETRIES
+          elsif attempt <= RETRIES
             Util.warn "ITU-R crawl: #{url} failed (#{e.message}); retry #{attempt}/#{RETRIES} in #{backoff attempt}s"
             sleep backoff(attempt)
             retry
