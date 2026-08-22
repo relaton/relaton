@@ -52,6 +52,39 @@ bin/console
 4. Search matches against `:id` field (string comparison via `include?` or custom block)
 5. `save` writes index as YAML to local file
 
+### The narrowing key — one expression, six call sites
+
+Search is two-stage: narrow, then match. Narrowing binary-searches the index for
+the run of entries whose **base document number** equals the query's, using the key
+`id.root.number.to_s` (`#root` walks a supplement/amendment `.base` chain, so a
+document and its wrappers share one key and cluster together).
+
+**Narrowing only happens for non-String queries** — `search_candidates` requires
+`@file_io.sorted && id && !id.is_a?(String)`. A String query scans the whole index
+*and* matches via `item[:id].to_s.include?(id)`, which renders every pubid in it.
+So a flavor on a `pubid_class:` index must query with parsed identifiers; querying
+it with strings is slower than the plain-string index it replaced.
+
+That expression is written out in **six** places, and they must all agree or
+bsearch silently returns the wrong slice:
+
+| file | method | role |
+|---|---|---|
+| `type.rb:132` | `candidates_by_number` | the query's key |
+| `type.rb:142` | `bsearch_left` | lower bound |
+| `type.rb:148` | `bsearch_right` | upper bound |
+| `file_io.rb:167` | `deserialize_pubid` | load-time sort |
+| `file_io.rb:193` | `warn_unless_sorted` | sortedness check |
+| `file_io.rb:278` | `sort_structured_index` | save-time sort |
+
+**Consequence for pubid flavors:** once a flavor does query with parsed ids, an
+identifier family whose `number` is nil keys every row to `""`, so they collapse
+into one bucket and the bsearch buys nothing. It fails *silently* — results stay
+correct, only speed drops. IETF Internet-Drafts are the worked example (see
+`docs/data-repository-format.adoc`, "Two obligations a pubid-backed index
+carries"); the fix belongs upstream, giving the family a real `number`, rather than
+special-casing the key here.
+
 ### Index Format
 
 YAML array of hashes with `:id` (string or structured hash) and `:file` (path string). Supports backward compatibility with old string-based format and newer pubid object format. The full data-repository/index specification (schema, `:id` v1/v2 shapes, publishing + GitHub Pages contract) lives in `docs/data-repository-format.adoc` at the repo root.
