@@ -164,7 +164,7 @@ describe("document detail page", () => {
   const isDetail = (w: ReturnType<typeof mount>) =>
     w.find('[aria-label="Back to index"]').exists();
 
-  it("opens the detail view and sets ?doc= when a row is clicked", async () => {
+  it("opens the detail view and sets a path-based /doc/ URL when a row is clicked", async () => {
     const w = mount(App, { props: { data } });
     // The first row's DocID link.
     await w.find(".document a").trigger("click");
@@ -172,7 +172,7 @@ describe("document detail page", () => {
 
     expect(isDetail(w)).toBe(true);
     expect(w.find('input[type="search"]').exists()).toBe(false);
-    expect(new URLSearchParams(window.location.search).get("doc")).toBe("CCRI 2");
+    expect(decodeURIComponent(window.location.pathname)).toBe("/doc/CCRI 2");
   });
 
   it("restores the open document from ?doc= on mount", async () => {
@@ -436,7 +436,7 @@ describe("relations on the detail page", () => {
 
     expect(isDetail(w)).toBe(true);
     expect(w.text()).toContain("The SI");
-    expect(new URLSearchParams(window.location.search).get("doc")).toBe("SI Brochure");
+    expect(decodeURIComponent(window.location.pathname)).toBe("/doc/SI Brochure");
   });
 
   it("leaves a target outside the dataset unlinked but visible", async () => {
