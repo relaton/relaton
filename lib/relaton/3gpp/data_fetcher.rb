@@ -104,11 +104,23 @@ module Relaton
         return unless bib
 
         bib1 = bib
-        file = output_file(bib1.docnumber)
+        # A DISTINCT docnumber that sanitizes to the same filename must not be
+        # merged into the other document — give it a path of its own. Only a
+        # genuine duplicate (same docnumber, same path) still merges.
+        file = unique_output_file(bib1.docnumber)
+        # A reserved path only ever belongs to one docnumber, so a hit here is
+        # the same document again and still merges. Checked FIRST: a
+        # disambiguated path stays != output_file forever, so gating the merge
+        # on that comparison would drop the merge enrichment on every repeat of
+        # a disambiguated docnumber.
         if @files.include? file
           bib1 = merge_duplication bib1, file
           Util.warn "File #{file} already exists. Document: #{bib.docnumber}" if bib1.nil?
         else
+          if file != output_file(bib1.docnumber)
+            Util.warn "File #{output_file bib1.docnumber} already exists. " \
+                      "Document: #{bib.docnumber}. Writing #{file} instead."
+          end
           @files << file
           index.add_or_update bib1.docnumber, file
         end

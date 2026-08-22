@@ -138,6 +138,82 @@ describe Relaton::Core::DataFetcher do
     end
   end
 
+  describe "#unique_output_file" do
+    # `output_file` collapses ".", ",", "/", ":", "(", ")", "-" and whitespace
+    # all to "-", so distinct docids can map to one path. Live instance:
+    # relaton-data-iana's `rpki/signed-objects` vs `rpki-signed-objects`.
+    let(:a) { "rpki/signed-objects" }
+    let(:b) { "rpki-signed-objects" }
+
+    it "collapses two distinct docids onto one path (the bug)" do
+      expect(subject.output_file(a)).to eq subject.output_file(b)
+    end
+
+    it "returns the plain path when it is free" do
+      expect(subject.unique_output_file(a)).to eq subject.output_file(a)
+    end
+
+    it "gives a second, different docid a path of its own" do
+      first = subject.unique_output_file(a)
+      second = subject.unique_output_file(b)
+      expect(second).not_to eq first
+      expect(File.dirname(second)).to eq "data"
+      expect(File.extname(second)).to eq ".xml"
+    end
+
+    it "is a no-op for the SAME docid seen twice" do
+      # A genuine duplicate must keep resolving to one path, so each flavor's
+      # own duplicate handling (skip / merge / last-wins) still fires.
+      expect(subject.unique_output_file(a)).to eq subject.unique_output_file(a)
+    end
+
+    it "is deterministic across fetcher instances" do
+      other = described_class.new("data", "bibxml")
+      other.unique_output_file(a)
+      expect(other.unique_output_file(b)).to eq(
+        begin
+          subject.unique_output_file(a)
+          subject.unique_output_file(b)
+        end,
+      )
+    end
+
+    it "keys the suffix on the docid, not on encounter order" do
+      # Adding a registry must not renumber an existing file: b's
+      # disambiguated name is the same whatever else was fetched first.
+      subject.unique_output_file(a)
+      mine = subject.unique_output_file(b)
+
+      other = described_class.new("data", "bibxml")
+      other.unique_output_file("something/else")
+      other.unique_output_file(a)
+      expect(other.unique_output_file(b)).to eq mine
+    end
+
+    it "keeps one file per document whatever the call order" do
+      # The invariant the whole method exists for: distinct docids never share a
+      # path, the same docid always gets the same path, and asking again is
+      # idempotent. Exercised over several orders and a three-way clash.
+      [[a, b], [b, a], [a, a, b], ["x/y", "x-y", "x.y"],
+       ["x/y", "x-y", "x.y", "x-y", "x/y"]].each do |sequence|
+        fetcher = described_class.new("data", "bibxml")
+        paths = sequence.to_h { |docid| [docid, fetcher.unique_output_file(docid)] }
+        expect(paths.values.uniq.size).to eq(sequence.uniq.size), "order #{sequence.inspect}"
+        # idempotent: re-asking returns what it returned the first time
+        paths.each { |docid, path| expect(fetcher.unique_output_file(docid)).to eq path }
+      end
+    end
+
+    it "keeps the disambiguated basename within the byte cap" do
+      long = "#{'A' * 300}/x"
+      other = "#{'A' * 300}-x"
+      subject.unique_output_file(long)
+      file = subject.unique_output_file(other)
+      expect(File.basename(file).bytesize).to be <= 255
+      expect(file).not_to eq subject.output_file(long)
+    end
+  end
+
   describe "#serialize"  do
     it "BibXML serialization" do
       expect(subject).to receive(:to_bibxml).with(:doc)

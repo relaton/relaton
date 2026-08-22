@@ -42,11 +42,18 @@ module Relaton
           failures << "Document skipped: no identifier (#{document_label(bib)})"
           return
         end
-        file = output_file id.content.sub(/^NIST IR/, "NISTIR")
+        # Distinct docids can sanitize to one filename; take a path of our own
+        # rather than overwriting the other document (Core#unique_output_file).
+        docid = id.content.sub(/^NIST IR/, "NISTIR")
+        file = unique_output_file docid
         if @files.include? file
+          # Same reserved path == same docid: a genuine duplicate. Checked FIRST,
+          # because a disambiguated path stays != output_file forever.
           Util.warn "File #{file} exists. Docid: #{id.content}"
-        else @files << file
+        elsif file != output_file(docid)
+          Util.warn "File #{output_file docid} exists. Docid: #{id.content}. Writing #{file} instead."
         end
+        @files << file
         pid = pubid id.content
         if pid
           index.add_or_update pid, file

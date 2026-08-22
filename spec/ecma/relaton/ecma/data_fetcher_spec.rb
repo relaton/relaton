@@ -91,6 +91,47 @@ describe Relaton::Ecma::DataFetcher do
       df.write_file bib
     end
 
+    it "gives a colliding, DISTINCT docid a file of its own" do
+      # "ECMA TR/27" and "ECMA TR-27" both sanitize to ecma-tr-27-1-2-1.yaml.
+      # The second document used to be dropped outright.
+      other_docid = Relaton::Bib::Docidentifier.new content: "ECMA TR-27"
+      other = Relaton::Ecma::ItemData.new(
+        docnumber: "TR-27", docidentifier: [other_docid],
+        edition: bib.edition, extent: bib.extent
+      )
+      written = []
+      allow(File).to receive(:write) { |f, *| written << f }
+      allow(subject.index).to receive(:add_or_update)
+
+      subject.write_file bib
+      expect { subject.write_file other }
+        .to output(/Duplicate file/).to_stderr_from_any_process
+
+      expect(written.uniq.size).to eq 2
+      expect(written.first).to eq "data/ecma-tr-27-1-2-1.yaml"
+    end
+
+    it "still skips a repeat of a docid that was already disambiguated" do
+      # Regression: gating the duplicate check on `file != filename(bib)` made
+      # this branch unreachable, because a disambiguated path stays different
+      # from the plain one forever — so the repeat overwrote its own file
+      # instead of being skipped.
+      other_docid = Relaton::Bib::Docidentifier.new content: "ECMA TR-27"
+      other = Relaton::Ecma::ItemData.new(
+        docnumber: "TR-27", docidentifier: [other_docid],
+        edition: bib.edition, extent: bib.extent
+      )
+      allow(subject.index).to receive(:add_or_update)
+      allow(File).to receive(:write)
+
+      subject.write_file bib      # takes data/ecma-tr-27-1-2-1.yaml
+      subject.write_file other    # disambiguated onto its own path
+
+      expect(File).not_to receive(:write)
+      expect { subject.write_file other } # same docid again -> skip
+        .to output(/Duplicate file/).to_stderr_from_any_process
+    end
+
     it "warns if file exists" do
       subject.instance_variable_set :@files, ["data/ecma-tr-27-1-2-1.yaml"]
       expect(File).not_to receive(:write).with("data/ecma-tr-27-1-2-1.yaml", :yaml, encoding: "UTF-8")

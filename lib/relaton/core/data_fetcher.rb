@@ -15,6 +15,10 @@ module Relaton
         @format = format
         @ext = format.sub "bibxml", "xml"
         @files = Set.new
+      # path => docid that reserved it, for #unique_output_file. Distinct from
+      # @files, which flavors use for their own duplicate handling: this one has
+      # to know WHICH document owns a path, not just that it is taken.
+      @file_docids = {}
         # @docs = []
         @errors = Hash.new(true)
       end
@@ -91,6 +95,36 @@ module Relaton
       end
 
       #
+      # Reserve a unique output path for `docid`.
+      #
+      # `output_file` sanitizes ".", ",", "/", ":", "(", ")", "-" and whitespace
+      # all to "-", so two DISTINCT docids can map to one path — live instance in
+      # relaton-data-iana: `rpki/signed-objects` and `rpki-signed-objects` both
+      # give `data/rpki-signed-objects.yaml`. A caller that merely warns and
+      # writes anyway leaves one file holding the wrong document for one of two
+      # index ids: a wrong answer, not a missing one.
+      #
+      # Returns `output_file(docid)` when that path is free, or when it is
+      # already held by this SAME docid — a genuine duplicate is the caller's
+      # business (skip / merge / last-wins), and this method must not turn one
+      # into two files. Only a real clash with a DIFFERENT docid gets a variant,
+      # suffixed with a digest of this docid so the name depends on the document
+      # and not on encounter order: adding a record never renames an existing
+      # file. (Which member of a clashing pair keeps the plain path does follow
+      # write order, which is stable for a given corpus.)
+      #
+      # @param [String] docid
+      # @return [String] path, reserved for this docid
+      #
+      def unique_output_file(docid)
+        file = output_file docid
+        owner = @file_docids[file]
+        file = digest_output_file(docid) unless owner.nil? || owner == docid
+        @file_docids[file] ||= docid
+        file
+      end
+
+      #
       # Serialize bibliographic item
       #
       # @param [RelatonCcsds::BibliographicItem] bib <description>
@@ -111,6 +145,20 @@ module Relaton
 
       def to_bibxml(bib)
         raise NotImplementedError, "#{self.class}#to_bibxml method must be implemented"
+      end
+
+      private
+
+      # `output_file`'s path with a docid digest appended to the basename, kept
+      # inside the same byte cap. Deterministic: same docid, same name.
+      def digest_output_file(docid)
+        require "digest"
+        ext = ".#{@ext}"
+        suffix = "-#{Digest::SHA1.hexdigest(docid)[0, 12]}"
+        stem = File.basename output_file(docid), ext
+        limit = MAX_BASENAME_BYTES - ext.bytesize - suffix.bytesize
+        stem = stem.byteslice(0, limit).scrub("").delete_suffix("-") if stem.bytesize > limit
+        File.join @output, "#{stem}#{suffix}#{ext}"
       end
     end
   end

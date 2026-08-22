@@ -30,12 +30,17 @@ module Relaton
         id = docid&.content
         return unless id
 
-        file = output_file id
+        # Distinct docids can sanitize to one filename; take a path of our own
+        # rather than overwriting the other document (Core#unique_output_file).
+        file = unique_output_file id
         if @files.include? file
+          # Same reserved path == same id: a genuine duplicate. Checked FIRST,
+          # because a disambiguated path stays != output_file forever.
           Util.warn "File #{file} already exists"
-        else
-          @files << file
+        elsif file != output_file(id)
+          Util.warn "File #{output_file id} already exists; writing #{file} instead"
         end
+        @files << file
         File.write file, serialize(bib), encoding: "UTF-8"
         index.add_or_update id, file
       end

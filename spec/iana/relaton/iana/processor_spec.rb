@@ -71,7 +71,8 @@ RSpec.describe Relaton::Iana::Processor do
     it "removes index file" do
       index = double("index")
       expect(Relaton::Index).to receive(:find_or_create)
-        .with(:iana, url: true, file: "#{Relaton::Iana::INDEXFILE}.yaml")
+        .with(:iana, url: true, file: "#{Relaton::Iana::INDEXFILE}.yaml",
+                     pubid_class: ::Pubid::Iana::Identifier)
         .and_return(index)
       expect(index).to receive(:remove_file)
       processor.remove_index_file

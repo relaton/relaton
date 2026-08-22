@@ -68,12 +68,18 @@ module Relaton
 
       def save_doc(doc) # rubocop:disable Metrics/AbcSize
         id = doc.docidentifier.find(&:primary) || doc.docidentifier.first
-        file = output_file(id.content)
+        # Distinct docids can sanitize to one filename; take a path of our own
+        # rather than overwriting the other document (Core#unique_output_file).
+        file = unique_output_file(id.content)
         if @files.include? file
+          # Same reserved path == same docid: a genuine duplicate. Checked FIRST,
+          # because a disambiguated path stays != output_file forever.
           Util.warn "File #{file} already exists. Document: #{id.content}"
-        else
-          @files << file
+        elsif file != output_file(id.content)
+          Util.warn "File #{output_file id.content} already exists. " \
+                    "Document: #{id.content}. Writing #{file} instead."
         end
+        @files << file
         index.add_or_update id.content, file
         File.write file, serialize(doc), encoding: "UTF-8"
       end

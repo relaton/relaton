@@ -4,7 +4,7 @@ source "https://rubygems.org"
 
 gemspec
 
-# TEMP PIN: the `jcgm`, `bipm`, `etsi`, `cie`, `itu` and `ieee` flavors need pubid
+# TEMP PIN: the `jcgm`, `bipm`, `etsi`, `cie`, `itu`, `ieee` and `iana` flavors need pubid
 # support not yet in the released 2.0.0.pre.alpha.8 that relaton.gemspec pins:
 #   - JCGM: meetings, bare GUM/VIM-N guides, the Corrigendum suffix, and the
 #     flattened compact `to_hash`.
@@ -29,6 +29,12 @@ gemspec
 #     redline, numbered/letter revision, edition, trademark rendering, update_codes
 #     one-offs) that lets `relaton-data-ieee` migrate to a pubid `index-v2` and
 #     `RawbibIdParser` go pubid-first (`_type: pubid:ieee:*`).
+#   - IANA: `Pubid::Iana::Identifiers::Registry#number` (the top-level registry
+#     slug). Before it, `Registry` set no `number` at all, so `id.root.number.to_s`
+#     — the key `Relaton::Index::Type#candidates_by_number` bsearches on — was ""
+#     for all 3405 published rows. An IANA `index-v2` was therefore impossible:
+#     every row would have landed in one bucket and the bsearch degraded to a
+#     linear scan, silently. See lib/relaton/iana.
 # All live on pubid `main`, which also carries the `base_identifier` → `base`
 # accessor/serialization-key rename (pubid #139) that relaton adopts here: pubid
 # removed `.base_identifier` with no alias, and `#root` now reaches the origin for

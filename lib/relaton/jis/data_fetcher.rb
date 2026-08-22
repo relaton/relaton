@@ -163,17 +163,27 @@ module Relaton
         return unless bib
 
         id = bib.docidentifier.find(&:primary).content
-        file = output_file id
         @mutex.synchronize do
+          # Two distinct ids can sanitize to one filename, in which case the
+          # second document used to be dropped. Give it a path of its own; a
+          # genuine duplicate (same id) still resolves to one path and is still
+          # skipped. Inside the lock: unique_output_file reserves state.
+          file = unique_output_file id
+          # A reserved path only ever belongs to one id, so a hit here is the
+          # same document again. Checked FIRST: a disambiguated path stays !=
+          # output_file forever, so gating this on that comparison would make a
+          # repeat of a disambiguated id skip the skip and overwrite itself.
           if @files.include?(file)
             Util.warn "File #{file} already exists. Duplication URL: #{url}"
-          else
-            @files << file
-            File.write file, serialize(bib), encoding: "UTF-8"
-            index.add_or_update id, file
-            pid = pubid id
-            index_v2.add_or_update pid, file if pid
+            next
           end
+
+          Util.warn "File #{output_file id} already exists; writing #{file} instead" if file != output_file(id)
+          @files << file
+          File.write file, serialize(bib), encoding: "UTF-8"
+          index.add_or_update id, file
+          pid = pubid id
+          index_v2.add_or_update pid, file if pid
         end
       end
     end

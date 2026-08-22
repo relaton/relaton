@@ -31,22 +31,37 @@ module Relaton
 
       # @param bib [Relaton::Ecma::ItemData]
       def write_file(bib)
-        file = filename bib
+        # Two distinct ids can sanitize to one filename, in which case the
+        # second document used to be dropped outright. Give it a path of its
+        # own; a genuine duplicate (same id) still resolves to one path and is
+        # still skipped.
+        file = unique_output_file filename_id(bib)
+        # A reserved path only ever belongs to one id, so a hit here is the same
+        # document again. Checked FIRST: a disambiguated path stays != filename
+        # forever, so gating this on that comparison would make a repeat of a
+        # disambiguated id skip the skip and overwrite its own file.
         if @files.include? file
           Util.warn "Duplicate file #{file}"
-        else
-          @files << file
-          File.write file, serialize(bib), encoding: "UTF-8"
-          index.add_or_update index_id(bib), file
+          return
         end
+
+        Util.warn "Duplicate file #{filename bib}; writing #{file} instead" if file != filename(bib)
+        @files << file
+        File.write file, serialize(bib), encoding: "UTF-8"
+        index.add_or_update index_id(bib), file
       end
 
       def filename(bib)
+        output_file filename_id(bib)
+      end
+
+      # The docid the filename is derived from.
+      def filename_id(bib)
         id = bib.docidentifier[0].content
         id += " #{bib.edition.content}" if bib.edition
         locality = locality_with_volume bib
         id += " #{locality.reference_from}" if locality
-        output_file id
+        id
       end
 
       def index_id(bib)
