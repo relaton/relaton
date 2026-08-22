@@ -35,8 +35,7 @@ gemspec
 #     for all 3405 published rows. An IANA `index-v2` was therefore impossible:
 #     every row would have landed in one bucket and the bsearch degraded to a
 #     linear scan, silently. See lib/relaton/iana.
-# All but the IANA commit live on pubid `main`, which also carries the
-# `base_identifier` → `base`
+# All live on pubid `main`, which also carries the `base_identifier` → `base`
 # accessor/serialization-key rename (pubid #139) that relaton adopts here: pubid
 # removed `.base_identifier` with no alias, and `#root` now reaches the origin for
 # every flavor (the index narrowing key relies on it). main is the SAME pubid that
@@ -45,13 +44,8 @@ gemspec
 # `Pubid::<Flavor>::Identifiers::Base` alias from the Category-A flavors (iho,
 # etsi, …); relaton now names the canonical `Pubid::<Flavor>::Identifier`
 # deserialization root, so the old alias would NameError at IHO/ETSI index load.
-#
-# The pin is on `feat/iana-index-number` rather than `main` only because the IANA
-# commit above has not merged yet; that branch is `main` plus exactly that one
-# commit (metanorma/pubid f07aed01).
-# TODO: repoint to `main` once the IANA commit merges, and revert to the released
-# pubid once all of these changes ship in a pubid release.
-gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "feat/iana-index-number"
+# TODO: revert to the released pubid once these changes ship in a pubid release.
+gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
