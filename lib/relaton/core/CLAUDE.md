@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-relaton-core is the foundation gem every flavor plugin builds on. It provides the abstract **`Relaton::Core::Processor`** base class (the registry plug-in interface), the search primitives (`HitCollection`, `Hit`), a parallel-fetch thread pool (`WorkersPool`), the `DataFetcher` base for bulk ingest, and small parsing/utility mixins. It has no knowledge of any specific standards body.
+relaton-core is the foundation gem every flavor plugin builds on. It provides the abstract **`Relaton::Core::Processor`** base class (the registry plug-in interface), the search primitives (`HitCollection`, `Hit`), a parallel-fetch thread pool (`WorkersPool`), the crawl-politeness pair `Pacer` (shared request pacing) and `Governor` (pool-wide rate-limit back-pressure), the `DataFetcher` base for bulk ingest, and small parsing/utility mixins. It has no knowledge of any specific standards body.
 
 ## Development
 
@@ -75,7 +75,9 @@ Namespace: `Relaton::Core`. Key classes in `lib/relaton/core/`:
 
   Note `etsi` had **no** collision handling at all before this (silent overwrite,
   not even a warning), and `iec` had the warn-then-overwrite-anyway shape.
-- **`WorkersPool`** (`workers_pool.rb`) — `SizedQueue`-backed thread pool for parallel work.
+- **`WorkersPool`** (`workers_pool.rb`) — `SizedQueue`-backed thread pool for parallel work. **Runtime search only** — `HitCollection` uses it. No fetcher does: it carries no per-worker resources (a crawler needs one Mechanize agent per thread) and collects into an unsynchronised array. A crawler that needs a pool builds its own; see `Relaton::Itu::DataCrawlerR#in_parallel` and `Relaton::Cie::DataFetcher#process_hits`.
+- **`Pacer`** (`pacer.rb`) — process-wide, thread-safe request pacer: the whole pool between them starts at most one request per `gap` seconds. **Shared, not per-worker** — that is the point, and the contrast with `Relaton::Cie::DataFetcher::Pacing`, whose gap is per worker (N workers there issue N requests per gap, which is right for CIE and wrong when the budget belongs to one host). A reservation never starts before "now", so an idle stretch cannot be repaid as a burst, and the mutex is never held across the sleep. `mode: :fixed` reproduces a plain `sleep delay` loop as a rollback knob. `clock:`/`sleeper:` are injectable, so the arithmetic is specced without wall-clock waits.
+- **`Governor`** (`governor.rb`) — process-wide, thread-safe rate-limit back-pressure: one shared cooldown the whole pool observes, escalating per *round* (60 s → 900 s) rather than per worker, decaying on success, and latching a give-up after five barren rounds so a banned crawl fails fast instead of grinding out a CI job's remaining hours. Promoted here from `Relaton::W3c`. A flavor subclasses it and supplies two things: `THROTTLE_ERRORS` (or `.throttle?`, when the signal is a status code rather than an exception class, as for ITU) and `ENV_PREFIX`, which namespaces `<PREFIX>_THROTTLE_BASE/_MAX/_GIVEUP` so two flavors crawling in one process cannot share a ladder. Bindings: `Relaton::W3c::Governor`, `Relaton::Itu::Governor`.
 - **Mixins** — `DateParser` (`parse_date` for "February 2012"/"2012-02-03"/etc.), `ArrayWrapper` (`array(x)` → always an Array), `HashKeysSymbolizer` (recursive string→symbol keys).
 
 ### How flavors consume it (important)

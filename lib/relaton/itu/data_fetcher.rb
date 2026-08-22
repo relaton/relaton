@@ -4,6 +4,7 @@ require "uri"
 require "mechanize"
 require_relative "../itu"
 require_relative "data_parser_t"
+require_relative "family_cache"
 
 module Relaton
   module Itu
@@ -19,6 +20,12 @@ module Relaton
                    "AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Safari/605.1.15".freeze
       DEFAULT_CONCURRENCY = 8
 
+      # ITU-R crawl worker threads. Duplicated from DataCrawlerR::DEFAULT_CONCURRENCY
+      # rather than read from it, so this knob does not drag the whole ITU-R
+      # harvester into an ITU-T-only crawl — #fetch_publications requires that
+      # file lazily and deliberately.
+      DEFAULT_R_CONCURRENCY = 4
+
 
       # Number of ITU-T enrichment worker threads. Each record costs ~4
       # www.itu.int round-trips (~3.7 s wall clock), so a ~16k-record corpus is
@@ -28,6 +35,41 @@ module Relaton
       # throttling (or up to 1 to reproduce the serial order). Never below 1.
       def self.concurrency
         [(ENV["RELATON_ITU_CONCURRENCY"] || DEFAULT_CONCURRENCY).to_i, 1].max
+      end
+
+      # Number of ITU-R crawl worker threads. Its own knob, not ITU-T's, because
+      # the two halves have different bottlenecks: ITU-T is latency-bound, ITU-R
+      # is *pacer*-bound. Throughput there is min(1/delay, concurrency/latency),
+      # so at the 1 s default and ITU's ~1.1 s latency two workers already
+      # saturate the politeness contract; the default of 4 is headroom for a slow
+      # page, not extra load. `RELATON_ITU_R_CONCURRENCY=1` restores a strictly
+      # serial crawl.
+      def self.r_concurrency
+        [(ENV["RELATON_ITU_R_CONCURRENCY"] || DEFAULT_R_CONCURRENCY).to_i, 1].max
+      end
+
+      # How RELATON_ITU_DELAY is spent.
+      #
+      #   slot  (default) it is the minimum gap between request *starts*, shared
+      #         by the pool, so ITU's own latency counts toward it instead of
+      #         being added on top. www.itu.int sees at most 1/delay req/s no
+      #         matter how many workers there are.
+      #   fixed sleep it before every request, whatever else is happening. With
+      #         RELATON_ITU_R_CONCURRENCY=1 this reproduces the pre-pool crawler
+      #         exactly — one request per (delay + latency) — and is the rollback
+      #         if ITU ever objects to the new profile.
+      def self.pace_mode
+        ENV["RELATON_ITU_PACE"].to_s == "fixed" ? :fixed : :slot
+      end
+
+      # The ITU-T cross-row cache for a crawl. `RELATON_ITU_CACHE_ENTRIES=0`
+      # turns it off entirely, restoring today's exact request pattern.
+      def self.family_cache
+        entries = ENV["RELATON_ITU_CACHE_ENTRIES"]
+        return NullCache.instance if entries.to_s.strip == "0"
+
+        size = entries.to_i
+        FamilyCache.new(max_entries: size.positive? ? size : FamilyCache::DEFAULT_MAX_ENTRIES)
       end
 
       def initialize(output, format)
@@ -99,11 +141,22 @@ module Relaton
       def fetch_publications(mode: self.class.mode)
         require_relative "data_crawler_r"
         require_relative "data_merge_r"
-        crawler = DataCrawlerR.new delay: self.class.delay
+        crawler = DataCrawlerR.new delay: self.class.delay,
+                                   concurrency: self.class.r_concurrency,
+                                   pace_mode: self.class.pace_mode
         stats = Hash.new 0
         DataCrawlerR::FAMILIES.each_key { |family| harvest_family crawler, family, stats, mode }
         Util.info "ITU-R (#{mode}): #{stats.reject { |k, _| k == :collisions }.map { |k, v| "#{k} #{v}" }.join ', '}"
+        # Say it out loud: a run that was throttled but recovered otherwise looks
+        # identical to a clean one, and a run the governor abandoned would
+        # otherwise be visible only as a thin corpus.
+        if crawler.throttle_count.positive?
+          Util.warn "ITU-R: #{crawler.throttle_count} rate-limit responses from www.itu.int" \
+                    "#{'; crawl ABANDONED as rate-limited' if crawler.abandoned?}"
+        end
         stats
+      ensure
+        crawler&.shutdown
       end
 
       # One family, series by series, so a series that fails — ITU throttles by
@@ -138,9 +191,12 @@ module Relaton
         docid && File.exist?(output_file(docid))
       end
 
-      # Seconds to wait before each crawl request. ITU's WAF answers 503 on
-      # `/rec` and a 302 to notfound.aspx on `/pub` when pushed; 0.4 s tripped it
-      # mid-run, 1 s did not.
+      # Minimum seconds between ITU-R request *starts*, enforced by one
+      # Core::Pacer shared by the whole pool — not a sleep before each request,
+      # which would add to ITU's own ~1.1 s latency instead of being absorbed by
+      # it. www.itu.int therefore sees at most 1/delay req/s however many workers
+      # run. Its WAF answers 503 on `/rec` and a 302 to notfound.aspx on `/pub`
+      # when pushed; 0.4 s tripped it mid-run, 1 s did not.
       def self.delay
         (ENV["RELATON_ITU_DELAY"] || 1.0).to_f
       end
@@ -153,38 +209,124 @@ module Relaton
       # ITU-T harvester: one searchRecs request enumerates every edition and
       # supplement; each row is then enriched with getRecHdrDetail-sourced fields
       # (abstract, ISO co-id, editorial-group contributors, status), so harvested
-      # records match the live runtime output. Enrichment is ~4 requests per
+      # records match the live runtime output. Enrichment is up to 4 requests per
       # record — the bulk of the crawl's cost — so the rows are spread over a
       # worker pool (see .concurrency) and progress is logged.
+      #
+      # Two things keep that cost down. The rows are enqueued **grouped by
+      # recommendation**, and the pool shares one FamilyCache, so the two
+      # endpoints that answer per *recommendation* rather than per *edition*
+      # (`getRecEditions` and the ~90 KB `rec.aspx` page) are fetched once per
+      # family instead of once per edition — H.264 alone was asking ITU the same
+      # question 21 times. And `mode: :top_up` skips a family the dataset already
+      # holds entirely, decided with no HTTP at all (see #held_t?).
       #
       # Each worker owns its own Mechanize agent: Mechanize is not thread-safe,
       # and per-worker agents also keep one worker's cookie/history state out of
       # another's. Rows carry their searchRecs position so #write_file can pick a
       # deterministic winner for duplicate filenames.
-      def fetch_recommendations
-        rows = search_recs
+      def fetch_recommendations(mode: self.class.mode)
+        # `pos` is fixed HERE, against the unreordered searchRecs result, and
+        # keeps exactly its current meaning. Only the enqueue ORDER changes
+        # below, which #write_file's max-by-position rule is already immune to —
+        # it has to be, since worker completion order was never deterministic.
+        work = search_recs.each_with_index.to_a
+        work = top_up_rows(work) if mode == :top_up
+        work = self.class.group_by_family(work)
+        cache = self.class.family_cache
+
         n = self.class.concurrency
         agents = Array.new(n) { rec_agent }
         queue = SizedQueue.new(n * 2)
-        workers = agents.map { |agent| spawn_rec_worker(queue, agent, rows.size) }
-        rows.each_with_index { |row, pos| queue << [row, pos] }
+        workers = agents.map { |agent| spawn_rec_worker(queue, agent, work.size, cache) }
+        work.each { |pair| queue << pair }
         n.times { queue << nil } # poison pills
         workers.each(&:join)
-        report_enrichment_failures rows.size
+        Util.info "ITU-T: detail cache #{cache.stats[:hits]} hits / #{cache.stats[:misses]} misses"
+        report_enrichment_failures work.size
       ensure
         agents&.each(&:shutdown)
+      end
+
+      # Does the dataset already hold this ITU-T edition? Answered from the
+      # searchRecs row alone, which is what lets a top-up decide *before* paying
+      # the four detail requests — the ITU-T counterpart of #held?.
+      #
+      # HTTP-free, and provably so: DataParserT.fetch_docid reads only
+      # `row["rec_name"]`, normalizes it with one #sub, and builds a
+      # Docidentifier. It takes no agent and touches none of the enrichment path.
+      #
+      # The filename it derives is the one #write_file would produce: that method
+      # uses `docidentifier.find(&:primary).content`, and DataParserT.parse puts
+      # the ITU docid first (`docid + enr[:iso]`) — which matters, because an
+      # enriched record's ISO co-identifier is *also* `primary: true`.
+      #
+      # @param row [Hash] a searchRecs row
+      # @return [Boolean]
+      def held_t?(row)
+        did = DataParserT.fetch_docid(row).first
+        did && File.exist?(output_file(did.content))
+      end
+
+      # Narrow a top-up to the rows worth re-harvesting.
+      #
+      # The unit is the **family, not the row**. A new edition changes its
+      # siblings' `hasEdition` relations, so topping up only the new row would
+      # leave the rest of the family on disk pointing at an incomplete edition
+      # list — a staleness the full run's wipe-and-rebuild never had. If any row
+      # of a family is new, every row of that family is re-harvested; the extra
+      # cost is one getRecHdrDetail per sibling, since the family-invariant
+      # fetches are shared by the cache.
+      #
+      # @param work [Array<Array(Hash, Integer)>] [row, searchRecs position]
+      # @return [Array<Array(Hash, Integer)>]
+      def top_up_rows(work)
+        kept = work.group_by { |row, _pos| self.class.family_key(row) }
+                   .select { |_key, pairs| pairs.any? { |row, _pos| !held_t?(row) } }
+                   .values.flatten(1)
+        Util.info "ITU-T (top_up): #{kept.size}/#{work.size} rows in families with new editions"
+        kept
+      end
+
+      # The recommendation a row is an edition of.
+      #
+      # Used **only** to decide enqueue order and top-up grouping, never as a
+      # cache key: cache correctness is keyed on idrecs ITU's own getRecEditions
+      # response supplied (see RecommendationFields#family_id), because two
+      # recommendations whose names normalize alike would otherwise silently
+      # share metadata. A wrong guess here costs a cache miss, nothing more.
+      #
+      #   "H.264 (V16) (06/2026)" -> "H.264";  "H Suppl. 1 (05/1999)" -> "H Suppl. 1"
+      #
+      # @param row [Hash]
+      # @return [String]
+      def self.family_key(row)
+        # Cut at a bare "(" with no leading \s* — an unanchored \s* here is
+        # polynomial-time backtracking (CodeQL rb/polynomial-redos).
+        DataParserT.normalize_rec_name(row["rec_name"]).sub(/\(.*\z/m, "").strip
+      end
+
+      # Make each recommendation's rows contiguous, so its cache entry is still
+      # resident when its siblings are enriched. Every [row, pos] pair is carried
+      # through untouched. searchRecs already returns name-sorted rows, so on
+      # today's data this is close to a no-op — it is a guarantee, not a gain.
+      #
+      # @param work [Array<Array(Hash, Integer)>]
+      # @return [Array<Array(Hash, Integer)>]
+      def self.group_by_family(work)
+        work.group_by { |row, _pos| family_key(row) }.values.flatten(1)
       end
 
       # One pool worker: drains the queue with its own agent until the poison
       # pill (nil). Per-row errors are logged and skipped, so one bad row never
       # kills a worker and leaves the queue undrained.
-      def spawn_rec_worker(queue, agent, total)
+      def spawn_rec_worker(queue, agent, total, cache = NullCache.instance)
         Thread.new do
           while (item = queue.pop)
             row, pos = item
             begin
               errors = Hash.new(true)
-              bib = DataParserT.parse(row, agent, errors)
+              bib = DataParserT.parse(row, agent, errors, cache: cache)
               if bib
                 # DataParserT#enrichment adds the ITU publisher unconditionally
                 # when it succeeds, so an empty contributor list is exactly the

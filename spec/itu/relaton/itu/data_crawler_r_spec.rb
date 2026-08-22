@@ -327,7 +327,11 @@ describe Relaton::Itu::DataCrawlerR do
     # Measured over a 49-minute full run: ITU rate-limits /rec with 503 and /pub
     # with a 302 to notfound.aspx. The second is why 14 report series once came
     # back empty instead of failing.
-    subject { described_class.new delay: 0 }
+    # A real governor, so the throttle classification and the retry-behind-the-
+    # cooldown are genuinely exercised — but with a no-op sleeper, because its
+    # cooldowns are on the minute scale a WAF ban actually needs.
+    let(:governor) { Relaton::Itu::Governor.new sleeper: ->(_secs) {} }
+    subject { described_class.new delay: 0, governor: governor }
 
     before { allow(subject).to receive(:sleep) } # don't wait out the backoff
 
@@ -337,11 +341,15 @@ describe Relaton::Itu::DataCrawlerR do
 
     it "retries a soft block that lands on notfound and succeeds" do
       good = page "https://www.itu.int/pub/R-REP-BO/en"
-      expect(subject).to receive(:sleep).at_least(:once)
       expect_any_instance_of(Mechanize).to receive(:get).twice
         .and_return(page("https://www.itu.int/en/publications/pages/notfound.aspx"), good)
 
       expect(subject.send(:get, "https://www.itu.int/pub/R-REP-BO/en")).to eq good
+      # The retry now waits behind the POOL's cooldown rather than this thread's
+      # own linear backoff, which is the point: one worker's soft block has to
+      # hold back every other worker, not just itself.
+      expect(governor.throttle_count).to eq 1
+      expect(governor.throttle_rounds).to eq 0 # the success released it
     end
 
     it "gives up after RETRIES and raises rather than reporting an empty series" do
@@ -374,6 +382,131 @@ describe Relaton::Itu::DataCrawlerR do
     it "wraps a persistent transport failure in a RequestError" do
       allow_any_instance_of(Mechanize).to receive(:get).and_raise SocketError
       expect { subject.series }.to raise_error Relaton::RequestError, /Could not access/
+    end
+
+    it "reports a throttle to the governor, and a recovery too" do
+      # A rate limit is a POOL event: one worker's 503 has to pause every other
+      # worker, not just retry on this thread.
+      governor = instance_double(Relaton::Itu::Governor, wait: 0, exhausted?: false, throttle_rounds: 1)
+      crawler = described_class.new delay: 0, governor: governor
+      allow(crawler).to receive(:sleep)
+      good = page "https://www.itu.int/rec/R-REC-BO/en"
+      unavailable = Mechanize::Page.new(
+        URI("https://www.itu.int/rec/R-REC-BO/en"), { "content-type" => "text/html" }, "", 503, Mechanize.new
+      )
+      calls = 0
+      allow_any_instance_of(Mechanize).to receive(:get) do
+        calls += 1
+        raise Mechanize::ResponseCodeError.new(unavailable) if calls == 1
+
+        good
+      end
+
+      expect(governor).to receive(:throttled!).once.and_return(false)
+      expect(governor).to receive(:succeeded!).once
+      crawler.send(:get, "https://www.itu.int/rec/R-REC-BO/en")
+    end
+
+    it "does not open a pool-wide cooldown for a missing document" do
+      governor = instance_double(Relaton::Itu::Governor, wait: 0, exhausted?: false, succeeded!: nil, throttle_rounds: 1)
+      crawler = described_class.new delay: 0, governor: governor
+      allow(crawler).to receive(:sleep)
+      missing = Mechanize::Page.new(
+        URI("https://www.itu.int/rec/R-REC-BO.999/en"), { "content-type" => "text/html" }, "", 404, Mechanize.new
+      )
+      allow_any_instance_of(Mechanize).to receive(:get).and_raise Mechanize::ResponseCodeError.new(missing)
+
+      expect(governor).not_to receive(:throttled!)
+      expect { crawler.send(:get, "https://www.itu.int/rec/R-REC-BO.999/en") }
+        .to raise_error Relaton::RequestError
+    end
+
+    it "marks the /pub soft block so the governor can tell it from a 404" do
+      governor = instance_double(Relaton::Itu::Governor, wait: 0, exhausted?: false, succeeded!: nil, throttle_rounds: 1)
+      crawler = described_class.new delay: 0, governor: governor
+      allow(crawler).to receive(:sleep)
+      allow_any_instance_of(Mechanize).to receive(:get)
+        .and_return page("https://www.itu.int/en/publications/pages/notfound.aspx")
+
+      expect(described_class::SoftBlock.ancestors).to include Relaton::Itu::Governor::SoftBlock
+      expect(governor).to receive(:throttled!).at_least(:once).and_return(false)
+      expect { crawler.send(:get, "https://www.itu.int/pub/R-REP-BO/en") }
+        .to raise_error Relaton::RequestError
+    end
+
+    it "stops issuing requests once the governor has given up" do
+      # The direct answer to the 6 h timeout: a banned crawl must fail fast
+      # rather than grind out its remaining hours.
+      governor = instance_double(Relaton::Itu::Governor, wait: 0, exhausted?: true)
+      crawler = described_class.new delay: 0, governor: governor
+      expect_any_instance_of(Mechanize).not_to receive(:get)
+      expect { crawler.send(:get, "https://www.itu.int/rec/R-REC-BO/en") }
+        .to raise_error Relaton::RequestError, /abandoned/
+    end
+
+    it "paces every attempt, and waits on the shared cooldown first" do
+      pacer = instance_double(Relaton::Core::Pacer, wait: 0)
+      governor = instance_double(Relaton::Itu::Governor, exhausted?: false, succeeded!: nil)
+      crawler = described_class.new delay: 0, pacer: pacer, governor: governor
+      good = page "https://www.itu.int/rec/R-REC-BO/en"
+      allow_any_instance_of(Mechanize).to receive(:get).and_return good
+
+      expect(governor).to receive(:wait).ordered
+      expect(pacer).to receive(:wait).ordered
+      crawler.send(:get, "https://www.itu.int/rec/R-REC-BO/en")
+    end
+  end
+
+  context "the worker pool" do
+    subject { described_class.new delay: 0, concurrency: 4 }
+
+    it "keeps results in input order" do
+      expect(subject.send(:in_parallel, (1..50).to_a) { |n| n * 2 })
+        .to eq (1..50).map { |n| n * 2 }
+    end
+
+    it "stays on the serial path at concurrency 1" do
+      serial = described_class.new delay: 0, concurrency: 1
+      expect(Thread).not_to receive(:new)
+      expect(serial.send(:in_parallel, [1, 2, 3]) { |n| n + 1 }).to eq [2, 3, 4]
+    end
+
+    it "re-raises a worker's error without deadlocking" do
+      # The failure mode that would hang CI: a worker that stops draining lets
+      # the SizedQueue fill and blocks the producer's poison pills forever.
+      Timeout.timeout(20) do
+        expect { subject.send(:in_parallel, (1..200).to_a) { |n| raise ArgumentError, "boom" if n == 3; n } }
+          .to raise_error ArgumentError, "boom"
+      end
+    end
+
+    it "stops feeding the queue once an item has failed" do
+      done = Queue.new
+      expect do
+        subject.send(:in_parallel, (1..400).to_a) do |n|
+          raise ArgumentError if n == 2
+
+          done << n
+        end
+      end.to raise_error ArgumentError
+      expect(done.size).to be < 400
+    end
+
+    it "gives every worker its own Mechanize agent" do
+      # Mechanize is not thread-safe; sharing one across the pool is the bug
+      # this file's own class comment has warned about since it was written.
+      agents = []
+      allow(described_class).to receive(:agent) { Mechanize.new.tap { |a| agents << a } }
+      seen = Queue.new
+      subject.send(:in_parallel, (1..40).to_a) { seen << subject.send(:agent).object_id }
+      ids = []
+      ids << seen.pop until seen.empty?
+      # One agent per worker, all distinct, and no item ever ran on the
+      # crawler's shared serial agent. Which worker happens to drain the queue
+      # is not asserted: with a fast block one worker legitimately takes it all.
+      expect(agents.size).to eq 4
+      expect(agents.map(&:object_id).uniq.size).to eq 4
+      expect(ids.uniq - agents.map(&:object_id)).to be_empty
     end
   end
 end
