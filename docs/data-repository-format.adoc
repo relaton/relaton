@@ -51,6 +51,27 @@ re-download or removal. In particular, *titles are not stored in the index*; the
 live inside each record file. The index is a pure identifier→file manifest, kept
 small so consumers can download it cheaply.
 
+Nothing requires `:file` values to be *unique*. A document that answers to several
+identifiers may be given *one row per identifier*, all pointing at the same
+record — the intended mechanism for alternate and cross-referenced forms, since it
+resolves them without any derivation on the consumer side.
+
+*No published index uses this, and the consumer side is untested.* Every current
+index is one row per record (`relaton-data-ids` is 166,916 rows over 166,915 files,
+and its single duplicate is a data glitch — a malformed
+`draft-ietf-6man-hbh-processing-` id alongside the correct one; Internet-Draft
+aggregators each have their own record file). Before shipping such an index, note
+that `search` would return several rows for one document while callers such as
+`Bibliography.get` take `.first`.
+
+There is also a trap in the *reverse* direction — one id pointing at two files is
+**not** expressible: `Type#add_or_update` keys `id_lookup` on `id.to_s`, so a
+repeat id silently overwrites `:file` rather than adding a row. An identifier that
+could legitimately denote either of two records has to pick one. IETF sub-series
+are the worked example: `STD 66` names both its own container record and the single
+RFC it includes, and the index points it at the container, because 42 of the 365
+sub-series include several RFCs and have no single document to alias to.
+
 === Identifier shapes
 
 There are two index *generations*, distinguished by the shape of `:id` and by the
@@ -118,7 +139,68 @@ For v2 indexes, pass the parsed pubid *object* (not its hash) to
 defensively so one bad record can never abort the crawl or corrupt the index.
 
 The `.zip` companion is produced by the data repository's own build tooling, not
-by `save`.
+by `save`. (`relaton/support`'s shared `crawler.yml` zips any changed
+`index*.yaml` and commits both, so a repo publishing an extra or renamed index
+needs no workflow change.)
+
+Build the index *during* the crawl, from the identifier the fetcher already holds
+for each record. Recovering it afterwards by re-reading the written files is a
+second, independent answer to "what is this record's id" that can drift from the
+fetcher's own — and it costs an extra pass over the whole corpus.
+
+=== Two obligations a pubid-backed index carries
+
+Both bite at *publish* time, are invisible in a spot check, and are easy to miss
+when moving a flavor from `index-v1` to a `pubid_class:` index.
+
+*1. The pubid class must parse 100% of the corpus.* Loading is all-or-nothing:
+`FileIO#deserialize_id` raises on the first id it cannot parse or that fails its
+support check, and `#load_index` then rejects the **entire** index, re-downloads
+it, and rejects it again. One bad row out of a hundred thousand means no consumer
+can resolve *any* reference for that flavor. So before switching a flavor over,
+run its published id set through `pubid_class.parse` and confirm zero failures —
+do not sample.
+
+Note also that `#id_supported?` skips the `to_hash`/`from_hash` round-trip check
+whenever an id resolves to a concrete subclass (the usual case for a flavor with a
+`_type` hierarchy). A *lossy* round-trip therefore passes validation silently and
+yields a wrong identifier — that one has to be covered by the pubid gem's own
+specs, not here.
+
+*2. Query with parsed ids, and give every identifier family a `number`.* These are
+one obligation, because the first is what activates the second.
+
+`Type#search_candidates` narrows before matching **only when the query is not a
+String** (`@file_io.sorted && id && !id.is_a?(String)`). A flavor that publishes a
+pubid index but still calls `index.search("ISO 1234")` gets no narrowing at all —
+and worse, falls into `match_item`'s `item[:id].to_s.include?(id)` branch, which
+*renders every pubid in the index* on every lookup. Against a large corpus that is
+markedly slower than the plain-string index it replaced. So moving a flavor to
+`pubid_class:` means moving its `Bibliography`/`HitCollection` to pass parsed
+identifiers in the same change; doing only the producer half is a regression.
+
+Once queries are parsed ids, narrowing keys off the base document's number —
+`id.root.number.to_s`, in `Type#candidates_by_number` and the two `bsearch_*`
+helpers, kept valid by the sorts in `FileIO` that use the identical key. An
+identifier family whose `number` is nil keys every one of its rows to `""`,
+collapsing them into a single bucket so the bsearch buys nothing.
+
+Both fail *silently* — results stay correct, only speed drops — so nothing surfaces
+them in review or in a test. Two flavors have hit it already, which is why it is
+worth a rule rather than a footnote:
+
+* *IETF Internet-Drafts.* `Pubid::Ietf::Identifiers::InternetDraft` originally
+  stored its slug in `name` and left `number` nil, keying all ~167k draft rows to
+  `""` — one bucket, so the bsearch bought nothing. It now carries the slug in
+  `number`, giving ~43.5k buckets averaging 3.8 rows.
+* *IANA registries.* `Pubid::Iana::Identifiers::Registry` set no `number` at all,
+  which would have bucketed all 3405 published rows together; `number` now holds
+  the top-level registry slug. See `lib/relaton/iana/CLAUDE.md`.
+
+Neither identifier is a numbered standard, which is the shape to watch: when a
+flavor's ids are named rather than numbered, `number` has to be given the naming
+component deliberately. When adding a pubid flavor, check that
+`parse(id).root.number` is non-empty for every family.
 
 == Consuming the index
 
@@ -192,9 +274,12 @@ jekyll-index:
   `organizations:` map (org names + logo variants) consumed by `Relaton::Sdo`
   (see `lib/relaton/sdo/CLAUDE.md`), not by `Relaton::Index`. It does not follow
   this spec.
-* Some source repos (e.g. `relaton-data-ietf`, `relaton-data-misc`) hold inputs
-  rather than a published document index; IETF's indexes are published under
-  `relaton-data-rfcs`, `relaton-data-rfcsubseries`, and `relaton-data-ids`.
+* *IETF is mid-migration.* The indexes the gem reads are published under
+  `relaton-data-rfcs`, `relaton-data-rfcsubseries` and `relaton-data-ids` (three
+  `index-v1`, plain-string ids). `relaton-data-ietf` now holds the combined v3
+  corpus for all three streams but **no `Relaton::Index` index yet** — relaton#109
+  will add one pubid-backed index there, leaving the three type repos untouched.
+  See `lib/relaton/ietf/CLAUDE.md`. `relaton-data-misc` holds inputs only.
 
 == See also
 

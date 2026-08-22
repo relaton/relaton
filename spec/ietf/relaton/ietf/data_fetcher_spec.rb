@@ -10,7 +10,16 @@ RSpec.describe Relaton::Ietf::DataFetcher do
 
   before(:each) do
     allow(Relaton::Index).to receive(:find_or_create)
-      .with(:IETF, file: "index-v1.yaml").and_return(index)
+      .with(:IETF, file: "index-v2.yaml",
+            pubid_class: ::Pubid::Ietf::Identifier).and_return(index)
+  end
+
+  # The index stores parsed pubids, not strings: `FileIO#save` only serialises
+  # an id to its `_type:` hash when it is an instance of the configured
+  # `pubid_class`, so a String here would write a v1-shaped file under a v2
+  # name. Matching on the rendered form keeps these expectations readable.
+  def pubid(str)
+    ::Pubid::Ietf::Identifier.parse str
   end
 
   # it "fetch rfc index" do
@@ -269,16 +278,16 @@ RSpec.describe Relaton::Ietf::DataFetcher do
 
     describe "#record_index_entry" do
       it "tracks the file in @files and updates the index" do
-        result = { docnumber: "n", file: "dir/x.yaml", index_id: "X" }
-        expect(index).to receive(:add_or_update).with("X", "dir/x.yaml")
+        result = { docnumber: "n", file: "dir/x.yaml", index_id: "RFC 1", pubid: pubid("RFC 1") }
+        expect(index).to receive(:add_or_update).with(pubid("RFC 1"), "dir/x.yaml")
         subject.send(:record_index_entry, result)
         expect(subject.instance_variable_get(:@files)).to include("dir/x.yaml")
       end
 
       it "warns when @files already contains the same file" do
         subject.instance_variable_set(:@files, Set.new(["dir/x.yaml"]))
-        result = { docnumber: "n", file: "dir/x.yaml", index_id: "X" }
-        expect(index).to receive(:add_or_update).with("X", "dir/x.yaml")
+        result = { docnumber: "n", file: "dir/x.yaml", index_id: "RFC 1", pubid: pubid("RFC 1") }
+        expect(index).to receive(:add_or_update).with(pubid("RFC 1"), "dir/x.yaml")
         expect { subject.send(:record_index_entry, result) }
           .to output(/File dir\/x.yaml already exists/).to_stderr_from_any_process
       end
@@ -330,7 +339,7 @@ RSpec.describe Relaton::Ietf::DataFetcher do
     it "bibxml" do
       expect(entry).to receive(:to_rfcxml).and_return("<xml/>")
       expect(File).to receive(:write).with("dir/rfc0001.xml", "<xml/>", encoding: "UTF-8")
-      expect(index).to receive(:add_or_update).with("RFC 1", "dir/rfc0001.xml")
+      expect(index).to receive(:add_or_update).with(pubid("RFC 1"), "dir/rfc0001.xml")
       subject.send(:save_doc, entry)
     end
 
@@ -361,14 +370,44 @@ RSpec.describe Relaton::Ietf::DataFetcher do
     it "downcase file name for ID" do
       subject.instance_variable_set(:@source, "ietf-internet-drafts")
       docid = [
-        Relaton::Bib::Docidentifier.new(type: "Internet-Draft", content: "I-D.3gpp-collaboration"),
-        Relaton::Bib::Docidentifier.new(type: "Internet-Draft", content: "I-D.3gpp-collaboration-00", primary: true),
+        Relaton::Bib::Docidentifier.new(type: "Internet-Draft", content: "draft-3gpp-collaboration"),
+        Relaton::Bib::Docidentifier.new(type: "Internet-Draft", content: "draft-3gpp-collaboration-00", primary: true),
       ]
       id_entry = Relaton::Ietf::ItemData.new(docidentifier: docid)
       expect(id_entry).to receive(:to_rfcxml).and_return("<xml/>")
-      expect(File).to receive(:write).with("dir/i-d-3gpp-collaboration-00.xml", "<xml/>", encoding: "UTF-8")
-      expect(index).to receive(:add_or_update).with("I-D.3gpp-collaboration-00", "dir/i-d-3gpp-collaboration-00.xml")
+      expect(File).to receive(:write).with("dir/draft-3gpp-collaboration-00.xml", "<xml/>", encoding: "UTF-8")
+      expect(index).to receive(:add_or_update)
+        .with(pubid("draft-3gpp-collaboration-00"), "dir/draft-3gpp-collaboration-00.xml")
       subject.send(:save_doc, id_entry)
+    end
+
+    # The index load is all-or-nothing: `FileIO#deserialize_id` raises on the
+    # first id it cannot parse and `#load_index` then rejects the entire index.
+    # So a record pubid cannot key must cost that one document, not every
+    # lookup. The bibxml anchor form `I-D.foo` is the shape to watch — it is not
+    # a pubid grammar. No published id hits this today (176,862/176,862 parse);
+    # it guards against upstream drift.
+    it "writes a document whose id pubid rejects, but leaves it out of the index" do
+      docid = [Relaton::Bib::Docidentifier.new(
+        type: "Internet-Draft", content: "I-D.3gpp-collaboration-00", primary: true
+      )]
+      id_entry = Relaton::Ietf::ItemData.new(docidentifier: docid)
+      allow(id_entry).to receive(:to_rfcxml).and_return("<xml/>")
+      expect(File).to receive(:write)
+        .with("dir/i-d-3gpp-collaboration-00.xml", "<xml/>", encoding: "UTF-8")
+      expect(index).not_to receive(:add_or_update)
+
+      expect { subject.send(:save_doc, id_entry) }
+        .to output(/Not indexing `I-D.3gpp-collaboration-00`/).to_stderr_from_any_process
+    end
+
+    it "reports the unindexed total once the crawl finishes" do
+      allow(subject).to receive(:fetch_ieft_rfcs)
+      subject.send(:record_index_entry,
+                   { docnumber: "n", file: "dir/x.yaml", index_id: "I-D.nope-00", pubid: nil })
+
+      expect { subject.fetch "ietf-rfc-entries" }
+        .to output(/1 document\(s\) written but not indexed/).to_stderr_from_any_process
     end
   end
 end

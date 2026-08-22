@@ -1,5 +1,7 @@
 require "etc"
 require "parallel"
+require "pubid"
+require "pubid/ietf"
 require "relaton/core"
 require_relative "../ietf"
 require_relative "bibxml_parser"
@@ -21,12 +23,20 @@ module Relaton
         when "ietf-rfc-entries" then fetch_ieft_rfcs
         end
         index.save
+        report_unindexed
       end
 
       private
 
+      # The published index is the pubid-structured `index-v2` (relaton#109).
+      # `pubid_class:` is not decoration: `FileIO#save` serialises an id to its
+      # `_type:` hash only when it is an instance of the configured class, so
+      # without it — or without parsing the id below — this writes a v1-shaped
+      # file under a v2 name.
       def index
-        @index ||= Relaton::Index.find_or_create :IETF, file: "#{INDEXFILE}.yaml"
+        @index ||= Relaton::Index.find_or_create(
+          :IETF, file: "#{INDEXFILE_V2}.yaml", pubid_class: ::Pubid::Ietf::Identifier
+        )
       end
 
       #
@@ -257,7 +267,30 @@ module Relaton
         file = output_file(id)
         File.write file, content, encoding: "UTF-8"
         primary = entry.docidentifier.detect(&:primary) || entry.docidentifier.first
-        { docnumber: entry.docnumber, file: file, index_id: primary.content }
+        { docnumber: entry.docnumber, file: file, index_id: primary.content,
+          pubid: parse_pubid(primary.content) }
+      end
+
+      #
+      # Parse a record's primary docidentifier into the pubid the index stores.
+      #
+      # Deliberately here rather than in `record_index_entry`: this runs inside
+      # the `Parallel` workers, and a pubid identifier survives the Marshal round
+      # trip Parallel does on the return value. Parsing in the parent instead
+      # would put ~0.7 ms per record back on the serial path — some minutes over
+      # the 167k-draft crawl, all of it outside the parallelism this fetcher is
+      # built around.
+      #
+      # @param [String] content primary docidentifier content
+      # @return [Pubid::Ietf::Identifier, nil] nil when pubid rejects it
+      #
+      def parse_pubid(content)
+        ::Pubid::Ietf::Identifier.parse content
+      rescue StandardError => e
+        # Full message: the tail is the part that says *what shape* pubid
+        # stopped accepting, which is the whole point of the warning.
+        Util.warn "Not indexing `#{content}`: #{e.message}"
+        nil
       end
 
       #
@@ -270,7 +303,27 @@ module Relaton
         elsif check_duplicate
           @files << result[:file]
         end
-        index.add_or_update result[:index_id], result[:file]
+        # A record whose identifier pubid rejects is written but not indexed —
+        # never fatal. The index load is all-or-nothing (`deserialize_id` raises
+        # on the first bad id and `load_index` then rejects the *entire* index),
+        # so one malformed upstream record must cost one document, not every
+        # lookup. All 176,862 published ids parse today; this guards drift.
+        # Counted here, in the parent, because a worker's tally would be lost.
+        unless result[:pubid]
+          @unindexed = @unindexed.to_i + 1
+          return
+        end
+
+        index.add_or_update result[:pubid], result[:file]
+      end
+
+      # Skips are per-record warnings in a crawl that writes ~177k of them, so
+      # restate the total where it can actually be noticed.
+      def report_unindexed
+        return unless @unindexed.to_i.positive?
+
+        Util.warn "#{@unindexed} document(s) written but not indexed: " \
+                  "identifier not parseable by Pubid::Ietf"
       end
 
     end

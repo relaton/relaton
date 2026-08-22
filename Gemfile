@@ -4,8 +4,9 @@ source "https://rubygems.org"
 
 gemspec
 
-# TEMP PIN: the `jcgm`, `bipm`, `etsi`, `cie`, `itu`, `ieee` and `iana` flavors need pubid
-# support not yet in the released 2.0.0.pre.alpha.8 that relaton.gemspec pins:
+# TEMP PIN: the `jcgm`, `bipm`, `etsi`, `cie`, `itu`, `ieee`, `iana` and `ietf`
+# flavors need pubid support not yet in the released 2.0.0.pre.alpha.8 that
+# relaton.gemspec pins:
 #   - JCGM: meetings, bare GUM/VIM-N guides, the Corrigendum suffix, and the
 #     flattened compact `to_hash`.
 #   - BIPM: the whole `Pubid::Bipm` grammar (committee documents, meetings,
@@ -35,6 +36,12 @@ gemspec
 #     for all 3405 published rows. An IANA `index-v2` was therefore impossible:
 #     every row would have landed in one bucket and the bsearch degraded to a
 #     linear scan, silently. See lib/relaton/iana.
+#   - IETF: the whole `Pubid::Ietf` flavor (added 2026-07-15, after alpha.8), plus
+#     three fixes landed 2026-08-20 for relaton#109 — draft slugs containing `.`
+#     or uppercase, zero-padded sub-series (`STD0066` → `STD 66`), and the draft
+#     slug living in `number` so the index bsearch key is non-empty. The last is
+#     the same trap IANA hit above, in a different flavor.
+#     `spec/ietf/relaton/ietf/pubid_contract_spec.rb` fails without them.
 # All live on pubid `main`, which also carries the `base_identifier` → `base`
 # accessor/serialization-key rename (pubid #139) that relaton adopts here: pubid
 # removed `.base_identifier` with no alias, and `#root` now reaches the origin for
