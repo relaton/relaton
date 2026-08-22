@@ -239,7 +239,12 @@ suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
   rate-limited flavor by running **that suite alone** (`cd spec/doi && bundle exec
   rspec -I . .`), never under parallel `rake spec`. Diagnostic shortcut:
   `git diff <cassette> | grep 'code:'` — a `200` → `4xx` flip is never a code
-  regression.
+  regression. **Since `2a8fa827f` a `429` in a `spec/doi` cassette is not
+  automatically a dead recording:** the client now treats a Crossref `429` as a
+  throttle and retries, so the cassette holds `200 → 429 → 200` and the example
+  still passes. Read the *whole* `grep 'code:'` output — an unanswered `429` is
+  the broken one. `spec/doi/vcr_cassettes/book-section.yml` keeps such a
+  recording **committed on purpose**: it is the throttle-retry path's coverage.
 - **Known issue:** `spec/oiml/` marks 8 tests pending — `Pubid::Oiml::Identifier.from_hash`
   fails only inside the combined-gem bundle (a runtime-dep interaction; identical
   pubid/lutaml versions pass in isolation), so the OIML index can't deserialize.

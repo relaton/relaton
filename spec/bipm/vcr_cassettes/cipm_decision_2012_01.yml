@@ -47,7 +47,7 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - B140:2F1F3F:8B967:D6ADC:6A7F404D
+      - 3328:220E99:3C38BF:4E677A:6A8917D2
       X-Github-Edge-Region:
       - iad
       Content-Encoding:
@@ -55,17 +55,17 @@ http_interactions:
       Accept-Ranges:
       - bytes
       Date:
-      - Fri, 14 Aug 2026 16:20:29 GMT
+      - Sat, 22 Aug 2026 03:30:27 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-khef600064-IAD
+      - cache-pdk-kpdk2140085-PDK
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1786724429.186969,VS0,VE65
+      - S1787369427.177586,VS0,VE55
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -73,9 +73,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - caa8c437b6c77bf6190fdb3858b965e22e8380fc
+      - b61fd3672ead892630078a5259a3fe863b4514cd
       Expires:
-      - Fri, 14 Aug 2026 16:25:29 GMT
+      - Sat, 22 Aug 2026 03:35:27 GMT
       Source-Age:
       - '0'
     body:
@@ -96,7 +96,7 @@ http_interactions:
         L2taxsrb7nvFmPBr9HiTnl1vBcNcm2nfJpw7xsXo5F6eT7Vv3MBRC48yb1M4
         XJSDMwMa28xZEwF0A8aLCNe3cn3n8/XKg+1BGrIJ/nFFnDwH/2Ty9IID3PaR
         KtkTUm9GStjJA7JyfNp6976IJfU6MeKcSP4B5VqpVUgJAAA=
-  recorded_at: Fri, 14 Aug 2026 16:20:29 GMT
+  recorded_at: Sat, 22 Aug 2026 03:30:27 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/v2/data/cipm/meeting/decision/2022-111-10.yaml
@@ -144,7 +144,7 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 63FA:22C9C2:E62D7:13E801:6A7F404C
+      - 476E:14CB0E:1EFADA:2C72B5:6A890E0E
       X-Github-Edge-Region:
       - iad
       Content-Encoding:
@@ -152,17 +152,17 @@ http_interactions:
       Accept-Ranges:
       - bytes
       Date:
-      - Fri, 14 Aug 2026 16:20:30 GMT
+      - Sat, 22 Aug 2026 03:30:28 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200058-IAD
+      - cache-iad-kcgs7200073-IAD
       X-Cache:
-      - MISS
+      - HIT
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1786724430.097120,VS0,VE70
+      - S1787369428.128088,VS0,VE36
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -170,9 +170,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 6433030a726df58bb6de6dcd4b8e9d4660ee30c0
+      - e0f8817c029c67f98f563bd5abd4d9ca253b2b8d
       Expires:
-      - Fri, 14 Aug 2026 16:25:30 GMT
+      - Sat, 22 Aug 2026 03:35:28 GMT
       Source-Age:
       - '0'
     body:
@@ -193,5 +193,5 @@ http_interactions:
         +rLGVfTebt8rxkS9Ro83WbPrnWC20Ga6bhOVO8ZF6Ohenk8t33gBR0t4lHmX
         wv7C7CvTo1GZKWs8gG7BaBHhulZs7n66Zmm6PQiDNoG/rojT5+A/zTzNKUB9
         H6mSPSH1dqqEnTQlK0enrYf3RrTU68jYDIrkP8lRYmlUCQAA
-  recorded_at: Fri, 14 Aug 2026 16:20:30 GMT
+  recorded_at: Sat, 22 Aug 2026 03:30:28 GMT
 recorded_with: VCR 6.4.0

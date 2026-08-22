@@ -29,7 +29,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 14 Aug 2026 16:22:12 GMT
+      - Sat, 22 Aug 2026 03:24:59 GMT
       Content-Type:
       - text/html
       Content-Length:
@@ -45,7 +45,7 @@ http_interactions:
         aXRsZT48L2hlYWQ+DQo8Ym9keT4NCjxjZW50ZXI+PGgxPjMwMSBNb3ZlZCBQ
         ZXJtYW5lbnRseTwvaDE+PC9jZW50ZXI+DQo8aHI+PGNlbnRlcj5uZ2lueDwv
         Y2VudGVyPg0KPC9ib2R5Pg0KPC9odG1sPg0K
-  recorded_at: Fri, 14 Aug 2026 16:28:00 GMT
+  recorded_at: Sat, 22 Aug 2026 03:30:48 GMT
 - request:
     method: get
     uri: https://openstd.samr.gov.cn/bzgk/std/std_list?p.p2=GB/T%201.1
@@ -75,7 +75,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 14 Aug 2026 16:22:14 GMT
+      - Sat, 22 Aug 2026 03:25:01 GMT
       Content-Type:
       - text/html;charset=UTF-8
       Transfer-Encoding:
@@ -85,7 +85,7 @@ http_interactions:
       Vary:
       - Accept-Encoding
       Set-Cookie:
-      - JSESSIONID=9A318F092C22F79C4AD096BC8337E505; Path=/bzgk; HttpOnly
+      - JSESSIONID=C0523B6A18F5AB159E9CF30BE92C4FB3; Path=/bzgk; HttpOnly
       Content-Language:
       - en-US
       Content-Encoding:
@@ -412,103 +412,7 @@ http_interactions:
         N/sESevNb5k0V+yD3Zw4OFSFUt6EACOHpe4kMX/XYzgHXlt6IpPhdq2+Cvnb
         6QwJ4ru9PU1oCnT6cV8HEm7Lbje9NNMcjrwxDNd0881h0Ya3bkmmbAZiyq1W
         Dyeg/DaaSdlouZVmsDY0WoRaqw19J6g89/t/AazsR66zxAAA
-  recorded_at: Fri, 14 Aug 2026 16:28:03 GMT
-- request:
-    method: get
-    uri: http://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=C4BFD981E993C417EF475F2A19B681F1
-    body:
-      encoding: US-ASCII
-      base64_string: ''
-    headers:
-      Accept-Encoding:
-      - gzip,deflate,identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Mechanize/2.14.0 Ruby/3.4.10p104 (http://github.com/sparklemotion/mechanize/)
-      Accept-Language:
-      - en-us,en;q=0.5
-      Cookie:
-      - JSESSIONID=9A318F092C22F79C4AD096BC8337E505
-      Host:
-      - openstd.samr.gov.cn
-      Connection:
-      - keep-alive
-      Keep-Alive:
-      - '300'
-  response:
-    status:
-      code: 301
-      message: Moved Permanently
-    headers:
-      Server:
-      - nginx
-      Date:
-      - Fri, 14 Aug 2026 16:22:15 GMT
-      Content-Type:
-      - text/html
-      Content-Length:
-      - '162'
-      Connection:
-      - keep-alive
-      Location:
-      - https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=C4BFD981E993C417EF475F2A19B681F1
-    body:
-      encoding: UTF-8
-      base64_string: |
-        PGh0bWw+DQo8aGVhZD48dGl0bGU+MzAxIE1vdmVkIFBlcm1hbmVudGx5PC90
-        aXRsZT48L2hlYWQ+DQo8Ym9keT4NCjxjZW50ZXI+PGgxPjMwMSBNb3ZlZCBQ
-        ZXJtYW5lbnRseTwvaDE+PC9jZW50ZXI+DQo8aHI+PGNlbnRlcj5uZ2lueDwv
-        Y2VudGVyPg0KPC9ib2R5Pg0KPC9odG1sPg0K
-  recorded_at: Fri, 14 Aug 2026 16:28:03 GMT
-- request:
-    method: get
-    uri: http://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=570A95F33D8D3C7934933A900A78F133
-    body:
-      encoding: US-ASCII
-      base64_string: ''
-    headers:
-      Accept-Encoding:
-      - gzip,deflate,identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Mechanize/2.14.0 Ruby/3.4.10p104 (http://github.com/sparklemotion/mechanize/)
-      Accept-Language:
-      - en-us,en;q=0.5
-      Cookie:
-      - JSESSIONID=9A318F092C22F79C4AD096BC8337E505
-      Host:
-      - openstd.samr.gov.cn
-      Connection:
-      - keep-alive
-      Keep-Alive:
-      - '300'
-  response:
-    status:
-      code: 301
-      message: Moved Permanently
-    headers:
-      Server:
-      - nginx
-      Date:
-      - Fri, 14 Aug 2026 16:22:15 GMT
-      Content-Type:
-      - text/html
-      Content-Length:
-      - '162'
-      Connection:
-      - keep-alive
-      Location:
-      - https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=570A95F33D8D3C7934933A900A78F133
-    body:
-      encoding: UTF-8
-      base64_string: |
-        PGh0bWw+DQo8aGVhZD48dGl0bGU+MzAxIE1vdmVkIFBlcm1hbmVudGx5PC90
-        aXRsZT48L2hlYWQ+DQo8Ym9keT4NCjxjZW50ZXI+PGgxPjMwMSBNb3ZlZCBQ
-        ZXJtYW5lbnRseTwvaDE+PC9jZW50ZXI+DQo8aHI+PGNlbnRlcj5uZ2lueDwv
-        Y2VudGVyPg0KPC9ib2R5Pg0KPC9odG1sPg0K
-  recorded_at: Fri, 14 Aug 2026 16:28:03 GMT
+  recorded_at: Sat, 22 Aug 2026 03:30:50 GMT
 - request:
     method: get
     uri: http://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=847191101089628341120D62AEFC29A1
@@ -525,7 +429,7 @@ http_interactions:
       Accept-Language:
       - en-us,en;q=0.5
       Cookie:
-      - JSESSIONID=9A318F092C22F79C4AD096BC8337E505
+      - JSESSIONID=C0523B6A18F5AB159E9CF30BE92C4FB3
       Host:
       - openstd.samr.gov.cn
       Connection:
@@ -540,7 +444,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 14 Aug 2026 16:22:15 GMT
+      - Sat, 22 Aug 2026 03:25:02 GMT
       Content-Type:
       - text/html
       Content-Length:
@@ -556,10 +460,10 @@ http_interactions:
         aXRsZT48L2hlYWQ+DQo8Ym9keT4NCjxjZW50ZXI+PGgxPjMwMSBNb3ZlZCBQ
         ZXJtYW5lbnRseTwvaDE+PC9jZW50ZXI+DQo8aHI+PGNlbnRlcj5uZ2lueDwv
         Y2VudGVyPg0KPC9ib2R5Pg0KPC9odG1sPg0K
-  recorded_at: Fri, 14 Aug 2026 16:28:03 GMT
+  recorded_at: Sat, 22 Aug 2026 03:30:50 GMT
 - request:
     method: get
-    uri: https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=C4BFD981E993C417EF475F2A19B681F1
+    uri: http://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=C4BFD981E993C417EF475F2A19B681F1
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -573,7 +477,7 @@ http_interactions:
       Accept-Language:
       - en-us,en;q=0.5
       Cookie:
-      - JSESSIONID=9A318F092C22F79C4AD096BC8337E505
+      - JSESSIONID=C0523B6A18F5AB159E9CF30BE92C4FB3
       Host:
       - openstd.samr.gov.cn
       Connection:
@@ -588,15 +492,15 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 14 Aug 2026 16:22:15 GMT
+      - Sat, 22 Aug 2026 03:25:02 GMT
       Content-Type:
       - text/html
       Content-Length:
       - '162'
-      Location:
-      - https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=C4BFD981E993C417EF475F2A19B681F1
       Connection:
       - keep-alive
+      Location:
+      - https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=C4BFD981E993C417EF475F2A19B681F1
     body:
       encoding: UTF-8
       base64_string: |
@@ -604,10 +508,10 @@ http_interactions:
         aXRsZT48L2hlYWQ+DQo8Ym9keT4NCjxjZW50ZXI+PGgxPjMwMSBNb3ZlZCBQ
         ZXJtYW5lbnRseTwvaDE+PC9jZW50ZXI+DQo8aHI+PGNlbnRlcj5uZ2lueDwv
         Y2VudGVyPg0KPC9ib2R5Pg0KPC9odG1sPg0K
-  recorded_at: Fri, 14 Aug 2026 16:28:04 GMT
+  recorded_at: Sat, 22 Aug 2026 03:30:50 GMT
 - request:
     method: get
-    uri: https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=C4BFD981E993C417EF475F2A19B681F1
+    uri: http://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=570A95F33D8D3C7934933A900A78F133
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -621,7 +525,7 @@ http_interactions:
       Accept-Language:
       - en-us,en;q=0.5
       Cookie:
-      - JSESSIONID=9A318F092C22F79C4AD096BC8337E505
+      - JSESSIONID=C0523B6A18F5AB159E9CF30BE92C4FB3
       Host:
       - openstd.samr.gov.cn
       Connection:
@@ -630,209 +534,29 @@ http_interactions:
       - '300'
   response:
     status:
-      code: 200
-      message: ''
+      code: 301
+      message: Moved Permanently
     headers:
       Server:
       - nginx
       Date:
-      - Fri, 14 Aug 2026 16:22:16 GMT
+      - Sat, 22 Aug 2026 03:25:02 GMT
       Content-Type:
-      - text/html;charset=utf-8
-      Transfer-Encoding:
-      - chunked
+      - text/html
+      Content-Length:
+      - '162'
       Connection:
       - keep-alive
-      Vary:
-      - Accept-Encoding
-      Content-Language:
-      - zh
-      Content-Encoding:
-      - gzip
+      Location:
+      - https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=570A95F33D8D3C7934933A900A78F133
     body:
-      encoding: ASCII-8BIT
+      encoding: UTF-8
       base64_string: |
-        H4sIAAAAAAAAA+1c65MbxbX/LKr4HxoZvNp49dqXd9erdey1TZzi4RtMJamQ
-        6xpJI2nskUaZGe3Dhipj8Iv4RTAm4CVgwNg3MbYJAYwf+H+52ZF2P/Ev3N/p
-        7hn1jEa7awNV+XB37dWop/v06fPq06dP95NPPBn6nX4qnWYrN7/vPLhZqbvt
-        j092vvi+88GbplXSTJ2l0zN+9emndr04u//3+3azmls32b6Xdz63d5Yl09ns
-        b0dms9ld+3exX+1//jk2msnl2X5baziGa1gNzcxmd7+QZMma6zanstn5+fnM
-        /EjGsqvZ/b/JEqjRrGlZjp4pu+UkepumMv6pa2X6dA3X1Ge8yw+8m98AP+/k
-        iVef3Zndz/KZfHo4N5ybzooaqFrXXQ3ouc20/qeWMVdIzloNV2+46f2LTT3J
-        SuJbIenqCy7vexsr1TTb0d1Cy62kJ5IsSz32gPld+uUd6Vmr3tRco2iqkPbu
-        LujlKkq6DRtaXS8kbb2i27ZuK71atlE1GnyMptE4xGqoU0hmMtmS42T/VCwt
-        ZPCQZLZuFpKOu2jqTk3X3SRzgbzEmVfgXSkQssXD1UMcSNGyXMe1tWambjTi
-        ofHGTsk2mq4K+KA2p4nSJHPsUiEpgB50sgf/1NLtxTSonc+McLgHneTMdFbU
-        3hi0gQBaF8ODzkAICie6oN2coc83LdtNPvkEw0/Atnmj7NYKZX3OKOlp/mWI
-        GQ2ImWamHZLXQn6I1bUFo96qdwtajm7zbxpYV2hYnAGcvlHK4kWm7tpHarpR
-        rblTbHisubDttSefKFrlxSNFrXSoalutRjldskzLnmKb9ozRL9XIcBE8UoGA
-        pedF66JllruvhjJyFEeaWrlsNKpT+VxzgeW2FS27DPxcqzmVR8GmcrnMHMs0
-        0JYxAHbq1SozjaBZjg0PA6u6ZkOWpvLAEEAgDHpaYu0jnXFczdXrkP6XTQLQ
-        xX+qZZupAcidUdequpNtWkbDzTQb1YFB1rDStt7UNZdNAPI4ejJ11yUCNrUS
-        R1uQJFM/lGe1/BFmzel2xbTmp9ic4ZByAG8iI15nQHHdPCKoNV8zXH0bJ5Bj
-        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
-        AA==
-  recorded_at: Fri, 14 Aug 2026 16:28:04 GMT
+        PGh0bWw+DQo8aGVhZD48dGl0bGU+MzAxIE1vdmVkIFBlcm1hbmVudGx5PC90
+        aXRsZT48L2hlYWQ+DQo8Ym9keT4NCjxjZW50ZXI+PGgxPjMwMSBNb3ZlZCBQ
+        ZXJtYW5lbnRseTwvaDE+PC9jZW50ZXI+DQo8aHI+PGNlbnRlcj5uZ2lueDwv
+        Y2VudGVyPg0KPC9ib2R5Pg0KPC9odG1sPg0K
+  recorded_at: Sat, 22 Aug 2026 03:30:50 GMT
 - request:
     method: get
     uri: https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=847191101089628341120D62AEFC29A1
@@ -849,7 +573,7 @@ http_interactions:
       Accept-Language:
       - en-us,en;q=0.5
       Cookie:
-      - JSESSIONID=9A318F092C22F79C4AD096BC8337E505
+      - JSESSIONID=C0523B6A18F5AB159E9CF30BE92C4FB3
       Host:
       - openstd.samr.gov.cn
       Connection:
@@ -864,7 +588,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 14 Aug 2026 16:22:16 GMT
+      - Sat, 22 Aug 2026 03:25:02 GMT
       Content-Type:
       - text/html
       Content-Length:
@@ -880,55 +604,7 @@ http_interactions:
         aXRsZT48L2hlYWQ+DQo8Ym9keT4NCjxjZW50ZXI+PGgxPjMwMSBNb3ZlZCBQ
         ZXJtYW5lbnRseTwvaDE+PC9jZW50ZXI+DQo8aHI+PGNlbnRlcj5uZ2lueDwv
         Y2VudGVyPg0KPC9ib2R5Pg0KPC9odG1sPg0K
-  recorded_at: Fri, 14 Aug 2026 16:28:05 GMT
-- request:
-    method: get
-    uri: https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=570A95F33D8D3C7934933A900A78F133
-    body:
-      encoding: US-ASCII
-      base64_string: ''
-    headers:
-      Accept-Encoding:
-      - gzip,deflate,identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Mechanize/2.14.0 Ruby/3.4.10p104 (http://github.com/sparklemotion/mechanize/)
-      Accept-Language:
-      - en-us,en;q=0.5
-      Cookie:
-      - JSESSIONID=9A318F092C22F79C4AD096BC8337E505
-      Host:
-      - openstd.samr.gov.cn
-      Connection:
-      - keep-alive
-      Keep-Alive:
-      - '300'
-  response:
-    status:
-      code: 301
-      message: Moved Permanently
-    headers:
-      Server:
-      - nginx
-      Date:
-      - Fri, 14 Aug 2026 16:22:16 GMT
-      Content-Type:
-      - text/html
-      Content-Length:
-      - '162'
-      Location:
-      - https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=570A95F33D8D3C7934933A900A78F133
-      Connection:
-      - keep-alive
-    body:
-      encoding: UTF-8
-      base64_string: |
-        PGh0bWw+DQo8aGVhZD48dGl0bGU+MzAxIE1vdmVkIFBlcm1hbmVudGx5PC90
-        aXRsZT48L2hlYWQ+DQo8Ym9keT4NCjxjZW50ZXI+PGgxPjMwMSBNb3ZlZCBQ
-        ZXJtYW5lbnRseTwvaDE+PC9jZW50ZXI+DQo8aHI+PGNlbnRlcj5uZ2lueDwv
-        Y2VudGVyPg0KPC9ib2R5Pg0KPC9odG1sPg0K
-  recorded_at: Fri, 14 Aug 2026 16:28:05 GMT
+  recorded_at: Sat, 22 Aug 2026 03:30:51 GMT
 - request:
     method: get
     uri: https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=847191101089628341120D62AEFC29A1
@@ -945,7 +621,7 @@ http_interactions:
       Accept-Language:
       - en-us,en;q=0.5
       Cookie:
-      - JSESSIONID=9A318F092C22F79C4AD096BC8337E505
+      - JSESSIONID=C0523B6A18F5AB159E9CF30BE92C4FB3
       Host:
       - openstd.samr.gov.cn
       Connection:
@@ -960,7 +636,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 14 Aug 2026 16:22:17 GMT
+      - Sat, 22 Aug 2026 03:25:02 GMT
       Content-Type:
       - text/html;charset=utf-8
       Transfer-Encoding:
@@ -1156,7 +832,331 @@ http_interactions:
         gkAwMeiapCgdWQldKBQZkV6MueYsCI8+98D0tR8loPyW7Ti44ckFCEwgaa4A
         mza0RtWp4UI6lh3sjQ+Igf3R1pqKXIHxRgAXOSj2wt07isSyiV2+uKMIbiPd
         d/5/qjmQNZddAAA=
-  recorded_at: Fri, 14 Aug 2026 16:28:05 GMT
+  recorded_at: Sat, 22 Aug 2026 03:30:51 GMT
+- request:
+    method: get
+    uri: https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=C4BFD981E993C417EF475F2A19B681F1
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Mechanize/2.14.0 Ruby/3.4.10p104 (http://github.com/sparklemotion/mechanize/)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Cookie:
+      - JSESSIONID=C0523B6A18F5AB159E9CF30BE92C4FB3
+      Host:
+      - openstd.samr.gov.cn
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Sat, 22 Aug 2026 03:25:03 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '162'
+      Location:
+      - https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=C4BFD981E993C417EF475F2A19B681F1
+      Connection:
+      - keep-alive
+    body:
+      encoding: UTF-8
+      base64_string: |
+        PGh0bWw+DQo8aGVhZD48dGl0bGU+MzAxIE1vdmVkIFBlcm1hbmVudGx5PC90
+        aXRsZT48L2hlYWQ+DQo8Ym9keT4NCjxjZW50ZXI+PGgxPjMwMSBNb3ZlZCBQ
+        ZXJtYW5lbnRseTwvaDE+PC9jZW50ZXI+DQo8aHI+PGNlbnRlcj5uZ2lueDwv
+        Y2VudGVyPg0KPC9ib2R5Pg0KPC9odG1sPg0K
+  recorded_at: Sat, 22 Aug 2026 03:30:52 GMT
+- request:
+    method: get
+    uri: https://openstd.samr.gov.cn/bzgk/gb/newGbInfo?hcno=570A95F33D8D3C7934933A900A78F133
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Mechanize/2.14.0 Ruby/3.4.10p104 (http://github.com/sparklemotion/mechanize/)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Cookie:
+      - JSESSIONID=C0523B6A18F5AB159E9CF30BE92C4FB3
+      Host:
+      - openstd.samr.gov.cn
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Sat, 22 Aug 2026 03:25:03 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '162'
+      Location:
+      - https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=570A95F33D8D3C7934933A900A78F133
+      Connection:
+      - keep-alive
+    body:
+      encoding: UTF-8
+      base64_string: |
+        PGh0bWw+DQo8aGVhZD48dGl0bGU+MzAxIE1vdmVkIFBlcm1hbmVudGx5PC90
+        aXRsZT48L2hlYWQ+DQo8Ym9keT4NCjxjZW50ZXI+PGgxPjMwMSBNb3ZlZCBQ
+        ZXJtYW5lbnRseTwvaDE+PC9jZW50ZXI+DQo8aHI+PGNlbnRlcj5uZ2lueDwv
+        Y2VudGVyPg0KPC9ib2R5Pg0KPC9odG1sPg0K
+  recorded_at: Sat, 22 Aug 2026 03:30:52 GMT
+- request:
+    method: get
+    uri: https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=C4BFD981E993C417EF475F2A19B681F1
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Mechanize/2.14.0 Ruby/3.4.10p104 (http://github.com/sparklemotion/mechanize/)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Cookie:
+      - JSESSIONID=C0523B6A18F5AB159E9CF30BE92C4FB3
+      Host:
+      - openstd.samr.gov.cn
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Sat, 22 Aug 2026 03:25:03 GMT
+      Content-Type:
+      - text/html;charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Content-Language:
+      - zh
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        H4sIAAAAAAAAA+1c65MbxbX/LKr4HxoZvNp49dqXd9erdey1TZzi4RtMJamQ
+        6xpJI2nskUaZGe3Dhipj8Iv4RTAm4CVgwNg3MbYJAYwf+H+52ZF2P/Ev3N/p
+        7hn1jEa7awNV+XB37dWop/v06fPq06dP95NPPBn6nX4qnWYrN7/vPLhZqbvt
+        j092vvi+88GbplXSTJ2l0zN+9emndr04u//3+3azmls32b6Xdz63d5Yl09ns
+        b0dms9ld+3exX+1//jk2msnl2X5baziGa1gNzcxmd7+QZMma6zanstn5+fnM
+        /EjGsqvZ/b/JEqjRrGlZjp4pu+UkepumMv6pa2X6dA3X1Ge8yw+8m98AP+/k
+        iVef3Zndz/KZfHo4N5ybzooaqFrXXQ3ouc20/qeWMVdIzloNV2+46f2LTT3J
+        SuJbIenqCy7vexsr1TTb0d1Cy62kJ5IsSz32gPld+uUd6Vmr3tRco2iqkPbu
+        LujlKkq6DRtaXS8kbb2i27ZuK71atlE1GnyMptE4xGqoU0hmMtmS42T/VCwt
+        ZPCQZLZuFpKOu2jqTk3X3SRzgbzEmVfgXSkQssXD1UMcSNGyXMe1tWambjTi
+        ofHGTsk2mq4K+KA2p4nSJHPsUiEpgB50sgf/1NLtxTSonc+McLgHneTMdFbU
+        3hi0gQBaF8ODzkAICie6oN2coc83LdtNPvkEw0/Atnmj7NYKZX3OKOlp/mWI
+        GQ2ImWamHZLXQn6I1bUFo96qdwtajm7zbxpYV2hYnAGcvlHK4kWm7tpHarpR
+        rblTbHisubDttSefKFrlxSNFrXSoalutRjldskzLnmKb9ozRL9XIcBE8UoGA
+        pedF66JllruvhjJyFEeaWrlsNKpT+VxzgeW2FS27DPxcqzmVR8GmcrnMHMs0
+        0JYxAHbq1SozjaBZjg0PA6u6ZkOWpvLAEEAgDHpaYu0jnXFczdXrkP6XTQLQ
+        xX+qZZupAcidUdequpNtWkbDzTQb1YFB1rDStt7UNZdNAPI4ejJ11yUCNrUS
+        R1uQJFM/lGe1/BFmzel2xbTmp9ic4ZByAG8iI15nQHHdPCKoNV8zXH0bJ5Bj
+        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
+        AA==
+  recorded_at: Sat, 22 Aug 2026 03:30:52 GMT
 - request:
     method: get
     uri: https://openstd.samr.gov.cn/bzgk/std/newGbInfo?hcno=570A95F33D8D3C7934933A900A78F133
@@ -1173,7 +1173,7 @@ http_interactions:
       Accept-Language:
       - en-us,en;q=0.5
       Cookie:
-      - JSESSIONID=9A318F092C22F79C4AD096BC8337E505
+      - JSESSIONID=C0523B6A18F5AB159E9CF30BE92C4FB3
       Host:
       - openstd.samr.gov.cn
       Connection:
@@ -1188,7 +1188,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Fri, 14 Aug 2026 16:22:17 GMT
+      - Sat, 22 Aug 2026 03:25:03 GMT
       Content-Type:
       - text/html;charset=utf-8
       Transfer-Encoding:
@@ -1383,5 +1383,5 @@ http_interactions:
         QDAx6JqkKB0fCV3uExmRXoy5ckyFR5/7YAbaj3JMfuN1HNzw5BQCE0iaK8Bm
         TL1Zc+u4HI7lhvvjA2LgYLS1piJXYLyh4CIHxV64d1+QWDaxyxf3BcFtpLvH
         /w/MdIn/I10AAA==
-  recorded_at: Fri, 14 Aug 2026 16:28:05 GMT
+  recorded_at: Sat, 22 Aug 2026 03:30:52 GMT
 recorded_with: VCR 6.4.0
