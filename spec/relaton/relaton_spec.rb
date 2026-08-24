@@ -232,21 +232,31 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  # What this example is actually about is the *cache*, with IETF as the
+  # vehicle. It used to drive a real index download through a cassette, which
+  # made it rot the moment the IETF flavor changed index — the failure mode
+  # CLAUDE.md warns about under "Umbrella specs test routing, not retrieval".
+  # Stubbing the flavor keeps the cache assertions and drops the dependency on
+  # IETF's retrieval internals, which spec/ietf owns.
   it "get RFC reference and cache it" do
-    VCR.use_cassette "rfc_8341" do
-      bib = @db.fetch "RFC 8341", nil, {}
-      expect(bib).to be_instance_of Relaton::Ietf::ItemData
-      expect(bib.to_xml).to match(
-        /<bibitem id="RFC8341" type="standard" schema-version="v[\d.]+">/,
-      )
-      expect(File.exist?("testcache")).to be true
-      expect(File.exist?("testcache2")).to be true
-      testcache = Relaton::Db::Cache.new "testcache"
-      expect(testcache["IETF(RFC 8341)"]).to include(
-        '<docidentifier type="IETF" primary="true">RFC 8341</docidentifier>',
-      )
-      testcache = Relaton::Db::Cache.new "testcache2"
-      expect(testcache["IETF(RFC 8341)"]).to include(
+    item = Relaton::Ietf::ItemData.new(
+      id: "RFC8341", type: "standard",
+      docidentifier: [Relaton::Bib::Docidentifier.new(
+        type: "IETF", content: "RFC 8341", primary: true
+      )],
+    )
+    expect(Relaton::Ietf::Bibliography).to receive(:get)
+      .with("RFC 8341", nil, {}).and_return(item)
+
+    bib = @db.fetch "RFC 8341", nil, {}
+    expect(bib).to be_instance_of Relaton::Ietf::ItemData
+    expect(bib.to_xml).to match(
+      /<bibitem id="RFC8341" type="standard" schema-version="v[\d.]+">/,
+    )
+    expect(File.exist?("testcache")).to be true
+    expect(File.exist?("testcache2")).to be true
+    %w[testcache testcache2].each do |dir|
+      expect(Relaton::Db::Cache.new(dir)["IETF(RFC 8341)"]).to include(
         '<docidentifier type="IETF" primary="true">RFC 8341</docidentifier>',
       )
     end

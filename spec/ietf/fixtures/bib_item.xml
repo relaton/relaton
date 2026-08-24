@@ -1,6 +1,6 @@
 <bibdata type="standard" schema-version="v1.5.6">
-  <fetched>2026-04-08</fetched>
-  <title type="main">Network Configuration Access Control Model</title>
+  <fetched>2026-08-24</fetched>
+  <title type="main" format="text/plain">Network Configuration Access Control Model</title>
   <uri type="src">https://www.rfc-editor.org/info/rfc8341</uri>
   <docidentifier type="IETF" primary="true">RFC 8341</docidentifier>
   <docidentifier type="DOI">10.17487/RFC8341</docidentifier>
@@ -12,7 +12,7 @@
     <role type="author"/>
     <person>
       <name>
-        <forename language="en" script="Latn" initial="A"></forename>
+        <forename language="en" script="Latn" initial="A"/>
         <formatted-initials language="en" script="Latn">A.</formatted-initials>
         <surname language="en" script="Latn">Bierman</surname>
         <completename language="en" script="Latn">A. Bierman</completename>
@@ -23,7 +23,7 @@
     <role type="author"/>
     <person>
       <name>
-        <forename language="en" script="Latn" initial="M"></forename>
+        <forename language="en" script="Latn" initial="M"/>
         <formatted-initials language="en" script="Latn">M.</formatted-initials>
         <surname language="en" script="Latn">Bjorklund</surname>
         <completename language="en" script="Latn">M. Bjorklund</completename>
@@ -33,13 +33,13 @@
   <contributor>
     <role type="publisher"/>
     <organization>
-      <name language="en">RFC Publisher</name>
+      <name>RFC Publisher</name>
     </organization>
   </contributor>
   <contributor>
     <role type="authorizer"/>
     <organization>
-      <name language="en">RFC Series</name>
+      <name>RFC Series</name>
     </organization>
   </contributor>
   <contributor>
@@ -47,33 +47,27 @@
       <description>committee</description>
     </role>
     <organization>
-      <name language="en">Internet Engineering Task Force</name>
-      <subdivision type="workgroup">
-        <name>Network Configuration</name>
-        <identifier>netconf</identifier>
+      <subdivision type="technical-committee">
+        <name>netconf</name>
       </subdivision>
-      <abbreviation language="en">IETF</abbreviation>
     </organization>
   </contributor>
   <language>en</language>
   <script>Latn</script>
-  <abstract language="en" script="Latn">
+  <abstract language="en" script="Latn" format="text/html">
     <p>The standardization of network configuration interfaces for use with the Network Configuration Protocol (NETCONF) or the RESTCONF protocol requires a structured and secure operating environment that promotes human usability and multi-vendor interoperability. There is a need for standard mechanisms to restrict NETCONF or RESTCONF protocol access for particular users to a preconfigured subset of all available NETCONF or RESTCONF protocol operations and content. This document defines such an access control model.</p>
     <p>This document obsoletes RFC 6536.</p>
   </abstract>
-  <status>
-    <stage>INTERNET STANDARD</stage>
-  </status>
   <series>
-    <title>STD</title>
+    <title format="text/plain">STD</title>
     <number>91</number>
   </series>
   <series>
-    <title>RFC</title>
+    <title format="text/plain">RFC</title>
     <number>8341</number>
   </series>
   <series type="stream">
-    <title>IETF</title>
+    <title format="text/plain">IETF</title>
   </series>
   <keyword>
     <vocab>NETCONF RESTCONF</vocab>
@@ -85,8 +79,6 @@
     <vocab>XML</vocab>
   </keyword>
   <ext schema-version="v1.1.2">
-    <doctype>rfc</doctype>
     <flavor>ietf</flavor>
-    <stream>IETF</stream>
   </ext>
 </bibdata>

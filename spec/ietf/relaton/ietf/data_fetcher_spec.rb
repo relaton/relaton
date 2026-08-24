@@ -10,7 +10,7 @@ RSpec.describe Relaton::Ietf::DataFetcher do
 
   before(:each) do
     allow(Relaton::Index).to receive(:find_or_create)
-      .with(:IETF, file: "index-v2.yaml",
+      .with(:IETF, url: nil, file: "index-v2.yaml",
             pubid_class: ::Pubid::Ietf::Identifier).and_return(index)
   end
 

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-rfcsubseries/refs/heads/v2/data/fyi2.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ietf/main/data/FYI0002.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '3216'
+      - '588'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - text/plain; charset=utf-8
       Etag:
-      - W/"3a31123887a8b72ac352242d3fe5b8ef02e08f8b1d7b3705ec8769fcb738c52b"
+      - W/"2d00138fdc1981bac7ffeadbba933b7073fcd3f8f24bca6478a86d84f756dc4f"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,23 +41,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 71DA:D16E3:20D3B8:2E7197:6A890EDF
+      - '08B0:1D2104:2C03FE:3F5227:6A8C85F0'
       X-Github-Edge-Region:
       - iad
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 22 Aug 2026 03:30:50 GMT
+      - Mon, 24 Aug 2026 17:57:05 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-khef600043-IAD
+      - cache-iad-khef600056-IAD
       X-Cache:
-      - HIT
+      - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1787369451.886413,VS0,VE25
+      - S1787594225.992728,VS0,VE277
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -65,85 +65,27 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - d4b5187647c02ca0afdf0fb4902fcea0805a04cc
+      - a5fa971280ac97de19d4b27d7da0fa759ff1805c
       Expires:
-      - Sat, 22 Aug 2026 03:35:50 GMT
+      - Mon, 24 Aug 2026 18:02:05 GMT
       Source-Age:
       - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
         LS0tCmlkOiBGWUkyCnNjaGVtYV92ZXJzaW9uOiB2MS41LjYKdHlwZTogc3Rh
-        bmRhcmQKZm9ybWF0dGVkcmVmOgogIGNvbnRlbnQ6IEZZSTIKdGl0bGU6Ci0g
-        bGFuZ3VhZ2U6IGVuCiAgc2NyaXB0OiBMYXRuCiAgY29udGVudDogRm9yIFlv
-        dXIgSW5mb3JtYXRpb24gMgpzb3VyY2U6Ci0gdHlwZTogc3JjCiAgY29udGVu
-        dDogaHR0cHM6Ly93d3cucmZjLWVkaXRvci5vcmcvaW5mby9meWkyCmRvY2lk
-        ZW50aWZpZXI6Ci0gY29udGVudDogRllJIDIKICB0eXBlOiBJRVRGCiAgcHJp
-        bWFyeTogdHJ1ZQpkb2NudW1iZXI6IEZZSTIKbGFuZ3VhZ2U6Ci0gZW4Kc2Ny
-        aXB0OgotIExhdG4KcmVsYXRpb246Ci0gdHlwZTogaW5jbHVkZXMKICBiaWJp
-        dGVtOgogICAgdHlwZTogc3RhbmRhcmQKICAgIHRpdGxlOgogICAgLSBjb250
-        ZW50OiAnRllJIG9uIGEgTmV0d29yayBNYW5hZ2VtZW50IFRvb2wgQ2F0YWxv
-        ZzogVG9vbHMgZm9yIE1vbml0b3JpbmcgYW5kCiAgICAgICAgRGVidWdnaW5n
-        IFRDUC9JUCBJbnRlcm5ldHMgYW5kIEludGVyY29ubmVjdGVkIERldmljZXMn
-        CiAgICAgIHR5cGU6IG1haW4KICAgIHNvdXJjZToKICAgIC0gdHlwZTogc3Jj
-        CiAgICAgIGNvbnRlbnQ6IGh0dHBzOi8vd3d3LnJmYy1lZGl0b3Iub3JnL2lu
-        Zm8vcmZjMTQ3MAogICAgZG9jaWRlbnRpZmllcjoKICAgIC0gY29udGVudDog
-        UkZDIDE0NzAKICAgICAgdHlwZTogSUVURgogICAgICBwcmltYXJ5OiB0cnVl
-        CiAgICAtIGNvbnRlbnQ6IDEwLjE3NDg3L1JGQzE0NzAKICAgICAgdHlwZTog
-        RE9JCiAgICBkb2NudW1iZXI6IFJGQzE0NzAKICAgIGRhdGU6CiAgICAtIHR5
-        cGU6IHB1Ymxpc2hlZAogICAgICBhdDogMTk5My0wNgogICAgY29udHJpYnV0
-        b3I6CiAgICAtIHJvbGU6CiAgICAgIC0gdHlwZTogYXV0aG9yCiAgICAgIHBl
-        cnNvbjoKICAgICAgICBuYW1lOgogICAgICAgICAgZm9yZW5hbWU6CiAgICAg
-        ICAgICAtIGxhbmd1YWdlOiBlbgogICAgICAgICAgICBzY3JpcHQ6IExhdG4K
-        ICAgICAgICAgICAgaW5pdGlhbDogUgogICAgICAgICAgZm9ybWF0dGVkX2lu
-        aXRpYWxzOgogICAgICAgICAgICBsYW5ndWFnZTogZW4KICAgICAgICAgICAg
-        c2NyaXB0OiBMYXRuCiAgICAgICAgICAgIGNvbnRlbnQ6IFIuCiAgICAgICAg
-        ICBzdXJuYW1lOgogICAgICAgICAgICBsYW5ndWFnZTogZW4KICAgICAgICAg
-        ICAgc2NyaXB0OiBMYXRuCiAgICAgICAgICAgIGNvbnRlbnQ6IEVuZ2VyCiAg
-        ICAgICAgICBjb21wbGV0ZW5hbWU6CiAgICAgICAgICAgIGxhbmd1YWdlOiBl
-        bgogICAgICAgICAgICBzY3JpcHQ6IExhdG4KICAgICAgICAgICAgY29udGVu
-        dDogUi4gRW5nZXIKICAgIC0gcm9sZToKICAgICAgLSB0eXBlOiBhdXRob3IK
-        ICAgICAgcGVyc29uOgogICAgICAgIG5hbWU6CiAgICAgICAgICBmb3JlbmFt
-        ZToKICAgICAgICAgIC0gbGFuZ3VhZ2U6IGVuCiAgICAgICAgICAgIHNjcmlw
-        dDogTGF0bgogICAgICAgICAgICBpbml0aWFsOiBKCiAgICAgICAgICBmb3Jt
-        YXR0ZWRfaW5pdGlhbHM6CiAgICAgICAgICAgIGxhbmd1YWdlOiBlbgogICAg
-        ICAgICAgICBzY3JpcHQ6IExhdG4KICAgICAgICAgICAgY29udGVudDogSi4K
-        ICAgICAgICAgIHN1cm5hbWU6CiAgICAgICAgICAgIGxhbmd1YWdlOiBlbgog
-        ICAgICAgICAgICBzY3JpcHQ6IExhdG4KICAgICAgICAgICAgY29udGVudDog
-        UmV5bm9sZHMKICAgICAgICAgIGNvbXBsZXRlbmFtZToKICAgICAgICAgICAg
-        bGFuZ3VhZ2U6IGVuCiAgICAgICAgICAgIHNjcmlwdDogTGF0bgogICAgICAg
-        ICAgICBjb250ZW50OiBKLiBSZXlub2xkcwogICAgLSByb2xlOgogICAgICAt
-        IHR5cGU6IHB1Ymxpc2hlcgogICAgICBvcmdhbml6YXRpb246CiAgICAgICAg
-        bmFtZToKICAgICAgICAtIGxhbmd1YWdlOiBlbgogICAgICAgICAgY29udGVu
-        dDogUkZDIFB1Ymxpc2hlcgogICAgLSByb2xlOgogICAgICAtIHR5cGU6IGF1
-        dGhvcml6ZXIKICAgICAgb3JnYW5pemF0aW9uOgogICAgICAgIG5hbWU6CiAg
-        ICAgICAgLSBsYW5ndWFnZTogZW4KICAgICAgICAgIGNvbnRlbnQ6IFJGQyBT
-        ZXJpZXMKICAgIC0gcm9sZToKICAgICAgLSB0eXBlOiBhdXRob3IKICAgICAg
-        ICBkZXNjcmlwdGlvbjoKICAgICAgICAtIGNvbnRlbnQ6IGNvbW1pdHRlZQog
-        ICAgICBvcmdhbml6YXRpb246CiAgICAgICAgbmFtZToKICAgICAgICAtIGxh
-        bmd1YWdlOiBlbgogICAgICAgICAgY29udGVudDogSW50ZXJuZXQgRW5naW5l
-        ZXJpbmcgVGFzayBGb3JjZQogICAgICAgIHN1YmRpdmlzaW9uOgogICAgICAg
-        IC0gbmFtZToKICAgICAgICAgIC0gY29udGVudDogTk9DLVRvb2wgQ2F0YWxv
-        Z3VlIFJldmlzaW9ucwogICAgICAgICAgaWRlbnRpZmllcjoKICAgICAgICAg
-        IC0gY29udGVudDogbm9jdG9vbDIKICAgICAgICAgIHR5cGU6IHdvcmtncm91
-        cAogICAgICAgIGFiYnJldmlhdGlvbjoKICAgICAgICAgIGxhbmd1YWdlOiBl
-        bgogICAgICAgICAgY29udGVudDogSUVURgogICAgbGFuZ3VhZ2U6CiAgICAt
-        IGVuCiAgICBzY3JpcHQ6CiAgICAtIExhdG4KICAgIGFic3RyYWN0OgogICAg
-        LSBsYW5ndWFnZTogZW4KICAgICAgc2NyaXB0OiBMYXRuCiAgICAgIGNvbnRl
-        bnQ6ICI8cD5UaGUgZ29hbCBvZiB0aGlzIEZZSSBtZW1vIGlzIHRvIHByb3Zp
-        ZGUgYW4gdXBkYXRlIHRvIEZZSSAyLCBSRkMKICAgICAgICAxMTQ3IFsxXSwg
-        d2hpY2ggcHJvdmlkZWQgcHJhY3RpY2FsIGluZm9ybWF0aW9uIHRvIHNpdGUg
-        YWRtaW5pc3RyYXRvcnMgYW5kCiAgICAgICAgbmV0d29yayBtYW5hZ2Vycy4g
-        IFRoaXMgbWVtbyBwcm92aWRlcyBpbmZvcm1hdGlvbiBmb3IgdGhlIEludGVy
-        bmV0IGNvbW11bml0eS4KICAgICAgICBcIEl0IGRvZXMgbm90IHNwZWNpZnkg
-        YW4gSW50ZXJuZXQgc3RhbmRhcmQuPC9wPiIKICAgIHN0YXR1czoKICAgICAg
-        c3RhZ2U6CiAgICAgICAgY29udGVudDogSU5GT1JNQVRJT05BTAogICAgc2Vy
-        aWVzOgogICAgLSB0aXRsZToKICAgICAgLSBjb250ZW50OiBGWUkKICAgICAg
-        bnVtYmVyOiAnMicKICAgIC0gdGl0bGU6CiAgICAgIC0gY29udGVudDogUkZD
-        CiAgICAgIG51bWJlcjogJzE0NzAnCiAgICAtIHR5cGU6IHN0cmVhbQogICAg
-        ICB0aXRsZToKICAgICAgLSBjb250ZW50OiBJRVRGCiAgICBrZXl3b3JkOgog
-        ICAgLSB2b2NhYjoKICAgICAgICBjb250ZW50OiBOT0NUT09MUwpleHQ6CiAg
-        c2NoZW1hX3ZlcnNpb246IHYxLjEuMgogIGRvY3R5cGU6CiAgICBjb250ZW50
-        OiByZmMKICBmbGF2b3I6IGlldGYK
-  recorded_at: Sat, 22 Aug 2026 03:30:50 GMT
+        bmRhcmQKdGl0bGU6Ci0gbGFuZ3VhZ2U6IGVuCiAgc2NyaXB0OiBMYXRuCiAg
+        Y29udGVudDogRm9yIFlvdXIgSW5mb3JtYXRpb24gMgogIGZvcm1hdDogdGV4
+        dC9wbGFpbgpzb3VyY2U6Ci0gdHlwZTogc3JjCiAgY29udGVudDogaHR0cHM6
+        Ly93d3cucmZjLWVkaXRvci5vcmcvaW5mby9meWkyCmRvY2lkZW50aWZpZXI6
+        Ci0gY29udGVudDogRllJIDIKICB0eXBlOiBJRVRGCiAgcHJpbWFyeTogdHJ1
+        ZQpkb2NudW1iZXI6IEZZSTAwMDIKZGF0ZToKLSB0eXBlOiBwdWJsaXNoZWQK
+        ICBhdDogMTk5My0wNgpsYW5ndWFnZToKLSBlbgpzY3JpcHQ6Ci0gTGF0bgpy
+        ZWxhdGlvbjoKLSB0eXBlOiBpbmNsdWRlcwogIGJpYml0ZW06CiAgICBmb3Jt
+        YXR0ZWRyZWY6CiAgICAgIGNvbnRlbnQ6IFJGQzE0NzAKICAgICAgZm9ybWF0
+        OiB0ZXh0L3BsYWluCiAgICBkb2NpZGVudGlmaWVyOgogICAgLSBjb250ZW50
+        OiBSRkMgMTQ3MAogICAgICB0eXBlOiBJRVRGCiAgICAgIHByaW1hcnk6IHRy
+        dWUKZXh0OgogIHNjaGVtYV92ZXJzaW9uOiB2MS4xLjIKICBmbGF2b3I6IGll
+        dGYK
+  recorded_at: Mon, 24 Aug 2026 17:57:05 GMT
 recorded_with: VCR 6.4.0

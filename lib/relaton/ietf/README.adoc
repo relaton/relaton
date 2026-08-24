@@ -127,9 +127,11 @@ Done in: 1360 sec.
 
 === The index
 
-`DataFetcher` writes `index-v2.yaml` alongside the documents as it crawls, one row
-per record keyed by that record's primary docidentifier, serialised as a
-`Pubid::Ietf::Identifier`:
+Lookups read one combined index — `index-v2.zip` from
+https://github.com/relaton/relaton-data-ietf[relaton-data-ietf], covering RFCs,
+the RFC sub-series and Internet-Drafts in ~177k rows. `DataFetcher` writes the same
+shape as it crawls, one row per record keyed by that record's primary
+docidentifier, serialised as a `Pubid::Ietf::Identifier`:
 
 [source,yaml]
 ----
@@ -154,7 +156,7 @@ Relaton::Ietf uses the relaton-logger gem for logging. By default, it logs to ST
 
 == Development
 
-The suite uses three cached index fixtures, `spec/ietf/fixtures/{rfc,rss,ids}-index-v1.zip`, each a near-complete older snapshot of the published index of https://github.com/relaton/relaton-data-rfcs[relaton-data-rfcs], https://github.com/relaton/relaton-data-rfcsubseries[relaton-data-rfcsubseries], and https://github.com/relaton/relaton-data-ids[relaton-data-ids] respectively. Refresh them by hand from those repos' `index-v1.zip` on branch `v2` when a document lookup starts 404ing.
+The suite uses one cached index fixture, `spec/ietf/fixtures/ietf-index-v2.zip`, copied wholesale from https://github.com/relaton/relaton-data-ietf[relaton-data-ietf]. Refresh it by re-downloading that repo's `index-v2.zip` when a document lookup starts 404ing — a stale index names files that no longer exist, which surfaces as a 404 rather than as an index error.
 
 == Contributing
 
