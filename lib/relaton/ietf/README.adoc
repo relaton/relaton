@@ -87,7 +87,7 @@ item.source.first.content
 
 [source,ruby]
 ----
-item = Relaton::Ietf::BibXMLParser.parse_rfc File.read("spec/fixtures/rfc.xml")
+item = Relaton::Ietf::BibXMLParser.parse_rfc File.read("spec/ietf/fixtures/rfc.xml")
 => #<Relaton::Ietf::ItemData:0x000000012913e4d8
 ...
 ----
@@ -95,7 +95,7 @@ item = Relaton::Ietf::BibXMLParser.parse_rfc File.read("spec/fixtures/rfc.xml")
 === Create bibliographic item from YAML
 [source,ruby]
 ----
-Relaton::Ietf::Item.from_yaml File.read('spec/fixtures/item.yaml')
+Relaton::Ietf::Item.from_yaml File.read("spec/ietf/fixtures/item.yaml")
 => #<Relaton::Ietf::ItemData:0x0000000127edf508
 ...
 ----
@@ -125,13 +125,36 @@ Done in: 1360 sec.
 => nil
 ----
 
+=== The index
+
+`DataFetcher` writes `index-v2.yaml` alongside the documents as it crawls, one row
+per record keyed by that record's primary docidentifier, serialised as a
+`Pubid::Ietf::Identifier`:
+
+[source,yaml]
+----
+- :id:
+    _type: pubid:ietf:rfc
+    number: '3986'
+  :file: data/rfc3986.yaml
+----
+
+A record whose identifier `Pubid::Ietf` cannot parse is still written, but is left
+out of the index and logged — a single unparseable row would otherwise make the
+whole index unloadable for every consumer. The total is restated when the crawl
+finishes.
+
+Note sub-series ids key to their own record: `STD 66` resolves to the STD document,
+whose `relation: includes` names the RFC. There is no single RFC to alias to in
+general — 42 of the 365 sub-series include more than one.
+
 === Logging
 
 Relaton::Ietf uses the relaton-logger gem for logging. By default, it logs to STDOUT. To change the log levels and add other loggers, read the https://github.com/relaton/relaton-logger#usage[relaton-logger] documentation.
 
 == Development
 
-To update the index test fixtures (used by tests), run `rake spec:update_index`. This downloads the latest index files from the https://github.com/relaton/relaton-data-rfcs[relaton-data-rfcs], https://github.com/relaton/relaton-data-rfcsubseries[relaton-data-rfcsubseries], and https://github.com/relaton/relaton-data-ids[relaton-data-ids] repositories.
+The suite uses three cached index fixtures, `spec/ietf/fixtures/{rfc,rss,ids}-index-v1.zip`, each a near-complete older snapshot of the published index of https://github.com/relaton/relaton-data-rfcs[relaton-data-rfcs], https://github.com/relaton/relaton-data-rfcsubseries[relaton-data-rfcsubseries], and https://github.com/relaton/relaton-data-ids[relaton-data-ids] respectively. Refresh them by hand from those repos' `index-v1.zip` on branch `v2` when a document lookup starts 404ing.
 
 == Contributing
 
