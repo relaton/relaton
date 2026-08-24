@@ -245,7 +245,8 @@ RSpec.describe Relaton::Ietf::DataFetcher do
     end
 
     it "build_unversioned_doc uses in-memory bib (no disk round-trip)" do
-      last_v = double("last_v", title: :t, abstract: :a)
+      last_v = double("last_v", title: :t, abstract: :a,
+                                date: :date2, ext: :ext2, source: [:src2])
       sorted = [
         { ver: "00", bib: double("b0"), ref: "draft-collins-pfr-00", source: [:src1] },
         { ver: "01", bib: last_v, ref: "draft-collins-pfr-01", source: [:src2] },
@@ -265,10 +266,68 @@ RSpec.describe Relaton::Ietf::DataFetcher do
       expect(Relaton::Bib::Formattedref).to receive(:new).with(content: "draft-collins-pfr").and_return(:fref3)
       expect(Relaton::Ietf::ItemData).to receive(:new).with(
         title: :t, abstract: :a, formattedref: :fref3, docidentifier: [:id], relation: %i[rel1 rel2],
+        date: :date2, ext: :ext2, source: [:src2],
       ).and_return(:sbib)
       expect(File).not_to receive(:read)
 
       expect(subject.send(:build_unversioned_doc, "draft-collins-pfr", sorted)).to eq :sbib
+    end
+
+    # An unversioned draft aggregator is synthesised from the versions found on
+    # disk — there is no upstream document for it, so date, doctype and source
+    # can only come from its constituents. Without this it published with none
+    # of the three: undated (so unsorted on the Pages index) and with no
+    # document type at all.
+    describe "#build_unversioned_doc metadata inheritance" do
+      def version(ver, date_at)
+        Relaton::Ietf::ItemData.new(
+          title: [Relaton::Bib::Title.new(content: "Some draft")],
+          docidentifier: [Relaton::Bib::Docidentifier.new(
+            type: "Internet-Draft", content: "draft-x-#{ver}", primary: true
+          )],
+          date: [Relaton::Bib::Date.new(type: "published", at: date_at)],
+          source: [Relaton::Bib::Uri.new(type: "src", content: "https://example.com/#{ver}")],
+          ext: Relaton::Ietf::Ext.new(
+            doctype: Relaton::Ietf::Doctype.new(content: "internet-draft"), flavor: "ietf"
+          ),
+        )
+      end
+
+      let(:sorted) do
+        [{ ref: "draft-x-00", bib: version("00", "2020-01-01"), source: [] },
+         { ref: "draft-x-01", bib: version("01", "2021-06-01"), source: [] }]
+      end
+
+      it "inherits date, ext and source from the newest version" do
+        doc = subject.send(:build_unversioned_doc, "draft-x", sorted)
+
+        expect(doc.date.map(&:at).map(&:to_s)).to eq ["2021-06-01"]
+        expect(doc.ext.doctype.content).to eq "internet-draft"
+        expect(doc.source.map { |s| s.content.to_s }).to eq ["https://example.com/01"]
+      end
+
+      it "still carries its own identity, not the version's" do
+        doc = subject.send(:build_unversioned_doc, "draft-x", sorted)
+
+        expect(doc.docidentifier.map(&:content)).to eq ["draft-x"]
+        expect(doc.formattedref.content).to eq "draft-x"
+        expect(doc.relation.map(&:type)).to eq %w[includes includes]
+      end
+
+      it "copes with a newest version that has no date or source of its own" do
+        bare = Relaton::Ietf::ItemData.new(
+          title: [Relaton::Bib::Title.new(content: "Some draft")],
+          docidentifier: [Relaton::Bib::Docidentifier.new(
+            type: "Internet-Draft", content: "draft-x-01", primary: true
+          )],
+        )
+        doc = subject.send(:build_unversioned_doc, "draft-x",
+                           [{ ref: "draft-x-01", bib: bare, source: [] }])
+
+        expect(doc.date).to be_empty
+        expect(doc.source).to be_empty
+        expect(doc.ext).to be_nil
+      end
     end
 
     it "build_unversioned_doc warns and returns nil when sorted is empty" do

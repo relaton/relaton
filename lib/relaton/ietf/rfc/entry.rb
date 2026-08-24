@@ -126,9 +126,28 @@ module Relaton
         end
 
         #
+        # Normalise a doc-id for constituent lookup: fold case and strip
+        # whitespace and dots.
+        #
+        # Relation targets and the docids they reference disagree on both across
+        # the published corpus (`dyndNS` vs `dyndns`), which leaves records
+        # undated — and, in `build_relations`, silently downgrades a full
+        # constituent bibitem to a minimal one — under a strict lookup. Both
+        # sides go through this: the caller keys its index by it, `Entry` looks
+        # up by it.
+        #
+        # @param id [String, nil]
+        # @return [String]
+        #
+        def self.squish(id)
+          id.to_s.gsub(/[\s.]/, "").downcase
+        end
+
+        #
         # Convert to Relaton::Ietf::ItemData
         #
-        # @param rfc_index [Hash{String => Entry}, nil] lookup of RFC entries by doc-id
+        # @param rfc_index [Hash{String => Entry}, nil] lookup of RFC entries,
+        #   keyed by `Entry.squish(doc_id)` — see that method for why
         # @return [Relaton::Ietf::ItemData, nil]
         #
         def to_item(rfc_index = nil, wg_names: {})
@@ -174,6 +193,7 @@ module Relaton
             script: ["Latn"],
             source: build_link,
             formattedref: build_formattedref,
+            date: build_subseries_date(rfc_index),
             relation: build_relations(rfc_index, wg_names: wg_names),
             series: build_series,
             ext: Ext.new(doctype: Doctype.new(content: "rfc"), stream: stream, flavor: "ietf"),
@@ -211,10 +231,26 @@ module Relaton
           return [] unless is_also&.doc_id
 
           is_also.doc_id.map do |ref|
-            rfc_entry = rfc_index&.[](ref)
+            rfc_entry = rfc_index&.[](Entry.squish(ref))
             bibitem = rfc_entry ? rfc_entry.to_rfc_item(wg_names: wg_names) : build_minimal_bibitem(ref)
             Relaton::Ietf::Relation.new(type: "includes", bibitem: bibitem)
           end.compact
+        end
+
+        # A sub-series entry in rfc-index.xml is a pointer and nothing more —
+        # `<doc-id>` plus `<is-also>`, with no date, title, author or status,
+        # because a sub-series has no metadata of its own. Rather than publish a
+        # dateless record, take the date of the newest RFC it includes.
+        #
+        # @param rfc_index [Hash{String => Entry}, nil]
+        # @return [Array<Bib::Date>] empty when no constituent resolves or none
+        #   carries a date
+        def build_subseries_date(rfc_index)
+          newest = (is_also&.doc_id || [])
+            .filter_map { |ref| rfc_index&.[](Entry.squish(ref)) }
+            .flat_map(&:build_rfc_date)
+            .max_by { |d| d.at.to_s }
+          newest ? [newest] : []
         end
 
         def build_minimal_bibitem(ref)
@@ -246,7 +282,7 @@ module Relaton
           [Bib::Uri.new(type: "src", content: "https://www.rfc-editor.org/info/rfc#{shortnum}")]
         end
 
-        def build_rfc_date
+        public def build_rfc_date
           (date || []).map do |d|
             month_num = ::Date::MONTHNAMES.index(d.month).to_s.rjust(2, "0")
             date_str = "#{d.year}-#{month_num}"

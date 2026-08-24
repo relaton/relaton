@@ -162,6 +162,60 @@ indexes into one. It cannot ship until an `index-v2` is published — all three 
 repos still serve only `index-v1`. The data-repo side is specified in
 `/work/HANDOFFS/relaton__relaton-data-ietf__unified-index-aggregator.md`.
 
+## Thin records inherit from their constituents
+
+Two builders produce records for documents that have **no upstream source of
+their own**, and both would otherwise publish without date, doctype or source:
+
+| Builder | File | Inherits from |
+|---|---|---|
+| `to_subseries_item` | `rfc/entry.rb` | the newest RFC in its `is-also` |
+| `build_unversioned_doc` | `data_fetcher.rb` | the newest version in `sorted` |
+
+This is **not** a parsing gap to go fix in the XML mapping. A sub-series entry in
+`rfc-index.xml` is only a pointer:
+
+```xml
+<bcp-entry>
+  <doc-id>BCP0003</doc-id>
+  <is-also><doc-id>RFC1915</doc-id></is-also>
+</bcp-entry>
+```
+
+The RFC Editor publishes no date, title, author or status for it, because a
+sub-series *has* no metadata of its own — it is a label on one or more RFCs.
+Unversioned draft aggregators are further still from an upstream document: they
+are synthesised from the versions found on disk.
+
+Neither site needs a second pass or another read of the corpus — `rfc_index` and
+`sorted` already hold the constituents at build time. (A downstream
+implementation in `relaton-data-ietf`'s crawler did use a second pass over
+written files, because its groups could span source repos; that constraint does
+not exist here.)
+
+**Constituent lookup is normalised on both sides, deliberately.**
+`Entry.squish` folds case and strips whitespace and dots. Relation targets and the
+docids they reference disagree in the published corpus (`dyndNS` vs `dyndns`),
+which left 28 documents undated downstream on a strict lookup — and, in
+`build_relations`, silently downgraded a full constituent bibitem to a minimal
+one.
+
+`rfc_index` is therefore **keyed by `Entry.squish(doc_id)`, and the caller builds
+it** — `fetch_ieft_rfcsubseries` does so once for the crawl. Normalising inside
+`Entry` instead would rebuild a ~9,800-row table for each of the 367 sub-series
+(measured: ~161 MB retained, ~6 s), all of it the same table.
+
+Why it matters beyond tidiness: the Pages index sorts by date, so undated records
+sort as one undifferentiated block, and a record with no `ext.doctype` renders
+with no document type at all.
+
+Inherited values are `dup`'d rather than shared with the constituent's own bib —
+aliasing them would make a later edit to the aggregator mutate the `-NN` record.
+
+Verified against the live `rfc-index.xml`: **367/367 sub-series dated**, 367/367
+with full constituent bibitems, in 1.4 s; `BCP 3` → 1996-02, `STD 51` → 1994-07,
+`STD 66` → 2005-01 (RFC 3986's date).
+
 ## Testing Patterns
 
 - **Index fixtures:** `spec/ietf/fixtures/{rfc,rss,ids}-index-v1.zip` — one per data repo — are pre-loaded into the `Relaton::Index` pool as types `:RFC`, `:RSS`, `:IDS` in `before(:suite)` (configured in `spec/ietf/support/webmock.rb`); `spec/ietf/support/vcr.rb` ignores any request whose path ends `index-v1.zip`. They are near-complete older snapshots, not curated subsets (the ids one holds 158,717 of the 166,916 published rows), so refreshing means re-copying the published `index-v1.zip` of relaton-data-rfcs/rfcsubseries/ids wholesale. There is **no** `rake spec:update_index` task in this repo.
