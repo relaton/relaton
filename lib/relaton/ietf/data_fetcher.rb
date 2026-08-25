@@ -44,8 +44,16 @@ module Relaton
       #
       def fetch_ieft_rfcsubseries
         idx = Rfc::Index.from_xml(rfc_index)
+        # Keyed by the normalised doc-id, built once for the whole crawl:
+        # `Entry` looks constituents up by `Entry.squish(ref)`, and doing it
+        # per-entry over ~9,800 RFCs would rebuild this table 367 times.
         rfc_map = (idx.rfc_entries || []).each_with_object({}) do |entry, h|
-          h[entry.doc_id] = entry
+          key = Rfc::Entry.squish(entry.doc_id)
+          if h.key?(key)
+            Util.warn "Duplicate RFC doc-id `#{entry.doc_id}` after normalisation " \
+                      "(`#{key}`); the later entry wins for constituent lookup"
+          end
+          h[key] = entry
         end
         idx.subseries_entries.each do |entry|
           save_doc entry.to_item(rfc_map, wg_names: wg_names)
@@ -170,6 +178,12 @@ module Relaton
       # `includes` relations to every version. Uses the latest version's
       # title/abstract from memory.
       #
+      # The aggregator is *synthesised* — there is no upstream document for it,
+      # so `date`, `ext` (hence doctype) and `source` can only be inherited from
+      # its newest constituent, which `sorted` already holds in memory. Without
+      # that inheritance it publishes undated (and so unsorted on the Pages
+      # index, which sorts by date) and with no document type at all.
+      #
       # @return [Relaton::Ietf::ItemData, nil]
       #
       def build_unversioned_doc(series, sorted)
@@ -183,7 +197,11 @@ module Relaton
         rel = sorted.map { |e| version_relation({ ref: e[:ref], source: e[:source] }, "includes") }
         ItemData.new(
           title: last_v.title, abstract: last_v.abstract, formattedref: Bib::Formattedref.new(content: series),
-          docidentifier: [docid], relation: rel
+          docidentifier: [docid], relation: rel,
+          # dup'd, not shared: these are the newest version's own objects, and
+          # aliasing them would make any later edit to the aggregator mutate the
+          # `-NN` record too.
+          date: last_v.date&.dup, ext: last_v.ext&.dup, source: last_v.source&.dup
         )
       end
 

@@ -135,6 +135,83 @@ RSpec.describe Relaton::Ietf::Rfc::Entry do
     end
   end
 
+  # A sub-series entry in rfc-index.xml is only a pointer — `<doc-id>` plus
+  # `<is-also>`, no date, title, author or status, because a sub-series has no
+  # metadata of its own. Rather than emit a dateless record, inherit from the
+  # newest constituent it includes.
+  describe "#to_item date inheritance for subseries" do
+    def rfc_entry(id, month, year)
+      described_class.from_xml(<<~XML)
+        <rfc-entry xmlns="https://www.rfc-editor.org/rfc-index">
+          <doc-id>#{id}</doc-id>
+          <title>Host software</title>
+          <date><month>#{month}</month><year>#{year}</year></date>
+          <current-status>UNKNOWN</current-status>
+        </rfc-entry>
+      XML
+    end
+
+    let(:multi) do
+      described_class.from_xml(<<~XML)
+        <bcp-entry xmlns="https://www.rfc-editor.org/rfc-index">
+          <doc-id>BCP0009</doc-id>
+          <is-also>
+            <doc-id>RFC0002</doc-id>
+            <doc-id>RFC0003</doc-id>
+          </is-also>
+        </bcp-entry>
+      XML
+    end
+
+    it "takes the date of its only constituent" do
+      item = subject.to_item({ "rfc0002" => rfc_entry("RFC0002", "April", "1969") })
+      expect(item.date.map { |d| [d.type, d.at.to_s] }).to eq [["published", "1969-04"]]
+    end
+
+    it "takes the newest date when it includes several" do
+      index = { "rfc0002" => rfc_entry("RFC0002", "April", "1969"),
+                "rfc0003" => rfc_entry("RFC0003", "January", "1972") }
+      item = multi.to_item(index)
+      expect(item.date.map { |d| d.at.to_s }).to eq ["1972-01"]
+    end
+
+    # Relation targets and the docids they reference disagree on case and
+    # punctuation in the published corpus; a strict lookup left records undated
+    # (and, in `build_relations`, silently downgraded to a minimal bibitem).
+    it "resolves a constituent whose relation target differs in case or punctuation" do
+      odd = described_class.from_xml(<<~XML)
+        <bcp-entry xmlns="https://www.rfc-editor.org/rfc-index">
+          <doc-id>BCP0001</doc-id>
+          <is-also><doc-id>rfc.0002</doc-id></is-also>
+        </bcp-entry>
+      XML
+      item = odd.to_item({ "rfc0002" => rfc_entry("RFC0002", "April", "1969") })
+
+      expect(item.date.map { |d| d.at.to_s }).to eq ["1969-04"]
+      expect(item.relation.first.bibitem.title.first.content).to eq "Host software"
+    end
+
+    it "normalises an id the same way on both sides" do
+      expect(described_class.squish("RFC 0002")).to eq "rfc0002"
+      expect(described_class.squish("rfc.0002")).to eq "rfc0002"
+      expect(described_class.squish("dyndNS")).to eq described_class.squish("dyndns")
+    end
+
+    it "leaves the record dateless when no constituent can be resolved" do
+      expect(subject.to_item.date).to be_empty
+    end
+
+    it "ignores a constituent that has no date of its own" do
+      undated = described_class.from_xml(<<~XML)
+        <rfc-entry xmlns="https://www.rfc-editor.org/rfc-index">
+          <doc-id>RFC0002</doc-id><title>Host software</title>
+          <current-status>UNKNOWN</current-status>
+        </rfc-entry>
+      XML
+      expect(subject.to_item({ "rfc0002" => undated }).date).to be_empty
+    end
+  end
+
   describe "#to_item for subseries" do
     it "returns nil when no is_also" do
       entry = described_class.new(doc_id: "BCP0001")
@@ -208,7 +285,7 @@ RSpec.describe Relaton::Ietf::Rfc::Entry do
         </rfc-entry>
       XML
       rfc_entry = described_class.from_xml(rfc_xml)
-      rfc_map = { "RFC0002" => rfc_entry }
+      rfc_map = { "rfc0002" => rfc_entry }
       item = subject.to_item(rfc_map)
       rel = item.relation.first
       bibitem = rel.bibitem
