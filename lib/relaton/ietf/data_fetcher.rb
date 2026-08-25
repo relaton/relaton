@@ -24,6 +24,7 @@ module Relaton
         end
         index.save
         report_unindexed
+        report_unparsed
       end
 
       private
@@ -81,7 +82,12 @@ module Relaton
           process_singleton(path)
         end
 
-        (series_results + singleton_results).compact.each { |r| record_index_entry(r) }
+        entries, unparsed = (series_results + singleton_results).compact
+          .partition { |r| r[:unparsed].nil? }
+        # Tallied here, not in the worker: a counter incremented in a Parallel
+        # worker process is lost on the way back (see record_index_entry).
+        @unparsed = unparsed.map { |r| "#{r[:unparsed]} (#{r[:error]})" }
+        entries.each { |r| record_index_entry(r) }
       end
 
       #
@@ -132,16 +138,22 @@ module Relaton
       # for the parent.
       #
       def process_series(series, paths_info)
-        sorted = paths_info.sort_by { |p| p[:ver].to_i }.map do |p|
-          bib = BibXMLParser.parse(File.read(p[:path], encoding: "UTF-8"))
+        parsed = paths_info.sort_by { |p| p[:ver].to_i }.map do |p|
+          bib, marker = parse_bibxml(p[:path])
+          next marker unless bib
+
           bib.version = [Bib::Version.new(draft: p[:ver])]
           p.merge(bib: bib, source: bib.source)
         end
+        # A file that failed to parse must not reach `sorted`:
+        # link_neighbor_relations and build_unversioned_doc both dereference
+        # `entry[:bib]`, and a dropped version is better than a nil one.
+        sorted, skipped = parsed.partition { |e| e[:unparsed].nil? }
         link_neighbor_relations(sorted) if @format != "bibxml"
 
         results = sorted.map { |entry| serialize_and_write(entry[:bib]) }
         results << serialize_and_write(build_unversioned_doc(series, sorted)) if @format != "bibxml"
-        results.compact
+        results.compact + skipped
       end
 
       #
@@ -151,9 +163,80 @@ module Relaton
         file = File.basename(path, ".xml")
         is_draft = file.include?("D.draft-")
         ver = is_draft ? file[/(\d+)$/, 1] : nil
-        bib = BibXMLParser.parse(File.read(path, encoding: "UTF-8"))
+        bib, marker = parse_bibxml(path)
+        return marker unless bib
+
         bib.version = [Bib::Version.new(draft: ver)] if ver
         serialize_and_write(bib)
+      end
+
+      #
+      # Read and parse one bibxml file, or nil if it cannot be parsed.
+      #
+      # Rescues `StandardError` rather than a narrow list on purpose: lutaml
+      # raises `InvalidFormatError` on bad bytes, but the converter also runs
+      # regexes over parsed text (`parse_surname_initials` and friends), and
+      # those raise `ArgumentError: invalid byte sequence` on anything that slips
+      # through. One unparseable file must cost one document, never the crawl —
+      # the drafts path runs under Parallel.map, which discards every result from
+      # the pass when a worker raises.
+      #
+      # @param path [String]
+      # @return [Relaton::Ietf::ItemData, nil]
+      #
+      # @param path [String]
+      # @return [Array(Relaton::Ietf::ItemData, nil), Array(nil, Hash)]
+      #   the record, or nil plus a marker carrying why
+      def parse_bibxml(path)
+        bib = BibXMLParser.parse(read_bibxml(path))
+        bib ? [bib, nil] : [nil, unparsed_marker(path, "parser returned no record")]
+      rescue StandardError => e
+        [nil, unparsed_marker(path, "#{e.class}: #{e.message.to_s.lines.first.to_s.strip}")]
+      end
+
+      # Marshal-friendly stand-in for a record, carried back to the parent so the
+      # skip can be counted where a tally survives. The reason rides along rather
+      # than sitting in an ivar, which a later file would overwrite.
+      def unparsed_marker(path, error)
+        { unparsed: path, error: error }
+      end
+
+      #
+      # Read a bibxml file as UTF-8, recovering Windows-1252 bytes.
+      #
+      # These files declare `encoding='UTF-8'` but some carry CP1252 — smart
+      # quotes and accented Latin letters. `File.read(encoding: "UTF-8")` only
+      # *tags* the string, so those reach lutaml as invalid UTF-8 and it raises.
+      #
+      # `scrub` with a block transcodes each invalid *run* as CP1252 while
+      # leaving valid UTF-8 untouched. Both halves matter:
+      #
+      # * Not plain `scrub`, which substitutes U+FFFD: `client’s` would become
+      #   `client\uFFFDs` and `Muñoz` `Mu\uFFFDoz` — author surnames included.
+      #   The damage is length-preserving, so a length check will not catch it.
+      # * Not a whole-file CP1252 re-decode, which mangles a file that is
+      #   genuinely UTF-8 apart from one stray byte: `Muñoz café ’` would come
+      #   back as `MuÃ±oz cafÃ© ’`, silently, since the result is valid UTF-8 and
+      #   nothing raises. No such file exists in today's corpus (0 of the 125
+      #   affected contain valid multi-byte UTF-8) but it grows daily, and
+      #   "decodes losslessly as CP1252" is weak evidence of correctness —
+      #   CP1252 maps 251 of 256 byte values.
+      #
+      # `undef: :replace` covers the five bytes CP1252 leaves undefined
+      # (0x81 0x8D 0x8F 0x90 0x9D), so this returns valid UTF-8 rather than
+      # raising and costing the whole file.
+      #
+      # @param path [String]
+      # @return [String] UTF-8, valid encoding
+      #
+      def read_bibxml(path)
+        utf8 = File.binread(path).force_encoding(Encoding::UTF_8)
+        return utf8 if utf8.valid_encoding?
+
+        utf8.scrub do |bad|
+          bad.force_encoding(Encoding::WINDOWS_1252)
+             .encode(Encoding::UTF_8, undef: :replace)
+        end
       end
 
       #
@@ -337,6 +420,14 @@ module Relaton
 
       # Skips are per-record warnings in a crawl that writes ~177k of them, so
       # restate the total where it can actually be noticed.
+      # One line for a crawl that reads ~167k files, not one per skip.
+      def report_unparsed
+        return if @unparsed.nil? || @unparsed.empty?
+
+        Util.warn "#{@unparsed.size} file(s) skipped: could not be parsed. " \
+                  "First: #{@unparsed.first(5).join(', ')}"
+      end
+
       def report_unindexed
         return unless @unindexed.to_i.positive?
 
