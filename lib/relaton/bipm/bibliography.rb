@@ -49,10 +49,13 @@ module Relaton::Bipm
         ref_id = parse_ref reference
         return unless ref_id
 
-        rows = index.search { |r| ref_id == id_hash(r[:id]) }
+        rows = search_index reference, ref_id
         return if rows.empty?
 
-        row = rows.max_by { |r| r[:id].year.to_i }
+        # Latest edition wins. Metrologia and SI Brochure rows carry no year,
+        # so they all score 0; the file path breaks that tie so a repeated
+        # lookup returns the same document (the index sort is not stable).
+        row = rows.max_by { |r| [r[:id].year.to_i, r[:file]] }
         url = "#{GH_ENDPOINT}#{row[:file]}"
         resp = Mechanize.new.get url
         return unless resp.code == "200"
@@ -60,6 +63,55 @@ module Relaton::Bipm
         item = Item.from_yaml resp.body
         item.fetched = Date.today.to_s
         item
+      end
+
+      # Look the reference up in the index, narrowing the candidate rows before
+      # the fuzzy match runs. `Relaton::Index::Type#search` binary-searches the
+      # index only when it is given an identifier (the same call shape ISO,
+      # OIML and JCGM use), so a pubid is parsed purely to supply that key; the
+      # match itself stays on `Id#==` over `#id_hash`, because the pubid
+      # grammar rejects the loose consumer forms (see `#parse_ref`).
+      #
+      # The narrowed range can miss a row that is present, for two reasons:
+      # `Id` and pubid disagree on some references (`CCTF Recommendation
+      # 2009-02` keys the query as `2009-02` and the row as `2`), and an index
+      # built by a pubid that derived no `number` keys whole families to `""`.
+      # An empty result therefore repeats the search over the whole index —
+      # what this method did before the narrowing. That check alone does not
+      # prove a lookup can never regress, because a narrowed range that is
+      # non-empty but incomplete would not trigger it; the specs close that gap
+      # by asserting this method returns the same rows as the full scan.
+      #
+      # @param reference [String] the raw user reference
+      # @param ref_id [Relaton::Bipm::Id] the same reference, parsed
+      # @return [Array<Hash>] the matching index rows
+      def search_index(reference, ref_id)
+        pubid = narrowing_id reference
+        rows = pubid && index.search(pubid) { |r| ref_id == id_hash(r[:id]) }
+        return rows if rows && !rows.empty?
+
+        index.search { |r| ref_id == id_hash(r[:id]) }
+      end
+
+      # Parse the reference a second time with pubid, purely to obtain the
+      # index's own narrowing key. The stricter pubid grammar rejects the loose
+      # forms `Id` accepts (`CCDS Recommendation 2 (2009)`, `CIPM 111e Réunion
+      # (2022)`, `CCTF Meeting 14 (1999)`, `SI Brochure Part 1`, …); those get
+      # no narrowing and scan the whole index, as every reference did before.
+      #
+      # The rescue is deliberately broad (as in `Relaton::Jcgm::Bibliography`):
+      # this is an optimisation, so nothing it raises may break a lookup that
+      # worked before. It stays silent because a parse failure here is normal
+      # and is not a miss — the reference still resolves. A systemic break
+      # would not go unnoticed: the narrowing specs assert that a known
+      # reference scans a small fraction of the index.
+      #
+      # @param reference [String]
+      # @return [Pubid::Bipm::Identifier, nil]
+      def narrowing_id(reference)
+        ::Pubid::Bipm.parse reference
+      rescue StandardError
+        nil
       end
 
       # Parse a user reference with the flexible bespoke `Id` grammar, which
