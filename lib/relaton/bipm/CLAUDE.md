@@ -47,7 +47,9 @@ flavor's **consumer query parsing** (below).
   each index row's `Pubid::Bipm` object is projected back to the bespoke
   `{group,type,number,year,lang}` hash by `#id_hash` and compared with `Id#==`
   (its number/year/lang collapsing preserved); the latest edition wins via
-  `max_by { |r| r[:id].year.to_i }`.
+  `max_by { |r| [r[:id].year.to_i, r[:file]] }` (the file path only breaks a
+  tie — Metrologia and SI Brochure rows carry no year, so all 6206 of them
+  score 0 and the index sort is not stable).
 - **`Id`** (`id_parser.rb`) - The flexible bespoke regex parser. Parses BIPM
   reference strings into `{group,type,number,year,…}` hashes; the `TYPES` hash
   maps full EN/FR type names to abbreviations, and `normalize_hash` applies
@@ -72,6 +74,52 @@ flavor's **consumer query parsing** (below).
   and JSON serialization.
 - **`model/`** directory - Lutaml model classes (Bibdata, Bibitem, Ext, etc.) for
   XML/YAML serialization.
+
+### Index narrowing, and why it needs a fallback
+
+`Relaton::Index::Type#search` binary-searches the index only when the caller
+gives it an identifier; a block-only call scans all ~7,900 rows. `#search_index`
+therefore parses the reference a **second** time, with pubid (`#narrowing_id`),
+purely to supply that key — the same `index.search(pubid) { … }` call shape ISO,
+OIML and JCGM use. The *match* stays on `Id#==`, because pubid cannot parse the
+loose forms. Measured on the spec fixture: **24–42x** faster for a reference
+pubid accepts.
+
+Two cases make an **empty narrowed range** possible even though the document is
+in the index, so `#search_index` repeats the search over the whole index when
+the narrowed one comes back empty:
+
+1. **The two grammars disagree on the number.** `CCTF Recommendation 2009-02`
+   is year 2009 / number 2 to `Id`, and the literal number `2009-02` to pubid,
+   while the row keys on `2`. The reading is genuinely ambiguous — `NNNN-NN` is
+   a real BIPM number form elsewhere (`CIPM 2005-06`) — so this is not an
+   upstream bug to fix.
+2. **The index was built by a pubid that derived no `number`.** Today that is
+   every `metrologia-article` and `si-brochure` row (6206 of 7918 in the
+   fixture), which all key to `""`.
+
+The fallback costs one extra binary search and makes the narrowing **incapable
+of regressing a lookup** — worst case it is exactly the full scan this method
+did before. `spec/bipm/relaton/bipm/bibliography_spec.rb` covers all three paths
+(narrowed, fallback and pubid-rejected), distinguishing them by how many times
+`#search` is called rather than by the scanned-row count — an empty bucket
+contributes no scanned rows, so a fallback lookup scans exactly as many rows as
+an unnarrowed one.
+
+One hazard needs more than the empty-check to rule out: the fallback fires only
+on an **empty** narrowed range, so a query whose matches straddle two buckets
+would lose one silently. `Id#==` collapses number `"1"` and no number, and that
+is the same field the index buckets on. The specs settle this by assertion, not
+by argument — `#search_index` must return the same rows as the unconditional
+full scan, checked over every row that can straddle the `"1"`/`""` boundary and
+over a sample drawn across the index. They also re-parse all 1,706 numbered
+rows to guard the key derivation against drift.
+
+`#narrowing_id` returns nil for the ~8 loose forms pubid rejects, so those keep
+scanning the whole index. Widening `Pubid::Bipm` to accept them (meeting word
+order, French type names, the `CCDS` alias, two-letter language codes, the SI
+Brochure `Part`/`Appendix` suffix) is upstream work; once it lands, this flavor
+can drop `Id` from the query path and match `pubid_match?` like ISO does.
 
 ### Data Sources
 

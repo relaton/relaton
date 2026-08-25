@@ -324,4 +324,163 @@ RSpec.describe Relaton::Bipm::Bibliography do
     # JCGM retrieval moved to the dedicated `Relaton::Jcgm` flavor
     # (spec/jcgm/); the BIPM flavor no longer serves JCGM documents.
   end
+
+  # The index lookup narrows candidate rows by number before it applies the
+  # fuzzy `Id#==` block. `Relaton::Index::Type#search` binary-searches only when
+  # it is given an identifier, so a pubid is parsed purely to supply that key.
+  context "index narrowing" do
+    # Run a lookup without fetching the document, reporting both how many rows
+    # the fuzzy block saw and how many times `#search` was called. The call
+    # count is what distinguishes a narrowed lookup (one call) from one that
+    # narrowed, missed, and fell back (two calls) — the scanned count cannot,
+    # because an empty bucket contributes no rows at all.
+    def lookup(reference)
+      index = described_class.index
+      original = index.method(:search)
+      scanned = 0
+      calls = 0
+      allow(described_class).to receive(:index).and_return index
+      allow(index).to receive(:search) do |*args, &block|
+        calls += 1
+        original.call(*args) do |row|
+          scanned += 1
+          block.call row
+        end
+      end
+      rows = described_class.search_index reference, described_class.parse_ref(reference)
+      [rows, scanned, calls]
+    end
+
+    # The unconditional full scan this lookup did before the narrowing.
+    def full_scan(reference)
+      ref_id = described_class.parse_ref reference
+      described_class.index.search { |r| ref_id == described_class.id_hash(r[:id]) }
+    end
+
+    let(:index_size) { described_class.index.index.size }
+
+    context "#narrowing_id" do
+      it "returns the pubid for a reference the pubid grammar accepts" do
+        pubid = described_class.narrowing_id "CCTF Recommendation 2 (2009)"
+        expect(pubid).to be_a ::Pubid::Bipm::Identifiers::CommitteeDocument
+        expect(pubid.root.number.to_s).to eq "2"
+      end
+
+      it "returns nil for a loose form the pubid grammar rejects" do
+        expect(described_class.narrowing_id("CIPM 111e Réunion (2022)")).to be_nil
+      end
+
+      it "returns nil for an unparseable reference rather than raising" do
+        expect { described_class.narrowing_id "((( nonsense" }.not_to raise_error
+        expect(described_class.narrowing_id("((( nonsense")).to be_nil
+      end
+    end
+
+    context "#search_index" do
+      it "scans only the number bucket when pubid and the index agree" do
+        rows, scanned, calls = lookup "CCTF Recommendation 2 (2009)"
+        expect(rows.size).to eq 1
+        expect(rows.first[:file]).to eq "data/cctf/meeting/recommendation/2009-02.yaml"
+        expect(calls).to eq 1
+        expect(scanned).to be < index_size / 10
+      end
+
+      # `Id` reads `2009-02` as year 2009 / number 2; pubid reads it as the
+      # literal number `2009-02`. The narrowed bucket is empty, so only the
+      # full scan recovers the row.
+      it "falls back to the full scan when the narrowed bucket misses" do
+        rows, scanned, calls = lookup "CCTF Recommendation 2009-02"
+        expect(rows.size).to eq 1
+        expect(rows.first[:file]).to eq "data/cctf/meeting/recommendation/2009-02.yaml"
+        # Two calls: the narrowed one that found nothing, then the full scan.
+        # The bucket is empty, so it contributes no scanned rows of its own.
+        expect(calls).to eq 2
+        expect(scanned).to eq index_size
+      end
+
+      it "scans everything when the pubid grammar rejects the reference" do
+        rows, scanned, calls = lookup "CCDS Recommendation 2 (2009)"
+        expect(rows.size).to eq 1
+        expect(calls).to eq 1
+        expect(scanned).to eq index_size
+      end
+
+      it "still resolves a number-less committee document" do
+        rows, = lookup "CIPM Resolution (1879)"
+        expect(rows.size).to eq 1
+        expect(rows.first[:file]).to eq "data/cipm/meeting/resolution/1879-00.yaml"
+      end
+
+      it "still resolves a Metrologia article" do
+        rows, = lookup "Metrologia 29 6 373"
+        expect(rows.size).to eq 1
+      end
+
+      it "returns no rows for a reference that is not in the index" do
+        rows, = lookup "Metrologia 34 3 999"
+        expect(rows).to be_empty
+      end
+    end
+
+    # The fallback fires only on an EMPTY narrowed range. A query whose matches
+    # straddle two buckets would therefore lose one silently, without ever
+    # falling back. `Id#==` collapses number "1" and no number when a year is
+    # present, and that is the same field the index buckets on, so the two
+    # can in principle disagree.
+    #
+    # These two examples settle it by assertion rather than by argument: the
+    # rows `#search_index` returns must equal the rows the unconditional full
+    # scan returns, for every reference checked.
+    context "equivalence with the full scan" do
+      # Every reference that can straddle the "1"/"" boundary: the rows with no
+      # number, and every row numbered "1".
+      it "agrees on every reference that could straddle two buckets" do
+        rows = described_class.index.index.select do |row|
+          number = described_class.id_hash(row[:id])[:number]
+          number.nil? || number.to_s == "1"
+        end
+        expect(rows.size).to be > 50
+        expect(mismatches(rows)).to eq []
+      end
+
+      it "agrees on a sample drawn from across the index" do
+        rows = described_class.index.index.each_slice(60).map(&:first)
+        expect(rows.size).to be > 100
+        expect(mismatches(rows)).to eq []
+      end
+
+      # Query the index by each row's own rendered identifier and report the
+      # rows where narrowing changed the result.
+      def mismatches(rows)
+        rows.filter_map do |row|
+          reference = row[:id].to_s
+          narrowed = described_class.search_index reference, described_class.parse_ref(reference)
+          full = full_scan reference
+          next if narrowed.map { |r| r[:file] }.sort == full.map { |r| r[:file] }.sort
+
+          reference
+        rescue Relaton::RequestError
+          nil # `Id` cannot parse this row's rendering; no lookup is possible
+        end
+      end
+    end
+
+    # Guards the derivation against drift: the key pubid derives from a query
+    # must equal the key the index sorted the row under. Only the two families
+    # whose rows carry a number can be checked today; Metrologia and SI
+    # Brochure rows key to "" until pubid derives a number for them.
+    it "derives the same key from a query as the index stored for the row" do
+      families = [::Pubid::Bipm::Identifiers::CommitteeDocument,
+                  ::Pubid::Bipm::Identifiers::Meeting]
+      rows = described_class.index.index.select do |row|
+        families.any? { |f| row[:id].is_a? f } && !row[:id].number.to_s.empty?
+      end
+      expect(rows.size).to be > 1_500
+      mismatched = rows.reject do |row|
+        pubid = described_class.narrowing_id row[:id].to_s
+        pubid && pubid.root.number.to_s == row[:id].root.number.to_s
+      end
+      expect(mismatched.map { |r| r[:file] }).to eq []
+    end
+  end
 end
