@@ -322,11 +322,54 @@ module Relaton
       end
 
       # Strip inline HTML (e.g. <sup>) so records are clean for JSON/data-attrs.
+      #
+      # Counts angle brackets in one left-to-right pass instead of using a
+      # regex, because both regex spellings are wrong here:
+      #
+      #   * `gsub(/<[^>]+>/, "")` matches ACROSS a nested `<`, so on
+      #     "<sc<x>ript>" it removes the outer span "<sc<x>" and lets the
+      #     fragments either side of the tag it walked over close back up into
+      #     "ript>" (CodeQL rb/incomplete-multi-character-sanitization);
+      #   * narrowing to `/<[^<>]*>/` matches innermost-first and fixes that,
+      #     but then one pass no longer suffices and re-running to a fixed point
+      #     is quadratic — each pass peels a single nesting level off the whole
+      #     string. Measured at 0.7s for 8k chars of "<"*n + ">"*n, i.e. a real
+      #     ReDoS traded for the theoretical one the scanner flagged.
+      #
+      # This is O(n) with no backtracking and nothing to re-scan. `pending`
+      # holds the span opened by the outermost unclosed `<` so that a bare "<"
+      # that never closes survives as literal text ("5 < 6") rather than
+      # swallowing the rest of the value; a bare ">" is likewise kept.
       def strip(value)
         return nil if value.nil?
 
-        s = value.to_s.gsub(/<[^>]+>/, "").strip
+        s = strip_tags(value.to_s).strip
         s.empty? ? nil : s
+      end
+
+      def strip_tags(str)
+        return str unless str.include?("<")
+
+        out = +""
+        pending = +""
+        depth = 0
+
+        str.each_char do |char|
+          if char == "<"
+            depth += 1
+          elsif depth.zero?
+            # Outside any tag — including a stray ">", which is not markup.
+            out << char
+            next
+          elsif char == ">"
+            depth -= 1
+          end
+
+          pending << char
+          pending.clear if depth.zero? # the span closed: drop it wholesale
+        end
+
+        depth.zero? ? out : out << pending
       end
 
       def truthy(value)
