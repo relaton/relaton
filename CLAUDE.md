@@ -271,6 +271,49 @@ command ships a compiled Vue+Tailwind bundle built from `gems/relaton-cli/fronte
 is absent the gem builds without the bundle and `relaton index` raises
 `FrontendAssets::BuildMissingError`. See `gems/relaton-cli/CLAUDE.md`.
 
+## Security scanning (CodeQL)
+
+CodeQL runs here as GitHub **default setup** — there is no `codeql.yml` in
+`.github/workflows/` and no in-repo config file, so scan scope and path filters
+cannot be changed from a commit. Triage happens on the alert, not in the tree.
+Three standing categories, so nobody re-derives them:
+
+- **`rb/polynomial-redos` — dismiss `won't fix`, don't rewrite.** 19 are dismissed
+  on that rule with a consistent rationale: these are flavor-parser regexes that
+  run on parsed IDs and scraped fields, not attacker input. The rule is also
+  **not reproducible against Onigmo**: its required-literal search prunes exactly
+  the backtracking the rule models, so a pattern like `/\s*\(.*\z/m` or
+  `/<[^>]+>/` measures flat-linear (≤5 ms) at 10k/20k/40k chars on every
+  adversarial shape — a long whitespace run with no `(`, a `(` preceding one, a
+  long `<` run with and without a `>`. **Measure before acting on a new one**; a
+  rewrite that can't be backed by a failing test is churn. Broader ReDoS
+  hardening is tracked separately against main.
+- **`js/*` alerts are spec fixtures, not our code.** All of them
+  (`js/xss-through-dom`, `js/xss`, `js/functionality-from-untrusted-*`,
+  `js/overly-large-range`) sit in `spec/*/fixtures/*.html` and
+  `gems/relaton-cli/spec/assets/` — recorded upstream pages, replayed by VCR.
+  Editing one to quiet a scanner would corrupt a fixture; see the cassette rules
+  under **Testing**.
+- **Workflow alerts on the `relaton-data-*` repos are not ours.** Those
+  `deploy.yml`/`crawler.yml`/`check_data.yml` files are Cimas-generated from
+  `relaton/support/cimas-config/gh-actions/`; a fix committed in a data repo is
+  reverted by the next `cimas sync`. This repo's own `rake.yml` and `release.yml`
+  already carry explicit `permissions:` blocks with a note saying so — **keep
+  them**; removing one reopens `actions/missing-workflow-permissions`.
+
+The one alert of this batch that was a real (if unexploited) defect is
+`IndexItemNormalizer#strip_tags` in relaton-cli, and its history is the caution
+worth keeping: stripping with `gsub(/<[^>]+>/, "")` let a match span a nested
+`<`, so `<sc<x>ript>` lost the outer span and the fragments either side closed
+back up into `ript>`. Narrowing to `/<[^<>]*>/` matches innermost-first and fixes
+that, but then a single pass no longer suffices, and **re-running that gsub to a
+fixed point is quadratic** — one nesting level peeled per pass over the whole
+string, measured at 0.7 s for 8k chars. That trade — a real ReDoS accepted to
+close a theoretical one — is the trap. It is now a single left-to-right
+bracket-counting pass: linear, no backtracking, and byte-identical to the old
+regex on well-formed input (verified over 200k generated values). Don't put the
+regex back.
+
 ## Conventions to keep
 
 - **Per-flavor docs.** Each flavor keeps its own `lib/relaton/<flavor>/CLAUDE.md`
