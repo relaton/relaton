@@ -14,15 +14,10 @@ require_relative "ietf/bibliography"
 
 module Relaton
   module Ietf
-    # The index the flavor still *reads*: three plain-string `index-v1` files,
-    # one per data repo (see Scraper and Processor#remove_index_file). Nothing
-    # in this gem writes it any more.
-    INDEXFILE = "index-v1".freeze
-    # The pubid-structured index `DataFetcher` *writes* (relaton#109). Kept as a
-    # second constant rather than bumping INDEXFILE, because producer and
-    # consumer migrate separately: the consumer cannot move until an index-v2 is
-    # actually published.
-    INDEXFILE_V2 = "index-v2".freeze
+    # The pubid-structured index, written by DataFetcher and read by Scraper
+    # (relaton#109). One constant again now that both sides are on it — the
+    # second one existed only while producer and consumer were split.
+    INDEXFILE = "index-v2".freeze
     # Returns hash of XML reammar
     # @return [String]
     def self.grammar_hash

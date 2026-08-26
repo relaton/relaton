@@ -78,13 +78,23 @@ RSpec.describe Relaton::Ietf::Processor do
   end
 
   describe "#remove_index_file" do
-    it "removes index files for RFC, RSS, and IDS" do
+    # One cached index, not three: the flavor reads the combined
+    # relaton-data-ietf `index-v2` covering every stream.
+    it "removes the cached combined index" do
+      idx = double("index_IETF")
+      expect(idx).to receive(:remove_file)
+      expect(Relaton::Index).to receive(:find_or_create)
+        .with(:IETF, url: true, file: "index-v2.yaml").and_return(idx)
+
+      # ...and the three caches a previously released relaton left behind,
+      # which nothing writes now and `relaton clear` could not otherwise reach.
       %i[RFC RSS IDS].each do |type|
-        idx = double("index_#{type}")
-        expect(idx).to receive(:remove_file)
+        legacy = double("index_#{type}")
+        expect(legacy).to receive(:remove_file)
         expect(Relaton::Index).to receive(:find_or_create)
-          .with(type, url: true, file: "index-v1.yaml").and_return(idx)
+          .with(type, url: true, file: "index-v1.yaml").and_return(legacy)
       end
+
       subject.remove_index_file
     end
   end

@@ -34,9 +34,17 @@ module Relaton
       # `_type:` hash only when it is an instance of the configured class, so
       # without it — or without parsing the id below — this writes a v1-shaped
       # file under a v2 name.
+      # `url: nil` is load-bearing, not decoration. Scraper opens the same
+      # `:IETF` pool key with a `url:`, and `Type#actual?` skips the URL check
+      # when the caller omits it (`!args.key?(:url)`) — so in a process where a
+      # lookup ran first, omitting it here would hand the crawl the
+      # remote-backed Type and `save` would write to `~/.relaton/ietf/` instead
+      # of `./`, publishing no index at all. Passing it explicitly forces a
+      # local-file Type.
       def index
         @index ||= Relaton::Index.find_or_create(
-          :IETF, file: "#{INDEXFILE_V2}.yaml", pubid_class: ::Pubid::Ietf::Identifier
+          :IETF, url: nil, file: "#{INDEXFILE}.yaml",
+                 pubid_class: ::Pubid::Ietf::Identifier
         )
       end
 

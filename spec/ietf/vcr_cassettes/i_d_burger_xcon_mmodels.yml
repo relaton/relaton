@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-ids/refs/heads/v2/data/draft-burger-xcon-mmodels-00.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ietf/main/data/draft-burger-xcon-mmodels-00.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -41,23 +41,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - E2BA:B2960:2324E6:3254EF:6A8917E7
+      - 62F8:4DA96:7BE9AB:8CF060:6A8F0864
       X-Github-Edge-Region:
       - iad
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 22 Aug 2026 03:30:48 GMT
+      - Wed, 26 Aug 2026 15:38:13 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-pdk-kpdk2140052-PDK
+      - cache-pdk-kpdk2140061-PDK
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1787369448.271988,VS0,VE190
+      - S1787758693.372416,VS0,VE354
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -65,9 +65,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - f72ac19835be09057815d2b84c4eb209203ef50e
+      - 8bcd3ded50672f4d4560ddfcaba730c19b580d3b
       Expires:
-      - Sat, 22 Aug 2026 03:35:48 GMT
+      - Wed, 26 Aug 2026 15:43:13 GMT
       Source-Age:
       - '0'
     body:
@@ -109,5 +109,5 @@ http_interactions:
         OiBkcmFmdC1idXJnZXIteGNvbi1tbW9kZWxzLTAwCmV4dDoKICBzY2hlbWFf
         dmVyc2lvbjogdjEuMS4yCiAgZG9jdHlwZToKICAgIGNvbnRlbnQ6IGludGVy
         bmV0LWRyYWZ0CiAgZmxhdm9yOiBpZXRmCg==
-  recorded_at: Sat, 22 Aug 2026 03:30:48 GMT
+  recorded_at: Wed, 26 Aug 2026 15:38:13 GMT
 recorded_with: VCR 6.4.0

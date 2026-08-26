@@ -59,9 +59,13 @@ module Relaton
       #
       def remove_index_file
         require_relative "../ietf"
-        Relaton::Index.find_or_create(:RFC, url: true, file: "#{INDEXFILE}.yaml").remove_file
-        Relaton::Index.find_or_create(:RSS, url: true, file: "#{INDEXFILE}.yaml").remove_file
-        Relaton::Index.find_or_create(:IDS, url: true, file: "#{INDEXFILE}.yaml").remove_file
+        Relaton::Index.find_or_create(:IETF, url: true, file: "#{INDEXFILE}.yaml").remove_file
+        # Also clear the three per-type caches a previously released relaton
+        # left in ~/.relaton; nothing writes them now, so without this they
+        # would sit there forever, unreachable by `relaton clear`.
+        %i[RFC RSS IDS].each do |type|
+          Relaton::Index.find_or_create(type, url: true, file: "index-v1.yaml").remove_file
+        end
       end
     end
   end

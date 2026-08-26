@@ -36,7 +36,7 @@ Converter classes use `Bib::NamespaceHelper` which resolves `namespace` by takin
 
 ### Key Flows
 
-1. **Single document lookup**: `Processor#get` → `Bibliography.get(code)` → `Scraper.scrape_page` → fetches YAML from GitHub data repos (`relaton-data-rfcs`, `relaton-data-ids`, `relaton-data-rfcsubseries`) via `relaton-index`
+1. **Single document lookup**: `Processor#get` → `Bibliography.get(code)` → `Scraper.scrape_page` → parses the reference with `Pubid::Ietf` → searches the one combined `index-v2` from `relaton-data-ietf` → fetches that row's YAML
 
 2. **Bulk data fetching**: `DataFetcher` extends `Relaton::Core::DataFetcher` with three datasets:
    - `ietf-rfcsubseries` / `ietf-rfc-entries`: parse `rfc-index.xml` via `Rfc::Index` / `Rfc::Entry#to_item`
@@ -59,55 +59,65 @@ Bib::Converter::BibXml::FromRfcxml    # base: handles <reference> generically
 
 `FromRfc` must override all methods that access `@reference.anchor`, `@reference.target`, `@reference.format`, or `@reference.series_info` since `Rfcxml::V3::Rfc` lacks these attributes (unlike `Rfcxml::V3::Reference`).
 
-## Unified index (relaton#109) — producer done, consumer outstanding
+## Unified index (relaton#109)
 
-The producer and the consumer are on **different index generations**, on purpose:
-`DataFetcher` now writes the pubid `index-v2`, while `Scraper` still reads three
-plain-string `index-v1` files — `:RFC`, `:RSS`, `:IDS` in `scraper.rb:9-11,40-56`,
-one per data repo, branch `v2`. The consumer cannot move until an `index-v2` is
-actually published somewhere.
+Producer and consumer are both on the pubid `index-v2` now. `DataFetcher` writes
+it; `Scraper` reads one combined index from `relaton-data-ietf` — replacing the
+three per-type `index-v1` files (`:RFC`/`:RSS`/`:IDS`) it used to read from
+`relaton-data-{rfcs,rfcsubseries,ids}`. Those three keep publishing `index-v1`
+untouched, for released relatons.
 
-relaton#109 collapses those three into one `relaton/relaton-data-ietf` index.
+`INDEXFILE` is a single constant again (`index-v2`); the `INDEXFILE_V2` that
+existed while the two halves were split is gone.
 
-Decisions taken (2026-08-18 … 2026-08-22):
+Decisions taken (2026-08-18 ... 2026-08-24):
 
 | | |
 |---|---|
-| Index structure | **unchanged** — `:id` + `:file` only. No `docids[]`, no summary fields; a third key invalidates the whole index for every released gem |
-| `:id` shape | structured pubid hash (`Pubid::Ietf::Identifier#to_hash`), i.e. `index-v2` |
-| Row per record | keyed by the record's **primary** docidentifier. A sub-series id resolves to its own container record, *not* to a constituent RFC — 42 of 365 sub-series include more than one RFC, so there is no single document to alias to; consumers follow `relation: includes` |
-| DOI ids | omitted — not `pubid:ietf`-representable, and one unparseable row kills the index. Unchanged from today; DOIs are served by the `doi` flavor |
-| Who builds it | `DataFetcher`, during the crawl — not a separate pass over the written records, which would be a second answer to "what is this record's id" and could drift from the fetcher's |
+| Index structure | **unchanged** - `:id` + `:file` only. No `docids[]`, no summary fields; a third key invalidates the whole index for every released gem |
+| `:id` shape | structured pubid hash (`Pubid::Ietf::Identifier#to_hash`) |
+| Row per record | keyed by the record's **primary** docidentifier. A sub-series id resolves to its own container record, *not* to a constituent RFC - 42 of 365 sub-series include more than one RFC; consumers follow `relation: includes` |
+| DOI ids | omitted - not `pubid:ietf`-representable, and one unparseable row kills the index. DOIs are served by the `doi` flavor |
+| Who builds it | `DataFetcher`, during the crawl - not a separate pass over the written records, which would be a second answer to "what is this record's id" |
 | Three type repos | untouched: they pin `relaton/relaton-ietf`, not this monorepo, so they keep emitting `index-v1` |
 
-**The pubid prerequisites are done** (landed 2026-08-20; the asks are recorded in
-`/work/HANDOFFS/metanorma__pubid__ietf-index-readiness.md`). Three gaps that each
-would have made a `pubid:ietf` index unusable: 50 draft ids didn't parse (the
-grammar admitted neither `.` nor uppercase in a slug); the zero-padded `STD0066`
-that rfc-index `<is-also>` emits didn't parse, and normalising it here would be
-the string surgery #109 forbids; and `InternetDraft` had no `number`, keying every
-draft row to `""` in the index bsearch.
+**Resolved 2026-08-26.** `relaton-data-ietf`'s RFC and sub-series records were
+schema-invalid — missing `ext.doctype`, and RFC committee organizations carrying
+`subdivision` with no `name` — because that repo converted the `ietf-tools`
+v1.2.3 mirrors rather than crawling. It now runs `Relaton::Ietf::DataFetcher`
+directly, which synthesises `doctype`, `status`, `stream`, the organization names
+and the resolved WG titles. The two `pending` examples in `ietf_spec.rb` reported
+`FIXED` on the first run against the new corpus and have been removed.
 
-Verified against the full published corpus: **176,862 identifiers, 0 parse
-failures, 0 round-trip failures**; `STD0066` → `STD 66`; draft keys are the
-versionless slug, 43,564 buckets, mean 3.83, max 101, none under `""`.
-`relaton.gemspec` still pins `pubid ~> 2.0.0.pre.alpha.8` and the `Gemfile`
-git-pins `main`, so the IETF work depends on that pin like jcgm/bipm/etsi/cie/itu/
-ieee do.
+Two consequences of that migration to know about: record filenames are now
+lowercase *and* unpadded (`data/RFC8341.yaml` -> `data/rfc8341.yaml`,
+`data/STD0066.yaml` -> `data/std66.yaml`), since `output_file` derives them from
+the docnumber; and the record content changed enough that the three XML fixtures
+had to be regenerated.
 
-**The producer half is not sufficient on its own.** `Scraper` currently queries
-with raw strings (`index.search(ref)`), and `Type#search_candidates` narrows only
-for non-String queries — so switching the index to `pubid_class:` while the
-consumer still passes strings makes every lookup scan the full ~177k rows *and*
-render a pubid per row via `match_item`'s `item[:id].to_s.include?(id)`, which is
-slower than today's plain-string index. Passing parsed `Pubid::Ietf::Identifier`
-objects is part of the same change, not a follow-up — and it is also what makes
-the `number` fix above matter.
+### The consumer: `Scraper` queries with parsed identifiers
 
-`spec/ietf/relaton/ietf/pubid_contract_spec.rb` pins all of it as a standing
-regression guard — every id in it is a shape pubid got wrong at least once, and
-`FileIO#id_supported?` skips its round-trip check for subclassed ids, so relaton
-never validates this on its own.
+```ruby
+Relaton::Index.find_or_create(
+  :IETF, url: "#{IETF}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
+         pubid_class: ::Pubid::Ietf::Identifier
+)
+```
+
+`parse_id` turns the reference into a `Pubid::Ietf::Identifier` before searching,
+and **that is not cosmetic**: `Type#search_candidates` narrows only for non-String
+queries, so a String falls into `match_item`'s `item[:id].to_s.include?(id)`, which
+renders every pubid in the index on every lookup. Measured against the live
+177k-row index: **~43 s per reference with a String, sub-millisecond with a parsed
+id.** A String query also returns *nothing* if `pubid_class:` is omitted, since the
+rows would then be raw hashes.
+
+`parse_id` also normalises the Internet-Draft spellings - `I-D.<slug>` and
+`I-D <slug>` - onto the `draft-...` form, adding the `draft-` stem when absent
+(`I-D.ietf-quic-transport`, the bibxml anchor and the `docnumber` records carry).
+The old plain-string index matched that by substring; matching is exact now.
+A reference pubid cannot parse returns nil, so `Bibliography.get "CN 8341"` logs
+"Not found." rather than raising.
 
 ### The producer: `DataFetcher` writes `index-v2`
 
@@ -117,7 +127,7 @@ holds for each record — `record_index_entry` parses the primary docidentifier 
 
 ```ruby
 Relaton::Index.find_or_create(
-  :IETF, file: "#{INDEXFILE_V2}.yaml", pubid_class: ::Pubid::Ietf::Identifier
+  :IETF, file: "#{INDEXFILE}.yaml", pubid_class: ::Pubid::Ietf::Identifier
 )
 ```
 
@@ -156,11 +166,9 @@ dual-write and no cutover window.
 
 ### Still outstanding
 
-The consumer switch, in one change: `pubid_class:` on `Scraper`'s indexes,
-querying with parsed identifiers rather than strings, and collapsing the three
-indexes into one. It cannot ship until an `index-v2` is published — all three type
-repos still serve only `index-v1`. The data-repo side is specified in
-`/work/HANDOFFS/relaton__relaton-data-ietf__unified-index-aggregator.md`.
+Retiring `relaton-data-{rfcs,rfcsubseries,ids}`'s `index-v1` files, and their
+`data-index/configs.yml` rows, waits until a relaton carrying this change has
+shipped — see `/work/HANDOFFS/relaton__support__ietf-index-config-and-cron.md`.
 
 ## Thin records inherit from their constituents
 
@@ -272,7 +280,7 @@ and the affected files come through with their real characters —
 
 ## Testing Patterns
 
-- **Index fixtures:** `spec/ietf/fixtures/{rfc,rss,ids}-index-v1.zip` — one per data repo — are pre-loaded into the `Relaton::Index` pool as types `:RFC`, `:RSS`, `:IDS` in `before(:suite)` (configured in `spec/ietf/support/webmock.rb`); `spec/ietf/support/vcr.rb` ignores any request whose path ends `index-v1.zip`. They are near-complete older snapshots, not curated subsets (the ids one holds 158,717 of the 166,916 published rows), so refreshing means re-copying the published `index-v1.zip` of relaton-data-rfcs/rfcsubseries/ids wholesale. There is **no** `rake spec:update_index` task in this repo.
+- **Index fixture:** `spec/ietf/fixtures/ietf-index-v2.zip` - the combined index, copied **wholesale** from `relaton-data-ietf` rather than curated, since a subset goes stale and surfaces as a 404 on the document fetch. `spec/ietf/support/webmock.rb` deserialises it into pubid ids, sorts by the narrowing key, sets `sorted = true` (without which every lookup is a ~40 s scan) and pre-loads it into the pool as `:IETF` in `before(:suite)`; `spec/ietf/support/vcr.rb` ignores requests ending `index-v2.zip`. Refresh by re-downloading that zip. There is **no** `rake spec:update_index` task in this repo.
 - **VCR cassettes** in `spec/ietf/vcr_cassettes/` record HTTP interactions; tests use `vcr: "cassette_name"` metadata
 - **WebMock** disables net connections by default
 - **Fixtures** in `spec/ietf/fixtures/` — XML/YAML expected outputs; many tests auto-generate fixtures on first run (`File.write file, xml unless File.exist? file`)

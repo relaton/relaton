@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://raw.githubusercontent.com/relaton/relaton-data-ids/refs/heads/v2/data/draft-ietf-calext-eventpub-extensions-15.yaml
+    uri: https://raw.githubusercontent.com/relaton/relaton-data-ietf/main/data/draft-ietf-calext-eventpub-extensions-15.yaml
     body:
       encoding: US-ASCII
       base64_string: ''
@@ -41,23 +41,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 8D9A:1A337:21889C:30B8BD:6A8917E9
+      - 5514:4DA96:7BEAB4:8CF186:6A8F0866
       X-Github-Edge-Region:
       - iad
       Accept-Ranges:
       - bytes
       Date:
-      - Sat, 22 Aug 2026 03:30:49 GMT
+      - Wed, 26 Aug 2026 15:38:14 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-pdk-kfty8610056-PDK
+      - cache-iad-khef600089-IAD
       X-Cache:
       - MISS
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1787369450.671344,VS0,VE72
+      - S1787758694.295726,VS0,VE269
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -65,9 +65,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 27f6728fbda22a98f466c00ce46c02c5c159c36f
+      - 974f7ebee27a094b1485731082d37f83d13a2374
       Expires:
-      - Sat, 22 Aug 2026 03:35:49 GMT
+      - Wed, 26 Aug 2026 15:43:14 GMT
       Source-Age:
       - '0'
     body:
@@ -129,5 +129,5 @@ http_interactions:
         IG51bWJlcjogZHJhZnQtaWV0Zi1jYWxleHQtZXZlbnRwdWItZXh0ZW5zaW9u
         cy0xNQpleHQ6CiAgc2NoZW1hX3ZlcnNpb246IHYxLjEuMgogIGRvY3R5cGU6
         CiAgICBjb250ZW50OiBpbnRlcm5ldC1kcmFmdAogIGZsYXZvcjogaWV0Zgo=
-  recorded_at: Sat, 22 Aug 2026 03:30:49 GMT
+  recorded_at: Wed, 26 Aug 2026 15:38:14 GMT
 recorded_with: VCR 6.4.0
