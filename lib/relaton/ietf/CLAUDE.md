@@ -170,6 +170,69 @@ Retiring `relaton-data-{rfcs,rfcsubseries,ids}`'s `index-v1` files, and their
 `data-index/configs.yml` rows, waits until a relaton carrying this change has
 shipped — see `/work/HANDOFFS/relaton__support__ietf-index-config-and-cron.md`.
 
+## Filename collisions: workers write, the parent settles the names
+
+`Core::DataFetcher#output_file` sanitizes `.`, `,`, `/`, `:`, `(`, `)`, `-` and
+whitespace all to `-`, so two **distinct** docids can want one path. This flavor
+is the only one that writes from forked processes, so it is the only one where
+that could destroy a record without a word.
+
+It did. In the first production crawl of `relaton-data-ietf`,
+`data/draft-ietf-6man-hbh-processing.yaml` — the aggregator for a draft with 21
+versions — was written and then overwritten by a singleton built from the
+malformed sibling id `draft-ietf-6man-hbh-processing-`, which sanitizes to the
+same name. The published corpus came out 177,362 index rows over 177,361 files,
+and nothing in the log said so. Exactly one such group exists in that corpus;
+the mechanism, not the blast radius, is the problem.
+
+Three pieces close it, and all three are load-bearing:
+
+1. **`@cross_process = true`, set in `fetch_ieft_internet_drafts` before the
+   first `parallelize`** so the forked children inherit it. It tells
+   `Core::DataFetcher#write_unique` that an existing file may belong to a peer
+   and must never be overwritten.
+2. **`serialize_and_write` writes through `write_unique`** and reports two extra
+   keys: `docid` (the id the file was written under) and `plain_file` (the name
+   it would have taken uncontested). `docid` is **not** `index_id` — `id` falls
+   back through `docnumber` and `formattedref`, so on the RFC path the two
+   differ (`RFC0001` vs `RFC 1`, i.e. stems `rfc0001` and `rfc-1`). Keying the
+   reconciliation on `index_id` renames records to the wrong names.
+3. **`reconcile_output_files`, in the parent, before `record_index_entry`.** A
+   worker only learns that a path was taken, never which clashing docid deserves
+   it, so left alone the winner would follow the race and the two filenames would
+   swap between crawls. The parent sees every docid, so it decides: within a
+   group of records that wanted one path, the alphabetically first docid keeps
+   it and the rest take their digest variant.
+
+Details of (3) that are easy to get wrong:
+
+- It runs over **every** group, not just clashing ones. A lone record that fell
+  back to a digest path must get its plain name back, or the published filename
+  churns and the old file is orphaned. `next if r[:file] == target` makes that
+  free for ~100% of records.
+- **Losers move first.** A loser may be sitting *on* the plain path; moving the
+  winner there first would destroy it.
+- Two results for the **same** docid are collapsed, not split: the stray file is
+  deleted and one warning is emitted, which is what the crawl did before. The
+  stray may already be **gone** — the fallback name is keyed on the docid, so two
+  workers that both lost the race to the plain path land on one name and the
+  first of them renames it onto the target. The result must follow the document
+  to the target anyway, or the index gets a row pointing at nothing.
+- Sorting *unique docids* leaves no tie for Ruby's unstable `sort_by` to resolve
+  differently between runs.
+- A failed rename warns and carries on. A multi-hour crawl must not die at the
+  last step.
+
+`report_collisions` restates the total once at the end of the crawl, beside
+`report_unparsed` and `report_unindexed` — one line for a crawl that writes
+~177k records.
+
+The sequential paths (`fetch_ieft_rfcsubseries`, `fetch_ieft_rfcs`) get no
+reconciliation pass and need none: one process, so `unique_output_file` is
+already deterministic there. They do now emit a digest filename for a genuine
+cross-docid collision instead of overwriting, which follows `rfc-index`
+iteration order — stable for a given input.
+
 ## Thin records inherit from their constituents
 
 Two builders produce records for documents that have **no upstream source of
