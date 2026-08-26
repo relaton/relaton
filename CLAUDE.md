@@ -230,6 +230,24 @@ suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
   `data/ieee-p802-16-d5-cor-1-2005.yaml` *and* its base id went from
   `_type: pubid:ieee:standard` (with `year`, `prefix: P`) to
   `_type: pubid:ieee:project-draft-identifier` (with `type: P`, no year).
+- **A cassette refresh is only half the reconciliation — the expected-XML fixtures
+  go with it.** Many specs compare `to_xml` against a committed
+  `spec/<flavor>/fixtures/*.xml`. Re-recording the cassette changes what the code
+  produces, so that fixture must be regenerated in the same commit. Commit
+  `5ae4c1b5` refreshed 16 ITU cassettes as *"Date and CDN-header churn only"*, but
+  two carried real content — ITU delisted `G Suppl. 58`/`92` and published
+  `93`/`94`, and the `relaton-data-itu` re-crawl gave `ITU-R BO.600-1` a
+  `<uri type="pdf">` and the correct `1986-07-01` date. The fixtures stayed at
+  their old content, and `main` went red. **Diagnostic:** if a cassette's diff is
+  thousands of lines or its `content-length` moves, it is not header churn — check
+  the fixture. To regenerate, delete the fixture and re-run the example, then
+  justify every hunk against the cassette payload before keeping it.
+- **`File.write file, xml unless File.exist? file` is a self-healing trap.** That
+  idiom (e.g. `spec/itu/relaton/itu_spec.rb:127`, `:196`) is how a fixture is
+  regenerated, but it also means a *deleted* fixture is silently recreated from
+  whatever the current cassette says, and the example then always passes. It has
+  stopped being an independent check. Never delete a fixture to "fix" a red spec —
+  delete it only to regenerate deliberately, and read the resulting diff.
 - **The one thing that is not upstream drift: a recorded transport failure.** A
   cassette that captured a 429/5xx (typically an empty body) recorded no data at
   all, so there is nothing to reconcile — re-record it cleanly. `rake spec` runs
