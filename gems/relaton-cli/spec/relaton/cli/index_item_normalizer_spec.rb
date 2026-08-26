@@ -42,6 +42,39 @@ RSpec.describe Relaton::Cli::IndexItemNormalizer do
     expect(described_class.normalize(doc)["id"]).to eq("ID 1")
   end
 
+  # CodeQL rb/incomplete-multi-character-sanitization (alert 49). The old
+  # `/<[^>]+>/` matched across a nested `<`, so it removed the OUTER span and left
+  # the inner fragments to close up into a tag it had just walked past.
+  # `[^<>]` stops a match at the next `<`, which means the inner tag goes first —
+  # and that in turn is what makes a single pass insufficient, hence the loop.
+  it "strips a tag that only forms once an inner tag is removed" do
+    doc = { "title" => [{ "language" => "en", "content" => "<sc<x>ript>keep" }] }
+    expect(described_class.normalize(doc)["title"]).to eq("keep")
+  end
+
+  it "strips arbitrarily nested tags rather than one layer" do
+    doc = { "title" => [{ "language" => "en", "content" => "a<<b>>c" }] }
+    expect(described_class.normalize(doc)["title"]).to eq("ac")
+  end
+
+  it "leaves an unclosed angle bracket as literal text" do
+    # No `>` follows, so there is no tag to strip and the value is not HTML.
+    doc = { "title" => [{ "language" => "en", "content" => "5 < 6" }] }
+    expect(described_class.normalize(doc)["title"]).to eq("5 < 6")
+  end
+
+  # Guards against re-spelling strip_tags as a regex re-run to a fixed point.
+  # That form is quadratic — one nesting level peeled per pass over the whole
+  # string — and took ~0.7s at 8k chars, so 20k levels would run for minutes.
+  # The linear scan does this in ~0.03s; the budget is deliberately 60x that so
+  # the example is about complexity class, not machine speed.
+  it "strips deeply nested markup in linear time" do
+    deep = "#{'<' * 20_000}#{'>' * 20_000}"
+    started = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    expect(described_class.strip_tags(deep)).to eq("")
+    expect(Process.clock_gettime(Process::CLOCK_MONOTONIC) - started).to be < 2
+  end
+
   it "falls back to docnumber then id when no docidentifier" do
     expect(described_class.normalize({ "docnumber" => "DN 5" })["id"]).to eq("DN 5")
     expect(described_class.normalize({ "id" => "RAW9" })["id"]).to eq("RAW9")

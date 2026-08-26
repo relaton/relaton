@@ -142,8 +142,8 @@ RSpec.describe Relaton::Ietf::DataFetcher do
         allow(bib0).to receive(:version=)
         allow(bib1).to receive(:version=)
         allow(Relaton::Bib::Version).to receive(:new).and_return(:ver)
-        expect(File).to receive(:read).with("p0", encoding: "UTF-8").and_return("x0")
-        expect(File).to receive(:read).with("p1", encoding: "UTF-8").and_return("x1")
+        expect(subject).to receive(:read_bibxml).with("p0").and_return("x0")
+        expect(subject).to receive(:read_bibxml).with("p1").and_return("x1")
         expect(Relaton::Ietf::BibXMLParser).to receive(:parse).with("x0").and_return(bib0)
         expect(Relaton::Ietf::BibXMLParser).to receive(:parse).with("x1").and_return(bib1)
 
@@ -168,7 +168,7 @@ RSpec.describe Relaton::Ietf::DataFetcher do
         bib = double("bib", source: [])
         allow(bib).to receive(:version=)
         allow(Relaton::Bib::Version).to receive(:new).and_return(:ver)
-        expect(File).to receive(:read).and_return("x")
+        expect(bibxml_subject).to receive(:read_bibxml).and_return("x")
         expect(Relaton::Ietf::BibXMLParser).to receive(:parse).and_return(bib)
         expect(bibxml_subject).not_to receive(:link_neighbor_relations)
         expect(bibxml_subject).not_to receive(:build_unversioned_doc)
@@ -184,7 +184,7 @@ RSpec.describe Relaton::Ietf::DataFetcher do
         bib = double("bib", source: [])
         allow(bib).to receive(:version=)
         allow(Relaton::Bib::Version).to receive(:new).and_return(:ver)
-        expect(File).to receive(:read).and_return("x")
+        expect(subject).to receive(:read_bibxml).and_return("x")
         expect(Relaton::Ietf::BibXMLParser).to receive(:parse).and_return(bib)
         allow(subject).to receive(:link_neighbor_relations)
         expect(subject).to receive(:serialize_and_write).with(bib).and_return(:r0)
@@ -196,13 +196,125 @@ RSpec.describe Relaton::Ietf::DataFetcher do
       end
     end
 
+    # bibxml files declare encoding='UTF-8' but 125 of the ~122k in the published
+    # corpus carry Windows-1252 bytes — smart quotes and accented Latin letters.
+    # lutaml raises `InvalidFormatError` on those, and because the drafts path
+    # runs under Parallel.map, one raise discards every result from the whole
+    # pass: no index, and the already-written files orphaned on disk.
+    describe "#read_bibxml" do
+      let(:cp1252) { "fixtures/reference.I-D.cp1252-encoded.xml" }
+
+      it "recovers Windows-1252 bytes as their real characters" do
+        xml = subject.send(:read_bibxml, cp1252)
+
+        expect(xml.encoding).to eq Encoding::UTF_8
+        expect(xml).to be_valid_encoding
+        # The point of transcoding rather than scrubbing: `scrub` would put
+        # U+FFFD here and lose the apostrophe.
+        expect(xml).to include "’"
+        expect(xml).not_to include "\uFFFD"
+      end
+
+      # A whole-file CP1252 re-decode would mangle this into "MuÃ±oz cafÃ© \u2019"
+      # — valid UTF-8, so nothing raises and no skip is recorded. No such file is
+      # in today's corpus, but it grows daily and the corruption is silent.
+      it "repairs only the bad bytes in a file that is otherwise valid UTF-8" do
+        mixed = File.join(Dir.tmpdir, "mixed-encoding.xml")
+        File.binwrite mixed, "Mu\xC3\xB1oz caf\xC3\xA9 \x92".b
+
+        expect(subject.send(:read_bibxml, mixed)).to eq "Muñoz café ’"
+      ensure
+        FileUtils.rm_f mixed
+      end
+
+      # CP1252 leaves five byte values undefined; `encode` raises on them, which
+      # would cost the whole file rather than the one byte.
+      it "does not raise on a byte CP1252 leaves undefined" do
+        undef_byte = File.join(Dir.tmpdir, "undef-byte.xml")
+        File.binwrite undef_byte, "a\x81b".b
+
+        expect(subject.send(:read_bibxml, undef_byte)).to be_valid_encoding
+      ensure
+        FileUtils.rm_f undef_byte
+      end
+
+      it "leaves a valid UTF-8 file byte-identical" do
+        path = "fixtures/rfc.xml"
+        expect(subject.send(:read_bibxml, path)).to eq File.read(path, encoding: "UTF-8")
+      end
+
+      it "parses into a complete record, not a truncated one" do
+        bib = Relaton::Ietf::BibXMLParser.parse(subject.send(:read_bibxml, cp1252))
+
+        expect(bib.abstract.first.content.to_s).to include "’"
+        expect(bib.title.first.content).to include "Access Network"
+      end
+    end
+
+    describe "unparseable files" do
+      # The file is written but skipped, never fatal — mirroring `parse_pubid`,
+      # which lets one bad identifier cost one document rather than the index.
+      it "process_singleton returns a marker instead of raising" do
+        allow(subject).to receive(:read_bibxml).and_return("<broken")
+        allow(Relaton::Ietf::BibXMLParser).to receive(:parse)
+          .and_raise(Lutaml::Model::InvalidFormatError.new("xml"))
+
+        result = subject.send(:process_singleton, "bibxml-ids/bad.xml")
+
+        expect(result[:unparsed]).to eq "bibxml-ids/bad.xml"
+        expect(result[:error]).to be_a String
+      end
+
+      # A failed version must not reach `sorted`: link_neighbor_relations and
+      # build_unversioned_doc both dereference `entry[:bib]`.
+      it "process_series drops the bad version and keeps the rest" do
+        paths = [{ path: "p0", ver: "00", ref: "draft-x-00" },
+                 { path: "p1", ver: "01", ref: "draft-x-01" }]
+        good = double("bib", source: [])
+        allow(good).to receive(:version=)
+        allow(subject).to receive(:read_bibxml).and_return("xml")
+        allow(Relaton::Ietf::BibXMLParser).to receive(:parse) do
+          @n = @n.to_i + 1
+          @n == 1 ? raise(Lutaml::Model::InvalidFormatError.new("xml")) : good
+        end
+        allow(subject).to receive(:serialize_and_write).and_return(:r)
+        allow(subject).to receive(:build_unversioned_doc) do |_series, sorted|
+          expect(sorted.map { |e| e[:ver] }).to eq %w[01]   # 00 dropped, not nil
+          nil
+        end
+
+        results = subject.send(:process_series, "draft-x", paths)
+
+        expect(results.select { |r| r.is_a?(Hash) && r[:unparsed] }.map { |r| r[:unparsed] })
+          .to eq %w[p0]
+        expect(results).to include :r
+      end
+    end
+
+    describe "#report_unparsed" do
+      it "warns once with the count and a sample, not per file" do
+        allow(Relaton.logger_pool).to receive(:warn)
+        subject.instance_variable_set(:@unparsed, ["a.xml", "b.xml", "c.xml"])
+
+        subject.send(:report_unparsed)
+
+        expect(Relaton.logger_pool).to have_received(:warn)
+          .with(/3 file\(s\) skipped.*a\.xml/m, "relaton-ietf").once
+      end
+
+      it "says nothing when every file parsed" do
+        expect(Relaton.logger_pool).not_to receive(:warn)
+        subject.send(:report_unparsed)
+      end
+    end
+
     describe "#process_singleton" do
       it "parses, sets version when present, serializes, returns one result" do
         path = "bibxml-ids/reference.I-D.draft-foo-02.xml"
         bib = double("bib")
         allow(bib).to receive(:version=)
         allow(Relaton::Bib::Version).to receive(:new).with(draft: "02").and_return(:ver)
-        expect(File).to receive(:read).with(path, encoding: "UTF-8").and_return("xml")
+        expect(subject).to receive(:read_bibxml).with(path).and_return("xml")
         expect(Relaton::Ietf::BibXMLParser).to receive(:parse).with("xml").and_return(bib)
         expect(subject).to receive(:serialize_and_write).with(bib).and_return(:result)
 
@@ -213,7 +325,7 @@ RSpec.describe Relaton::Ietf::DataFetcher do
         path = "bibxml-ids/reference.something-else.xml"
         bib = double("bib")
         expect(bib).not_to receive(:version=)
-        expect(File).to receive(:read).and_return("xml")
+        expect(subject).to receive(:read_bibxml).and_return("xml")
         expect(Relaton::Ietf::BibXMLParser).to receive(:parse).and_return(bib)
         expect(subject).to receive(:serialize_and_write).with(bib).and_return(:result)
 
@@ -245,7 +357,8 @@ RSpec.describe Relaton::Ietf::DataFetcher do
     end
 
     it "build_unversioned_doc uses in-memory bib (no disk round-trip)" do
-      last_v = double("last_v", title: :t, abstract: :a)
+      last_v = double("last_v", title: :t, abstract: :a,
+                                date: :date2, ext: :ext2, source: [:src2])
       sorted = [
         { ver: "00", bib: double("b0"), ref: "draft-collins-pfr-00", source: [:src1] },
         { ver: "01", bib: last_v, ref: "draft-collins-pfr-01", source: [:src2] },
@@ -265,10 +378,68 @@ RSpec.describe Relaton::Ietf::DataFetcher do
       expect(Relaton::Bib::Formattedref).to receive(:new).with(content: "draft-collins-pfr").and_return(:fref3)
       expect(Relaton::Ietf::ItemData).to receive(:new).with(
         title: :t, abstract: :a, formattedref: :fref3, docidentifier: [:id], relation: %i[rel1 rel2],
+        date: :date2, ext: :ext2, source: [:src2],
       ).and_return(:sbib)
       expect(File).not_to receive(:read)
 
       expect(subject.send(:build_unversioned_doc, "draft-collins-pfr", sorted)).to eq :sbib
+    end
+
+    # An unversioned draft aggregator is synthesised from the versions found on
+    # disk — there is no upstream document for it, so date, doctype and source
+    # can only come from its constituents. Without this it published with none
+    # of the three: undated (so unsorted on the Pages index) and with no
+    # document type at all.
+    describe "#build_unversioned_doc metadata inheritance" do
+      def version(ver, date_at)
+        Relaton::Ietf::ItemData.new(
+          title: [Relaton::Bib::Title.new(content: "Some draft")],
+          docidentifier: [Relaton::Bib::Docidentifier.new(
+            type: "Internet-Draft", content: "draft-x-#{ver}", primary: true
+          )],
+          date: [Relaton::Bib::Date.new(type: "published", at: date_at)],
+          source: [Relaton::Bib::Uri.new(type: "src", content: "https://example.com/#{ver}")],
+          ext: Relaton::Ietf::Ext.new(
+            doctype: Relaton::Ietf::Doctype.new(content: "internet-draft"), flavor: "ietf"
+          ),
+        )
+      end
+
+      let(:sorted) do
+        [{ ref: "draft-x-00", bib: version("00", "2020-01-01"), source: [] },
+         { ref: "draft-x-01", bib: version("01", "2021-06-01"), source: [] }]
+      end
+
+      it "inherits date, ext and source from the newest version" do
+        doc = subject.send(:build_unversioned_doc, "draft-x", sorted)
+
+        expect(doc.date.map(&:at).map(&:to_s)).to eq ["2021-06-01"]
+        expect(doc.ext.doctype.content).to eq "internet-draft"
+        expect(doc.source.map { |s| s.content.to_s }).to eq ["https://example.com/01"]
+      end
+
+      it "still carries its own identity, not the version's" do
+        doc = subject.send(:build_unversioned_doc, "draft-x", sorted)
+
+        expect(doc.docidentifier.map(&:content)).to eq ["draft-x"]
+        expect(doc.formattedref.content).to eq "draft-x"
+        expect(doc.relation.map(&:type)).to eq %w[includes includes]
+      end
+
+      it "copes with a newest version that has no date or source of its own" do
+        bare = Relaton::Ietf::ItemData.new(
+          title: [Relaton::Bib::Title.new(content: "Some draft")],
+          docidentifier: [Relaton::Bib::Docidentifier.new(
+            type: "Internet-Draft", content: "draft-x-01", primary: true
+          )],
+        )
+        doc = subject.send(:build_unversioned_doc, "draft-x",
+                           [{ ref: "draft-x-01", bib: bare, source: [] }])
+
+        expect(doc.date).to be_empty
+        expect(doc.source).to be_empty
+        expect(doc.ext).to be_nil
+      end
     end
 
     it "build_unversioned_doc warns and returns nil when sorted is empty" do

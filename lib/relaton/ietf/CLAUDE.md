@@ -168,6 +168,114 @@ Retiring `relaton-data-{rfcs,rfcsubseries,ids}`'s `index-v1` files, and their
 `data-index/configs.yml` rows, waits until a relaton carrying this change has
 shipped — see `/work/HANDOFFS/relaton__support__ietf-index-config-and-cron.md`.
 
+## Thin records inherit from their constituents
+
+Two builders produce records for documents that have **no upstream source of
+their own**, and both would otherwise publish without date, doctype or source:
+
+| Builder | File | Inherits from |
+|---|---|---|
+| `to_subseries_item` | `rfc/entry.rb` | the newest RFC in its `is-also` |
+| `build_unversioned_doc` | `data_fetcher.rb` | the newest version in `sorted` |
+
+This is **not** a parsing gap to go fix in the XML mapping. A sub-series entry in
+`rfc-index.xml` is only a pointer:
+
+```xml
+<bcp-entry>
+  <doc-id>BCP0003</doc-id>
+  <is-also><doc-id>RFC1915</doc-id></is-also>
+</bcp-entry>
+```
+
+The RFC Editor publishes no date, title, author or status for it, because a
+sub-series *has* no metadata of its own — it is a label on one or more RFCs.
+Unversioned draft aggregators are further still from an upstream document: they
+are synthesised from the versions found on disk.
+
+Neither site needs a second pass or another read of the corpus — `rfc_index` and
+`sorted` already hold the constituents at build time. (A downstream
+implementation in `relaton-data-ietf`'s crawler did use a second pass over
+written files, because its groups could span source repos; that constraint does
+not exist here.)
+
+**Constituent lookup is normalised on both sides, deliberately.**
+`Entry.squish` folds case and strips whitespace and dots. Relation targets and the
+docids they reference disagree in the published corpus (`dyndNS` vs `dyndns`),
+which left 28 documents undated downstream on a strict lookup — and, in
+`build_relations`, silently downgraded a full constituent bibitem to a minimal
+one.
+
+`rfc_index` is therefore **keyed by `Entry.squish(doc_id)`, and the caller builds
+it** — `fetch_ieft_rfcsubseries` does so once for the crawl. Normalising inside
+`Entry` instead would rebuild a ~9,800-row table for each of the 367 sub-series
+(measured: ~161 MB retained, ~6 s), all of it the same table.
+
+Why it matters beyond tidiness: the Pages index sorts by date, so undated records
+sort as one undifferentiated block, and a record with no `ext.doctype` renders
+with no document type at all.
+
+Inherited values are `dup`'d rather than shared with the constituent's own bib —
+aliasing them would make a later edit to the aggregator mutate the `-NN` record.
+
+Verified against the live `rfc-index.xml`: **367/367 sub-series dated**, 367/367
+with full constituent bibitems, in 1.4 s; `BCP 3` → 1996-02, `STD 51` → 1994-07,
+`STD 66` → 2005-01 (RFC 3986's date).
+
+## bibxml encoding: transcode, don't scrub, don't skip
+
+Some bibxml files declare `encoding='UTF-8'` and carry **Windows-1252** bytes —
+smart quotes and accented Latin letters. `File.read(encoding: "UTF-8")` only
+*tags* a string; it validates nothing, so those reached lutaml as invalid UTF-8
+and `Rfcxml::V3::Reference.from_xml` raised `Lutaml::Model::InvalidFormatError`.
+
+`read_bibxml` transcodes them (`data_fetcher.rb`). Three things make that the
+right call rather than `scrub`:
+
+- **All of them decode losslessly as CP1252** — 125 of the ~122k published files
+  are affected, 0 unmappable.
+- **The bytes present prove CP1252, not Latin-1.** `0x91`–`0x94` (`‘ ’ “ ”`) are
+  control characters in Latin-1.
+- **`scrub` is lossy.** It replaces each byte with `U+FFFD`: `client’s` becomes
+  `client�s`, `Muñoz` becomes `Mu�oz`. Author surnames are among the
+  affected fields. Verified on a real file — scrub and transcode yield the same
+  *length*, so a length check will not catch the damage.
+
+Don't copy `lib/relaton/bipm/si_brochure_parser.rb:33-35`, whose
+`force_encoding` guard is a no-op. The `scrub` idiom at
+`lib/relaton/itu/data_crawler_r.rb:588-599` is right *there* because it repairs
+scraped HTML with no recoverable original; here there is one.
+
+### Why the rescue is per file, and why the tally is in the parent
+
+`parse_bibxml` rescues `StandardError` — not a narrow list. lutaml raises
+`InvalidFormatError` on bad bytes, but the converter also runs regexes over
+parsed text (`parse_surname_initials` and friends), which raise
+`ArgumentError: invalid byte sequence` on anything that slips through.
+
+It has to be **inside** the worker. The drafts path runs under `Parallel.map`,
+which discards every result from the pass when a worker raises — so one bad file
+out of ~167k meant no index at all, plus the already-written records orphaned on
+disk, because `record_index_entry` and `index.save` only run after both passes
+return. A rescue around `parallelize` would salvage "the crawl didn't die", not
+"the other 166,999 files got indexed".
+
+The skip therefore rides back as `{ unparsed: path, error: }` and is counted in
+the parent, the way `parse_pubid`'s result rides back as `result[:pubid]` — a
+counter incremented in a worker process is lost. `report_unparsed` warns once
+with a count and a sample, not once per file.
+
+A failed version is dropped from `sorted` **before** `link_neighbor_relations`
+and `build_unversioned_doc` run, since both dereference `entry[:bib]`. Knock-on
+to accept: neighbours then link across the gap, and if the dropped file was the
+newest, the aggregator inherits from the previous version. With CP1252 recovery
+that should approach zero — which is the argument for recovering over skipping.
+
+Verified end to end on 41,408 real draft files (16 invalid UTF-8): the crawl
+completes in 57 s, writes 46,461 records and 46,461 index rows, **0 skipped**,
+and the affected files come through with their real characters —
+`\x93Access Node Contr` → `“Access Node Contr`.
+
 ## Testing Patterns
 
 - **Index fixture:** `spec/ietf/fixtures/ietf-index-v2.zip` - the combined index, copied **wholesale** from `relaton-data-ietf` rather than curated, since a subset goes stale and surfaces as a 404 on the document fetch. `spec/ietf/support/webmock.rb` deserialises it into pubid ids, sorts by the narrowing key, sets `sorted = true` (without which every lookup is a ~40 s scan) and pre-loads it into the pool as `:IETF` in `before(:suite)`; `spec/ietf/support/vcr.rb` ignores requests ending `index-v2.zip`. Refresh by re-downloading that zip. There is **no** `rake spec:update_index` task in this repo.
