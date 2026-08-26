@@ -15,10 +15,16 @@ module Relaton
         @format = format
         @ext = format.sub "bibxml", "xml"
         @files = Set.new
-      # path => docid that reserved it, for #unique_output_file. Distinct from
-      # @files, which flavors use for their own duplicate handling: this one has
-      # to know WHICH document owns a path, not just that it is taken.
-      @file_docids = {}
+        # path => docid that reserved it, for #unique_output_file. Distinct
+        # from @files, which flavors use for their own duplicate handling:
+        # this one has to know WHICH document owns a path, not just that it
+        # is taken.
+        @file_docids = {}
+        # Paths this process wrote during this run; see #write_unique.
+        @written = Set.new
+        # Set true by a fetcher that writes from forked worker processes,
+        # where @file_docids cannot see a peer's claim. See #write_unique.
+        @cross_process = false
         # @docs = []
         @errors = Hash.new(true)
       end
@@ -70,6 +76,10 @@ module Relaton
       # Most filesystems cap a single path component at 255 bytes.
       MAX_BASENAME_BYTES = 255
 
+      # Create-or-fail. The failure is the point: it is how one process learns
+      # that another already holds a path. See #write_unique.
+      EXCLUSIVE = File::WRONLY | File::CREAT | File::EXCL
+
       # @param [String] document ID
       # @return [String] filename based on PubID identifier
       #
@@ -120,8 +130,54 @@ module Relaton
         file = output_file docid
         owner = @file_docids[file]
         file = digest_output_file(docid) unless owner.nil? || owner == docid
-        @file_docids[file] ||= docid
+        reserve file, docid
+      end
+
+      #
+      # Write `content` for `docid`, never clobbering a different document.
+      #
+      # `output_file` is not injective, so the plain path may belong to someone
+      # else. `unique_output_file` settles that within this process; the file is
+      # then created with `O_EXCL` so a peer *process* cannot be clobbered
+      # either. Returns the path actually written.
+      #
+      # The four outcomes, each load-bearing:
+      #
+      # * **We already wrote this path for this docid** — plain overwrite, so a
+      #   genuine duplicate stays one file and the flavor's own duplicate
+      #   handling (skip / merge / last-wins) still decides what happens.
+      # * **`O_EXCL` succeeds** — the normal case.
+      # * **`EEXIST`, single process** — `unique_output_file` has already proved
+      #   that no peer of ours holds this path, so the file can only be a
+      #   leftover from an earlier crawl. Overwrite it. Every single-process
+      #   flavor takes this branch, and it involves no guesswork.
+      # * **`EEXIST`, `@cross_process`** — a peer's file and a leftover are
+      #   indistinguishable, so take a path of our own rather than risk
+      #   destroying a record. The caller reconciles the names afterwards, in
+      #   the parent, where it can see every docid (see
+      #   `Relaton::Ietf::DataFetcher#reconcile_output_files`).
+      #
+      # Deliberately NOT a wall-clock "is this file older than the crawl?" test.
+      # A crawl runs into a populated `data/`, so `EEXIST` is the common case on
+      # a re-run and such a test would decide it for every record; its
+      # false-"stale" direction is the silent overwrite this method exists to
+      # prevent, and coarse filesystem mtime granularity makes that reachable.
+      #
+      # @param [String] docid
+      # @param [String] content serialized document
+      # @return [String] path written
+      #
+      def write_unique(docid, content)
+        file = unique_output_file docid
+        return force_write(file, content) if @written.include?(file)
+
+        File.write file, content, mode: EXCLUSIVE, encoding: "UTF-8"
+        @written << file
         file
+      rescue Errno::EEXIST
+        return force_write(file, content) unless @cross_process
+
+        force_write reserve(digest_output_file(docid), docid), content
       end
 
       #
@@ -148,6 +204,22 @@ module Relaton
       end
 
       private
+
+      # Write, clobbering whatever is there. The caller has already established
+      # that the path is ours to take.
+      def force_write(file, content)
+        File.write file, content, encoding: "UTF-8"
+        @written << file
+        file
+      end
+
+      # Record `docid` as the owner of `file`, unless someone got there first,
+      # and return `file`. The reservation table must never hand one path to two
+      # documents; see #unique_output_file.
+      def reserve(file, docid)
+        @file_docids[file] ||= docid
+        file
+      end
 
       # `output_file`'s path with a docid digest appended to the basename, kept
       # inside the same byte cap. Deterministic: same docid, same name.
