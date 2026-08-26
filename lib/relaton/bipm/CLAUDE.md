@@ -82,8 +82,8 @@ gives it an identifier; a block-only call scans all ~7,900 rows. `#search_index`
 therefore parses the reference a **second** time, with pubid (`#narrowing_id`),
 purely to supply that key — the same `index.search(pubid) { … }` call shape ISO,
 OIML and JCGM use. The *match* stays on `Id#==`, because pubid cannot parse the
-loose forms. Measured on the spec fixture: **24–42x** faster for a reference
-pubid accepts.
+loose forms. Measured on the spec fixture: **19–28x** faster, for every query
+form the suite exercises.
 
 Two cases make an **empty narrowed range** possible even though the document is
 in the index, so `#search_index` repeats the search over the whole index when
@@ -94,9 +94,13 @@ the narrowed one comes back empty:
    while the row keys on `2`. The reading is genuinely ambiguous — `NNNN-NN` is
    a real BIPM number form elsewhere (`CIPM 2005-06`) — so this is not an
    upstream bug to fix.
-2. **The index was built by a pubid that derived no `number`.** Today that is
-   every `metrologia-article` and `si-brochure` row (6206 of 7918 in the
-   fixture), which all key to `""`.
+2. **The index was built by a pubid that derived no `number`.** No longer the
+   case — `relaton-data-bipm` republished `index-v2` on 2026-08-24 and 7915 of
+   its 7922 rows now carry one, leaving 7 in the `""` bucket (the six
+   ordinal-less declarations and `data/metrologia.yaml`). It was the case
+   before, when 6206 metrologia and si-brochure rows all keyed to `""`, and it
+   becomes the case again for anyone holding an older index — which is why the
+   fallback stays.
 
 The fallback costs one extra binary search and makes the narrowing **incapable
 of regressing a lookup** — worst case it is exactly the full scan this method
@@ -115,11 +119,24 @@ full scan, checked over every row that can straddle the `"1"`/`""` boundary and
 over a sample drawn across the index. They also re-parse all 1,706 numbered
 rows to guard the key derivation against drift.
 
-`#narrowing_id` returns nil for the ~8 loose forms pubid rejects, so those keep
-scanning the whole index. Widening `Pubid::Bipm` to accept them (meeting word
-order, French type names, the `CCDS` alias, two-letter language codes, the SI
-Brochure `Part`/`Appendix` suffix) is upstream work; once it lands, this flavor
-can drop `Id` from the query path and match `pubid_match?` like ISO does.
+`#narrowing_id` used to return nil for ~8 loose forms pubid rejected, so those
+scanned the whole index. **That gap is closed.** pubid `a96e9f45` accepts the
+meeting word order, the French type names, the `CCDS` alias, two-letter
+language codes and the SI Brochure `Part`/`Appendix` suffix, so over every form
+the suite exercises pubid now parses everything `Id` parses — it refuses only
+input `Id` refuses too, and `get_bipm` returns before reaching it. The nil
+branch is therefore unreachable in practice; it is kept because nothing
+guarantees the two grammars stay converged, and
+`spec/bipm/relaton/bipm/bibliography_spec.rb` drives it by withholding the key
+rather than by naming a reference.
+
+That convergence unlocks the real simplification, which is **not yet done**:
+`get_bipm` can now match pubid to pubid like ISO does
+(`index.search(pubid) { |r| pubid_match? r[:id], pubid }`), retiring `Id`,
+`#id_hash`, `#parse_ref` and the fallback from the query path. `Id` itself must
+stay public — `relaton-data-bipm`'s crawler still builds `index-v1` with it.
+Doing so would also end the `CCTF Recommendation 2009-02` disagreement, since
+one grammar cannot disagree with itself.
 
 ### Data Sources
 

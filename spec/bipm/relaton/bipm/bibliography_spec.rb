@@ -366,8 +366,16 @@ RSpec.describe Relaton::Bipm::Bibliography do
         expect(pubid.root.number.to_s).to eq "2"
       end
 
-      it "returns nil for a loose form the pubid grammar rejects" do
-        expect(described_class.narrowing_id("CIPM 111e Réunion (2022)")).to be_nil
+      # pubid used to reject the loose consumer forms, which is why narrowing
+      # is best-effort. It now accepts every form `Id` accepts, so those
+      # references narrow instead of scanning. Kept as a guard: if the pubid
+      # grammar ever narrows again, this fails and says which form regressed.
+      it "derives a key for every loose form the suite exercises" do
+        loose = ["CCTF Meeting 14 (1999)", "CGPM Meeting 1 (1889)",
+                 "CIPM Meeting 43", "CIPM 111e Réunion (2022)",
+                 "CIPM Décision 101-1 (2012)", "CCDS Recommendation 2 (2009)",
+                 "CCTF REC 2 (2009, EN)", "SI Brochure Part 1"]
+        expect(loose.reject { |ref| described_class.narrowing_id ref }).to eq []
       end
 
       it "returns nil for an unparseable reference rather than raising" do
@@ -398,7 +406,11 @@ RSpec.describe Relaton::Bipm::Bibliography do
         expect(scanned).to eq index_size
       end
 
-      it "scans everything when the pubid grammar rejects the reference" do
+      # The no-narrowing branch. pubid now parses every reference `Id` parses,
+      # so no real reference reaches it; drive it by withholding the key
+      # instead, because the branch still has to work if that changes.
+      it "scans everything when no narrowing key can be derived" do
+        allow(described_class).to receive(:narrowing_id).and_return nil
         rows, scanned, calls = lookup "CCDS Recommendation 2 (2009)"
         expect(rows.size).to eq 1
         expect(calls).to eq 1
