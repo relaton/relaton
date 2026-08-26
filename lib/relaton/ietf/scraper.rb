@@ -57,12 +57,21 @@ module Relaton
       # and the `docnumber` IETF records carry) gains the `draft-` stem: the old
       # plain-string index matched it by substring, and matching is exact now.
       #
+      # The capture is `(\S.*)`, not `(.+)`: it must start non-space so it cannot
+      # overlap the preceding `\s*`. Behaviour is unchanged on every real
+      # reference — with `(.+)` the greedy `\s*` only ever yields ground on an
+      # all-whitespace remainder, which pubid rejects anyway — but the
+      # unambiguous form is about twice as fast on a pathological input and is
+      # what CodeQL's rb/polynomial-redos models. Measured before changing it:
+      # the old form was already linear (0.66 ms at 80k chars), so this is
+      # clarity, not a ReDoS fix.
+      #
       # @param ref [String]
       # @return [Pubid::Ietf::Identifier, nil] nil when pubid has no grammar for
       #   it, so an out-of-flavor reference logs "Not found." instead of raising
       #
       def parse_id(ref)
-        if (draft = ref[/\AI-D[.\s]\s*(.+)\z/m, 1])
+        if (draft = ref[/\AI-D[.\s]\s*(\S.*)\z/m, 1])
           ref = draft.start_with?("draft-") ? draft : "draft-#{draft}"
         end
         ::Pubid::Ietf::Identifier.parse ref

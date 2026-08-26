@@ -58,6 +58,16 @@ RSpec.describe Relaton::Ietf::Scraper do
     it "returns nil for a reference pubid cannot parse" do
       expect(described_class.send(:parse_id, "CN 8341")).to be_nil
     end
+
+    # The capture must start non-space. With `(.+)` the greedy `\s*` backtracks
+    # one position when nothing else follows, capturing a lone space, which then
+    # became the nonsense slug "draft- ". That overlap between `\s*` and the
+    # capture is also what CodeQL's rb/polynomial-redos models.
+    it "returns nil for an I-D prefix with nothing but whitespace after it" do
+      ["I-D.", "I-D.   ", "I-D \t "].each do |ref|
+        expect(described_class.send(:parse_id, ref)).to be_nil
+      end
+    end
   end
 
   describe "#scrape_page" do
