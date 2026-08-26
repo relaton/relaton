@@ -240,7 +240,45 @@ RSpec.describe Relaton::Ietf::DataFetcher do
 
       it "leaves a valid UTF-8 file byte-identical" do
         path = "fixtures/rfc.xml"
-        expect(subject.send(:read_bibxml, path)).to eq File.read(path, encoding: "UTF-8")
+        # Binary on both sides. `read_bibxml` is byte-verbatim by design, and on
+        # Windows a text-mode `File.read` collapses CRLF to LF. Git checks this
+        # fixture out with CRLF there (the runner image defaults to
+        # `core.autocrlf=true`, and the repo declares no `.gitattributes`), so a
+        # text-mode oracle compares against a string the file does not hold.
+        xml = subject.send(:read_bibxml, path)
+
+        expect(xml).to eq File.read(path, mode: "rb", encoding: "UTF-8")
+        # The oracle above is the same primitive as the method's own read, so it
+        # cannot tell a correct read from a differently-spelled one. This pins
+        # what it cannot: the early return tags UTF-8 rather than leaving the
+        # ASCII-8BIT that `binread` hands back.
+        expect(xml.encoding).to eq Encoding::UTF_8
+      end
+
+      # The contract the example above asserts, pinned independently of how git
+      # checked anything out: `read_bibxml` must not translate line endings. A
+      # bibxml file's bytes reach lutaml unchanged, and XML itself normalises
+      # CRLF — doing it here would only hide a real difference.
+      it "keeps CRLF line endings verbatim" do
+        crlf = File.join(Dir.tmpdir, "crlf-bibxml.xml")
+        File.binwrite crlf, "<a>\r\n\t<b/>\r\n</a>".b
+
+        expect(subject.send(:read_bibxml, crlf)).to eq "<a>\r\n\t<b/>\r\n</a>"
+      ensure
+        FileUtils.rm_f crlf
+      end
+
+      # The example above covers the early return. The repair path rebuilds the
+      # string run by run, which is where a line ending is far likelier to be
+      # lost, so cover it too: `scrub` must touch only the invalid run.
+      it "keeps CRLF line endings verbatim through the CP1252 repair" do
+        crlf_cp1252 = File.join(Dir.tmpdir, "crlf-cp1252-bibxml.xml")
+        File.binwrite crlf_cp1252, "<a>\r\n\t<b>caf\xE9</b>\r\n</a>".b
+
+        expect(subject.send(:read_bibxml, crlf_cp1252))
+          .to eq "<a>\r\n\t<b>café</b>\r\n</a>"
+      ensure
+        FileUtils.rm_f crlf_cp1252
       end
 
       it "parses into a complete record, not a truncated one" do
