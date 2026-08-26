@@ -81,12 +81,19 @@ Decisions taken (2026-08-18 ... 2026-08-24):
 | Who builds it | `DataFetcher`, during the crawl - not a separate pass over the written records, which would be a second answer to "what is this record's id" |
 | Three type repos | untouched: they pin `relaton/relaton-ietf`, not this monorepo, so they keep emitting `index-v1` |
 
-**Known blocker, do not lose.** `relaton-data-ietf`'s **RFC and sub-series records
-are schema-invalid**: every one sampled lacks `ext.doctype`, and RFC committee
-organizations carry `subdivision` with no `name`. Drafts are clean. So the repoint
-is correct but should not ship until the data is fixed - see
-`/work/HANDOFFS/relaton__relaton-data-ietf__records-fail-ietf-grammar.md`. Two
-examples in `ietf_spec.rb` are `pending` on it and will turn red when it is fixed.
+**Resolved 2026-08-26.** `relaton-data-ietf`'s RFC and sub-series records were
+schema-invalid — missing `ext.doctype`, and RFC committee organizations carrying
+`subdivision` with no `name` — because that repo converted the `ietf-tools`
+v1.2.3 mirrors rather than crawling. It now runs `Relaton::Ietf::DataFetcher`
+directly, which synthesises `doctype`, `status`, `stream`, the organization names
+and the resolved WG titles. The two `pending` examples in `ietf_spec.rb` reported
+`FIXED` on the first run against the new corpus and have been removed.
+
+Two consequences of that migration to know about: record filenames are now
+lowercase *and* unpadded (`data/RFC8341.yaml` -> `data/rfc8341.yaml`,
+`data/STD0066.yaml` -> `data/std66.yaml`), since `output_file` derives them from
+the docnumber; and the record content changed enough that the three XML fixtures
+had to be regenerated.
 
 ### The consumer: `Scraper` queries with parsed identifiers
 
@@ -158,11 +165,6 @@ both branches carry their own `INDEXFILE = "index-v1"` and their own fetcher. On
 dual-write and no cutover window.
 
 ### Still outstanding
-
-The repoint is written but **must not ship** until `relaton-data-ietf`'s RFC and
-sub-series records validate (see the blocker above). Once they do, the two
-`pending` examples in `ietf_spec.rb` turn red; regenerate
-`spec/ietf/fixtures/{bib_item,bcp_47}.xml` and drop the `pending` lines.
 
 Retiring `relaton-data-{rfcs,rfcsubseries,ids}`'s `index-v1` files, and their
 `data-index/configs.yml` rows, waits until a relaton carrying this change has
