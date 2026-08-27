@@ -62,6 +62,16 @@ describe Relaton::Etsi::DataFetcher do
       expect(subject).to have_received(:save).exactly(75).times
     end
 
+    it "#fetch_page asks ETSI for superseded editions" do
+      # `version=1` keeps the superseded editions of a document in the result
+      # set. See lib/relaton/etsi/data_fetcher.rb SOURCEURL.
+      agent = double("mechanize")
+      allow(Mechanize).to receive(:new).and_return agent
+      expect(agent).to receive(:get).with(a_string_matching(/page=3&.+&version=1&/))
+        .and_return double("page", body: "[]")
+      subject.fetch_page 3
+    end
+
     context "#derive_status" do
       it "Withdrawn" do
         expect(subject.send(:derive_status, "ACTION_TYPE" => "WD", "STATUS_CODE" => "12")).to eq "Withdrawn"
@@ -109,6 +119,28 @@ describe Relaton::Etsi::DataFetcher do
       expect(subject.index).to receive(:add_or_update)
         .with(kind_of(::Pubid::Etsi::Identifier), file)
       subject.save bib
+    end
+
+    it "#save keeps every edition of one document" do
+      # The `version=1` query returns each edition of a document. The version is
+      # part of the docid, so the editions must not collapse to one file or to
+      # one index row.
+      ids = ["ETSI EN 319 142-1 V1.1.1 (2016-04)",
+             "ETSI EN 319 142-1 V1.2.1 (2024-01)",
+             "ETSI EN 319 142-1 V1.3.0 (2026-08)"]
+      files = []
+      allow(File).to receive(:write) { |file, *| files << file }
+      indexed = []
+      allow(subject.index).to receive(:add_or_update) { |pid, file| indexed << [pid.to_s, file] }
+
+      ids.each do |id|
+        did = Relaton::Bib::Docidentifier.new type: "ETSI", content: id
+        subject.save Relaton::Bib::ItemData.new(docidentifier: [did])
+      end
+
+      expect(files.uniq.size).to eq 3
+      expect(indexed.map(&:first).uniq.size).to eq 3
+      expect(indexed.map(&:last)).to eq files
     end
 
     it "#save skips an id pubid can't parse (no write, no index entry)" do
