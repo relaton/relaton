@@ -51,7 +51,8 @@ All classes live under `lib/relaton/w3c/` in the `Relaton::W3c` namespace:
 - **`DataParser`** (`data_parser.rb`) — converts W3C API spec objects into `Relaton::W3c::Item` instances
 - **`Governor`** (`governor.rb`) — the W3C binding of **`Relaton::Core::Governor`**, which is where process-wide, thread-safe rate-limit back-pressure now lives (see Rate limiting & retries). It was promoted out of this flavor when the ITU-R crawler became the second consumer. What stays here is only what W3C knows: `THROTTLE_ERRORS` (429 **and** 403, the lutaml-hal classes core must not depend on) and `ENV_PREFIX = "RELATON_W3C"`. The ladder, the per-round escalation, the jitter, the latched give-up and the `Retry-After` parsing are core's, and `spec/w3c/relaton/w3c/governor_spec.rb` still exercises all of it through this subclass unchanged — which is the promotion's acceptance test.
 - **`SafeRealize`** (`safe_realize.rb`) — mixin that, on a terminal error, skips the resource (returns `nil`) so one bad link doesn't abort the crawl, and that routes rate limiting through the `Governor` instead (see Rate limiting & retries). It does not cache successes — that lives upstream.
-- **`PubId`** (`pubid.rb`) — parses and compares W3C document identifiers (stage, code, date parts)
+- **`Docidentifier`** (`docidentifier.rb`) — `Bib::Docidentifier` subclass that parses its `content` into a `Pubid::W3c::Identifier` and exposes it as `#pubid`. See **Index (`index-v2`, pubid-keyed)**.
+- **`PubId`** (`pubid.rb`) — the **legacy `index-v1` row shape**, no longer on any lookup or crawl path here. Retained public only so `relaton-data-w3c`'s crawler can keep emitting `index-v1` for released relaton v2 consumers (the `Relaton::Bipm::Id` precedent). Do not add call sites.
 
 **Utilities:**
 - **`Util`** (`util.rb`) — extends `Relaton::Bib::Util`, sets `PROGNAME` for logging
@@ -151,11 +152,60 @@ cache them.
 > for four hours was rate-limited. Had the last index page happened to succeed,
 > a dataset missing 1,412 documents would have been committed.
 
+### Index (`index-v2`, pubid-keyed)
+
+`INDEXFILE` is the pubid-backed **`index-v2`**: rows are `Pubid::W3c::Identifier`
+leaves serialized as `_type: pubid:w3c:*` with a `number` (the document slug) and
+an optional verbatim `date`.
+
+```yaml
+- :id:
+    _type: pubid:w3c:recommendation
+    number: xml-names
+    date: '20091208'
+  :file: data/rec-xml-names-20091208.yaml
+```
+
+**Why.** `Relaton::Index::Type#candidates_by_number` sorts and binary-searches
+every row on `id.root.number.to_s`. The old `index-v1` stored plain hashes and
+was built without `pubid_class:`, so `FileIO#sorted` stayed false and every
+lookup scanned all 17,287 rows. Keyed on the pubid slug the corpus splits into
+**1,972 buckets**, the largest holding 101 rows.
+
+**The pubid contract.** `Pubid::W3c::Identifier` keeps the slug in `number`.
+It was called `code` until pubid #339, which renamed it with **no alias** — read
+`number`, never `code`. Until that PR merges the root `Gemfile` pins pubid to its
+branch; consumers must run `bundle update pubid`, not `bundle install`, because a
+locked git source does not refloat.
+
+**Producer / processor must stay in step.** `DataFetcher#index` passes
+`pubid_class: ::Pubid::W3c::Identifier`, and `#index_primary` stores the pubid
+**object**. `Relaton::Index::FileIO#save` only serializes to the `_type:` shape
+when the value is an instance of the configured `pubid_class`: hand it a hash and
+it writes a v1-shaped file under a v2 name, silently, with no narrowing.
+
+**An unparseable id is an ERROR, never a warning.** `Docidentifier#parse` logs at
+`Util.error` and leaves `#pubid` nil — it must not raise, or an already-published
+record would stop deserializing. `DataFetcher#index_primary` then records the
+failure in `@errors` **keyed by the id, not the output path** (the id is the
+defect; one broken id reaching several files must still report once), and the
+inherited `Core::DataFetcher#report_errors` logs it and raises a tracked GitHub
+issue. The row is skipped rather than indexed unparsed: `Relaton::Index` rejects
+the *whole* index if one row fails to deserialize, so one bad record must cost
+one document, never every lookup. The data file is still written — unindexed,
+not lost.
+
+`Core::DataFetcher#report_errors` treats a **String** `@errors` value as the
+message itself; a boolean still means "this field failed for every record" and
+renders as `Failed to fetch <key>`. That is what lets this flavor report a
+specific per-document failure without overriding `report_errors`.
+
 ### Key Dependencies
 
 - **relaton-bib** (~> 2.2.0) — provides base `Bib::Item`, `Bib::Ext`, `Bib::Doctype` and serialization mixins (LutaML model layer)
 - **relaton-core** — provides base `Core::Processor` and `Core::DataFetcher`
 - **relaton-index** — index-based search for bibliographic references; also unpacks the index zip at runtime
+- **pubid** — `Pubid::W3c::Identifier` backs `Docidentifier` and the `index-v2` rows
 - **w3c_api** (~> 0.3.3) — W3C API (HAL/REST) client used by `DataFetcher` to retrieve specifications; owns the `User-Agent`, the 403 retry, and the object cache. The 0.3.3 floor is load-bearing, not cosmetic — see **Rate limiting & retries**.
 - **lutaml-hal** (~> 0.2, >= 0.2.5) — HAL layer beneath w3c_api. Declared directly because this flavor rescues `Lutaml::Hal::*` error classes by name; `ForbiddenError` only exists from 0.2.5, and w3c_api's own `~> 0.2.1` would resolve happily to an older one and NameError at rescue time. 0.2.5 also made `Client#get`'s last-response bookkeeping thread-local (lutaml/lutaml-hal#21), which matters directly to the worker pool.
 
@@ -194,4 +244,4 @@ GitHub Actions workflows (auto-generated by Cimas) delegate to shared workflows 
 
 ## Testing
 
-- **Index fixture:** `spec/fixtures/index-v1.zip` is pre-loaded into `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-w3c.
+- **Index fixture:** `spec/fixtures/index-v1.zip` is pre-loaded into the `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). It is still the **v1** fixture: `Bibliography` has not migrated yet (see **Index**), and the fixture is injected straight into the pool, so it is read regardless of `INDEXFILE`. Refresh it from the live published index — there is no `rake spec:update_index` task in this repo.

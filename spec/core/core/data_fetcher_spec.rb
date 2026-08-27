@@ -59,6 +59,39 @@ describe Relaton::Core::DataFetcher do
         subject.report_errors
       end
     end
+
+    # A boolean value means "this field failed for every record", and the
+    # message is derived from the key. A String value IS the message, so a
+    # flavor can report a specific, per-document failure (an unparseable
+    # identifier, say) through the same channel without an override.
+    context "when a value is a message" do
+      it "logs the value verbatim instead of deriving from the key" do
+        subject.instance_variable_set(
+          :@errors, { "W3C bogus" => "Unparseable primary id `W3C bogus`" }
+        )
+        expect(subject).to receive(:gh_issue).and_return nil
+        expect(subject).to receive(:log_error)
+          .with("Unparseable primary id `W3C bogus`")
+        subject.report_errors
+      end
+
+      it "still derives the message for boolean values alongside it" do
+        subject.instance_variable_set(
+          :@errors, { "key" => true, "W3C bogus" => "explicit message" }
+        )
+        expect(subject).to receive(:gh_issue).and_return nil
+        expect(subject).to receive(:log_error).with("Failed to fetch key")
+        expect(subject).to receive(:log_error).with("explicit message")
+        subject.report_errors
+      end
+
+      it "skips falsey values as before" do
+        subject.instance_variable_set(:@errors, { "key" => false })
+        expect(subject).to receive(:gh_issue).and_return nil
+        expect(subject).not_to receive(:log_error)
+        subject.report_errors
+      end
+    end
   end
 
   describe "#log_error" do

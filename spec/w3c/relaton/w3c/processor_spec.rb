@@ -68,7 +68,7 @@ describe Relaton::W3c::Processor do
     it "removes the index file" do
       index = double("index")
       expect(Relaton::Index).to receive(:find_or_create)
-        .with(:W3C, url: true, file: "index-v1.yaml").and_return(index)
+        .with(:W3C, url: true, file: "index-v2.yaml").and_return(index)
       expect(index).to receive(:remove_file)
       processor.remove_index_file
     end

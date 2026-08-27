@@ -126,11 +126,11 @@ module Relaton
       #
       # Parse docidentifier
       #
-      # @return [Array<Bib::Docidentifier>] docidentifier
+      # @return [Array<Docidentifier>] docidentifier
       #
       def parse_docid
         id = pub_id(doc_uri)
-        [Bib::Docidentifier.new(type: "W3C", content: id, primary: true)]
+        [Docidentifier.new(type: "W3C", content: id, primary: true)]
       end
 
       #

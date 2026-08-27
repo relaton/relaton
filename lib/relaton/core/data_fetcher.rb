@@ -59,7 +59,14 @@ module Relaton
 
       def report_errors
         gh_issue # register the channel before logging
-        @errors.select { |_, v| v }.each_key { |k| log_error "Failed to fetch #{k}" }
+        @errors.select { |_, v| v }.each do |key, value|
+          # A String value IS the message: a specific, per-document failure
+          # such as an unparseable identifier, reported through this same
+          # channel without needing a per-flavor override. A boolean means
+          # "this field failed for every record" — what the flavors' own
+          # ERROR_KEYS track — and its message is derived from the key.
+          log_error value.is_a?(String) ? value : "Failed to fetch #{key}"
+        end
         @gh_issue&.create_issue
       end
 
