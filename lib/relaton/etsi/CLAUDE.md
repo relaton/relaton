@@ -93,8 +93,22 @@ it ships in a pubid release. The wiring mirrors NIST/JCGM:
   /`date` when nil, and `:part` when `pubid.code.parts` is empty — so a bare
   `ETSI GS ZSM 012` matches every edition, a part-less `ETSI EN 300 175` matches
   every part, and a fully-qualified ref matches only its edition; `max_by
-  { row[:id].to_s }` returns the most recent. Requires pubid `main` (partial-ref
-  parsing, `Parslet::ParseFailed` on failure, and part exclusion inside `code`).
+  { edition_key(row[:id]) }` returns the most recent. Requires pubid `main`
+  (partial-ref parsing, `Parslet::ParseFailed` on failure, and part exclusion
+  inside `code`).
+- **`#edition_key` orders on the parsed version, never on the rendered id.** ETSI
+  versions are not zero-padded, so a String comparison of `row[:id].to_s` orders
+  `V9.0.0` above `V19.0.0` and `ed.9` above `ed.11` — it picked the wrong edition
+  for 983 of the 3007 multi-edition documents in the spec fixture, and a bare
+  `ETSI TR 155 919` resolved to the 2010 edition. `Pubid::Etsi::Identifier` is
+  **not** `Comparable` (its `<=>` returns nil), so the key is built from the
+  components: `id.version.version` holds the bare numbers (`"19.0.0"`, or `"9"`
+  for the `ed.N` form) and `id.date` renders as `yyyy-mm` for the tie-break.
+  Both delegate to `base` on a `pubid:etsi:corrigendum`/`amendment` row (162 of
+  them in the fixture), so every row shape keys the same way. The key ignores
+  `is_edition`, which puts `ed.11` above `V1.0.0` — safe because **no** document
+  mixes the two forms (measured: 0 of 28651 fixture rows). Do not put `.to_s`
+  back.
 - **Processor** `#remove_index_file` passes the same `pubid_class:`.
 
 ### The crawl query keeps superseded editions (`version=1`)
@@ -133,10 +147,10 @@ for users until `relaton-data-etsi` re-crawls. Do **not** deploy a `version=1`
 crawl until the released `relaton-etsi` gem picks the newest edition. Its
 `Bibliography#search` uses `min_by` on the rendered id, which returns the
 **oldest** match, so a bare `ETSI EN 319 401` would resolve to the 2013 edition
-across the whole corpus. This flavor is already correct (`#best_match` uses
-`max_by`). Also check the crawl against the 6-hour GitHub Actions job cap — it
-roughly doubles — and confirm all three EN 319 142-1 editions land in `data/`
-before merging the re-crawl.
+across the whole corpus. This flavor picks the newest edition (`#best_match`
+orders on `#edition_key`). Also check the crawl against the 6-hour GitHub
+Actions job cap — it roughly doubles — and confirm all three EN 319 142-1
+editions land in `data/` before merging the re-crawl.
 
 ## Testing
 

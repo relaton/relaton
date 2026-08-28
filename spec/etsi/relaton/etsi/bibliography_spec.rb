@@ -32,6 +32,32 @@ describe Relaton::Etsi::Bibliography do
     expect { described_class.get "ETSI EN 300 175-1 V1.9.1 (2005-09)" }.to output.to_stderr_from_any_process
   end
 
+  it "orders a multi-digit version numerically, not as a string" do
+    # ETSI TR 155 919 runs V3.0.0 .. V19.0.0 in the index. String order puts
+    # V9.0.0 (2010-02) on top, so a bare ref must not resolve to that edition.
+    stub_yaml "data/etsi-tr-155-919-v19-0-0-2025-10.yaml"
+    expect { described_class.get "ETSI TR 155 919" }.to output.to_stderr_from_any_process
+  end
+
+  it "orders the `ed.N` form numerically too" do
+    # ETSI ETS 300 974 has ed.9 (1999-12) and ed.11 (2000-12); string order
+    # puts ed.9 on top.
+    stub_yaml "data/etsi-ets-300-974-ed-11-2000-12.yaml"
+    expect { described_class.get "ETSI ETS 300 974" }.to output.to_stderr_from_any_process
+  end
+
+  it "breaks a version tie on the publication date" do
+    # Two editions share V1.1.1, so the version arrays compare equal and the
+    # date decides. Built in memory: the fixture index has no such pair.
+    index = Relaton::Index::Type.new :etsi
+    index.instance_variable_set :@index, [
+      { id: ::Pubid::Etsi.parse("ETSI GS ZSM 099 V1.1.1 (2020-01)"), file: "data/old.yaml" },
+      { id: ::Pubid::Etsi.parse("ETSI GS ZSM 099 V1.1.1 (2024-06)"), file: "data/new.yaml" },
+    ]
+    row = described_class.best_match index, ::Pubid::Etsi.parse("ETSI GS ZSM 099")
+    expect(row[:file]).to eq "data/new.yaml"
+  end
+
   it "resolves a part-less reference to one of its parts" do
     # ETSI EN 300 175 has parts 1..8 in the index; a part-less ref matches them
     # all (part excluded) and resolves to one of them rather than nothing.
