@@ -97,6 +97,47 @@ it ships in a pubid release. The wiring mirrors NIST/JCGM:
   parsing, `Parslet::ParseFailed` on failure, and part exclusion inside `code`).
 - **Processor** `#remove_index_file` passes the same `pubid_class:`.
 
+### The crawl query keeps superseded editions (`version=1`)
+
+`DataFetcher::SOURCEURL` is the ETSI standards-search query, and
+`relaton-data-etsi/data/` is **exactly** what it returns — `crawler.rb` rebuilds
+`data/` on every run, so a record the query drops cannot be reinstated in the
+data repo. The `version` flag selects editions, not statuses: `version=0`
+returns only the current edition of each branch, `version=1` returns the
+superseded ones as well. The status flags (`withdrawn`, `historical`,
+`superseded`, `onApproval`, `isCurrent`) are a **separate axis** and are already
+all `1` — that is why the dataset carried `Historical` and `Withdrawn` documents
+while still missing older editions (metanorma/metanorma-pdfa#95, which wanted
+`ETSI EN 319 142-1 V1.2.1 (2024-01)` back). `version=0` also still returns
+parallel current branches, so the response's own `superseded`/`new_versions`
+fields, not the major version, are what `version` keys on.
+
+The flavor uses `version=1`. Measured against the live API on 2026-08-27:
+
+| | `version=0` | `version=1` |
+|---|---|---|
+| records | 28625 | 67446 (2.36x) |
+| pages at 50/page | 573 | 1349 |
+| `data/` on disk | 112 MB | ~264 MB |
+| `index-v2.yaml` | 5.0 MB | ~11.8 MB |
+
+Nothing else in the producer needed changing: the version is part of the ETSI
+docid, so `Core::DataFetcher#unique_output_file` gives each edition its own
+filename and `Index::Type#add_or_update` (keyed on `id.to_s`) gives each its own
+row. `spec/etsi/relaton/etsi/data_fetcher_spec.rb` pins the query flag, and pins
+that machinery too — it was already correct, but `version=1` is what makes
+several editions of one document a common case rather than a rare one.
+
+**Ordering rule for the data repo.** This is producer-side only; nothing changes
+for users until `relaton-data-etsi` re-crawls. Do **not** deploy a `version=1`
+crawl until the released `relaton-etsi` gem picks the newest edition. Its
+`Bibliography#search` uses `min_by` on the rendered id, which returns the
+**oldest** match, so a bare `ETSI EN 319 401` would resolve to the 2013 edition
+across the whole corpus. This flavor is already correct (`#best_match` uses
+`max_by`). Also check the crawl against the 6-hour GitHub Actions job cap — it
+roughly doubles — and confirm all three EN 319 142-1 editions land in `data/`
+before merging the re-crawl.
+
 ## Testing
 
 - **Index fixture:** `spec/fixtures/index-v2.zip` (pubid `_type:` rows) is loaded
