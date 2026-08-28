@@ -1,3 +1,4 @@
+require "pubid"
 require "relaton/bib"
 require "relaton/index"
 require "relaton/version"
