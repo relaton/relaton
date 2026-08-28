@@ -40,7 +40,7 @@ module Relaton
       # pubid — not a String — is passed to `index.search` so the index narrows
       # candidates by number via binary search before the block runs; each row's
       # `:id` is already a Pubid::Etsi identifier (deserialized via `pubid_class`).
-      # `max_by` on the rendered id picks the latest version/date among matches.
+      # `max_by` on `edition_key` picks the latest edition among the matches.
       #
       # @param index [Relaton::Index::Type]
       # @param pubid [::Pubid::Etsi::Identifier]
@@ -49,7 +49,25 @@ module Relaton
         ignore = %i[version date].select { |attr| pubid.public_send(attr).nil? }
         ignore << :part if pubid.code&.parts.to_a.empty? # part-less ref → all parts
         index.search(pubid) { |row| pubid.matches?(row[:id], ignore: ignore) }
-             .max_by { |row| row[:id].to_s }
+             .max_by { |row| edition_key(row[:id]) }
+      end
+
+      # Sort key for one edition: the version numbers, then the publication date.
+      #
+      # ETSI versions are not zero-padded, so a comparison of the rendered id
+      # orders `V9.0.0` above `V19.0.0` and `ed.9` above `ed.11`, and a bare
+      # reference then resolves to an old edition. `Pubid::Etsi::Identifier` is
+      # not `Comparable` and its `<=>` returns nil, so the key comes from the
+      # parsed components: `version.version` holds the bare numbers (`"19.0.0"`,
+      # or `"9"` for the `ed.9` form) and `date` renders as `yyyy-mm`. Both
+      # delegate to `base` on a corrigendum/amendment id, so every row shape
+      # keys the same way. A missing version or date gives `[]` / `""`, which
+      # sort below any real value — hence the `.to_s` outside each `&.` chain.
+      #
+      # @param id [::Pubid::Etsi::Identifier]
+      # @return [Array(Array<Integer>, String)]
+      def edition_key(id)
+        [(id.version&.version).to_s.split(".").map(&:to_i), id.date.to_s]
       end
 
       # @param ref [String] the ETSI standard Code to look up
