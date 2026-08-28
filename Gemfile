@@ -57,14 +57,8 @@ gemspec
 # `Pubid::<Flavor>::Identifiers::Base` alias from the Category-A flavors (iho,
 # etsi, ...); relaton now names the canonical `Pubid::<Flavor>::Identifier`
 # deserialization root, so the old alias would NameError at IHO/ETSI index load.
-#
-# TEMPORARY BRANCH PIN. The W3C rename above is pubid #339, which is still OPEN,
-# so this points at its branch rather than `main`. The branch is `main` plus that
-# one commit.
-# TODO: back to `branch: "main"` as soon as pubid #339 merges.
 # TODO: revert to the released pubid once these changes ship in a pubid release.
-gem "pubid", git: "https://github.com/metanorma/pubid.git",
-             branch: "feat/w3c-index-number"
+gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake

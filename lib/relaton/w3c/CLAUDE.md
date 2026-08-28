@@ -173,10 +173,11 @@ lookup scanned all 17,287 rows. Keyed on the pubid slug the corpus splits into
 **1,972 buckets**, the largest holding 101 rows.
 
 **The pubid contract.** `Pubid::W3c::Identifier` keeps the slug in `number`.
-It was called `code` until pubid #339, which renamed it with **no alias** — read
-`number`, never `code`. Until that PR merges the root `Gemfile` pins pubid to its
-branch; consumers must run `bundle update pubid`, not `bundle install`, because a
-locked git source does not refloat.
+It was called `code` until pubid #339 (merged 2026-08-28, `181fd4b9`), which
+renamed it with **no alias** — read `number`, never `code`. The root `Gemfile`
+pins pubid to `main`, so a checkout whose lock predates that merge still has the
+old attribute: run `bundle update pubid`, not `bundle install`, because an
+already-locked git source does not refloat.
 
 **Producer, consumer and processor must stay in step.** All three pass
 `pubid_class: ::Pubid::W3c::Identifier` — `DataFetcher#index`,
