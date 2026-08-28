@@ -58,7 +58,29 @@ module Relaton
           # Newest edition wins. Undated rows all score 0, so the file path
           # breaks the tie and a repeated lookup returns the same document
           # (the index sort is not stable).
-          rows.max_by { |r| [r[:id].date.to_i, r[:file]] }
+          rows.max_by { |r| [date_key(r[:id].date), r[:file]] }
+        end
+
+        #
+        # Order key for a W3C publication date.
+        #
+        # The dates are opaque digit runs of varying width, so a plain `to_i`
+        # does not order them: a legacy 6-digit `YYMMDD` always loses to an
+        # 8-digit `YYYYMMDD`, however much later it is (`980619` is June 1998,
+        # `19980512` is May). Restoring the century fixes that — all 63
+        # 6-digit dates in the corpus are 1990s.
+        #
+        # Everything else keeps `to_i`, deliberately. The 21 legacy 4-digit
+        # `MMDD` dates carry no year and cannot be ordered against a real one
+        # at all; as small integers they land below every dated row and above
+        # an undated one, which is where `to_i` already put them.
+        #
+        # @param date [String, nil]
+        # @return [Integer]
+        #
+        def date_key(date)
+          str = date.to_s
+          str.length == 6 ? "19#{str}".to_i : str.to_i
         end
 
         #

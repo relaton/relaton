@@ -107,6 +107,26 @@ describe Relaton::W3c::Bibliography do
       .to output(/Failed to parse pubid/).to_stderr_from_any_process
   end
 
+  # W3C dates are opaque digit runs of varying width, so "newest wins" cannot
+  # be a plain `to_i`: a legacy 6-digit YYMMDD would always lose to an 8-digit
+  # YYYYMMDD however much later it is. The published corpus happens not to
+  # contain such a pair, which is exactly why this is pinned.
+  describe "date ordering across widths" do
+    it "reads a 6-digit YYMMDD as 1990s, so it can beat an earlier 8-digit" do
+      expect(described_class.send(:date_key, "980619"))
+        .to be > described_class.send(:date_key, "19980512")
+    end
+
+    it "keeps a year-less 4-digit MMDD below every real date" do
+      expect(described_class.send(:date_key, "0414"))
+        .to be < described_class.send(:date_key, "971104")
+    end
+
+    it "sorts an undated row lowest" do
+      expect(described_class.send(:date_key, nil)).to eq 0
+    end
+  end
+
   it "not found" do
     expect { described_class.get("W3C NOT-FOUND") }
       .to output(/Not found/).to_stderr_from_any_process
