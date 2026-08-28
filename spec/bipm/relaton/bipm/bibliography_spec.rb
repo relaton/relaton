@@ -328,12 +328,14 @@ RSpec.describe Relaton::Bipm::Bibliography do
   # The index lookup narrows candidate rows by number before it applies the
   # fuzzy `Id#==` block. `Relaton::Index::Type#search` binary-searches only when
   # it is given an identifier, so a pubid is parsed purely to supply that key.
-  context "index narrowing" do
-    # Run a lookup without fetching the document, reporting both how many rows
-    # the fuzzy block saw and how many times `#search` was called. The call
-    # count is what distinguishes a narrowed lookup (one call) from one that
-    # narrowed, missed, and fell back (two calls) — the scanned count cannot,
-    # because an empty bucket contributes no rows at all.
+  # The BIPM lookup matches pubid to pubid, like every other pubid-backed
+  # flavor. `Relaton::Bipm::Id` is retained for the `relaton-data-bipm` crawler
+  # but no longer takes part in a query.
+  context "pubid lookup" do
+    # Run a lookup without fetching the document, reporting how many rows the
+    # match saw and how many times `#search` was called. The call count is what
+    # separates a narrowed lookup from one that missed and rescanned; an empty
+    # bucket contributes no scanned rows of its own.
     def lookup(reference)
       index = described_class.index
       original = index.method(:search)
@@ -347,85 +349,150 @@ RSpec.describe Relaton::Bipm::Bibliography do
           block.call row
         end
       end
-      rows = described_class.search_index reference, described_class.parse_ref(reference)
+      rows = described_class.search_index described_class.parse_ref(reference), reference
       [rows, scanned, calls]
-    end
-
-    # The unconditional full scan this lookup did before the narrowing.
-    def full_scan(reference)
-      ref_id = described_class.parse_ref reference
-      described_class.index.search { |r| ref_id == described_class.id_hash(r[:id]) }
     end
 
     let(:index_size) { described_class.index.index.size }
 
-    context "#narrowing_id" do
-      it "returns the pubid for a reference the pubid grammar accepts" do
-        pubid = described_class.narrowing_id "CCTF Recommendation 2 (2009)"
-        expect(pubid).to be_a ::Pubid::Bipm::Identifiers::CommitteeDocument
-        expect(pubid.root.number.to_s).to eq "2"
-      end
+    # The load-bearing guard for retiring `Id`. Every reference the suite
+    # exercises must resolve to exactly the files it resolved to under the
+    # bespoke grammar. The expectations are pinned literally, captured from the
+    # `Id` implementation before it was removed, so they cannot drift with the
+    # code they check.
+    context "resolves every reference to the same record as the Id grammar did" do
+      baseline = {
+        "CCDS Recommendation 2 (2009)" => ["data/cctf/meeting/recommendation/2009-02.yaml"],
+        "CCTF Meeting 14 (1999)" => ["data/cctf/meeting/14.yaml"],
+        "CCTF REC 2 (2009, EN)" => ["data/cctf/meeting/recommendation/2009-02.yaml"],
+        "CCTF Recommendation 2 (2009)" => ["data/cctf/meeting/recommendation/2009-02.yaml"],
+        "CCTF Recommendation 2009-02" => ["data/cctf/meeting/recommendation/2009-02.yaml"],
+        "CGPM Meeting 1 (1889)" => ["data/cgpm/meeting/1.yaml"],
+        "CGPM RES 1 (1889)" => [],
+        "CGPM Resolution (1889)" => [],
+        "CGPM Resolution 1889-00" => [],
+        "CIPM 111e Réunion (2022)" => ["data/cipm/meeting/111.yaml"],
+        "CIPM 111st Meeting (2022)" => ["data/cipm/meeting/111.yaml"],
+        "CIPM DECN 101-1 (2012)" => ["data/cipm/meeting/decision/2012-101-1.yaml"],
+        "CIPM DECN 101-1 (2012, EN)" => ["data/cipm/meeting/decision/2012-101-1.yaml"],
+        "CIPM DECN 111-10 (2022, E)" => ["data/cipm/meeting/decision/2022-111-10.yaml"],
+        "CIPM Decision 101-1 (2012)" => ["data/cipm/meeting/decision/2012-101-1.yaml"],
+        "CIPM Décision 101-1 (2012)" => ["data/cipm/meeting/decision/2012-101-1.yaml"],
+        "CIPM Meeting 43" => ["data/cipm/meeting/43.yaml"],
+        "CIPM Resolution (1879)" => ["data/cipm/meeting/resolution/1879-00.yaml"],
+        # Number-less declarations are reachable both ways: `Id#==`
+        # collapsed number "1" with none when both carried a year.
+        "CIPM Resolution 1 (1879)" => ["data/cipm/meeting/resolution/1879-00.yaml"],
+        "CGPM Declaration 1 (1889)" => ["data/cgpm/meeting/statement/1889-00.yaml"],
+        "Metrologia" => ["data/metrologia.yaml"],
+        "Metrologia 19 4 163" => ["data/metrologia-19-4-163.yaml"],
+        "Metrologia 29 6" => ["data/metrologia-29-6.yaml"],
+        "Metrologia 29 6 373" => ["data/metrologia-29-6-373.yaml"],
+        "Metrologia 30" => ["data/metrologia-30.yaml"],
+        "Metrologia 30 4" => ["data/metrologia-30-4.yaml"],
+        "Metrologia 34 3 999" => [],
+        "Metrologia 50 4 385" => ["data/metrologia-50-4-385.yaml"],
+        "Metrologia 55 1 L13" => ["data/metrologia-55-1-l13.yaml"],
+        "SI Brochure Part 1" => ["data/si-brochure.yaml", "data/si-brochure.yaml"],
+        "not a real bipm ref (((" => [],      }.freeze
 
-      # pubid used to reject the loose consumer forms, which is why narrowing
-      # is best-effort. It now accepts every form `Id` accepts, so those
-      # references narrow instead of scanning. Kept as a guard: if the pubid
-      # grammar ever narrows again, this fails and says which form regressed.
-      it "derives a key for every loose form the suite exercises" do
-        loose = ["CCTF Meeting 14 (1999)", "CGPM Meeting 1 (1889)",
-                 "CIPM Meeting 43", "CIPM 111e Réunion (2022)",
-                 "CIPM Décision 101-1 (2012)", "CCDS Recommendation 2 (2009)",
-                 "CCTF REC 2 (2009, EN)", "SI Brochure Part 1"]
-        expect(loose.reject { |ref| described_class.narrowing_id ref }).to eq []
-      end
-
-      it "returns nil for an unparseable reference rather than raising" do
-        expect { described_class.narrowing_id "((( nonsense" }.not_to raise_error
-        expect(described_class.narrowing_id("((( nonsense")).to be_nil
+      baseline.each do |reference, expected|
+        it reference.inspect do
+          pubid = described_class.parse_ref reference
+          rows = pubid ? described_class.search_index(pubid, reference) : []
+          expect(rows.map { |r| r[:file] }.sort).to eq expected
+        end
       end
     end
 
+    context "#parse_ref" do
+      it "parses a loose consumer form with the pubid grammar" do
+        expect(described_class.parse_ref("CCDS Recommendation 2 (2009)").to_s)
+          .to eq "CCTF Recommendation 2 (2009)"
+      end
+
+      it "returns nil for an unparseable reference rather than raising" do
+        expect { described_class.parse_ref "((( nonsense" }.not_to raise_error
+        expect(described_class.parse_ref("((( nonsense")).to be_nil
+      end
+    end
+
+    context "#pubid_match?" do
+      # Rows are stored language- and form-neutral; a reference may name a
+      # language and always names a form.
+      it "ignores the language and the form" do
+        row = ::Pubid::Bipm.parse "CCTF Recommendation 2 (2009)"
+        ["CCTF REC 2 (2009, EN)", "CCTF Recommendation 2 (2009)"].each do |ref|
+          expect(described_class.pubid_match?(row, ::Pubid::Bipm.parse(ref))).to be true
+        end
+      end
+
+      # `CIPM Meeting 43` carries no year but its row does. Excluding only
+      # language and form leaves them unequal, which is the correction this
+      # flavor makes to the hand-off's recipe.
+      it "ignores the year when the query carries none" do
+        row = ::Pubid::Bipm.parse "CIPM 43rd Meeting (1950)"
+        expect(described_class.pubid_match?(row, ::Pubid::Bipm.parse("CIPM Meeting 43"))).to be true
+      end
+
+      it "keeps the year when the query supplies one" do
+        row = ::Pubid::Bipm.parse "CIPM 43rd Meeting (1950)"
+        query = ::Pubid::Bipm.parse "CIPM 43rd Meeting (1999)"
+        expect(described_class.pubid_match?(row, query)).to be false
+      end
+
+      # A bare brochure names no edition, so it is a partial reference. This is
+      # what `Id#id_hash`'s {group, type} collapse meant.
+      it "matches any brochure row for an edition-less brochure query" do
+        row = ::Pubid::Bipm.parse "BIPM SI Brochure 9e v3.01 (2019/2024, E)"
+        expect(described_class.pubid_match?(row, ::Pubid::Bipm.parse("SI Brochure"))).to be true
+      end
+    end
+
+    # `#pubid_match?` rejects on CHEAP_KEYS before building the stem, because
+    # `#exclude` copies the identifier and doing that per row cost ~165x a
+    # plain attribute read. The optimisation is only sound if stem equality
+    # implies equality on every one of those keys. Settle it by assertion
+    # rather than by argument, over the real corpus.
+    it "never rejects a row whose stem matches the query" do
+      rows = described_class.index.index
+      sample = rows.each_slice(40).map(&:first)
+      wrong = sample.reject do |row|
+        query = row[:id]
+        # The stem is what decides; the cheap keys must not veto it.
+        described_class.stem(row[:id], query) != described_class.stem(query, query) ||
+          described_class.send(:cheap_reject_passes?, row[:id], query)
+      end
+      expect(sample.size).to be > 150
+      expect(wrong.map { |r| r[:file] }).to eq []
+    end
+
     context "#search_index" do
-      it "scans only the number bucket when pubid and the index agree" do
+      it "scans only the number bucket when the query keys to its row" do
         rows, scanned, calls = lookup "CCTF Recommendation 2 (2009)"
-        expect(rows.size).to eq 1
-        expect(rows.first[:file]).to eq "data/cctf/meeting/recommendation/2009-02.yaml"
+        expect(rows.map { |r| r[:file] }).to eq ["data/cctf/meeting/recommendation/2009-02.yaml"]
         expect(calls).to eq 1
         expect(scanned).to be < index_size / 10
       end
 
-      # `Id` reads `2009-02` as year 2009 / number 2; pubid reads it as the
-      # literal number `2009-02`. The narrowed bucket is empty, so only the
-      # full scan recovers the row.
-      it "falls back to the full scan when the narrowed bucket misses" do
-        rows, scanned, calls = lookup "CCTF Recommendation 2009-02"
-        expect(rows.size).to eq 1
-        expect(rows.first[:file]).to eq "data/cctf/meeting/recommendation/2009-02.yaml"
-        # Two calls: the narrowed one that found nothing, then the full scan.
-        # The bucket is empty, so it contributes no scanned rows of its own.
+      # A bare brochure keys to "" while its row keys to its edition "9e", so
+      # the narrowed range cannot contain it and only the rescan finds it. The
+      # "" bucket is not empty — it holds the six ordinal-less declarations and
+      # the journal-level Metrologia record — so the narrowed pass scans those
+      # seven first, and the total exceeds a single scan.
+      it "rescans the whole index when the narrowed range does not match" do
+        rows, scanned, calls = lookup "SI Brochure Part 1"
+        expect(rows.map { |r| r[:file] }.uniq).to eq ["data/si-brochure.yaml"]
         expect(calls).to eq 2
-        expect(scanned).to eq index_size
+        expect(scanned).to be > index_size
       end
 
-      # The no-narrowing branch. pubid now parses every reference `Id` parses,
-      # so no real reference reaches it; drive it by withholding the key
-      # instead, because the branch still has to work if that changes.
-      it "scans everything when no narrowing key can be derived" do
-        allow(described_class).to receive(:narrowing_id).and_return nil
-        rows, scanned, calls = lookup "CCDS Recommendation 2 (2009)"
-        expect(rows.size).to eq 1
-        expect(calls).to eq 1
-        expect(scanned).to eq index_size
-      end
-
-      it "still resolves a number-less committee document" do
-        rows, = lookup "CIPM Resolution (1879)"
-        expect(rows.size).to eq 1
-        expect(rows.first[:file]).to eq "data/cipm/meeting/resolution/1879-00.yaml"
-      end
-
-      it "still resolves a Metrologia article" do
-        rows, = lookup "Metrologia 29 6 373"
-        expect(rows.size).to eq 1
+      # `2009-02` parses as the literal number, while the row keys on 2. A
+      # rescan cannot recover it -- no row carries that number -- so the
+      # reference is retried as number plus year.
+      it "retries a trailing YYYY-NN as number and year" do
+        rows, = lookup "CCTF Recommendation 2009-02"
+        expect(rows.map { |r| r[:file] }).to eq ["data/cctf/meeting/recommendation/2009-02.yaml"]
       end
 
       it "returns no rows for a reference that is not in the index" do
@@ -434,65 +501,19 @@ RSpec.describe Relaton::Bipm::Bibliography do
       end
     end
 
-    # The fallback fires only on an EMPTY narrowed range. A query whose matches
-    # straddle two buckets would therefore lose one silently, without ever
-    # falling back. `Id#==` collapses number "1" and no number when a year is
-    # present, and that is the same field the index buckets on, so the two
-    # can in principle disagree.
-    #
-    # These two examples settle it by assertion rather than by argument: the
-    # rows `#search_index` returns must equal the rows the unconditional full
-    # scan returns, for every reference checked.
-    context "equivalence with the full scan" do
-      # Every reference that can straddle the "1"/"" boundary: the rows with no
-      # number, and every row numbered "1".
-      it "agrees on every reference that could straddle two buckets" do
-        rows = described_class.index.index.select do |row|
-          number = described_class.id_hash(row[:id])[:number]
-          number.nil? || number.to_s == "1"
-        end
-        expect(rows.size).to be > 50
-        expect(mismatches(rows)).to eq []
+    context "#year_number_retry" do
+      it "rewrites a trailing YYYY-NN and strips the leading zero" do
+        expect(described_class.year_number_retry("CCTF Recommendation 2009-02").to_s)
+          .to eq "CCTF Recommendation 2 (2009)"
       end
 
-      it "agrees on a sample drawn from across the index" do
-        rows = described_class.index.index.each_slice(60).map(&:first)
-        expect(rows.size).to be > 100
-        expect(mismatches(rows)).to eq []
+      it "returns nil when the reference has no trailing YYYY-NN" do
+        expect(described_class.year_number_retry("CCTF Recommendation 2 (2009)")).to be_nil
       end
 
-      # Query the index by each row's own rendered identifier and report the
-      # rows where narrowing changed the result.
-      def mismatches(rows)
-        rows.filter_map do |row|
-          reference = row[:id].to_s
-          narrowed = described_class.search_index reference, described_class.parse_ref(reference)
-          full = full_scan reference
-          next if narrowed.map { |r| r[:file] }.sort == full.map { |r| r[:file] }.sort
-
-          reference
-        rescue Relaton::RequestError
-          nil # `Id` cannot parse this row's rendering; no lookup is possible
-        end
+      it "returns nil for a nil reference" do
+        expect(described_class.year_number_retry(nil)).to be_nil
       end
-    end
-
-    # Guards the derivation against drift: the key pubid derives from a query
-    # must equal the key the index sorted the row under. Only the two families
-    # whose rows carry a number can be checked today; Metrologia and SI
-    # Brochure rows key to "" until pubid derives a number for them.
-    it "derives the same key from a query as the index stored for the row" do
-      families = [::Pubid::Bipm::Identifiers::CommitteeDocument,
-                  ::Pubid::Bipm::Identifiers::Meeting]
-      rows = described_class.index.index.select do |row|
-        families.any? { |f| row[:id].is_a? f } && !row[:id].number.to_s.empty?
-      end
-      expect(rows.size).to be > 1_500
-      mismatched = rows.reject do |row|
-        pubid = described_class.narrowing_id row[:id].to_s
-        pubid && pubid.root.number.to_s == row[:id].root.number.to_s
-      end
-      expect(mismatched.map { |r| r[:file] }).to eq []
     end
   end
 end

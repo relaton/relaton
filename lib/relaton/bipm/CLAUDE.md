@@ -33,29 +33,29 @@ The **legacy bespoke `index-v1`** (the old `{group,type,number,year}` hash form)
 is no longer produced or read by this flavor. It is still published by
 `relaton-data-bipm`'s own `crawler.rb`, which builds it with the **retained**
 `Relaton::Bipm::Id` (this flavor keeps `Id` public for exactly that). So `Id` is
-now used in two places only: the crawler's `index-v1` generation, and this
-flavor's **consumer query parsing** (below).
+now used in **one place only** — the crawler's `index-v1` generation. It was
+also this flavor's consumer query parser until pubid's grammar widened enough to
+replace it; see **Pubid-to-pubid lookup** below.
 
 ### Key Components
 
 - **`Bibliography`** (`bibliography.rb`) - Main entry point. Parses the user
-  reference with the flexible bespoke `Id` grammar (`parse_ref`, returning nil on
-  an unparseable ref rather than raising), then looks it up in the pubid
-  `index-v2`. Because the stricter `Pubid::Bipm` grammar rejects the loose
-  consumer forms users type (`CCTF Meeting 14 (1999)`, `CCDS …`, `… (2009, EN)`,
-  `SI Brochure Part 1`, French `Décision`/`Réunion`), matching stays on `Id`:
-  each index row's `Pubid::Bipm` object is projected back to the bespoke
-  `{group,type,number,year,lang}` hash by `#id_hash` and compared with `Id#==`
-  (its number/year/lang collapsing preserved); the latest edition wins via
+  reference with `::Pubid::Bipm.parse` (`#parse_ref`, returning nil on an
+  unparseable ref rather than raising) and matches the pubid `index-v2` rows as
+  pubid objects — see **Pubid-to-pubid lookup** below for the stem and the two
+  escapes under it. The latest edition wins via
   `max_by { |r| [r[:id].year.to_i, r[:file]] }` (the file path only breaks a
   tie — Metrologia and SI Brochure rows carry no year, so all 6206 of them
   score 0 and the index sort is not stable).
 - **`Id`** (`id_parser.rb`) - The flexible bespoke regex parser. Parses BIPM
   reference strings into `{group,type,number,year,…}` hashes; the `TYPES` hash
   maps full EN/FR type names to abbreviations, and `normalize_hash` applies
-  `CCDS→CCTF` and leading-zero stripping. **Retained** as the query parser
-  (above) and as the `relaton-data-bipm` crawler's `index-v1` builder; **not**
-  used to write this flavor's `index-v2`. JCGM is not handled here.
+  `CCDS→CCTF` and leading-zero stripping. **Retained solely** as the
+  `relaton-data-bipm` crawler's `index-v1` builder — it no longer parses
+  queries, and it is **not** used to write this flavor's `index-v2`.
+  `bibliography.rb` does not require it; `lib/relaton/bipm.rb` does, which is
+  what keeps `Relaton::Bipm::Id` reachable for the crawler. JCGM is not handled
+  here.
 - **`Processor`** (`processor.rb`) - Relaton framework integration point (extends
   `Relaton::Core::Processor`). Registers prefix `BIPM` and default prefix pattern
   matching BIPM, CCTF, CCDS, CGPM, CIPM, JCRB (JCGM was split out into the `jcgm`
@@ -75,68 +75,73 @@ flavor's **consumer query parsing** (below).
 - **`model/`** directory - Lutaml model classes (Bibdata, Bibitem, Ext, etc.) for
   XML/YAML serialization.
 
-### Index narrowing, and why it needs a fallback
+### Pubid-to-pubid lookup
 
-`Relaton::Index::Type#search` binary-searches the index only when the caller
-gives it an identifier; a block-only call scans all ~7,900 rows. `#search_index`
-therefore parses the reference a **second** time, with pubid (`#narrowing_id`),
-purely to supply that key — the same `index.search(pubid) { … }` call shape ISO,
-OIML and JCGM use. The *match* stays on `Id#==`, because pubid cannot parse the
-loose forms. Measured on the spec fixture: **19–28x** faster, for every query
-form the suite exercises.
+`#get_bipm` parses the reference with `::Pubid::Bipm.parse` and matches the
+index rows as pubid objects — the same shape ISO, OIML and JCGM use. The
+bespoke `Id` grammar takes **no part in a query**. That became possible with
+pubid `a96e9f45`, which accepts the loose consumer forms this flavor once
+needed `Id` for and *normalizes* them to BIPM's canonical spelling
+(`CCDS Recommendation 2 (2009)` → `CCTF Recommendation 2 (2009)`,
+`CIPM 111e Réunion (2022)` → `CIPM 111<sup>e</sup> réunion (2022)`).
 
-Two cases make an **empty narrowed range** possible even though the document is
-in the index, so `#search_index` repeats the search over the whole index when
-the narrowed one comes back empty:
+**The stem.** Committee-document and meeting rows are stored language- and
+form-neutral, while a reference may name a language (`(2009, E)`) and always
+names a form (short `CCTF REC 2` vs long `CCTF Recommendation 2`). So
+`#pubid_match?` compares `exclude(:language, :form)`, adding `:year` when the
+**query** carries none — `CIPM Meeting 43` has no year, its row has 1950. That
+last clause is what `Id#==` did with
+`other_hash.delete(:year) unless hash[:year]`; without it the lookup regresses.
 
-1. **The two grammars disagree on the number.** `CCTF Recommendation 2009-02`
-   is year 2009 / number 2 to `Id`, and the literal number `2009-02` to pubid,
-   while the row keys on `2`. The reading is genuinely ambiguous — `NNNN-NN` is
-   a real BIPM number form elsewhere (`CIPM 2005-06`) — so this is not an
-   upstream bug to fix.
-2. **The index was built by a pubid that derived no `number`.** No longer the
-   case — `relaton-data-bipm` republished `index-v2` on 2026-08-24 and 7915 of
-   its 7922 rows now carry one, leaving 7 in the `""` bucket (the six
-   ordinal-less declarations and `data/metrologia.yaml`). It was the case
-   before, when 6206 metrologia and si-brochure rows all keyed to `""`, and it
-   becomes the case again for anyone holding an older index — which is why the
-   fallback stays.
+**Two escapes sit under the narrowing**, each for a case where the query's
+bsearch key cannot equal its row's:
 
-The fallback costs one extra binary search and makes the narrowing **incapable
-of regressing a lookup** — worst case it is exactly the full scan this method
-did before. `spec/bipm/relaton/bipm/bibliography_spec.rb` covers all three paths
-(narrowed, fallback and pubid-rejected), distinguishing them by how many times
-`#search` is called rather than by the scanned-row count — an empty bucket
-contributes no scanned rows, so a fallback lookup scans exactly as many rows as
-an unnarrowed one.
+1. **A bare `SI Brochure` names no edition**, so it keys to `""` while its row
+   keys to `"9e"`. `#search_index` rescans the whole index. A brochure query
+   with a nil edition is a *partial* reference and deliberately matches any
+   brochure row — what the old `{group: "SI", type: "Brochure"}` projection
+   meant. `Part N` names a section inside the brochure, not a document, so it
+   stays out of the key exactly as `Id#==` kept `:part` out.
+2. **`CCTF Recommendation 2009-02` parses as the literal number `2009-02`**,
+   while the row keys on `2`. A rescan cannot help — no row carries that number
+   — so `#year_number_retry` re-reads a trailing `YYYY-NN` as number plus year.
+   It runs **only after a miss**, because `NNNN-NN` is also a real BIPM number
+   (`CIPM 2005-06`), so the literal reading must win.
 
-One hazard needs more than the empty-check to rule out: the fallback fires only
-on an **empty** narrowed range, so a query whose matches straddle two buckets
-would lose one silently. `Id#==` collapses number `"1"` and no number, and that
-is the same field the index buckets on. The specs settle this by assertion, not
-by argument — `#search_index` must return the same rows as the unconditional
-full scan, checked over every row that can straddle the `"1"`/`""` boundary and
-over a sample drawn across the index. They also re-parse all 1,706 numbered
-rows to guard the key derivation against drift.
+**One rule survives from `Id#==` and must not be dropped.** It treated a
+document numbered `"1"` and a number-less one as the same document when both
+carried a year, so `CIPM Resolution 1 (1879)` reached `CIPM RES (1879)`. pubid
+has no such rule, and the six ordinal-less declarations
+(`CGPM DECL (1889)`, `CIPM RES (1879)`, …) are the only rows it applies to — but
+they are addressable *both* ways, so removing it silently broke
+`CIPM Resolution 1 (1879)` and `CGPM Declaration 1 (1889)`. `#number_collapses?`
+restores it by excluding `:number` from that one comparison. Both forms are in
+the pinned baseline. Note the corpus has **no two rows** the rule could join
+(6 number-less against 83 numbered `"1"`, no shared group/type/year), so it only
+ever widens a query, never merges records.
 
-`#narrowing_id` used to return nil for ~8 loose forms pubid rejected, so those
-scanned the whole index. **That gap is closed.** pubid `a96e9f45` accepts the
-meeting word order, the French type names, the `CCDS` alias, two-letter
-language codes and the SI Brochure `Part`/`Appendix` suffix, so over every form
-the suite exercises pubid now parses everything `Id` parses — it refuses only
-input `Id` refuses too, and `get_bipm` returns before reaching it. The nil
-branch is therefore unreachable in practice; it is kept because nothing
-guarantees the two grammars stay converged, and
-`spec/bipm/relaton/bipm/bibliography_spec.rb` drives it by withholding the key
-rather than by naming a reference.
+**Cost.** `#exclude` copies the identifier, so reducing per candidate row is
+expensive — roughly **165x** a plain attribute read. Two things keep the lookup
+at or below what the `Id` grammar cost: the query is reduced **once per search**,
+not once per row, and `#pubid_match?` rejects on `CHEAP_KEYS`
+(`number group year issue article`) before reducing anything. Those are exactly
+the attributes the stem never removes, so stem equality implies all of them and
+the rejects cannot change an answer — a spec asserts that over the corpus rather
+than trusting the argument. Without both, a bare-brochure rescan built ~7,900
+copies and took **2.3 s**; with them the same lookup is 2.8 ms and a narrowed
+one 0.4–0.5 ms, against 0.5–0.7 ms under `Id`.
 
-That convergence unlocks the real simplification, which is **not yet done**:
-`get_bipm` can now match pubid to pubid like ISO does
-(`index.search(pubid) { |r| pubid_match? r[:id], pubid }`), retiring `Id`,
-`#id_hash`, `#parse_ref` and the fallback from the query path. `Id` itself must
-stay public — `relaton-data-bipm`'s crawler still builds `index-v1` with it.
-Doing so would also end the `CCTF Recommendation 2009-02` disagreement, since
-one grammar cannot disagree with itself.
+**The regression guard.** `spec/bipm/relaton/bipm/bibliography_spec.rb` pins,
+literally, the file each of the 29 references the suite exercises resolved to
+under the `Id` grammar, captured before it was removed. Any change to matching
+that moves a lookup fails there by name. That is the evidence for the swap —
+`Id#==` was fuzzier than the stem match in ways no spec pinned (it collapsed
+number `"1"` with nil, dropped `:part`/`:append`), so equivalence had to be
+demonstrated rather than argued.
+
+`Relaton::Bipm::Id` and `id_parser.rb` **stay** — `relaton-data-bipm`'s crawler
+builds `index-v1` with them, and `id_parser_spec.rb` still covers them. Only
+`bibliography.rb` stopped requiring the file.
 
 ### Data Sources
 
