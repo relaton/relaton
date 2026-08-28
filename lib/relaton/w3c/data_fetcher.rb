@@ -3,7 +3,6 @@ require "w3c_api"
 require_relative "../w3c"
 require_relative "safe_realize"
 require_relative "data_parser"
-require_relative "pubid"
 
 module Relaton
   module W3c
@@ -84,8 +83,14 @@ module Relaton
         @interrupted = false
       end
 
+      # The index is pubid-backed: `pubid_class:` makes Relaton::Index sort the
+      # rows by `id.root.number` on save and serialize each id to its
+      # `_type: pubid:w3c:*` hash. Without it a v1-shaped file would be written
+      # under a v2 name, with no error and no narrowing.
       def index
-        @index ||= Relaton::Index.find_or_create(:W3C, file: "#{INDEXFILE}.yaml")
+        @index ||= Relaton::Index.find_or_create(
+          :W3C, file: "#{INDEXFILE}.yaml", pubid_class: ::Pubid::W3c::Identifier
+        )
       end
 
       def log_error(msg)
@@ -289,12 +294,39 @@ module Relaton
           if @files.include?(file)
             Util.warn "File #{file} already exists. Document: #{bib.docnumber}" if warn_duplicate
           else
-            pubid = PubId.parse bib.docnumber
-            index.add_or_update pubid.to_hash, file
+            index_primary bib.docidentifier&.detect(&:primary), file
             @files << file
           end
           File.write file, serialize(bib), encoding: "UTF-8"
         end
+      end
+
+      #
+      # Add a document's primary id to the index.
+      #
+      # Every W3C id is expected to parse. One that does not is recorded in
+      # `@errors`, so the inherited `report_errors` logs it at ERROR and raises
+      # a tracked GitHub issue at the end of the crawl, and the row is skipped
+      # rather than indexed unparsed: `Relaton::Index` rejects the WHOLE index
+      # if a single row fails to deserialize, and its sort calls
+      # `.root.number` on every id. The data file is still written, so the
+      # document is unindexed, never lost.
+      #
+      # Keyed by the ID rather than the output path: the id is the defect, the
+      # file is only where it landed, and one broken id reaching several files
+      # must still report once.
+      #
+      # @param [Docidentifier, nil] docid the document's primary identifier
+      # @param [String] file path the document was written to
+      #
+      def index_primary(docid, file)
+        if docid&.pubid
+          index.add_or_update docid.pubid, file
+          return
+        end
+
+        id = docid&.content || file
+        @errors[id.to_s] = "Unparseable primary id `#{id}` was not indexed (#{file})"
       end
 
       def to_xml(bib)

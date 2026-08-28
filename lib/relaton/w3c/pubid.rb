@@ -1,5 +1,17 @@
 module Relaton
   module W3c
+    # The legacy `index-v1` row shape.
+    #
+    # This is no longer on any lookup or crawl path in this gem: the flavor
+    # indexes and searches on `Pubid::W3c::Identifier` (see
+    # `Relaton::W3c::Docidentifier` and `INDEXFILE`). It is retained public
+    # only so `relaton-data-w3c`'s crawler can keep emitting the bespoke
+    # `index-v1` that released relaton v2 consumers read — the same reason
+    # `Relaton::Bipm::Id` was retained.
+    #
+    # Do not add call sites. Its decomposition differs from pubid's: it splits
+    # `year` from `date` and keeps a `/`-suffix in `suff`, where pubid folds
+    # both into the slug.
     class PubId
       PARTS = %i[code stage type year date suff].freeze
 

@@ -360,6 +360,17 @@ regex back.
   the bsearch key `number` holds the **top-level registry slug** — it was empty
   before pubid `feat/iana-index-number`, which would have bucketed all 3405 rows
   together and silently degraded the search. See `lib/relaton/iana/CLAUDE.md`.
+  **W3C** is the same shape again, and is the pilot for the 13 flavors that still
+  parse ids by hand: its `INDEXFILE` is the pubid `index-v2`
+  (`_type: pubid:w3c:*`, via `pubid_class: ::Pubid::W3c::Identifier`), the
+  bespoke `index-v1` moves to `relaton-data-w3c`'s crawler (which keeps using the
+  retained public `Relaton::W3c::PubId`), and the slug reaches the bsearch key
+  through `Relaton::W3c::Docidentifier#pubid` — W3C ids are named rather than
+  numbered, so pubid #339 had to rename the slug attribute `code` -> `number`
+  (no alias) before an index-v2 was possible at all. The consumer narrows with
+  `Pubid::Identifier#matches?`, ignoring only what the reference omitted (the
+  ETSI idiom); a URL and a leading `TR-` are normalized in the flavor, since
+  neither is an identifier. See `lib/relaton/w3c/CLAUDE.md`.
   The index schema
   and data-repo publishing/Pages contract are specified in
   `docs/data-repository-format.adoc`; see also `lib/relaton/index/CLAUDE.md`.

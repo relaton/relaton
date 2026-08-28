@@ -72,6 +72,61 @@ describe Relaton::W3c::Bibliography do
     expect(doc.docidentifier[0].content).to eq "W3C xml"
   end
 
+  # The point of index-v2: `Index::Type#search` binary-searches on
+  # `id.root.number` when it is handed the pubid, instead of scanning all
+  # 17,303 rows. Asserted by counting the rows the block actually sees.
+  it "narrows the index by number instead of scanning it" do
+    index = Relaton::Index.find_or_create(:W3C, url: true)
+    seen = 0
+    allow(index).to receive(:search).and_wrap_original do |orig, *args, &blk|
+      orig.call(*args) { |r| seen += 1; blk.call(r) }
+    end
+    allow(described_class).to receive(:index).and_return(index)
+
+    described_class.send :best_match,
+                         Pubid::W3c::Identifier.parse("W3C REC-xml-names-20091208")
+
+    expect(seen).to be > 0
+    expect(seen).to be < index.index.size / 100
+  end
+
+  # `PubId#==` compared its slug with `casecmp?`, but the bsearch key is
+  # case-sensitive, so the narrowed range alone would lose this. The full-scan
+  # fallback keeps it.
+  it "still matches a slug that differs only by case" do
+    row = described_class.send :best_match,
+                               Pubid::W3c::Identifier.parse("W3C REC-XML-NAMES-20091208")
+    expect(row[:file]).to eq "data/rec-xml-names-20091208.yaml"
+  end
+
+  # A reference pubid rejects is a graceful miss, not a `RequestError`. The
+  # grammar takes any slug after the publisher prefix, so an empty reference
+  # is what actually fails to parse.
+  it "returns nothing for a reference pubid cannot parse" do
+    expect { expect(described_class.send(:parse_ref, "  ")).to be_nil }
+      .to output(/Failed to parse pubid/).to_stderr_from_any_process
+  end
+
+  # W3C dates are opaque digit runs of varying width, so "newest wins" cannot
+  # be a plain `to_i`: a legacy 6-digit YYMMDD would always lose to an 8-digit
+  # YYYYMMDD however much later it is. The published corpus happens not to
+  # contain such a pair, which is exactly why this is pinned.
+  describe "date ordering across widths" do
+    it "reads a 6-digit YYMMDD as 1990s, so it can beat an earlier 8-digit" do
+      expect(described_class.send(:date_key, "980619"))
+        .to be > described_class.send(:date_key, "19980512")
+    end
+
+    it "keeps a year-less 4-digit MMDD below every real date" do
+      expect(described_class.send(:date_key, "0414"))
+        .to be < described_class.send(:date_key, "971104")
+    end
+
+    it "sorts an undated row lowest" do
+      expect(described_class.send(:date_key, nil)).to eq 0
+    end
+  end
+
   it "not found" do
     expect { described_class.get("W3C NOT-FOUND") }
       .to output(/Not found/).to_stderr_from_any_process

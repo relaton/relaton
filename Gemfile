@@ -42,14 +42,20 @@ gemspec
 #     slug living in `number` so the index bsearch key is non-empty. The last is
 #     the same trap IANA hit above, in a different flavor.
 #     `spec/ietf/relaton/ietf/pubid_contract_spec.rb` fails without them.
-# All live on pubid `main`, which also carries the `base_identifier` → `base`
+#   - W3C: `Pubid::W3c::Identifier` stored the document slug in `code` and never
+#     set the `number` it inherits, so every index row keyed on `""` and
+#     `Relaton::Index::Type#candidates_by_number` degraded to a linear scan over
+#     the whole index, silently. pubid #339 renames the attribute `code` ->
+#     `number`, with NO alias reader; `Relaton::W3c::Docidentifier` and the
+#     `index-v2` this gem now writes both read `number`.
+# All live on pubid `main`, which also carries the `base_identifier` -> `base`
 # accessor/serialization-key rename (pubid #139) that relaton adopts here: pubid
 # removed `.base_identifier` with no alias, and `#root` now reaches the origin for
 # every flavor (the index narrowing key relies on it). main is the SAME pubid that
 # built the published relaton-data-{jcgm,etsi,cie,itu-r,ieee} indexes, so those
 # flavors can deserialize them. main also DROPPED the redundant
 # `Pubid::<Flavor>::Identifiers::Base` alias from the Category-A flavors (iho,
-# etsi, …); relaton now names the canonical `Pubid::<Flavor>::Identifier`
+# etsi, ...); relaton now names the canonical `Pubid::<Flavor>::Identifier`
 # deserialization root, so the old alias would NameError at IHO/ETSI index load.
 # TODO: revert to the released pubid once these changes ship in a pubid release.
 gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"

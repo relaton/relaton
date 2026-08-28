@@ -38,6 +38,10 @@ RSpec.describe Relaton::W3c::DataParser do
       expect(doc.docidentifier[0].content).to eq "W3C REC-webrtc-20241008"
       expect(doc.docidentifier[0].type).to eq "W3C"
       expect(doc.docidentifier[0].primary).to be true
+      expect(doc.docidentifier[0]).to be_a Relaton::W3c::Docidentifier
+      expect(doc.docidentifier[0].pubid)
+        .to be_a Pubid::W3c::Identifiers::Recommendation
+      expect(doc.docidentifier[0].pubid.number).to eq "webrtc"
       expect(doc.docnumber).to eq "REC-webrtc-20241008"
       expect(doc.series[0].title[0].content).to eq "W3C Recommendation"
       expect(doc.series[0].number).to eq "REC-webrtc-20241008"

@@ -42,7 +42,8 @@ RSpec.describe Relaton::W3c::DataFetcher do
 
     before do
       allow(Relaton::Index).to receive(:find_or_create)
-        .with(:W3C, file: "index-v1.yaml").and_return(index)
+        .with(:W3C, file: "index-v2.yaml",
+                    pubid_class: ::Pubid::W3c::Identifier).and_return(index)
     end
 
     it "initialize fetcher" do
@@ -453,7 +454,14 @@ RSpec.describe Relaton::W3c::DataFetcher do
     end
 
     context "#save_doc" do
-      let(:bib) { double("bib", docnumber: "W3C REC-xml-names") }
+      let(:docid) do
+        Relaton::W3c::Docidentifier.new(
+          type: "W3C", content: "W3C REC-xml-names", primary: true
+        )
+      end
+      let(:bib) do
+        double("bib", docnumber: "W3C REC-xml-names", docidentifier: [docid])
+      end
 
       it "skip on nil" do
         expect(subject).not_to receive(:file_name)
@@ -471,7 +479,7 @@ RSpec.describe Relaton::W3c::DataFetcher do
             .with("dir/rec-xml-names.xml", "<xml/>", encoding: "UTF-8")
           subject.save_doc bib
           expect(index).to have_received(:add_or_update)
-            .with(kind_of(Hash), "dir/rec-xml-names.xml")
+            .with(kind_of(::Pubid::W3c::Identifier), "dir/rec-xml-names.xml")
         end
 
         it "xml format" do
@@ -481,7 +489,7 @@ RSpec.describe Relaton::W3c::DataFetcher do
             .with("dir/rec-xml-names.xml", "<xml/>", encoding: "UTF-8")
           subject.save_doc bib
           expect(index).to have_received(:add_or_update)
-            .with(kind_of(Hash), "dir/rec-xml-names.xml")
+            .with(kind_of(::Pubid::W3c::Identifier), "dir/rec-xml-names.xml")
         end
 
         it "yaml format" do
@@ -492,7 +500,52 @@ RSpec.describe Relaton::W3c::DataFetcher do
             .with("dir/rec-xml-names.yaml", "---\nid: 123\n", encoding: "UTF-8")
           subject.save_doc bib
           expect(index).to have_received(:add_or_update)
-            .with(kind_of(Hash), "dir/rec-xml-names.yaml")
+            .with(kind_of(::Pubid::W3c::Identifier), "dir/rec-xml-names.yaml")
+        end
+      end
+
+      # Relaton::Index rejects the WHOLE index if one row fails to
+      # deserialize, so a document whose id pubid cannot parse must stay out of
+      # the index rather than poison every lookup. The document itself is still
+      # written, so it is unindexed, not lost.
+      context "when the primary id does not parse" do
+        let(:docid) do
+          Relaton::W3c::Docidentifier.new(
+            type: "W3C", content: "not a W3C ref at all", primary: true
+          )
+        end
+
+        before do
+          allow(index).to receive(:add_or_update)
+          allow(bib).to receive(:to_xml).with(no_args).and_return("<xml/>")
+          allow(File).to receive(:write)
+        end
+
+        it "still writes the document" do
+          expect(File).to receive(:write)
+            .with("dir/rec-xml-names.xml", "<xml/>", encoding: "UTF-8")
+          subject.save_doc bib
+        end
+
+        it "leaves it out of the index" do
+          subject.save_doc bib
+          expect(index).not_to have_received(:add_or_update)
+        end
+
+        it "records the failure under the id, not the output path" do
+          subject.save_doc bib
+          expect(subject.instance_variable_get(:@errors))
+            .to include("not a W3C ref at all" =>
+              "Unparseable primary id `not a W3C ref at all` was not " \
+              "indexed (dir/rec-xml-names.xml)")
+        end
+
+        it "reports it at ERROR through report_errors" do
+          subject.save_doc bib
+          allow(subject).to receive(:gh_issue).and_return nil
+          expect(subject).to receive(:log_error)
+            .with(/Unparseable primary id `not a W3C ref at all`/)
+          subject.report_errors
         end
       end
 

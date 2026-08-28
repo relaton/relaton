@@ -41,7 +41,8 @@ module Relaton
       def remove_index_file
         require_relative "../w3c"
         Relaton::Index.find_or_create(
-          :W3C, url: true, file: "#{INDEXFILE}.yaml"
+          :W3C, url: true, file: "#{INDEXFILE}.yaml",
+          pubid_class: ::Pubid::W3c::Identifier
         ).remove_file
       end
     end
