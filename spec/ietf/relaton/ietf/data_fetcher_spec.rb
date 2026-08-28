@@ -1,6 +1,10 @@
+require "tmpdir"
 require "relaton/ietf/data_fetcher"
 
 RSpec.describe Relaton::Ietf::DataFetcher do
+  # `write_unique` creates with O_EXCL so a peer process cannot be clobbered.
+  EXCL = Relaton::Core::DataFetcher::EXCLUSIVE
+
   let(:index) do
     idx = double("index")
     allow(idx).to receive(:add_or_update)
@@ -532,6 +536,156 @@ RSpec.describe Relaton::Ietf::DataFetcher do
     end
   end
 
+  describe "#reconcile_output_files" do
+    # Workers write from forked processes, so `write_unique` can only take a
+    # path of its own on a clash — it cannot know WHICH of the clashing docids
+    # deserves the plain name. The parent settles that here, once it can see
+    # every docid, so the published filenames do not follow the race.
+    subject { described_class.new("dir", "yaml") }
+
+    let(:plain) { "dir/draft-x.yaml" }
+
+    def entry(docid, file, plain_file: plain)
+      { docnumber: docid, docid: docid, index_id: docid, file: file, plain_file: plain_file }
+    end
+
+    before { allow(File).to receive(:exist?).and_return(true) }
+
+    it "leaves a lone record that already holds its plain path alone" do
+      expect(File).not_to receive(:rename)
+      results = [entry("draft-x", plain)]
+      subject.send(:reconcile_output_files, results)
+      expect(results.first[:file]).to eq plain
+    end
+
+    it "puts a lone record that fell back to a digest path back on the plain one" do
+      # Otherwise the published filename churns and the old file is orphaned.
+      digest = subject.send(:digest_output_file, "draft-x")
+      expect(File).to receive(:rename).with(digest, plain)
+      results = [entry("draft-x", digest)]
+      subject.send(:reconcile_output_files, results)
+      expect(results.first[:file]).to eq plain
+    end
+
+    it "gives the first docid in sort order the plain path and the rest a digest" do
+      a = entry("draft-x", plain)
+      b = entry("draft-x-", subject.send(:digest_output_file, "draft-x-"))
+      allow(File).to receive(:rename)
+      subject.send(:reconcile_output_files, [a, b])
+      expect(a[:file]).to eq plain
+      expect(b[:file]).to eq subject.send(:digest_output_file, "draft-x-")
+    end
+
+    it "assigns the same paths whatever order the workers returned in" do
+      # `sort_by` is not stable in Ruby, so the key has to break every tie or a
+      # re-crawl renames files for no reason.
+      forward = [entry("draft-x", plain), entry("draft-x-", "dir/tmp.yaml")]
+      backward = [entry("draft-x-", "dir/tmp.yaml"), entry("draft-x", plain)]
+      allow(File).to receive(:rename)
+      subject.send(:reconcile_output_files, forward)
+      described_class.new("dir", "yaml").send(:reconcile_output_files, backward)
+      expect(backward.map { |r| [r[:docid], r[:file]] }.sort)
+        .to eq forward.map { |r| [r[:docid], r[:file]] }.sort
+    end
+
+    it "frees the plain path before the winner claims it" do
+      # The loser currently sits on the plain path; renaming the winner first
+      # would clobber it.
+      winner = entry("draft-x", "dir/tmp.yaml")
+      loser = entry("draft-x-", plain)
+      digest = subject.send(:digest_output_file, "draft-x-")
+      expect(File).to receive(:rename).with(plain, digest).ordered
+      expect(File).to receive(:rename).with("dir/tmp.yaml", plain).ordered
+      subject.send(:reconcile_output_files, [winner, loser])
+    end
+
+    it "collapses two results for ONE docid into one file, and warns" do
+      # A genuine duplicate must stay one file: today's behaviour is one file
+      # and one warning, and splitting it in two would be a silent change.
+      digest = subject.send(:digest_output_file, "draft-x")
+      first = entry("draft-x", plain)
+      second = entry("draft-x", digest)
+      expect(File).to receive(:delete).with(digest)
+      expect { subject.send(:reconcile_output_files, [first, second]) }
+        .to output(/Duplicate document `draft-x`/).to_stderr_from_any_process
+      expect(second[:file]).to eq plain
+    end
+
+    it "keeps a duplicate pointed at the winner when a sibling already moved the file" do
+      # Two results for ONE docid can carry the SAME file: `write_unique`'s
+      # fallback path is keyed on the docid, so two workers that both lost the
+      # race to the plain path both land on that docid's digest name. Mixed into
+      # a real collision group, the first of them renames that file onto the
+      # plain path and the second finds its own file gone. It must still follow
+      # the document, or the index gets a row pointing at nothing -- the very
+      # failure this pass exists to prevent.
+      Dir.mktmpdir do |dir|
+        fetcher = described_class.new(dir, "yaml")
+        plain = fetcher.output_file("draft-x")
+        shared = fetcher.send(:digest_output_file, "draft-x")
+        other = fetcher.send(:digest_output_file, "draft-y")
+        File.write shared, "x"
+        File.write fetcher.output_file("draft-y"), "y"
+
+        dup_a = { docid: "draft-x", file: shared, plain_file: plain }
+        dup_b = { docid: "draft-x", file: shared, plain_file: plain }
+        distinct = { docid: "draft-y", file: fetcher.output_file("draft-y"), plain_file: plain }
+
+        fetcher.send(:reconcile_output_files, [dup_a, dup_b, distinct])
+
+        expect([dup_a[:file], dup_b[:file]]).to eq [plain, plain]
+        expect(distinct[:file]).to eq other
+        expect(Dir.children(dir).sort).to eq [File.basename(plain), File.basename(other)].sort
+        expect(File.read(plain)).to eq "x"
+        expect(File.read(other)).to eq "y"
+      end
+    end
+
+    it "counts a collision only when the docids differ" do
+      allow(File).to receive(:rename)
+      subject.send(:reconcile_output_files, [entry("draft-x", plain), entry("draft-x-", "dir/t.yaml")])
+      expect(subject.instance_variable_get(:@collisions).size).to eq 1
+    end
+
+    it "skips a result with no plain_file rather than renaming to nil" do
+      expect(File).not_to receive(:rename)
+      results = [entry("draft-x", plain, plain_file: nil)]
+      expect { subject.send(:reconcile_output_files, results) }.not_to raise_error
+      expect(results.first[:file]).to eq plain
+    end
+
+    it "warns and carries on when a rename fails" do
+      # A late failure must not throw away a multi-hour crawl.
+      digest = subject.send(:digest_output_file, "draft-x")
+      allow(File).to receive(:rename).and_raise(Errno::EACCES)
+      results = [entry("draft-x", digest)]
+      expect { subject.send(:reconcile_output_files, results) }
+        .to output(/Could not move/).to_stderr_from_any_process
+      expect(results.first[:file]).to eq digest
+    end
+
+    it "does not move a file that is not there" do
+      allow(File).to receive(:exist?).and_return(false)
+      expect(File).not_to receive(:rename)
+      subject.send(:reconcile_output_files, [entry("draft-x", "dir/gone.yaml")])
+    end
+  end
+
+  describe "#report_collisions" do
+    subject { described_class.new("dir", "yaml") }
+
+    it "says nothing when no docids collided" do
+      expect { subject.send(:report_collisions) }.not_to output.to_stderr_from_any_process
+    end
+
+    it "restates the total once, with a sample" do
+      # One line for a crawl that writes ~177k records, not one per collision.
+      subject.instance_variable_set(:@collisions, [%w[draft-x draft-x-]])
+      expect { subject.send(:report_collisions) }
+        .to output(/1 filename collision\(s\).*draft-x/m).to_stderr_from_any_process
+    end
+  end
+
   context "save doc" do
     subject { described_class.new("dir", "bibxml") }
 
@@ -545,9 +699,33 @@ RSpec.describe Relaton::Ietf::DataFetcher do
       subject.send(:save_doc, nil)
     end
 
+    it "returns the id it wrote under, and the path it intended" do
+      # `docid` is NOT `index_id`: `id` falls back through docnumber and
+      # formattedref, so on the RFC path they differ ("RFC0001" vs "RFC 1", i.e.
+      # stems `rfc0001` and `rfc-1`). reconcile_output_files must key on the id
+      # the file was actually written under, or it renames to the wrong name.
+      expect(entry).to receive(:to_rfcxml).and_return("<xml/>")
+      allow(File).to receive(:write)
+      result = subject.send(:serialize_and_write, entry)
+      expect(result[:docid]).to eq "RFC0001"
+      expect(result[:index_id]).to eq "RFC 1"
+      expect(result[:plain_file]).to eq "dir/rfc0001.xml"
+      expect(result[:file]).to eq "dir/rfc0001.xml"
+    end
+
+    it "reports the path write_unique actually took" do
+      # On a clash write_unique returns a path of its own; the index must follow
+      # the record, not the name we hoped for.
+      expect(entry).to receive(:to_rfcxml).and_return("<xml/>")
+      expect(subject).to receive(:write_unique).with("RFC0001", "<xml/>").and_return("dir/other.xml")
+      result = subject.send(:serialize_and_write, entry)
+      expect(result[:file]).to eq "dir/other.xml"
+      expect(result[:plain_file]).to eq "dir/rfc0001.xml"
+    end
+
     it "bibxml" do
       expect(entry).to receive(:to_rfcxml).and_return("<xml/>")
-      expect(File).to receive(:write).with("dir/rfc0001.xml", "<xml/>", encoding: "UTF-8")
+      expect(File).to receive(:write).with("dir/rfc0001.xml", "<xml/>", mode: EXCL, encoding: "UTF-8")
       expect(index).to receive(:add_or_update).with(pubid("RFC 1"), "dir/rfc0001.xml")
       subject.send(:save_doc, entry)
     end
@@ -555,7 +733,7 @@ RSpec.describe Relaton::Ietf::DataFetcher do
     it "xml" do
       subject.instance_variable_set(:@format, "xml")
       expect(entry).to receive(:to_xml).with(bibdata: true).and_return("<xml/>")
-      expect(File).to receive(:write).with("dir/rfc0001.xml", "<xml/>", encoding: "UTF-8")
+      expect(File).to receive(:write).with("dir/rfc0001.xml", "<xml/>", mode: EXCL, encoding: "UTF-8")
       subject.send(:save_doc, entry)
     end
 
@@ -563,7 +741,7 @@ RSpec.describe Relaton::Ietf::DataFetcher do
       subject.instance_variable_set(:@format, "yaml")
       subject.instance_variable_set(:@ext, "yaml")
       expect(entry).to receive(:to_yaml).and_return("---\nid: 123\n")
-      expect(File).to receive(:write).with("dir/rfc0001.yaml", "---\nid: 123\n", encoding: "UTF-8")
+      expect(File).to receive(:write).with("dir/rfc0001.yaml", "---\nid: 123\n", mode: EXCL, encoding: "UTF-8")
       subject.send(:save_doc, entry)
     end
 
@@ -571,7 +749,7 @@ RSpec.describe Relaton::Ietf::DataFetcher do
       subject.instance_variable_set(:@files, Set.new(["dir/rfc0001.xml"]))
       expect(entry).to receive(:to_rfcxml).and_return("<xml/>")
       expect(File).to receive(:write)
-        .with("dir/rfc0001.xml", "<xml/>", encoding: "UTF-8")
+        .with("dir/rfc0001.xml", "<xml/>", mode: EXCL, encoding: "UTF-8")
       expect { subject.send(:save_doc, entry) }
         .to output(/File dir\/rfc0001.xml already exists/).to_stderr_from_any_process
     end
@@ -584,7 +762,7 @@ RSpec.describe Relaton::Ietf::DataFetcher do
       ]
       id_entry = Relaton::Ietf::ItemData.new(docidentifier: docid)
       expect(id_entry).to receive(:to_rfcxml).and_return("<xml/>")
-      expect(File).to receive(:write).with("dir/draft-3gpp-collaboration-00.xml", "<xml/>", encoding: "UTF-8")
+      expect(File).to receive(:write).with("dir/draft-3gpp-collaboration-00.xml", "<xml/>", mode: EXCL, encoding: "UTF-8")
       expect(index).to receive(:add_or_update)
         .with(pubid("draft-3gpp-collaboration-00"), "dir/draft-3gpp-collaboration-00.xml")
       subject.send(:save_doc, id_entry)
@@ -603,7 +781,7 @@ RSpec.describe Relaton::Ietf::DataFetcher do
       id_entry = Relaton::Ietf::ItemData.new(docidentifier: docid)
       allow(id_entry).to receive(:to_rfcxml).and_return("<xml/>")
       expect(File).to receive(:write)
-        .with("dir/i-d-3gpp-collaboration-00.xml", "<xml/>", encoding: "UTF-8")
+        .with("dir/i-d-3gpp-collaboration-00.xml", "<xml/>", mode: EXCL, encoding: "UTF-8")
       expect(index).not_to receive(:add_or_update)
 
       expect { subject.send(:save_doc, id_entry) }

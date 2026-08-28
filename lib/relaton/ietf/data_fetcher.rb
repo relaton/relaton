@@ -25,6 +25,7 @@ module Relaton
         index.save
         report_unindexed
         report_unparsed
+        report_collisions
       end
 
       private
@@ -81,6 +82,10 @@ module Relaton
       #
       def fetch_ieft_internet_drafts
         series_groups, singleton_paths = group_draft_paths
+        # Workers fork from here, so `unique_output_file`'s reservation cannot
+        # see a peer's claim and `write_unique` must never overwrite. Set
+        # before the first fork, so the children inherit it.
+        @cross_process = true
 
         series_results = parallelize(series_groups.to_a) do |(series, paths_info)|
           process_series(series, paths_info)
@@ -95,6 +100,7 @@ module Relaton
         # Tallied here, not in the worker: a counter incremented in a Parallel
         # worker process is lost on the way back (see record_index_entry).
         @unparsed = unparsed.map { |r| "#{r[:unparsed]} (#{r[:error]})" }
+        reconcile_output_files entries
         entries.each { |r| record_index_entry(r) }
       end
 
@@ -373,10 +379,14 @@ module Relaton
                entry.docidentifier.detect { |i| i.type == "Internet-Draft" && i.primary }&.content
              end
         id ||= entry.docnumber || entry.formattedref.content
-        file = output_file(id)
-        File.write file, content, encoding: "UTF-8"
+        file = write_unique(id, content)
         primary = entry.docidentifier.detect(&:primary) || entry.docidentifier.first
-        { docnumber: entry.docnumber, file: file, index_id: primary.content,
+        # `docid` is the id the file was written under and `plain_file` the name
+        # it would have taken uncontested; `reconcile_output_files` needs both.
+        # Neither is `index_id`: `id` falls back through docnumber and
+        # formattedref, so on the RFC path the two differ ("RFC0001" vs "RFC 1").
+        { docnumber: entry.docnumber, docid: id, file: file,
+          plain_file: output_file(id), index_id: primary.content,
           pubid: parse_pubid(primary.content) }
       end
 
@@ -424,6 +434,109 @@ module Relaton
         end
 
         index.add_or_update result[:pubid], result[:file]
+      end
+
+      #
+      # Settle, in the parent, which record keeps which filename.
+      #
+      # `output_file` is not injective, so distinct docids can want one path.
+      # `write_unique` refuses to clobber, but a forked worker cannot know
+      # WHICH of the clashing docids deserves the plain name — it only knows the
+      # path was taken. Left there, the winner would follow the race and the two
+      # filenames would swap between crawls, churning the data repo.
+      #
+      # So the parent decides once it can see every docid: within a group of
+      # records that wanted one path, the alphabetically first docid keeps it
+      # and the rest take their digest variant. Runs over EVERY group, not just
+      # clashing ones — a lone record that fell back to a digest path (a
+      # leftover file, any transient clash) must get its plain name back, or the
+      # published filename churns and the old file is orphaned.
+      #
+      # @param [Array<Hash>] results worker results, mutated in place so
+      #   `record_index_entry` indexes the final path
+      #
+      def reconcile_output_files(results)
+        results.group_by { |r| r[:plain_file] }.each do |plain, group|
+          next if plain.nil? # hand-built results, and the bibxml format
+
+          targets = assign_output_files plain, group
+          record_collision targets
+          filled = Set.new
+          order(group, targets, plain).each do |result|
+            target = targets[result[:docid].to_s]
+            place_output_file result, target, filled.add?(target).nil?
+          end
+        end
+      end
+
+      # docid => the filename it should end up with. Sorting the *unique* docids
+      # leaves no tie to break, so the assignment cannot drift between crawls
+      # the way an unstable `sort_by` over the results would.
+      def assign_output_files(plain, group)
+        group.map { |r| r[:docid].to_s }.uniq.sort.each_with_index.to_h do |docid, i|
+          [docid, i.zero? ? plain : digest_output_file(docid)]
+        end
+      end
+
+      # Records already at their target first (they are no-ops), then the movers
+      # bound for a digest path, then the one bound for `plain`. That ordering is
+      # load-bearing: a loser may be sitting ON the plain path, and moving the
+      # winner there first would destroy it.
+      def order(group, targets, plain)
+        group.sort_by do |r|
+          target = targets[r[:docid].to_s]
+          [r[:file] == target ? 0 : 1, target == plain ? 1 : 0, r[:file].to_s]
+        end
+      end
+
+      #
+      # Move one record's file to the name the parent chose for it.
+      #
+      # `duplicate` means another result for the SAME docid already holds the
+      # target. Today that is one file and one warning, so drop the stray rather
+      # than publish the document twice under two names.
+      #
+      def place_output_file(result, target, duplicate)
+        file = result[:file]
+        return result[:file] = target if file.nil? || file == target
+
+        if duplicate
+          # The document is at the target whatever happens next, so the result
+          # follows it first. The stray may ALREADY be gone: two workers that
+          # both lost the race to the plain path land on one fallback name,
+          # because that name is keyed on the docid -- so the first of them
+          # renamed this very file onto the target. Leaving the result on its
+          # old name would put an index row on a path that no longer exists.
+          result[:file] = target
+          return unless File.exist?(file)
+
+          Util.warn "Duplicate document `#{result[:docid]}`: dropping #{file}, keeping #{target}"
+          return File.delete(file)
+        end
+        return unless File.exist?(file)
+
+        File.rename file, target
+        result[:file] = target
+      rescue SystemCallError => e
+        # A late failure must not throw away a multi-hour crawl. The record keeps
+        # the name it already has on disk.
+        Util.warn "Could not move #{file} to #{target}: #{e.message}"
+      end
+
+      def record_collision(targets)
+        return if targets.size < 2
+
+        # targets.keys is already the uniqued, sorted docid list.
+        (@collisions ||= []) << targets.keys
+      end
+
+      # One line for a crawl that writes ~177k records, not one per collision.
+      def report_collisions
+        return if @collisions.nil? || @collisions.empty?
+
+        Util.warn "#{@collisions.size} filename collision(s): distinct docids sanitize to " \
+                  "one filename and were given separate files. " \
+                  "First: #{@collisions.first(5).map { |g| g.join(' <-> ') }.join('; ')}"
       end
 
       # Skips are per-record warnings in a crawl that writes ~177k of them, so

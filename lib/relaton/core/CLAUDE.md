@@ -21,7 +21,7 @@ Namespace: `Relaton::Core`. Key classes in `lib/relaton/core/`:
 - **`Processor`** (`processor.rb`) — abstract base with the template methods every flavor implements: `get`, `fetch_data`, `from_xml`, `from_yaml`, `grammar_hash`, `threads`. Flavor processors subclass it and set `@short`/`@prefix`/`@defaultprefix`/`@datasets` in `initialize`.
 - **`HitCollection`** (`hit_collection.rb`) — holds search results, delegates to an internal array, and uses `WorkersPool` to fetch items in parallel (4 workers by default). Uses `WeakRef` to avoid a circular reference back to its hits.
 - **`Hit`** (`hit.rb`) — wraps one search result; its `item` is lazy-loaded on first access.
-- **`DataFetcher`** (`data_fetcher.rb`) — abstract base for flavor bulk fetchers; provides `gh_issue` reporting (via `Relaton::Logger::Channels::GhIssue`), `output_file`, `unique_output_file`, and `serialize` helpers.
+- **`DataFetcher`** (`data_fetcher.rb`) — abstract base for flavor bulk fetchers; provides `gh_issue` reporting (via `Relaton::Logger::Channels::GhIssue`), `output_file`, `unique_output_file`, `write_unique`, and `serialize` helpers.
 
   **Filename collisions.** `output_file` sanitizes `.`, `,`, `/`, `:`, `(`, `)`,
   `-` and whitespace all to `-`, so two **distinct** docids can map to one path
@@ -62,14 +62,61 @@ Namespace: `Relaton::Core`. Key classes in `lib/relaton/core/`:
   end
   ```
 
+  **`write_unique(docid, content)` closes the cross-PROCESS gap.**
+  `unique_output_file` reserves in one process's `@file_docids`, which a forked
+  worker cannot see. `write_unique` reserves, then creates the file with
+  `O_EXCL` (`EXCLUSIVE = File::WRONLY | File::CREAT | File::EXCL`), and returns
+  the path it actually wrote. Four outcomes:
+
+  | situation | what happens |
+  |---|---|
+  | we already wrote this path for this docid | plain overwrite — a genuine duplicate stays one file |
+  | `O_EXCL` succeeds | the normal case |
+  | `EEXIST`, single process | `unique_output_file` already proved no peer of ours holds it, so it is a leftover from an earlier crawl: overwrite |
+  | `EEXIST`, `@cross_process` | a peer's file and a leftover are indistinguishable: take the digest path instead |
+
+  `@cross_process` defaults to false, so every single-process flavor takes the
+  third row and behaves exactly as it did before adopting this. A fetcher that
+  forks sets it **before** the first fork, so children inherit it — see
+  `Relaton::Ietf::DataFetcher#fetch_ieft_internet_drafts`.
+
+  A forked worker only learns that a path was taken, never *which* clashing
+  docid deserves it, so the winner would follow the race and the two filenames
+  would swap between crawls. The parent settles that afterwards, once it can see
+  every docid: `Relaton::Ietf::DataFetcher#reconcile_output_files`.
+
+  **Deliberately not a wall-clock staleness test.** `File.mtime(file) <
+  run_started_at` looks like the obvious way to tell a leftover from a peer, and
+  it is a trap: crawls run into a populated `data/`, so `EEXIST` is the *common*
+  case on a re-run and the test would decide it for every record. Its
+  false-"stale" direction is the silent overwrite this method exists to prevent,
+  and coarse filesystem mtime granularity makes that reachable. Gating on
+  `@cross_process` removes the failure class instead of tuning it.
+
+  **Do not drop the unconditional `delete_suffix("-")` in `output_file`.** It is
+  the root cause of the trailing-punctuation half of these collisions, and
+  removing it would give the clashing ids distinct names — but it renames any id
+  ending in a character the gsub maps to `-`. Measured over this repo's index
+  fixtures (2026-08-26):
+
+  | corpus | rows | filenames that would change |
+  |---|---|---|
+  | `spec/itu/fixtures/index-v2.zip` | 5,361 | **808** — ids ending `:`, e.g. `ITU-R 1-3/8:` |
+  | `spec/nist/fixtures/index-v2.zip` | 19,515 | 2 — `NBS TN 467pt1 Add.` |
+  | `spec/ietf/fixtures/ietf-index-v2.zip` | 177,362 | 3 |
+  | `spec/iso` + `spec/iec` v2 | 112,189 | 0 |
+  | every v1 string-id fixture | 97,966 | 7 — IEEE `IEEE 802.3-`, OGC `20-001r2 ` |
+
+  A 15% rename of the published ITU corpus does not pay for collisions that
+  `unique_output_file` and `write_unique` already close.
+
   **Audit of every `output_file` caller** (keep this exhaustive — it is the only
   place the decision is recorded):
 
   | Adopted | Abstains, and why |
   |---|---|
-  | `iana`, `oasis`, `calconnect`, `xsf`, `nist`, `ecma`, `jis`, `3gpp`, `iec`, `etsi` | `ieee` — `reconcile_staged_outputs` recomputes `output_file(docnumber)` in a later pass with no reservation state, so a disambiguated path breaks the staged rename |
+  | `iana`, `oasis`, `calconnect`, `xsf`, `nist`, `ecma`, `jis`, `3gpp`, `iec`, `etsi`; `ietf` via `write_unique` | `ieee` — `reconcile_staged_outputs` recomputes `output_file(docnumber)` in a later pass with no reservation state, so a disambiguated path breaks the staged rename |
   | | `itu`, `cie` — documented positional `@seen`/`pos` dedup under a parallel crawl |
-  | | `ietf` — workers write, the parent dedups afterwards |
   | | `iso` — `File.exist?` → `rewrite_with_same_or_newer` version compare |
   | | `ccsds` — `merge_links` merges into the existing file by design |
 

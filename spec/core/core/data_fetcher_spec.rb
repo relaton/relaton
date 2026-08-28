@@ -1,3 +1,5 @@
+require "tmpdir"
+
 describe Relaton::Core::DataFetcher do
   subject { described_class.new("data", "bibxml") }
 
@@ -244,6 +246,87 @@ describe Relaton::Core::DataFetcher do
       file = subject.unique_output_file(other)
       expect(File.basename(file).bytesize).to be <= 255
       expect(file).not_to eq subject.output_file(long)
+    end
+  end
+
+  describe "#write_unique" do
+    # The write-path entry point. It reserves a path, then creates the file with
+    # O_EXCL so a peer PROCESS cannot be clobbered: the IETF drafts crawl writes
+    # from forked `Parallel` workers, where `unique_output_file`'s in-process
+    # reservation is invisible to peers.
+    around { |example| Dir.mktmpdir { |dir| @dir = dir; example.run } }
+
+    subject { described_class.new(@dir, "yaml") }
+
+    let(:a) { "rpki/signed-objects" }
+    let(:b) { "rpki-signed-objects" }
+
+    def file_count
+      Dir.children(@dir).size
+    end
+
+    it "writes the plain path and returns it" do
+      file = subject.write_unique("ISO 123", "one")
+      expect(file).to eq subject.output_file("ISO 123")
+      expect(File.read(file)).to eq "one"
+    end
+
+    it "overwrites in place for the SAME docid seen twice" do
+      # A genuine duplicate must stay one file, so each flavor's own duplicate
+      # handling (skip / merge / last-wins) still decides what happens.
+      first = subject.write_unique("ISO 123", "one")
+      second = subject.write_unique("ISO 123", "two")
+      expect(second).to eq first
+      expect(File.read(first)).to eq "two"
+      expect(file_count).to eq 1
+    end
+
+    it "gives a second, different docid a file of its own" do
+      first = subject.write_unique(a, "one")
+      second = subject.write_unique(b, "two")
+      expect(second).not_to eq first
+      expect(File.read(first)).to eq "one"
+      expect(File.read(second)).to eq "two"
+      expect(file_count).to eq 2
+    end
+
+    it "overwrites a leftover file from an earlier crawl" do
+      # Single process: `unique_output_file` has already proved that no peer of
+      # ours holds the path, so an existing file can only be a leftover.
+      file = subject.output_file("ISO 123")
+      File.write file, "stale"
+      expect(subject.write_unique("ISO 123", "fresh")).to eq file
+      expect(File.read(file)).to eq "fresh"
+      expect(file_count).to eq 1
+    end
+
+    context "when @cross_process is set (forked workers)" do
+      # The IETF drafts crawl sets it before forking. An existing file is then
+      # indistinguishable from a peer's, so it must never be clobbered.
+      before do
+        File.write subject.output_file("ISO 123"), "peer"
+        subject.instance_variable_set(:@cross_process, true)
+      end
+
+      it "takes a path of its own instead of clobbering" do
+        file = subject.write_unique("ISO 123", "mine")
+        expect(file).not_to eq subject.output_file("ISO 123")
+        expect(File.read(subject.output_file("ISO 123"))).to eq "peer"
+        expect(File.read(file)).to eq "mine"
+        expect(File.basename(file, ".yaml")).to match(/-[0-9a-f]{12}\z/)
+      end
+
+      it "reserves the path it fell back to" do
+        # Otherwise @file_docids still claims the plain path for this docid and
+        # the next write of it repeats the whole EEXIST dance.
+        file = subject.write_unique("ISO 123", "mine")
+        expect(subject.instance_variable_get(:@file_docids)[file]).to eq "ISO 123"
+      end
+
+      it "picks a name that depends on the docid, not on encounter order" do
+        file = subject.write_unique("ISO 123", "mine")
+        expect(described_class.new(@dir, "yaml").send(:digest_output_file, "ISO 123")).to eq file
+      end
     end
   end
 
