@@ -2,7 +2,6 @@
 
 require "net/http"
 require "relaton/bib/hash_parser_v1"
-require_relative "pubid"
 
 module Relaton
   module W3c
@@ -13,12 +12,14 @@ module Relaton
       class << self
         # @param text [String]
         # @return [Relaton::W3c::ItemData]
-        def search(text) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-          pubid = PubId.parse text.sub(/^W3C\s/, "")
-          index = Relaton::Index.find_or_create(
-            :W3C, url: "#{SOURCE}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml", id_keys: PubId::PARTS,
-          )
-          row = index.search { |r| pubid == r[:id] }.sort_by { |r| (r[:id][:date] || r[:id][:year]).to_i }.last
+        def search(text)
+          # A reference pubid rejects is a miss, not an error: `parse_ref`
+          # returns nil rather than raising, so it never becomes a
+          # `Relaton::RequestError` from the transport rescue below.
+          pubid = parse_ref text
+          return unless pubid
+
+          row = best_match pubid
           return unless row
 
           url = "#{SOURCE}#{row[:file]}"
@@ -30,6 +31,88 @@ module Relaton
                EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
                Net::ProtocolError, Errno::ETIMEDOUT => e
           raise Relaton::RequestError, "Could not access #{url}: #{e.message}"
+        end
+
+        #
+        # Find the index row for a reference, newest edition first.
+        #
+        # Passing the pubid to `Index::Type#search` is what enables the binary
+        # search on `id.root.number` — with a block alone the whole index is
+        # scanned. `date` is W3C's only optional component, so the ETSI idiom
+        # (`lib/relaton/etsi/bibliography.rb`) reduces to ignoring it when the
+        # reference omits it, which is how an undated `REC-xml-names` still
+        # finds the dated row. The maturity level is deliberately NOT
+        # ignorable: it is the identifier's class, and `matches?` compares
+        # through `exclude` -> `self.class.new(...)`, so `WD-`, `REC-` and a
+        # bare slug never match each other — the same contract the bespoke
+        # `PubId#==` had for its `stage`/`type`.
+        #
+        # @param pubid [Pubid::W3c::Identifier]
+        # @return [Hash, nil]
+        #
+        def best_match(pubid)
+          ignore = %i[date].select { |attr| pubid.public_send(attr).nil? }
+          rows = index.search(pubid) { |r| pubid.matches?(r[:id], ignore: ignore) }
+          rows = index.search { |r| loose_match? r[:id], pubid } if rows.empty?
+
+          # Newest edition wins. Undated rows all score 0, so the file path
+          # breaks the tie and a repeated lookup returns the same document
+          # (the index sort is not stable).
+          rows.max_by { |r| [r[:id].date.to_i, r[:file]] }
+        end
+
+        #
+        # The narrowed range cannot serve a reference whose slug differs from
+        # the row's only by case: the bsearch key is case-sensitive. The
+        # bespoke `PubId#==` compared its `code` with `casecmp?`, so a full
+        # scan repeats the match case-insensitively rather than lose that.
+        # (The BIPM `search_index` precedent.)
+        #
+        # @param row_id [Pubid::W3c::Identifier]
+        # @param pubid [Pubid::W3c::Identifier]
+        # @return [Boolean]
+        #
+        def loose_match?(row_id, pubid)
+          row_id.instance_of?(pubid.class) &&
+            row_id.number.to_s.casecmp?(pubid.number.to_s) &&
+            (pubid.date.nil? || row_id.date == pubid.date)
+        end
+
+        def index
+          Relaton::Index.find_or_create(
+            :W3C, url: "#{SOURCE}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
+            pubid_class: ::Pubid::W3c::Identifier
+          )
+        end
+
+        #
+        # Parse a user reference into a `Pubid::W3c::Identifier`, or nil.
+        #
+        # A search string is a query, not a document identifier field, so it
+        # does not go through `Docidentifier`: it has to absorb two forms the
+        # bespoke regex accepted and a pubid grammar should not. A URL is not
+        # an identifier (`https://www.w3.org/TR/xml-names/`), and `TR` is a
+        # path segment of that URL rather than a maturity level, so
+        # `TR-vocab-adms` means the document `vocab-adms`. The publisher
+        # prefix is added when absent, because `Pubid::W3c` requires it.
+        #
+        # @param text [String]
+        # @return [Pubid::W3c::Identifier, nil]
+        #
+        def parse_ref(text)
+          ::Pubid::W3c::Identifier.parse normalize_ref(text)
+        rescue StandardError => e
+          Util.warn "Failed to parse pubid `#{text}`: #{e.message}"
+          nil
+        end
+
+        def normalize_ref(text)
+          ref = text.to_s.strip
+            .sub(%r{\Ahttps?://[^/]+/}i, "") # a URL is not an identifier
+            .sub(/\AW3C\s+/i, "")
+            .sub(%r{\ATR[/-]}i, "")          # URL path segment, not a stage
+            .sub(%r{/\z}, "")
+          "W3C #{ref}"
         end
 
         # @param ref [String] the W3C standard Code to look up

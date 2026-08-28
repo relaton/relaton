@@ -8,6 +8,9 @@ require_relative "w3c/item"
 require_relative "w3c/bibitem"
 require_relative "w3c/bibdata"
 require_relative "w3c/bibliography"
+# Not used by this gem any more; loaded so relaton-data-w3c's crawler can
+# require "relaton/w3c" and still reach the legacy index-v1 row shape.
+require_relative "w3c/pubid"
 
 module Relaton
   module W3c
