@@ -1,5 +1,4 @@
 require "mechanize"
-require_relative "id_parser"
 
 module Relaton::Bipm
   class Bibliography
@@ -46,10 +45,10 @@ module Relaton::Bipm
       # @return [RelatonBipm::BipmBibliographicItem]
       #
       def get_bipm(reference) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-        ref_id = parse_ref reference
-        return unless ref_id
+        pubid = parse_ref reference
+        return unless pubid
 
-        rows = search_index reference, ref_id
+        rows = search_index pubid, reference
         return if rows.empty?
 
         # Latest edition wins. Metrologia and SI Brochure rows carry no year,
@@ -65,93 +64,147 @@ module Relaton::Bipm
         item
       end
 
-      # Look the reference up in the index, narrowing the candidate rows before
-      # the fuzzy match runs. `Relaton::Index::Type#search` binary-searches the
-      # index only when it is given an identifier (the same call shape ISO,
-      # OIML and JCGM use), so a pubid is parsed purely to supply that key; the
-      # match itself stays on `Id#==` over `#id_hash`, because the pubid
-      # grammar rejects the loose consumer forms (see `#parse_ref`).
+      # Look the reference up in the pubid `index-v2`, narrowing the candidate
+      # rows before the match runs. `Relaton::Index::Type#search` binary-searches
+      # only when given an identifier — the same call shape ISO, OIML and JCGM
+      # use. Both sides are now `Pubid::Bipm` objects, so the bespoke `Id`
+      # grammar takes no part in a query.
       #
-      # The narrowed range can miss a row that is present, for two reasons:
-      # `Id` and pubid disagree on some references (`CCTF Recommendation
-      # 2009-02` keys the query as `2009-02` and the row as `2`), and an index
-      # built by a pubid that derived no `number` keys whole families to `""`.
-      # An empty result therefore repeats the search over the whole index —
-      # what this method did before the narrowing. That check alone does not
-      # prove a lookup can never regress, because a narrowed range that is
-      # non-empty but incomplete would not trigger it; the specs close that gap
-      # by asserting this method returns the same rows as the full scan.
+      # Two escapes sit under the narrowing, each covering a case where the
+      # query's bsearch key cannot equal its row's:
       #
-      # @param reference [String] the raw user reference
-      # @param ref_id [Relaton::Bipm::Id] the same reference, parsed
+      # 1. A bare `SI Brochure` names no edition, so it keys to `""` while its
+      #    row keys to `"9e"`. The rescan finds it.
+      # 2. `CCTF Recommendation 2009-02` parses as the literal number
+      #    `2009-02`, while the row keys on `2`. No row carries that number, so
+      #    a rescan cannot help — only re-reading the tail as number-plus-year.
+      #
+      # @param pubid [Pubid::Bipm::Identifier] the parsed reference
+      # @param reference [String, nil] the raw reference, for the retry
       # @return [Array<Hash>] the matching index rows
-      def search_index(reference, ref_id)
-        pubid = narrowing_id reference
-        rows = pubid && index.search(pubid) { |r| ref_id == id_hash(r[:id]) }
-        return rows if rows && !rows.empty?
+      def search_index(pubid, reference)
+        # Reduce the query once, not once per row. `#exclude` copies the
+        # identifier, so rebuilding it per candidate dominated the lookup.
+        query_stem = stem pubid, pubid
+        rows = index.search(pubid) { |r| pubid_match? r[:id], pubid, query_stem }
+        rows = index.search { |r| pubid_match? r[:id], pubid, query_stem } if rows.empty?
+        return rows unless rows.empty?
 
-        index.search { |r| ref_id == id_hash(r[:id]) }
+        retry_pubid = year_number_retry reference
+        retry_pubid ? search_index(retry_pubid, nil) : rows
       end
 
-      # Parse the reference a second time with pubid, purely to obtain the
-      # index's own narrowing key. The stricter pubid grammar rejects the loose
-      # forms `Id` accepts (`CCDS Recommendation 2 (2009)`, `CIPM 111e Réunion
-      # (2022)`, `CCTF Meeting 14 (1999)`, `SI Brochure Part 1`, …); those get
-      # no narrowing and scan the whole index, as every reference did before.
+      # Re-read a trailing `YYYY-NN` as number `NN` of year `YYYY`
+      # (`CCTF Recommendation 2009-02` → `CCTF Recommendation 2 (2009)`). Tried
+      # only after a miss, because `NNNN-NN` is also a real BIPM number
+      # (`CIPM 2005-06`), so the literal reading has to be preferred.
       #
-      # The rescue is deliberately broad (as in `Relaton::Jcgm::Bibliography`):
-      # this is an optimisation, so nothing it raises may break a lookup that
-      # worked before. It stays silent because a parse failure here is normal
-      # and is not a miss — the reference still resolves. A systemic break
-      # would not go unnoticed: the narrowing specs assert that a known
-      # reference scans a small fraction of the index.
+      # @param reference [String, nil]
+      # @return [Pubid::Bipm::Identifier, nil]
+      def year_number_retry(reference)
+        match = reference&.match(/\A(?<stem>.+)\s(?<year>\d{4})-(?<number>\d+)\z/)
+        return unless match
+
+        parse_ref "#{match[:stem]} #{match[:number].sub(/\A0+(?=\d)/, '')} (#{match[:year]})"
+      end
+
+      # Compare a row's identifier with the query. Index rows are stored
+      # language- and form-neutral — verified across all committee-document and
+      # meeting rows — while a reference may name a language (`(2009, E)`) and
+      # always names a form (short `CCTF REC 2` vs long `CCTF Recommendation 2`).
+      # The year joins them when the query omits it, mirroring what `Id#==` did
+      # with `other_hash.delete(:year) unless hash[:year]`.
+      #
+      # @param row_id [Pubid::Bipm::Identifier]
+      # @param query [Pubid::Bipm::Identifier]
+      # @param query_stem [Pubid::Bipm::Identifier, nil] the reduced query, when
+      #   the caller already built it once for the whole search
+      # @return [Boolean]
+      def pubid_match?(row_id, query, query_stem = nil)
+        # A bare brochure names no edition, so it is a partial reference and
+        # cannot equal the `9e v3.01` row. Match any brochure row, which is what
+        # the old `{group: "SI", type: "Brochure"}` projection already meant.
+        if query.is_a?(::Pubid::Bipm::Identifiers::SiBrochure) && query.edition.nil?
+          return row_id.is_a?(::Pubid::Bipm::Identifiers::SiBrochure)
+        end
+
+        return false unless row_id.instance_of?(query.class)
+
+        # `Id#==` treated a document numbered "1" and a number-less one as the
+        # same document when both carried a year, so `CIPM Resolution 1 (1879)`
+        # reached `CIPM RES (1879)`. pubid has no such rule and the six
+        # ordinal-less declarations are only addressable this way, so keep it.
+        if number_collapses?(row_id, query)
+          keys = stem_keys(query) + [:number]
+          return row_id.exclude(*keys) == query.exclude(*keys)
+        end
+
+        return false unless cheap_reject_passes?(row_id, query)
+
+        stem(row_id, query) == (query_stem || stem(query, query))
+      end
+
+      # @param row_id [Pubid::Bipm::Identifier]
+      # @param query [Pubid::Bipm::Identifier]
+      # @return [Boolean] true when one side is number-less, the other is
+      #   numbered "1", and both carry a year
+      def number_collapses?(row_id, query)
+        return false unless row_id.year && query.year
+
+        numbers = [row_id.number.to_s, query.number.to_s]
+        numbers.include?("") && numbers.include?("1")
+      end
+
+      # Attributes the stem never removes, so stem equality implies equality on
+      # every one of them. Comparing them first cannot change the answer, it
+      # only avoids the reduction — and `#exclude` copies the identifier, which
+      # is what made an unguarded compare cost roughly 165x a plain attribute
+      # read and turned a rescan into seconds.
+      CHEAP_KEYS = %i[number group year issue article].freeze
+
+      # @param row_id [Pubid::Bipm::Identifier]
+      # @param query [Pubid::Bipm::Identifier]
+      # @return [Boolean] false as soon as one cheap attribute differs
+      def cheap_reject_passes?(row_id, query)
+        CHEAP_KEYS.all? do |key|
+          # `:year` is dropped from the stem when the query has none, so it is
+          # only significant when the query supplies one.
+          next true if key == :year && query.year.nil?
+          next true unless query.respond_to?(key) && row_id.respond_to?(key)
+
+          row_id.public_send(key).to_s == query.public_send(key).to_s
+        end
+      end
+
+      # @param pubid [Pubid::Bipm::Identifier] the identifier to reduce
+      # @param query [Pubid::Bipm::Identifier] the query that sets which
+      #   attributes are significant
+      # @return [Pubid::Bipm::Identifier] a copy; the cached row id is untouched
+      def stem(pubid, query)
+        pubid.exclude(*stem_keys(query))
+      end
+
+      # @param query [Pubid::Bipm::Identifier]
+      # @return [Array<Symbol>] the attributes a match must ignore
+      def stem_keys(query)
+        keys = %i[language form]
+        keys << :year if query.year.nil?
+        keys
+      end
+
+      # Parse a user reference with `Pubid::Bipm`, which since pubid `a96e9f45`
+      # accepts the loose consumer forms this flavor once needed `Id` for
+      # (`CCDS Recommendation 2 (2009)`, `CIPM 111e Réunion (2022)`,
+      # `CCTF Meeting 14 (1999)`, `SI Brochure Part 1`, …) and normalizes them
+      # to BIPM's canonical spelling. A malformed reference is a graceful miss
+      # (nil), not a raised error.
       #
       # @param reference [String]
       # @return [Pubid::Bipm::Identifier, nil]
-      def narrowing_id(reference)
+      def parse_ref(reference)
         ::Pubid::Bipm.parse reference
       rescue StandardError
         nil
-      end
-
-      # Parse a user reference with the flexible bespoke `Id` grammar, which
-      # accepts the loose consumer forms (`CCTF Meeting 14 (1999)`,
-      # `CCDS …`, `… (2009, EN)`, `SI Brochure Part 1`, …) that the stricter
-      # `Pubid::Bipm` grammar rejects. A malformed reference is a graceful miss
-      # (nil), not a raised `Relaton::RequestError`.
-      #
-      # @param reference [String]
-      # @return [Relaton::Bipm::Id, nil]
-      def parse_ref(reference)
-        Id.new.parse reference
-      rescue Relaton::RequestError
-        nil
-      end
-
-      # Project an index row's `Pubid::Bipm` identifier back to the bespoke
-      # `{group,type,number,year,…}` hash so the flexible `Id#==` can match it
-      # against a parsed user reference. The index stores pubid objects
-      # (`_type: pubid:bipm:*`); consumer matching stays on `Id`'s fuzzy
-      # equality (number/year/lang collapsing) rather than pubid's stricter
-      # stem match, preserving the loose query forms above.
-      #
-      # @param pubid [Pubid::Bipm::Identifier]
-      # @return [Hash]
-      def id_hash(pubid) # rubocop:disable Metrics/MethodLength
-        case pubid
-        when ::Pubid::Bipm::Identifiers::CommitteeDocument
-          { group: pubid.group, type: pubid.type_code, number: pubid.number,
-            year: pubid.year&.to_s, lang: pubid.language }
-        when ::Pubid::Bipm::Identifiers::Meeting
-          { group: pubid.group, type: "Meeting", number: pubid.number,
-            year: pubid.year&.to_s }
-        when ::Pubid::Bipm::Identifiers::MetrologiaArticle
-          num = [pubid.volume, pubid.issue, pubid.article].compact.join(" ")
-          { group: "Metrologia", number: (num unless num.empty?) }
-        when ::Pubid::Bipm::Identifiers::SiBrochure
-          { group: "SI", type: "Brochure" }
-        else {}
-        end.compact
       end
 
       def index
@@ -160,10 +213,6 @@ module Relaton::Bipm
           pubid_class: ::Pubid::Bipm::Identifier
         )
       end
-
-      # def match_item(ids, ref_id)
-      #   ids.find { |id| Id.new(id) == ref_id }
-      # end
 
       # @param ref [String] the BIPM standard Code to look up (e..g "BIPM B-11")
       # @param year [String] not used
