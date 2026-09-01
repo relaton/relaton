@@ -91,6 +91,17 @@ gem's job** (`Governor`), because upstream has no notion of the crawl as a whole
   From 0.3.3 that call rebuilds w3c_api's register itself; **don't** follow it
   with `reset_register`, which would leave the register absent from lutaml-hal's
   `GlobalRegister`, where `Link#realize` raises.
+  `max_retry_after` is set too, to `max_delay` (4.0). Left unset, lutaml-hal's
+  `DEFAULT_MAX_RETRY_AFTER` (300.0) applies and a large `Retry-After` on a 429
+  parks one thread inside the HTTP layer for up to 5 x 300 s with the governor
+  hearing nothing — the very thing the compressed chain exists to prevent. The
+  server's hint is not discarded: `Governor.retry_after` reads it off the same
+  error and uses it as the **floor** of the pool-wide cooldown, under the
+  governor's own 900 s cap, so it is honoured once at pool scale. Do **not**
+  lower `w3c_api`'s `DEFAULT_RETRY_OPTIONS[:max_interval]` or lutaml-hal's
+  `DEFAULT_MAX_RETRY_AFTER` instead — the first turns a polite server hint into
+  an immediate give-up, and either imposes a crawl-shaped number on every
+  consumer of those gems.
 
 **`Governor` (`governor.rb`) is the important piece.** `api.w3.org` is behind
 Cloudflare, whose rate limiting is **bimodal**: a run either never trips it or
@@ -116,9 +127,37 @@ the limiter engaged. So all workers share one cooldown:
   governor could never reach its threshold.
 - After `GIVE_UP_AFTER` consecutive rounds with no success (~15 min) the crawl is
   declared banned: `#exhausted?` goes true, `#wait` stops blocking so shutdown is
-  immediate, and `fetch` aborts.
+  immediate, and `fetch` aborts. The abort message reads `#give_up_rounds`, the
+  round count **latched** at that moment — `#throttle_rounds` is live and
+  `#succeeded!` resets it, so a straggler success made a give-up at round 5 print
+  as *"gave up after 2 consecutive backoffs"*.
 - The mutex is never held across a sleep, and wake-ups are jittered so workers
   don't resume in lockstep.
+
+**Giving up stops asking, not just waiting.** `#wait` returning 0.0 once latched
+makes shutdown prompt, but it does not stop a request. `#stopping?` is consulted
+only by the producer loop and at `queue.pop`, so an in-flight spec used to run
+its whole fan-out — `fetch_versions` plus `DataParser`'s seven realize sites —
+against a host that had just banned it. The 2026-08-31 crawl (CI run
+33435903404) spent its last **11 minutes** doing exactly that, which extends the
+Cloudflare ban into the next run; 95 of its 105 `Throttled out` warnings say
+`after 1 attempt(s)`, which in `record_throttle` can only mean `gave_up`.
+
+The guard is one line at the top of `SafeRealize#realize`
+(`return nil if SafeRealize.governor.exhausted?`) because that is the **single
+choke point** every crawl request passes through — `fetch_specifications_page`
+is the only other one, and it already returns nil on give-up. One check
+therefore covers every fan-out site, including any added later, and every site
+already tolerates `nil` (the `SafeRealize` contract; `data_parser_spec.rb`
+proves it per site). Per-site checks in `data_parser.rb` would also need a stop
+flag plumbed into `DataParser`, which holds no reference to the fetcher.
+
+It checks `governor.exhausted?`, **not** `#stopping?`, and
+`DataFetcher#abandoned?` names that distinction. The two stop reasons want
+opposite things of a spec already in flight: a **Ctrl-C** saves the index, so
+the spec must finish or a half-parsed document is written; a **latched give-up**
+discards everything (`guard_rate_limited` raises), so there is nothing to gain
+from parsing, writing or crawling one more document.
 
 `SafeRealize` sits on top of it and makes the distinction that matters: **a
 throttle is not a broken resource.** `Governor::THROTTLE_ERRORS` is the single

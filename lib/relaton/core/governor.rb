@@ -96,6 +96,7 @@ module Relaton
         @rounds = 0
         @events = 0
         @abandoned = false
+        @abandoned_rounds = nil
       end
 
       #
@@ -153,7 +154,16 @@ module Relaton
           # Giving up latches. Otherwise a straggler worker succeeding after the
           # producer already stopped paginating would clear @rounds and let the
           # crawl save the truncated index it just decided to abandon.
-          @abandoned ||= @rounds >= @give_up_after
+          #
+          # @rounds is snapshotted at the same moment, because #succeeded!
+          # resets it: read afterwards it names whatever has re-accumulated
+          # since, not the threshold that was crossed. The abort message is
+          # the only place an operator learns why the crawl stopped.
+          unless @abandoned
+            @abandoned = @rounds >= @give_up_after
+            @abandoned_rounds = @rounds if @abandoned
+          end
+          @abandoned
         end
       end
 
@@ -186,12 +196,23 @@ module Relaton
           @rounds = 0
           @events = 0
           @abandoned = false
+          @abandoned_rounds = nil
         end
       end
 
       # @return [Integer] consecutive throttle rounds since the last success
       def throttle_rounds
         @mutex.synchronize { @rounds }
+      end
+
+      # The consecutive-round count as it stood when the give-up latched, for
+      # the abort message. Distinct from #throttle_rounds, which stays LIVE
+      # because a crawler logs it per retry as the current round (see
+      # Relaton::Itu::DataCrawlerR) and #succeeded! resets it.
+      #
+      # @return [Integer, nil] nil while the crawl is still running
+      def give_up_rounds
+        @mutex.synchronize { @abandoned_rounds }
       end
 
       # @return [Integer] every 429 observed, for reporting

@@ -221,6 +221,23 @@ RSpec.describe Relaton::W3c::DataFetcher do
           .to raise_error(described_class::CrawlIncompleteError, /rate-limited/)
       end
 
+      # The message must name the threshold that was actually crossed.
+      # #throttle_rounds is the LIVE counter and #succeeded! resets it, so a
+      # straggler success after the latch made the Aug-2026 log claim the
+      # crawl "gave up after 2 consecutive backoffs" when GIVE_UP_AFTER is 5.
+      it "names the round count as it stood when the give-up latched" do
+        single_page_client
+        governor = Relaton::W3c::SafeRealize.governor
+        allow(governor).to receive_messages(
+          exhausted?: true, give_up_rounds: 5, throttle_rounds: 2, throttle_count: 123
+        )
+
+        expect { subject.fetch }.to raise_error(
+          described_class::CrawlIncompleteError,
+          /gave up after 5 consecutive backoffs \(123 rate-limited responses\)/,
+        )
+      end
+
       it "stops paginating as soon as the governor gives up" do
         allow(specs).to receive_messages(page: 1, pages: 9)
         allow(specs).to receive(:next?).and_return(true)
@@ -232,6 +249,17 @@ RSpec.describe Relaton::W3c::DataFetcher do
         expect { subject.fetch }.to raise_error(described_class::CrawlIncompleteError)
         # Never asked for page 2: giving up beats grinding on for hours.
         expect(client).not_to have_received(:specifications).with(embed: true, page: 2)
+      end
+
+      # Without it lutaml-hal's DEFAULT_MAX_RETRY_AFTER (300 s) applies, so a
+      # large Retry-After on a 429 can park one thread inside the HTTP layer
+      # for up to 5 x 300 s with the governor hearing nothing — exactly what
+      # the compressed chain exists to prevent. The hint is not discarded:
+      # Governor.retry_after reads it off the same error and floors the
+      # pool-wide cooldown with it.
+      it "caps a server-instructed wait to the compressed chain" do
+        expect(described_class::UPSTREAM_RATE_LIMITING[:max_retry_after])
+          .to eq described_class::UPSTREAM_RATE_LIMITING[:max_delay]
       end
 
       it "shortens w3c_api's own retries so the governor sees a 429 promptly" do
@@ -367,6 +395,21 @@ RSpec.describe Relaton::W3c::DataFetcher do
 
         expect(subject).to have_received(:realize).with(unrealized_spec, parent_resource: page)
         expect(subject).to have_received(:save_doc).with(bib).once
+      end
+
+      # Regression for CI run 33435903404: the latch landed while this spec
+      # was in flight, and the fan-out ran to completion anyway. A latched
+      # give-up means the run is already lost (guard_rate_limited raises and
+      # nothing is saved), so there is nothing to gain by parsing, writing
+      # and crawling the versions of one more document.
+      it "abandons the spec when the governor latched while it was in flight" do
+        allow(Relaton::W3c::SafeRealize.governor).to receive(:exhausted?).and_return(true)
+        expect(spec_links).not_to receive(:respond_to?)
+
+        subject.fetch_spec(unrealized_spec)
+
+        expect(Relaton::W3c::DataParser).not_to have_received(:parse)
+        expect(subject).not_to have_received(:save_doc)
       end
 
       it "skips version history when fetch_versions? is false" do

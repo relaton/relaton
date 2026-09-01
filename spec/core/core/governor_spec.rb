@@ -93,4 +93,36 @@ RSpec.describe Relaton::Core::Governor do
     expect(g.exhausted?).to be true
     expect(g.wait).to eq 0.0 # and stops blocking, so shutdown is immediate
   end
+
+  describe "#give_up_rounds" do
+    it "is nil while the crawl is still running" do
+      g = governor(base: 1, max: 1, give_up_after: 3)
+      g.throttled!
+      expect(g.give_up_rounds).to be_nil
+    end
+
+    it "names the round count as it stood when the give-up latched" do
+      # #throttle_rounds is the LIVE counter and #succeeded! resets it, so a
+      # straggler success after the latch makes it report whatever has
+      # re-accumulated since. An operator reading the abort message must see
+      # the threshold that was actually crossed.
+      g = governor(base: 1, max: 1, give_up_after: 3)
+      3.times { g.throttled!; g.wait }
+      expect(g.exhausted?).to be true
+      expect(g.give_up_rounds).to eq 3
+
+      g.succeeded!            # a straggler worker gets through
+      g.throttled!            # and one more 429 lands
+      expect(g.throttle_rounds).to eq 1   # the live counter re-accumulated
+      expect(g.give_up_rounds).to eq 3    # the latched one did not
+    end
+
+    it "is cleared by #reset! for the next crawl" do
+      g = governor(base: 1, max: 1, give_up_after: 1)
+      g.throttled!
+      expect(g.give_up_rounds).to eq 1
+      g.reset!
+      expect(g.give_up_rounds).to be_nil
+    end
+  end
 end
