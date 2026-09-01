@@ -58,6 +58,19 @@ module Relaton
       #   payload lets the link realize from memory instead of issuing an HTTP
       #   request. nil (the default) preserves the plain remote-fetch behavior.
       def realize(obj, parent_resource: nil)
+        # Once the governor has latched its give-up the run is already lost
+        # (DataFetcher#guard_rate_limited raises and nothing is saved) and the
+        # host has just banned us, so every further request only extends the
+        # ban into the next run. #wait alone stops WAITING, not asking: the
+        # 2026-08-31 crawl spent its last 11 minutes firing at a banned host
+        # because the per-spec fan-out had no back-pressure of its own.
+        #
+        # This is the one choke point every request in the crawl passes
+        # through, so one check covers DataFetcher#fetch_versions and all
+        # seven of DataParser's realize sites. They already tolerate nil —
+        # that is the SafeRealize contract.
+        return nil if SafeRealize.governor.exhausted?
+
         href = resolve_href(obj)
         return nil if SafeRealize.skipped.key?(href)
 

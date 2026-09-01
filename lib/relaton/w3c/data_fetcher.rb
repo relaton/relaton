@@ -45,8 +45,18 @@ module Relaton
       # here — cutting its attempts would blacklist a burst of resources on a
       # brief upstream wobble that the old policy rode out, and `skipped` is not
       # counted by guard_throttle_budget, so that loss would be invisible.
+      #
+      # `max_retry_after` matches `max_delay` because a server-instructed wait
+      # must not outlive the compressed chain either. Left unset, lutaml-hal's
+      # DEFAULT_MAX_RETRY_AFTER (300 s) applies, and a large Retry-After on a
+      # 429 parks one thread inside the HTTP layer for up to 5 x 300 s with the
+      # governor hearing nothing — the very thing the compression prevents. The
+      # hint is not discarded, it moves to where it belongs: Governor.retry_after
+      # reads it off the same error and uses it as the FLOOR of the pool-wide
+      # cooldown, under the governor's own 900 s cap.
       UPSTREAM_RATE_LIMITING = {
-        max_retries: 5, base_delay: 0.5, max_delay: 4.0, backoff_factor: 2.0
+        max_retries: 5, base_delay: 0.5, max_delay: 4.0, backoff_factor: 2.0,
+        max_retry_after: 4.0
       }.freeze
 
       # Ceiling on resources dropped to rate limiting before the crawl refuses
@@ -149,9 +159,14 @@ module Relaton
       def guard_rate_limited
         return unless SafeRealize.governor.exhausted?
 
+        # #give_up_rounds, not #throttle_rounds: the latter is live and a
+        # straggler success resets it, which is how a give-up at round 5 got
+        # reported as "after 2 consecutive backoffs".
+        rounds = SafeRealize.governor.give_up_rounds ||
+          SafeRealize.governor.throttle_rounds
         raise CrawlIncompleteError,
               "crawl is rate-limited: gave up after " \
-              "#{SafeRealize.governor.throttle_rounds} consecutive backoffs " \
+              "#{rounds} consecutive backoffs " \
               "(#{SafeRealize.governor.throttle_count} rate-limited responses); " \
               "refusing to save a partial dataset"
       end
@@ -231,6 +246,17 @@ module Relaton
         @interrupted || SafeRealize.governor.exhausted?
       end
 
+      # The mid-spec back-out, and deliberately NOT #stopping?. The two stop
+      # reasons want opposite things of a spec already in flight:
+      #
+      # - Ctrl-C means "give me what you have". The index IS saved, so the
+      #   in-flight spec must finish, or a half-parsed document is written.
+      # - A latched give-up means the run is lost — guard_rate_limited raises
+      #   and nothing is saved — and the host has banned us. Abandon at once.
+      def abandoned?
+        SafeRealize.governor.exhausted?
+      end
+
       # Defense in depth: even when no page fetch raised, make sure pagination
       # actually reached the last page the API advertised. Catches truncation
       # modes other than a failed fetch (e.g. a `next` link that goes missing).
@@ -249,6 +275,10 @@ module Relaton
         # parent_resource serves the spec from embedded data (no HTTP request).
         spec = realize(unrealized_spec, parent_resource: page)
         return unless spec
+        # The latch can land while this spec is in flight. Nothing this crawl
+        # produces is saved any more, so stop before the parse and the write
+        # too, not only before the requests.
+        return if abandoned?
 
         local_errors = Hash.new(true)
         save_doc DataParser.parse(spec, local_errors)

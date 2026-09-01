@@ -209,6 +209,33 @@ RSpec.describe Relaton::W3c::SafeRealize do
       end
     end
 
+    # Regression for the 2026-08-31 relaton-data-w3c crawl (CI run
+    # 33435903404). Once the governor latched its give-up, #wait stopped
+    # blocking but nothing stopped the crawl from ISSUING requests, so the
+    # pool spent its last 11 minutes hammering a host that had just banned
+    # it — extending the ban into the next run. #realize is the one choke
+    # point every request in the crawl passes through, so the guard here
+    # stops the whole per-spec fan-out at once.
+    context "when the governor has already given up" do
+      before { allow(governor).to receive(:exhausted?).and_return(true) }
+
+      it "issues no request at all" do
+        expect(obj).not_to receive(:realize)
+        expect(governor).not_to receive(:wait)
+
+        expect(handler.realize(obj)).to be_nil
+      end
+
+      it "records nothing: the run is lost, not the resource broken" do
+        allow(Relaton.logger_pool).to receive(:warn)
+        allow(obj).to receive(:realize).and_raise(Lutaml::Hal::TooManyRequestsError, "Status: 429")
+        handler.realize(obj)
+
+        expect(Relaton::W3c::SafeRealize.skipped.key?(href)).to be false
+        expect(Relaton::W3c::SafeRealize.throttled.key?(href)).to be false
+      end
+    end
+
     context "when a request succeeds" do
       before { allow(obj).to receive(:realize).and_return(realized) }
 
