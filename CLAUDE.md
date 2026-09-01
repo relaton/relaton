@@ -230,6 +230,17 @@ suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
   `data/ieee-p802-16-d5-cor-1-2005.yaml` *and* its base id went from
   `_type: pubid:ieee:standard` (with `year`, `prefix: P`) to
   `_type: pubid:ieee:project-draft-identifier` (with `type: P`, no year).
+- **A refresh that silently does nothing looks exactly like a passing suite.**
+  VCR gates `re_record_interval` on `InternetConnection.available?`, which is a
+  TCP ping to **`example.com:80`** — not to the host the cassette actually names.
+  Where that host is unreachable (a restricted network, a filtering proxy), VCR
+  skips every re-record and replays the stale cassette, and the suite goes green
+  without refreshing a thing. Two follow-on traps in the same setting: the
+  flavors that crawl with **Mechanize** (doi, itu, ecma, …) do **not** read
+  `http_proxy`/`https_proxy` the way `Net::HTTP` does, so a re-record behind a
+  proxy dies with `Socket::ResolutionError` on a host `curl` reaches fine. Before
+  trusting a refresh, confirm the cassettes' `recorded_at` actually moved —
+  `git status` naming no cassette after a full run is the tell.
 - **A cassette refresh is only half the reconciliation — the expected-XML fixtures
   go with it.** Many specs compare `to_xml` against a committed
   `spec/<flavor>/fixtures/*.xml`. Re-recording the cassette changes what the code
@@ -255,14 +266,28 @@ suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
   at 10 req/s with 3 concurrent connections, and a parallel full run tripped it,
   writing `429 Too Many Requests` into 8 `spec/doi` cassettes. Re-record a
   rate-limited flavor by running **that suite alone** (`cd spec/doi && bundle exec
-  rspec -I . .`), never under parallel `rake spec`. Diagnostic shortcut:
+  rspec -I . .`), never under parallel `rake spec`. **For `spec/itu` one suite is
+  still too much:** ITU's WAF throttles `/rec` specifically, and the BO crawler
+  examples burst it at `delay: 0`, so a whole-suite re-record answers
+  `/rec/R-REC-BO/en` with **HTTP 500** and writes two dead cassettes
+  (`itu_r_rec_bo`, `itu_r_rec_bo_shallow`) — while `/pub` (`itu_r_rep_bo`) records
+  fine alongside. Re-record those two **one example at a time**, with a pause
+  between, and they come back 15 and 2 clean 200s. Note the 500: it is outside
+  `Itu::Governor::THROTTLE_CODES` on purpose, so the crawler does not back off —
+  it retries fast and fails. That is what reddened CI run `33460475573`, and it
+  is upstream push-back, not an outage. Diagnostic shortcut:
   `git diff <cassette> | grep 'code:'` — a `200` → `4xx` flip is never a code
   regression. **Since `2a8fa827f` a `429` in a `spec/doi` cassette is not
   automatically a dead recording:** the client now treats a Crossref `429` as a
   throttle and retries, so the cassette holds `200 → 429 → 200` and the example
   still passes. Read the *whole* `grep 'code:'` output — an unanswered `429` is
-  the broken one. `spec/doi/vcr_cassettes/book-section.yml` keeps such a
-  recording **committed on purpose**: it is the throttle-retry path's coverage.
+  the broken one. One `spec/doi` cassette keeps such a recording **committed on
+  purpose**: it is the throttle-retry path's coverage. Which one is not fixed —
+  the `429` lands wherever Crossref happens to throttle during a refresh, so it
+  migrates. It sat in `book-section.yml` until the 2026-09-01 refresh moved it to
+  `book-chapter.yml`. Locate it with `grep -l 'code: 429' spec/doi/vcr_cassettes/*.yml`
+  rather than trusting a filename, and if a refresh ever leaves **no** cassette
+  with an answered `429`, that path has lost its coverage.
 - **Known issue:** `spec/oiml/` marks 8 tests pending — `Pubid::Oiml::Identifier.from_hash`
   fails only inside the combined-gem bundle (a runtime-dep interaction; identical
   pubid/lutaml versions pass in isolation), so the OIML index can't deserialize.
