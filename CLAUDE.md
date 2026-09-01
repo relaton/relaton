@@ -371,6 +371,20 @@ regex back.
   `Pubid::Identifier#matches?`, ignoring only what the reference omitted (the
   ETSI idiom); a URL and a leading `TR-` are normalized in the flavor, since
   neither is an identifier. See `lib/relaton/w3c/CLAUDE.md`.
+  **3GPP** is the same shape at the largest scale in the gem — 88,464 rows,
+  3,767 number buckets, largest 979 — so it is where the "`pubid_class:` alone
+  fixes nothing" rule bites hardest: `Type#search_candidates` narrows only for a
+  non-`String` query, so the producer, the consumer and `remove_index_file` all
+  pass `pubid_class: ::Pubid::Tgpp::Identifier` **and** `Bibliography` passes a
+  parsed pubid. The 3GPP-specific trap: `Pubid::Tgpp#to_s` omits the `3GPP `
+  publisher token by default (it renders the index id), so `Docidentifier`
+  re-renders with `with_publisher: true` or every mutation strips the prefix.
+  The migration also needed two pubid fixes, both merged — a bare
+  `3GPP TS 23.207` must parse, and `parts` must default to `[]` on
+  deserialization as well as on parse, or `matches?` rejects every part-less
+  row. Selection is by highest **version**, segments compared as
+  integers — a deliberate change from an arbitrary string `min_by`, measured at
+  86% vs 2% against publication dates. See `lib/relaton/3gpp/CLAUDE.md`.
   The index schema
   and data-repo publishing/Pages contract are specified in
   `docs/data-repository-format.adoc`; see also `lib/relaton/index/CLAUDE.md`.

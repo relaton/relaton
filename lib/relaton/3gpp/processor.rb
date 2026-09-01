@@ -10,6 +10,7 @@ module Relaton
         @prefix = "3GPP"
         @defaultprefix = %r{^3GPP\s}
         @idtype = "3GPP"
+        @pubid_flavor = :Tgpp # global prefixes sourced from Pubid::Tgpp.prefixes
         @datasets = %w[status-smg-3GPP status-smg-3GPP-force]
       end
 
@@ -61,7 +62,10 @@ module Relaton
       #
       def remove_index_file
         require_relative "../3gpp"
-        Relaton::Index.find_or_create("3GPP", url: true, file: "#{INDEXFILE}.yaml").remove_file
+        Relaton::Index.find_or_create(
+          "3GPP", url: true, file: "#{INDEXFILE}.yaml",
+          pubid_class: ::Pubid::Tgpp::Identifier
+        ).remove_file
       end
     end
   end

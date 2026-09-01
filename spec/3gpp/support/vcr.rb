@@ -10,8 +10,10 @@ VCR.configure do |config|
   }
   config.hook_into :webmock
 
-  # Index downloads are handled by pre-loaded fixtures in webmock.rb
+  # Index downloads are handled by pre-loaded fixtures in webmock.rb. Matched
+  # on the version-agnostic name so the next INDEXFILE bump does not silently
+  # start recording index downloads into cassettes.
   config.ignore_request do |request|
-    URI(request.uri).path.end_with?("index-v1.zip")
+    URI(request.uri).path.match?(%r{/index-v\d+\.zip\z})
   end
 end

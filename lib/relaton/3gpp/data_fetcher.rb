@@ -14,8 +14,16 @@ module Relaton
         Util.error msg
       end
 
+      # The index is pubid-backed: `pubid_class:` makes Relaton::Index sort the
+      # rows by `id.root.number` on save and serialize each id to its
+      # `_type: pubid:3gpp:*` hash. Without it a v1-shaped file would be
+      # written under a v2 name, with no error and no narrowing — FileIO#save
+      # only calls `to_hash` when the value is an instance of `pubid_class`.
       def index
-        @index ||= Relaton::Index.find_or_create "3gpp", file: "#{INDEXFILE}.yaml"
+        @index ||= Relaton::Index.find_or_create(
+          "3gpp", file: "#{INDEXFILE}.yaml",
+          pubid_class: ::Pubid::Tgpp::Identifier
+        )
       end
 
       #
@@ -122,9 +130,37 @@ module Relaton
                       "Document: #{bib.docnumber}. Writing #{file} instead."
           end
           @files << file
-          index.add_or_update bib1.docnumber, file
+          index_primary bib1.docidentifier&.detect(&:primary), file
         end
         File.write file, serialize(bib1), encoding: "UTF-8" unless bib1.nil?
+      end
+
+      #
+      # Add a document's primary id to the index.
+      #
+      # The pubid is already parsed on `Docidentifier`, so index it directly
+      # rather than re-parsing `docnumber`. `pubid.to_s` (no publisher token)
+      # reproduces the `docnumber` string this used to store byte-for-byte, so
+      # the index key does not move; `docnumber` still names the output file.
+      #
+      # An id pubid cannot rebuild is recorded in `@errors` — the inherited
+      # `report_errors` logs a String value as the message — and the row is
+      # skipped rather than indexed unparsed: `Relaton::Index` rejects the
+      # WHOLE index if a single row fails to deserialize, and its sort calls
+      # `.root.number` on every id. The data file is still written, so the
+      # document is unindexed, never lost. (The W3C precedent.)
+      #
+      # @param [Docidentifier, nil] docid the document's primary identifier
+      # @param [String] file path the document was written to
+      #
+      def index_primary(docid, file)
+        if docid&.pubid
+          index.add_or_update docid.pubid, file
+          return
+        end
+
+        id = docid&.content || file
+        @errors[id.to_s] = "Unparseable primary id `#{id}` was not indexed (#{file})"
       end
 
       #

@@ -34,10 +34,18 @@ describe Relaton::ThreeGpp::Processor do
     expect(subject.grammar_hash).to be_a String
   end
 
+  # The cold path Db#clear reaches without Bibliography ever loading, so it
+  # must pass the same pubid_class as the other two index call sites.
   it "#remove_index_file" do
     index = instance_double(Relaton::Index::Type)
     expect(index).to receive(:remove_file)
-    expect(Relaton::Index).to receive(:find_or_create).with("3GPP", url: true, file: "index-v1.yaml").and_return index
+    expect(Relaton::Index).to receive(:find_or_create)
+      .with("3GPP", url: true, file: "index-v2.yaml",
+                    pubid_class: ::Pubid::Tgpp::Identifier).and_return index
     subject.remove_index_file
+  end
+
+  it "#prefixes come from pubid" do
+    expect(subject.prefixes).to eq ["3GPP"]
   end
 end

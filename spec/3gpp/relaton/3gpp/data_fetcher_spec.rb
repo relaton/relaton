@@ -12,7 +12,18 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
 
   context "instance" do
     let(:format) { "xml" }
-    let(:bib) { Relaton::ThreeGpp::ItemData.new docnumber: "3GPP TS 01.01:REL-99/8.0.0" }
+    # Shaped as Parser#parse builds it: the docidentifier content carries the
+    # "3GPP " token, the docnumber does not (parser.rb #parse_docid / #number).
+    let(:bib) do
+      Relaton::ThreeGpp::ItemData.new(
+        docnumber: "TS 01.01:REL-99/8.0.0",
+        docidentifier: [
+          Relaton::ThreeGpp::Docidentifier.new(
+            type: "3GPP", content: "3GPP TS 01.01:REL-99/8.0.0", primary: true
+          ),
+        ],
+      )
+    end
 
     subject { Relaton::ThreeGpp::DataFetcher.new("dir", format) }
 
@@ -155,37 +166,62 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
         subject.save_doc nil
       end
 
+      # The index key is the parsed pubid, not a String — that is what makes
+      # FileIO#save emit the `_type: pubid:3gpp:*` rows an index-v2 needs.
+      # Its `to_s` (no publisher token) reproduces the docnumber this used to
+      # store, so the key itself does not move.
       it "write doc" do
         expect(File).to receive(:write)
-          .with("dir/3gpp-ts-01-01-rel-99-8-0-0.xml", /<bibdata.+>3GPP TS 01/m, encoding: "UTF-8")
-        expect(subject.index).to receive(:add_or_update)
-          .with("3GPP TS 01.01:REL-99/8.0.0", "dir/3gpp-ts-01-01-rel-99-8-0-0.xml")
+          .with("dir/ts-01-01-rel-99-8-0-0.xml", /<bibdata.+>3GPP TS 01/m, encoding: "UTF-8")
+        expect(subject.index).to receive(:add_or_update) do |id, file|
+          expect(id).to be_a ::Pubid::Tgpp::Identifier
+          expect(id.to_s).to eq "TS 01.01:REL-99/8.0.0"
+          expect(file).to eq "dir/ts-01-01-rel-99-8-0-0.xml"
+        end
         subject.save_doc bib
       end
 
+      # A crawl must not abort on one bad id, and the index must not be
+      # poisoned with a row Relaton::Index would later reject wholesale.
+      it "records an error and still writes the doc when the id is unparseable" do
+        bad = Relaton::ThreeGpp::ItemData.new(
+          docnumber: "not an identifier",
+          docidentifier: [
+            Relaton::ThreeGpp::Docidentifier.new(
+              type: "3GPP", content: "not an identifier", primary: true
+            ),
+          ],
+        )
+        expect(File).to receive(:write)
+        expect(subject.index).not_to receive(:add_or_update)
+        subject.save_doc bad
+        expect(subject.instance_variable_get(:@errors)["not an identifier"])
+          .to match(/Unparseable primary id/)
+      end
+
       it "warn when file exists and the doc is not transposed or has addidional cntributor" do
-        subject.instance_variable_set(:@files, ["dir/3gpp-ts-01-01-rel-99-8-0-0.xml"])
-        expect(subject).to receive(:merge_duplication).with(bib, "dir/3gpp-ts-01-01-rel-99-8-0-0.xml").and_return nil
+        subject.instance_variable_set(:@files, ["dir/ts-01-01-rel-99-8-0-0.xml"])
+        expect(subject).to receive(:merge_duplication).with(bib, "dir/ts-01-01-rel-99-8-0-0.xml").and_return nil
         expect(File).not_to receive(:write)
         expect(subject.index).not_to receive(:add_or_update)
         expect { subject.save_doc bib }
-          .to output(/File dir\/3gpp-ts-01-01-rel-99-8-0-0\.xml already exists/).to_stderr_from_any_process
+          .to output(/File dir\/ts-01-01-rel-99-8-0-0\.xml already exists/).to_stderr_from_any_process
       end
     end
 
     context "serialise" do
       it "xml" do
-        expect(subject.send(:serialize, bib)).to match(/<bibdata.+>3GPP TS 01.01:REL-99\/8.0.0<\/docnumber>/m)
+        expect(subject.send(:serialize, bib)).to match(/<bibdata.+>TS 01.01:REL-99\/8.0.0<\/docnumber>/m)
       end
 
       it "yaml" do
         subject.instance_variable_set(:@format, "yaml")
-        expect(subject.send(:serialize, bib)).to match(/docnumber: 3GPP TS 01\.01:REL-99\/8\.0.0/)
+        expect(subject.send(:serialize, bib)).to match(/docnumber: TS 01\.01:REL-99\/8\.0.0/)
       end
 
       it "other" do
         subject.instance_variable_set(:@format, "bibxml")
-        expect(subject.send(:serialize, bib)).to include '<reference anchor="3GPP TS 01.01:REL-99/8.0.0">'
+        expect(subject.send(:serialize, bib)).to include '<reference anchor="TS 01.01:REL-99/8.0.0">'
       end
     end
 
@@ -388,7 +424,55 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
     end
   end
 
-  # it do
-  #   Relaton::ThreeGpp::DataFetcher.fetch
-  # end
+  # The producer and the consumer must agree on the index shape, and nothing
+  # else checks that end to end: a missing `pubid_class:` on the writer emits
+  # v1-shaped rows under a v2 name with no error, and the reader then rejects
+  # the whole index. Write through the fetcher's own index config, read it back
+  # through a fresh Type, and require every row to survive.
+  context "the index it writes is one the consumer can read" do
+    # `FileIO#save` writes the `file:` path verbatim (FileStorage#write does no
+    # storage_dir join), so a producer index saves relative to the CWD — which
+    # is how the real crawler works, inside the data repo's checkout. Run the
+    # example from a temp dir so it cannot drop an index into spec/3gpp/.
+    around do |example|
+      Dir.mktmpdir("relaton-3gpp-roundtrip") do |dir|
+        @dir = dir
+        Dir.chdir(dir) { example.run }
+      ensure
+        Relaton::Index.pool.remove "3gpp"
+      end
+    end
+
+    let(:ids) do
+      ["TS 23.207:REL-19/19.0.0", "TS 29.198-04-1:REL-5/5.0.0",
+       "TR 00.01U:UMTS/3.0.0", "TS 29.215/2.0.0"]
+    end
+
+    it "round-trips every id through the pubid hash form" do
+      producer = Relaton::Index.find_or_create(
+        "3gpp", file: "#{Relaton::ThreeGpp::INDEXFILE}.yaml",
+        pubid_class: ::Pubid::Tgpp::Identifier
+      )
+      producer.remove_all
+      ids.each do |id|
+        docid = Relaton::ThreeGpp::Docidentifier.new(
+          type: "3GPP", content: "3GPP #{id}", primary: true
+        )
+        producer.add_or_update docid.pubid, "data/#{id.gsub(/\W+/, '-').downcase}.yaml"
+      end
+      producer.save
+
+      path = File.join(@dir, "#{Relaton::ThreeGpp::INDEXFILE}.yaml")
+      # The `_type:` tag is what makes the row a pubid row rather than a v1
+      # string; without `pubid_class:` on the writer it would be absent.
+      expect(File.read(path)).to include "_type: pubid:3gpp:technical-report"
+
+      consumer = Relaton::Index::Type.new(
+        "3GPP", nil, path, nil, ::Pubid::Tgpp::Identifier
+      )
+      expect(consumer.index.map { |r| r[:id].to_s }).to match_array ids
+      # Sorted by root.number on load, which is what keeps the bsearch valid.
+      expect(consumer.instance_variable_get(:@file_io).sorted).to be true
+    end
+  end
 end

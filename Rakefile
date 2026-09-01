@@ -52,6 +52,20 @@ namespace :spec do
     task(name) { abort "spec/#{name} failed" unless run_flavor_spec(name) }
   end
 
+  # Refresh the 3GPP suite's offline index. Cuts a curated subset from the
+  # published index and converts each id to its pubid hash — see
+  # tasks/index_fixture_3gpp.rb for what each document group is for.
+  desc "Refresh spec/3gpp/fixtures/index-v2.zip from relaton-data-3gpp"
+  task :update_index_3gpp do
+    require_relative "tasks/index_fixture_3gpp"
+    require_relative "lib/relaton/3gpp"
+    # Named from INDEXFILE, so the next index version bump moves the fixture
+    # with it instead of silently writing the old name.
+    path = "spec/3gpp/fixtures/#{Relaton::ThreeGpp::INDEXFILE}.zip"
+    count = IndexFixture3gpp.build(path)
+    puts "Wrote #{count} rows to #{path}"
+  end
+
   # relaton-cli is the one separate gem (own Gemfile/lock, gem "relaton",
   # path: "../.."), so run its suite in its OWN bundle — with_unbundled_env +
   # cd, the same shape as build_all. bundle check || install first so it works
