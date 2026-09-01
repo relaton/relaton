@@ -94,7 +94,7 @@ module Relaton
       #
       def parse_docid
         @errors[:docid] &&= @row[0].nil? || @row[0].empty?
-        [Bib::Docidentifier.new(type: "3GPP", content: "3GPP #{number}", primary: true)]
+        [Docidentifier.new(type: "3GPP", content: "3GPP #{number}", primary: true)]
       end
 
       #

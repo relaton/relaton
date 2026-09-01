@@ -67,11 +67,20 @@ RSpec.describe Relaton::ThreeGpp do
     end
   end
 
+  # A parseable reference that is simply absent from the index: a miss, and
+  # the cache stores a `not_found` marker for it. (`3GPP 1234` used to stand
+  # here, but it does not parse at all — see the next example.)
   it "document not found" do
-    VCR.use_cassette "3gpp_document_not_found" do
-      expect do
-        expect(Relaton::ThreeGpp::Bibliography.get("3GPP 1234")).to be_nil
-      end.to output(/\[relaton-3gpp\] INFO: \(3GPP 1234\) Not found/).to_stderr_from_any_process
-    end
+    expect do
+      expect(Relaton::ThreeGpp::Bibliography.get("3GPP TS 99.999")).to be_nil
+    end.to output(/\[relaton-3gpp\] INFO: \(3GPP TS 99\.999\) Not found/).to_stderr_from_any_process
+  end
+
+  # Mirrors ISO and ETSI: an unrecognized reference raises rather than
+  # returning nil, so relaton-cli can render "… is not a recognized standards
+  # identifier". `Parslet::ParseFailed` is the class the CLI rescues.
+  it "raises on an unrecognized reference" do
+    expect { Relaton::ThreeGpp::Bibliography.get("3GPP 1234") }
+      .to raise_error Parslet::ParseFailed
   end
 end
