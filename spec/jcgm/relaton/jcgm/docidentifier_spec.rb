@@ -33,6 +33,22 @@ RSpec.describe Relaton::Jcgm::Docidentifier do
     expect(docid.content).to eq "JCGM 200"
   end
 
+  # A meeting has no form without its date: the renderer reads `date.year`
+  # unconditionally, so dropping it raises instead of producing a shorter id.
+  # The mutation is rolled back rather than propagated.
+  it "leaves a meeting's date alone, because it cannot render without one" do
+    meeting = described_class.new(content: "JCGM 11st Meeting (2006)")
+    expect { meeting.remove_date! }.not_to raise_error
+    expect(meeting.content).to eq "JCGM 11st Meeting (2006)"
+    expect(meeting.pubid.date).not_to be_nil
+  end
+
+  it "leaves a meeting alone through #to_all_parts! too" do
+    meeting = described_class.new(content: "JCGM 11st Meeting (2006)")
+    expect { meeting.to_all_parts! }.not_to raise_error
+    expect(meeting.content).to eq "JCGM 11st Meeting (2006)"
+  end
+
   it "leaves a dateless identifier alone" do
     bare = described_class.new(content: "JCGM GUM")
     bare.remove_date!

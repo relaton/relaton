@@ -68,28 +68,57 @@ module Relaton
 
         remove_part!
         remove_date!
-        @pubid.all_parts = true if @pubid.respond_to?(:all_parts=)
-        refresh_content!
+        return unless @pubid.respond_to?(:all_parts=)
+
+        restore = [[@pubid, :all_parts, @pubid.all_parts]]
+        @pubid.all_parts = true
+        commit_or_revert restore
       end
 
       private
 
+      # Clear `attr` on the identifier and on its root, then re-render.
+      #
+      # Nothing is written unless the mutated identifier still renders. Some
+      # JCGM types have no form without the component: a meeting is
+      # `JCGM 11st Meeting (2006)`, and the renderer reads `date.year`
+      # unconditionally, so dropping the date raises rather than producing a
+      # shorter id. Those are put back and the content is left alone — an
+      # undated meeting reference does not exist, so leaving the id as-is is the
+      # correct answer, and it is certainly better than raising out of
+      # `Bib::ItemData#to_most_recent_reference`.
       def clear_attr!(attr)
         return unless @pubid
 
         targets = [@pubid]
         targets << @pubid.root if @pubid.respond_to?(:root) && !@pubid.root.equal?(@pubid)
+        restore = []
         targets.each do |id|
           next unless id.respond_to?("#{attr}=")
 
+          restore << [id, attr, id.public_send(attr)]
           id.public_send("#{attr}=", nil)
-          id.subpart = nil if attr == :part && id.respond_to?(:subpart=)
+          next unless attr == :part && id.respond_to?(:subpart=)
+
+          restore << [id, :subpart, id.subpart]
+          id.subpart = nil
         end
-        refresh_content!
+        commit_or_revert restore
       end
 
-      def refresh_content!
-        store_content(@pubid.to_s) if @pubid
+      # Write the re-rendered id back, or undo the mutation if it cannot be
+      # rendered. `restore` is the [receiver, attribute, previous value] list to
+      # roll back with.
+      def commit_or_revert(restore)
+        return if restore.empty?
+
+        rendered = begin
+          @pubid.to_s
+        rescue StandardError
+          restore.each { |id, attr, value| id.public_send("#{attr}=", value) }
+          return
+        end
+        store_content rendered
       end
     end
   end
