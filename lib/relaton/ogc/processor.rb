@@ -9,6 +9,7 @@ module Relaton
         @defaultprefix = %r{^OGC\s}
         @idtype = "OGC"
         @datasets = %w[ogc-naming-authority]
+        @pubid_flavor = :Ogc
       end
 
       # @param code [String]
@@ -51,6 +52,7 @@ module Relaton
         require_relative "../ogc"
         Relaton::Index.find_or_create(
           :ogc, url: true, file: "#{INDEXFILE}.yaml",
+          pubid_class: ::Pubid::Ogc::Identifier
         ).remove_file
       end
     end

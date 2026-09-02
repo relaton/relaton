@@ -23,7 +23,12 @@ module Relaton
       end
 
       def index
-        @index ||= Relaton::Index.find_or_create :ogc, file: "#{INDEXFILE}.yaml"
+        # `pubid_class:` on the producer too: FileIO#save only calls `to_hash`
+        # when the value is an instance of it, so without it the crawl writes
+        # v1-shaped rows under a v2 name, silently.
+        @index ||= Relaton::Index.find_or_create(
+          :ogc, file: "#{INDEXFILE}.yaml", pubid_class: ::Pubid::Ogc::Identifier
+        )
       end
 
       def fetch(_source = nil) # rubocop:disable Metrics/AbcSize
@@ -60,8 +65,24 @@ module Relaton
 
         @docids << docid
         file = file_name bib
-        index.add_or_update docid, file
+        index.add_or_update index_id(docid), file
         File.write file, serialize(bib), encoding: "UTF-8"
+      end
+
+      #
+      # The index key. Stored as a `Pubid::Ogc::Identifier` so the published
+      # index-v2 rows are pubid hashes the consumer can narrow on. A docid
+      # pubid rejects is logged and indexed as the plain string, so one bad
+      # record never aborts a crawl.
+      #
+      # @param docid [String]
+      # @return [Pubid::Ogc::Identifier, String]
+      #
+      def index_id(docid)
+        ::Pubid::Ogc::Identifier.parse docid
+      rescue StandardError => e
+        Util.warn "Failed to parse pubid `#{docid}`: #{e.message}"
+        docid
       end
 
       def file_name(bib)
