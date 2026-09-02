@@ -158,11 +158,16 @@ cold path that `spec/relaton/lazy_loading_spec.rb` guards — reached via
   `tasks/index_fixture_3gpp.rb` names each document group and the rule it pins
   (`TS 23.207` version ordering, `TS 05.05` legacy release tokens, `TS 04.08`
   the known limit, `TS 29.198-04-1` parts, `TR 00.01U` suffix, `TS 29.215` the
-  release-less row). Rows are copied verbatim except that the `:id` string is
-  converted with `Pubid::Tgpp::Identifier.parse(...).to_hash` — exactly what
-  `DataFetcher` writes, and byte-identical on round-trip over all 88,464 rows,
-  so the fixture is shape-faithful even before `relaton-data-3gpp` publishes
-  its own v2. Point `IndexFixture3gpp::SOURCE` at `index-v2.zip` once it does.
+  release-less row). Rows are copied **verbatim** from `relaton-data-3gpp`'s
+  published `index-v2.zip`, so the stored shapes are exactly what `DataFetcher`
+  writes and what the runtime deserializes. `#build` refuses a v1 source
+  outright — string ids under the v2 name would give a fixture
+  `Relaton::Index` rejects wholesale — so the failure names its cause instead
+  of surfacing as an unrelated deserialization error.
+
+  Re-cutting always produces a different **binary** even when the rows are
+  unchanged, because a zip stores mtimes. Compare the rows, not the file: if
+  the row set is identical, there is nothing to commit.
 - `spec/3gpp/support/webmock.rb` seeds the fixture into the `Relaton::Index`
   pool **with `pubid_class:`** — without it the suite would pass while
   exercising something the runtime never does. It re-seeds in `before(:each)`,
