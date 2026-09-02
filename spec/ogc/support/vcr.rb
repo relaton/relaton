@@ -11,8 +11,10 @@ VCR.configure do |config|
   config.hook_into :webmock
   config.configure_rspec_metadata!
 
-  # Index downloads are handled by pre-loaded fixtures in webmock.rb
+  # Index downloads are handled by pre-loaded fixtures in webmock.rb. Named
+  # from INDEXFILE so an index version bump cannot leave this matching the old
+  # file and letting a real download through.
   config.ignore_request do |request|
-    URI(request.uri).path.end_with?("index-v1.zip")
+    URI(request.uri).path.end_with?("#{Relaton::Ogc::INDEXFILE}.zip")
   end
 end

@@ -262,25 +262,31 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  # Routing + cache check: `#fetch` must resolve an `OGC ` reference to the OGC
+  # processor and write the result to the cache. The flavor's retrieval (index
+  # download, document fetch) belongs to spec/ogc, so `Bibliography.get` is
+  # stubbed — no cassette, no index download. (The BIPM Meeting example in
+  # db_spec.rb is the same shape, for the same reason.)
+  #
+  # This example used to drive a real index through `ogc_19_025r1.yml`, and that
+  # is exactly what broke when OGC moved to `index-v2`: the cassette still held
+  # the dead `index-v1.zip`, so VCR raised `UnhandledHTTPRequestError` even
+  # though nothing about routing or caching had changed.
   it "get OGC refrence and cache it" do
-    cc_fr = /\.relaton\/ogc\/bibliography\.json/
-    allow(File).to receive(:exist?).with(cc_fr).and_return false
+    ogc_fr = /\.relaton\/ogc\/bibliography\.json/
+    allow(File).to receive(:exist?).with(ogc_fr).and_return false
     allow(File).to receive(:exist?).with(/etag\.txt/).and_return false
     expect(File).to receive(:exist?).and_call_original.at_least :once
-    expect(File).to receive(:write).with(cc_fr, kind_of(String), kind_of(Hash))
+    expect(File).to receive(:write).with(ogc_fr, kind_of(String), kind_of(Hash))
       .at_most :once
     allow(File).to receive(:write).and_call_original
-    VCR.use_cassette "ogc_19_025r1" do
-      ogc_bib = "/Users/andrej/.relaton/ogc/bibliography.json"
-      expect(File).to receive(:exist?).with(ogc_bib)
-        .and_return(false).at_most :once
-      ogc_etag = "/Users/andrej/.relaton/ogc/etag.txt"
-      expect(File).to receive(:exist?).with(ogc_etag)
-        .and_return(false).at_most :once
-      allow(File).to receive(:exist?).and_call_original
-      bib = @db.fetch "OGC 19-025r1", nil, {}
-      expect(bib).to be_instance_of Relaton::Ogc::ItemData
-    end
+
+    docid = Relaton::Bib::Docidentifier.new content: "19-025r1", type: "OGC"
+    item = Relaton::Ogc::ItemData.new docidentifier: [docid]
+    expect(Relaton::Ogc::Bibliography).to receive(:get).and_return item
+
+    bib = @db.fetch "OGC 19-025r1", nil, {}
+    expect(bib).to be_instance_of Relaton::Ogc::ItemData
   end
 
   it "get Calconnect refrence and cache it" do

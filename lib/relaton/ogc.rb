@@ -1,3 +1,7 @@
+# Not lazy: Processor#remove_index_file names ::Pubid::Ogc::Identifier on the
+# cold path reached by Db#clear, which never loads HitCollection.
+# (spec/relaton/lazy_loading_spec.rb guards this; the IANA/IHO/IALA form.)
+require "pubid"
 require "relaton/index"
 require "relaton/iso"
 require_relative "version"
@@ -11,7 +15,7 @@ require_relative "ogc/bibliography"
 
 module Relaton
   module Ogc
-    INDEXFILE = "index-v1".freeze
+    INDEXFILE = "index-v2".freeze
     class Error < StandardError; end
 
     # Returns hash of XML reammar

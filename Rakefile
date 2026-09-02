@@ -66,6 +66,20 @@ namespace :spec do
     puts "Wrote #{count} rows to #{path}"
   end
 
+  # Refresh the OGC suite's offline index. Copies the whole published index
+  # (~1,258 rows) and converts each string id to its pubid hash — see
+  # tasks/index_fixture_ogc.rb for why it is not curated.
+  desc "Refresh spec/ogc/fixtures/index-v2.zip from relaton-data-ogc"
+  task :update_index_ogc do
+    require_relative "tasks/index_fixture_ogc"
+    require_relative "lib/relaton/ogc"
+    # Named from INDEXFILE, so the next index version bump moves the fixture
+    # with it instead of silently writing the old name.
+    path = "spec/ogc/fixtures/#{Relaton::Ogc::INDEXFILE}.zip"
+    count = IndexFixtureOgc.build(path)
+    puts "Wrote #{count} rows to #{path}"
+  end
+
   # relaton-cli is the one separate gem (own Gemfile/lock, gem "relaton",
   # path: "../.."), so run its suite in its OWN bundle — with_unbundled_env +
   # cd, the same shape as build_all. bundle check || install first so it works

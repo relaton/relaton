@@ -40,7 +40,8 @@ describe Relaton::Ogc::Processor do
   it "#remove_index_file removes the index file" do
     index = double("index")
     expect(Relaton::Index).to receive(:find_or_create)
-      .with(:ogc, url: true, file: "#{Relaton::Ogc::INDEXFILE}.yaml")
+      .with(:ogc, url: true, file: "#{Relaton::Ogc::INDEXFILE}.yaml",
+            pubid_class: ::Pubid::Ogc::Identifier)
       .and_return(index)
     expect(index).to receive(:remove_file)
     processor.remove_index_file
