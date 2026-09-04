@@ -1,5 +1,6 @@
 require "tmpdir"
 require "json"
+require "zlib"
 require "relaton/cli/index_site_generator"
 
 RSpec.describe Relaton::Cli::IndexSiteGenerator do
@@ -21,6 +22,183 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
         base_url: "https://raw.githubusercontent.com/relaton/relaton-data-bipm/v2" }.merge(opts),
     )
     File.read(File.join(@out, "index.html"), encoding: "utf-8")
+  end
+
+
+  # --- machine index (contract v2: manifest + shards + monolith) ----------
+
+  def manifest
+    JSON.parse(File.read(File.join(@out, "index", "manifest.json")))
+  end
+
+  def machine_shards
+    Dir[File.join(@out, "index", "shard-*.json")].sort
+  end
+
+  def all_machine_records
+    machine_shards.flat_map { |f| JSON.parse(File.read(f)) }
+  end
+
+  def with_pubid_corpus(count, opts = {})
+    Dir.mktmpdir("pubid-corpus-") do |repo|
+      FileUtils.mkdir_p(File.join(repo, "data"))
+      (1..count).each do |i|
+        content = <<~YAML
+          ---
+          docidentifier:
+          - content: ISO #{1000 + i}#{i.positive? && i % 3 == 1 ? "-1:2014" : ""}
+            primary: true
+          title:
+          - content: Standard #{i}
+            type: main
+        YAML
+        File.write(File.join(repo, "data", format("iso-%03d.yaml", i)), content)
+      end
+      yield described_class.generate(
+        File.join(repo, "data"),
+        { output: @out, generated: "2026-01-01" }.merge(opts),
+      )
+    end
+  end
+
+  it "emits a contract-v2 manifest for a flat corpus" do
+    with_corpus(3) do
+      m = manifest
+      expect(m).to include(
+        "version" => 2, "index" => "v1", "key" => "id",
+        "algorithm" => "crc32", "shards" => 0, "count" => 3,
+        "generated" => "2026-01-01",
+      )
+    end
+  end
+
+  it "does not shard a corpus below MIN_ROWS" do
+    with_corpus(3) do
+      expect(manifest["shards"]).to eq(0)
+      expect(machine_shards).to be_empty
+      expect(File).to exist(File.join(@out, "index-v1.yaml"))
+      expect(File).to exist(File.join(@out, "index-v1.zip"))
+    end
+  end
+
+  describe "sharding a flat corpus" do
+    before { stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 10) }
+
+    it "puts every document in exactly one shard, at crc32(id) % N" do
+      with_corpus(40) do
+        m = manifest
+        expect(m["shards"]).to eq(16) # next_pow2(40/15)=4, clamped to MIN_SHARDS=16
+        records = all_machine_records
+        expect(records.size).to eq(40)
+
+        records.each do |rec|
+          shard = format("shard-%05d.json", Zlib.crc32(rec["r"]) % m["shards"])
+          rows = JSON.parse(File.read(File.join(@out, "index", shard)))
+          expect(rows).to include(rec)
+          expect(rec).not_to have_key("id")
+          expect(rec["file"]).to start_with("data/")
+        end
+      end
+    end
+
+    it "writes no empty shards" do
+      with_corpus(3) do
+        machine_shards.each do |f|
+          expect(JSON.parse(File.read(f))).not_to be_empty
+        end
+      end
+    end
+  end
+
+  describe "structured corpora (flavor: iso)" do
+    before { stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 10) }
+
+    it "classifies as v3 and keys shards by pubid root number" do
+      with_pubid_corpus(30, flavor: "iso") do
+        m = manifest
+        expect(m).to include("version" => 2, "index" => "v3", "key" => "root-number")
+        expect(m["count"]).to eq(30)
+      end
+    end
+
+    it "keeps a document family in one shard and carries structured ids" do
+      stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 1)
+      Dir.mktmpdir("family-") do |repo|
+        FileUtils.mkdir_p(File.join(repo, "data"))
+        family = [
+          "ISO 19115", "ISO 19115-1:2014", "ISO 19115-1:2014/Amd 1:2018",
+          "ISO 19116", # different family
+        ]
+        family.each_with_index do |id, i|
+          File.write(File.join(repo, "data", format("f-%02d.yaml", i)),
+            "---\ndocidentifier:\n- content: #{id}\n  primary: true\n")
+        end
+        described_class.generate(File.join(repo, "data"),
+          output: @out, generated: "2026-01-01", flavor: "iso")
+
+        m = manifest
+        records = all_machine_records
+        expect(records.size).to eq(4)
+        expect(records).to all(include("id" => hash_including("_type")))
+
+        family_recs = records.select { |r| r["r"].start_with?("ISO 19115") }
+        other = records.find { |r| r["r"] == "ISO 19116" }
+        family_shards = family_recs.map do |rec|
+          machine_shards.find { |f| JSON.parse(File.read(f)).any? { |row| row["r"] == rec["r"] } }
+        end
+        other_shard = machine_shards.find { |f| JSON.parse(File.read(f)).any? { |row| row["r"] == other["r"] } }
+        expect(family_shards.uniq.size).to eq(1) # whole family together
+        expect(other_shard).not_to eq(family_shards.first) # different number apart
+      end
+    end
+
+    it "falls back to the rendered id for rows without a root number" do
+      stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 1)
+      Dir.mktmpdir("nofam-") do |repo|
+        FileUtils.mkdir_p(File.join(repo, "data"))
+        ["ISO 9999", "draft-some-internet-draft"].each_with_index do |id, i|
+          File.write(File.join(repo, "data", format("n-%02d.yaml", i)),
+            "---\ndocidentifier:\n- content: #{id}\n  primary: true\n")
+        end
+        described_class.generate(File.join(repo, "data"),
+          output: @out, generated: "2026-01-01", flavor: "iso")
+
+        rec = all_machine_records.find { |r| r["r"] == "draft-some-internet-draft" }
+        expect(rec).not_to be_nil
+        expect(rec["id"]).to be_nil # unparseable row stays keyable by r
+        shard = format("shard-%05d.json", Zlib.crc32("draft-some-internet-draft") % manifest["shards"])
+        expect(JSON.parse(File.read(File.join(@out, "index", shard)))).to include(rec)
+      end
+    end
+
+    it "writes an index-v3 monolith that round-trips through the pubid class" do
+      with_pubid_corpus(5, flavor: "iso") do
+        rows = YAML.safe_load(File.read(File.join(@out, "index-v3.yaml")),
+                              permitted_classes: [Symbol], aliases: true)
+        expect(rows.size).to eq(5)
+        parsed = rows.map { |r| Pubid::Iso::Identifier.from_hash(r[:id]) }
+        expect(parsed).to all(be_a(Pubid::Iso::Identifier))
+        expect(File).to exist(File.join(@out, "index-v3.zip"))
+        expect(File).not_to exist(File.join(@out, "index-v1.yaml"))
+      end
+    end
+  end
+
+  it "keeps machine rows repo-relative even when --base-url is set" do
+    with_corpus(3, base_url: "https://relaton.github.io/relaton-data-x") do
+      all_machine_records.each do |rec|
+        expect(rec["file"]).to start_with("data/")
+        expect(rec["file"]).not_to include("http")
+      end
+    end
+  end
+
+  it "can be disabled with machine_index: false" do
+    generate(machine_index: false)
+
+    expect(File).not_to exist(File.join(@out, "index", "manifest.json"))
+    expect(machine_shards).to be_empty
+    expect(Dir[File.join(@out, "index-v*.yaml")]).to be_empty
   end
 
   # --- shard readers -------------------------------------------------------
