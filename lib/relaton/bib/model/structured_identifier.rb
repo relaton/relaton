@@ -32,17 +32,18 @@ module Relaton
         map_element "year", to: :year
       end
 
-      def remove_part!
-        raise NotImplementedError, "`remove_part!` method not implemented in #{self.class}"
-      end
+      # The same broadcast reaches `ext.structuredidentifier`
+      # (`Bib::ItemData#ext_to_all_parts!` / `#ext_remove_date`), so these
+      # default to no-ops for the same reason as `Bib::Docidentifier`'s: a
+      # structured identifier with no part and no date has nothing to strip.
+      # Flavors that model one override them — see
+      # `Relaton::Iso::StructuredIdentifier` and `Relaton::Gb::StructuredIdentifier`.
 
-      def to_all_parts!
-        raise NotImplementedError, "`to_all_parts!` method not implemented in #{self.class}"
-      end
+      def remove_part!; end
 
-      def remove_date!
-        raise NotImplementedError, "`remove_date!` method not implemented in #{self.class}"
-      end
+      def to_all_parts!; end
+
+      def remove_date!; end
     end
   end
 end

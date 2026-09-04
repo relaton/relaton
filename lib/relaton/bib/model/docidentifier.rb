@@ -18,17 +18,32 @@ module Relaton
         map "primary", to: :primary
       end
 
-      def remove_part!
-        raise NotImplementedError, "`remove_part!` method not implemented in #{self.class}"
-      end
+      # `Bib::ItemData#to_all_parts` and `#to_most_recent_reference` broadcast
+      # these three to EVERY docidentifier unconditionally, so raising here made
+      # both calls unusable for any flavor that had not subclassed this class —
+      # 13 of them had not, and both died on every item they produced. The raise
+      # was also `NotImplementedError`, which descends from `ScriptError`, so a
+      # caller's `rescue => e` did not even catch it.
+      #
+      # The default is therefore a **no-op**. An identifier that models neither
+      # a part nor a date has nothing to strip, and returning it unchanged is
+      # the correct answer for both calls.
+      #
+      # A flavor whose identifier does carry one overrides these — see
+      # `Relaton::Ogc::Docidentifier` or `Relaton::Iala::Docidentifier` for the
+      # pubid-backed shape (parse `content` into a pubid, mutate, re-render
+      # through a `store_content` alias so the write does not re-parse).
+      #
+      # The trade-off, recorded so it stays a choice rather than an oversight: a
+      # flavor that DOES carry a date but has not overridden `remove_date!` now
+      # returns a dated reference silently, where before it crashed loudly.
+      # That is a missing override in the flavor, not a defect here.
 
-      def to_all_parts!
-        raise NotImplementedError, "`to_all_parts!` method not implemented in #{self.class}"
-      end
+      def remove_part!; end
 
-      def remove_date!
-        raise NotImplementedError, "`remove_date!` method not implemented in #{self.class}"
-      end
+      def to_all_parts!; end
+
+      def remove_date!; end
     end
   end
 end
