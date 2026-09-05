@@ -37,7 +37,7 @@ describe Relaton::Ecma::Processor do
   it "#remove_index_file" do
     index = double :index
     expect(Relaton::Index).to receive(:find_or_create)
-      .with(:ECMA, url: true, file: "#{Relaton::Ecma::INDEXFILE}.yaml").and_return index
+      .with(:ECMA, url: true, file: "#{Relaton::Ecma::INDEXFILE_V1}.yaml").and_return index
     expect(index).to receive(:remove_file)
     subject.remove_index_file
   end

@@ -16,11 +16,17 @@ module Relaton
         #
         # @return [Array<Hash>]
         #
+        # TEMPORARY: still the bespoke v1 index. The gem now PRODUCES the pubid
+        # `index-v2` (see DataFetcher), but `relaton-data-ecma` has not
+        # republished yet, so this reads `INDEXFILE_V1` rather than 404ing.
+        # Migrating this method to the pubid `best_match` shape — and dropping
+        # `INDEXFILE_V1` — is the follow-up:
+        # HANDOFFS/relaton__relaton__ecma-consume-index-v2.md.
         def search(ref)
           refparts = parse_ref ref
           return [] unless refparts
 
-          index = Relaton::Index.find_or_create :ECMA, url: "#{ENDPOINT}#{INDEXFILE}.zip", id_keys: %i[id ed vol]
+          index = Relaton::Index.find_or_create :ECMA, url: "#{ENDPOINT}#{INDEXFILE_V1}.zip", id_keys: %i[id ed vol]
           index.search { |row| match_ref refparts, row }
         end
 

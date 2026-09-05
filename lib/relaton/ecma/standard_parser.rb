@@ -26,7 +26,7 @@ module Relaton
         @translation_source ||= parse_translation_source
       end
 
-      # @return [Array<Relaton::Bib::Docidentifier>]
+      # @return [Array<Relaton::Ecma::Docidentifier>]
       def fetch_docidentifier
         result = super(@hit.text)
         @errors[:standard_docidentifier] &&= result.empty?
@@ -83,7 +83,7 @@ module Relaton
           ref, ed, date, vol = edition_parser.edition_id_parts rel.at("span").text
           next if ed.nil? || ed.empty?
 
-          docid = Bib::Docidentifier.new(type: "ECMA", content: ref, primary: true)
+          docid = Docidentifier.new(type: "ECMA", content: ref, primary: true)
           source = rel.xpath("span/a").map { |l| Bib::Uri.new type: "pdf", content: l[:href] }
           edition = Bib::Edition.new content: ed
           extent = edition_parser.create_extent(vol)
