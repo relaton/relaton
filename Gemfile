@@ -48,6 +48,15 @@ gemspec
 #     the whole index, silently. pubid #339 renames the attribute `code` ->
 #     `number`, with NO alias reader; `Relaton::W3c::Docidentifier` and the
 #     `index-v2` this gem now writes both read `number`.
+#   - ECMA: `Pubid::Ecma` never RENDERED the edition, and `volume` did not exist
+#     as an attribute at all. `Relaton::Index::Type#add_or_update` keys on a bare
+#     `id.to_s`, so over the 804 published rows — 740 of which carry an edition —
+#     the keys collapsed to 421 and a crawl dropped 383 rows while reporting
+#     success. pubid #357 renders ` ed<N>` and ` vol<N>` BY DEFAULT (opt out
+#     with `to_s(with_edition: false, with_volume: false)`, which is what
+#     `Relaton::Ecma::Docidentifier` uses for the bare printed id), parses those
+#     two suffixes plus the `ECMA 6` space form, and adds `volume` as a plain
+#     :string that round-trips through `to_hash`.
 # All live on pubid `main`, which also carries the `base_identifier` -> `base`
 # accessor/serialization-key rename (pubid #139) that relaton adopts here: pubid
 # removed `.base_identifier` with no alias, and `#root` now reaches the origin for

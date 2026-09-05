@@ -21,7 +21,7 @@ module Relaton
 
       private
 
-      # @return [Array<Relaton::Bib::Docidentifier>]
+      # @return [Array<Relaton::Ecma::Docidentifier>]
       def fetch_docidentifier
         code = "ECMA MEM/#{@hit.at('div[1]//p').text}"
         docid = super(code)

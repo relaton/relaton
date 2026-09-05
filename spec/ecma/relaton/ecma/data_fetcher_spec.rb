@@ -62,9 +62,86 @@ describe Relaton::Ecma::DataFetcher do
     end
   end
 
+  context "#index" do
+    it "is the pubid index-v2, on the producer side too" do
+      # Without `pubid_class:` here, FileIO#save calls `to_hash` only for
+      # instances of it, so the crawl writes v1-shaped rows under a v2 name.
+      expect(Relaton::Index).to receive(:find_or_create).with(
+        :ecma, file: "index-v2.yaml", pubid_class: ::Pubid::Ecma::Identifier
+      )
+      subject.index
+    end
+  end
+
+  context "#index_id" do
+    def item(content, edition: nil, volume: nil)
+      docid = Relaton::Ecma::Docidentifier.new content: content
+      extent = if volume
+                 locality = Relaton::Bib::Locality.new type: "volume", reference_from: volume
+                 [Relaton::Bib::Extent.new(locality: [locality])]
+               else
+                 []
+               end
+      Relaton::Ecma::ItemData.new(
+        docidentifier: [docid], extent: extent,
+        edition: (Relaton::Bib::Edition.new(content: edition) if edition),
+      )
+    end
+
+    it "carries the number, the edition and the volume" do
+      id = subject.index_id item("ECMA-269", edition: "3", volume: "1")
+      expect(id).to be_a Pubid::Ecma::Identifier
+      expect(id.number).to eq "269"
+      expect(id.edition).to eq "3"
+      expect(id.volume).to eq "1"
+      expect(id.to_s).to eq "ECMA-269 ed3 vol1"
+    end
+
+    it "carries neither for a document that has neither" do
+      id = subject.index_id item("ECMA MEM/2021")
+      expect(id.edition).to be_nil
+      expect(id.volume).to be_nil
+      expect(id.to_s).to eq "ECMA MEM/2021"
+    end
+
+    it "leaves the document's own docidentifier bare" do
+      bib = item("ECMA-269", edition: "3", volume: "1")
+      subject.index_id bib
+      expect(bib.docidentifier[0].content).to eq "ECMA-269"
+      expect(bib.docidentifier[0].pubid.edition).to be_nil
+    end
+
+    it "returns nil for a docid pubid rejects" do
+      expect(subject.index_id(item("ECMA TR-27"))).to be_nil
+    end
+  end
+
+  context "an unparseable docid" do
+    let(:bib) do
+      docid = Relaton::Ecma::Docidentifier.new content: "ECMA TR-27"
+      Relaton::Ecma::ItemData.new docnumber: "TR-27", docidentifier: [docid]
+    end
+
+    it "is recorded in @errors, skipped from the index, and still written" do
+      expect(File).to receive(:write).with("data/ecma-tr-27.yaml", kind_of(String), encoding: "UTF-8")
+      expect(subject.index).not_to receive(:add_or_update)
+      subject.write_file bib
+      expect(subject.instance_variable_get(:@errors)["ECMA TR-27"])
+        .to eq "Unparseable primary id `ECMA TR-27` was not indexed (data/ecma-tr-27.yaml)"
+    end
+
+    it "reaches report_errors, which opens the GitHub issue" do
+      allow(File).to receive(:write)
+      subject.write_file bib
+      expect(subject).to receive(:log_error)
+        .with("Unparseable primary id `ECMA TR-27` was not indexed (data/ecma-tr-27.yaml)")
+      subject.report_errors
+    end
+  end
+
   context "#write_file" do
     let(:bib) do
-      docid = Relaton::Bib::Docidentifier.new content: "ECMA TR/27"
+      docid = Relaton::Ecma::Docidentifier.new content: "ECMA TR/27"
       ed = Relaton::Bib::Edition.new content: "1.2"
       locality = Relaton::Bib::Locality.new type: "volume", reference_from: "1"
       extent = Relaton::Bib::Extent.new locality: [locality]
@@ -73,8 +150,11 @@ describe Relaton::Ecma::DataFetcher do
 
     it "default output dir & YAML format" do
       expect(File).to receive(:write).with("data/ecma-tr-27-1-2-1.yaml", match(/ECMA TR\/27/), encoding: "UTF-8")
-      expect(subject.index).to receive(:add_or_update)
-        .with({ ed: "1.2", id: "ECMA TR/27", vol: "1" }, "data/ecma-tr-27-1-2-1.yaml")
+      expect(subject.index).to receive(:add_or_update) do |id, file|
+        expect(id).to be_a Pubid::Ecma::Identifiers::TechnicalReport
+        expect(id.to_s).to eq "ECMA TR/27 ed1.2 vol1"
+        expect(file).to eq "data/ecma-tr-27-1-2-1.yaml"
+      end
       subject.write_file bib
     end
 
@@ -94,7 +174,7 @@ describe Relaton::Ecma::DataFetcher do
     it "gives a colliding, DISTINCT docid a file of its own" do
       # "ECMA TR/27" and "ECMA TR-27" both sanitize to ecma-tr-27-1-2-1.yaml.
       # The second document used to be dropped outright.
-      other_docid = Relaton::Bib::Docidentifier.new content: "ECMA TR-27"
+      other_docid = Relaton::Ecma::Docidentifier.new content: "ECMA TR-27"
       other = Relaton::Ecma::ItemData.new(
         docnumber: "TR-27", docidentifier: [other_docid],
         edition: bib.edition, extent: bib.extent
@@ -116,7 +196,7 @@ describe Relaton::Ecma::DataFetcher do
       # this branch unreachable, because a disambiguated path stays different
       # from the plain one forever — so the repeat overwrote its own file
       # instead of being skipped.
-      other_docid = Relaton::Bib::Docidentifier.new content: "ECMA TR-27"
+      other_docid = Relaton::Ecma::Docidentifier.new content: "ECMA TR-27"
       other = Relaton::Ecma::ItemData.new(
         docnumber: "TR-27", docidentifier: [other_docid],
         edition: bib.edition, extent: bib.extent

@@ -74,6 +74,7 @@ Relaton::Ecma::Bibliography.get "ECMA MEM/2021"
 # Return nil if a document doesn't exist.
 Relaton::Ecma::Bibliography.get '1111'
 [relaton-ecma] INFO: (1111) Fetching from Relaton repository ...
+[relaton-ecma] WARN: Failed to parse pubid `1111`: Failed to parse ECMA identifier '1111': ...
 [relaton-ecma] INFO: (1111) Not found.
 => nil
 ----

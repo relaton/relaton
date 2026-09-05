@@ -18,7 +18,7 @@ describe Relaton::Ecma::MementoParser do
   it "#fetch_docidentifier" do
     bib = subject.to_bib_hash
     docid = bib[:docidentifier]
-    expect(docid.first).to be_instance_of Relaton::Bib::Docidentifier
+    expect(docid.first).to be_instance_of Relaton::Ecma::Docidentifier
     expect(docid.first.type).to eq "ECMA"
     expect(docid.first.content).to eq "ECMA MEM/2025"
   end

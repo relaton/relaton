@@ -22,7 +22,7 @@ describe Relaton::Ecma::ParserCommon do
 
   it "#fetch_docidentifier" do
     docid = parser.fetch_docidentifier("ECMA-6")
-    expect(docid.first).to be_instance_of Relaton::Bib::Docidentifier
+    expect(docid.first).to be_instance_of Relaton::Ecma::Docidentifier
     expect(docid.first.type).to eq "ECMA"
     expect(docid.first.content).to eq "ECMA-6"
   end

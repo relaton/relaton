@@ -31,7 +31,7 @@ describe Relaton::Ecma::DataParser do
         expect(items.first.language).to eq ["en"]
         expect(items.first.script).to eq ["Latn"]
         expect(items.first.place.first).to be_instance_of Relaton::Bib::Place
-        expect(items.first.docidentifier.first).to be_instance_of Relaton::Bib::Docidentifier
+        expect(items.first.docidentifier.first).to be_instance_of Relaton::Ecma::Docidentifier
         expect(items.first.title.first).to be_instance_of Relaton::Bib::Title
         expect(items.first.abstract.first).to be_instance_of Relaton::Bib::Abstract
         expect(items.first.date.first).to be_instance_of Relaton::Bib::Date
@@ -52,7 +52,7 @@ describe Relaton::Ecma::DataParser do
         expect(items).to be_instance_of Array
         expect(items.size).to eq 1
         expect(items.first).to be_instance_of Relaton::Ecma::ItemData
-        expect(items.first.docidentifier.first).to be_instance_of Relaton::Bib::Docidentifier
+        expect(items.first.docidentifier.first).to be_instance_of Relaton::Ecma::Docidentifier
         expect(items.first.title.first).to be_instance_of Relaton::Bib::Title
         expect(items.first.date.first).to be_instance_of Relaton::Bib::Date
         expect(items.first.source.first).to be_instance_of Relaton::Bib::Uri

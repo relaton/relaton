@@ -14,11 +14,11 @@ module Relaton
         [Bib::Contributor.new(organization: org, role: [role])]
       end
 
-      # @return [Array<Relaton::Bib::Docidentifier>]
+      # @return [Array<Relaton::Ecma::Docidentifier>]
       def fetch_docidentifier(id = nil)
         return [] if id.nil? || id.empty?
 
-        [Bib::Docidentifier.new(type: "ECMA", content: id, primary: true)]
+        [Docidentifier.new(type: "ECMA", content: id, primary: true)]
       end
 
       def fetch_ext

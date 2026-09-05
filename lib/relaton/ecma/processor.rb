@@ -9,6 +9,7 @@ module Relaton
         @defaultprefix = /^ECMA(-|\s)/
         @idtype = "ECMA"
         @datasets = %w[ecma-standards]
+        @pubid_flavor = :Ecma
       end
 
       # @param code [String]
@@ -59,7 +60,10 @@ module Relaton
       #
       def remove_index_file
         require_relative "../ecma"
-        Relaton::Index.find_or_create(:ECMA, url: true, file: "#{INDEXFILE}.yaml").remove_file
+        Relaton::Index.find_or_create(
+          :ECMA, url: true, file: "#{INDEXFILE}.yaml",
+          pubid_class: ::Pubid::Ecma::Identifier
+        ).remove_file
       end
     end
   end
