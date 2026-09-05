@@ -48,14 +48,16 @@ Component mapping:
 
 ## Index
 
-### The gem produces `index-v2`; the data repo derives `index-v1`
+### The gem builds and reads `index-v2`; the data repo derives `index-v1`
 
 `INDEXFILE` is the pubid-backed `index-v2`: rows are `Pubid::Ecma::Identifier`
 hashes (`_type: pubid:ecma:{standard,technical-report,memento}` with
-`number`/`part`/`edition`/`volume`). `DataFetcher#index` passes
+`number`/`part`/`edition`/`volume`). All three index call sites —
+`Bibliography#index`, `DataFetcher#index`, `Processor#remove_index_file` — pass
 `pubid_class: ::Pubid::Ecma::Identifier`. Omitting it on the **producer** writes
-v1-shaped rows under a v2 name, silently — `FileIO#save` calls `to_hash` only
-for instances of `pubid_class`.
+v1-shaped rows under a v2 name, silently (`FileIO#save` calls `to_hash` only for
+instances of `pubid_class`); omitting it on the **consumer** leaves the rows raw
+hashes with `FileIO#sorted` false, so every lookup scans all 804.
 
 This gem no longer produces the legacy `index-v1`. `relaton-data-ecma`'s
 `crawler.rb` derives it from the v2 rows, the IANA/BIPM/W3C shape.
@@ -92,67 +94,117 @@ they render **804 distinct keys** (not 421), `root.number` is empty for none,
 `from_hash(to_hash)` round-trips all 804, and the four `ECMA-269` volumes stay
 distinct.
 
-### `INDEXFILE_V1` is temporary, and read-side only
+### Lookup: `best_match`
 
-`Bibliography` and `Processor#remove_index_file` still name `INDEXFILE_V1`,
-because `relaton-data-ecma` has not republished yet — `index-v2.zip` is a 404
-there today, so pointing the consumer at it would break every live lookup. It is
-a read-side name, not a second published index.
+`Bibliography#search` follows the ETSI/W3C/OGC idiom:
 
-Delete `INDEXFILE_V1` and its two call sites with the consumer migration
-(`HANDOFFS/relaton__relaton__ecma-consume-index-v2.md`), which replaces
-`Bibliography`'s regex `parse_ref`/`match_ref`/`compare_edition_volume` with the
-`best_match` shape from `lib/relaton/ogc/hit_collection.rb`.
+- **Pass the pubid, not the string.** `Type#search_candidates` narrows only when
+  the argument is not a `String`, and a block alone never narrows — so the plain
+  string this flavor used to pass disabled the binary search however the index
+  was built. `pubid_class:` alone fixes nothing; both had to change together.
+  Measured: `ECMA-269` now narrows to 12 of 804 rows.
+- **Ignore what the reference omits.** `edition` and `volume` are the only two
+  ignorable components, because they are index metadata that a document's own
+  docidentifier never carries. `number`, `part` and the identifier's CLASS are
+  never ignorable: `matches?` compares the class, which is what keeps
+  `ECMA-100` and `ECMA TR/100` apart, and what stops a bare `ECMA-418` matching
+  `ECMA-418-1`.
+- **An unparseable reference finds nothing**, with a warning. There is
+  deliberately no substring-scan fallback (OGC has one): an ECMA row renders as
+  `ECMA-262 ed17`, so a scan would answer a truncated `ECMA-26` with every
+  ECMA-26x document, and an ambiguous answer is worse than none.
 
-### Two measurements the consumer migration needs
+**A reference must now parse WHOLE.** The old `parse_ref` regex was unanchored
+at the end, so trailing text after a valid prefix was ignored and still
+resolved; pubid rejects it. Measured:
 
-Taken here against the published 804-row index, so the follow-up does not have
-to re-derive them.
+| reference | old | new |
+|---|---|---|
+| `ECMA-6 (draft)` | `ECMA-6` | none |
+| `ECMA-6:1991` | `ECMA-6` | none |
+| `ECMA-6 2nd edition` | `ECMA-6` | none |
+| `ECMA-6 ` (trailing space) | `ECMA-6` | `ECMA-6` |
+| ` ECMA-6` (leading space) | none | `ECMA-6` — `parse_ref` strips |
 
-**Edition ordering is a string compare today**, so `"9"` beats `"17"`. 5 of the
-421 document families return the wrong document, and each moves to the newer one
-under a segment-wise integer compare:
+That is the same trade-off as the missing fallback — a strict parse beats an
+ambiguous match — and it is the first thing to check against a report that a
+reference "used to resolve and now does not". `ecma-6` (lowercase) parsed under
+neither.
 
-| family | today | correct | published dates |
+#### Ordering: latest edition, then lowest volume
+
+That is the order the bespoke `compare_edition_volume` + `min` implemented, kept
+deliberately — but the edition is compared **segment-wise as integers**
+(`edition_key`), and `r[:file]` breaks the tie because the index sort is not
+stable. Comparing the rendered strings made `"9"` beat `"17"`, so 5 of the 421
+document families returned an older document than the reference asked for.
+Scored against each document's own published date:
+
+| family | string compare | integer compare | dates |
 |---|---|---|---|
-| ECMA-262 | ed9 | ed17 | 2018-06 → 2026-06 |
-| ECMA-74 | ed9 | ed22 | 2005-12 → 2025-12 |
-| ECMA-402 | ed9 | ed13 | same direction |
-| ECMA-328 | ed7 | ed10 | same direction |
-| ECMA-109 | ed9 | ed11 | same direction |
+| ECMA-262 | ed9 | **ed17** | 2018-06 → 2026-06 |
+| ECMA-74 | ed9 | **ed22** | 2005-12 → 2025-12 |
+| ECMA-402 | ed9 | **ed13** | → 2026-06 |
+| ECMA-328 | ed7 | **ed10** | same direction |
+| ECMA-109 | ed9 | **ed11** | same direction |
 
-Editions are dotted (`5.1` is real, on ECMA-402 and ECMA-262), so compare
-segment-wise as integers — a text compare gets both `10 > 9` and `5.1 > 5`
-backwards.
+The integer key picks the newer document in all 5. An absent edition sorts below
+every present one — right for the 64 edition-less rows (mementos, a few
+reports), none of which shares a document with an edition-bearing row.
 
-**`match_ref` matches on a prefix** (`/^ECMA[-\s]#{id}/`), so `ECMA-43` also
-matches `ECMA-430…434`. Four families collide this way (418, 43, 35, 13). None
-of the four changes its answer today, so `Pubid::Identifier#matches?` removes a
-latent risk rather than moving results. `matches?` also discriminates the type —
-`ECMA-100` does not match `ECMA TR/100` — and treats `part` as never ignorable,
-so `ECMA-418` does not match `ECMA-418-1`.
+**`ECMA-262 ed5.1` is the only dotted edition in the whole published corpus.**
+It is what forces the segment-wise compare (`5.1` must beat `5`), but since 262's
+latest is ed17 the dotted ordering never decides a bare lookup — so it is pinned
+by a unit assertion on `edition_key` rather than by an end-to-end example. Do not
+"simplify" the key to `to_i`.
 
-No cassette-covered reference moves under either change: `ECMA-6`, `ECMA 269`,
-`ECMA-269 ed3`, `ECMA-269 ed3 vol2`, `ECMA-262 ed5.1`, `ECMA-370`,
-`ECMA TR/18` and `ECMA MEM/2021` all resolve to the same file before and after.
+The old `match_ref` also matched on a **prefix** (`/^ECMA[-\s]#{id}/`), so
+`ECMA-43` matched `ECMA-430…434`. Four families collided this way (418, 43, 35,
+13); none of the four changed its answer, so exact matching removed a latent
+risk rather than moving results.
+
+#### Verified against the published index
+
+`relaton-data-ecma` publishes `index-v2.zip`. Loaded through
+`Bibliography#index`: **804 rows**, all deserialized to identifiers, sorted,
+**0** keying on `""`, 804 distinct keys, and `from_hash(to_hash)` round-trips
+every row. Live lookups resolve every shape the flavor handles, each to a file
+that returns HTTP 200 — a bare `ECMA-269` → ed9, the space form `ECMA 269` →
+the same, `ECMA-269 ed3` → vol1, all four `ed3 vol<N>`, `ECMA-262` → ed17
+(2026-06), `ECMA-262 ed5.1`, `ECMA-418` vs `ECMA-418-1`, `ECMA-100` vs
+`ECMA TR/100`, `ECMA MEM/2021`, and `ECMA-43` narrowed to number `43` alone.
 
 ## Testing
 
 - **Framework:** RSpec with VCR cassettes and WebMock.
-- **Index fixture:** `spec/ecma/fixtures/index-v1.zip` (a copy of the published
-  index) is seeded into the `Relaton::Index` pool by
-  `spec/ecma/support/webmock.rb` — in `before(:each)`, not only
-  `before(:suite)`, because `Index::Pool#type` replaces the pooled entry
-  whenever `actual?` says no and `DataFetcher#index` asks for the same type with
-  `file:` but no `url:`. With `before(:suite)` alone every example after the
-  first data-fetcher one searched a producer index, and the consumer then built
-  a third type and went to the network for real. (The OGC pattern.) The fixture
-  stays on v1 because the consumer does; it moves with the consumer migration.
+- **Index fixture:** `spec/ecma/fixtures/index-v2.zip` — the whole published
+  index (804 rows), copied verbatim, so the stored shapes are exactly what the
+  runtime deserializes. Refresh it with `bundle exec rake spec:update_index_ecma`
+  (`tasks/index_fixture_ecma.rb`); `#build` refuses a source that is not a pubid
+  index-v2 rather than writing a fixture `Relaton::Index` would reject wholesale.
+- It is seeded into the `Relaton::Index` pool by `spec/ecma/support/webmock.rb`,
+  built **with `pubid_class:`** — without it the rows stay raw hashes,
+  `FileIO#sorted` stays false, and `Type#search` silently stops narrowing, so the
+  suite would pass while exercising something the runtime never does. Seeded in
+  `before(:each)`, not only `before(:suite)`, because `Index::Pool#type` replaces
+  the pooled entry whenever `actual?` says no and `DataFetcher#index` asks for
+  the same type with `file:` but no `url:`. With `before(:suite)` alone every
+  example after the first data-fetcher one searched a producer index, and the
+  consumer then built a third type and went to the network for real. The pool key
+  is `type.upcase.to_sym`, so the fetcher's `:ecma` and the consumer's `:ECMA`
+  share one slot. (The OGC pattern.)
 - **VCR cassettes:** `spec/ecma/vcr_cassettes/` — index downloads are ignored by
-  VCR, matched on `INDEXFILE_V1` so a version bump cannot let a real download
+  VCR, matched on `INDEXFILE` so a version bump cannot let a real download
   through.
 - `spec/ecma/relaton/ecma/index_key_spec.rb` checks the whole fixture corpus for
-  the one property the index depends on: one distinct rendered key per row.
+  the properties the index depends on: every row deserializes, one distinct
+  rendered key per row, no empty bsearch key, sorted, and a `to_hash` round-trip.
+- A live check of the flavor cannot use `Bibliography.get` behind an HTTP proxy:
+  the document fetch goes through **Mechanize**, which does not read
+  `http_proxy`/`https_proxy` the way `Net::HTTP` does, so it dies with a
+  connection error on a host `curl` reaches. The index download (`Net::HTTP`)
+  works, so drive `best_match` and fetch the resolved file with `Net::HTTP`
+  instead.
 - The `bibdata`/`bibitem` round-trip examples validate XML with Jing, which
   needs a **JVM on PATH**. Without one they fail with `Jing::ExecutionError`;
   that is environmental, not a code defect.

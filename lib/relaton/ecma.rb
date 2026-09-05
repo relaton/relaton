@@ -15,20 +15,11 @@ require_relative "ecma/bibliography"
 
 module Relaton
   module Ecma
-    # The index this gem PRODUCES: pubid-keyed rows (`_type: pubid:ecma:*`),
-    # built and read with `pubid_class: ::Pubid::Ecma::Identifier`.
+    # The one index this flavor builds and reads: pubid-keyed rows
+    # (`_type: pubid:ecma:*`), via `pubid_class: ::Pubid::Ecma::Identifier`.
+    # `relaton-data-ecma`'s crawler derives the legacy `index-v1` from these
+    # rows for released consumers, so it is not produced or read here.
     INDEXFILE = "index-v2".freeze
-
-    # TEMPORARY. The consumer (Bibliography) still reads the bespoke v1 index,
-    # because `relaton-data-ecma` has not republished yet — `index-v2.zip` is a
-    # 404 there today. Delete this constant, and its two call sites in
-    # `bibliography.rb` and `processor.rb`, with the consumer migration
-    # (HANDOFFS/relaton__relaton__ecma-consume-index-v2.md).
-    #
-    # This gem no longer PRODUCES v1: `relaton-data-ecma`'s crawler derives it
-    # from the v2 rows (the IANA/BIPM/W3C shape), so this is a read-side name,
-    # not a second published index.
-    INDEXFILE_V1 = "index-v1".freeze
 
     # Returns hash of XML reammar
     # @return [String]

@@ -410,19 +410,20 @@ regex back.
   row. Selection is by highest **version**, segments compared as
   integers — a deliberate change from an arbitrary string `min_by`, measured at
   86% vs 2% against publication dates. See `lib/relaton/3gpp/CLAUDE.md`.
-  **ECMA** is the same shape, migrated **producer-first**: its `INDEXFILE` is
-  the pubid `index-v2` (`_type: pubid:ecma:*`, via
-  `pubid_class: ::Pubid::Ecma::Identifier`), and `relaton-data-ecma`'s crawler
-  derives the legacy `index-v1` from it. What forced the pubid work first is
-  that `add_or_update` keys on a bare `to_s` and the ECMA renderer printed no
-  edition: 740 of the 804 published rows carry one, so the keys collapsed 804 →
-  421 and a crawl dropped 383 rows while reporting success. pubid now renders
-  ` ed<N>`/` vol<N>` **by default**, and `Relaton::Ecma::Docidentifier` opts out
-  with `to_s(with_edition: false, with_volume: false)` — the document's own
-  printed id is bare, the index key is not. ECMA also carries a **temporary**
-  `INDEXFILE_V1`: it is a read-side name for the not-yet-migrated
-  `Bibliography`, **not** a second published index (unlike jis's dual write),
-  and it is deleted by the consumer migration. See `lib/relaton/ecma/CLAUDE.md`.
+  **ECMA** is the same shape: its `INDEXFILE` is the pubid `index-v2`
+  (`_type: pubid:ecma:*`, via `pubid_class: ::Pubid::Ecma::Identifier`), and
+  `relaton-data-ecma`'s crawler derives the legacy `index-v1` from it. What
+  forced pubid work first is that `add_or_update` keys on a bare `to_s` and the
+  ECMA renderer printed no edition: 740 of the 804 published rows carry one, so
+  the keys collapsed 804 → 421 and a crawl dropped 383 rows while reporting
+  success. pubid now renders ` ed<N>`/` vol<N>` **by default**, and
+  `Relaton::Ecma::Docidentifier` opts out with
+  `to_s(with_edition: false, with_volume: false)` — the document's own printed
+  id is bare, the index key is not. That split is why this flavor needed a
+  `Docidentifier` at all. Selection is by highest **edition**, segments compared
+  as integers, then lowest volume; a string compare made `"9"` beat `"17"` and
+  returned the older document in 5 of 421 families. See
+  `lib/relaton/ecma/CLAUDE.md`.
   The index schema
   and data-repo publishing/Pages contract are specified in
   `docs/data-repository-format.adoc`; see also `lib/relaton/index/CLAUDE.md`.

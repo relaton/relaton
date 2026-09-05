@@ -80,6 +80,20 @@ namespace :spec do
     puts "Wrote #{count} rows to #{path}"
   end
 
+  # Refresh the ECMA suite's offline index. Copies the whole published index
+  # (804 rows) verbatim — see tasks/index_fixture_ecma.rb for why it is not
+  # curated.
+  desc "Refresh spec/ecma/fixtures/index-v2.zip from relaton-data-ecma"
+  task :update_index_ecma do
+    require_relative "tasks/index_fixture_ecma"
+    require_relative "lib/relaton/ecma"
+    # Named from INDEXFILE, so the next index version bump moves the fixture
+    # with it instead of silently writing the old name.
+    path = "spec/ecma/fixtures/#{Relaton::Ecma::INDEXFILE}.zip"
+    count = IndexFixtureEcma.build(path)
+    puts "Wrote #{count} rows to #{path}"
+  end
+
   # relaton-cli is the one separate gem (own Gemfile/lock, gem "relaton",
   # path: "../.."), so run its suite in its OWN bundle — with_unbundled_env +
   # cd, the same shape as build_all. bundle check || install first so it works

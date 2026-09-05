@@ -15,6 +15,6 @@ VCR.configure do |config|
   # from the constant so an index version bump cannot leave this matching the
   # old file and letting a real download through.
   config.ignore_request do |request|
-    URI(request.uri).path.end_with?("#{Relaton::Ecma::INDEXFILE_V1}.zip")
+    URI(request.uri).path.end_with?("#{Relaton::Ecma::INDEXFILE}.zip")
   end
 end

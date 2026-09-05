@@ -1,6 +1,4 @@
 require "relaton/ecma"
-require "zip"
-require "yaml"
 
 # The property the pubid `index-v2` stands or falls on.
 #
@@ -9,35 +7,25 @@ require "yaml"
 # and the crawl reports success while dropping the rest. Measured over the
 # published index that was 383 of 804 rows.
 #
-# The check runs offline over the suite's own index fixture, which is a copy of
-# the published `relaton-data-ecma` index — the same corpus, no network.
-module EcmaIndexCorpus
-  # The published corpus, as the suite's own fixture holds it.
-  ROWS = Zip::File.open(
-    File.join(__dir__, "..", "..", "fixtures",
-              "#{Relaton::Ecma::INDEXFILE_V1}.zip"),
-  ) { |zip| YAML.safe_load zip.first.get_input_stream.read, permitted_classes: [Symbol] }.freeze
-
-  # The three model fields DataFetcher#index_id assembles, as the v1 index
-  # stored them.
-  def self.identifier(row)
-    id = ::Pubid::Ecma::Identifier.parse row[:id][:id]
-    id.edition = row[:id][:ed] if row[:id][:ed]
-    id.volume = row[:id][:vol] if row[:id][:vol]
-    id
-  end
-
-  IDS = ROWS.map { |row| identifier(row) }.freeze
-end
-
+# The check runs offline over the suite's own index fixture, which is a verbatim
+# copy of the published `relaton-data-ecma` `index-v2.zip` — the same rows the
+# runtime deserializes, no network.
 RSpec.describe "the ECMA index key" do
-  let(:rows) { EcmaIndexCorpus::ROWS }
-  let(:ids) { EcmaIndexCorpus::IDS }
+  # The pooled fixture, deserialized through `pubid_class:` exactly as
+  # Bibliography#index does.
+  let(:rows) { EcmaIndexFixture.index_type.index }
+  let(:ids) { rows.map { |row| row[:id] } }
 
   it "has a corpus worth measuring" do
     expect(rows.size).to be > 700
-    expect(rows.count { |r| r[:id][:ed] }).to be > 700
-    expect(rows.count { |r| r[:id][:vol] }).to eq 4
+    expect(ids.count(&:edition)).to be > 700
+    expect(ids.count(&:volume)).to eq 4
+  end
+
+  it "deserializes every row into an identifier, not a raw hash" do
+    # `Relaton::Index` rejects the WHOLE index on the first row it cannot
+    # rebuild, so a clean load over all rows is the real test.
+    expect(ids).to all(be_a(::Pubid::Ecma::Identifier))
   end
 
   it "renders one distinct key per row" do
@@ -57,7 +45,11 @@ RSpec.describe "the ECMA index key" do
   it "never keys the index bsearch on an empty number" do
     # `Type#candidates_by_number` bsearches on `id.root.number.to_s`; an empty
     # one puts every row in a single bucket and degrades the search silently.
-    expect(ids.map { |id| id.root.number.to_s }).to all(be_truthy & satisfy { |n| !n.empty? })
+    expect(ids.map { |id| id.root.number.to_s }).to all(satisfy { |n| !n.empty? })
+  end
+
+  it "is sorted, so the bsearch is valid" do
+    expect(EcmaIndexFixture.index_type.instance_variable_get(:@file_io).sorted).to be true
   end
 
   it "round-trips every row through to_hash/from_hash" do
@@ -65,8 +57,10 @@ RSpec.describe "the ECMA index key" do
   end
 
   it "renders the bare document form without the two index components" do
-    # What Relaton::Ecma::Docidentifier stores as `content`.
+    # What Relaton::Ecma::Docidentifier stores as `content`: 804 index rows,
+    # 421 distinct documents.
     bare = ids.map { |id| id.to_s(with_edition: false, with_volume: false) }
-    expect(bare.uniq.size).to eq rows.map { |r| r[:id][:id] }.uniq.size
+    expect(bare.uniq.size).to be < rows.size
+    expect(bare).to all(satisfy { |s| !s.include?(" ed") && !s.include?(" vol") })
   end
 end

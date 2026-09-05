@@ -58,13 +58,12 @@ module Relaton
       #
       # Remove index file
       #
-      # `INDEXFILE_V1`, not `INDEXFILE`: this clears the CONSUMER's cached
-      # index, and Bibliography still reads v1. It moves with the consumer
-      # migration.
-      #
       def remove_index_file
         require_relative "../ecma"
-        Relaton::Index.find_or_create(:ECMA, url: true, file: "#{INDEXFILE_V1}.yaml").remove_file
+        Relaton::Index.find_or_create(
+          :ECMA, url: true, file: "#{INDEXFILE}.yaml",
+          pubid_class: ::Pubid::Ecma::Identifier
+        ).remove_file
       end
     end
   end

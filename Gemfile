@@ -52,7 +52,7 @@ gemspec
 #     as an attribute at all. `Relaton::Index::Type#add_or_update` keys on a bare
 #     `id.to_s`, so over the 804 published rows — 740 of which carry an edition —
 #     the keys collapsed to 421 and a crawl dropped 383 rows while reporting
-#     success. The pin below renders ` ed<N>` and ` vol<N>` BY DEFAULT (opt out
+#     success. pubid #357 renders ` ed<N>` and ` vol<N>` BY DEFAULT (opt out
 #     with `to_s(with_edition: false, with_volume: false)`, which is what
 #     `Relaton::Ecma::Docidentifier` uses for the bare printed id), parses those
 #     two suffixes plus the `ECMA 6` space form, and adds `volume` as a plain
@@ -66,13 +66,8 @@ gemspec
 # `Pubid::<Flavor>::Identifiers::Base` alias from the Category-A flavors (iho,
 # etsi, ...); relaton now names the canonical `Pubid::<Flavor>::Identifier`
 # deserialization root, so the old alias would NameError at IHO/ETSI index load.
-# TEMP BRANCH, NOT main: `feat/ecma-edition-and-volume` is pubid `main` plus the
-# one ECMA commit above (49adb773), so it is a strict superset of the pin it
-# replaces and no other flavor regresses. Move this back to `main` as soon as
-# that commit merges.
 # TODO: revert to the released pubid once these changes ship in a pubid release.
-gem "pubid", git: "https://github.com/metanorma/pubid.git",
-             branch: "feat/ecma-edition-and-volume"
+gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
