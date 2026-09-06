@@ -68,6 +68,9 @@ RSpec.describe Relaton::Doi do
         xml = resp.to_xml bibdata: true
         write_fixture file, xml
         expect(xml).to be_equivalent_to read_fixture(file)
+        # Downstream renderers reject a bibitem that Nokogiri cannot parse.
+        # See metanorma-pdfa#99.
+        expect(Nokogiri::XML(xml).errors).to be_empty
       end
     end
 
@@ -90,6 +93,8 @@ RSpec.describe Relaton::Doi do
     it_behaves_like "fetch document", "edited-book", "10.1515/9780691229409"
     it_behaves_like "fetch document", "grant", "10.46936/cpcy.proj.2019.50733/60006578"
     it_behaves_like "fetch document", "journal-article", "10.1515/text.2001.011"
+    it_behaves_like "fetch document", "journal-article-jats-abstract",
+                    "10.1145/964965.808606"
     it_behaves_like "fetch document", "journal-issue-1", "10.1515/cog.2007.005"
     it_behaves_like "fetch document", "journal-issue-2", "10.1111/read.1991.25.issue-1"
     it_behaves_like "fetch document", "journal-volume", "10.46409/001.rlpt5688"

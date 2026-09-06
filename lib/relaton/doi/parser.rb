@@ -73,6 +73,10 @@ module Relaton
       ATTRS = %i[type fetched title docidentifier date source abstract contributor place
                  ext relation extent series medium].freeze
 
+      # Matches content that looks like markup. Same shape as the tag detector
+      # of `Relaton::Bib::Sanitizer`, so both agree on what to parse.
+      TAG_RE = %r{<[a-zA-Z/!?]}
+
       CROSSREF_API_URL = "https://api.crossref.org/works?query=%{query}&filter=%{filter}".freeze
       MAX_RETRIES = 3
       RATE_LIMITED = "429".freeze
@@ -211,8 +215,46 @@ module Relaton
       # @return [Bib::Title] The title.
       #
       def create_title(title, type = "main")
-        cnt = str_cleanup CGI.unescapeHTML(title)
+        cnt = str_cleanup normalize_markup(title)
         Bib::Title.new type: type, content: cnt, script: "Latn"
+      end
+
+      #
+      # Prepare raw Crossref markup for the relaton-bib sanitizer.
+      #
+      # Crossref returns JATS markup, and it sometimes encodes that markup as
+      # HTML entities, so decode them before the content reaches a model
+      # attribute. The markup also carries the `jats:` namespace prefix, and
+      # sometimes an `xlink:` prefix on an attribute, which Relaton never
+      # declares. Removing those prefixes is `Relaton::Bib::Sanitizer`'s job:
+      # every `Bib::Title` and `Bib::Abstract` runs the sanitizer on
+      # assignment, and it declares each undeclared prefix on a wrapper
+      # element so the markup parses and maps to the basicdoc set. An
+      # undeclared prefix that survives into the output makes
+      # relaton-render return nil, and isodoc then raises. See
+      # metanorma-pdfa#99.
+      #
+      # Upstream relaton-doi carries its own prefix removal, because the
+      # sanitizer fix is not in a released relaton-bib. Here both ship in one
+      # gem, so this method is the entity decode only.
+      #
+      # Decode only content that carries no markup of its own. Crossref
+      # escapes an ampersand and a literal angle bracket *inside* real
+      # markup, so an unconditional decode turns `<jats:p>Smith &amp;
+      # Jones</jats:p>` into markup that no longer parses. The sanitizer
+      # would then give up on it and an unescapable string would reach the
+      # output -- the metanorma-pdfa#99 failure again, on the far more
+      # common input.
+      #
+      # @param [String, nil] str The raw Crossref content.
+      #
+      # @return [String, nil] The content, with the HTML entities decoded
+      #   when it holds no markup.
+      #
+      def normalize_markup(str)
+        return str if str.nil? || str.match?(TAG_RE)
+
+        CGI.unescapeHTML(str)
       end
 
       #
@@ -305,9 +347,10 @@ module Relaton
       def parse_abstract
         return [] unless @src["abstract"]
 
-        content = @src["abstract"]
         abstract = Bib::Abstract.new(
-          content: content, language: "en", script: "Latn",
+          content: normalize_markup(@src["abstract"]),
+          language: "en",
+          script: "Latn",
         )
         [abstract]
       end
@@ -450,8 +493,10 @@ module Relaton
       # @return [Bib::Organization] The organization.
       #
       def create_org(name, abbreviation = nil)
-        n = [Bib::TypedLocalizedString.new(content: name)]
-        a = abbreviation ? Bib::LocalizedString.new(content: abbreviation) : nil
+        n = [Bib::TypedLocalizedString.new(content: normalize_markup(name))]
+        a = if abbreviation
+              Bib::LocalizedString.new(content: normalize_markup(abbreviation))
+            end
         Bib::Organization.new name: n, abbreviation: a
       end
 
@@ -464,11 +509,7 @@ module Relaton
         return [] unless @src["standards-body"]
 
         name, acronym = @src["standards-body"].values_at("name", "acronym")
-        org = create_org(
-          CGI.unescapeHTML(name),
-          acronym && CGI.unescapeHTML(acronym),
-        )
-        [contributor(org, "authorizer")]
+        [contributor(create_org(name, acronym), "authorizer")]
       end
 
       #
@@ -730,7 +771,8 @@ module Relaton
 
         @src["container-title"].map do |ct|
           contrib = create_authors_editors false, "editor"
-          bib = Bib::ItemBase.new(title: [Bib::Title.new(content: ct)], contributor: contrib)
+          title = Bib::Title.new content: normalize_markup(ct)
+          bib = Bib::ItemBase.new(title: [title], contributor: contrib)
           Bib::Relation.new(type: "includedIn", bibitem: bib)
         end
       end
@@ -779,7 +821,7 @@ module Relaton
                   else []
                   end
         con_ttl.map do |ct|
-          title = Bib::Title.new content: ct
+          title = Bib::Title.new content: normalize_markup(ct)
           Bib::Series.new title: [title], abbreviation: abbrev
         end
       end
