@@ -56,6 +56,40 @@ Each bibliographic attribute has its own class in `lib/relaton/bib/model/`:
 - `Relation` - related documents (circular reference with Item)
 - `Ext` - extension data (doctype, ICS codes, structured identifiers)
 
+### Sanitizing marked-up content
+
+**`Relaton::Bib::Sanitizer`** ([lib/relaton/bib/sanitizer.rb](lib/relaton/bib/sanitizer.rb))
+strips markup outside the basicdoc set. `LocalizedMarkedUpString#content=` calls it on
+assignment, so every `Title`, `Abstract`, `Note`, `Formattedref` and `Docidentifier` in
+every flavor passes through it. Two properties are load-bearing:
+
+- **It does not give up on an undeclared namespace prefix.** Third-party markup prefixes
+  its elements — Crossref returns JATS as `<jats:p><jats:italic>x</jats:italic></jats:p>`,
+  sometimes with an `xlink:` prefix on an attribute — and Relaton never declares the prefix.
+  Nokogiri reports an undeclared prefix as a parse error, so the old
+  `return content if fragment.errors.any?` returned exactly the markup that most needed
+  sanitizing. The undeclared prefix then reached the bibdata XML, relaton-render's
+  `sanitise_citations_input_string` returned nil, and isodoc raised
+  `NoMethodError: undefined method '[]' for nil` (metanorma-pdfa#99). `parse_with_prefixes`
+  now declares each prefix on a wrapper element, parses, and removes **only the wrapper's
+  own** declarations, matched by identity rather than by URI — `remove_namespaces!` would
+  also strip a namespace the content declares itself, such as the MathML `xmlns` inside an
+  opaque `<stem>`. `wrapper_name` renames the wrapper while the content contains it, so the
+  content cannot close it early — in **one** scan (`NS_WRAPPER_RX`), because growing the
+  name and re-testing with `include?` is quadratic, the same trap the root `CLAUDE.md`
+  records for relaton-cli's `strip_tags`. An undeclared prefix inside `<stem>` goes as well
+  (`<mml:math>` → `<math>`): an undeclared prefix in the output is the failure being fixed.
+  Un-prefixing an attribute renames it, so `drop_attribute_namespaces` **drops** a prefixed
+  attribute whose plain name the element already carries — keeping both would emit
+  `target="a" target="b"`, which Nokogiri rejects as `Attribute target redefined`, and that
+  is the very unparseable output this path exists to prevent. Test the collision with
+  `plain_attribute?`, not `Node#attribute`, which matches on the name alone and so finds the
+  prefixed attribute itself. The guard for genuinely malformed input stays — unbalanced tags,
+  a stray `<`, and text that only looks like a prefixed tag are all returned untouched.
+- **It does not indent.** `SAVE_OPTS` drops Nokogiri's `FORMAT` default, so
+  `sanitize("<p><em>x</em></p>")` returns the input rather than `"<p>\n  <em>x</em>\n</p>"`.
+  Don't reintroduce a bare `to_xml`.
+
 ### Parsing
 
 - **`HashParserV1`** ([lib/relaton/bib/hash_parser_v1.rb](lib/relaton/bib/hash_parser_v1.rb)) - Converts legacy Hash/YAML format to `ItemData`

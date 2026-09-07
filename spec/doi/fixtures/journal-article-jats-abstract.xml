@@ -1,0 +1,79 @@
+<bibdata type="article" schema-version="v1.5.6">
+  <fetched>2026-09-06</fetched>
+  <title script="Latn" type="main">Compositing digital images</title>
+  <uri type="DOI">https://doi.org/10.1145/964965.808606</uri>
+  <uri type="src">https://dl.acm.org/doi/10.1145/964965.808606</uri>
+  <docidentifier type="DOI" primary="true">10.1145/964965.808606</docidentifier>
+  <docidentifier type="issn.print" primary="false">0097-8930</docidentifier>
+  <date type="issued">
+    <on>1984-01</on>
+  </date>
+  <date type="published">
+    <on>1984-01</on>
+  </date>
+  <contributor>
+    <role type="author"/>
+    <person>
+      <name>
+        <forename language="en" script="Latn">Thomas</forename>
+        <surname language="en" script="Latn">Porter</surname>
+      </name>
+      <affiliation>
+        <organization>
+          <name>Computer Graphics Project, Lucasfilm Ltd.</name>
+        </organization>
+      </affiliation>
+    </person>
+  </contributor>
+  <contributor>
+    <role type="author"/>
+    <person>
+      <name>
+        <forename language="en" script="Latn">Tom</forename>
+        <surname language="en" script="Latn">Duff</surname>
+      </name>
+      <affiliation>
+        <organization>
+          <name>AT&amp;T Bell Laboratories, Murray Hill, NJ</name>
+        </organization>
+      </affiliation>
+    </person>
+  </contributor>
+  <contributor>
+    <role type="publisher"/>
+    <organization>
+      <name>Association for Computing Machinery (ACM)</name>
+    </organization>
+  </contributor>
+  <abstract language="en" script="Latn">
+    <p>
+            <em>Most computer graphics pictures have been computed all at once, so that the rendering program takes care of all computations relating to the overlap of objects. There are several applications, however, where elements must be rendered separately, relying on compositing techniques for the anti-aliased accumulation of the full image. This paper presents the case for four-channel pictures, demonstrating that a matte component can be computed similarly to the color channels. The paper discusses guidelines for the generation of elements and the arithmetic for their arbitrary compositing</em>
+            .
+          </p>
+  </abstract>
+  <relation type="related">
+    <description>is-identical-to</description>
+    <bibitem>
+      <title script="Latn" type="main">Compositing digital images</title>
+      <docidentifier type="DOI">10.1145/800031.808606</docidentifier>
+    </bibitem>
+  </relation>
+  <series>
+    <title>ACM SIGGRAPH Computer Graphics</title>
+  </series>
+  <extent>
+    <locality type="volume">
+      <referenceFrom>18</referenceFrom>
+    </locality>
+    <locality type="issue">
+      <referenceFrom>3</referenceFrom>
+    </locality>
+    <locality type="page">
+      <referenceFrom>253</referenceFrom>
+      <referenceTo>259</referenceTo>
+    </locality>
+  </extent>
+  <ext>
+    <doctype>journal-article</doctype>
+  </ext>
+</bibdata>

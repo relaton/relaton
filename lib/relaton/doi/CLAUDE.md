@@ -70,3 +70,32 @@ notes in the root `CLAUDE.md`.
 - `TYPES` — maps 23 Crossref document types to Relaton types (e.g., `"book-chapter"` → `"inbook"`)
 - `REALATION_TYPES` — maps 37 Crossref relation types to Relaton relation types
 - `COUNTRIES` — `%w[USA]`, used by `parse_place` to distinguish country vs region
+
+## Crossref markup
+
+Crossref returns abstracts and titles as JATS, and it sometimes encodes that markup as HTML
+entities. `Parser#normalize_markup` decodes the entities; `create_title`, `parse_abstract`,
+`parse_series`, `included_in_relation` and `create_org` all route through it, so an
+affiliation name no longer goes out double escaped (`AT&amp;T` instead of `AT&T`).
+
+**It decodes only content that holds no markup of its own** (`TAG_RE`), and it passes `nil`
+through. Crossref escapes an ampersand and a literal angle bracket *inside* real markup, so
+an unconditional decode — which is what upstream relaton-doi#26 does — turns
+`<jats:p>Smith &amp; Jones</jats:p>` into markup that no longer parses. The sanitizer then
+gives up on it and an unescapable string reaches the output: metanorma-pdfa#99 again, on the
+far more common input. A `nil` reaches `create_org` from a funder entry carrying only a DOI
+and from an affiliation carrying only a ROR id, and `CGI.unescapeHTML(nil)` raises
+`TypeError`, which aborted the whole fetch.
+
+The JATS also carries a `jats:` prefix on the elements and sometimes an `xlink:` prefix on an
+attribute, which Relaton never declares. **Removing those prefixes is not this flavor's job**
+— `Relaton::Bib::Sanitizer` runs on every `Bib::Title` and `Bib::Abstract` assignment and
+declares each undeclared prefix so the markup parses and maps to the basicdoc set. Upstream
+relaton-doi (relaton-doi#26) carries its own `drop_namespaces` only because that sanitizer fix
+is not in a released relaton-bib; here both ship in one gem, so this flavor keeps the entity
+decode alone. Do not add a second prefix-stripping layer. The unit specs in
+`spec/doi/relaton/doi/parser_spec.rb` pin the behaviour, not the layer, so they hold either way.
+
+`spec/doi/relaton/doi_spec.rb`'s shared `"fetch document"` example asserts
+`Nokogiri::XML(xml).errors` is empty. That is the property relaton-render requires
+(metanorma-pdfa#99), and it guards every integration example.
