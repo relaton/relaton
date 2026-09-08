@@ -445,6 +445,22 @@ regex back.
   as integers, then lowest volume; a string compare made `"9"` beat `"17"` and
   returned the older document in 5 of 421 families. See
   `lib/relaton/ecma/CLAUDE.md`.
+  **CalConnect** is the same shape and the cheapest instance of it: its
+  `INDEXFILE` is the pubid `index-v2` (`_type: pubid:calconnect:standard`, via
+  `pubid_class: ::Pubid::Calconnect::Identifier`), and `relaton-data-calconnect`
+  derives the legacy `index-v1` from it. **No pubid change was needed** —
+  `Pubid::Calconnect` already parses all 188 published ids, round-trips `to_s`
+  to the published string exactly, and renders 188 distinct keys. It also needs
+  no render flags at all: pubid prints the publisher by default and the flavor
+  models no edition or volume, so the index key and the document's own printed
+  id are one string — the opposite of both ECMA (opts two out) and 3GPP (opts
+  one in). Its number is a plain `String` to keep leading zeros (`0001`) and
+  sub-numbers (`0812-1`, `0707.1`) in one token; CalConnect models no part, so
+  `Docidentifier#remove_part!` is a no-op **by design**. The consumer half waits
+  on the data repo publishing v2: until then `HitCollection` and
+  `remove_index_file` read a temporary `INDEXFILE_V1`, a read-side name and not
+  a second published index (the ECMA staging). See
+  `lib/relaton/calconnect/CLAUDE.md`.
   The index schema
   and data-repo publishing/Pages contract are specified in
   `docs/data-repository-format.adoc`; see also `lib/relaton/index/CLAUDE.md`.

@@ -10,6 +10,7 @@ module Relaton::Calconnect
       @defaultprefix = %r{^CC(?!\w)}
       @idtype = "CC"
       @datasets = %w[calconnect-org]
+      @pubid_flavor = :Calconnect
     end
 
     # @param code [String]
@@ -58,9 +59,13 @@ module Relaton::Calconnect
     #
     # Remove index file
     #
+    # INDEXFILE_V1, and no `pubid_class:`: this removes what the RUNTIME cached,
+    # and the runtime still reads the legacy v1 (see HitCollection). It flips to
+    # INDEXFILE with `pubid_class:` in the consumer commit.
+    #
     def remove_index_file
       require_relative "../calconnect"
-      Relaton::Index.find_or_create(:CC, url: true, file: "#{INDEXFILE}.yaml").remove_file
+      Relaton::Index.find_or_create(:CC, url: true, file: "#{INDEXFILE_V1}.yaml").remove_file
     end
   end
 end

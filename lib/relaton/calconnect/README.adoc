@@ -121,7 +121,11 @@ RelatonCalconnect uses the relaton-logger gem for logging. By default, it logs t
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To update the index test fixture (used by tests), run `rake spec:update_index`. This downloads the latest `index-v1.zip` from the https://github.com/relaton/relaton-data-calconnect[relaton-data-calconnect] repository.
+== Index
+
+The data fetcher builds a pubid-backed `index-v2`, whose rows are `Pubid::Calconnect::Identifier` objects serialized as `_type: pubid:calconnect:standard`. The legacy `index-v1` is no longer produced here; https://github.com/relaton/relaton-data-calconnect[relaton-data-calconnect] derives it from the v2 rows for released relaton v2 clients. Until that repository publishes an `index-v2.zip`, lookups still read `index-v1`.
+
+The test fixture is `spec/calconnect/fixtures/index-v1.zip`, a copy of the published index. There is no rake task to refresh it yet; one arrives with the consumer half.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 

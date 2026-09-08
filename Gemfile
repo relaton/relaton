@@ -57,6 +57,12 @@ gemspec
 #     `Relaton::Ecma::Docidentifier` uses for the bare printed id), parses those
 #     two suffixes plus the `ECMA 6` space form, and adds `volume` as a plain
 #     :string that round-trips through `to_hash`.
+#   - CalConnect: `Pubid::Calconnect` itself. It exists only on main (added by
+#     pubid #127, with #133 for the partial `CC/DIR 10005` reference the
+#     consumer half needs), and `Relaton::Calconnect` names it as the index
+#     `pubid_class:` and parses every docid through it. Nothing else was
+#     required for that migration — it already round-trips all 188 published
+#     ids.
 # All live on pubid `main`, which also carries the `base_identifier` -> `base`
 # accessor/serialization-key rename (pubid #139) that relaton adopts here: pubid
 # removed `.base_identifier` with no alias, and `#root` now reaches the origin for
