@@ -142,6 +142,16 @@ pubid would make `Relaton::Index` reject the whole index). Revert the pin to the
 released `pubid ~> 2.0.0.pre.alpha.8` once these changes ship in a release. See
 `lib/relaton/jcgm/CLAUDE.md`.
 
+**`json` is pinned below 3 (`relaton.gemspec`).** json 3.0.0 made the
+`JSON.parse` options keyword-only, and Faraday's JSON response middleware still
+passes them positionally (`::JSON.parse(body, @parser_options || {})`), up to and
+including the current faraday 2.14.3. `Relaton::W3c` reads every record through
+that middleware (w3c_api -> lutaml-hal), so with json 3 each api.w3.org response
+raises `ArgumentError: wrong number of arguments (given 2, expected 1)`, surfaced
+as `Lutaml::Hal::ParsingError`, and the whole `spec/w3c` suite fails. Nothing else
+in the bundle asks for json 3. Drop the pin once Faraday parses with keyword
+options; `spec/w3c/relaton/w3c/faraday_json_spec.rb` is the guard that says when.
+
 **Stale-pubid-lock trap.** Because that pin is a **git branch** and `Gemfile.lock`
 is gitignored, the installed pubid is whatever a past `bundle install` froze —
 and `bundle install` does **not** refloat an already-locked git source. A lock
@@ -288,6 +298,17 @@ suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
   `book-chapter.yml`. Locate it with `grep -l 'code: 429' spec/doi/vcr_cassettes/*.yml`
   rather than trusting a filename, and if a refresh ever leaves **no** cassette
   with an answered `429`, that path has lost its coverage.
+- **A process-global client cache makes a cassette order-dependent.** A flavor
+  whose HTTP client memoizes responses outside the example — `Relaton::W3c`
+  reaches `api.w3.org` through `w3c_api`, whose `W3cApi::Hal` Singleton holds one
+  `Lutaml::Hal::ModelRegister` cache for the whole process — records only what
+  the cache was missing. `spec/w3c/vcr_cassettes/webrtc.yml` therefore never held
+  the `GET /specifications/webrtc` its own examples make: an earlier example had
+  already cached it. Such a cassette replays only in one example order, and the
+  failure surfaces far from its cause — anything that reddens the earlier example
+  leaves three later ones dying with `UnhandledHTTPRequestError`. The fix is a
+  `before` hook that clears the cache (`spec/w3c/support/hal_cache.rb`), and a
+  re-record made **with** that hook in place.
 - **Known issue:** `spec/oiml/` marks 8 tests pending — `Pubid::Oiml::Identifier.from_hash`
   fails only inside the combined-gem bundle (a runtime-dep interaction; identical
   pubid/lutaml versions pass in isolation), so the OIML index can't deserialize.

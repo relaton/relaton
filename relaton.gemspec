@@ -59,6 +59,16 @@ Gem::Specification.new do |spec|
   spec.add_dependency "ieee-idams", "~> 0.3.0"
   spec.add_dependency "iso639", ">= 0"
   spec.add_dependency "isoics", "~> 0.1.6"
+  # TEMP PIN: json 3.0.0 made the `JSON.parse` options keyword-only, and
+  # Faraday's JSON response middleware still passes them positionally
+  # (`::JSON.parse(body, @parser_options || {})`), up to and including the
+  # current faraday 2.14.3. `Relaton::W3c` reads every record through that
+  # middleware (w3c_api -> lutaml-hal), so with json 3 each api.w3.org response
+  # raises `ArgumentError: wrong number of arguments (given 2, expected 1)`,
+  # surfaced as `Lutaml::Hal::ParsingError`, and the flavor fetches nothing.
+  # `spec/w3c/relaton/w3c/faraday_json_spec.rb` guards this constraint.
+  # TODO: drop the pin once Faraday parses with keyword options.
+  spec.add_dependency "json", "< 3"
   spec.add_dependency "loc_mods", "~> 0.3.0"
   spec.add_dependency "logger", "~> 1.6"
   # Declared explicitly even though w3c_api pulls it in: lib/relaton/w3c rescues
