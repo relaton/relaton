@@ -3,12 +3,16 @@ require "relaton/xsf"
 RSpec.describe Relaton::Xsf::HitCollection do
   # Every example searches the offline index seeded by
   # spec/xsf/support/webmock.rb -- the whole published index, pubid-keyed.
-  def files(ref)
-    described_class.new(ref).search.map { |hit| hit.hit[:url].split("/").last }
+  # HitCollection takes an identifier, not a string -- Bibliography.parse_ref
+  # does that step. See bibliography_spec.rb for the reference forms.
+  def files(pubid)
+    described_class.new(pubid).search.map { |hit| hit.hit[:url].split("/").last }
   end
 
+  def pubid(ref) = Relaton::Xsf::Bibliography.parse_ref(ref)
+
   context "index narrowing" do
-    let(:index) { described_class.new("XEP 0001").index }
+    let(:index) { described_class.new(pubid("XEP 0001")).index }
 
     it "deserializes the rows into pubid identifiers" do
       expect(index.index).to all include(id: an_instance_of(Pubid::Xsf::Identifiers::Xep))
@@ -31,45 +35,23 @@ RSpec.describe Relaton::Xsf::HitCollection do
     end
 
     it "resolves them like any other reference" do
-      expect(files("XEP README")).to eq ["xep-readme.yaml"]
+      expect(files(pubid("XEP README"))).to eq ["xep-readme.yaml"]
     end
   end
 
-  context "reference forms" do
-    it "resolves the canonical form" do
-      expect(files("XEP 0001")).to eq ["xep-0001.yaml"]
-    end
-
-    it "resolves the hyphenated form xmpp.org uses" do
-      # New support: the old substring match compared against "XEP 0001", so a
-      # hyphen never matched.
-      expect(files("XEP-0001")).to eq ["xep-0001.yaml"]
-    end
-
-    it "resolves a bare number, which the substring match used to allow" do
-      expect(files("0001")).to eq ["xep-0001.yaml"]
-    end
-
-    it "is case-insensitive on the publisher token" do
-      expect(files("xep 0001")).to eq ["xep-0001.yaml"]
-    end
-  end
-
-  context "exactness" do
-    # The old `index.search(ref)` matched a SUBSTRING of the rendered id, so a
-    # bare "001" answered with 11 documents and `Bibliography#get` took the
-    # first. Matching is exact now.
-    it "does not answer a truncated number with every document that contains it" do
-      expect(files("001")).to be_empty
+  context "lookup" do
+    it "returns the row for an identifier" do
+      expect(files(pubid("XEP 0001"))).to eq ["xep-0001.yaml"]
     end
 
     it "returns nothing for a document not in the index" do
-      expect(files("XEP 9999")).to be_empty
+      expect(files(pubid("XEP 9999"))).to be_empty
     end
 
-    it "returns nothing for an unparseable reference" do
-      expect(Relaton.logger_pool).to receive(:warn).with(/Failed to parse pubid/, any_args)
-      expect(files("not an identifier")).to be_empty
+    # Bibliography.parse_ref hands nil through when a reference cannot be
+    # parsed, so the collection has to tolerate it rather than raise.
+    it "returns nothing for a nil identifier" do
+      expect(files(nil)).to be_empty
     end
   end
 end

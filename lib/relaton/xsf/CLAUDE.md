@@ -24,10 +24,11 @@ Key classes and their base classes from relaton-core:
 | Class | Base | Role |
 |---|---|---|
 | `Processor` | `Relaton::Core::Processor` | Plugin entry point for relaton registry |
-| `Bibliography` | Module (extends self) | Search & get interface (`search`, `get`) |
+| `Bibliography` | Module (extends self) | Search & get interface; **parses the reference into a pubid** (`parse_ref`) |
 | `HitCollection` | `Relaton::Core::HitCollection` | Collection of search results |
 | `Hit` | `Relaton::Core::Hit` | Single result; lazy-loads YAML from GitHub |
 | `DataFetcher` | `Relaton::Core::DataFetcher` | Crawls xmpp.org, parses BibXML, saves docs |
+| `Docidentifier` | `Relaton::Bib::Docidentifier` | Exposes the id as a `Pubid::Xsf::Identifier` via `#pubid` |
 | `Item` / `Bibitem` / `Bibdata` | `Relaton::Bib::Item` | Bibliographic item models (lutaml-model based) |
 
 ## Index (`index-v2`, pubid-keyed)
@@ -71,6 +72,35 @@ Nothing in the published corpus trips the guard today, so a recorded error means
 upstream grew a shape pubid does not know — exactly when an issue is worth
 filing.
 
+### Where the reference becomes an identifier
+
+`Bibliography.parse_ref` does it, not `HitCollection`. That split is not
+cosmetic: `Type#search_candidates` narrows only when its search argument is
+**not** a `String`, so the string has to become an identifier at the entry
+point. `HitCollection` therefore receives a `Pubid::Xsf::Identifier` (or nil,
+when the reference could not be parsed) and does nothing but the index lookup.
+`Core::HitCollection` documents `ref` as `[String, Pubid]`, so this is the
+interface working as intended.
+
+### Pubid-backed docidentifier
+
+`Relaton::Xsf::Docidentifier` parses its `content` into a
+`Pubid::Xsf::Identifier` kept in `@pubid`, while the lutaml `content` attribute
+stays a plain string. Parsing is soft — a missing gem or non-XSF content leaves
+`@pubid` nil rather than raising during deserialization. `Item` narrows the
+inherited `docidentifier` attribute to it.
+
+It is **purely additive**: `to_yaml` and `to_xml` are byte-identical before and
+after, so no published document or index needs regenerating.
+
+**It deliberately implements none of `remove_part!` / `remove_date!` /
+`to_all_parts!`.** An XEP identifier is a publisher and a number and nothing
+else, so there is genuinely nothing for any of them to strip, and
+`Bib::Docidentifier` defaults all three to no-ops for exactly that case. Empty
+overrides would assert a flavor rule that does not exist. Compare
+`Relaton::Ogc::Docidentifier`, which overrides `remove_date!` because OGC really
+does carry a revision.
+
 ### Lookup
 
 `HitCollection#search` follows the ETSI/W3C/OGC idiom:
@@ -84,7 +114,7 @@ filing.
   (`XEP 0001` and every `XEP 001x`) and `Bibliography#get` took `.first` —
   a truncated reference silently resolved to whichever sorted first. It now
   returns nothing.
-- **Three reference forms are normalized** in `#normalize_ref`, because
+- **Three reference forms are normalized** in `Bibliography#normalize_ref`, because
   `Pubid::Xsf` accepts only the canonical `XEP 0001`:
 
   | form | before | after |
@@ -97,20 +127,18 @@ filing.
   The hyphen and case forms are new support, not preserved behaviour: the
   substring match compared against `XEP 0001`, which has a space.
 
-### The v1 window
+### Both indexes, one crawl
 
-`relaton-data-xsf` publishes `index-v1.zip` only until it re-crawls with a
-`relaton` carrying this change, so live XSF lookups are broken in that window —
-exactly as they were for W3C, 3GPP and OGC. The spec fixture does not depend on
-it: `tasks/index_fixture_xsf.rb` converts the published v1 rows through pubid
-and drops the same two non-documents the producer skips.
+`relaton-data-xsf` publishes **both** from a single crawl: the `index-v2` this
+fetcher writes, and its own `index-v1` built by `build_index_v1.rb` for released
+relaton v2 consumers. Both carry the same 520 rows — building v1 from `data/`
+was originally what kept `XEP README` and `XEP xxxx` available there while they
+were unindexable in v2, and pubid accepting them has since removed that
+asymmetry.
 
-After the re-crawl that repo publishes **both** indexes from one crawl: the
-`index-v2` this fetcher writes, and its own `index-v1` built by
-`build_index_v1.rb` for released relaton v2 consumers. Both now carry the same
-520 rows — building v1 from `data/` was originally what kept `XEP README` and
-`XEP xxxx` available there while they were unindexable in v2, and pubid
-accepting them has since removed that asymmetry.
+Verified against the published `index-v2`: 520 rows, all deserialize, sorted,
+**0** keying on `""`, `XEP 0001` narrows to 1 of 520, and every accepted
+spelling resolves to a file that returns HTTP 200.
 
 Data flow: `Processor#get` → `Bibliography.get` → `HitCollection.search` → `Hit#item` → fetches YAML → `Relaton::Bib::Item.from_yaml`
 
