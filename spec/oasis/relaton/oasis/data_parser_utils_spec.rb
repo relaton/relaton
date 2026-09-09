@@ -223,4 +223,44 @@ RSpec.describe Relaton::Oasis::DataParserUtils do
       expect(dp.parse_doctype.content).to eq "standard"
     end
   end
+
+  describe "#parse_docid" do
+    let(:errors) { Hash.new(true) }
+
+    def parser_for(title)
+      html = "<details><summary><div><h2>#{title}</h2></div></summary></details>"
+      Relaton::Oasis::DataParser.new Nokogiri::HTML(html).at("//details"),
+                                     errors
+    end
+
+    it "builds a pubid-backed docidentifier" do
+      docid = parser_for("Advanced Message Queuing Protocol (AMQP) Version 1.0")
+        .parse_docid
+      expect(docid[0]).to be_a Relaton::Oasis::Docidentifier
+      expect(docid[0].pubid).to be_a Pubid::Oasis::Identifiers::Standard
+    end
+
+    it "records nothing when the id parses" do
+      parser_for("Advanced Message Queuing Protocol (AMQP) Version 1.0")
+        .parse_docid
+      expect(errors.keys).to eq [:docnumber, :docid]
+    end
+
+    it "records an unparseable id under its own key" do
+      parser = parser_for("Some Title")
+      allow(parser).to receive(:parse_docnumber).and_return("")
+      parser.parse_docid
+      expect(errors["OASIS "]).to eq(
+        "Unparseable primary id `OASIS ` was not indexed",
+      )
+    end
+
+    it "keeps the docidentifier so the document is still written" do
+      parser = parser_for("Some Title")
+      allow(parser).to receive(:parse_docnumber).and_return("")
+      docid = parser.parse_docid
+      expect(docid[0].content).to eq "OASIS "
+      expect(docid[0].pubid).to be_nil
+    end
+  end
 end

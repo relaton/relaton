@@ -108,6 +108,20 @@ namespace :spec do
     puts "Wrote #{count} rows to #{path}"
   end
 
+  # Refresh the OASIS suite's offline index. Copies the whole published index
+  # (605 rows) verbatim — see tasks/index_fixture_oasis.rb for why it is not
+  # curated.
+  desc "Refresh spec/oasis/fixtures/index-v2.zip from relaton-data-oasis"
+  task :update_index_oasis do
+    require_relative "tasks/index_fixture_oasis"
+    require_relative "lib/relaton/oasis"
+    # Named from INDEXFILE, so the next index version bump moves the fixture
+    # with it instead of silently writing the old name.
+    path = "spec/oasis/fixtures/#{Relaton::Oasis::INDEXFILE}.zip"
+    count = IndexFixtureOasis.build(path)
+    puts "Wrote #{count} rows to #{path}"
+  end
+
   # relaton-cli is the one separate gem (own Gemfile/lock, gem "relaton",
   # path: "../.."), so run its suite in its OWN bundle — with_unbundled_env +
   # cd, the same shape as build_all. bundle check || install first so it works

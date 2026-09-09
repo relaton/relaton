@@ -11,6 +11,7 @@ RSpec.describe Relaton::Oasis::Processor do
     expect(processor.defaultprefix).to eq(%r{^OASIS\s})
     expect(processor.idtype).to eq "OASIS"
     expect(processor.datasets).to eq %w[oasis-open]
+    expect(processor.instance_variable_get(:@pubid_flavor)).to eq :Oasis
   end
 
   describe "#get" do
@@ -57,10 +58,14 @@ RSpec.describe Relaton::Oasis::Processor do
   end
 
   describe "#remove_index_file" do
+    # Same pubid_class as the producer and the consumer, so Db#clear clears
+    # the entry those two share instead of creating a third.
     it "calls remove_file on the index" do
       index = double("index")
       expect(Relaton::Index).to receive(:find_or_create)
-        .with(:oasis, file: "index-v1.yaml").and_return(index)
+        .with(:oasis, file: "index-v2.yaml",
+                      pubid_class: ::Pubid::Oasis::Identifier)
+        .and_return(index)
       expect(index).to receive(:remove_file)
       processor.remove_index_file
     end
