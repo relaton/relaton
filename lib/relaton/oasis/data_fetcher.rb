@@ -48,9 +48,13 @@ module Relaton
         end
       end
 
+      # `pubid_class:` on the producer too: FileIO#save only calls `to_hash`
+      # for instances of it, so without it the crawl writes v1-shaped rows
+      # under a v2 name, silently.
       def index
         @index ||= Relaton::Index.find_or_create(
-          :oasis, file: "#{INDEXFILE}.yaml"
+          :oasis, file: "#{INDEXFILE}.yaml",
+          pubid_class: ::Pubid::Oasis::Identifier
         )
       end
 
@@ -80,8 +84,34 @@ module Relaton
                     "Document: #{id.content}. Writing #{file} instead."
         end
         @files << file
-        index.add_or_update id.content, file
+        add_to_index id, file
         File.write file, serialize(doc), encoding: "UTF-8"
+      end
+
+      #
+      # Index the document, or record why it could not be indexed.
+      #
+      # An id pubid cannot parse is recorded in `@errors` — the inherited
+      # `report_errors` logs a String value as the message — and the row is
+      # skipped rather than indexed unparsed: `Relaton::Index` rejects the WHOLE
+      # index if a single row fails to deserialize, and its sort calls
+      # `.root.number` on every id. The data file is still written by the
+      # caller, so the document is unindexed, never lost. (The ECMA/W3C/3GPP
+      # shape.)
+      #
+      # `DataParserUtils#record_unparseable_id` already recorded this id when it
+      # was built, under the SAME key — the id string. This entry overwrites it
+      # with the same sentence plus the output file, so a saved document reports
+      # one line, the more informative one. Keep the two keys identical.
+      #
+      # @param id [Relaton::Oasis::Docidentifier] primary document identifier
+      # @param file [String] path the document is written to
+      #
+      def add_to_index(id, file)
+        return index.add_or_update(id.pubid, file) if id.pubid
+
+        @errors[id.content.to_s] =
+          "Unparseable primary id `#{id.content}` was not indexed (#{file})"
       end
 
       def to_xml(bib)

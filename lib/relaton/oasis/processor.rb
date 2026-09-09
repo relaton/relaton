@@ -11,6 +11,7 @@ module Relaton
         @defaultprefix = %r{^OASIS\s}
         @idtype = "OASIS"
         @datasets = %w[oasis-open]
+        @pubid_flavor = :Oasis
       end
 
       # @param code [String]
@@ -59,9 +60,15 @@ module Relaton
       #
       # Remove index file
       #
+      # Same `pubid_class:` as the producer and the consumer, so `Db#clear`
+      # clears the entry those two share instead of creating a third.
+      #
       def remove_index_file
         require_relative "../oasis"
-        Relaton::Index.find_or_create(:oasis, file: "#{INDEXFILE}.yaml").remove_file
+        Relaton::Index.find_or_create(
+          :oasis, file: "#{INDEXFILE}.yaml",
+          pubid_class: ::Pubid::Oasis::Identifier
+        ).remove_file
       end
     end
   end

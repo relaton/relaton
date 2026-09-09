@@ -62,8 +62,18 @@ describe Relaton::Oasis::DataFetcher do
     end
   end
 
+  context "index" do
+    it "is created with the pubid class, so the rows serialize as v2" do
+      expect(Relaton::Index).to receive(:find_or_create).with(
+        :oasis, file: "index-v2.yaml",
+        pubid_class: ::Pubid::Oasis::Identifier
+      ).and_return(:index)
+      expect(subject.send(:index)).to eq :index
+    end
+  end
+
   context "save doc" do
-    let(:docid) { Relaton::Bib::Docidentifier.new content: "OASIS amqp-core", primary: true }
+    let(:docid) { Relaton::Oasis::Docidentifier.new content: "OASIS amqp-core", primary: true }
     let(:title) { Relaton::Bib::Title.new(content: "AMQP Core") }
     let(:doc) { Relaton::Bib::ItemData.new(docidentifier: [docid], title: [title]) }
     let(:index) { subject.send(:index) }
@@ -75,6 +85,38 @@ describe Relaton::Oasis::DataFetcher do
       files = subject.instance_variable_get(:@files)
       expect(files).to include "data/oasis-amqp-core.yaml"
       expect(index.search("OASIS amqp-core").first[:file]).to eq "data/oasis-amqp-core.yaml"
+    end
+
+    it "indexes the pubid identifier, not the id string" do
+      expect(File).to receive(:write)
+      subject.send(:save_doc, doc)
+      row = index.index.first
+      expect(row[:id]).to be_a Pubid::Oasis::Identifiers::Standard
+      expect(row[:id].to_s).to eq "OASIS amqp-core"
+      expect(row[:id].root.number.to_s).to eq "amqp-core"
+    end
+
+    # The whole point of using @errors: report_errors turns a String value into
+    # one line of the crawl's "Error fetching documents" GitHub issue.
+    it "reports a parser-recorded id through report_errors" do
+      subject.instance_variable_get(:@errors)["OASIS bad-id"] =
+        "Unparseable primary id `OASIS bad-id` was not indexed"
+      allow(subject).to receive(:log_error) # the boolean field keys
+      expect(subject).to receive(:log_error)
+        .with("Unparseable primary id `OASIS bad-id` was not indexed")
+      subject.send(:report_errors)
+    end
+
+    it "records an unparseable id and skips the row, keeping the file" do
+      unparseable = Relaton::Oasis::Docidentifier.new content: "amqp-core",
+                                                      primary: true
+      bad = Relaton::Bib::ItemData.new(docidentifier: [unparseable],
+                                       title: [title])
+      expect(File).to receive(:write)
+      expect(index).not_to receive(:add_or_update)
+      subject.send(:save_doc, bad)
+      expect(subject.instance_variable_get(:@errors)["amqp-core"])
+        .to match(/Unparseable primary id `amqp-core` was not indexed/)
     end
 
     it "yaml" do

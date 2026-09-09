@@ -240,14 +240,48 @@ module Relaton
       #
       # Parse document identifier.
       #
-      # @return [Array<Bib::Docidentifier>] document identifier
+      # @return [Array<Relaton::Oasis::Docidentifier>] document identifier
       #
       def parse_docid
         id = "OASIS #{parse_docnumber}"
-        result = [Bib::Docidentifier.new(type: "OASIS", content: id,
-                                         primary: true)]
+        docid = Docidentifier.new(type: "OASIS", content: id, primary: true)
+        record_unparseable_id docid
+        result = [docid]
         @errors[:docid] &&= result.empty?
         result
+      end
+
+      #
+      # Surface an id pubid could not parse through the shared error-reporting
+      # machinery, so the crawl's "Error fetching documents" GitHub issue names
+      # it instead of dropping it silently in the action log.
+      #
+      # `Core::DataFetcher#report_errors` logs a **String** value verbatim as
+      # the message (a boolean means "this field failed for every record" and
+      # takes its message from the key), and the parsers share the fetcher's own
+      # `@errors` hash, so an entry written here reaches the issue unchanged.
+      #
+      # **Why here and not only in the fetcher.** W3C, 3GPP and ISO record this
+      # at index time, where the output file is known. OASIS records it at build
+      # time as well, because this is the one place EVERY id is built — the part
+      # ids that only ever become a relation's `formattedref`
+      # (`DataParser#parse_relation`, `DataPartParser#parse_relation`) never
+      # reach `DataFetcher#save_doc`, so an index-time hook alone cannot see
+      # them. `DataFetcher#add_to_index` keys its own entry on the same id
+      # string, so a document that IS saved reports once, through the fetcher's
+      # message, which additionally names the file.
+      #
+      # The docidentifier is returned either way: the document is still written,
+      # it is only left out of the index — `Relaton::Index` rejects the WHOLE
+      # index if a single row fails to deserialize.
+      #
+      # @param docid [Relaton::Oasis::Docidentifier] the id just built
+      #
+      def record_unparseable_id(docid)
+        return if docid.pubid
+
+        content = docid.content.to_s
+        @errors[content] = "Unparseable primary id `#{content}` was not indexed"
       end
 
       #

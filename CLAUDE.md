@@ -469,6 +469,25 @@ regex back.
   each document's own primary docidentifier, so its v1 never depends on pubid
   and this gem carries no v1 fixture and no v1 assertion. See
   `lib/relaton/calconnect/CLAUDE.md`.
+  **OASIS** is the same shape, and is the worked example of splitting the
+  migration **producer-first** when the data repo has not republished yet: the
+  gem started writing the pubid `index-v2` (`_type: pubid:oasis:standard`, via
+  `pubid_class: ::Pubid::Oasis::Identifier`) while a clearly-marked temporary
+  `INDEXFILE_V1` carried the read side, and the consumer followed once
+  `relaton-data-oasis` published v2 and began deriving v1 from those rows.
+  Never dual-write v1 here. OASIS ids are free-form slugs that pubid keeps
+  verbatim in `original`, so `Docidentifier` leaves the three mutators as the
+  inherited no-ops — a component mutation is invisible in the printed id — and
+  the flavor supplies the `OASIS ` publisher token in `parse_ref` rather than
+  in the grammar, since a bare slug is a reference a caller writes, not an
+  identifier. It needed the same key fix IANA and W3C did: merged pubid
+  `cfe8ee84` renames `spec` -> `number` (the specification name, so a spec's
+  versions cluster); without it all 605 rows key on `""`. Selection is by
+  **exact printed id** first, then newest version, then the least qualified
+  row — five records are a bare spec name with versioned siblings (`EDXL`,
+  `OData`, `OSLC`, `SAML`, `WSS`), and without the exact rule three of them
+  answered with a sibling. All 605 published ids resolve to their own record.
+  See `lib/relaton/oasis/CLAUDE.md`.
   The index schema
   and data-repo publishing/Pages contract are specified in
   `docs/data-repository-format.adoc`; see also `lib/relaton/index/CLAUDE.md`.
