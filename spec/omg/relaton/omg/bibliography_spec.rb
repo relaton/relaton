@@ -56,7 +56,7 @@ RSpec.describe Relaton::Omg::Bibliography do
     expect(item.docidentifier.first.content).to eq "OMG UML 2.1.1 Superstructure"
     expect(item.title.first.content).to eq "Unified Modeling Language: Superstructure"
     expect(item.date.first.type).to eq "published"
-    expect(item.date.first.at.to_s).to eq "2007-07-01"
+    expect(item.date.first.at.to_s).to eq "2007-07-31"
   end
 
   it "deals with non-existent document" do

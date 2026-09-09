@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require "json"
 require "mechanize"
 
 module Relaton
   module Omg
     class Scraper
       URL_PATTERN = "https://www.omg.org/spec/"
+      LD_DATE = "https://www.omg.org/techprocess/ab/SpecificationMetadata/publicationDate"
 
       def initialize(acronym, version = nil, spec = nil)
         @acronym = acronym
@@ -81,11 +83,39 @@ module Relaton
       end
 
       def fetch_date
+        return [] unless pub_date
+
         [Bib::Date.new(type: "published", at: pub_date.to_s)]
       end
 
       def pub_date
-        ::Date.parse @doc.at('//dt[.="Publication Date:"]/following-sibling::dd').text.strip
+        return @pub_date if defined? @pub_date
+
+        @pub_date = jsonld_date || dd_date
+      end
+
+      # The visible date renders the month name in the locale of the server, and
+      # the CDN caches that variant. Parse the machine-readable value first.
+      #
+      # @return [Date, nil]
+      def jsonld_date
+        script = @doc.at('//script[@type="application/ld+json"]')
+        return unless script
+
+        node = JSON.parse(script.text).find { |e| e.is_a?(Hash) && e[LD_DATE] }
+        value = node && node[LD_DATE].first["@value"]
+        value && ::Date.parse(value)
+      rescue JSON::ParserError, ::Date::Error
+        nil
+      end
+
+      # @return [Date, nil]
+      def dd_date
+        text = @doc.at('//dt[.="Publication Date:"]/following-sibling::dd').text.strip
+        ::Date.parse text
+      rescue ::Date::Error
+        Util.warn "Cannot parse the publication date `#{text}`."
+        nil
       end
 
       def fetch_status

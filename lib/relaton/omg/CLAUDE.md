@@ -32,6 +32,28 @@ The gem extends `relaton-bib` (~> 2.0.0-alpha.1), the core Relaton bibliographic
 - `Relaton::Omg::Bibliography` — fetches standards via `Scraper`
 - `Relaton::Omg::Scraper` — scrapes https://www.omg.org/spec for bibliographic data
 
+### Publication date comes from JSON-LD, not the visible text
+
+`Scraper#pub_date` reads the `publicationDate` value out of the page's
+`application/ld+json` block, not the `<dt>Publication Date:</dt>` text. Two
+reasons, both verified against cassettes:
+
+- **Locale.** The OMG server renders the month name in its own locale, and
+  Cloudflare caches that variant. A response can carry `Content-Language: zh-CN`
+  with an otherwise English page (`<html lang="en">`) and a `<dd>七月 2007</dd>`,
+  which made `Date.parse` raise `Date::Error`. The request already sends
+  `Accept-Language: en-us,en;q=0.5`; the CDN answers `Vary: accept-encoding`
+  only, so it does not vary on language and no request header can prevent this.
+- **Precision.** The visible text is a lossy render of the same value:
+  `2013-03-31` prints as "March 2013". Parsing the text rounded every OMG date
+  down to day 01.
+
+The `<dd>` text stays as a fallback for a page with no JSON-LD, and a month name
+it cannot parse logs a warning instead of raising.
+`spec/omg/relaton/omg/scraper_spec.rb` guards all three paths with
+`spec/omg/fixtures/localized_date.html`. Do not "simplify" the parser back to
+the `<dd>` text.
+
 ### Serialization formats
 
 Items can be serialized to/from YAML and XML. Tests verify round-trip fidelity for all three classes. XML output is validated against RELAX NG schemas in `grammars/`.
