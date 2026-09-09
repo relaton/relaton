@@ -38,31 +38,38 @@ hashes (`_type: pubid:xsf:xep` with `number`). All three index call sites —
 pass `pubid_class: ::Pubid::Xsf::Identifier`. Omitting it on the **producer**
 writes v1-shaped rows under a v2 name, silently (`FileIO#save` calls `to_hash`
 only for instances of `pubid_class`); omitting it on the **consumer** leaves
-the rows raw hashes with `FileIO#sorted` false, so every lookup scans all 518.
+the rows raw hashes with `FileIO#sorted` false, so every lookup scans all 520.
 
 An XEP identifier is a publisher and a number, nothing else — no edition, no
-date, no part, and one row per XEP (518 rows, ids unique). That makes this the
+date, no part, and one row per XEP (520 rows, ids unique). That makes this the
 simplest flavor in the sweep: there is no selection order to preserve and
 nothing is ignorable in `matches?`, so lookup is exact equality after
 narrowing.
 
-### The two non-documents, and why the guard is not optional
+### The index guard, and the two rows that are pages rather than XEPs
 
-The crawled source carries the XMPP repo's `README` and its `xep-xxxx`
-template, which reach the indexer as the docids `XEP README` and `XEP xxxx`.
-pubid rejects both.
+`DataFetcher#add_to_index` parses the docid and, on failure, records
+`@errors[docid]` — which `report_errors` turns into a GitHub issue at the end of
+the crawl (the 3GPP/ECMA precedent) — and skips the row. The data file is still
+written, so a document that cannot be indexed is unindexed, never lost.
 
-One unparseable row does not fail that row. `Relaton::Index` declares the
-**whole file** corrupt, deletes it, and hands back an **empty** index —
-measured: 518 good rows plus a single `XEP README` loads as **0 rows**, and the
-only trace is two INFO lines (`Wrong structure of file …`, `Considering …
-corrupt, removing it`). So indexing either one silently breaks every XSF
-lookup, not just those two.
+The guard is not decoration. One unparseable row does not fail that row:
+`Relaton::Index` declares the **whole file** corrupt, deletes it, and hands back
+an **empty** index — measured, 519 good rows plus one unparseable id loads as
+**0 rows**, and the only trace is two INFO lines (`Wrong structure of file …`,
+`Considering … corrupt, removing it`). Every XSF lookup then fails silently.
 
-`DataFetcher#add_to_index` therefore parses the docid and, on failure, records
-`@errors[docid]` — which `report_errors` turns into a GitHub issue at the end
-of the crawl (the 3GPP/ECMA precedent) — and skips the row. The data file is
-still written, so the document is unindexed, never lost.
+Two published rows are pages rather than XEPs — the XMPP repository's `README`
+and its `xep-xxxx` template, which the crawl mints records for because they sit
+in the same listing. pubid accepts them as the literal numbers `README` and
+`xxxx`, so they carry into `index-v2` like any other row and resolve normally.
+It stayed strict about everything else: `XEP banana` and a typo such as
+`XEP 00O1` are still rejected, which is what keeps an unparseable reference a
+warning rather than a silent miss.
+
+Nothing in the published corpus trips the guard today, so a recorded error means
+upstream grew a shape pubid does not know — exactly when an issue is worth
+filing.
 
 ### Lookup
 
@@ -99,10 +106,11 @@ it: `tasks/index_fixture_xsf.rb` converts the published v1 rows through pubid
 and drops the same two non-documents the producer skips.
 
 After the re-crawl that repo publishes **both** indexes from one crawl: the
-`index-v2` this fetcher writes (518 rows), and its own `index-v1` (520 rows)
-built from the crawled documents in `data/` by `build_index_v1.rb`. It builds v1
-from `data/` rather than deriving it from v2 precisely so `XEP README` and
-`XEP xxxx` survive for released consumers while staying out of v2.
+`index-v2` this fetcher writes, and its own `index-v1` built by
+`build_index_v1.rb` for released relaton v2 consumers. Both now carry the same
+520 rows — building v1 from `data/` was originally what kept `XEP README` and
+`XEP xxxx` available there while they were unindexable in v2, and pubid
+accepting them has since removed that asymmetry.
 
 Data flow: `Processor#get` → `Bibliography.get` → `HitCollection.search` → `Hit#item` → fetches YAML → `Relaton::Bib::Item.from_yaml`
 

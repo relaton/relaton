@@ -9,7 +9,7 @@ require "zip"
 # Builds `spec/xsf/fixtures/index-v2.zip`, the offline index the XSF suite
 # searches against.
 #
-# The whole published index (~518 rows), not a curated subset: XSF publishes one
+# The whole published index (520 rows), not a curated subset: XSF publishes one
 # row per XEP with no editions or revisions, so keeping all of them costs
 # nothing and removes any question of which rows a spec depends on.
 #
@@ -20,12 +20,12 @@ require "zip"
 # v2. **Point SOURCE at `index-v2.zip` and delete `to_pubid_rows` once it
 # publishes one** (see tasks/index_fixture_ogc.rb for how that ended up).
 #
-# Two published rows are dropped on the way: `XEP README` and `XEP xxxx` are the
-# XMPP repo's readme and template, not documents. One unparseable row makes
-# `Relaton::Index` declare the whole file corrupt and hand back an EMPTY index
-# (measured: 518 good rows plus one of these loads as 0), so they cannot be
-# carried — the producer's `DataFetcher#add_to_index` skips them for the same
-# reason.
+# All 520 published rows are carried. Two of them are pages rather than XEPs —
+# the XMPP repo's `README` and its `xep-xxxx` template — which pubid accepts as
+# the literal numbers `README` and `xxxx`. That matters more than it looks: one
+# row pubid cannot parse makes `Relaton::Index` declare the whole file corrupt
+# and hand back an EMPTY index, so a fixture is only as loadable as its worst
+# row.
 #
 # Pure logic lives here so `spec/tasks/` can unit test it; the
 # `rake spec:update_index_xsf` task is a thin wrapper.
@@ -42,9 +42,9 @@ module IndexFixtureXsf
     # Convert v1 string ids to the pubid hashes the runtime deserializes.
     #
     # A row pubid cannot parse is dropped with a warning rather than aborting:
-    # the two non-documents in the published index (`XEP README`, `XEP xxxx`)
-    # are exactly what this skips, and carrying them would make the fixture
-    # unloadable.
+    # carrying one would make the fixture unloadable in the same all-or-nothing
+    # way. Nothing in the published index trips it today — the warning firing is
+    # itself the signal that upstream grew a shape pubid does not know.
     #
     # @param rows [Array<Hash>] published `{ id: String, file: String }` rows
     # @return [Array<Hash>] `{ id: Hash, file: String }` rows

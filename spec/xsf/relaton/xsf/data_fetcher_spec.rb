@@ -106,18 +106,20 @@ describe Relaton::Xsf::DataFetcher do
     # The crawled source carries two non-documents -- the repo's README and the
     # xep-xxxx template -- and Relaton::Index rejects the WHOLE index if one row
     # fails to deserialize, so they must never be indexed.
-    # These two are expected on every crawl, so they are skipped SILENTLY --
-    # recording them would file the same GitHub issue daily.
-    Relaton::Xsf::DataFetcher::NON_DOCUMENTS.each do |docid|
-      it "skips #{docid} without recording an error" do
-        expect(subject.index).not_to receive(:add_or_update)
+    # Pages rather than XEPs, but pubid accepts them as the literal numbers
+    # `README` and `xxxx`, so they index like any other row.
+    ["XEP README", "XEP xxxx"].each do |docid|
+      it "indexes #{docid}, which pubid parses" do
+        expect(subject.index).to receive(:add_or_update)
+          .with(an_instance_of(Pubid::Xsf::Identifiers::Xep), "data/x.yaml")
         subject.add_to_index docid, "data/x.yaml"
         expect(subject.instance_variable_get(:@errors)).to be_empty
       end
     end
 
-    # Anything else pubid rejects is a surprise and must surface.
-    it "records an unexpected unparseable docid" do
+    # A docid pubid rejects must never reach the index: one bad row makes
+    # Relaton::Index declare the whole file corrupt and return an EMPTY index.
+    it "records an unparseable docid instead of indexing it" do
       expect(subject.index).not_to receive(:add_or_update)
       subject.add_to_index "XEP not-a-number", "data/x.yaml"
       expect(subject.instance_variable_get(:@errors)["XEP not-a-number"])

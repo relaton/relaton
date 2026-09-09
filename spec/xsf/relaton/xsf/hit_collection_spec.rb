@@ -21,9 +21,17 @@ RSpec.describe Relaton::Xsf::HitCollection do
       expect(candidates.size).to eq 1
     end
 
-    it "carries neither of the two non-document rows" do
+    # Two published rows are pages rather than XEPs. pubid accepts them as the
+    # literal numbers `README` and `xxxx`, so they are carried like any other
+    # row -- and they must be, because one row Relaton::Index cannot rebuild
+    # makes it discard the whole file and return an empty index.
+    it "carries the two rows that are pages rather than XEPs" do
       rendered = index.index.map { |r| r[:id].to_s }
-      expect(rendered).not_to include("XEP README", "XEP xxxx")
+      expect(rendered).to include("XEP README", "XEP xxxx")
+    end
+
+    it "resolves them like any other reference" do
+      expect(files("XEP README")).to eq ["xep-readme.yaml"]
     end
   end
 
