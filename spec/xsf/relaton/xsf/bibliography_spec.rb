@@ -17,10 +17,20 @@ describe Relaton::Xsf::Bibliography do
       ).to_stderr_from_any_process
     end
 
-    it "not found", vcr: "get_not_found" do
-      expect { Relaton::Xsf::Bibliography.get "XEP nope" }.to output(
-        /\[relaton-xsf\] INFO: \(XEP nope\) Not found\./,
+    # A well-formed id that is not in the index. This used to say "XEP nope",
+    # which is not an identifier at all -- it reported "Not found", conflating a
+    # malformed reference with an absent document. That conflation is what
+    # letting the parse error propagate exists to prevent; see the example
+    # below.
+    it "not found" do
+      expect { Relaton::Xsf::Bibliography.get "XEP 9999" }.to output(
+        /\[relaton-xsf\] INFO: \(XEP 9999\) Not found\./,
       ).to_stderr_from_any_process
+    end
+
+    it "raises for a malformed reference rather than reporting not found" do
+      expect { Relaton::Xsf::Bibliography.get "XEP nope" }
+        .to raise_error(Pubid::Errors::ParseError)
     end
   end
   # Reference parsing lives here, not in HitCollection: `Index::Type` narrows
@@ -40,13 +50,21 @@ describe Relaton::Xsf::Bibliography do
       end
     end
 
-    # Strictness is the point: it is what keeps a typo a warning rather than a
-    # silent miss. pubid takes README and xxxx as literal numbers, nothing else.
+    # An unrecognized reference RAISES -- like ISO, ETSI and 3GPP, relaton lets
+    # it propagate so a caller can tell "malformed identifier" from "no such
+    # document". relaton-cli rescues Parslet::ParseFailed and renders
+    # "... is not a recognized standards identifier"; Pubid::Errors::ParseError
+    # is one, which is what makes that work.
     ["XEP banana", "XEP 00O1", "XEP", "not an identifier"].each do |ref|
-      it "rejects #{ref.inspect}" do
-        expect(Relaton.logger_pool).to receive(:warn).with(/Failed to parse pubid/, any_args)
-        expect(described_class.parse_ref(ref)).to be_nil
+      it "raises for #{ref.inspect}" do
+        expect { described_class.parse_ref(ref) }
+          .to raise_error(Pubid::Errors::ParseError)
       end
+    end
+
+    it "raises an error relaton-cli knows how to render" do
+      expect { described_class.parse_ref("XEP banana") }
+        .to raise_error(Parslet::ParseFailed)
     end
   end
 
@@ -72,9 +90,12 @@ describe Relaton::Xsf::Bibliography do
       expect(files("001")).to be_empty
     end
 
-    it "returns an empty collection for an unparseable reference" do
-      expect(Relaton.logger_pool).to receive(:warn).with(/Failed to parse pubid/, any_args)
-      expect(described_class.search("not an identifier")).to be_empty
+    # The parse happens before HitCollection is built, and HitCollection's own
+    # rescue relabels StandardError as Relaton::RequestError -- so this also
+    # pins that a malformed reference is never reported as a transport failure.
+    it "raises for an unparseable reference rather than returning empty" do
+      expect { described_class.search("not an identifier") }
+        .to raise_error(Pubid::Errors::ParseError)
     end
   end
 end

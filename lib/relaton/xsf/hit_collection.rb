@@ -6,10 +6,12 @@ module Relaton
       #
       # Find the index rows for the identifier this collection was built with.
       #
-      # `ref` is a `Pubid::Xsf::Identifier` (or nil, when the reference could
-      # not be parsed) -- `Relaton::Xsf::Bibliography.parse_ref` does that step.
-      # Passing the identifier rather than a string is what enables the binary
-      # search on `id.root.number`.
+      # `ref` is a `Pubid::Xsf::Identifier` -- `Bibliography.parse_ref` does that
+      # step, and raises rather than returning nil for an unrecognized
+      # reference. Passing the identifier rather than a string is what enables
+      # the binary search on `id.root.number`. The nil guard in `#rows` is
+      # defensive only: `Core::HitCollection` permits a nil `ref`, and an empty
+      # result beats a NoMethodError if some other caller constructs one.
       #
       # An XEP identifier is only a publisher and a number: no edition, no date,
       # no part. So nothing is ignorable and `matches?` is a plain equality --

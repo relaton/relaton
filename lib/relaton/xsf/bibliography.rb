@@ -12,15 +12,24 @@ module Relaton
       # `String`, so parsing at the entry point is what lets the lookup binary
       # search; `Core::HitCollection` takes a `String` or a pubid by design.
       #
-      # A reference pubid cannot parse finds nothing, with a warning. There is
-      # deliberately no substring fallback: the old `index.search(ref)` compared
-      # a substring of the rendered id, so a bare `001` answered with 11
-      # documents and `#get` took `.first` -- a truncated reference silently
-      # resolved to whichever sorted first.
+      # An unrecognized reference **raises**; like ISO, ETSI and 3GPP we let it
+      # propagate. relaton-cli rescues `Parslet::ParseFailed` and renders
+      # `"..." is not a recognized standards identifier`
+      # (`gems/relaton-cli/lib/relaton/cli/command.rb:324`,
+      # `subcommand_collection.rb:134`), and `Db#fetch` logs it via the
+      # `StandardError` arm at `lib/relaton/db.rb:122`. Rescuing here would
+      # collapse "this identifier is malformed" into "no such document", and a
+      # caller could no longer tell them apart.
+      #
+      # There is also deliberately no substring fallback: the old
+      # `index.search(ref)` compared a substring of the rendered id, so a bare
+      # `001` answered with 11 documents and `#get` took `.first` -- a truncated
+      # reference silently resolved to whichever sorted first.
       #
       # @param ref [String] e.g. "XEP 0001", "XEP-0001", "0001"
       #
       # @return [Relaton::Xsf::HitCollection]
+      # @raise [Pubid::Errors::ParseError] if the reference is not an XEP id
       #
       def search(ref)
         HitCollection.new(parse_ref(ref)).search
@@ -54,14 +63,15 @@ module Relaton
       #
       # The token match is case-insensitive, so `xep 0001` resolves too.
       #
+      # Anything else raises -- see `.search`. `Pubid::Errors::ParseError` is a
+      # `Parslet::ParseFailed`, which is the class relaton-cli rescues.
+      #
       # @param ref [String]
-      # @return [Pubid::Xsf::Identifier, nil]
+      # @return [Pubid::Xsf::Identifier]
+      # @raise [Pubid::Errors::ParseError]
       #
       def parse_ref(ref)
         ::Pubid::Xsf::Identifier.parse normalize_ref(ref)
-      rescue StandardError => e
-        Util.warn "Failed to parse pubid `#{ref}`: #{e.message}"
-        nil
       end
 
       private
