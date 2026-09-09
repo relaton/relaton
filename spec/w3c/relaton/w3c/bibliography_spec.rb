@@ -99,12 +99,14 @@ describe Relaton::W3c::Bibliography do
     expect(row[:file]).to eq "data/rec-xml-names-20091208.yaml"
   end
 
-  # A reference pubid rejects is a graceful miss, not a `RequestError`. The
-  # grammar takes any slug after the publisher prefix, so an empty reference
-  # is what actually fails to parse.
-  it "returns nothing for a reference pubid cannot parse" do
-    expect { expect(described_class.send(:parse_ref, "  ")).to be_nil }
-      .to output(/Failed to parse pubid/).to_stderr_from_any_process
+  # A reference pubid rejects RAISES; relaton lets it propagate so a caller can
+  # tell a malformed identifier from an absent document. It is never relabelled
+  # as a `RequestError` -- the parse sits outside that rescue. The grammar takes
+  # any slug after the publisher prefix, so an empty reference is what actually
+  # fails to parse.
+  it "raises for a reference pubid cannot parse" do
+    expect { described_class.send(:parse_ref, "  ") }
+      .to raise_error Pubid::Errors::ParseError
   end
 
   # W3C dates are opaque digit runs of varying width, so "newest wins" cannot

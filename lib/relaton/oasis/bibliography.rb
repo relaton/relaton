@@ -101,15 +101,21 @@ module Relaton
         # Everything after the token stays verbatim: an OASIS slug is
         # case-sensitive (`STIX`, `amqp-core`, `OpenDocument`).
         #
+        # An unrecognized reference **raises**; like ISO, ETSI and 3GPP we let it
+        # propagate. relaton-cli rescues `Parslet::ParseFailed` and renders
+        # `"..." is not a recognized standards identifier`
+        # (`gems/relaton-cli/lib/relaton/cli/command.rb:324`), and `Db#fetch`
+        # logs it through the `StandardError` arm at `lib/relaton/db.rb:122`.
+        # Rescuing here would collapse "this identifier is malformed" into "no
+        # such document", leaving a caller unable to tell them apart.
+        #
         # @param text [String]
-        # @return [Pubid::Oasis::Identifier, nil]
+        # @return [Pubid::Oasis::Identifier]
+        # @raise [Pubid::Errors::ParseError]
         #
         def parse_ref(text)
           slug = text.to_s.strip.sub(/\A#{Regexp.escape PREFIX}/i, "")
           ::Pubid::Oasis::Identifier.parse "#{PREFIX}#{slug}"
-        rescue StandardError => e
-          Util.warn "Failed to parse pubid `#{text}`: #{e.message}"
-          nil
         end
 
         #

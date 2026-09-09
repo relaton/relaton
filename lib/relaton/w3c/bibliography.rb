@@ -121,11 +121,15 @@ module Relaton
         # @param text [String]
         # @return [Pubid::W3c::Identifier, nil]
         #
+        # An unrecognized reference **raises**; like ISO, ETSI and 3GPP we let it
+        # propagate. relaton-cli rescues `Parslet::ParseFailed` and renders
+        # `"..." is not a recognized standards identifier`
+        # (`gems/relaton-cli/lib/relaton/cli/command.rb:324`), and `Db#fetch`
+        # logs it through the `StandardError` arm at `lib/relaton/db.rb:122`.
+        # Rescuing here would collapse "this identifier is malformed" into "no
+        # such document", leaving a caller unable to tell them apart.
         def parse_ref(text)
           ::Pubid::W3c::Identifier.parse normalize_ref(text)
-        rescue StandardError => e
-          Util.warn "Failed to parse pubid `#{text}`: #{e.message}"
-          nil
         end
 
         def normalize_ref(text)

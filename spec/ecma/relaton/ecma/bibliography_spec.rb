@@ -133,21 +133,22 @@ describe Relaton::Ecma::Bibliography do
     it "requires the reference to parse whole" do
       # The old regex was unanchored at the end, so trailing text after a valid
       # prefix was ignored and `ECMA-6 (draft)` still resolved to ECMA-6.
-      allow(Relaton.logger_pool).to receive(:warn)
       expect(match("ECMA-6")).to eq "data/ecma-6-6.yaml"
-      expect(match("ECMA-6 (draft)")).to be_nil
-      expect(match("ECMA-6:1991")).to be_nil
+      expect { match("ECMA-6 (draft)") }.to raise_error Pubid::Errors::ParseError
+      expect { match("ECMA-6:1991") }.to raise_error Pubid::Errors::ParseError
     end
 
     it "tolerates surrounding whitespace" do
       expect(match(" ECMA-6 ")).to eq "data/ecma-6-6.yaml"
     end
 
-    it "warns and finds nothing when pubid cannot parse the reference" do
-      # `Util.warn` reaches the logger through `method_missing`, so the
-      # expectation goes on the pool rather than on `Util`.
-      expect(Relaton.logger_pool).to receive(:warn).with(/Failed to parse pubid/, any_args)
-      expect(match("not an identifier")).to be_nil
+    # An unrecognized reference RAISES -- like ISO, ETSI and 3GPP, relaton lets
+    # it propagate so a caller can tell "malformed identifier" from "no such
+    # document". relaton-cli rescues Parslet::ParseFailed, which
+    # Pubid::Errors::ParseError is.
+    it "raises when pubid cannot parse the reference" do
+      expect { match("not an identifier") }
+        .to raise_error Pubid::Errors::ParseError
     end
   end
 end

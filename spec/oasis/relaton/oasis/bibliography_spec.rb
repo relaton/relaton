@@ -74,12 +74,10 @@ RSpec.describe Relaton::Oasis::Bibliography do
       expect(match("OASIS no-such-specification")).to be_nil
     end
 
-    it "returns nil, and warns, when pubid cannot parse the reference" do
-      # Util.warn reaches the logger through method_missing, so the
-      # expectation goes on the pool rather than on Util.
-      expect(Relaton.logger_pool).to receive(:warn)
-        .with(/Failed to parse pubid/, any_args)
-      expect(match("")).to be_nil
+    # An unrecognized reference RAISES -- relaton lets it propagate so a caller
+    # can tell a malformed identifier from an absent document.
+    it "raises when pubid cannot parse the reference" do
+      expect { match("") }.to raise_error Pubid::Errors::ParseError
     end
 
     # v1 matched by substring, so a partial name resolved to some record;
