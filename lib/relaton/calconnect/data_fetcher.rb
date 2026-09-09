@@ -4,6 +4,11 @@ require "json"
 require "mechanize"
 require "relaton/core"
 require "relaton/index"
+# The flavor top-level, for INDEXFILE and ::Pubid::Calconnect::Identifier.
+# `relaton-data-calconnect`'s crawler requires THIS file and nothing else, so
+# without it `#index` NameErrors on the very first document. (The ECMA form;
+# the same invariant the processor's `remove_index_file` follows.)
+require_relative "../calconnect"
 require_relative "scraper"
 require_relative "util"
 
@@ -18,8 +23,18 @@ module Relaton::Calconnect
       @etagfile ||= File.join @output, "etag.txt"
     end
 
+    # The pubid `index-v2` this crawl builds.
+    #
+    # `pubid_class:` is required on the producer too: `FileIO#save` calls
+    # `to_hash` only for instances of it, so without it the crawl writes
+    # v1-shaped rows under a v2 name, silently, and the consumer then rejects
+    # the whole index. Memoized with `||=` — re-creating the Type on every call
+    # evicts the pooled entry a suite (or a sibling call site) set up.
     def index
-      @index = Relaton::Index.find_or_create :CC, file: "index-v1.yaml"
+      @index ||= Relaton::Index.find_or_create(
+        :CC, file: "#{INDEXFILE}.yaml",
+             pubid_class: ::Pubid::Calconnect::Identifier
+      )
     end
 
     def log_error(msg)
@@ -77,15 +92,63 @@ module Relaton::Calconnect
         Util.warn "#{output_file slug} exist; writing #{file} instead"
       end
       @files << file
-      index.add_or_update primary_docid(bib), file
+      # Write first, index second: an id pubid rejects is skipped from the
+      # index, and the document still has to reach disk.
       File.write file, serialize(bib), encoding: "UTF-8"
+      add_to_index bib, file
     end
 
-    # Index entries are keyed by the canonical doc identifier
-    # (e.g. "CC/DIR 10005:2019"), not the upstream slug used for filenames.
+    #
+    # Index the document, or record why it could not be indexed.
+    #
+    # An id pubid cannot rebuild is recorded in `@errors` — the inherited
+    # `report_errors` logs a String value as the message, and its GhIssue
+    # channel opens a GitHub issue at the end of the crawl — and the row is
+    # skipped rather than indexed unparsed: `Relaton::Index` rejects the WHOLE
+    # index if a single row fails to deserialize, and its sort calls
+    # `.root.number` on every id. The data file is already written by the
+    # caller, so the document is unindexed, never lost. (The ECMA/W3C shape.)
+    #
+    # @param bib [Relaton::Calconnect::ItemData]
+    # @param file [String] path the document was written to
+    #
+    def add_to_index(bib, file)
+      id = index_id bib
+      return index.add_or_update(id, file) if id
+
+      docid = primary_docid(bib)&.content || file
+      @errors[docid.to_s] = "Unparseable primary id `#{docid}` was not indexed (#{file})"
+    end
+
+    #
+    # The index key: the primary docidentifier's own
+    # `Pubid::Calconnect::Identifier`.
+    #
+    # Taken from the parsed model, never re-parsed from a rendered string, and
+    # never mutated — unlike ECMA, the CalConnect index key IS the document's
+    # printed id (`CC/DIR 10005:2019`), because pubid renders the publisher by
+    # default and the flavor models no edition or volume. There is no
+    # index-only component to add and none to strip.
+    #
+    # It is still **duplicated**, for a different reason than ECMA's: the index
+    # holds the object, and `Docidentifier#remove_date!` mutates the identifier
+    # in place. Sharing it would let anything that asks a crawled record for its
+    # most-recent reference rewrite an already-indexed key, between
+    # `add_or_update` and `index.save`, with nothing to show for it.
+    #
+    # @param bib [Relaton::Calconnect::ItemData]
+    # @return [Pubid::Calconnect::Identifier, nil] nil if pubid rejects the docid
+    #
+    def index_id(bib)
+      primary_docid(bib)&.pubid&.dup
+    end
+
+    # The docidentifier the index is keyed on — the canonical one
+    # (e.g. "CC/DIR 10005:2019"), never the upstream slug used for filenames.
+    # Every published record carries exactly one, marked primary; the fallback
+    # is for a record that marks none.
     def primary_docid(bib)
-      docid = bib.docidentifier.find(&:primary) || bib.docidentifier.first
-      docid.content
+      bib.docidentifier.find(&:primary) || bib.docidentifier.first
     end
 
     def to_yaml(bib) = bib.to_yaml

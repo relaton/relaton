@@ -445,6 +445,30 @@ regex back.
   as integers, then lowest volume; a string compare made `"9"` beat `"17"` and
   returned the older document in 5 of 421 families. See
   `lib/relaton/ecma/CLAUDE.md`.
+  **CalConnect** is the same shape and the cheapest instance of it: its
+  `INDEXFILE` is the pubid `index-v2` (`_type: pubid:calconnect:standard`, via
+  `pubid_class: ::Pubid::Calconnect::Identifier`), and this gem no longer
+  produces the legacy `index-v1` (how `relaton-data-calconnect` rebuilds it is
+  the one way this flavor departs from the others — see the end of this
+  paragraph). **No pubid change was needed** —
+  `Pubid::Calconnect` already parses all 191 published ids, round-trips `to_s`
+  to the published string exactly, and renders 191 distinct keys. It also needs
+  no render flags at all: pubid prints the publisher by default and the flavor
+  models no edition or volume, so the index key and the document's own printed
+  id are one string — the opposite of both ECMA (opts two out) and 3GPP (opts
+  one in). Its number is a plain `String` to keep leading zeros (`0001`) and
+  sub-numbers (`0812-1`, `0707.1`) in one token; CalConnect models no part, so
+  `Docidentifier#remove_part!` is a no-op **by design**. The consumer narrows
+  with `matches?`, ignoring only the date; the series is never ignorable, and
+  neither is its absence (`CC 36010` must not match `CC/WD 36010`). That ended
+  a silently ambiguous substring scan in which `CC/DIR 1000` answered with five
+  documents. Ordering is newest-date-first and had to be made explicit: rows
+  sharing a number arrive unordered, so a bare `CC/S 0601` used to return an
+  arbitrary one of its two years. `relaton-data-calconnect` is the one data repo
+  that does **not** derive `index-v1` from the v2 rows — it rebuilds it from
+  each document's own primary docidentifier, so its v1 never depends on pubid
+  and this gem carries no v1 fixture and no v1 assertion. See
+  `lib/relaton/calconnect/CLAUDE.md`.
   The index schema
   and data-repo publishing/Pages contract are specified in
   `docs/data-repository-format.adoc`; see also `lib/relaton/index/CLAUDE.md`.

@@ -1,6 +1,28 @@
+require "open3"
 require "relaton/calconnect/data_fetcher"
 
 RSpec.describe Relaton::Calconnect::DataFetcher do
+  # relaton-data-calconnect's crawler.rb requires THIS file and nothing else,
+  # so every constant #index touches has to be reachable from it alone. The
+  # check runs in a clean subprocess because the suite loads
+  # `relaton/calconnect` through spec_helper, which would define the constants
+  # anyway and mask the failure. (The `spec/relaton/lazy_loading_spec.rb`
+  # idiom; the invariant is the one the root CLAUDE.md states for processors.)
+  it "builds its index from a bare require of data_fetcher" do
+    script = <<~RUBY
+      $LOAD_PATH.replace(#{$LOAD_PATH.inspect})
+      require "relaton/calconnect/data_fetcher"
+      fetcher = Relaton::Calconnect::DataFetcher.new "data", "yaml"
+      io = fetcher.index.instance_variable_get(:@file_io)
+      unless io.pubid_class == ::Pubid::Calconnect::Identifier
+        abort "FAIL: pubid_class was \#{io.pubid_class.inspect}"
+      end
+      print "COLD_REQUIRE_PASS"
+    RUBY
+    out, = Open3.capture2e(RbConfig.ruby, "-e", script)
+    expect(out).to include("COLD_REQUIRE_PASS")
+  end
+
   context "instance methods" do
     subject { described_class.new "data", "yaml" }
     let(:files) { subject.instance_variable_get :@files }
@@ -9,8 +31,27 @@ RSpec.describe Relaton::Calconnect::DataFetcher do
       expect(subject.etagfile).to eq "data/etag.txt"
     end
 
-    it "#index" do
-      expect(subject.index).to be_instance_of Relaton::Index::Type
+    context "#index" do
+      it "is a pooled index type" do
+        expect(subject.index).to be_instance_of Relaton::Index::Type
+      end
+
+      # Without `pubid_class:` here, FileIO#save calls `to_hash` only for
+      # instances of it, so the crawl writes v1-shaped rows under a v2 name —
+      # silently, and the consumer then rejects the whole index.
+      it "is the pubid index-v2, on the producer side too" do
+        expect(Relaton::Index).to receive(:find_or_create).with(
+          :CC, file: "index-v2.yaml",
+               pubid_class: ::Pubid::Calconnect::Identifier
+        )
+        subject.index
+      end
+
+      # It used to re-create the Type on every call (`@index =`, not `||=`),
+      # which evicts the pooled entry a suite or a sibling call set up.
+      it "is memoized" do
+        expect(subject.index).to equal subject.index
+      end
     end
 
     it "#fetch" do
@@ -58,27 +99,124 @@ RSpec.describe Relaton::Calconnect::DataFetcher do
       end
     end
 
+    # The index key is a `Pubid::Calconnect::Identifier`, taken from the primary
+    # docidentifier's own parsed pubid. No mutation and no `dup`: unlike ECMA,
+    # the CalConnect index key IS the document's printed id, so there is no
+    # index-only component to add.
+    context "#index_id" do
+      def item(*contents)
+        docids = contents.map.with_index do |content, i|
+          Relaton::Calconnect::Docidentifier.new content: content, primary: i.zero?
+        end
+        Relaton::Calconnect::ItemData.new docidentifier: docids
+      end
+
+      it "is the primary docidentifier's pubid" do
+        id = subject.send(:index_id, item("CC/DIR 1234:2019"))
+        expect(id).to be_a ::Pubid::Calconnect::Identifier
+        expect(id.to_s).to eq "CC/DIR 1234:2019"
+      end
+
+      it "prefers the primary docidentifier over the first" do
+        bib = item("CC/DIR 1234:2019", "CC/WD 9999:2001")
+        bib.docidentifier[0].primary = false
+        bib.docidentifier[1].primary = true
+        expect(subject.send(:index_id, bib).to_s).to eq "CC/WD 9999:2001"
+      end
+
+      it "falls back to the first docidentifier when none is primary" do
+        bib = item("CC/DIR 1234:2019")
+        bib.docidentifier[0].primary = nil
+        expect(subject.send(:index_id, bib).to_s).to eq "CC/DIR 1234:2019"
+      end
+
+      it "is nil when pubid rejects the docid" do
+        bib = nil
+        expect { bib = item("not an identifier") }.to output(/ERROR/).to_stderr_from_any_process
+        expect(subject.send(:index_id, bib)).to be_nil
+      end
+
+      it "is nil when there is no docidentifier at all" do
+        expect(subject.send(:index_id, Relaton::Calconnect::ItemData.new)).to be_nil
+      end
+
+      # The index holds this object, and `Docidentifier#remove_date!` mutates in
+      # place, so a shared one would let a later most-recent-reference call
+      # rewrite an already-indexed key.
+      it "does not alias the record's own pubid" do
+        bib = item("CC/DIR 1234:2019")
+        id = subject.send(:index_id, bib)
+        expect(id).not_to equal bib.docidentifier.first.pubid
+        bib.docidentifier.first.remove_date!
+        expect(id.to_s).to eq "CC/DIR 1234:2019"
+      end
+    end
+
     context "#write_doc" do
-      let(:primary_docid) { double("docid", content: "CC/DIR 1234:2019", primary: true) }
       let(:bib) do
-        instance_double Relaton::Calconnect::ItemData, docidentifier: [primary_docid]
+        Relaton::Calconnect::ItemData.new(
+          docidentifier: [
+            Relaton::Calconnect::Docidentifier.new(content: "CC/DIR 1234:2019", primary: true),
+          ],
+        )
       end
 
       before do
         expect(subject).to receive(:serialize).with(bib).and_return :yaml
-        expect(subject.index).to receive(:add_or_update)
-          .with("CC/DIR 1234:2019", "data/cc-dir-1234.yaml")
         expect(File).to receive(:write).with("data/cc-dir-1234.yaml", :yaml, encoding: "UTF-8")
       end
 
-      it "keys the index by the primary docid, not the slug" do
+      it "keys the index by the primary docid's pubid, not the slug" do
+        expect(subject.index).to receive(:add_or_update) do |id, file|
+          expect(id).to be_a ::Pubid::Calconnect::Identifiers::Standard
+          expect(id.to_s).to eq "CC/DIR 1234:2019"
+          expect(file).to eq "data/cc-dir-1234.yaml"
+        end
         subject.send(:write_doc, "cc-dir-1234", bib)
         expect(files).to include "data/cc-dir-1234.yaml"
       end
 
       it "warn if file exist" do
+        allow(subject.index).to receive(:add_or_update)
         files << "data/cc-dir-1234.yaml"
         expect { subject.send(:write_doc, "cc-dir-1234", bib) }.to output(/exist/).to_stderr_from_any_process
+      end
+    end
+
+    # `Relaton::Index` rejects the WHOLE index if one row fails to deserialize,
+    # so an id pubid cannot rebuild is skipped rather than indexed unparsed. The
+    # data file is still written — the document is unindexed, never lost — and
+    # the failure is recorded in @errors, which report_errors logs and its
+    # GhIssue channel turns into a GitHub issue at the end of the crawl.
+    context "an unparseable primary id" do
+      let(:bib) do
+        bib = nil
+        expect do
+          bib = Relaton::Calconnect::ItemData.new(
+            docidentifier: [
+              Relaton::Calconnect::Docidentifier.new(content: "CC-DIR-1234", primary: true),
+            ],
+          )
+        end.to output(/ERROR/).to_stderr_from_any_process
+        bib
+      end
+
+      it "is recorded in @errors, skipped from the index, and still written" do
+        expect(subject).to receive(:serialize).with(bib).and_return :yaml
+        expect(File).to receive(:write).with("data/cc-dir-1234.yaml", :yaml, encoding: "UTF-8")
+        expect(subject.index).not_to receive(:add_or_update)
+        subject.send(:write_doc, "cc-dir-1234", bib)
+        expect(subject.instance_variable_get(:@errors)["CC-DIR-1234"])
+          .to eq "Unparseable primary id `CC-DIR-1234` was not indexed (data/cc-dir-1234.yaml)"
+      end
+
+      it "reaches report_errors, which opens the GitHub issue" do
+        allow(subject).to receive(:serialize).and_return :yaml
+        allow(File).to receive(:write)
+        subject.send(:write_doc, "cc-dir-1234", bib)
+        expect(subject).to receive(:log_error)
+          .with("Unparseable primary id `CC-DIR-1234` was not indexed (data/cc-dir-1234.yaml)")
+        subject.report_errors
       end
     end
 
@@ -122,11 +260,19 @@ RSpec.describe Relaton::Calconnect::DataFetcher do
       subject.send(:etag=, "1234")
     end
 
-    it "#report_errors" do
+    # The other branch of `Core::DataFetcher#report_errors`: a boolean value
+    # means "this field failed for every record" and its message is derived from
+    # the key, where a String value IS the message (covered above by the
+    # unparseable-id example). A false value is not reported at all.
+    #
+    # This used to stub `report_errors` on the subject and then call the stub,
+    # so it passed whatever the method did.
+    it "#report_errors derives a message from the key for a boolean error" do
       errors = subject.instance_variable_get(:@errors)
       errors[:title] = false
       errors[:date] = true
-      expect(subject).to receive(:report_errors)
+      expect(subject).to receive(:log_error).with("Failed to fetch date")
+      expect(subject).not_to receive(:log_error).with(/title/)
       subject.report_errors
     end
   end
