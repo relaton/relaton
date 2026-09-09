@@ -12,6 +12,7 @@ module Relaton
         @defaultprefix = %r{^XEP\s}
         @idtype = "XEP"
         @datasets = %w[xep-xmpp]
+        @pubid_flavor = :Xsf
       end
 
       def get(code, date, opts)
@@ -42,7 +43,8 @@ module Relaton
       def remove_index_file
         require_relative "../xsf"
         Relaton::Index.find_or_create(
-          :xsf, url: true, file: "#{INDEXFILE}.yaml"
+          :xsf, url: true, file: "#{INDEXFILE}.yaml",
+          pubid_class: ::Pubid::Xsf::Identifier
         ).remove_file
       end
     end

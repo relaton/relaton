@@ -80,6 +80,18 @@ namespace :spec do
     puts "Wrote #{count} rows to #{path}"
   end
 
+  # Refresh the XSF suite's offline index. Copies the whole published index and
+  # converts each string id to its pubid hash — see tasks/index_fixture_xsf.rb
+  # for the two non-document rows it drops.
+  desc "Refresh spec/xsf/fixtures/index-v2.zip from relaton-data-xsf"
+  task :update_index_xsf do
+    require_relative "tasks/index_fixture_xsf"
+    require_relative "lib/relaton/xsf"
+    path = "spec/xsf/fixtures/#{Relaton::Xsf::INDEXFILE}.zip"
+    count = IndexFixtureXsf.build(path)
+    puts "Wrote #{count} rows to #{path}"
+  end
+
   # Refresh the ECMA suite's offline index. Copies the whole published index
   # (804 rows) verbatim — see tasks/index_fixture_ecma.rb for why it is not
   # curated.

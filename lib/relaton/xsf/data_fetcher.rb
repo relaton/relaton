@@ -3,8 +3,26 @@ require "relaton/core"
 module Relaton
   module Xsf
     class DataFetcher < Relaton::Core::DataFetcher
+      # `Core::DataFetcher#log_error` raises unless the flavor overrides it, so
+      # `report_errors` is unusable without this. (The ECMA precedent.)
+      # Entries the crawled source carries that are not documents: the XEP
+      # repository's `README` and its `xep-xxxx` template. pubid rejects both,
+      # they appear on every crawl, and nothing upstream is going to change —
+      # so they are skipped without being reported. Anything else pubid rejects
+      # is a surprise and must surface.
+      NON_DOCUMENTS = ["XEP README", "XEP xxxx"].freeze
+
+      def log_error(msg)
+        Util.error msg
+      end
+
       def index
-        @index ||= Relaton::Index.find_or_create :xsf, file: "#{INDEXFILE}.yaml"
+        # `pubid_class:` on the producer too: FileIO#save only calls `to_hash`
+        # when the value is an instance of it, so without it the crawl writes
+        # v1-shaped rows under a v2 name, silently.
+        @index ||= Relaton::Index.find_or_create(
+          :xsf, file: "#{INDEXFILE}.yaml", pubid_class: ::Pubid::Xsf::Identifier
+        )
       end
 
       def fetch(_source = nil)
@@ -18,6 +36,7 @@ module Relaton
           Util.warn "Failed to parse #{link[:href]}: #{e.message}"
         end
         index.save
+        report_errors
       end
 
       def save_doc(bib)
@@ -42,7 +61,39 @@ module Relaton
         end
         @files << file
         File.write file, serialize(bib), encoding: "UTF-8"
-        index.add_or_update id, file
+        add_to_index id, file
+      end
+
+      #
+      # Index a document under its pubid, skipping one pubid cannot parse.
+      #
+      # This guard is not optional here. One unparseable row does not fail that
+      # row: `Relaton::Index` declares the **whole file** corrupt, deletes it,
+      # and hands back an **empty** index. Measured — 518 good rows plus one
+      # `XEP README` loads as 0 rows, and the only trace is two INFO lines
+      # ("Wrong structure of file …", "Considering … corrupt, removing it"). So
+      # indexing one bad row silently breaks every XSF lookup, not just its own.
+      #
+      # An **unexpected** rejection is recorded in `@errors`, which
+      # `report_errors` turns into a GitHub issue at the end of the crawl (the
+      # 3GPP/ECMA precedent). The two entries in `NON_DOCUMENTS` are expected on
+      # every crawl, so they are skipped silently — reporting them would file
+      # the same issue daily and train everyone to ignore it.
+      #
+      # The data file is written either way, so the document is unindexed, never
+      # lost. `relaton-data-xsf` relies on that: it builds its legacy `index-v1`
+      # from `data/`, so both entries survive there while staying out of v2.
+      #
+      # @param docid [String]
+      # @param file [String]
+      #
+      def add_to_index(docid, file)
+        index.add_or_update ::Pubid::Xsf::Identifier.parse(docid), file
+      rescue StandardError => e
+        return if NON_DOCUMENTS.include?(docid)
+
+        @errors[docid] =
+          "Unparseable primary id `#{docid}` was not indexed (#{e.message})"
       end
 
       def to_yaml(bib)
