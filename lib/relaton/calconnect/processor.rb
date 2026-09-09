@@ -59,13 +59,15 @@ module Relaton::Calconnect
     #
     # Remove index file
     #
-    # INDEXFILE_V1, and no `pubid_class:`: this removes what the RUNTIME cached,
-    # and the runtime still reads the legacy v1 (see HitCollection). It flips to
-    # INDEXFILE with `pubid_class:` in the consumer commit.
+    # Carries `pubid_class:` like the other two index call sites, so all three
+    # name the same index in the same shape.
     #
     def remove_index_file
       require_relative "../calconnect"
-      Relaton::Index.find_or_create(:CC, url: true, file: "#{INDEXFILE_V1}.yaml").remove_file
+      Relaton::Index.find_or_create(
+        :CC, url: true, file: "#{INDEXFILE}.yaml",
+             pubid_class: ::Pubid::Calconnect::Identifier
+      ).remove_file
     end
   end
 end

@@ -17,17 +17,12 @@ require_relative "calconnect/scraper"
 
 module Relaton
   module Calconnect
-    # The index this flavor BUILDS: pubid-keyed rows
+    # The one index this flavor builds and reads: pubid-keyed rows
     # (`_type: pubid:calconnect:standard`), via
     # `pubid_class: ::Pubid::Calconnect::Identifier`.
+    # `relaton-data-calconnect`'s crawler derives the legacy `index-v1` from
+    # these rows for released consumers, so it is not produced or read here.
     INDEXFILE = "index-v2".freeze
-
-    # The index this flavor still READS. Temporary, and a read-side name only —
-    # not a second published index. `relaton-data-calconnect` publishes no
-    # `index-v2.zip` yet, so the runtime keeps reading the legacy v1 until it
-    # does. The consumer commit points the read path at INDEXFILE and deletes
-    # this constant. See lib/relaton/calconnect/CLAUDE.md.
-    INDEXFILE_V1 = "index-v1".freeze
 
     # Returns hash of XML reammar
     # @return [String]

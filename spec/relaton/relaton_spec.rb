@@ -289,11 +289,32 @@ RSpec.describe Relaton::Db do
     expect(bib).to be_instance_of Relaton::Ogc::ItemData
   end
 
+  # Routing, not retrieval — the OGC example above is the shape. This used to
+  # drive a real index download through a cassette, which duplicated
+  # spec/calconnect's coverage and rotted the moment the flavor moved its
+  # INDEXFILE to the pubid index-v2: the cassette still held the dead
+  # index-v1.zip, so VCR raised UnhandledHTTPRequestError even though nothing
+  # about routing had changed. (The same way f7ae1d721 broke db_spec.rb's BIPM
+  # example; see the umbrella-spec note in CLAUDE.md.)
   it "get Calconnect refrence and cache it" do
-    VCR.use_cassette "cc_dir_10005_2019", match_requests_on: [:path] do
-      bib = @db.fetch "CC/DIR 10005:2019", nil, {}
-      expect(bib).to be_instance_of Relaton::Calconnect::ItemData
-    end
+    docid = Relaton::Bib::Docidentifier.new(content: "CC/DIR 10005:2019",
+                                            type: "CalConnect", primary: true)
+    item = Relaton::Calconnect::ItemData.new(
+      docidentifier: [docid], fetched: Date.today.to_s,
+    )
+    # Fetched TWICE against a single-call `receive(:get)` expectation, which is
+    # what makes the "and cache it" in the title true: a second trip to the
+    # flavor would fail the example. (The ISO example above is the same shape.)
+    expect(Relaton::Calconnect::Bibliography).to receive(:get)
+      .with("CC/DIR 10005:2019", nil, {}).once.and_return item
+
+    bib = @db.fetch "CC/DIR 10005:2019", nil, {}
+    expect(bib).to be_instance_of Relaton::Calconnect::ItemData
+    expect(bib.docidentifier.first.content.to_s).to eq "CC/DIR 10005:2019"
+
+    cached = @db.fetch "CC/DIR 10005:2019", nil, {}
+    expect(cached).to be_instance_of Relaton::Calconnect::ItemData
+    expect(cached.docidentifier.first.content.to_s).to eq "CC/DIR 10005:2019"
   end
 
   it "get OMG reference" do

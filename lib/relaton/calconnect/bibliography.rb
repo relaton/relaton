@@ -20,26 +20,21 @@ module Relaton::Calconnect
       # @option opts [TrueClass, FalseClass] :bibdata
       #
       # @return [RelatonCalconnect::CcBibliographicItem]
-      def get(ref, year = nil, opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-        code = ref
-
-        if year.nil?
-          /^(?<code1>[^\s]+(?:\s\w+)?\s[\d-]+):?(?<year1>\d{4})?/ =~ ref
-          unless code1.nil?
-            code = code1
-            year = year1
-          end
-        end
-
+      # The reference is no longer split by regex before searching. pubid parses
+      # `CC/DIR 10005:2019` whole, so a dated reference narrows to that row in
+      # the index itself; the `year` ARGUMENT is what still needs filtering
+      # afterwards, because an undated reference reaches every year of the
+      # document. That split is why `bib_results_filter` stays.
+      def get(ref, year = nil, opts = {})
         Util.info "Fetching from Relaton repository ...", key: ref
-        result = search(code, year, opts) || (return nil)
+        result = search(ref, year, opts) || (return nil)
         ret = bib_results_filter(result, year)
         if ret[:ret]
           Util.info "Found: `#{ret[:ret].docidentifier.first.content}`", key: ref
           ret[:ret]
         else
           Util.info "Not found.", key: ref
-          fetch_ref_err(code, year, ret[:years])
+          fetch_ref_err(ref, year, ret[:years])
         end
       end
 
@@ -63,7 +58,10 @@ module Relaton::Calconnect
           item.fetched = Date.today.to_s
           return { ret: item } if !year
 
-          /:(?<id_year>\d{4})$/ =~ r.hit[:id]
+          # The row id is a `Pubid::Calconnect::Identifier` now, so the year is
+          # read off the identifier rather than scraped from a rendered string.
+          # The old `/:(\d{4})$/` regex would raise TypeError against it.
+          id_year = r.hit[:id].date&.year
           return { ret: item } if year.to_i == id_year.to_i
 
           missed_years << id_year.to_i if id_year

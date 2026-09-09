@@ -13,64 +13,62 @@ require "zip"
 # single row fails to deserialize, so `from_hash(to_hash)` has to hold for every
 # row, not most of them.
 #
-# The corpus is the suite's own committed index fixture — the ids
-# `relaton-data-calconnect` publishes today. It runs offline; it is the check to
-# re-run whenever the fixture is refreshed.
+# The corpus is `index-v2.zip`, the suite's verbatim copy of the published
+# index — the same rows the runtime deserializes. It runs offline; re-run it
+# whenever the fixture is refreshed.
+#
+# The legacy `index-v1` is deliberately NOT a fixture here. It exists only for
+# released relaton v2 clients, and `relaton-data-calconnect` builds it from each
+# crawled document's own docidentifier rather than from these rows, so this gem
+# neither produces it nor reads it and has nothing to assert about it.
 
-# Namespaced, and read once: a constant assigned inside an `RSpec.describe`
-# block lands on Object, and this suite shares a process with the rest of
-# spec/calconnect.
-module CalconnectPublishedIds
-  def self.all
-    @all ||= Zip::File.open(
+module CalconnectFixtures
+  # The runtime rows: v2 hashes deserialized exactly as Relaton::Index does.
+  def self.identifiers
+    @identifiers ||= Zip::File.open(
       File.join(__dir__, "..", "..", "fixtures",
-                "#{Relaton::Calconnect::INDEXFILE_V1}.zip"),
+                "#{Relaton::Calconnect::INDEXFILE}.zip"),
     ) do |zip|
-      YAML.safe_load(zip.first.get_input_stream.read, permitted_classes: [Symbol])
-    end.map { |row| row[:id] }.freeze
-  end
-
-  def self.parsed
-    @parsed ||= all.map { |id| ::Pubid::Calconnect::Identifier.parse id }.freeze
+      YAML.safe_load zip.first.get_input_stream.read, permitted_classes: [Symbol]
+    end.map { |row| ::Pubid::Calconnect::Identifier.from_hash row[:id] }.freeze
   end
 end
 
 RSpec.describe "the CalConnect index key" do
-  let(:ids) { CalconnectPublishedIds.all }
-  let(:pubids) { CalconnectPublishedIds.parsed }
+  let(:pubids) { CalconnectFixtures.identifiers }
 
   it "has a corpus worth measuring" do
-    expect(ids.size).to be > 150
+    expect(pubids.size).to be > 150
   end
 
-  it "parses every published id" do
-    unparseable = ids.filter_map do |id|
-      ::Pubid::Calconnect::Identifier.parse id
-      nil
-    rescue StandardError => e
-      "#{id} (#{e.message})"
-    end
-    expect(unparseable).to be_empty
+  it "deserializes every row into an identifier, not a raw hash" do
+    expect(pubids).to all(be_a(::Pubid::Calconnect::Identifier))
   end
 
   it "renders one distinct key per row" do
-    expect(pubids.map(&:to_s).uniq.size).to eq ids.size
-  end
-
-  # The document's own printed id and the index key are the same string for this
-  # flavor, so `to_s` has to reproduce the source exactly. If it ever stops, the
-  # v1 index derived in relaton-data-calconnect stops matching the published one.
-  it "round-trips to_s back to the published string" do
-    expect(pubids.map(&:to_s)).to eq ids
-  end
-
-  it "round-trips every row through to_hash/from_hash" do
-    rebuilt = pubids.map { |p| ::Pubid::Calconnect::Identifier.from_hash p.to_hash }
-    expect(rebuilt.map(&:to_s)).to eq ids
+    expect(pubids.map(&:to_s).uniq.size).to eq pubids.size
   end
 
   it "never keys the index bsearch on an empty number" do
     expect(pubids.map { |p| p.root.number.to_s }).to all(satisfy { |n| !n.empty? })
+  end
+
+  it "round-trips every row through to_hash/from_hash" do
+    rebuilt = pubids.map { |p| ::Pubid::Calconnect::Identifier.from_hash p.to_hash }
+    expect(rebuilt.map(&:to_s)).to eq pubids.map(&:to_s)
+  end
+
+  # The renderer and the parser have to agree: `HitCollection` parses a
+  # reference and compares it against these rows, so a row whose own rendered
+  # form no longer parses back to it would be unreachable by its own id.
+  it "parses every rendered key back to the same identifier" do
+    mismatched = pubids.filter_map do |id|
+      back = ::Pubid::Calconnect::Identifier.parse id.to_s
+      back.to_s == id.to_s ? nil : "#{id} -> #{back}"
+    rescue StandardError => e
+      "#{id} (#{e.message})"
+    end
+    expect(mismatched).to be_empty
   end
 
   # The shapes that would break a naive grammar, each present in the corpus.
@@ -99,9 +97,13 @@ RSpec.describe "the CalConnect index key" do
       expect(pubid("CC 18011:2018").series).to be_nil
     end
 
-    # The two collision risks the corpus actually contains.
+    # The three collision risks the corpus actually contains.
     it "keeps two series with one number apart" do
       expect(pubid("CC/CD 51016:2018")).not_to eq pubid("CC/WD 51016:2018")
+    end
+
+    it "keeps a series-less id apart from a seried one" do
+      expect(pubid("CC 36010:2026")).not_to eq pubid("CC/WD 36010:2019")
     end
 
     it "keeps two years of one document apart" do
@@ -109,8 +111,7 @@ RSpec.describe "the CalConnect index key" do
     end
   end
 
-  # The narrowing the consumer will do: ignore exactly what the reference left
-  # out. `series` is never ignorable — it is what tells CC/CD from CC/WD.
+  # The narrowing the consumer does: ignore exactly what the reference left out.
   context "matches?" do
     def pubid(id) = ::Pubid::Calconnect::Identifier.parse(id)
 

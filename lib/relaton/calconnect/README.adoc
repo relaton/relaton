@@ -123,9 +123,11 @@ After checking out the repo, run `bin/setup` to install dependencies. Then, run 
 
 == Index
 
-The data fetcher builds a pubid-backed `index-v2`, whose rows are `Pubid::Calconnect::Identifier` objects serialized as `_type: pubid:calconnect:standard`. The legacy `index-v1` is no longer produced here; https://github.com/relaton/relaton-data-calconnect[relaton-data-calconnect] derives it from the v2 rows for released relaton v2 clients. Until that repository publishes an `index-v2.zip`, lookups still read `index-v1`.
+Lookups read a pubid-backed `index-v2`, whose rows are `Pubid::Calconnect::Identifier` objects serialized as `_type: pubid:calconnect:standard`. A reference is parsed into an identifier and matched against the index structurally, so a number matches exactly rather than as a substring: `CC/DIR 1000` finds nothing, `CC/DIR 10005` finds the one document, and `CC/A 0001` is not `CC/A 1`. An undated reference reaches every year of a document and the most recent is returned first.
 
-The test fixture is `spec/calconnect/fixtures/index-v1.zip`, a copy of the published index. There is no rake task to refresh it yet; one arrives with the consumer half.
+The legacy `index-v1` is no longer produced here; https://github.com/relaton/relaton-data-calconnect[relaton-data-calconnect] rebuilds it from each crawled document's own docidentifier for released relaton v2 clients.
+
+To refresh the index test fixture, run `rake spec:update_index_calconnect`. This downloads the published `index-v2.zip` from the https://github.com/relaton/relaton-data-calconnect[relaton-data-calconnect] repository.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
