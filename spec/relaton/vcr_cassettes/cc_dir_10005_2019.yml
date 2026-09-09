@@ -23,7 +23,7 @@ http_interactions:
       Connection:
       - keep-alive
       Content-Length:
-      - '1677'
+      - '1612'
       Cache-Control:
       - max-age=300
       Content-Security-Policy:
@@ -31,7 +31,7 @@ http_interactions:
       Content-Type:
       - application/zip
       Etag:
-      - W/"78a5b4025d37e9be40e0fbc552c00349153e4898bd10679f975265ba980cec7a"
+      - W/"2c20c614640277beae76919f6a7ec9c1514ae07bbfb5abf0ed4ff55924889456"
       Strict-Transport-Security:
       - max-age=31536000
       X-Content-Type-Options:
@@ -41,23 +41,23 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - F82C:2C09DB:585B1A:69F324:6A977AC1
+      - 8660:122747:318D2:3AE9F:6AA172C9
       X-Github-Edge-Region:
       - iad
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 02 Sep 2026 01:30:18 GMT
+      - Wed, 09 Sep 2026 14:52:58 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-kcgs7200160-IAD
+      - cache-pdk-kfty8610022-PDK
       X-Cache:
-      - HIT
+      - MISS
       X-Cache-Hits:
-      - '1'
+      - '0'
       X-Timer:
-      - S1788312619.542048,VS0,VE1
+      - S1788965578.271124,VS0,VE68
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -65,53 +65,51 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 89bb81b7bcd99da67f62a6855916b5a85719725b
+      - 30e97c92a8d5cdc717fb18f14a08db612acdd229
       Expires:
-      - Wed, 02 Sep 2026 01:35:18 GMT
+      - Wed, 09 Sep 2026 14:57:58 GMT
       Source-Age:
-      - '21'
+      - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
-        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
-        AQBTAAAAJAYAAAAA
-  recorded_at: Wed, 02 Sep 2026 01:30:18 GMT
+        UEsDBBQAAAAIAO2MKF2C6go9nAUAAKgqAAANABwAaW5kZXgtdjEueWFtbFVU
+        CQADjoCgao+AoGp1eAsAAQT1AQAABBQAAACF2k1uGzkQBeB9TqELKOnib7d3
+        gxgDzFZeeG1YEyBAZiMNEsztp4tFwYH13vOa/twSq8gmq3Q8Hj8dDw/fzw+H
+        r18PZstiD2lJ5dPh8PDt+4+/Hw7nl39fvry+HsfY0cc+//fyz4/f1bqYK1uB
+        8rGjjyGVhEpQ5bbY4p+w3asx5p+wvVd1/+wr+V5jDH6vti3+KNvukQ/559ve
+        mS9/HJaYwmW5Vy/HJeZwWYCzcAadhTPgUrgEXQqXgCvhwJTsroR7PyfhknKJ
+        u6xc5q4oV5ir8f0qdDW+X4UuKZe4y8pl7opyhbumXONuVW7lblNuo24sWObG
+        iiVOxc94/EzFz3j8TMXPaPxaxB1sSLtrEff3O1K4qlzlrrvrxHV3HbpVPW/l
+        z9uU26iLuBMXcccuKZe4U3EwHgcryhXuVPyMxq/H/oLj12N/QfHrsU8wV7ir
+        ylXqIn7ERfywMz4vPdYtnBdT82J8XiLuzGXu1Hwanc813ivg2LK7Nd4r788t
+        4ZJyibusXOauKFe4a8o17rpynbuxL4FT1nBjX0LnrDX2Jfa8jT4v8pq4yGvs
+        VNyNx31PXSn3YWVV1viwsipzfFhZlT0+rGzVtiqrss+HlVUZ6MPMbrGmcQ5u
+        saZRDm6xpplL3Imc33jOb5HzzG3URc4TFzmPnZoXY/Myr5EG70DzHmngDrQP
+        JeUSd1m5zF1VrnLXlGvcdeU6d6tyK3ebcht1I1+YG/lCnIqD8TiMd7HBu68P
+        ugN3X4s7M3FxZyYuKZe4y8pl7qpylbumXGMuagIGawIWNQEDNYF9KCuXuSvK
+        FeZyxCFDlyMOGbqsXOauKFe4q8pV7ppyjbuuXGcuajoGayUWNR0DtRKLmg51
+        ibusXOauKFe4q8pV7ppyjbuuXGcuak8GawkWtScDtQSL2hN1ibusXOauKFe4
+        q8pV7ppyjbkW8wnvlD7oDtwp96GkXOIuK5e5K8oV7qpylbumXGOux3zCu68P
+        ugN3X4vaBXWJu6xc5q4oV7irylXumnKNuagJoFbGy2hmoF5GONYCGQ72QMJl
+        5TJ3RbnCXVWuMhf3KtRB2V3cq1APxeJeRV3iLiuXsTv/9OovrcKff3r9l9Th
+        3TZe8XLbWM3LbV/6Z2N1KNf7H0R94D7vpv9IC7tpu1HrSb2ylNjxGIdZ8fVx
+        tOMSaeK9nkdHLqE+3s2y3J8WZ/+0LP+nxStg2kpaiNNW1EW82aZtE9ZYSzas
+        wa7szbL39LT4TT1tk3Nljc1V3+PH9t/djmG4kz7+dfI7K900zt8vR5s91Pt1
+        fNNs67hpvHvcNNtAbhrvITddP9BV6vaBblD/+fg0Ki6sWf3tfB1FF9yxPnmH
+        h3VcLt7hwR2X4VjnZDjcOTn5vrOSfefiu84Kd52TV3xZXfHiFV9cVTx51ayQ
+        KtbFq2YFVrGGq8pV7rpynTgvrLAYXkbZhUVw7hGo7jIgrre9OXBvf3N39/bh
+        WJ1uOFynO3k9g9V5Ll7PwHWek79t6Lq8HMconJkn71pX8l6/ete6wrf6cF25
+        zlyjvzq4+prAXes3B9bSm7tbS0++ltjp4eprCZ8chmvKtQ8cWINv7m4NPvma
+        yGRNXH1NZLgmhmvKNeJub3qQoWMzLDBDn7ySlciKuHolK8EV8eQVGyMVm6tX
+        bAxWbJ4fD6mk5KewBJ7463wcw/5+v3vmbnNZ6Iax2zEM18WwfLMZlu02w2Zt
+        s7CNv6jcNvaeeo4zyULOFb/iTLLAc8W0rBYwLa4G/G75c/HNd1q2dU2L965p
+        WT1hWlxReNbnt1/q/DZtH2fOo290IKfnf+jHtz8i/2fTn2ETnyGJPBnDYt7S
+        ODOD98y048x896aZVudJUnmSMl/LY5it5arXRZXr4vYDTBKp228wYYxuP8Pk
+        Flfhp2V1+GlxJT5sxJfM8zrjO+f5f1BLAQIeAxQAAAAIAO2MKF2C6go9nAUA
+        AKgqAAANABgAAAAAAAEAAACkgQAAAABpbmRleC12MS55YW1sVVQFAAOOgKBq
+        dXgLAAEE9QEAAAQUAAAAUEsFBgAAAAABAAEAUwAAAOMFAAAAAA==
+  recorded_at: Wed, 09 Sep 2026 14:52:58 GMT
 - request:
     method: get
     uri: https://raw.githubusercontent.com/relaton/relaton-data-calconnect/refs/heads/v2/data/cc-dir-10005-2019.yaml
@@ -124,7 +122,7 @@ http_interactions:
       Accept:
       - "*/*"
       User-Agent:
-      - Mechanize/2.14.0 Ruby/3.4.7p58 (http://github.com/sparklemotion/mechanize/)
+      - Mechanize/2.14.1 Ruby/3.4.7p58 (http://github.com/sparklemotion/mechanize/)
       Accept-Language:
       - en-us,en;q=0.5
       Host:
@@ -159,7 +157,7 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - D10A:554F9:5D09AF:6EA549:6A977AC1
+      - 58BE:16341D:3428B:3DA21:6AA172C9
       X-Github-Edge-Region:
       - iad
       Content-Encoding:
@@ -167,17 +165,17 @@ http_interactions:
       Accept-Ranges:
       - bytes
       Date:
-      - Wed, 02 Sep 2026 01:30:18 GMT
+      - Wed, 09 Sep 2026 14:52:59 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-iad-khef600063-IAD
+      - cache-pdk-kfty8610031-PDK
       X-Cache:
-      - HIT
+      - MISS
       X-Cache-Hits:
-      - '1'
+      - '0'
       X-Timer:
-      - S1788312619.707334,VS0,VE2
+      - S1788965578.436910,VS0,VE670
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -185,11 +183,11 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - b85bf03961a29e78dd98b98eb66b35675a381bac
+      - ad16c8578a09213e0cb849c151080de59c01cc51
       Expires:
-      - Wed, 02 Sep 2026 01:35:18 GMT
+      - Wed, 09 Sep 2026 14:57:59 GMT
       Source-Age:
-      - '21'
+      - '0'
     body:
       encoding: ASCII-8BIT
       base64_string: |
@@ -203,5 +201,5 @@ http_interactions:
         DKh6S0oO+e7kPsy21fctBzVtl6/jrMzEVtVjK26+17WjfINbum4xvrzIwK/c
         x3mKrPzUXRxcifYiKDeePXV9QrbemYtKFsO82VjL6Pw+F/xrkcdsv0NycP/z
         lacHHnBh0woTiWwajwutEsDtv7WsyTMlLbEL7SAXbikoJf4CQzY5H/ADAAA=
-  recorded_at: Wed, 02 Sep 2026 01:30:18 GMT
+  recorded_at: Wed, 09 Sep 2026 14:52:59 GMT
 recorded_with: VCR 6.4.0
