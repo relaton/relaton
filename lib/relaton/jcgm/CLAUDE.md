@@ -22,7 +22,9 @@ Namespace `Relaton::Jcgm`; require path `relaton/jcgm`. Retrieval flow:
 
 1. **Bibliography** (`bibliography.rb`) — `get`/`search`: parses the reference
    with `::Pubid::Jcgm.parse`, looks it up in the index, fetches the matching
-   YAML over HTTP. `ENDPOINT` points at `relaton-data-jcgm`.
+   YAML over HTTP. `ENDPOINT` points at `relaton-data-jcgm`. An unparseable
+   reference **raises** `Pubid::Errors::ParseError`; the `search` rescue lists
+   transport errors only, so it does not swallow it.
 2. **Index** — `Relaton::Index.find_or_create(:jcgm, url:, file:, pubid_class:
    ::Pubid::Jcgm::Identifier)`. Because rows are stored as `Pubid::Jcgm`
    identifiers, the generated index carries the structured `_type:

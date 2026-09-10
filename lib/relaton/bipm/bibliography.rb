@@ -46,8 +46,6 @@ module Relaton::Bipm
       #
       def get_bipm(reference) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         pubid = parse_ref reference
-        return unless pubid
-
         rows = search_index pubid, reference
         return if rows.empty?
 
@@ -99,6 +97,10 @@ module Relaton::Bipm
       # only after a miss, because `NNNN-NN` is also a real BIPM number
       # (`CIPM 2005-06`), so the literal reading has to be preferred.
       #
+      # The re-read string is a machine-derived probe, not the caller's
+      # reference, so a probe that does not parse is a miss (nil), never a
+      # malformed-reference error -- the same rule as ISO's type/stage probe.
+      #
       # @param reference [String, nil]
       # @return [Pubid::Bipm::Identifier, nil]
       def year_number_retry(reference)
@@ -106,6 +108,8 @@ module Relaton::Bipm
         return unless match
 
         parse_ref "#{match[:stem]} #{match[:number].sub(/\A0+(?=\d)/, '')} (#{match[:year]})"
+      rescue Parslet::ParseFailed
+        nil
       end
 
       # Compare a row's identifier with the query. Index rows are stored
@@ -196,15 +200,16 @@ module Relaton::Bipm
       # accepts the loose consumer forms this flavor once needed `Id` for
       # (`CCDS Recommendation 2 (2009)`, `CIPM 111e Réunion (2022)`,
       # `CCTF Meeting 14 (1999)`, `SI Brochure Part 1`, …) and normalizes them
-      # to BIPM's canonical spelling. A malformed reference is a graceful miss
-      # (nil), not a raised error.
+      # to BIPM's canonical spelling. An unrecognized reference raises; like
+      # ISO and 3GPP we let it propagate -- relaton-cli rescues
+      # Parslet::ParseFailed and renders "... is not a recognized standards
+      # identifier".
       #
       # @param reference [String]
-      # @return [Pubid::Bipm::Identifier, nil]
+      # @return [Pubid::Bipm::Identifier]
+      # @raise [Pubid::Errors::ParseError]
       def parse_ref(reference)
         ::Pubid::Bipm.parse reference
-      rescue StandardError
-        nil
       end
 
       def index

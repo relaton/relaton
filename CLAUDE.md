@@ -491,6 +491,21 @@ regex back.
   The index schema
   and data-repo publishing/Pages contract are specified in
   `docs/data-repository-format.adoc`; see also `lib/relaton/index/CLAUDE.md`.
+- **An unrecognized query reference raises.** A flavor parses the caller's
+  reference with pubid and lets `Pubid::Errors::ParseError` (a
+  `Parslet::ParseFailed`) propagate: relaton-cli rescues it and prints
+  `"…" is not a recognized standards identifier`. Returning nil instead makes
+  "malformed" look like "not found". Rescue a parse only on the data side —
+  a catalogue hit (`Relaton::Bsi::Hit#pubid`), a machine-derived probe
+  (`Relaton::Bipm::Bibliography.year_number_retry`, ISO's type/stage probe),
+  a crawl — and never on a helper that parses both the query and the data:
+  BSI's shared `Bibliography.parse` is how one flavor survived the sweep.
+  Do not wrap `get` in a `rescue StandardError` that relabels errors: it
+  catches the parse error too, and it turns a transport failure into a class
+  that `Relaton::Db#net_retry` does not retry (only `Relaton::RequestError` is
+  retried). Rescue the transport errors by name, as JCGM and Plateau do.
+  Intentional exceptions: IETF (an out-of-flavor ref logs "Not found") and
+  ITU's derived `index_pubid_ref` probe.
 - Don't reintroduce per-flavor gems/gemspecs or the combined-build step — it's
   one gem now.
 - Don't add `relaton-cli` as a runtime dep of `relaton`.

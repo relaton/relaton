@@ -35,20 +35,23 @@ module Relaton::Bsi
         ret
       end
 
-      # Parse a BSI reference with pubid; nil when pubid can't parse it.
+      # Parse a BSI reference with pubid. An unrecognized reference raises;
+      # like ISO and 3GPP we let it propagate -- relaton-cli rescues
+      # Parslet::ParseFailed and renders "... is not a recognized standards
+      # identifier". A catalogue hit code is a different case: `Hit#pubid`
+      # rescues, because one odd Algolia row must not abort the search.
       # @param [String] code document identifier
-      # @return [Pubid::Bsi::Identifier, nil]
+      # @return [Pubid::Bsi::Identifier]
+      # @raise [Pubid::Errors::ParseError]
       def parse(code)
         ::Pubid::Bsi::Identifier.parse(code)
-      rescue StandardError
-        nil
       end
 
       # Publication year of a reference's base document.
       # @param [String] code document identifier
       # @return [String, nil]
       def publication_year(code)
-        parse(code)&.base_document&.year&.to_s
+        year_of parse(code)
       end
 
       # Whether a query and a candidate hit denote the same BSI document, at the
@@ -73,6 +76,12 @@ module Relaton::Bsi
       end
 
       private
+
+      # @param id [Pubid::Bsi::Identifier, nil]
+      # @return [String, nil]
+      def year_of(id)
+        id&.base_document&.year&.to_s
+      end
 
       # Same base document, ignoring the publication date. `:month` is excluded
       # alongside `:date` because Flex identifiers store the month separately, so
@@ -135,11 +144,6 @@ module Relaton::Bsi
       def search_filter(code)
         query = parse(code)
         Util.info "Fetching from shop.bsigroup.com ...", key: code
-        unless query
-          Util.info "Could not parse the reference", key: code
-          return []
-        end
-
         search(code).filter_hits!(query)
       end
 
@@ -149,7 +153,9 @@ module Relaton::Bsi
       def results_filter(result, year)
         missed_years = []
         result.each do |r|
-          pyear = publication_year(r.hit[:code])
+          # The hit's own parse: a kept hit always parsed, and its base
+          # document's year is the same after a `drop_amd` rewrite.
+          pyear = year_of r.pubid
           return { ret: r.item } if (!year || year == pyear) && r.item
 
           missed_years << pyear

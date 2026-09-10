@@ -7,8 +7,18 @@ describe Relaton::Bsi::Bibliography do
         .to be_a ::Pubid::Bsi::Identifier
     end
 
-    it "returns nil when pubid can't parse the reference" do
-      expect(described_class.parse("BS NOT A REF !!")).to be_nil
+    it "raises when pubid can't parse the reference" do
+      expect { described_class.parse("BS NOT A REF !!") }
+        .to raise_error Pubid::Errors::ParseError
+    end
+  end
+
+  describe ".get" do
+    # The parse runs before the Algolia search, so no HTTP request is made
+    # (WebMock would reject one).
+    it "raises for a malformed reference rather than reporting not found" do
+      expect { described_class.get("BS NOT A REF !!") }
+        .to raise_error Pubid::Errors::ParseError
     end
   end
 

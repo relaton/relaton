@@ -54,7 +54,7 @@ RSpec.describe Relaton::Plateau::HitCollection do
       expect(index).to receive(:search).and_return([row])
 
       yaml = File.read "fixtures/item.yaml", encoding: "UTF-8"
-      response = double(Net::HTTPResponse, body: yaml)
+      response = double(Net::HTTPResponse, code: "200", body: yaml)
       expect(Net::HTTP).to receive(:get_response).and_return(response)
 
       result = described_class.new("PLATEAU Handbook #01 第2.0版").find.fetch_doc
@@ -69,7 +69,7 @@ RSpec.describe Relaton::Plateau::HitCollection do
       expect(index).to receive(:search).and_return(rows)
 
       yaml = File.read "fixtures/item.yaml", encoding: "UTF-8"
-      response = double(Net::HTTPResponse, body: yaml)
+      response = double(Net::HTTPResponse, code: "200", body: yaml)
       expect(Net::HTTP).to receive(:get_response).twice.and_return(response)
 
       result = described_class.new("PLATEAU Handbook #00").find.fetch_doc
@@ -84,7 +84,7 @@ RSpec.describe Relaton::Plateau::HitCollection do
       expect(index).to receive(:search).and_return([row])
 
       yaml = File.read "fixtures/item.yaml", encoding: "UTF-8"
-      response = double(Net::HTTPResponse, body: yaml)
+      response = double(Net::HTTPResponse, code: "200", body: yaml)
       expect(Net::HTTP).to receive(:get_response).and_return(response)
 
       result = described_class.new("PLATEAU Handbook #00").find.fetch_doc

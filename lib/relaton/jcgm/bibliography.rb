@@ -23,10 +23,6 @@ module Relaton
         #
         def search(text, year = nil, _opts = {}) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
           pubid = parse_ref(text)
-          # A malformed reference the pubid grammar rejects is a graceful miss,
-          # not a Parslet::ParseFailed raised to the caller.
-          return unless pubid
-
           Util.info "Fetching from Relaton repository ...", key: pubid.to_s
           row = index.search(pubid) { |r| pubid_match?(r[:id], pubid, year) }
                      .max_by { |r| r[:id].year.to_i }
@@ -58,15 +54,15 @@ module Relaton
 
         private
 
-        # Parse a reference into a Pubid::Jcgm identifier, returning nil (a
-        # graceful "not found") rather than raising if the grammar rejects it.
+        # Parse a reference into a Pubid::Jcgm identifier. An unrecognized
+        # reference raises; like ISO and 3GPP we let it propagate --
+        # relaton-cli rescues Parslet::ParseFailed and renders "... is not a
+        # recognized standards identifier". The `search` rescue lists transport
+        # errors only, so it does not swallow the parse error.
         def parse_ref(text)
           return text unless text.is_a?(String)
 
           ::Pubid::Jcgm.parse(text)
-        rescue StandardError => e
-          Util.info "Unsupported JCGM reference: #{e.message}", key: text
-          nil
         end
 
         def index

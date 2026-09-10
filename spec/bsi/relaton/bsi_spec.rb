@@ -119,9 +119,12 @@ RSpec.describe Relaton::Bsi do
     end
   end
 
+  # A well-formed id that the catalogue does not have. This used to say
+  # "BS NOT FOUND", which is not an identifier at all -- a malformed reference
+  # now raises (see bibliography_spec.rb), so it cannot stand for "absent".
   it "return nil when reference not found" do
     VCR.use_cassette "not_found" do
-      result = Relaton::Bsi::Bibliography.get "BS NOT FOUND"
+      result = Relaton::Bsi::Bibliography.get "BS 99999"
       expect(result).to be_nil
     end
   end

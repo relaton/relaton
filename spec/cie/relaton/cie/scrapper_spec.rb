@@ -31,4 +31,14 @@ RSpec.describe Relaton::Cie::Scrapper do
       end.to raise_error Relaton::RequestError
     end
   end
+
+  context ".scrape_page with a malformed reference" do
+    # It used to fall back to a substring scan of the raw String. The parse
+    # now runs first and raises, so the index is never opened.
+    it "raises rather than reporting not found" do
+      expect(Relaton::Index).not_to receive(:find_or_create)
+      expect { described_class.scrape_page "CIE nope !!" }
+        .to raise_error Pubid::Errors::ParseError
+    end
+  end
 end

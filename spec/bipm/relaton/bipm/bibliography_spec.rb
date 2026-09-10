@@ -21,12 +21,9 @@ RSpec.describe Relaton::Bipm::Bibliography do
   end
 
   context "unparseable reference" do
-    it "returns nil (a graceful miss), not a raised error" do
-      result = nil
-      expect do
-        result = Relaton::Bipm::Bibliography.get "not a real bipm ref ((("
-      end.not_to raise_error
-      expect(result).to be_nil
+    it "raises rather than reporting not found" do
+      expect { Relaton::Bipm::Bibliography.get "not a real bipm ref (((" }
+        .to raise_error Pubid::Errors::ParseError
     end
   end
 
@@ -394,12 +391,12 @@ RSpec.describe Relaton::Bipm::Bibliography do
         "Metrologia 50 4 385" => ["data/metrologia-50-4-385.yaml"],
         "Metrologia 55 1 L13" => ["data/metrologia-55-1-l13.yaml"],
         "SI Brochure Part 1" => ["data/si-brochure.yaml", "data/si-brochure.yaml"],
-        "not a real bipm ref (((" => [],      }.freeze
+      }.freeze
 
       baseline.each do |reference, expected|
         it reference.inspect do
           pubid = described_class.parse_ref reference
-          rows = pubid ? described_class.search_index(pubid, reference) : []
+          rows = described_class.search_index(pubid, reference)
           expect(rows.map { |r| r[:file] }.sort).to eq expected
         end
       end
@@ -411,9 +408,22 @@ RSpec.describe Relaton::Bipm::Bibliography do
           .to eq "CCTF Recommendation 2 (2009)"
       end
 
-      it "returns nil for an unparseable reference rather than raising" do
-        expect { described_class.parse_ref "((( nonsense" }.not_to raise_error
-        expect(described_class.parse_ref("((( nonsense")).to be_nil
+      it "raises for an unparseable reference" do
+        expect { described_class.parse_ref "((( nonsense" }
+          .to raise_error Pubid::Errors::ParseError
+      end
+    end
+
+    context "#year_number_retry" do
+      it "re-reads a trailing YYYY-NN as number and year" do
+        expect(described_class.year_number_retry("CCTF Recommendation 2009-02").to_s)
+          .to eq "CCTF Recommendation 2 (2009)"
+      end
+
+      # The retry is a machine-derived probe, not the caller's reference: a
+      # probe that does not parse is a miss, never a malformed-reference error.
+      it "is nil when the derived reference does not parse" do
+        expect(described_class.year_number_retry("Metrologia 2009-02")).to be_nil
       end
     end
 
