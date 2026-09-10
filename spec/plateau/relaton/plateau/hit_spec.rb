@@ -13,7 +13,7 @@ RSpec.describe Relaton::Plateau::Hit do
 
   it "fetches item" do
     yaml = File.read "fixtures/item.yaml", encoding: "UTF-8"
-    response = double(Net::HTTPResponse, body: yaml)
+    response = double(Net::HTTPResponse, code: "200", body: yaml)
     expect(Net::HTTP).to receive(:get_response).with(
       URI("#{Relaton::Plateau::HitCollection::ENDPOINT}data/plateau-handbook-00-10.yaml")
     ).and_return(response)
@@ -23,9 +23,18 @@ RSpec.describe Relaton::Plateau::Hit do
 
   it "caches item" do
     yaml = File.read "fixtures/item.yaml", encoding: "UTF-8"
-    response = double(Net::HTTPResponse, body: yaml)
+    response = double(Net::HTTPResponse, code: "200", body: yaml)
     expect(Net::HTTP).to receive(:get_response).once.and_return(response)
     subject.item
     subject.item
+  end
+
+  # The index names the file, so a non-200 is an access failure. Without this
+  # check, the error page body went into Item.from_yaml, which returned an
+  # item with no docidentifier.
+  it "raises Relaton::RequestError when the document is not served" do
+    response = double(Net::HTTPResponse, code: "404")
+    expect(Net::HTTP).to receive(:get_response).and_return(response)
+    expect { subject.item }.to raise_error Relaton::RequestError, /HTTP 404/
   end
 end

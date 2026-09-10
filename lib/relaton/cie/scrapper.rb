@@ -9,15 +9,18 @@ module Relaton
         # @param code [String]
         # @return [Relaton::Cie::ItemData]
         def scrape_page(code)
+          # An unrecognized reference raises; like ISO and 3GPP we let it
+          # propagate -- relaton-cli rescues Parslet::ParseFailed and renders
+          # "... is not a recognized standards identifier". Partial refs
+          # (`CIE 001`, `CIE 15`) parse, so nothing valid is lost.
+          pubid = ::Pubid::Cie.parse code
           index = Index.find_or_create :cie, url: "#{ENDPOINT}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
                                               pubid_class: ::Pubid::Cie::Identifier
           # Pass the parsed pubid (not the raw String) so index-v2 narrows
           # candidates by number via binary search before the block runs; the
-          # block keeps the broad substring match the string index gave, and an
-          # unparseable/partial ref falls back to the full-scan String search.
+          # block keeps the broad substring match the string index gave.
           # Rows are Pubid::Cie::Identifier objects (not Comparable), so pick by
           # the string form.
-          pubid = parse_pubid code
           needle = pubid.to_s
           row = index.search(pubid) { |r| r[:id].to_s.include?(needle) }
                      .min_by { |r| r[:id].to_s }
@@ -27,15 +30,6 @@ module Relaton
         end
 
         private
-
-        # Parse a reference into a Pubid::Cie::Identifier for index narrowing, or
-        # return the raw String when pubid can't parse it (e.g. a partial ref) so
-        # the search falls back to the substring scan.
-        def parse_pubid(code)
-          ::Pubid::Cie.parse code
-        rescue StandardError
-          code
-        end
 
         # @param url [String]
         # @param code [String]

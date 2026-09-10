@@ -40,8 +40,9 @@ replace it; see **Pubid-to-pubid lookup** below.
 ### Key Components
 
 - **`Bibliography`** (`bibliography.rb`) - Main entry point. Parses the user
-  reference with `::Pubid::Bipm.parse` (`#parse_ref`, returning nil on an
-  unparseable ref rather than raising) and matches the pubid `index-v2` rows as
+  reference with `::Pubid::Bipm.parse` (`#parse_ref`; an unparseable ref raises
+  `Pubid::Errors::ParseError`, while the machine-derived `#year_number_retry`
+  probe rescues it to nil) and matches the pubid `index-v2` rows as
   pubid objects — see **Pubid-to-pubid lookup** below for the stem and the two
   escapes under it. The latest edition wins via
   `max_by { |r| [r[:id].year.to_i, r[:file]] }` (the file path only breaks a

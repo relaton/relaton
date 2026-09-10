@@ -47,10 +47,9 @@ RSpec.describe Relaton::Jcgm::Bibliography do
     expect(described_class.get("JCGM 999:2099")).to be_nil
   end
 
-  it "returns nil (not a parser error) for a reference pubid cannot parse" do
-    # A malformed reference degrades to a graceful miss, not a Parslet::ParseFailed.
-    expect { described_class.get("JCGM not-a-real-id!!") }.not_to raise_error
-    expect(described_class.get("JCGM not-a-real-id!!")).to be_nil
+  it "raises for a reference pubid cannot parse rather than reporting not found" do
+    expect { described_class.get("JCGM not-a-real-id!!") }
+      .to raise_error Pubid::Errors::ParseError
   end
 
   it "accepts a pubid identifier as input" do

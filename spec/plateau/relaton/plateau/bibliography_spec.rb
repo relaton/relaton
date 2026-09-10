@@ -23,10 +23,19 @@ RSpec.describe Relaton::Plateau::Bibliography do
         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
     end
 
+    # A well-formed id that is not in the index. This used to say
+    # "PLATEAU Handbook #", which is not an identifier at all; a malformed
+    # reference now raises (see the example below).
     it "not found" do
-      expect { described_class.get("PLATEAU Handbook #") }.to output(
-        including("[relaton-plateau] WARN: (PLATEAU Handbook #) Not found.")
+      expect { described_class.get("PLATEAU Handbook #99") }.to output(
+        including("[relaton-plateau] WARN: (PLATEAU Handbook #99) Not found.")
       ).to_stderr_from_any_process
+    end
+
+    # The parse error passes through as itself, so relaton-cli can report it.
+    it "raises for a malformed reference rather than reporting not found" do
+      expect { described_class.get("PLATEAU Handbook #") }
+        .to raise_error Pubid::Errors::ParseError
     end
 
     it "Handbook all editions", vcr: "handbook_all_editions" do
@@ -43,9 +52,16 @@ RSpec.describe Relaton::Plateau::Bibliography do
       expect(bib.relation.size).to eq 0
     end
 
+    # A transport failure is a Relaton::RequestError, which Relaton::Db retries.
     it "raise error" do
-      expect(described_class).to receive(:search).and_raise(StandardError)
-      expect { described_class.get("PLATEAU Handbook #00 1.0") }.to raise_error Relaton::Plateau::Error
+      expect(described_class).to receive(:search).and_raise(SocketError)
+      expect { described_class.get("PLATEAU Handbook #00 1.0") }.to raise_error Relaton::RequestError
+    end
+
+    # Anything else is not relabelled: it keeps its own class and backtrace.
+    it "lets a non-transport error propagate as itself" do
+      expect(described_class).to receive(:search).and_raise(NoMethodError)
+      expect { described_class.get("PLATEAU Handbook #00 1.0") }.to raise_error NoMethodError
     end
 
     # "Accept both" — a legacy Latin reference resolves to the same canonical

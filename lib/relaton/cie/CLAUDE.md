@@ -16,7 +16,8 @@ as a `_type: pubid:cie:…` map (mirrors the NIST/ETSI flavors).
   dropped at write time rather than poison every lookup.
 - **Consumer** (`scrapper.rb`, `processor.rb`): both pass `pubid_class:
   ::Pubid::Cie::Identifier` to `Index.find_or_create`. The scrapper parses the ref to a
-  pubid (`#parse_pubid`, falling back to the raw String on a partial/unparseable ref)
+  pubid with `::Pubid::Cie.parse` — an unparseable ref **raises** `Pubid::Errors::ParseError`
+  (partial refs such as `CIE 001` parse; the old raw-String substring fallback is gone)
   and passes **that** to `index.search` so index-v2 narrows candidates by number via
   binary search before the block runs (a String arg would force a full O(n) scan — see
   `Index::Type#search_candidates`); the block keeps the broad substring match, and

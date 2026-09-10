@@ -83,7 +83,10 @@ object; unparseable ids are warned and skipped (defensive — the parser already
 emits canonical, so nothing is expected to skip).
 
 **Search accepts both forms.** `HitCollection#find` parses the query via `#ref`
-(`Pubid::Plateau.parse`, memoized) and matches on **pubid objects**, mirroring the
+(`Pubid::Plateau.parse`, memoized; an unparseable query **raises**
+`Pubid::Errors::ParseError`; `Bibliography.get` rescues transport errors only,
+as `Relaton::RequestError`, and `Hit#item` raises that same error on a
+non-200) and matches on **pubid objects**, mirroring the
 other pubid flavors (ETSI `matches?`, JCGM `exclude`): an exact edition uses
 `row[:id] == ref` (pubid `==` compares type + number + annex + edition); a
 family query (`ref.edition.nil?` — an edition-less handbook, or any Technical
