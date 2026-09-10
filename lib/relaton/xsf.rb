@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 require "mechanize"
+# Not lazy: Processor#remove_index_file names ::Pubid::Xsf::Identifier on the
+# cold path reached by Db#clear, which never loads HitCollection.
+# (spec/relaton/lazy_loading_spec.rb guards this; the IANA/IHO/IALA form.)
+require "pubid"
 require "relaton/index"
 require "relaton/bib"
 require_relative "version"
@@ -15,7 +19,7 @@ require_relative "xsf/bibliography"
 
 module Relaton
   module Xsf
-    INDEXFILE = "index-v1"
+    INDEXFILE = "index-v2".freeze
 
     class Error < StandardError; end
 

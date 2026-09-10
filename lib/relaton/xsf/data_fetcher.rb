@@ -3,8 +3,19 @@ require "relaton/core"
 module Relaton
   module Xsf
     class DataFetcher < Relaton::Core::DataFetcher
+      # `Core::DataFetcher#log_error` raises unless the flavor overrides it, so
+      # `report_errors` is unusable without this. (The ECMA precedent.)
+      def log_error(msg)
+        Util.error msg
+      end
+
       def index
-        @index ||= Relaton::Index.find_or_create :xsf, file: "#{INDEXFILE}.yaml"
+        # `pubid_class:` on the producer too: FileIO#save only calls `to_hash`
+        # when the value is an instance of it, so without it the crawl writes
+        # v1-shaped rows under a v2 name, silently.
+        @index ||= Relaton::Index.find_or_create(
+          :xsf, file: "#{INDEXFILE}.yaml", pubid_class: ::Pubid::Xsf::Identifier
+        )
       end
 
       def fetch(_source = nil)
@@ -18,6 +29,7 @@ module Relaton
           Util.warn "Failed to parse #{link[:href]}: #{e.message}"
         end
         index.save
+        report_errors
       end
 
       def save_doc(bib)
@@ -42,7 +54,40 @@ module Relaton
         end
         @files << file
         File.write file, serialize(bib), encoding: "UTF-8"
-        index.add_or_update id, file
+        add_to_index id, file
+      end
+
+      #
+      # Index a document under its pubid, skipping one pubid cannot parse.
+      #
+      # This guard is not optional here. One unparseable row does not fail that
+      # row: `Relaton::Index` declares the **whole file** corrupt, deletes it,
+      # and hands back an **empty** index. Measured — 519 good rows plus one
+      # unparseable id loads as 0 rows, and the only trace is two INFO lines
+      # ("Wrong structure of file …", "Considering … corrupt, removing it"). So
+      # indexing one bad row silently breaks every XSF lookup, not just its own.
+      #
+      # A rejection is recorded in `@errors`, which `report_errors` turns into a
+      # GitHub issue at the end of the crawl (the 3GPP/ECMA precedent). Nothing
+      # in the published corpus trips it today: pubid parses all 520 rows,
+      # including the two entries that are pages rather than XEPs — the XEP
+      # repository's `README` and its `xep-xxxx` template, which pubid accepts
+      # as the literal numbers `README` and `xxxx` while still rejecting
+      # anything else non-numeric (`XEP banana`, or a typo like `XEP 00O1`).
+      # So a recorded error now means something genuinely new appeared, which
+      # is exactly when an issue is worth filing.
+      #
+      # The data file is written either way, so a document that cannot be
+      # indexed is unindexed, never lost.
+      #
+      # @param docid [String]
+      # @param file [String]
+      #
+      def add_to_index(docid, file)
+        index.add_or_update ::Pubid::Xsf::Identifier.parse(docid), file
+      rescue StandardError => e
+        @errors[docid] =
+          "Unparseable primary id `#{docid}` was not indexed (#{e.message})"
       end
 
       def to_yaml(bib)

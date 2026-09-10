@@ -52,7 +52,7 @@ describe Relaton::Xsf::DataFetcher do
       let(:ext) { double("ext", flavor: nil) }
       let(:bib) do
         double "bibliographic item",
-          docidentifier: [double(content: "XEP-0001", primary: true)],
+          docidentifier: [double(content: "XEP 0001", primary: true)],
           ext: ext, :"ext=" => nil
       end
 
@@ -60,7 +60,12 @@ describe Relaton::Xsf::DataFetcher do
         expect(ext).to receive(:flavor=).with("xsf")
         expect(subject).to receive(:serialize).with(bib).and_return :yaml
         expect(File).to receive(:write).with("data/xep-0001.yaml", :yaml, encoding: "UTF-8")
-        expect(subject.index).to receive(:add_or_update).with("XEP-0001", "data/xep-0001.yaml")
+        # Indexed as a pubid now, not as the raw string. The docid is
+        # "XEP 0001" with a space because that is what the published documents
+        # carry -- the old double said "XEP-0001", which no XSF document uses
+        # and which pubid rejects.
+        expect(subject.index).to receive(:add_or_update)
+          .with(an_instance_of(Pubid::Xsf::Identifiers::Xep), "data/xep-0001.yaml")
       end
 
       it "no duplications" do
@@ -93,6 +98,47 @@ describe Relaton::Xsf::DataFetcher do
         expect(bib).to receive(:to_rfcxml).and_return :bibxml
         expect(subject.to_bibxml(bib)).to eq :bibxml
       end
+    end
+  end
+  describe "#add_to_index" do
+    subject { described_class.new "data", "yaml" }
+
+    # The crawled source carries two non-documents -- the repo's README and the
+    # xep-xxxx template -- and Relaton::Index rejects the WHOLE index if one row
+    # fails to deserialize, so they must never be indexed.
+    # Pages rather than XEPs, but pubid accepts them as the literal numbers
+    # `README` and `xxxx`, so they index like any other row.
+    ["XEP README", "XEP xxxx"].each do |docid|
+      it "indexes #{docid}, which pubid parses" do
+        expect(subject.index).to receive(:add_or_update)
+          .with(an_instance_of(Pubid::Xsf::Identifiers::Xep), "data/x.yaml")
+        subject.add_to_index docid, "data/x.yaml"
+        expect(subject.instance_variable_get(:@errors)).to be_empty
+      end
+    end
+
+    # A docid pubid rejects must never reach the index: one bad row makes
+    # Relaton::Index declare the whole file corrupt and return an EMPTY index.
+    it "records an unparseable docid instead of indexing it" do
+      expect(subject.index).not_to receive(:add_or_update)
+      subject.add_to_index "XEP not-a-number", "data/x.yaml"
+      expect(subject.instance_variable_get(:@errors)["XEP not-a-number"])
+        .to match(/Unparseable primary id .* was not indexed/)
+    end
+
+    # report_errors is unusable unless the flavor overrides log_error --
+    # Core::DataFetcher's raises. Without this, the first recorded error would
+    # blow up the crawl instead of being reported.
+    it "reports a recorded error instead of raising" do
+      subject.add_to_index "XEP not-a-number", "data/x.yaml"
+      expect(subject).to receive(:log_error).with(/Unparseable primary id/)
+      expect { subject.report_errors }.not_to raise_error
+    end
+
+    it "indexes a real docid as a pubid" do
+      expect(subject.index).to receive(:add_or_update)
+        .with(an_instance_of(Pubid::Xsf::Identifiers::Xep), "data/xep-0001.yaml")
+      subject.add_to_index "XEP 0001", "data/xep-0001.yaml"
     end
   end
 end
