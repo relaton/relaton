@@ -61,20 +61,14 @@ RSpec.describe Relaton::Iala::Bibliography do
       expect(match("IALA S9999")).to be_nil
     end
 
-    it "falls back to a substring scan when pubid cannot parse the reference" do
-      # `Util.warn` reaches the logger through `method_missing`, so the
-      # expectation goes on the pool rather than on `Util` (a partial double
-      # there would be shadowed by the private `Kernel#warn`).
-      expect(Relaton.logger_pool).to receive(:warn)
-        .with(/Failed to parse pubid/, any_args)
-      # "Ed 2.1" is not an identifier, but it is a substring of the rendered
-      # `IALA R0106 Ed 2.1` rows, which is all the fallback scan compares.
-      expect(match("Ed 2.1")).to eq "data/r0106-2.1.yaml"
-    end
-
-    it "returns nil when an unparseable reference matches nothing" do
-      allow(Relaton.logger_pool).to receive(:warn)
-      expect(match("not an identifier")).to be_nil
+    # An unrecognized reference RAISES now, and the substring-scan fallback is
+    # gone with it. "Ed 2.1" used to resolve to data/r0106-2.1.yaml because it
+    # is a substring of that row's rendered id -- an ambiguous answer where the
+    # caller asked with something that is not an identifier at all.
+    ["Ed 2.1", "not an identifier"].each do |ref|
+      it "raises for #{ref.inspect}" do
+        expect { match(ref) }.to raise_error Pubid::Errors::ParseError
+      end
     end
   end
 

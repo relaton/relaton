@@ -47,19 +47,18 @@ module Relaton
       # `<nnn>` field alone, so one bucket holds every year that reused the
       # number (`05-007` and `17-007` share bucket `007`).
       #
-      # A reference pubid cannot parse falls back to the previous behaviour, a
-      # full scan matching `id.to_s` as a substring.
-      #
       # @param text [String]
       # @return [Hash, nil]
       #
+      # The substring-scan fallback this used to take when parsing failed is
+      # gone with the rescue. It was the same conflation the convention
+      # rejects: an unparseable string matched a SUBSTRING of the rendered
+      # ids, so an ambiguous reference silently resolved to whichever row
+      # sorted first, instead of telling the caller the reference is not an
+      # identifier. ecma, w3c and xsf never had one.
       def best_match(text)
         pubid = parse_ref text
-        rows = if pubid
-                 index.search(pubid) { |r| pubid.matches?(r[:id], ignore: ignored(pubid)) }
-               else
-                 index.search text
-               end
+        rows = index.search(pubid) { |r| pubid.matches?(r[:id], ignore: ignored(pubid)) }
         rows.max_by { |r| [revision_key(r[:id].revision), r[:file]] }
       end
 
@@ -103,11 +102,15 @@ module Relaton
       # @param text [String]
       # @return [Pubid::Ogc::Identifier, nil]
       #
+      # An unrecognized reference **raises**; like ISO, ETSI and 3GPP we let it
+      # propagate. relaton-cli rescues `Parslet::ParseFailed` and renders
+      # `"..." is not a recognized standards identifier`
+      # (`gems/relaton-cli/lib/relaton/cli/command.rb:324`), and `Db#fetch`
+      # logs it through the `StandardError` arm at `lib/relaton/db.rb:122`.
+      # Rescuing here would collapse "this identifier is malformed" into "no
+      # such document", leaving a caller unable to tell them apart.
       def parse_ref(text)
         ::Pubid::Ogc::Identifier.parse text.to_s.strip
-      rescue StandardError => e
-        Util.warn "Failed to parse pubid `#{text}`: #{e.message}"
-        nil
       end
     end
   end

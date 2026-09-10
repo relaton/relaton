@@ -68,12 +68,13 @@ RSpec.describe Relaton::Ogc::HitCollection do
       expect(match("99-999")).to be_nil
     end
 
-    it "falls back to a substring scan when pubid cannot parse the reference" do
-      # `Util.warn` reaches the logger through `method_missing`, so the
-      # expectation goes on the pool rather than on `Util` (a partial double
-      # there would be shadowed by the private `Kernel#warn`).
-      expect(Relaton.logger_pool).to receive(:warn).with(/Failed to parse pubid/, any_args)
-      expect(match("not an identifier")).to be_nil
+    # An unrecognized reference RAISES now, and the substring-scan fallback is
+    # gone with it: matching a substring of the rendered ids let an ambiguous
+    # reference resolve to whichever row sorted first, which is the same
+    # conflation letting the parse error propagate exists to prevent.
+    it "raises when pubid cannot parse the reference" do
+      expect { match("not an identifier") }
+        .to raise_error Pubid::Errors::ParseError
     end
   end
 end
