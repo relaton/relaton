@@ -62,9 +62,11 @@ All code lives in `lib/relaton/plateau/`. The gem uses LutaML::Model::Serializab
 ### Pubid-backed index (index-v2)
 
 The index is **pubid-structured** (`_type: pubid:plateau:*` rows), mirroring
-NIST/CIE. All three `Relaton::Index.find_or_create` call sites
-(`data_fetcher.rb`, `hit_collection.rb`, `processor.rb`) pass
+NIST/CIE. The producer and the consumer `Relaton::Index.find_or_create` call
+sites (`data_fetcher.rb`, `hit_collection.rb`) pass
 `pubid_class: ::Pubid::Plateau::Identifier`, and `INDEXFILE = "index-v2"`.
+`processor.rb#remove_index_file` passes `url: true` and `file:` only: the delete
+never reads the index (see `lib/relaton/index/CLAUDE.md`).
 
 **Ids are pubid-canonical.** The parsers emit the form `Pubid::Plateau.parse`
 accepts, which also matches the MLIT source:

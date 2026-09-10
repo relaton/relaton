@@ -218,9 +218,11 @@ pins pubid to `main`, so a checkout whose lock predates that merge still has the
 old attribute: run `bundle update pubid`, not `bundle install`, because an
 already-locked git source does not refloat.
 
-**Producer, consumer and processor must stay in step.** All three pass
-`pubid_class: ::Pubid::W3c::Identifier` — `DataFetcher#index`,
-`Bibliography#index` and `Processor#remove_index_file`. On the producer side
+**Producer and consumer must stay in step.** Both pass
+`pubid_class: ::Pubid::W3c::Identifier` — `DataFetcher#index` and
+`Bibliography#index`. (`Processor#remove_index_file` passes `url: true` and
+`file:` only: the delete never reads the index, see
+`lib/relaton/index/CLAUDE.md`.) On the producer side
 `#index_primary` stores the pubid **object**: `Relaton::Index::FileIO#save` only
 serializes to the `_type:` shape when the value is an instance of the configured
 `pubid_class`, so handing it a hash writes a v1-shaped file under a v2 name,

@@ -61,7 +61,7 @@ module Relaton
       def remove_index_file
         require_relative "../nist"
         Relaton::Index.find_or_create(
-          :nist, url: true, file: "#{INDEXFILE}.yaml", pubid_class: ::Pubid::Nist::Identifier
+          :nist, url: true, file: "#{INDEXFILE}.yaml"
         ).remove_file
       end
     end

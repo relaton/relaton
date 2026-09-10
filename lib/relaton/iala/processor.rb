@@ -35,8 +35,7 @@ module Relaton
       def remove_index_file
         require_relative "../iala"
         Relaton::Index.find_or_create(
-          :iala, url: true, file: "#{INDEXFILE}.yaml",
-          pubid_class: ::Pubid::Iala::Identifier
+          :iala, url: true, file: "#{INDEXFILE}.yaml"
         ).remove_file
       end
     end

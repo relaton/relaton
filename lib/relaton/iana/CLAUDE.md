@@ -50,14 +50,16 @@ the 3405 published rows; median 3, max 73 — `pcep`) and `Bibliography#pubid_ma
 separates them. `registry` is a **derived reader** over `number`, so it is not a
 serialized key.
 
-The triple that must stay in step, all passing
+The pair that must stay in step, both passing
 `pubid_class: ::Pubid::Iana::Identifier`:
 
 | role | file |
 |---|---|
 | producer | `data_fetcher.rb` — `#index` + the guarded `#add_to_index` |
 | consumer | `bibliography.rb` — `#index`, `#parse_ref`, `#pubid_match?` |
-| processor | `processor.rb` — `#remove_index_file` |
+
+`processor.rb#remove_index_file` passes `url: true` and `file:` only: the delete
+never reads the index (see `lib/relaton/index/CLAUDE.md`).
 
 `#add_to_index` rescues and warns rather than raising: `Relaton::Index` rejects
 the **whole** index if one row fails to deserialize, so an unparseable slug has

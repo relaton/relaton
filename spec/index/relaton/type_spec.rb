@@ -210,6 +210,35 @@ describe Relaton::Index::Type do
       subject.remove_file
     end
 
+    # A processor's #remove_index_file needs no `pubid_class:`. The delete
+    # resolves the path from `url` and `file` only, and never reads the index.
+    context "#remove_file with url: true" do
+      let(:dir) { Dir.mktmpdir }
+      let(:cached) { File.join(dir, ".relaton", "iso", "index.yaml") }
+
+      # A `before`, not an `around`: the outer `before` resets the config,
+      # and an `around` runs ahead of it.
+      before do
+        Relaton::Index.configure { |c| c.storage_dir = dir }
+        FileUtils.mkdir_p File.dirname(cached)
+        File.write cached, "--- []\n"
+      end
+
+      after { FileUtils.rm_rf dir }
+
+      it "removes the cached file without a pubid_class" do
+        described_class.new(:ISO, true, "index.yaml").remove_file
+        expect(File.exist?(cached)).to be false
+      end
+
+      it "removes the same file with a pubid_class, and never calls it" do
+        pubid_class = double("pubid_class") # raises on any message
+        described_class.new(:ISO, true, "index.yaml", nil, pubid_class)
+          .remove_file
+        expect(File.exist?(cached)).to be false
+      end
+    end
+
     it "#remove_all" do
       subject.remove_all
       index = subject.instance_variable_get(:@index)

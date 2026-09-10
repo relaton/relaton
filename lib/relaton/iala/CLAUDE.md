@@ -35,14 +35,16 @@ All three no-op safely when `@pubid` is nil, so `Bib::ItemData#to_all_parts` /
 
 **Index (`index-v2`, pubid-keyed).** `INDEXFILE` is the pubid-backed
 `index-v2` published by `relaton-data-iala`: 701 rows of
-`_type: pubid:iala:*` with `number`/`edition`/`language`. Every index call site
-(`Bibliography#index`, `Processor#remove_index_file`) passes
+`_type: pubid:iala:*` with `number`/`edition`/`language`. The consumer
+(`Bibliography#index`) passes
 `pubid_class: ::Pubid::Iala::Identifier` — that is what makes `Relaton::Index`
 deserialize the rows into identifiers, sort them by `id.root.number`, and let
 `Type#search` bsearch. Omitting it leaves the rows as raw hashes and
 `FileIO#sorted` false, so every lookup scans all 701 rows, silently. That was
 the state before this flavor adopted the W3C pattern; the data repo already
 published a pubid-shaped `index-v2`, only the consumer was unwired.
+`Processor#remove_index_file` passes `url: true` and `file:` only: the delete
+never reads the index (see `lib/relaton/index/CLAUDE.md`).
 
 `Bibliography#best_match` follows the ETSI/W3C idiom:
 
@@ -66,9 +68,10 @@ published a pubid-shaped `index-v2`, only the consumer was unwired.
   than raising, and the search falls back to the previous full-scan substring
   match on `id.to_s`.
 
-`require "pubid"` moved to `lib/relaton/iala.rb` (the IANA/IHO form), because
-`Processor#remove_index_file` names `::Pubid::Iala::Identifier` on the cold path
-that `spec/relaton/lazy_loading_spec.rb` guards. `Docidentifier` keeps its own
+`require "pubid"` sits in `lib/relaton/iala.rb` (the IANA/IHO form), so pubid
+loads with the flavor. `Processor#remove_index_file` names no pubid class, so the
+cold `Db#clear` path that `spec/relaton/lazy_loading_spec.rb` guards does not
+depend on it. `Docidentifier` keeps its own
 lazy, `LoadError`-rescuing require: it is reached by deserialization, which must
 not depend on the flavor entry file having been loaded.
 

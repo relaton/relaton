@@ -1,7 +1,7 @@
 require "net/http"
-# Not lazy: Processor#remove_index_file names ::Pubid::Tgpp::Identifier on the
-# cold path reached by Db#clear, which never loads Bibliography.
-# (spec/relaton/lazy_loading_spec.rb guards this; the IANA/IHO/IALA form.)
+# pubid loads with the flavor, for the ::Pubid::Tgpp::Identifier that the
+# index code names. Processor#remove_index_file names no pubid class: the
+# delete never reads the index (see lib/relaton/index/CLAUDE.md).
 require "pubid"
 require "relaton/index"
 require "relaton/core"

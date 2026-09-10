@@ -44,9 +44,8 @@ the prefix. This is the one place 3GPP diverges from the IALA template, whose
 
 **Index (`index-v2`, pubid-keyed).** `INDEXFILE` is the pubid-backed
 `index-v2`: 88,464 rows of `_type: pubid:3gpp:{technical-specification,
-technical-report}` with `number`/`suffix`/`parts`/`release`/`version`. Every
-index call site — `Bibliography#index`, `DataFetcher#index`,
-`Processor#remove_index_file` — passes
+technical-report}` with `number`/`suffix`/`parts`/`release`/`version`. The
+consumer (`Bibliography#index`) and the producer (`DataFetcher#index`) pass
 `pubid_class: ::Pubid::Tgpp::Identifier`. That is what makes `Relaton::Index`
 deserialize the rows into identifiers, sort them by `id.root.number`, and let
 `Type#search` bsearch. Omitting it on the **producer** side writes v1-shaped
@@ -55,6 +54,8 @@ value is an instance of `pubid_class`); omitting it on the **consumer** side
 leaves the rows raw hashes with `FileIO#sorted` false, so every lookup scans
 all 88,464 rows. Measured on the live corpus: 3,767 number buckets, largest
 979; a `TS 23.207` lookup narrows to **37 of 88,464**.
+`Processor#remove_index_file` passes `url: true` and `file:` only: the delete
+never reads the index (see `lib/relaton/index/CLAUDE.md`).
 
 `Bibliography#best_match` follows the ETSI/W3C/IALA idiom:
 
@@ -140,10 +141,10 @@ logs a String value as the message) and the row is **skipped** rather than
 indexed unparsed — `Relaton::Index` rejects the whole index on one bad row. The
 data file is still written, so the document is unindexed, never lost.
 
-`require "pubid"` sits in `lib/relaton/3gpp.rb` (the IANA/IHO/IALA form),
-because `Processor#remove_index_file` names `::Pubid::Tgpp::Identifier` on the
-cold path that `spec/relaton/lazy_loading_spec.rb` guards — reached via
-`Db#clear` without `Bibliography` ever loading. `Processor` also sets
+`require "pubid"` sits in `lib/relaton/3gpp.rb` (the IANA/IHO/IALA form), so
+pubid loads with the flavor. `Processor#remove_index_file` names no pubid
+class, so the cold `Db#clear` path that `spec/relaton/lazy_loading_spec.rb`
+guards does not depend on it. `Processor` also sets
 `@pubid_flavor = :Tgpp`, so `Core::Processor#prefixes` reads
 `Pubid::Tgpp.prefixes` (`["3GPP"]`).
 

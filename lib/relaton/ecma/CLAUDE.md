@@ -52,12 +52,14 @@ Component mapping:
 
 `INDEXFILE` is the pubid-backed `index-v2`: rows are `Pubid::Ecma::Identifier`
 hashes (`_type: pubid:ecma:{standard,technical-report,memento}` with
-`number`/`part`/`edition`/`volume`). All three index call sites —
-`Bibliography#index`, `DataFetcher#index`, `Processor#remove_index_file` — pass
+`number`/`part`/`edition`/`volume`). The consumer (`Bibliography#index`) and
+the producer (`DataFetcher#index`) pass
 `pubid_class: ::Pubid::Ecma::Identifier`. Omitting it on the **producer** writes
 v1-shaped rows under a v2 name, silently (`FileIO#save` calls `to_hash` only for
 instances of `pubid_class`); omitting it on the **consumer** leaves the rows raw
 hashes with `FileIO#sorted` false, so every lookup scans all 804.
+`Processor#remove_index_file` passes `url: true` and `file:` only: the delete
+never reads the index (see `lib/relaton/index/CLAUDE.md`).
 
 This gem no longer produces the legacy `index-v1`. `relaton-data-ecma`'s
 `crawler.rb` derives it from the v2 rows, the IANA/BIPM/W3C shape.

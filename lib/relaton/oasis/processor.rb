@@ -60,14 +60,13 @@ module Relaton
       #
       # Remove index file
       #
-      # Same `pubid_class:` as the producer and the consumer, so `Db#clear`
-      # clears the entry those two share instead of creating a third.
+      # `url: true` names the cached file. No `pubid_class:`: `Type#remove_file`
+      # deletes the file and never reads the index.
       #
       def remove_index_file
         require_relative "../oasis"
         Relaton::Index.find_or_create(
-          :oasis, file: "#{INDEXFILE}.yaml",
-          pubid_class: ::Pubid::Oasis::Identifier
+          :oasis, url: true, file: "#{INDEXFILE}.yaml"
         ).remove_file
       end
     end

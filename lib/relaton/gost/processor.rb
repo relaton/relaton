@@ -41,8 +41,7 @@ module Relaton
       def remove_index_file
         require_relative "../gost"
         Relaton::Index.find_or_create(
-          :gost, url: true, file: "#{INDEXFILE}.yaml",
-          pubid_class: ::Pubid::Gost::Identifier
+          :gost, url: true, file: "#{INDEXFILE}.yaml"
         ).remove_file
       end
     end

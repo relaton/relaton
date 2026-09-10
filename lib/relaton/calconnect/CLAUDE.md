@@ -16,13 +16,15 @@ never `bundle install` — an already-locked git source does not refloat.
 `INDEXFILE` is the pubid-backed `index-v2`: rows are
 `Pubid::Calconnect::Identifier` hashes
 (`_type: pubid:calconnect:standard`, with `series`/`number`/`year`, plus
-`month`/`day` for the one fully dated row). All three index call sites —
-`DataFetcher#index`, `HitCollection#index` and `Processor#remove_index_file` —
-pass `pubid_class: ::Pubid::Calconnect::Identifier`. Omitting it on the
+`month`/`day` for the one fully dated row). The producer
+(`DataFetcher#index`) and the consumer (`HitCollection#index`) pass
+`pubid_class: ::Pubid::Calconnect::Identifier`. Omitting it on the
 **producer** writes v1-shaped rows under a v2 name, silently (`FileIO#save`
 calls `to_hash` only for instances of `pubid_class`); omitting it on the
 **consumer** leaves the rows raw hashes with `FileIO#sorted` false, so every
-lookup scans all 191 rows.
+lookup scans all 191 rows. `Processor#remove_index_file` passes `url: true` and
+`file:` only: the delete never reads the index (see
+`lib/relaton/index/CLAUDE.md`).
 
 **`index-v1` is not this gem's concern at all.** It exists only for released
 relaton **v2** clients, and `relaton-data-calconnect` owns it end to end:

@@ -1,6 +1,6 @@
-# Not lazy: Processor#remove_index_file names ::Pubid::Ogc::Identifier on the
-# cold path reached by Db#clear, which never loads HitCollection.
-# (spec/relaton/lazy_loading_spec.rb guards this; the IANA/IHO/IALA form.)
+# pubid loads with the flavor, for the ::Pubid::Ogc::Identifier that the
+# index code names. Processor#remove_index_file names no pubid class: the
+# delete never reads the index (see lib/relaton/index/CLAUDE.md).
 require "pubid"
 require "relaton/index"
 require "relaton/iso"

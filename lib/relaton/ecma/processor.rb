@@ -61,8 +61,7 @@ module Relaton
       def remove_index_file
         require_relative "../ecma"
         Relaton::Index.find_or_create(
-          :ECMA, url: true, file: "#{INDEXFILE}.yaml",
-          pubid_class: ::Pubid::Ecma::Identifier
+          :ECMA, url: true, file: "#{INDEXFILE}.yaml"
         ).remove_file
       end
     end
