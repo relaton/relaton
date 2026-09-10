@@ -420,9 +420,11 @@ regex back.
   **3GPP** is the same shape at the largest scale in the gem — 88,464 rows,
   3,767 number buckets, largest 979 — so it is where the "`pubid_class:` alone
   fixes nothing" rule bites hardest: `Type#search_candidates` narrows only for a
-  non-`String` query, so the producer, the consumer and `remove_index_file` all
-  pass `pubid_class: ::Pubid::Tgpp::Identifier` **and** `Bibliography` passes a
-  parsed pubid. The 3GPP-specific trap: `Pubid::Tgpp#to_s` omits the `3GPP `
+  non-`String` query, so the producer and the consumer both pass
+  `pubid_class: ::Pubid::Tgpp::Identifier` **and** `Bibliography` passes a
+  parsed pubid. (`remove_index_file` is not a `pubid_class:` site — the delete
+  never reads the index; see `lib/relaton/index/CLAUDE.md`.) The 3GPP-specific
+  trap: `Pubid::Tgpp#to_s` omits the `3GPP `
   publisher token by default (it renders the index id), so `Docidentifier`
   re-renders with `with_publisher: true` or every mutation strips the prefix.
   The migration also needed two pubid fixes, both merged — a bare

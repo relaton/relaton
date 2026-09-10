@@ -59,14 +59,13 @@ module Relaton::Calconnect
     #
     # Remove index file
     #
-    # Carries `pubid_class:` like the other two index call sites, so all three
-    # name the same index in the same shape.
+    # `url: true` names the cached file. No `pubid_class:`: `Type#remove_file`
+    # deletes the file and never reads the index.
     #
     def remove_index_file
       require_relative "../calconnect"
       Relaton::Index.find_or_create(
-        :CC, url: true, file: "#{INDEXFILE}.yaml",
-             pubid_class: ::Pubid::Calconnect::Identifier
+        :CC, url: true, file: "#{INDEXFILE}.yaml"
       ).remove_file
     end
   end

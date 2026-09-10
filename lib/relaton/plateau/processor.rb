@@ -43,8 +43,7 @@ module Relaton
       def remove_index_file
         require_relative "../plateau"
         Relaton::Index.find_or_create(
-          :plateau, url: true, file: "#{INDEXFILE}.yaml",
-          pubid_class: ::Pubid::Plateau::Identifier
+          :plateau, url: true, file: "#{INDEXFILE}.yaml"
         ).remove_file
       end
     end

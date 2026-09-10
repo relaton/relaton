@@ -51,8 +51,7 @@ module Relaton
       def remove_index_file
         require_relative "../ogc"
         Relaton::Index.find_or_create(
-          :ogc, url: true, file: "#{INDEXFILE}.yaml",
-          pubid_class: ::Pubid::Ogc::Identifier
+          :ogc, url: true, file: "#{INDEXFILE}.yaml"
         ).remove_file
       end
     end

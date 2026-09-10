@@ -74,8 +74,7 @@ RSpec.describe Relaton::Ieee::Processor do
     it "removes the index file" do
       index = double("index")
       expect(Relaton::Index).to receive(:find_or_create).with(
-        :ieee, url: true, file: "#{Relaton::Ieee::INDEXFILE}.yaml",
-        pubid_class: ::Pubid::Ieee::Identifier
+        :ieee, url: true, file: "#{Relaton::Ieee::INDEXFILE}.yaml"
       ).and_return index
       expect(index).to receive(:remove_file)
       processor.remove_index_file

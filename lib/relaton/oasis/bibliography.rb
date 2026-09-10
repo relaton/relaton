@@ -44,9 +44,8 @@ module Relaton
         # The pubid `index-v2`. `pubid_class:` is what makes `Relaton::Index`
         # deserialize the rows into identifiers, sort them by
         # `id.root.number`, and let `Type#search` bsearch; `file:` names the
-        # local cache, and matching it against the producer's own
-        # `find_or_create` keeps one pooled `:OASIS` entry rather than two that
-        # evict each other.
+        # local cache, and `Processor#remove_index_file` must name the same
+        # one, or `Db#clear` leaves this cache in place.
         #
         # @return [Relaton::Index::Type]
         #

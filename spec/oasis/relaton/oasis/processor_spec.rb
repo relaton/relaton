@@ -58,16 +58,50 @@ RSpec.describe Relaton::Oasis::Processor do
   end
 
   describe "#remove_index_file" do
-    # Same pubid_class as the producer and the consumer, so Db#clear clears
-    # the entry those two share instead of creating a third.
+    # `url: true` names the cached file. No `pubid_class:`: Type#remove_file
+    # deletes the file and never reads the index.
     it "calls remove_file on the index" do
       index = double("index")
       expect(Relaton::Index).to receive(:find_or_create)
-        .with(:oasis, file: "index-v2.yaml",
-                      pubid_class: ::Pubid::Oasis::Identifier)
+        .with(:oasis, url: true, file: "index-v2.yaml")
         .and_return(index)
       expect(index).to receive(:remove_file)
       processor.remove_index_file
+    end
+
+    # Db#clear reaches this with an empty pool. Without `url: true` the file
+    # is the bare name, so the delete hit ./index-v2.yaml in the working
+    # directory and left the cache in place.
+    context "when the index pool is empty" do
+      let(:dir) { Dir.mktmpdir }
+      let(:cached) do
+        File.join(dir, "home", ".relaton", "oasis", "index-v2.yaml")
+      end
+
+      # A `before`, not an `around`: support/webmock.rb seeds the pool with
+      # the fixture index in a global `before`, and an `around` runs ahead of
+      # it. The fixture must not be the entry that is removed.
+      before do
+        @storage_dir = Relaton::Index.config.storage_dir
+        Relaton::Index.configure { |c| c.storage_dir = File.join(dir, "home") }
+        Relaton::Index.close(:oasis)
+      end
+
+      after do
+        Relaton::Index.configure { |c| c.storage_dir = @storage_dir }
+        FileUtils.rm_rf dir
+      end
+
+      it "removes the cached index and keeps a local index-v2.yaml" do
+        FileUtils.mkdir_p File.dirname(cached)
+        File.write cached, "--- []\n"
+        Dir.chdir(dir) do
+          File.write "index-v2.yaml", "--- []\n"
+          processor.remove_index_file
+          expect(File.exist?("index-v2.yaml")).to be true
+        end
+        expect(File.exist?(cached)).to be false
+      end
     end
   end
 end

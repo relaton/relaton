@@ -34,12 +34,14 @@ Key classes and their base classes from relaton-core:
 ## Index (`index-v2`, pubid-keyed)
 
 `INDEXFILE` is the pubid-backed `index-v2`: rows are `Pubid::Xsf::Identifier`
-hashes (`_type: pubid:xsf:xep` with `number`). All three index call sites —
-`HitCollection#index`, `DataFetcher#index`, `Processor#remove_index_file` —
-pass `pubid_class: ::Pubid::Xsf::Identifier`. Omitting it on the **producer**
+hashes (`_type: pubid:xsf:xep` with `number`). The consumer
+(`HitCollection#index`) and the producer (`DataFetcher#index`) pass
+`pubid_class: ::Pubid::Xsf::Identifier`. Omitting it on the **producer**
 writes v1-shaped rows under a v2 name, silently (`FileIO#save` calls `to_hash`
 only for instances of `pubid_class`); omitting it on the **consumer** leaves
 the rows raw hashes with `FileIO#sorted` false, so every lookup scans all 520.
+`Processor#remove_index_file` passes `url: true` and `file:` only: the delete
+never reads the index (see `lib/relaton/index/CLAUDE.md`).
 
 An XEP identifier is a publisher and a number, nothing else — no edition, no
 date, no part, and one row per XEP (520 rows, ids unique). That makes this the

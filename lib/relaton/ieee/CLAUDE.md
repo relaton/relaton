@@ -26,7 +26,8 @@ serialized to the `_type: pubid:ieee:*` (lutaml) form, keyed on the index via
 - **Read side.** `bibliography.rb#search` passes `pubid_class:` to `find_or_create`,
   parses the query with `parse_pubid` (falling back to the raw String on failure),
   passes the pubid to `index.search` for number-narrowing, and picks the row by
-  `row[:id].to_s`. `processor.rb#remove_index_file` passes the same `pubid_class:`.
+  `row[:id].to_s`. `processor.rb#remove_index_file` passes `url: true` and `file:`
+  only: the delete never reads the index (see `lib/relaton/index/CLAUDE.md`).
 
 ## Identifier resolution (`RawbibIdParser`, pubid-first)
 

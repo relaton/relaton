@@ -109,7 +109,9 @@ it ships in a pubid release. The wiring mirrors NIST/JCGM:
   `is_edition`, which puts `ed.11` above `V1.0.0` — safe because **no** document
   mixes the two forms (measured: 0 of 28651 fixture rows). Do not put `.to_s`
   back.
-- **Processor** `#remove_index_file` passes the same `pubid_class:`.
+- **Processor** `#remove_index_file` passes `url: true` and `file:` only. It
+  needs no `pubid_class:`: the delete never reads the index (see
+  `lib/relaton/index/CLAUDE.md`).
 
 ### The crawl query keeps superseded editions (`version=1`)
 

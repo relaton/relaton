@@ -113,6 +113,26 @@ INDEXFILE = "index-vN".freeze   # base name only — no extension
   `INDEXFILE_V2 = "index-v2"`) because it dual-writes both index generations during
   its pubid migration. Both still follow the no-extension rule.
 
+### What each flavor call site passes
+
+A pubid flavor calls `find_or_create` from three places, and they do not need
+the same arguments:
+
+| call site | `url:` | `pubid_class:` |
+|---|---|---|
+| producer — `DataFetcher#index` | none (`file:` is CWD-relative) | **yes** — `FileIO#save` calls `to_hash` only for instances of it |
+| consumer — `Bibliography`/`HitCollection#index` | the published `.zip` | **yes** — without it the rows stay raw hashes and `Type#search` stops narrowing |
+| delete — `Processor#remove_index_file` | **`true`** | **no** |
+
+The delete path is `Type#remove_file` → `FileIO#remove` →
+`FileStorage.remove(file)`. `FileIO#file` is built from `url`, the type's
+directory and `file:` only, and the delete never reads or deserializes the
+index, so `pubid_class:` has no effect on it. `url:` does: without it `file` is
+the bare name, so a `Db#clear` on an empty pool deletes `./index-vN.yaml` in the
+working directory and leaves `~/.relaton/<type>/` in place. OASIS shipped that
+bug until `url: true` was added. `spec/index/relaton/type_spec.rb` and
+`spec/oasis/relaton/oasis/processor_spec.rb` guard both facts.
+
 ### Key Design Decisions
 
 - Remote indexes cached for 24 hours at `~/.relaton/{type}/index.yaml`

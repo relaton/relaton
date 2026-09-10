@@ -547,7 +547,9 @@ The wiring mirrors NIST/ETSI/CIE:
   rejects that spelling deliberately — a space there is ambiguous against the
   series-only supplement form (`G Suppl. 1`) — so canonicalising it here is the
   agreed division of labour, not a workaround.
-- **Processor** `#remove_index_file` passes the same `pubid_class:`.
+- **Processor** `#remove_index_file` passes `url: true` and `file:` only. It
+  needs no `pubid_class:`: the delete never reads the index (see
+  `lib/relaton/index/CLAUDE.md`).
 
 The local `Relaton::Itu::Pubid` (a Parslet **ref** parser in `pubid.rb`) is
 unrelated to the external `::Pubid::Itu` gem class used for indexing; both coexist

@@ -45,7 +45,8 @@ Namespace: `Relaton::Gost`. Retrieval flow:
 6. **Processor** (`processor.rb`) — registry integration; `@short = :relaton_gost`,
    `@prefix = "GOST"`, `@idtype = "GOST"`, and `@defaultprefix = %r{^(?:GOST|ГОСТ)\b}` so **both
    the Latin `GOST` and Cyrillic `ГОСТ` surface forms route here** (the `\b` stops it swallowing
-   longer tokens). `remove_index_file` passes the same `pubid_class`. Every method touching a
+   longer tokens). `remove_index_file` passes `url: true` and `file:` only — the delete never
+   reads the index, so it needs no `pubid_class` (see `lib/relaton/index/CLAUDE.md`). Every method touching a
    flavor constant lazy-`require_relative`s `../gost` first (the lazy-registry invariant;
    `spec/relaton/lazy_loading_spec.rb` guards it).
 

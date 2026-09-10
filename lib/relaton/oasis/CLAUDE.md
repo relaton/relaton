@@ -80,18 +80,23 @@ unchanged instead of blowing up. Do not "finish" this class by adding them.
 rows (`_type: pubid:oasis:standard`), published by `relaton-data-oasis` on its
 `v2` branch — the same branch `Bibliography::ENDPOINT` reads.
 
-All three call sites pass `pubid_class: ::Pubid::Oasis::Identifier`, and so
-must any new one:
+The producer and the consumer pass `pubid_class: ::Pubid::Oasis::Identifier`:
 
 | Call site | Why it needs `pubid_class:` |
 |---|---|
 | `DataFetcher#index` | `FileIO#save` calls `to_hash` only for instances of it — without it the crawl writes v1-shaped rows under a v2 name, silently |
 | `Bibliography#index` | without it the rows stay raw hashes, `FileIO#sorted` is false, and every lookup scans all 605 rows |
-| `Processor#remove_index_file` | so `Db#clear` clears the entry the other two share instead of creating a third |
 
-`Bibliography#index` also passes `file:`, which the pre-migration code omitted;
-matching the producer's arguments keeps one pooled `:OASIS` entry rather than
-two that evict each other.
+`Processor#remove_index_file` passes `url: true` and `file:`, and no
+`pubid_class:`: the delete never reads the index (see
+`lib/relaton/index/CLAUDE.md`). It used to omit `url: true`, so `Db#clear` on an
+empty pool deleted `./index-v2.yaml` in the working directory and kept the
+cache.
+
+`Bibliography#index` also passes `file:`, which the pre-migration code omitted.
+`file:` names the cache file (`Type` falls back to `index.yaml` without it), so
+the consumer and `remove_index_file` must pass the same one, or `Db#clear`
+leaves the consumer's cache in place.
 
 **This gem never writes `index-v1`.** `relaton-data-oasis`'s crawler derives it
 from the v2 rows, for relaton v2 consumers only.

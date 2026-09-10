@@ -63,8 +63,7 @@ module Relaton
       def remove_index_file
         require_relative "../3gpp"
         Relaton::Index.find_or_create(
-          "3GPP", url: true, file: "#{INDEXFILE}.yaml",
-          pubid_class: ::Pubid::Tgpp::Identifier
+          "3GPP", url: true, file: "#{INDEXFILE}.yaml"
         ).remove_file
       end
     end

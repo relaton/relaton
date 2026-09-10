@@ -104,16 +104,16 @@ whose `refresh_content!` must pass `with_publisher: true` — this one must not.
 ### Index (`index-v2`, pubid-keyed)
 
 `INDEXFILE` is the pubid-backed `index-v2`: rows are `Pubid::Ogc::Identifier`
-hashes (`_type: pubid:ogc:document` with `year`/`number`/`revision`). Every
-index call site — `HitCollection#index`, `DataFetcher#index`,
-`Processor#remove_index_file` — passes
+hashes (`_type: pubid:ogc:document` with `year`/`number`/`revision`). The
+consumer (`HitCollection#index`) and the producer (`DataFetcher#index`) pass
 `pubid_class: ::Pubid::Ogc::Identifier`. That is what makes `Relaton::Index`
 deserialize the rows into identifiers, sort them by `id.root.number`, and let
 `Type#search` bsearch. Omitting it on the **producer** side writes v1-shaped
 rows under a v2 name, silently (`FileIO#save` only calls `to_hash` when the
 value is an instance of `pubid_class`); omitting it on the **consumer** side
 leaves the rows raw hashes with `FileIO#sorted` false, so every lookup scans
-all ~1,258 rows.
+all ~1,258 rows. `Processor#remove_index_file` passes `url: true` and `file:`
+only: the delete never reads the index (see `lib/relaton/index/CLAUDE.md`).
 
 `HitCollection#best_match` follows the ETSI/W3C/IALA idiom:
 
