@@ -13,6 +13,18 @@ RSpec.describe Relaton::Db::Registry do
       .to be_instance_of Relaton::Iso::Processor
   end
 
+  # A flavor with a processor that is not in SUPPORTED_GEMS is never
+  # registered, so Db#fetch cannot route to it. IALA shipped like that.
+  it "lists every flavor processor in SUPPORTED_GEMS" do
+    lib = File.expand_path("../../lib", __dir__)
+    flavors = Dir[File.join(lib, "relaton/*/processor.rb")].map do |file|
+      File.dirname(file).delete_prefix("#{lib}/")
+    end
+    # relaton/core holds the abstract base processor, not a flavor.
+    expect(Relaton::Db::Registry::SUPPORTED_GEMS)
+      .to match_array(flavors - ["relaton/core"])
+  end
+
   it "returns supported processors" do
     processors = Relaton::Db::Registry.instance.supported_processors
     expect(processors).to include :relaton_iso
@@ -133,6 +145,10 @@ RSpec.describe Relaton::Db::Registry do
 
     it "JCGM" do
       expect(Relaton::Db::Registry.instance.by_type("JCGM")).to be_instance_of Relaton::Jcgm::Processor
+    end
+
+    it "IALA" do
+      expect(Relaton::Db::Registry.instance.by_type("IALA")).to be_instance_of Relaton::Iala::Processor
     end
 
     context "PLATEAU" do
