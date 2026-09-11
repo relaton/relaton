@@ -16,16 +16,15 @@ module Relaton
       # @param [String] code JIS document code
       # @param [String, nil] year JIS document year
       #
-      # @return [Relaton::Jis::HitCollection, nil] search result, or nil when
-      #   the reference cannot be parsed
+      # @return [Relaton::Jis::HitCollection] search result
+      #
+      # @raise [Pubid::Errors::ParseError] when the reference is not a JIS
+      #   identifier, so a malformed reference is not reported as "not found"
       #
       def search(code, year = nil)
         pubid = ::Pubid::Jis::Identifier.parse code
         pubid.year ||= year.to_i if year
         HitCollection.new pubid
-      rescue StandardError => e
-        Util.warn "Unable to parse `#{code}` with pubid: #{e.message}"
-        nil
       end
 
       #
@@ -38,15 +37,14 @@ module Relaton
       #
       # @return [Relaton::Jis::Item, nil] JIS document
       #
-      def get(ref, year = nil, opts = {}) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      # @raise [Pubid::Errors::ParseError] when the reference is not a JIS
+      #   identifier
+      #
+      def get(ref, year = nil, opts = {}) # rubocop:disable Metrics/AbcSize
         code = ref.sub(/\s\((all parts|規格群)\)/, "")
         opts[:all_parts] ||= !$1.nil?
         Util.info "Fetching from webdesk.jsa.or.jp ...", key: ref
         hits = search(code, year)
-        unless hits
-          hint [], ref, year
-          return
-        end
         result = opts[:all_parts] ? hits.find_all_parts : hits.find
         if result.is_a? Bib::ItemData
           Util.info "Found: `#{result.docidentifier[0].content}`", key: ref

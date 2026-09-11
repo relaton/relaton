@@ -3,11 +3,12 @@
 describe Relaton::Jis::Bibliography do
   context "class methods" do
     context ".get" do
-      it "returns nil if not found" do
-        expect(described_class).to receive(:search).and_return nil
-        expect do
-          expect(described_class.get("JIS X 0208")).to be_nil
-        end.to output(/\[relaton-jis\] INFO: \(JIS X 0208\) Not found\./).to_stderr_from_any_process
+      # A malformed reference raises, so the caller can tell it from an absent
+      # document. relaton-cli rescues Parslet::ParseFailed, which
+      # Pubid::Errors::ParseError is.
+      it "raises on an unrecognized reference" do
+        expect { described_class.get "not an identifier" }
+          .to raise_error Pubid::Errors::ParseError
       end
     end
   end
