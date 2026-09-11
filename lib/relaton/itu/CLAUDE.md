@@ -27,6 +27,7 @@ All model classes use `Lutaml::Model::Serializable` for XML/YAML serialization:
 - **`ItemData`** → extends `Bib::ItemData` (used by DataParserR for parsed documents)
 - **`Bibitem`** / **`Bibdata`** → extend `Item`, mix in shared behavior from `Bib`
 - **`Ext`** → extends `Bib::Ext` with ITU-specific fields (doctype, structuredidentifier, question, recommendationstatus, ip_notice_received, meeting, meeting_place, meeting_date, intended_type, source)
+- **`Docidentifier`** (`model/docidentifier.rb`) → extends `Bib::Docidentifier`. `#pubid` parses `content` with `Pubid::Itu` on first use (lazy, memoized, soft: nil if it does not parse, no log — the `ISO` co-identifier never parses). `#remove_date!` is `pubid.exclude(:year, :month)` rendered back, so it also clears the dates of the `base` chain and keeps the version (`ITU-T H.264 (V14)`). The result is the pubid canonical spelling (`v10` → `(V10)`). Content that does not parse is left unchanged; there is no regex fallback. `remove_part!`/`to_all_parts!` stay no-ops.
 - **`Doctype`**, **`StructuredIdentifier`**, **`EditorialGroup`**, **`Bureau`**, **`Group`**, **`ApprovalStage`**, **`RecommendationStatus`**, **`Question`**, **`Meeting`**, **`MeetingDate`** — ITU-specific metadata types
 
 ### Runtime lookup (`HitCollection#search`)

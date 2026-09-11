@@ -24,8 +24,9 @@ module Relaton
       # ITU structured identifiers model neither a part nor a date: `bureau`,
       # `docnumber`, `annexid`, `amendment` and `corrigendum` are all identity,
       # and stripping any of them would name a different document. The date is
-      # handled by `Relaton::Itu::Docidentifier#remove_date!`, which strips the
-      # `(MM/YYYY)` suffix from the rendered string. So all three are no-ops.
+      # handled by `Relaton::Itu::Docidentifier#remove_date!`, which removes the
+      # year and month from the docid's pubid and renders it again. So all
+      # three are no-ops.
 
       def remove_part!; end
 
