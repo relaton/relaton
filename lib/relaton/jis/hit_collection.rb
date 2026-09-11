@@ -36,23 +36,15 @@ module Relaton
       #   the list of available edition years when none match the requested year
       #
       def find
-        if pubid.year
-          find_by_year pubid.year
-        else
-          find_all_years
-        end
+        pubid.year ? find_by_year : find_all_years
       end
 
-      def find_by_year(ref_year)
-        missed_years = []
-        @array.each do |hit|
-          next unless hit.matches?
-
-          return hit.item if hit.pubid.year.to_s == ref_year.to_s
-
-          missed_years << hit.pubid.year
-        end
-        missed_years
+      # The item of the requested edition. When no edition has the requested
+      # year, the years of the matching editions are returned.
+      def find_by_year
+        editions = @array.select(&:matches?)
+        hit = edition_hit editions
+        hit ? hit.item : editions.map { |h| h.pubid.year }
       end
 
       # The main item is the latest edition of the requested type; every other
@@ -69,9 +61,11 @@ module Relaton
 
       # The lowest-numbered part becomes the all-parts umbrella; every candidate
       # sharing the series and number is attached as an `instanceOf` relation.
+      # A part-less document counts as part 0. Its index row deserializes with
+      # `parts` nil, not [].
       def find_all_parts
         parts = @array.select { |hit| hit.matches? all_parts: true }
-        lowest = parts.min_by { |hit| hit.pubid.parts.first.to_i }
+        lowest = parts.min_by { |hit| Array(hit.pubid.parts).first.to_i }
         item = lowest.item.to_all_parts
         attach_relations item, item.docidentifier.first.content
       end
@@ -108,6 +102,13 @@ module Relaton
       end
 
       private
+
+      # The exact printed id comes first, then the same identifier without the
+      # reaffirmation mark (`JIS L 4107:2000` finds `JIS L 4107:2000R`).
+      def edition_hit(editions)
+        editions.find { |h| h.pubid.to_s == pubid.to_s } ||
+          editions.find { |h| h.pubid.matches? pubid, ignore: [:reaffirmed] }
+      end
 
       # Broad candidate filter: same series and number as the reference. For a
       # supplement (amendment/corrigendum/explanation) the document series and

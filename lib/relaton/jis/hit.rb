@@ -15,24 +15,34 @@ module Relaton
         new hit, collection
       end
 
+      # The edition aspects. {HitCollection} picks the edition, so a match
+      # ignores them. The reaffirmation mark `R` goes with the year:
+      # `exclude(:year)` keeps it, and `JIS L 4107` must match
+      # `JIS L 4107:2000R`.
+      EDITION = %i[year reaffirmed].freeze
+
       #
       # Check if the hit matches the collection's reference.
       #
-      # The candidate must be the same document type (so a plain standard query
-      # never matches its amendments) and share series and number. Part is
-      # compared only when the reference names a specific part and `all_parts`
-      # is off. Year is filtered separately by {HitCollection}.
+      # The candidate must be the same document type, so a plain standard
+      # query never matches its amendments. The class check is explicit
+      # because pubid's JIS `==` does not compare the class
+      # (`JIS TR X 0014:1999 == JIS X 0014:1999`). The other aspects are
+      # compared, except the edition, and the parts when `all_parts` is on.
+      # This includes the base document of a supplement. The `SYMBOL` is
+      # compared on a standard, but not on a supplement: pubid's supplement
+      # `==` ignores it. {HitCollection#find_by_year} puts the exact printed id
+      # first for that reason.
       #
       # @param [Boolean] all_parts match any part of the document
       #
       # @return [Boolean] true if the hit matches
       #
       def matches?(all_parts: false)
-        cand = pubid
-        return false unless cand && same_document?(cand)
-        return true if all_parts || reference_partless?
+        return false unless pubid.instance_of?(reference.class)
 
-        Array(cand.parts).map(&:to_s) == reference_parts
+        ignore = all_parts ? EDITION + [:parts] : EDITION
+        reference.matches? pubid, ignore: ignore
       end
 
       #
@@ -72,21 +82,6 @@ module Relaton
 
       def reference
         hit_collection.pubid
-      end
-
-      # Same document type, series and number as the reference.
-      def same_document?(cand)
-        cand.instance_of?(reference.class) &&
-          cand.series == reference.series &&
-          cand.number.to_s == reference.number.to_s
-      end
-
-      def reference_partless?
-        reference.parts.nil? || reference.parts.empty?
-      end
-
-      def reference_parts
-        Array(reference.parts).map(&:to_s)
       end
     end
   end
