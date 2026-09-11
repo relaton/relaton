@@ -109,9 +109,6 @@ INDEXFILE = "index-vN".freeze   # base name only — no extension
 - The version number encodes the index **structure** (`v1` = plain-string `:id`,
   `v2` = pubid-hash `:id`); bumping it lets the previous gem line keep reading the
   old file while the new structure is published under a new name.
-- **Exception — jis** carries two constants (`INDEXFILE = "index-v1"` and
-  `INDEXFILE_V2 = "index-v2"`) because it dual-writes both index generations during
-  its pubid migration. Both still follow the no-extension rule.
 
 ### What each flavor call site passes
 

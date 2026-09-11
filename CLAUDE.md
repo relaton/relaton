@@ -393,8 +393,7 @@ regex back.
   `INDEXFILE = "index-vN"` constant (one word, **no extension**) in its top-level
   `lib/relaton/<flavor>.rb`; call sites append `.yaml`/`.zip` (`"#{INDEXFILE}.yaml"`,
   `"#{INDEXFILE}.zip"`). Don't embed the extension in the constant or hardcode
-  `index-vN.zip` at a call site. (jis is the one sanctioned exception — it carries
-  both `INDEXFILE`/`INDEXFILE_V2` for its dual-write migration.) The BIPM flavor
+  `index-vN.zip` at a call site. The BIPM flavor
   advanced its single `INDEXFILE` to the pubid `index-v2` (`_type: pubid:bipm:*`,
   built/read via `pubid_class: ::Pubid::Bipm::Identifier`); the legacy bespoke
   `index-v1` is no longer produced here — `relaton-data-bipm`'s crawler still
@@ -490,6 +489,15 @@ regex back.
   `OData`, `OSLC`, `SAML`, `WSS`), and without the exact rule three of them
   answered with a sibling. All 605 published ids resolve to their own record.
   See `lib/relaton/oasis/CLAUDE.md`.
+  **JIS** was the last flavor that wrote both generations. Its `INDEXFILE` is
+  now the pubid `index-v2` (via `pubid_class: ::Pubid::Jis::Identifier`), and
+  `relaton-data-jis`'s crawler rebuilds `index-v1` from `data/`, as XSF does.
+  That rebuild is exact: on the 2026-09-10 data, all 21,496 v1 row ids are the
+  primary `docidentifier` of their document, and the released consumer sorts
+  its search result by id, so the row order does not matter. **Merge order:**
+  the data repo's rebuild must land first. That crawler resolves `relaton` from
+  `main` on every run, so a gem that stopped writing v1 before the rebuild
+  existed would delete `index-v1` from the published branch.
   The index schema
   and data-repo publishing/Pages contract are specified in
   `docs/data-repository-format.adoc`; see also `lib/relaton/index/CLAUDE.md`.
