@@ -406,7 +406,7 @@ regex back.
   the bsearch key `number` holds the **top-level registry slug** — it was empty
   before pubid `feat/iana-index-number`, which would have bucketed all 3405 rows
   together and silently degraded the search. See `lib/relaton/iana/CLAUDE.md`.
-  **W3C** is the same shape again, and is the pilot for the 13 flavors that still
+  **W3C** is the same shape again, and is the pilot for the 6 flavors that still
   parse ids by hand: its `INDEXFILE` is the pubid `index-v2`
   (`_type: pubid:w3c:*`, via `pubid_class: ::Pubid::W3c::Identifier`), the
   bespoke `index-v1` moves to `relaton-data-w3c`'s crawler (which keeps using the
