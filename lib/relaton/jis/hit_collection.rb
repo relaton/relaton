@@ -101,8 +101,8 @@ module Relaton
       def index
         @index ||= Relaton::Index.find_or_create(
           :jis,
-          url: "#{GH_URL}#{INDEXFILE_V2}.zip",
-          file: "#{INDEXFILE_V2}.yaml",
+          url: "#{GH_URL}#{INDEXFILE}.zip",
+          file: "#{INDEXFILE}.yaml",
           pubid_class: ::Pubid::Jis::Identifier,
         )
       end

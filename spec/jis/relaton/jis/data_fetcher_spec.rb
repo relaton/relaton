@@ -103,9 +103,32 @@ describe Relaton::Jis::DataFetcher do # rubocop:disable Metrics/BlockLength
         expect(subject.agent).to receive(:get)
           .with(url2).and_return resp
         expect(subject).to receive(:parse_page).with(resp)
-        expect(subject.index).to receive(:save)
-        expect(subject.index_v2).to receive(:save)
+        index = double("index")
+        allow(Relaton::Index).to receive(:find_or_create).and_return index
+        expect(index).to receive(:save)
         subject.fetch
+      end
+
+      # relaton-data-jis rebuilds the legacy index-v1 from data/ in its own
+      # crawler, so a crawl writes index-v2 and nothing else.
+      it "opens and saves one index only" do
+        index = double("index")
+        expect(Relaton::Index).to receive(:find_or_create).once.and_return index
+        expect(index).to receive(:save).once
+        expect(subject).to receive(:initial_post).and_return true
+        expect(subject.agent).to receive(:get).with(url2).and_return resp
+        expect(subject).to receive(:parse_page).with(resp)
+        subject.fetch
+      end
+    end
+
+    context "#index" do
+      it "is the pubid index-v2" do
+        index = double("index")
+        expect(Relaton::Index).to receive(:find_or_create).with(
+          :jis, file: "index-v2.yaml", pubid_class: Pubid::Jis::Identifier
+        ).and_return index
+        expect(subject.index).to be index
       end
     end
 
@@ -198,6 +221,12 @@ describe Relaton::Jis::DataFetcher do # rubocop:disable Metrics/BlockLength
     context "#save_doc" do
       let(:id) { "JIS A 1301:1994" }
       let(:file) { "data/jis-a-1301-1994.xml" }
+      # A double, so the example does not replace the suite's pooled :jis
+      # fixture index (spec/jis/support/webmock.rb).
+      let(:index) { double("index") }
+      before do
+        allow(Relaton::Index).to receive(:find_or_create).and_return index
+      end
 
       it "file exists" do
         subject.instance_variable_get(:@files) << file
@@ -211,9 +240,25 @@ describe Relaton::Jis::DataFetcher do # rubocop:disable Metrics/BlockLength
           .with(bib).and_return "serialized"
         expect(File).to receive(:write)
           .with(file, "serialized", encoding: "UTF-8")
-        expect(subject.index).to receive(:add_or_update)
-          .with(id, file)
+        expect(index).to receive(:add_or_update)
+          .with(kind_of(Pubid::Jis::Identifier), file)
+        expect(index).not_to receive(:add_or_update).with(id, anything)
         subject.save_doc bib, "url"
+      end
+
+      # The document is still written to data/, where relaton-data-jis picks
+      # it up for index-v1, but index-v2 only takes a parsed pubid.
+      it "writes but does not index an id pubid cannot parse" do
+        allow(subject).to receive(:serialize)
+          .with(bib).and_return "serialized"
+        expect(Pubid::Jis::Identifier).to receive(:parse).with(id)
+          .and_raise StandardError, "unparseable"
+        expect(File).to receive(:write)
+          .with(file, "serialized", encoding: "UTF-8")
+        expect(index).not_to receive(:add_or_update)
+        expect { subject.save_doc bib, "url" }.to output(
+          /Failed to parse `#{Regexp.escape(id)}` with pubid: unparseable/,
+        ).to_stderr_from_any_process
       end
     end
 

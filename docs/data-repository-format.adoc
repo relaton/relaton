@@ -111,8 +111,10 @@ narrow searches by number.
 The index is named `index-vN` (`.yaml` locally, `.zip` when published). The
 version number encodes the index *structure*, not the data — bumping it (e.g. the
 `v1` → `v2` string-to-pubid migration) lets an older gem line keep reading the
-previous file while the new structure is published under a new name. A flavor
-mid-migration may publish both (jis ships `index-v1` and `index-v2` at once).
+previous file while the new structure is published under a new name. A data
+repository may publish both: the relaton gem writes `index-v2`, and the data
+repository's own crawler rebuilds `index-v1` for released consumers (jis, bipm,
+iana and others).
 
 In the relaton gem each flavor pins its current name in a single constant —
 `INDEXFILE = "index-vN"` (base name, no extension) in `lib/relaton/<flavor>.rb` —

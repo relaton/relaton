@@ -58,6 +58,6 @@ All classes live under `lib/relaton/jis/`:
 
 ## Testing
 
-- **Index fixture:** `spec/fixtures/index-v2.zip` (the pubid-based `index-v2`) is deserialized via `Pubid::Jis::Identifier` and pre-loaded into the `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). Run `rake spec:update_index` to refresh from relaton-data-jis.
-- **Lookup path:** `Bibliography.get`/`search` parse the reference with `pubid`, then `HitCollection` matches against `index-v2` (`Hit#matches?` compares type/series/number/part; year is filtered separately). The `DataFetcher` still generates `index-v1` too, but the runtime no longer reads it.
+- **Index fixture:** `spec/fixtures/index-v2.zip` (the pubid-based `index-v2`) is deserialized via `Pubid::Jis::Identifier` and pre-loaded into the `Relaton::Index` pool in `before(:suite)` (configured in `spec/support/webmock.rb`). No rake task refreshes it: download `index-v2.zip` from the `v2` branch of relaton-data-jis into `spec/jis/fixtures/`.
+- **Lookup path:** `Bibliography.get`/`search` parse the reference with `pubid`, then `HitCollection` matches against `index-v2` (`Hit#matches?` compares type/series/number/part; year is filtered separately). The `DataFetcher` writes `index-v2` only. relaton-data-jis rebuilds the legacy string `index-v1` from `data/` in its own crawler, because the released `relaton-jis` gem still reads `index-v1.zip` from the `v2` branch.
 - **pubid dependency:** the gemspec requires `pubid ~> 2.0.0.pre.alpha.3`, the published release carrying the working lutaml-model `from_hash` (the earlier `2.0.0.pre.alpha.2` was broken). Override to a local checkout with `bundle config set local.pubid /path/to/pubid`.
