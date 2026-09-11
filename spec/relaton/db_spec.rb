@@ -497,6 +497,21 @@ RSpec.describe Relaton::Db do
       expect(bib).to be_instance_of Relaton::Bipm::ItemData
       expect(bib.docidentifier.first.content).to eq "CIPM 43rd Meeting (1950)"
     end
+
+    # Routing check: `#fetch` must hand an `IALA ...` reference to the IALA
+    # processor. The flavor's retrieval belongs to spec/iala, so
+    # `Bibliography.get` is stubbed.
+    it "IALA" do
+      docid = Relaton::Bib::Docidentifier.new(
+        content: "IALA S1070 Ed 2.0", type: "IALA",
+      )
+      item = Relaton::Iala::ItemData.new docidentifier: [docid]
+      expect(Relaton::Iala::Bibliography).to receive(:get)
+        .with("IALA S1070", nil, {}).and_return item
+      bib = subject.fetch("IALA S1070")
+      expect(bib).to be_instance_of Relaton::Iala::ItemData
+      expect(bib.docidentifier.first.content).to eq "IALA S1070 Ed 2.0"
+    end
   end
 
   it "fetch std" do

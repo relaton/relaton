@@ -7,6 +7,10 @@ RSpec.describe "Relaton.prefix_flavor" do
     expect(Relaton.prefix_flavor("NIST")).to eq [Relaton::Nist]
   end
 
+  it "resolves the IALA prefix" do
+    expect(Relaton.prefix_flavor("IALA")).to eq [Relaton::Iala]
+  end
+
   it "resolves a secondary prefix owned by the same flavor" do
     expect(Relaton.prefix_flavor("NBS")).to eq [Relaton::Nist]
   end
