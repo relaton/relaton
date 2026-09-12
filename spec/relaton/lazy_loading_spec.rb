@@ -42,6 +42,23 @@ RSpec.describe "lazy flavor loading" do
     expect(out).to include(marker)
   end
 
+  # CEN's processor used to `require_relative "../cen"` at file load, so simply
+  # building the registry pulled in mechanize, isoics and pubid.
+  it "registers the CEN processor without loading the heavy cen.rb" do
+    out = run_in_clean_process(<<~RUBY)
+      require "relaton/db"
+      Relaton::Db::Registry.instance
+      unless defined?(Relaton::Cen::Processor)
+        abort "FAIL: Cen::Processor was not registered"
+      end
+      if Relaton::Cen.const_defined?(:Bibliography, false)
+        abort "FAIL: Cen::Bibliography was eagerly loaded"
+      end
+      abort "FAIL: pubid was eagerly loaded" if defined?(Pubid::CenCenelec)
+    RUBY
+    expect(out).to include(marker)
+  end
+
   it "resolves prefixes to processors without loading the heavy flavor" do
     out = run_in_clean_process(<<~RUBY)
       require "relaton/db"
@@ -80,7 +97,7 @@ RSpec.describe "lazy flavor loading" do
     out = run_in_clean_process(<<~RUBY)
       require "relaton/db"
       reg = Relaton::Db::Registry.instance
-      %w[ISO IEC ETSI].each do |type|
+      %w[ISO IEC ETSI CEN].each do |type|
         hash = reg.by_type(type).grammar_hash
         abort "FAIL: \#{type} grammar_hash" unless hash.is_a?(String) && !hash.empty?
       end

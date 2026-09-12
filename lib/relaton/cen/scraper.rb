@@ -75,12 +75,20 @@ module Relaton
           Bib::Status.new(stage: stage)
         end
 
-        # @param hit [RelatonCen::Hit]
+        # The number and part come from the pubid. `#root` is the accessor that
+        # answers for every form: an adopted norm keeps both on the adopted ISO
+        # document, and a supplement keeps both on the document it supplements.
+        # pubid holds a sub-part inside `part` (`61375-2-3` gives `"2-3"`), so
+        # the separator swap reproduces the old `"2:3"`.
+        #
+        # @param hit [Relaton::Cen::Hit]
         # @return [Relaton::Bib::StructuredIdentifier]
         def fetch_structuredid(hit)
-          %r{(?<docnum>\d+)(?:-(?<part>\d+))?(?:-(?<subpart>\d+))?} =~ hit[:code]
-          partnumber = [part, subpart].compact.join(":")
-          StructuredIdentifier.new(docnumber: docnum, partnumber: partnumber, agency: ["CEN"])
+          root = hit.pubid&.root
+          docnumber = root&.number&.to_s
+          partnumber = root&.part.to_s.split("-").join(":")
+          StructuredIdentifier.new(docnumber: docnumber, partnumber: partnumber,
+                                   agency: ["CEN"])
         end
 
         # Fetch relations.
@@ -201,7 +209,7 @@ module Relaton
             doctype: Bib::Doctype.new(content: "international-standard"),
             flavor: "cen",
             ics: fetch_ics(doc),
-            structuredidentifier: fetch_structuredid(hit.hit),
+            structuredidentifier: fetch_structuredid(hit),
           )
         end
       end
