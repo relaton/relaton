@@ -36,6 +36,12 @@ RSpec.describe "Relaton.prefix_flavor" do
     expect(Relaton.prefix_flavor("CISPR")).to eq [Relaton::Iec]
   end
 
+  # CEN's canonical @prefix is "CEN"; CLC is CENELEC's own token and reaches
+  # the register only through Pubid::CenCenelec.prefixes.
+  it "resolves a pubid-sourced CENELEC prefix (CLC)" do
+    expect(Relaton.prefix_flavor("CLC")).to eq [Relaton::Cen]
+  end
+
   it "is case-insensitive" do
     expect(Relaton.prefix_flavor("iso/iec")).to eq Relaton.prefix_flavor("ISO/IEC")
   end

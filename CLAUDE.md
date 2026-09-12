@@ -405,7 +405,7 @@ regex back.
   the bsearch key `number` holds the **top-level registry slug** — it was empty
   before pubid `feat/iana-index-number`, which would have bucketed all 3405 rows
   together and silently degraded the search. See `lib/relaton/iana/CLAUDE.md`.
-  **W3C** is the same shape again, and is the pilot for the 6 flavors that still
+  **W3C** is the same shape again, and is the pilot for the 5 flavors that still
   parse ids by hand: its `INDEXFILE` is the pubid `index-v2`
   (`_type: pubid:w3c:*`, via `pubid_class: ::Pubid::W3c::Identifier`), the
   bespoke `index-v1` moves to `relaton-data-w3c`'s crawler (which keeps using the
@@ -501,6 +501,26 @@ regex back.
   The index schema
   and data-repo publishing/Pages contract are specified in
   `docs/data-repository-format.adoc`; see also `lib/relaton/index/CLAUDE.md`.
+- **A flavor with no index migrates to pubid in the BSI shape.** `INDEXFILE` and
+  `pubid_class:` are the *index* half of a pubid migration, and a flavor that
+  scrapes has neither. **CEN** is the worked example: it crawls
+  `standards.cencenelec.eu`, publishes no index and has no data repo, so the
+  migration is parse the query with pubid, select the hits with
+  `matches?(hit.pubid, ignore: …)`, and back the `Docidentifier` with pubid —
+  no index, no `pubid_class:`, no data-repo step. Two rules generalize from it.
+  First, **`#root` is the accessor that answers for every form**: an
+  `AdoptedEuropeanNorm` (`CEN ISO/TS 21003-7:2019`) holds its number, part and
+  year on the adopted ISO identifier, so `base_document.year` is nil where
+  `root.year` is `"2019"` — over the 67-reference probe corpus `root.year`
+  matched the old regex on every parseable reference and `base_document.year`
+  missed all three adopted forms. Second, **decide "the query omitted this"
+  by exclusion, not by an accessor**: `id.exclude(*keys) == id` is true exactly
+  when the component is absent, and it keeps working for the components that
+  live on a nested identifier, where the direct accessor reads nil. What it
+  must NOT do is ignore the supplement year whenever the query names no
+  amendment year — that lets a base reference match its own amendment's record.
+  Ignore it only when the query itself names a supplement that carries no year.
+  See `lib/relaton/cen/CLAUDE.md`.
 - **An unrecognized query reference raises.** A flavor parses the caller's
   reference with pubid and lets `Pubid::Errors::ParseError` (a
   `Parslet::ParseFailed`) propagate: relaton-cli rescues it and prints

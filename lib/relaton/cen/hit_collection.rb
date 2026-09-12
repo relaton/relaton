@@ -39,18 +39,67 @@ module Relaton
       private
 
       def sort
-        @array.sort! do |a, b|
-          ap = Bibliography.code_to_parts a.hit[:code]
-          bp = Bibliography.code_to_parts b.hit[:code]
-          s = ap[:code] <=> bp[:code]
-          s = ap[:part].to_s <=> bp[:part].to_s if s.zero?
-          s = bp[:year].to_s <=> ap[:year].to_s if s.zero?
-          s = ap[:amd].to_s <=> bp[:amd].to_s if s.zero?
-          s = ap[:amy].to_s <=> bp[:amy].to_s if s.zero?
-          s = ap[:ac].to_s <=> bp[:ac].to_s if s.zero?
-          s
-        end
+        @array.sort_by! { |hit| sort_key hit }
         self
+      end
+
+      #
+      # The order the `code_to_parts` comparison gave, read from pubid instead:
+      # the document family ascending, then the part ascending with a part-less
+      # hit first, then the year DESCENDING with a year-less hit last, then the
+      # supplement, so a base document precedes its own amendments and
+      # corrigenda. A hit pubid cannot parse sorts last.
+      #
+      # `#root` is the accessor that answers for every form: an adopted norm
+      # keeps its number, part and year on the adopted ISO document.
+      #
+      # @param hit [Relaton::Cen::Hit]
+      #
+      # @return [Array]
+      #
+      def sort_key(hit)
+        id = hit.pubid
+        return [1, "", [], 0, ["", "", ""]] unless id
+
+        root = id.root
+        [0, family(id), part_segments(root), -root.year.to_s.to_i,
+         supplement_key(id)]
+      end
+
+      # The document family: the base document with its part and year dropped,
+      # e.g. `EN 13250:2000/A1:2005` -> `EN 13250`. Read from the base document
+      # rather than from `#root`, so that `EN ISO 1234` and `CEN ISO/TS 1234`
+      # stay apart.
+      def family(id)
+        id.base_document.exclude(:year, :part, :subpart).to_s
+      end
+
+      # Part segments as integers, so `-10` sorts after `-2`. pubid holds a
+      # sub-part inside `part` (`61375-2-3` gives `"2-3"`).
+      def part_segments(root)
+        root.part.to_s.split("-").map(&:to_i)
+      end
+
+      def supplement_key(id)
+        sup = supplements(id).first
+        return ["", "", ""] unless sup
+
+        [sup.supplement_type.to_s, sup.supplement_number.to_s,
+         sup.supplement_year.to_s]
+      end
+
+      # A consolidated identifier (`EN 285:2015+A1:2021`) holds its base
+      # document and its supplements in `#identifiers`, and answers none of the
+      # supplement accessors itself; an amendment or corrigendum IS the
+      # supplement.
+      def supplements(id)
+        if id.respond_to? :identifiers
+          id.identifiers.drop(1)
+        elsif id.respond_to? :supplement_type
+          [id]
+        else
+          []
+        end
       end
 
       # @param resp [Mechanize::Page]

@@ -1,4 +1,4 @@
-require_relative "../cen"
+require "relaton/core/processor"
 
 module Relaton
   module Cen
@@ -6,6 +6,7 @@ module Relaton
       def initialize # rubocop:disable Lint/MissingSuper
         @short = :relaton_cen
         @prefix = "CEN"
+        @pubid_flavor = :CenCenelec # global prefixes from Pubid::CenCenelec.prefixes
         @defaultprefix = %r{^(C?EN|ENV|CWA|HD|CR)[\s/]}
         @idtype = "CEN"
       end
@@ -13,27 +14,31 @@ module Relaton
       # @param code [String]
       # @param date [String, NilClass] year
       # @param opts [Hash]
-      # @return [RelatonBib::BibliographicItem]
+      # @return [Relaton::Cen::ItemData]
       def get(code, date, opts)
-        Bibliography.get(code, date, opts)
+        require_relative "../cen"
+        ::Relaton::Cen::Bibliography.get(code, date, opts)
       end
 
       # @param xml [String]
-      # @return [RelatonBib::BibliographicItem]
+      # @return [Relaton::Cen::ItemData]
       def from_xml(xml)
-        Item.from_xml xml
+        require_relative "../cen"
+        ::Relaton::Cen::Item.from_xml xml
       end
 
       # @param yaml [String]
-      # @return [RelatonBib::BibliographicItem]
+      # @return [Relaton::Cen::ItemData]
       def from_yaml(yaml)
-        Item.from_yaml yaml
+        require_relative "../cen"
+        ::Relaton::Cen::Item.from_yaml yaml
       end
 
       # Returns hash of XML grammar
       # @return [String]
       def grammar_hash
-        @grammar_hash ||= Cen.grammar_hash
+        require_relative "../cen"
+        @grammar_hash ||= ::Relaton::Cen.grammar_hash
       end
     end
   end

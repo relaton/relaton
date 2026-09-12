@@ -118,12 +118,20 @@ RSpec.describe Relaton::Cen do
     end.to raise_error Relaton::RequestError
   end
 
+  # An unrecognized query reference raises, so that relaton-cli can print
+  # `"…" is not a recognized standards identifier`. Returning nil would make
+  # "malformed" look like "not found". No request is made, so no cassette.
+  it "raises when the reference is not an identifier" do
+    expect { Relaton::Cen::Bibliography.get "CEN NOT FOUND" }
+      .to raise_error Pubid::Errors::ParseError
+  end
+
   it "returns nil when document doesn't exist" do
-    VCR.use_cassette "not_found" do
+    VCR.use_cassette "en_99999999_not_found" do
       bib = ""
       expect do
-        bib = Relaton::Cen::Bibliography.get "CEN NOT FOUND"
-      end.to output(/\[relaton-cen\] INFO: \(CEN NOT FOUND\) Not found\./).to_stderr_from_any_process
+        bib = Relaton::Cen::Bibliography.get "EN 99999999"
+      end.to output(/\[relaton-cen\] INFO: \(EN 99999999\) Not found\./).to_stderr_from_any_process
       expect(bib).to be_nil
     end
   end
