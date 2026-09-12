@@ -655,4 +655,152 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       end
     end
   end
+
+  # --- MachineIndex unit specs -------------------------------------------
+  #
+  # Driven directly with an injected parser rather than through `generate`.
+  # The examples above use the real `Pubid::Iso::Identifier` via `flavor:`, and
+  # ISO has no id that parses yet yields no root number, so the numberless path
+  # is unreachable from there. `MachineIndex.new(pubid_class:)` is public, so no
+  # production seam is needed.
+  describe Relaton::Cli::IndexSiteGenerator::MachineIndex do
+    # Minimal stand-in for a pubid identifier. `number: nil` models a flavor
+    # whose ids are *named* rather than numbered.
+    FakeRoot = Struct.new(:number)
+    FakeId = Struct.new(:num, :rendered) do
+      def root = FakeRoot.new(num)
+      def to_hash = { "_type" => "fake", "number" => num.to_s }
+    end
+
+    # Parses everything; ids starting with "name-" carry no root number.
+    class NumberlessParser
+      def self.parse(rendered)
+        FakeId.new(rendered.start_with?("name-") ? nil : rendered[/\d+/], rendered)
+      end
+    end
+
+    # RFCs parse; "draft-" ids do not parse at all.
+    class PartialParser
+      def self.parse(rendered)
+        raise ArgumentError, "unparseable" if rendered.start_with?("draft-")
+
+        FakeId.new(rendered[/\d+/], rendered)
+      end
+    end
+
+    def build(parser, ids)
+      described_class.new(pubid_class: parser).tap do |mi|
+        ids.each_with_index { |id, i| mi.add(id, format("data/d%04d.yaml", i)) }
+      end
+    end
+
+    def shard_sizes(machine)
+      machine.each_shard.to_a.map { |(_, rows)| rows.size }
+    end
+
+    describe "rows whose id parses but has no root number" do
+      it "keys on the rendered id instead of the empty string" do
+        machine = build(NumberlessParser, ["name-alpha", "STD 7"])
+        expect(machine.rows.map(&:key)).to contain_exactly("name-alpha", "7")
+      end
+
+      it "spreads a wholly numberless corpus instead of piling into shard 0" do
+        stub_const("#{described_class}::MIN_ROWS", 10)
+        machine = build(NumberlessParser, (1..400).map { |i| "name-#{i}" })
+
+        sizes = shard_sizes(machine)
+        # crc32("") == 0, so the unfixed keying put every row in one shard.
+        expect(sizes.size).to be > 1
+        expect(sizes.max).to be < machine.count
+      end
+    end
+
+    describe "a structured index with unparseable rows" do
+      # 96% parse, so the corpus is structured, but the stragglers cannot be
+      # written as pubid hashes.
+      let(:machine) do
+        stub_const("#{described_class}::MIN_ROWS", 10)
+        build(PartialParser, (1..96).map { |i| "RFC #{i}" } +
+                             (1..4).map { |i| "draft-thing-#{i}" })
+      end
+
+      it "is classified structured" do
+        expect(machine).to be_structured
+        expect(machine.index_generation).to eq("v3")
+      end
+
+      it "excludes the unparseable rows, and reports how many" do
+        expect(machine.count).to eq(100)
+        expect(machine.indexed_rows.size).to eq(96)
+        expect(machine.skipped_count).to eq(4)
+        expect(machine.indexed_rows.map(&:rendered)).to all(start_with("RFC"))
+      end
+
+      it "writes a monolith whose every row is a structured id" do
+        Dir.mktmpdir("mono-") do |dir|
+          path = File.join(dir, "index-v3.yaml")
+          machine.write_monolith(path)
+          rows = YAML.safe_load(File.read(path), permitted_classes: [Symbol])
+          # A single plain-string row would make FileIO#deserialize_id raise
+          # InvalidIndexError and reject the whole index.
+          expect(rows.size).to eq(96)
+          expect(rows.map { |r| r[:id] }).to all(be_a(Hash))
+        end
+      end
+
+      it "counts only the written rows in the manifest" do
+        expect(machine.manifest(generated: "2026-01-01")["count"]).to eq(96)
+      end
+
+      it "keeps unparseable rows when the corpus is flat" do
+        flat = build(PartialParser, ["RFC 1"] + (1..9).map { |i| "draft-thing-#{i}" })
+        expect(flat).not_to be_structured
+        expect(flat.indexed_rows.size).to eq(10)
+        expect(flat.skipped_count).to eq(0)
+      end
+    end
+
+    describe "#structured?" do
+      it "does not scan the rows" do
+        machine = build(PartialParser, (1..50).map { |i| "RFC #{i}" })
+        # The quadratic bug was an O(n) `@rows.count(&:pubid)` per call.
+        expect(machine.rows).not_to receive(:count)
+        2.times { machine.structured? }
+      end
+
+      it "tracks rows added after an earlier read" do
+        machine = build(PartialParser, (1..9).map { |i| "draft-#{i}" })
+        expect(machine).not_to be_structured
+        90.times { |i| machine.add("RFC #{i}", "data/r#{i}.yaml") }
+        expect(machine).to be_structured
+      end
+    end
+
+    describe "Row" do
+      it "does not retain the identifier object" do
+        # Holding it costs 3.14 KB/row against 0.44 KB for the derived values
+        # alone — 543 MB vs 76 MB on a 177k-row corpus.
+        expect(described_class::Row.members).to eq(%i[rendered file key id_hash])
+      end
+    end
+
+    describe "#yaml_scalar" do
+      # Property: whatever goes in must come back out byte-identical after a
+      # YAML round trip. Catches type coercion, whitespace loss and, most
+      # importantly, control characters that make the whole file unparseable.
+      [
+        "ISO 9999", "data/x.yaml", "ISO/IEC 1:2 3",
+        "yes", "no", "on", "off", "true", "false", "null", "~", "y", "N",
+        "trailing ", " leading", "a\tb", "\e[1m", "", "42", "-x", "a: b", "a #c"
+      ].each do |value|
+        it "round-trips #{value.inspect}" do
+          machine = described_class.new
+          doc = "---\n- :id: #{machine.yaml_scalar(value)}\n  :file: data/x.yaml\n"
+          parsed = YAML.safe_load(doc, permitted_classes: [Symbol])
+          expect(parsed.first[:id]).to eq(value)
+        end
+      end
+    end
+  end
+
 end
