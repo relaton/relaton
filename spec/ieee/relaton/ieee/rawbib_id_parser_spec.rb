@@ -185,4 +185,40 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
   # Defect 2: the "Active" status word (captured with a leading space) rendered
   # as a stray token + a double space (`IEEE  Active Std ...`); it must be dropped.
   it_behaves_like "parse normtitle", "IEEE Active Unapproved Draft Std P12207.0_D2, Jul 2007", "IEEE Active Unapproved P12207.0/D2, Jul 2007"
+
+  # Defect 3: a record with no standard number (white papers, research
+  # documents) has a title for normtitle and a category for stdnumber. The
+  # fallback made an id from the first two words (`A Call`) or from the
+  # category (`IEEE White Paper`). All such records then wrote one file, and
+  # the last write won. They must get no id, so that the fetcher skips them.
+  context "record with no standard number" do
+    it "gives no id for a title that starts with two words" do
+      nt = "A Call to Action for Businesses Using AI - Ethically Aligned Design for Business"
+      expect(described_class.parse(nt, "White Paper")).to be_nil
+    end
+
+    it "gives no id for a publisher and a word" do
+      expect(described_class.parse("IEEE Grid Vision 2050", "Smart Grid Research: Power")).to be_nil
+    end
+
+    it "gives no id for a category stdnumber" do
+      nt = "Aspects and Challenges of Patient-Controlled Electronic Health Records"
+      expect(described_class.parse(nt, "White Paper")).to be_nil
+    end
+  end
+
+  # A real standard with a title-like normtitle has its number in stdnumber.
+  # The two-word fallback hid it; the id must come from stdnumber.
+  context "standard with a title for normtitle" do
+    it "takes the id from stdnumber" do
+      nt = "IEEE Standard for Ethernet Amendment 3: Physical Layer Specifications and " \
+           "Management Parameters for 40 Gb/s and 100 Gb/s Operation over Fiber Optic Cables"
+      expect(described_class.parse(nt, "802.3bm-2015").to_s).to eq "IEEE Std 802.3bm-2015"
+    end
+
+    it "takes the id from stdnumber for a repeated publisher" do
+      nt = "IEEE IEEE Std C57.13.3-2025 (Revision of IEEE Std C57.13.3-2014)"
+      expect(described_class.parse(nt, "C57.13.3-2025").to_s).to eq "IEEE Std C57.13.3-2025"
+    end
+  end
 end

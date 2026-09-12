@@ -45,6 +45,18 @@ canonical string pubid then parses (→ 98.7% pubid objects, 100% coverage).
   loss like `/D3.0`→`/D.0` does not). If no pubid parse is faithful it returns the
   private fallback `Renderer` (the old bespoke id string) — so there is **zero
   silent digit loss**. ~1.3% of docs keep the `Renderer`.
+- **An id must have a digit in its number.** The last two fallback branches
+  ("publisher, number" and the `else` that uses `stdnumber`) accept a number
+  only when it has a digit. Without that rule the first two words of any title
+  became an id (`A Call to Action …` → `A Call`), and a category `stdnumber`
+  became one too (`White Paper` → `IEEE White Paper`). Since the id is the
+  output filename, 176 records shared 42 files and 134 were overwritten. Now
+  `parse` returns nil for them, and `DataFetcher#parse_entry` skips them with
+  the `PubID parse error` warning. A real standard with a title-like
+  `normtitle` falls through to `stdnumber` and keeps its id
+  (`IEEE Standard for Ethernet …` / `802.3bm-2015` → `IEEE Std 802.3bm-2015`);
+  16 such standards were hidden by the old branch. **The digit rule alone is
+  not enough** — see `#no_standard_number?` under **Fetch robustness**.
 - **No public `PubId` class.** The old `Relaton::Ieee::PubId` is gone; its
   rendering survives only as the private `RawbibIdParser::Renderer` used by the
   fallback. pubid (`::Pubid::Ieee::Identifier`) is the identifier abstraction.
@@ -77,6 +89,24 @@ Amendment docnumbers can be pathologically long — pubid's `to_s` embeds the fu
 "(Amendment to … as amended by …)" clause (300+ chars). Two guards keep one such
 id from silently halving the crawl (see the `data_fetcher.rb` history):
 
+- **A record with no standard number is skipped.** `#no_standard_number?` is
+  true when `publicationsubtype` is in `NON_STANDARD_SUBTYPES` (`Whitepapers`,
+  `Research Documents`) **and** `stdnumber` has no digit. IEEE gives such a
+  document no designation and cites it by title, so every id built from it is
+  a title fragment. The digit rule in `RawbibIdParser` cannot catch all of
+  them, because pubid parses a digit out of the title itself
+  (`IEEE 802 Nendica Report: …` → `IEEE Std 802`, three documents; `IEEE 3D
+  Body Processing …` → `IEEE Std 3D`, three more). Both conditions are
+  required, so a record of such a subtype that does carry a number keeps it
+  (`Amendment 1:2011 to SMPTE ST 430-9:2008`). The check runs in **two**
+  places: `#parse_entry` (with a warning) and `#extract_index_entry` — the
+  prefilter groups files by docnumber and keeps the newest of each group, so a
+  white paper that reads as `IEEE Std 802` would otherwise join the real
+  standard's group and push its file out. Measured on the raw corpus: 157
+  records skipped, and no kept document has a digit-less id. The subtype match
+  is exact, which the data supports — all 570,744 raw files carry one of three
+  spellings (`Standard Docs` 564,611, `Whitepapers` 5,240,
+  `Research Documents` 891), so a new spelling is the one thing to watch for.
 - **Bounded filenames.** `Core::DataFetcher#output_file` caps the basename at
   `MAX_BASENAME_BYTES` (255): when the sanitized id exceeds the OS limit it
   byte-truncates (`byteslice(…).scrub("")`, valid UTF-8) and appends a 12-char

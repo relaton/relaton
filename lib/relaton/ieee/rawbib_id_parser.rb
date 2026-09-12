@@ -500,15 +500,21 @@ module Relaton
         # number, year
         when /^(\w+)-(\d{4})\D/ then Renderer.new(publisher: "IEEE", number: $1, year: $2)
 
-        # publisher, number
-        when /^(?<publisher>[A-Z\/]+)#{APPROV}(?:\sDraft)?#{STD}(?:\sNo\.?)?\s(?<number>\w+)/o
+        # publisher, number. The number must have a digit: otherwise a title
+        # such as "A Call to Action ..." gives the id `A Call`.
+        when /^(?<publisher>[A-Z\/]+)#{APPROV}(?:\sDraft)?#{STD}(?:\sNo\.?)?\s(?<number>[[:alpha:]]*\d\w*)/o
           create_pubid(Regexp.last_match)
 
         else
           # Last resort: fall back to the raw stdnumber. (#parse runs this for
           # every doc as the faithfulness reference, so no warning here — an
-          # unparseable id surfaces downstream as a nil docnumber.)
-          Renderer.new(publisher: "IEEE", srd: true, number: stdnumber)
+          # unparseable id surfaces downstream as a nil docnumber.) A record
+          # with no standard number (a white paper, a research document) has a
+          # category here, e.g. "White Paper". It gets no id, because all such
+          # records would otherwise share one id, and so one output file.
+          if stdnumber.to_s.match?(/\d/)
+            Renderer.new(publisher: "IEEE", number: stdnumber)
+          end
         end
       rescue ArgumentError
         nil

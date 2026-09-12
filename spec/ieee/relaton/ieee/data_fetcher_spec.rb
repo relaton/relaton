@@ -178,6 +178,54 @@ RSpec.describe Relaton::Ieee::DataFetcher do
       ).to_stderr_from_any_process
     end
 
+    # A white paper or a research document has no standard number: IEEE gives
+    # it no designation and cites it by title. Its `stdnumber` is a category,
+    # and its `normtitle` is a title, so any id made from them is a fragment
+    # (`IEEE Std 802` from "IEEE 802 Nendica Report: ..."), and records that
+    # share a fragment overwrite each other. Skip such a record.
+    context "record with no standard number" do
+      let(:xml) do
+        <<~XML
+          <publication>
+            <normtitle><![CDATA[IEEE 802 Nendica Report: The Lossless Network for Data Centers]]></normtitle>
+            <publicationinfo>
+              <stdnumber>White Paper</stdnumber>
+              <publicationsubtype>Whitepapers</publicationsubtype>
+              <standard_id>10082</standard_id>
+            </publicationinfo>
+          </publication>
+        XML
+      end
+
+      it "skips it in the full parse" do
+        allow(File).to receive(:read).with("wp.xml", encoding: "UTF-8").and_return xml
+        expect(Relaton::Ieee::IdamsParser).not_to receive(:new)
+        expect do
+          expect(df.send(:parse_entry, 0, "wp.xml")).to be_nil
+        end.to output(/WARN: No standard number/).to_stderr_from_any_process
+      end
+
+      it "skips it in the prefilter" do
+        allow(File).to receive(:read).with("wp.xml", encoding: "UTF-8").and_return xml
+        expect(df.send(:extract_index_entry, 0, "wp.xml")).to be_nil
+      end
+
+      it "keeps a record of that type that has a number" do
+        std = xml.sub("White Paper", "ST 430-9:2008 Am1:2011")
+                 .sub("IEEE 802 Nendica Report: The Lossless Network for Data Centers",
+                      "Amendment 1:2011 to SMPTE ST 430-9:2008")
+        allow(File).to receive(:read).with("smpte.xml", encoding: "UTF-8").and_return std
+        entry = df.send(:extract_index_entry, 0, "smpte.xml")
+        expect(entry[2]).to eq "IEEE ST 430-9:2008 Am1:2011"
+      end
+
+      it "keeps a standard document with a category stdnumber" do
+        std = xml.sub("Whitepapers", "Standard Docs")
+        allow(File).to receive(:read).with("std.xml", encoding: "UTF-8").and_return std
+        expect(df.send(:extract_index_entry, 0, "std.xml")[2]).to eq "IEEE Std 802"
+      end
+    end
+
     context "save document" do
       let(:bib) { Relaton::Ieee::ItemData.new docnumber: "5678" }
 
