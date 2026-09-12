@@ -20,6 +20,12 @@ module Relaton
         "E" => false, "B" => false, "W" => false
       }.freeze
 
+      # Publication subtypes that IEEE does not give a designation to. Such a
+      # record carries a category in `stdnumber` ("White Paper", "Smart Grid
+      # Research: …") and a title in `normtitle`, and IEEE itself cites it by
+      # title. See {#no_standard_number?}.
+      NON_STANDARD_SUBTYPES = ["Whitepapers", "Research Documents"].freeze
+
       class << self
         #
         # Build the pubid-structured `index-v2` from a directory of already
@@ -307,6 +313,12 @@ module Relaton
 
         normtitle = cheap_extract_field(xml, "normtitle")
         stdnumber = cheap_extract_field(xml, "stdnumber")
+        # Drop it here as well as in #parse_entry: the winner selection groups
+        # files by docnumber, so a white paper that reads as `IEEE Std 802`
+        # would join the group of the real standard and push its file out.
+        subtype = cheap_extract_field(xml, "publicationsubtype")
+        return nil if no_standard_number?(subtype, stdnumber)
+
         docnumber = nil
         if normtitle && stdnumber
           pubid = RawbibIdParser.parse(normtitle, stdnumber)
@@ -317,6 +329,23 @@ module Relaton
         # Cheap parse couldn't handle this file — keep it; full parse will
         # either succeed or surface the real error.
         [idx, file, nil, file.include?("/updates.")]
+      end
+
+      #
+      # True when the record has no standard number. IEEE gives a white paper
+      # or a research document no designation, so `stdnumber` holds a category
+      # and `normtitle` holds a title. An id built from either is a title
+      # fragment, and records that share a fragment overwrite each other's
+      # output file. Both conditions are required: a record of such a subtype
+      # that does carry a number keeps it.
+      #
+      # @param [String, nil] subtype document element "publicationsubtype"
+      # @param [String, nil] stdnumber document element "stdnumber"
+      #
+      # @return [Boolean]
+      #
+      def no_standard_number?(subtype, stdnumber)
+        NON_STANDARD_SUBTYPES.include?(subtype) && !stdnumber.to_s.match?(/\d/)
       end
 
       def cheap_extract_field(xml, tag)
@@ -597,6 +626,13 @@ module Relaton
           return nil
         end
         return nil if doc.publicationinfo&.standard_id == "0"
+
+        info = doc.publicationinfo
+        if no_standard_number?(info&.publicationsubtype, info&.stdnumber)
+          Util.warn "No standard number. Normtitle: `#{doc.normtitle}`, " \
+                    "file: `#{file}`"
+          return nil
+        end
 
         local_errors = Hash.new(true)
         bib = IdamsParser.new(doc, self, local_errors).parse
