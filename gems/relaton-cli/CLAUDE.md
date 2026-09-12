@@ -134,9 +134,21 @@ either without reading this will lead you back to a 150 MB page:
   research-library metadata) that are already part of the corpus (in `index-vN.yaml`).
   **`each_document` is the streaming spine**: it yields normalized items instead
   of accumulating them, and `ShardWriter` buffers at most one shard of each
-  family, so peak RSS is O(shard size) — measured at ~38 MB above baseline for a
-  20,000-document, 79 MB corpus. Nothing may reintroduce a `collect_documents`
-  that materializes the corpus; a spec asserts it is never called.
+  family, so for the **search/detail** shard families peak RSS is O(shard size) —
+  measured at ~38 MB above baseline for a 20,000-document, 79 MB corpus. Nothing
+  may reintroduce a `collect_documents` that materializes the corpus for those.
+  The spec that guards this observes the property rather than asserting a method
+  is never called (that passes just as happily once the method is renamed): it
+  pins that a completed shard is on disk while the corpus is still being read.
+  **`MachineIndex` is the deliberate exception to the O(shard size) bound.**
+  Shard assignment needs the corpus size and `structured?` is a ratio over every
+  row, so neither is knowable until the pass ends — it therefore retains one
+  `Row` per document. That is O(corpus), and fine: ~0.44 KB/row, i.e. ~76 MB at
+  177k rows. What it must NOT do is retain the pubid object, which costs
+  3.14 KB/row — 543 MB on the same corpus, past the ~250 MB where the process
+  was observed to hang. `Row` holds only `rendered`/`file`/`key`/`id_hash`, all
+  derived inside `add`; anything else needed from pubid must likewise be
+  computed there, because by write time the identifier is gone.
   **`purge_stale!` is load-bearing, not hygiene**: with no manifest, a
   `search-0034.json` left by a previous larger corpus is invisible (the shard
   count on the mount node says 34), so it would sit in the deployed site forever.

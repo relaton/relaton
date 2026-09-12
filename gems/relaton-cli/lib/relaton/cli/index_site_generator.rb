@@ -103,18 +103,26 @@ module Relaton
         # parse; a stray parseable id in a flat corpus stays flat.
         STRUCTURED_RATIO = 0.8
 
-        Row = Struct.new(:pubid, :rendered, :file, :key, :id_hash)
+        # Deliberately does NOT retain the pubid object: `add` extracts the only
+        # two things the write path needs (`key`, `id_hash`) while the document
+        # streams past, then lets the identifier go. Retaining it costs 3.14 KB
+        # per row against 0.44 KB for the derived values alone — 543 MB vs 76 MB
+        # on a 177k-row corpus. Anything else derived from pubid must therefore
+        # be computed in `add` too; by write time the object is gone.
+        Row = Struct.new(:rendered, :file, :key, :id_hash)
 
         attr_reader :rows
 
         def initialize(pubid_class: nil)
           @pubid_class = pubid_class
           @rows = []
+          @parsed = 0
         end
 
         def add(rendered, file)
           pubid = parse(rendered)
-          row = Row.new(pubid, rendered, file)
+          @parsed += 1 if pubid
+          row = Row.new(rendered, file)
           # Precompute the expensive derived values (root.number walk,
           # lutaml to_hash) once during the streaming pass — computing
           # them at monolith-write time is pathological on 177k rows
@@ -128,10 +136,15 @@ module Relaton
           @rows.size
         end
 
+        # O(1): `@parsed` is maintained by `add`, so this stays correct as rows
+        # arrive and needs no memo to invalidate. It used to be
+        # `@rows.count(&:pubid)` — an O(n) scan called once per row from
+        # `write_monolith`, i.e. quadratic: 264 s on a 79k corpus against 0.74 s
+        # here, for byte-identical output.
         def structured?
           return false unless @pubid_class && count.positive?
 
-          @rows.count(&:pubid).to_f / count >= STRUCTURED_RATIO
+          @parsed.to_f / count >= STRUCTURED_RATIO
         end
 
         def index_generation
@@ -156,7 +169,9 @@ module Relaton
           {
             "version" => 2,
             "index" => index_generation,
-            "count" => count,
+            # What the index actually contains, not what was scanned: a
+            # structured build drops rows whose id could not be parsed.
+            "count" => indexed_rows.size,
             "shards" => shard_count,
             "key" => key_strategy,
             "algorithm" => "crc32",
@@ -172,6 +187,33 @@ module Relaton
           record
         end
 
+        # The rows actually written, in deterministic (key, rendered) order.
+        #
+        # A **structured** index carries only rows whose id parsed: the consumer
+        # (`Relaton::Index::FileIO#deserialize_id`) calls `from_hash` on every
+        # row and raises `InvalidIndexError` on the first one it cannot
+        # deserialize, which rejects the *whole* index — so a single unparsed row
+        # written as a plain string would poison the file. Five shipping corpora
+        # sit just above STRUCTURED_RATIO with a handful of unparsed ids
+        # (ieee 69, itu-r 47, iec 42, itu 3, nist 3), so this is reachable, not
+        # theoretical. `Relaton::Ieee::DataFetcher#build_index` already skips the
+        # same rows for the same reason and logs the loss; this matches it.
+        #
+        # Memoized, and the single place the sort happens — `each_shard` and
+        # `write_monolith` previously sorted the corpus independently, so both
+        # ran on every build.
+        def indexed_rows
+          @indexed_rows ||= begin
+            rows = structured? ? @rows.reject { |row| row.id_hash.nil? } : @rows
+            rows.sort_by { |row| [row.key, row.rendered] }
+          end
+        end
+
+        # Rows dropped by `indexed_rows` — reported so the loss is never silent.
+        def skipped_count
+          count - indexed_rows.size
+        end
+
         # Rows bucketed by shard, in deterministic (key, rendered) order;
         # empty buckets are absent — a client treats a 404 as not-found.
         def each_shard
@@ -179,8 +221,7 @@ module Relaton
           return enum_for(:each_shard) unless block_given? && n.positive?
 
           buckets = Array.new(n) { [] }
-          @rows.sort_by { |row| [row.key, row.rendered] }
-               .each { |row| buckets[Zlib.crc32(row.key) % n] << row_record(row) }
+          indexed_rows.each { |row| buckets[Zlib.crc32(row.key) % n] << row_record(row) }
           buckets.each_with_index { |rows, i| yield(format("%05d", i), rows) unless rows.empty? }
         end
 
@@ -200,14 +241,15 @@ module Relaton
         # to_hash), so hand-rendering is straightforward and the output
         # is indistinguishable from what Psych produces.
         def write_monolith(path)
-          sorted = @rows.sort_by { |row| [row.key, row.rendered] }
+          # Loop-invariant: hoisted out of the row loop, where it used to be
+          # recomputed per row.
+          structured = structured?
           File.open(path, "w:utf-8") do |f|
             f << "---\n"
-            sorted.each do |row|
-              id_hash = structured? ? row.id_hash : nil
-              if id_hash
+            indexed_rows.each do |row|
+              if structured
                 f << "- :id:\n"
-                yaml_nested(f, id_hash, "    ")
+                yaml_nested(f, row.id_hash, "    ")
                 f << "  :file: #{yaml_scalar(row.file)}\n"
               else
                 f << "- :id: #{yaml_scalar(row.rendered)}\n"
@@ -228,11 +270,24 @@ module Relaton
           end
         end
 
+        # YAML 1.1 plain scalars Psych resolves to true/false/nil. Emitted bare,
+        # an id or path with one of these literal values changes *type* on the
+        # round trip ("yes" -> true, "null" -> nil).
+        YAML11_PLAIN = /\A(?:y|Y|yes|Yes|YES|n|N|no|No|NO|true|True|TRUE|
+                           false|False|FALSE|on|On|ON|off|Off|OFF|
+                           null|Null|NULL|~)\z/x
+
         def yaml_scalar(value)
           s = value.to_s
-          # Quote if the value could be ambiguous (starts with special
-          # chars, has colons, or is numeric-looking).
-          if s.match?(/\A[-?:,\[\]{}#&*!|>'"%@`\s]|:\s|\s#|\A\d|\z\s/) || s.empty?
+          # Quote if the value could be ambiguous: leading special char, an
+          # embedded ": " or " #", numeric-looking, *trailing* whitespace (the
+          # guard here used to read /\z\s/, which can never match — nothing
+          # follows end-of-string), a YAML 1.1 plain word, or a C0 control
+          # character. The control case is the severe one: emitted raw it makes
+          # the whole file unparseable, and one bad row rejects the entire index.
+          if s.empty? ||
+             s.match?(/\A[-?:,\[\]{}#&*!|>'"%@`\s]|:\s|\s#|\A\d|\s\z/) ||
+             s.match?(YAML11_PLAIN) || s.match?(/[[:cntrl:]]/)
             s.inspect
           else
             s
@@ -260,7 +315,12 @@ module Relaton
         def key_string(pubid, rendered)
           return rendered unless @pubid_class && pubid
 
-          pubid.root.number.to_s
+          # A pubid that parses cleanly can still have no root number (a flavor
+          # whose ids are *named* rather than numbered). `nil.to_s` is "", and
+          # `Zlib.crc32("") == 0`, so every such row would land in shard 0 —
+          # exactly the fallback the class comment above already promises.
+          number = pubid.root.number.to_s
+          number.empty? ? rendered : number
         rescue StandardError
           rendered
         end
@@ -404,6 +464,11 @@ module Relaton
           File.join(output, "index", "manifest.json"),
           JSON.pretty_generate(machine.manifest(generated: @generated)),
         )
+        if machine.skipped_count.positive?
+          Util.warn "Machine index: skipped #{machine.skipped_count} of " \
+                    "#{machine.count} document(s) whose id could not be parsed " \
+                    "(a structured index cannot carry them)."
+        end
         machine.shard_count
       end
 
@@ -439,7 +504,12 @@ module Relaton
       end
 
       # One pass over the corpus, fanning each document out to both shard
-      # families. Nothing accumulates: peak memory is one shard of each kind.
+      # families. The search/detail families accumulate nothing — peak memory is
+      # one shard of each. The machine index is the exception: shard assignment
+      # needs the corpus size and `structured?` is a ratio over every row, so
+      # neither is knowable until the pass ends and `MachineIndex` therefore
+      # retains one `Row` per document (measured ~0.44 KB/row — 76 MB at 177k
+      # rows; see the note on `Row`, which is why it does not hold the pubid).
       def write_shards
         writer = method(:write_file)
         summary = ShardWriter.new(output, SHARD_PATTERN, shard_size, &writer)
