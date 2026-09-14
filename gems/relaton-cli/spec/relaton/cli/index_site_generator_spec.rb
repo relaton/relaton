@@ -18,7 +18,7 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
   def generate(opts = {})
     described_class.generate(
       data_dir,
-      { output: @out, title: "BIPM Index", generated: "2026-01-01",
+      { output: @out, title: "BIPM Index", generated: "2026-01-01", machine_index: false,
         base_url: "https://raw.githubusercontent.com/relaton/relaton-data-bipm/v2" }.merge(opts),
     )
     File.read(File.join(@out, "index.html"), encoding: "utf-8")
@@ -37,6 +37,12 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
 
   def all_machine_records
     machine_shards.flat_map { |f| JSON.parse(File.read(f)) }
+  end
+
+  # Writes `rows` as the repo's committed index-vN.yaml — the file the
+  # generator falls back to for a docid it cannot parse from the document.
+  def write_committed_index(repo, rows, name: "index-v2")
+    File.write(File.join(repo, "#{name}.yaml"), rows.to_yaml)
   end
 
   def with_pubid_corpus(count, opts = {})
@@ -61,11 +67,10 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     end
   end
 
-  it "emits a contract-v2 manifest for a flat corpus" do
-    with_corpus(3) do
-      m = manifest
-      expect(m).to include(
-        "version" => 2, "index" => "v1", "key" => "id",
+  it "emits a contract-v2 manifest" do
+    with_pubid_corpus(3, flavor: "iso") do
+      expect(manifest).to include(
+        "version" => 2, "index" => "index-v2", "key" => "root-number",
         "algorithm" => "crc32", "shards" => 0, "count" => 3,
         "generated" => "2026-01-01",
       )
@@ -73,36 +78,42 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
   end
 
   it "does not shard a corpus below MIN_ROWS" do
-    with_corpus(3) do
+    with_pubid_corpus(3, flavor: "iso") do
       expect(manifest["shards"]).to eq(0)
       expect(machine_shards).to be_empty
-      expect(File).to exist(File.join(@out, "index-v1.yaml"))
-      expect(File).to exist(File.join(@out, "index-v1.zip"))
+      expect(File).to exist(File.join(@out, "index-v2.yaml"))
+      expect(File).to exist(File.join(@out, "index-v2.zip"))
     end
   end
 
-  describe "sharding a flat corpus" do
+  it "refuses to build a machine index without a pubid flavor" do
+    expect { generate(machine_index: true) }
+      .to raise_error(ArgumentError, /pubid-flavor/)
+  end
+
+  describe "sharding" do
     before { stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 10) }
 
-    it "puts every document in exactly one shard, at crc32(id) % N" do
-      with_corpus(40) do
+    it "puts every document in exactly one shard, at crc32(root number) % N" do
+      with_pubid_corpus(40, flavor: "iso") do
         m = manifest
         expect(m["shards"]).to eq(16) # next_pow2(40/15)=4, clamped to MIN_SHARDS=16
         records = all_machine_records
         expect(records.size).to eq(40)
 
         records.each do |rec|
-          shard = format("shard-%05d.json", Zlib.crc32(rec["r"]) % m["shards"])
+          key = Pubid::Iso::Identifier.parse(rec["r"]).root.number.to_s
+          shard = format("shard-%05d.json", Zlib.crc32(key) % m["shards"])
           rows = JSON.parse(File.read(File.join(@out, "index", shard)))
           expect(rows).to include(rec)
-          expect(rec).not_to have_key("id")
+          expect(rec["id"]).to include("_type")
           expect(rec["file"]).to start_with("data/")
         end
       end
     end
 
     it "writes no empty shards" do
-      with_corpus(3) do
+      with_pubid_corpus(3, flavor: "iso") do
         machine_shards.each do |f|
           expect(JSON.parse(File.read(f))).not_to be_empty
         end
@@ -113,11 +124,73 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
   describe "structured corpora (flavor: iso)" do
     before { stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 10) }
 
-    it "classifies as v3 and keys shards by pubid root number" do
+    it "names the index from the flavor's INDEXFILE" do
       with_pubid_corpus(30, flavor: "iso") do
-        m = manifest
-        expect(m).to include("version" => 2, "index" => "v3", "key" => "root-number")
-        expect(m["count"]).to eq(30)
+        expect(manifest).to include("index" => Relaton::Iso::INDEXFILE,
+                                    "key" => "root-number")
+        expect(manifest["count"]).to eq(30)
+        expect(File).to exist(File.join(@out, "index-v2.yaml"))
+        expect(Dir[File.join(@out, "index-v3.yaml")]).to be_empty
+        expect(Dir[File.join(@out, "index-v1.yaml")]).to be_empty
+      end
+    end
+
+    it "maps a pubid flavor whose relaton namespace differs (3gpp -> ThreeGpp)" do
+      with_pubid_corpus(3, flavor: "3gpp") do
+        expect(manifest["index"]).to eq(Relaton::ThreeGpp::INDEXFILE)
+      end
+    end
+
+    it "lets index_name override the derived name" do
+      with_pubid_corpus(3, flavor: "iso", index_name: "index-v9") do
+        expect(manifest["index"]).to eq("index-v9")
+        expect(File).to exist(File.join(@out, "index-v9.yaml"))
+        expect(File).to exist(File.join(@out, "index-v9.zip"))
+      end
+    end
+
+    it "raises for a flavor no relaton namespace carries" do
+      expect { described_class.generate(data_dir, output: @out, flavor: "nosuchflavor") }
+        .to raise_error(ArgumentError, /nosuchflavor/)
+    end
+
+    # Resolving the flavor runs its autoload. A NameError from inside that
+    # file is a real bug and must not be relabelled "unknown flavor".
+    it "lets a NameError from inside the flavor surface as itself" do
+      allow(::Relaton).to receive(:const_get).and_call_original
+      allow(::Relaton).to receive(:const_get).with("Iso")
+        .and_raise(NameError.new("uninitialized constant Relaton::Iso::Typo", :Typo))
+      expect { described_class.generate(data_dir, output: @out, flavor: "iso") }
+        .to raise_error(NameError, /Typo/)
+    end
+
+    it "rejects an index name that is not a single file name" do
+      # A blank name is not in this list: like --favicon "", it means "not set".
+      ["../escape", "sub/dir", ".hidden", "a b"].each do |name|
+        expect do
+          described_class.generate(data_dir, output: @out, flavor: "iso", index_name: name)
+        end.to raise_error(ArgumentError, /single file name/), "accepted #{name.inspect}"
+      end
+    end
+
+    it "purges the previous build's monolith even under a custom name" do
+      with_pubid_corpus(3, flavor: "iso", index_name: "custom-index") do
+        expect(File).to exist(File.join(@out, "custom-index.zip"))
+      end
+      with_pubid_corpus(3, flavor: "iso") do
+        expect(File).not_to exist(File.join(@out, "custom-index.yaml"))
+        expect(File).not_to exist(File.join(@out, "custom-index.zip"))
+        expect(File).to exist(File.join(@out, "index-v2.yaml"))
+      end
+    end
+
+    it "carries the same id in the shard and in the monolith" do
+      stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 1)
+      with_pubid_corpus(6, flavor: "iso") do
+        monolith = YAML.safe_load(File.read(File.join(@out, "index-v2.yaml")),
+                                  permitted_classes: [Symbol])
+        by_file = monolith.to_h { |row| [row[:file], row[:id]] }
+        expect(all_machine_records).to all(satisfy { |rec| rec["id"] == by_file[rec["file"]] })
       end
     end
 
@@ -152,40 +225,97 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       end
     end
 
-    it "falls back to the rendered id for rows without a root number" do
-      stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 1)
-      Dir.mktmpdir("nofam-") do |repo|
-        FileUtils.mkdir_p(File.join(repo, "data"))
-        ["ISO 9999", "draft-some-internet-draft"].each_with_index do |id, i|
-          File.write(File.join(repo, "data", format("n-%02d.yaml", i)),
-            "---\ndocidentifier:\n- content: #{id}\n  primary: true\n")
+    # The generator parses each document's *rendered* docid, while the
+    # committed index was built by the flavor's DataFetcher from source
+    # metadata. Five shipping corpora disagree on a handful of rows (ieee 69,
+    # itu-r 47, iec 42, itu 3, nist 3), so the committed row is the authority.
+    describe "a docid the pubid parser rejects" do
+      def with_unparseable(committed_rows)
+        stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 1)
+        Dir.mktmpdir("nofam-") do |repo|
+          FileUtils.mkdir_p(File.join(repo, "data"))
+          ["ISO 9999", "not a standards identifier"].each_with_index do |id, i|
+            File.write(File.join(repo, "data", format("n-%02d.yaml", i)),
+              "---\ndocidentifier:\n- content: #{id}\n  primary: true\n")
+          end
+          write_committed_index(repo, committed_rows) if committed_rows
+          described_class.generate(File.join(repo, "data"),
+            output: @out, generated: "2026-01-01", flavor: "iso")
+          yield
         end
-        described_class.generate(File.join(repo, "data"),
-          output: @out, generated: "2026-01-01", flavor: "iso")
+      end
 
-        rec = all_machine_records.find { |r| r["r"] == "draft-some-internet-draft" }
-        expect(rec).not_to be_nil
-        expect(rec["id"]).to be_nil # unparseable row stays keyable by r
-        shard = format("shard-%05d.json", Zlib.crc32("draft-some-internet-draft") % manifest["shards"])
-        expect(JSON.parse(File.read(File.join(@out, "index", shard)))).to include(rec)
+      it "takes its id from the committed index" do
+        hash = Pubid::Iso::Identifier.parse("ISO 8888").to_hash
+        with_unparseable([{ id: hash, file: "data/n-01.yaml" }]) do
+          rec = all_machine_records.find { |r| r["r"] == "not a standards identifier" }
+          expect(rec).not_to be_nil
+          expect(rec["id"]).to eq(hash)
+          shard = format("shard-%05d.json", Zlib.crc32("8888") % manifest["shards"])
+          expect(JSON.parse(File.read(File.join(@out, "index", shard)))).to include(rec)
+        end
+      end
+
+      # A legacy index published under the same name carries plain strings. One
+      # of those in a row would break both the monolith (yaml_nested walks a
+      # Hash) and the consumer (FileIO#deserialize_id calls from_hash).
+      it "ignores a committed row whose id is a plain string" do
+        expect(Relaton.logger_pool).to receive(:warn).with(/skipped 1 of 2/, "relaton-cli")
+        with_unparseable([{ id: "CC/A 0001:2000", file: "data/n-01.yaml" }]) do
+          expect(all_machine_records.map { |r| r["r"] }).to eq(["ISO 9999"])
+        end
+      end
+
+      it "is dropped and reported when the committed index has no row for it" do
+        # Util.warn reaches the logger through Bib::Util#method_missing, so the
+        # pool is the only interceptable point.
+        expect(Relaton.logger_pool).to receive(:warn).with(/skipped 1 of 2/, "relaton-cli")
+        with_unparseable(nil) do
+          expect(all_machine_records.map { |r| r["r"] }).to eq(["ISO 9999"])
+          expect(manifest["count"]).to eq(1)
+        end
       end
     end
 
-    it "writes an index-v3 monolith that round-trips through the pubid class" do
+    it "writes a monolith that round-trips through the pubid class" do
       with_pubid_corpus(5, flavor: "iso") do
-        rows = YAML.safe_load(File.read(File.join(@out, "index-v3.yaml")),
+        rows = YAML.safe_load(File.read(File.join(@out, "index-v2.yaml")),
                               permitted_classes: [Symbol], aliases: true)
         expect(rows.size).to eq(5)
         parsed = rows.map { |r| Pubid::Iso::Identifier.from_hash(r[:id]) }
         expect(parsed).to all(be_a(Pubid::Iso::Identifier))
-        expect(File).to exist(File.join(@out, "index-v3.zip"))
-        expect(File).not_to exist(File.join(@out, "index-v1.yaml"))
+        expect(File).to exist(File.join(@out, "index-v2.zip"))
+      end
+    end
+
+    # `copublishers` is an Array in the pubid hash. Quoted into a String it
+    # cannot be cast back, and FileIO rejects the whole index on that one row.
+    it "round-trips copublished ids, whose hash carries an Array" do
+      Dir.mktmpdir("copub-") do |repo|
+        FileUtils.mkdir_p(File.join(repo, "data"))
+        refs = ["ISO/IEC 27001:2022", "ISO/IEC/IEEE 8802-3:2021",
+                "ISO/IEC DIR 2 IEC SUP:2010"]
+        refs.each_with_index do |ref, i|
+          File.write(File.join(repo, "data", format("c-%02d.yaml", i)),
+                     "---\ndocidentifier:\n- content: #{ref}\n  primary: true\n")
+        end
+        described_class.generate(File.join(repo, "data"),
+                                 output: @out, generated: "2026-01-01", flavor: "iso")
+
+        rows = YAML.safe_load(File.read(File.join(@out, "index-v2.yaml")),
+                              permitted_classes: [Symbol])
+        by_ref = rows.to_h { |r| [Pubid::Iso::Identifier.from_hash(r[:id]).to_s, r[:id]] }
+        expect(by_ref.keys).to match_array(refs)
+        refs.each do |ref|
+          expect(by_ref[ref]).to eq(Pubid::Iso::Identifier.parse(ref).to_hash)
+        end
       end
     end
   end
 
   it "keeps machine rows repo-relative even when --base-url is set" do
-    with_corpus(3, base_url: "https://relaton.github.io/relaton-data-x") do
+    with_pubid_corpus(3, flavor: "iso",
+                      base_url: "https://relaton.github.io/relaton-data-x") do
       all_machine_records.each do |rec|
         expect(rec["file"]).to start_with("data/")
         expect(rec["file"]).not_to include("http")
@@ -199,6 +329,10 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     expect(File).not_to exist(File.join(@out, "index", "manifest.json"))
     expect(machine_shards).to be_empty
     expect(Dir[File.join(@out, "index-v*.yaml")]).to be_empty
+  end
+
+  it "builds the human site without a pubid flavor when the machine index is off" do
+    expect { generate(machine_index: false) }.not_to raise_error
   end
 
   # --- shard readers -------------------------------------------------------
@@ -235,14 +369,15 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       end
       described_class.generate(
         File.join(repo, "data"),
-        { output: @out, generated: "2026-01-01" }.merge(opts),
+        { output: @out, generated: "2026-01-01", machine_index: false }.merge(opts),
       )
       yield File.read(File.join(@out, "index.html"), encoding: "utf-8")
     end
   end
 
   it "returns the path to index.html" do
-    path = described_class.generate(data_dir, output: @out, generated: "2026-01-01")
+    path = described_class.generate(data_dir, output: @out, generated: "2026-01-01",
+                                    machine_index: false)
     expect(path).to eq(File.join(@out, "index.html"))
   end
 
@@ -377,7 +512,8 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
           "    - content: ISO 29862:2007\n      primary: true\n",
         )
         described_class.generate(File.join(repo, "data"),
-                                 output: @out, generated: "2026-01-01")
+                                 output: @out, generated: "2026-01-01",
+                                 machine_index: false)
         expect(detail_slots.first["relations"])
           .to eq([{ "type" => "obsoletes", "id" => "ISO 29862:2007" }])
         expect(summary_records.first.keys)
@@ -406,7 +542,7 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
         end
         described_class.generate(File.join(repo, "data"),
                                  output: @out, generated: "2026-01-01",
-                                 detail_shard_size: 5)
+                                 detail_shard_size: 5, machine_index: false)
         expect(detail_slots).to eq([nil, nil, nil])
         expect(summary_records.size).to eq(3)
       end
@@ -452,7 +588,7 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
                    "---\ndocidentifier:\n- content: DOC #{i}\n  primary: true\n")
       end
 
-      gen = described_class.new(File.join(repo, "data"), output: @out,
+      gen = described_class.new(File.join(repo, "data"), output: @out, machine_index: false,
                                             generated: "2026-01-01", shard_size: 2)
       shard0 = File.join(@out, "search-0000.json")
       written_early = false
@@ -576,7 +712,8 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     end
 
     it "falls back to the default title when the title is blank" do
-      described_class.generate(data_dir, output: @out, generated: "2026-01-01", title: "")
+      described_class.generate(data_dir, output: @out, generated: "2026-01-01",
+                               title: "", machine_index: false)
       html = File.read(File.join(@out, "index.html"), encoding: "utf-8")
       expect(html).to include("<title>Relaton Index</title>")
     end
@@ -586,7 +723,7 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     it "raises an actionable error" do
       Dir.mktmpdir do |empty|
         Relaton::Cli::FrontendAssets.with_dist_dir(empty) do
-          expect { described_class.generate(data_dir, output: @out) }
+          expect { described_class.generate(data_dir, output: @out, machine_index: false) }
             .to raise_error(Relaton::Cli::FrontendAssets::BuildMissingError, /rake build_frontend/)
         end
       end
@@ -602,7 +739,8 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     def gen(opts = {})
       described_class.generate(
         data_dir,
-        { output: @out, generated: "2026-01-01", base_url: base }.merge(opts),
+        { output: @out, generated: "2026-01-01", base_url: base,
+          machine_index: false }.merge(opts),
       )
     end
 
@@ -649,7 +787,8 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
         File.write(File.join(repo, "data", "b.yaml"),
                    "---\ntitle:\n- content: Second title-only doc\n  language: en\n")
         described_class.generate(File.join(repo, "data"),
-                                 output: @out, generated: "2026-01-01")
+                                 output: @out, generated: "2026-01-01",
+                                 machine_index: false)
         titles = summary_records.map { |r| r["c"] }
         expect(titles).to contain_exactly("First title-only doc", "Second title-only doc")
       end
@@ -677,6 +816,8 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       def self.parse(rendered)
         FakeId.new(rendered.start_with?("name-") ? nil : rendered[/\d+/], rendered)
       end
+
+      def self.from_hash(hash) = FakeId.new(hash["number"], nil)
     end
 
     # RFCs parse; "draft-" ids do not parse at all.
@@ -686,10 +827,13 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
 
         FakeId.new(rendered[/\d+/], rendered)
       end
+
+      def self.from_hash(hash) = FakeId.new(hash["number"], nil)
     end
 
-    def build(parser, ids)
-      described_class.new(pubid_class: parser).tap do |mi|
+    def build(parser, ids, committed: nil)
+      described_class.new(pubid_class: parser, index_name: "index-v2",
+                          committed: committed).tap do |mi|
         ids.each_with_index { |id, i| mi.add(id, format("data/d%04d.yaml", i)) }
       end
     end
@@ -698,35 +842,61 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       machine.each_shard.to_a.map { |(_, rows)| rows.size }
     end
 
+    # The key is `crc32(root.number.to_s) % N`, the same expression
+    # Relaton::Index bsearches on. A rendered-id fallback would break that
+    # identity: a client computing the key from its parsed query would look in
+    # a bucket the row is not in, and read the miss as not-found.
     describe "rows whose id parses but has no root number" do
-      it "keys on the rendered id instead of the empty string" do
+      it "keys on the empty string" do
         machine = build(NumberlessParser, ["name-alpha", "STD 7"])
-        expect(machine.rows.map(&:key)).to contain_exactly("name-alpha", "7")
+        expect(machine.rows.map(&:key)).to contain_exactly("", "7")
       end
 
-      it "spreads a wholly numberless corpus instead of piling into shard 0" do
+      it "puts a wholly numberless corpus in shard 0" do
         stub_const("#{described_class}::MIN_ROWS", 10)
         machine = build(NumberlessParser, (1..400).map { |i| "name-#{i}" })
 
-        sizes = shard_sizes(machine)
-        # crc32("") == 0, so the unfixed keying put every row in one shard.
-        expect(sizes.size).to be > 1
-        expect(sizes.max).to be < machine.count
+        shards = machine.each_shard.to_a
+        expect(shards.size).to eq(1)
+        expect(shards.first[0]).to eq(format("%05d", Zlib.crc32("") % machine.shard_count))
+        expect(shards.first[1].size).to eq(400)
       end
     end
 
-    describe "a structured index with unparseable rows" do
-      # 96% parse, so the corpus is structured, but the stragglers cannot be
-      # written as pubid hashes.
+    describe "#key_strategy" do
+      it "is always root-number" do
+        expect(build(PartialParser, ["RFC 1"]).key_strategy).to eq("root-number")
+      end
+    end
+
+    describe "#monolith_filename" do
+      it "is the index name with a .yaml extension" do
+        expect(build(PartialParser, []).monolith_filename).to eq("index-v2.yaml")
+      end
+    end
+
+    describe "#row_record" do
+      it "always carries the structured id" do
+        row = build(PartialParser, ["RFC 7"]).rows.first
+        expect(build(PartialParser, []).row_record(row))
+          .to eq("r" => "RFC 7", "file" => "data/d0000.yaml",
+                 "id" => { "_type" => "fake", "number" => "7" })
+      end
+    end
+
+    describe "an index with unparseable rows" do
       let(:machine) do
         stub_const("#{described_class}::MIN_ROWS", 10)
         build(PartialParser, (1..96).map { |i| "RFC #{i}" } +
                              (1..4).map { |i| "draft-thing-#{i}" })
       end
 
-      it "is classified structured" do
-        expect(machine).to be_structured
-        expect(machine.index_generation).to eq("v3")
+      it "takes an unparseable row's id from the committed index" do
+        committed = { "data/d0001.yaml" => { "_type" => "fake", "number" => "42" } }
+        rescued = build(PartialParser, ["RFC 1", "draft-x"], committed: committed)
+        expect(rescued.skipped_count).to eq(0)
+        expect(rescued.rows.last.id_hash).to eq(committed["data/d0001.yaml"])
+        expect(rescued.rows.last.key).to eq("42")
       end
 
       it "excludes the unparseable rows, and reports how many" do
@@ -749,30 +919,10 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       end
 
       it "counts only the written rows in the manifest" do
-        expect(machine.manifest(generated: "2026-01-01")["count"]).to eq(96)
-      end
-
-      it "keeps unparseable rows when the corpus is flat" do
-        flat = build(PartialParser, ["RFC 1"] + (1..9).map { |i| "draft-thing-#{i}" })
-        expect(flat).not_to be_structured
-        expect(flat.indexed_rows.size).to eq(10)
-        expect(flat.skipped_count).to eq(0)
-      end
-    end
-
-    describe "#structured?" do
-      it "does not scan the rows" do
-        machine = build(PartialParser, (1..50).map { |i| "RFC #{i}" })
-        # The quadratic bug was an O(n) `@rows.count(&:pubid)` per call.
-        expect(machine.rows).not_to receive(:count)
-        2.times { machine.structured? }
-      end
-
-      it "tracks rows added after an earlier read" do
-        machine = build(PartialParser, (1..9).map { |i| "draft-#{i}" })
-        expect(machine).not_to be_structured
-        90.times { |i| machine.add("RFC #{i}", "data/r#{i}.yaml") }
-        expect(machine).to be_structured
+        m = machine.manifest(generated: "2026-01-01")
+        expect(m["count"]).to eq(96)
+        expect(m["index"]).to eq("index-v2")
+        expect(m["key"]).to eq("root-number")
       end
     end
 
@@ -784,6 +934,21 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       end
     end
 
+    describe "#yaml_nested" do
+      it "round-trips arrays of hostile, typed and nested values" do
+        hash = {
+          "_type" => "fake",
+          "copublishers" => ["IEC", "yes", "a: b", "#x", "é", " ", "~", "\#{", nil, true, 3],
+          "base" => { "_type" => "fake", "list" => [{ "_type" => "k", "n" => "1" }], "empty" => [] },
+        }
+        machine = described_class.new(pubid_class: PartialParser, index_name: "index-v2")
+        buf = +"---\n- :id:\n"
+        machine.yaml_nested(buf, hash, "    ")
+        buf << "  :file: data/x.yaml\n"
+        expect(YAML.safe_load(buf, permitted_classes: [Symbol]).first[:id]).to eq(hash)
+      end
+    end
+
     describe "#yaml_scalar" do
       # Property: whatever goes in must come back out byte-identical after a
       # YAML round trip. Catches type coercion, whitespace loss and, most
@@ -791,10 +956,14 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       [
         "ISO 9999", "data/x.yaml", "ISO/IEC 1:2 3",
         "yes", "no", "on", "off", "true", "false", "null", "~", "y", "N",
-        "trailing ", " leading", "a\tb", "\e[1m", "", "42", "-x", "a: b", "a #c"
+        "trailing ", " leading", "a\tb", "\e[1m", "", "42", "-x", "a: b", "a #c",
+        # A pubid to_hash carries real booleans and numbers (CIE's d_prefix,
+        # 31 of its 1139 rows). Stringifying one makes the published row differ
+        # from the repo's own index for that document.
+        true, false, nil, 42
       ].each do |value|
         it "round-trips #{value.inspect}" do
-          machine = described_class.new
+          machine = described_class.new(pubid_class: PartialParser, index_name: "index-v2")
           doc = "---\n- :id: #{machine.yaml_scalar(value)}\n  :file: data/x.yaml\n"
           parsed = YAML.safe_load(doc, permitted_classes: [Symbol])
           expect(parsed.first[:id]).to eq(value)

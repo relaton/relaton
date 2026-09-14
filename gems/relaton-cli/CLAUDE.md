@@ -141,14 +141,82 @@ either without reading this will lead you back to a 150 MB page:
   is never called (that passes just as happily once the method is renamed): it
   pins that a completed shard is on disk while the corpus is still being read.
   **`MachineIndex` is the deliberate exception to the O(shard size) bound.**
-  Shard assignment needs the corpus size and `structured?` is a ratio over every
-  row, so neither is knowable until the pass ends — it therefore retains one
+  Shard assignment needs the corpus size, so it is not knowable until the pass
+  ends — the class therefore retains one
   `Row` per document. That is O(corpus), and fine: ~0.44 KB/row, i.e. ~76 MB at
   177k rows. What it must NOT do is retain the pubid object, which costs
   3.14 KB/row — 543 MB on the same corpus, past the ~250 MB where the process
   was observed to hang. `Row` holds only `rendered`/`file`/`key`/`id_hash`, all
   derived inside `add`; anything else needed from pubid must likewise be
   computed there, because by write time the identifier is gone.
+
+**The machine-index wire contract.** `relaton index` also publishes a
+machine-consumable index — `index-vN.yaml`/`.zip`, `index/manifest.json` and
+`index/shard-NNNNN.json`. It is specified in `docs/data-repository-format.adoc`
+in the `relaton` repo; that file is the contract, this is why it is shaped that
+way. Four decisions, all settled deliberately — don't re-derive them:
+
+- **The name comes from the flavor's own `INDEXFILE`, never from the data.**
+  `index-vN` is *per-flavor structure versioning*, not a global generation
+  counter: 25 flavors read `index-v2`, IHO reads `index-v3`, JCGM reads
+  `index-v1` — and JCGM's v1 is structured, so the number is a name, not a
+  claim about the rows. An earlier revision derived it from a parse ratio
+  (`structured? ? "v3" : "v1"`), which both re-labelled v2 as v3 and let a crawl
+  that shifted the ratio by a few percent *rename the published file*, breaking
+  every pinned consumer with nothing but a 404. `--index-name` overrides, for a
+  corpus that is not a relaton flavor. Resolution is `Relaton::<Flavor>::INDEXFILE`
+  via `FLAVOR_NAMESPACES`, whose only entry is 3GPP (`Pubid::Tgpp` against
+  `Relaton::ThreeGpp`); every other flavor capitalizes identically in both gems.
+- **The shard key is `crc32(pubid.root.number.to_s) % N`, with no fallback.**
+  That expression is the one `Relaton::Index` sorts and bsearches on (`Type#
+  candidates_by_number`, `FileIO#deserialize_pubid`), and the identity is the
+  whole point: a client computing the key from its parsed query must land in the
+  bucket the rows are in. A rendered-id fallback for an empty root number
+  (added once to avoid a hot shard 0) breaks that — the client looks in shard 0,
+  the row is elsewhere, and the miss is indistinguishable from not-found because
+  empty shards are omitted. An identifier with no root number keys on `""` and
+  goes in shard 0, the same degeneracy the gem's bsearch already has.
+- **Every published row is structured, and the shards and the monolith agree.**
+  `row_record` and `write_monolith` both carry the pubid hash for every row.
+  They cannot differ: `FileIO#deserialize_id` calls `from_hash` on every row and
+  rejects the *whole* index on the first one it cannot deserialize, so one
+  plain-string row in the monolith would poison the file. That is also why
+  `--pubid-flavor` is **required** unless `--no-machine-index` — a machine index
+  with no parser could only be the string shape.
+- **An id the parser rejects is taken from the repo's committed index.** The
+  generator derives ids by parsing each document's *rendered* docid, while the
+  committed `index-vN.yaml` was built by the flavor's `DataFetcher` from source
+  metadata; five shipping corpora disagree on a handful of rows (ieee 69,
+  itu-r 47, iec 42, itu 3, nist 3). `committed_index` reads that file once and
+  `add` uses its hash **verbatim**, so the site's row is byte-identical to the
+  repo's. Only a row neither path resolves is dropped, counted in
+  `skipped_count`, and warned about.
+
+**The monolith's hand-rolled YAML writer must preserve type, not just text.**
+`write_monolith` avoids Psych (40 min on 177k rows), so `yaml_nested`/`yaml_scalar`
+own the whole round trip. Two shapes broke it, both invisible to specs that only
+build `{_type, number}` hashes: an **Array** fell through to `yaml_scalar`, whose
+`["IEC"].to_s` starts with `[` and was quoted into the String `"[\"IEC\"]"` —
+every ISO/IEC copublished id carries `copublishers`, and `from_hash` cannot cast
+it, so `FileIO` rejects the whole index; and a real **Boolean** was stringified
+then quoted (`d_prefix: "true"`, 31 of CIE's 1139 rows), so the published row no
+longer matched the repo's. Arrays are now written as a JSON flow sequence (valid
+YAML, unambiguous escaping); booleans and integers go out bare. Verify a writer
+change against a real corpus, comparing the site's monolith row-by-row to the
+repo's committed index — that is how both were found.
+
+**`purge_stale!` reads the previous manifest.** `STALE_GLOBS` only knows
+`index-v*`, but `--index-name` accepts any single file name (`INDEX_NAME`; a path
+segment or a leading dot is refused), so the previous build's `index/manifest.json`
+is the only record of which monolith to delete.
+
+**`Util.warn` is not the relaton logger — it is `Kernel#warn`.**
+`Relaton::Cli::Util` gets `info`/`error` from `Relaton::Bib::Util#method_missing`,
+but `warn` already exists as a private `Kernel` instance method, so the explicit
+receiver makes Ruby route it to `method_missing` *after* a private-method
+NoMethodError. The message does reach the logger, but `expect(Relaton::Cli::Util)
+.to receive(:warn)` never intercepts it. Mock `Relaton.logger_pool` instead:
+`expect(Relaton.logger_pool).to receive(:warn).with(/…/, "relaton-cli")`.
   **`purge_stale!` is load-bearing, not hygiene**: with no manifest, a
   `search-0034.json` left by a previous larger corpus is invisible (the shard
   count on the mount node says 34), so it would sit in the deployed site forever.

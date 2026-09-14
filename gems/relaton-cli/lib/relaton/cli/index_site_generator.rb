@@ -44,6 +44,15 @@ module Relaton
         "id" => "r", "title" => "c", "doctype" => "t", "stage" => "s",
         "date" => "d", "yaml" => "u", "link" => "l"
       }.freeze
+      # flavor token -> [pubid namespace, relaton namespace], for the tokens
+      # that do not follow the plain capitalize rule. 3GPP is the only one:
+      # `Pubid::Tgpp` against `Relaton::ThreeGpp`.
+      FLAVOR_NAMESPACES = {
+        "3gpp" => %w[Tgpp ThreeGpp], "tgpp" => %w[Tgpp ThreeGpp]
+      }.freeze
+      # A monolith base name: one path segment, so `--index-name` can neither
+      # write outside the output directory nor collide with a hidden file.
+      INDEX_NAME = /\A[A-Za-z0-9][A-Za-z0-9._-]*\z/
       # <link rel="icon"> type hints, keyed by the favicon href's extension. An
       # unlisted extension emits no type at all and lets the browser sniff.
       FAVICON_TYPES = {
@@ -84,24 +93,32 @@ module Relaton
       end
 
       # The machine-consumable index: docid -> file rows a data repo
-      # publishes as index-v1/v3.yaml, emitted on the Pages site as JSON
+      # publishes as index-vN.yaml, emitted on the Pages site as JSON
       # shards plus a monolith, per the contract documented in
-      # relaton/relaton#113 (contract v2).
+      # relaton/relaton#113 (contract v2) and specified in
+      # docs/data-repository-format.adoc.
       #
-      # Shard key: the pubid ROOT NUMBER when a flavor parser is given
-      # (a document family — base, parts, amendments — shares one root
-      # and lands in one shard, matching how Relaton::Index narrows by
-      # `candidates_by_number`); rows without a root number (Internet
-      # Draft names) fall back to the rendered id, as do flat corpora
-      # built without a parser.
+      # Every row is structured: each data repo publishes a pubid index, so
+      # the generator always has a parser and never writes a plain-string id.
+      # A row the parser rejects takes its id from the repo's committed index
+      # (`committed:`), and is dropped only when that has no row for it either
+      # — `Relaton::Index::FileIO#deserialize_id` rejects the *whole* index on
+      # the first row it cannot deserialize, so one string row would poison
+      # the file.
+      #
+      # Shard key: `crc32(pubid.root.number.to_s) % N` — the same expression
+      # `Relaton::Index` bsearches on (`Type#candidates_by_number`,
+      # `FileIO#deserialize_pubid`). A document family (base, parts,
+      # amendments) shares one root and lands in one shard. The key is NOT
+      # given a rendered-id fallback: that would break the identity, so a
+      # client computing the key from its parsed query would look in a bucket
+      # the row is not in and read the miss as not-found. An identifier with
+      # no root number keys on "" and lands in shard 0.
       class MachineIndex
         TARGET_ROWS = 15
         MIN_ROWS = 2000
         MIN_SHARDS = 16
         MAX_SHARDS = 65_536
-        # A corpus counts as structured when at least this share of rows
-        # parse; a stray parseable id in a flat corpus stays flat.
-        STRUCTURED_RATIO = 0.8
 
         # Deliberately does NOT retain the pubid object: `add` extracts the only
         # two things the write path needs (`key`, `id_hash`) while the document
@@ -113,22 +130,37 @@ module Relaton
 
         attr_reader :rows
 
-        def initialize(pubid_class: nil)
+        # @param pubid_class [Class] the flavor's pubid Identifier
+        # @param index_name [String] the monolith's base name, from the
+        #   flavor's `INDEXFILE`
+        # @param committed [Hash, nil] `{ file => id hash }` read from the
+        #   repo's own committed index, consulted only when a rendered docid
+        #   does not parse
+        def initialize(pubid_class:, index_name:, committed: nil)
           @pubid_class = pubid_class
+          @index_name = index_name
+          @committed = committed || {}
           @rows = []
-          @parsed = 0
         end
 
         def add(rendered, file)
-          pubid = parse(rendered)
-          @parsed += 1 if pubid
           row = Row.new(rendered, file)
           # Precompute the expensive derived values (root.number walk,
           # lutaml to_hash) once during the streaming pass — computing
           # them at monolith-write time is pathological on 177k rows
           # because each involves object-graph traversal.
-          row.key = key_string(pubid, rendered)
-          row.id_hash = pubid.to_hash if pubid
+          pubid = parse(rendered)
+          # A rendered docid the parser rejects falls back to the repo's own
+          # committed row: the crawler resolved that id from source metadata.
+          # The hash is kept verbatim, so the site's row is byte-identical to
+          # the repo's. A row with neither keeps a nil id_hash, which
+          # `indexed_rows` drops and `skipped_count` reports.
+          hash = pubid ? pubid.to_hash : @committed[file]
+          pubid ||= from_hash(hash)
+          if pubid
+            row.id_hash = hash
+            row.key = key_string(pubid)
+          end
           @rows << row
         end
 
@@ -136,29 +168,17 @@ module Relaton
           @rows.size
         end
 
-        # O(1): `@parsed` is maintained by `add`, so this stays correct as rows
-        # arrive and needs no memo to invalidate. It used to be
-        # `@rows.count(&:pubid)` — an O(n) scan called once per row from
-        # `write_monolith`, i.e. quadratic: 264 s on a 79k corpus against 0.74 s
-        # here, for byte-identical output.
-        def structured?
-          return false unless @pubid_class && count.positive?
-
-          @parsed.to_f / count >= STRUCTURED_RATIO
-        end
-
-        def index_generation
-          structured? ? "v3" : "v1"
-        end
-
         def key_strategy
-          @pubid_class ? "root-number" : "id"
+          "root-number"
         end
 
+        # Sized from the rows actually written, the same figure the manifest
+        # reports as `count` — not from every row scanned.
         def shard_count
-          return 0 if count < MIN_ROWS
+          written = indexed_rows.size
+          return 0 if written < MIN_ROWS
 
-          next_pow2((count.to_f / TARGET_ROWS).ceil).clamp(MIN_SHARDS, MAX_SHARDS)
+          next_pow2((written.to_f / TARGET_ROWS).ceil).clamp(MIN_SHARDS, MAX_SHARDS)
         end
 
         def key_of(row)
@@ -168,9 +188,11 @@ module Relaton
         def manifest(generated:)
           {
             "version" => 2,
-            "index" => index_generation,
-            # What the index actually contains, not what was scanned: a
-            # structured build drops rows whose id could not be parsed.
+            # The monolith's base name, so a client can fetch
+            # "#{index}.zip" without knowing the flavor's INDEXFILE.
+            "index" => @index_name,
+            # What the index actually contains, not what was scanned: rows
+            # whose id could not be resolved at all are dropped.
             "count" => indexed_rows.size,
             "shards" => shard_count,
             "key" => key_strategy,
@@ -179,34 +201,33 @@ module Relaton
           }
         end
 
-        # { "r" => rendered, "file" => path } with the structured "id"
-        # present only when the row parsed.
+        # { "r" => rendered, "file" => path, "id" => pubid hash }. The same
+        # "id" the monolith carries for that row — the two artifacts must not
+        # describe one document differently.
         def row_record(row)
-          record = { "r" => row.rendered, "file" => row.file }
-          record["id"] = row.id_hash if row.id_hash
-          record
+          { "r" => row.rendered, "file" => row.file, "id" => row.id_hash }
         end
 
         # The rows actually written, in deterministic (key, rendered) order.
         #
-        # A **structured** index carries only rows whose id parsed: the consumer
+        # Carries only rows whose id resolved: the consumer
         # (`Relaton::Index::FileIO#deserialize_id`) calls `from_hash` on every
         # row and raises `InvalidIndexError` on the first one it cannot
-        # deserialize, which rejects the *whole* index — so a single unparsed row
-        # written as a plain string would poison the file. Five shipping corpora
-        # sit just above STRUCTURED_RATIO with a handful of unparsed ids
-        # (ieee 69, itu-r 47, iec 42, itu 3, nist 3), so this is reachable, not
-        # theoretical. `Relaton::Ieee::DataFetcher#build_index` already skips the
-        # same rows for the same reason and logs the loss; this matches it.
+        # deserialize, which rejects the *whole* index — so a single unresolved
+        # row written as a plain string would poison the file. Five shipping
+        # corpora carry a handful of ids that do not parse back from the
+        # rendered string (ieee 69, itu-r 47, iec 42, itu 3, nist 3), so this is
+        # reachable, not theoretical; `add` rescues those from the committed
+        # index, and only what that misses is dropped.
+        # `Relaton::Ieee::DataFetcher#build_index` already skips the same rows
+        # for the same reason and logs the loss; this matches it.
         #
         # Memoized, and the single place the sort happens — `each_shard` and
         # `write_monolith` previously sorted the corpus independently, so both
         # ran on every build.
         def indexed_rows
-          @indexed_rows ||= begin
-            rows = structured? ? @rows.reject { |row| row.id_hash.nil? } : @rows
-            rows.sort_by { |row| [row.key, row.rendered] }
-          end
+          @indexed_rows ||= @rows.reject { |row| row.id_hash.nil? }
+                                 .sort_by { |row| [row.key, row.rendered] }
         end
 
         # Rows dropped by `indexed_rows` — reported so the loss is never silent.
@@ -226,12 +247,11 @@ module Relaton
         end
 
         def monolith_filename
-          "index-#{index_generation}.yaml"
+          "#{@index_name}.yaml"
         end
 
         # Same shape Relaton::Index::FileIO#save emits: an Array of
-        # {id:, file:} hashes, id a pubid to_hash when structured and
-        # parseable, else the rendered string. Streamed one row at a
+        # {id:, file:} hashes, id always a pubid to_hash. Streamed one row at a
         # time — building the full array and calling to_yaml is
         # pathological on six-figure corpora (Psych re-allocates on
         # every nested hash, and the whole array sits in memory).
@@ -241,29 +261,29 @@ module Relaton
         # to_hash), so hand-rendering is straightforward and the output
         # is indistinguishable from what Psych produces.
         def write_monolith(path)
-          # Loop-invariant: hoisted out of the row loop, where it used to be
-          # recomputed per row.
-          structured = structured?
           File.open(path, "w:utf-8") do |f|
             f << "---\n"
             indexed_rows.each do |row|
-              if structured
-                f << "- :id:\n"
-                yaml_nested(f, row.id_hash, "    ")
-                f << "  :file: #{yaml_scalar(row.file)}\n"
-              else
-                f << "- :id: #{yaml_scalar(row.rendered)}\n"
-                f << "  :file: #{yaml_scalar(row.file)}\n"
-              end
+              f << "- :id:\n"
+              yaml_nested(f, row.id_hash, "    ")
+              f << "  :file: #{yaml_scalar(row.file)}\n"
             end
           end
         end
 
+        # An Array is written as a JSON flow sequence, which is valid YAML and
+        # escapes every element unambiguously. It must not reach `yaml_scalar`:
+        # there `["IEC"].to_s` starts with "[", so it was quoted into the String
+        # "[\"IEC\"]" — every ISO/IEC copublished id (`copublishers`) — and
+        # `from_hash` cannot cast that, so `FileIO` rejects the whole index.
         def yaml_nested(f, hash, indent)
           hash.each do |k, v|
-            if v.is_a?(Hash)
+            case v
+            when Hash
               f << "#{indent}#{k}:\n"
               yaml_nested(f, v, indent + "  ")
+            when Array
+              f << "#{indent}#{k}: #{JSON.generate(v)}\n"
             else
               f << "#{indent}#{k}: #{yaml_scalar(v)}\n"
             end
@@ -278,6 +298,14 @@ module Relaton
                            null|Null|NULL|~)\z/x
 
         def yaml_scalar(value)
+          # Booleans and numbers are emitted bare, so they keep their type.
+          # Quoting them is what the String branch below exists to prevent,
+          # inverted: a pubid `to_hash` carrying a real `true` (CIE's
+          # `d_prefix`, 31 of its 1139 rows) came back as the String "true", and
+          # the published row no longer matched the repo's own index.
+          return "" if value.nil?
+          return value.to_s if value == true || value == false || value.is_a?(Integer)
+
           s = value.to_s
           # Quote if the value could be ambiguous: leading special char, an
           # embedded ": " or " #", numeric-looking, *trailing* whitespace (the
@@ -305,24 +333,26 @@ module Relaton
         end
 
         def parse(rendered)
-          return nil unless @pubid_class
-
           @pubid_class.parse(rendered)
         rescue StandardError
           nil
         end
 
-        def key_string(pubid, rendered)
-          return rendered unless @pubid_class && pubid
-
-          # A pubid that parses cleanly can still have no root number (a flavor
-          # whose ids are *named* rather than numbered). `nil.to_s` is "", and
-          # `Zlib.crc32("") == 0`, so every such row would land in shard 0 —
-          # exactly the fallback the class comment above already promises.
-          number = pubid.root.number.to_s
-          number.empty? ? rendered : number
+        # Only a structured hash: a legacy index under the same name carries
+        # plain strings, and one written into a row would break the monolith
+        # (`yaml_nested` walks a Hash) and the consumer alike.
+        def from_hash(hash)
+          hash.is_a?(Hash) && @pubid_class.from_hash(hash) || nil
         rescue StandardError
-          rendered
+          nil
+        end
+
+        # The narrowing key `Relaton::Index` sorts and bsearches on. An
+        # identifier with no root number gives "", so those rows cluster in
+        # shard 0 — the same degeneracy the gem's bsearch already has, and the
+        # only shape a client can reproduce without knowing our fallbacks.
+        def key_string(pubid)
+          pubid.root.number.to_s
         end
       end
 
@@ -352,6 +382,7 @@ module Relaton
         @emit_index = options.fetch(:machine_index, true)
         @publish_data = options.fetch(:publish_data, false)
         @pubid_class = pubid_class_for(options[:flavor])
+        @index_name = index_name_for(options[:flavor])
         validate!
       end
 
@@ -387,22 +418,98 @@ module Relaton
         @emit_detail
       end
 
-      # `flavor` names the pubid flavor ("iso", "iho", ...) whose
-      # Identifier class parses docids into structured ids. nil builds a
-      # flat index. Resolved from the pubid gem's own namespaces — no
-      # hand-maintained map.
+      # `flavor` names the flavor ("iso", "iho", ...) whose pubid Identifier
+      # parses docids and whose `INDEXFILE` names the published monolith.
+      # Resolved from the two gems' own namespaces — the alias table carries
+      # only the names that do not follow the capitalize rule.
       def pubid_class_for(flavor)
-        return nil if flavor.nil? || flavor.to_s.strip.empty?
+        return nil unless flavor_key(flavor)
 
-        name = flavor.to_s.split(/[_-]/).map(&:capitalize).join
-        namespace = ::Pubid.const_get(name)
-        namespace.const_get(:Identifier)
-      rescue NameError
+        name = namespace_names(flavor).first
+        ::Pubid.const_get(name).const_get(:Identifier)
+      rescue NameError => e
+        raise unless probed_constant?(e, name, :Identifier)
+
         raise ArgumentError, "unknown pubid flavor: #{flavor}"
+      end
+
+      # The monolith's base name. Derived from the flavor's own `INDEXFILE`
+      # so the site publishes the file that flavor's consumer already fetches
+      # — the version there encodes the index *structure*, per flavor, and is
+      # not a global generation counter. `index_name:` overrides it for a
+      # corpus that is not a relaton flavor.
+      def index_name_for(flavor)
+        override = presence(options[:index_name])
+        return override if override
+        return nil unless flavor_key(flavor)
+
+        name = namespace_names(flavor).last
+        ::Relaton.const_get(name).const_get(:INDEXFILE)
+      rescue NameError => e
+        raise unless probed_constant?(e, name, :INDEXFILE)
+
+        raise ArgumentError,
+              "no relaton flavor for `#{flavor}`; pass index_name to name the index"
+      end
+
+      # True only when the NameError is about the constant we looked up. Looking
+      # it up runs the flavor's autoload, and a genuine NameError from inside
+      # that file must surface as itself — relabelled "unknown flavor", it
+      # would send whoever reads a red deploy to --index-name instead of the bug.
+      def probed_constant?(error, *names)
+        names.map(&:to_s).include?(error.name.to_s)
+      end
+
+      def flavor_key(flavor)
+        key = flavor.to_s.strip.downcase
+        key unless key.empty?
+      end
+
+      # [pubid namespace, relaton namespace] for a flavor token. They agree for
+      # every flavor but 3GPP, whose pubid namespace is Tgpp.
+      def namespace_names(flavor)
+        key = flavor_key(flavor)
+        FLAVOR_NAMESPACES.fetch(key) do
+          name = key.split(/[_-]/).map(&:capitalize).join
+          [name, name]
+        end
       end
 
       def emit_index?
         @emit_index
+      end
+
+      # The data folder's parent — the repo root the index rows' `file` paths
+      # and the committed index are relative to.
+      def repo_root
+        @repo_root ||= File.dirname(File.expand_path(data_dir))
+      end
+
+      # `{ file => id hash }` from the repo's own committed index, the
+      # authority for a docid the parser cannot read back from its rendered
+      # form. Empty when the repo publishes no index (a fresh repo, or one
+      # whose index this build is the first to produce).
+      def committed_index
+        return @committed_index if defined?(@committed_index)
+
+        path = File.join(repo_root, "#{@index_name}.yaml")
+        @committed_index = File.exist?(path) ? read_committed_index(path) : {}
+      rescue StandardError => e
+        Util.warn "Ignoring #{path}: #{e.message}"
+        @committed_index = {}
+      end
+
+      # Keeps only rows whose `:id` is a structured hash. A legacy index under
+      # the same name carries plain strings, and one of those written into a
+      # row would break both the monolith (`yaml_nested` walks a Hash) and the
+      # consumer (`FileIO#deserialize_id` calls `from_hash`).
+      def read_committed_index(path)
+        rows = YAML.safe_load(File.read(path), permitted_classes: [Symbol])
+        Array(rows).each_with_object({}) do |row, acc|
+          next unless row.is_a?(Hash) && row[:id].is_a?(Hash)
+
+          acc[row[:file]] = row[:id]
+        end
       end
 
       # nil for a nil/blank option value. A caller workflow that forwards an
@@ -423,20 +530,34 @@ module Relaton
         unless File.directory?(data_dir)
           raise ArgumentError, "Data directory not found: #{data_dir}"
         end
-
         { shard_size: shard_size, detail_shard_size: detail_shard_size }
           .each do |name, value|
             next if value.is_a?(Integer) && value.positive?
 
             raise ArgumentError, "#{name} must be a positive integer (got #{value.inspect})"
           end
+
+        # Every data repo publishes a pubid index, so a machine index without
+        # a parser could only carry plain-string ids — a shape no consumer
+        # narrows on and this generator no longer writes.
+        return unless emit_index?
+
+        if @pubid_class.nil?
+          raise ArgumentError,
+                "--pubid-flavor is required to build a machine index; " \
+                "pass --no-machine-index to build the human site only"
+        end
+        return if @index_name.match?(INDEX_NAME)
+
+        raise ArgumentError,
+              "index name must be a single file name such as index-v2 (got #{@index_name.inspect})"
       end
 
       # Human-readable description of the folders scanned, for the info log.
       # Keeps data_dir as given (no absolute-path noise) and only notes when a
       # sibling static/ was folded in.
       def sources_description
-        repo_root = File.dirname(File.expand_path(data_dir))
+        repo_root = self.repo_root
         static_source_dir(repo_root) ? "#{data_dir} (+ #{STATIC_DIRNAME}/)" : data_dir
       end
 
@@ -489,7 +610,7 @@ module Relaton
       # committed data, and duplicating a large corpus would double the
       # published-site size against the 1 GB cap.
       def publish_data!
-        repo_root = File.dirname(File.expand_path(data_dir))
+        repo_root = self.repo_root
         source_dirs(repo_root).each do |dir|
           Dir.glob(File.join(dir, "**", "*.{yaml,yml}")).sort.each do |src|
             # Relative to the data dir itself, so the copy lives at
@@ -506,22 +627,25 @@ module Relaton
       # One pass over the corpus, fanning each document out to both shard
       # families. The search/detail families accumulate nothing — peak memory is
       # one shard of each. The machine index is the exception: shard assignment
-      # needs the corpus size and `structured?` is a ratio over every row, so
-      # neither is knowable until the pass ends and `MachineIndex` therefore
-      # retains one `Row` per document (measured ~0.44 KB/row — 76 MB at 177k
+      # needs the corpus size, which is not knowable until the pass ends, so
+      # `MachineIndex` retains one `Row` per document (measured ~0.44 KB/row — 76 MB at 177k
       # rows; see the note on `Row`, which is why it does not hold the pubid).
       def write_shards
         writer = method(:write_file)
         summary = ShardWriter.new(output, SHARD_PATTERN, shard_size, &writer)
         detail = ShardWriter.new(output, DETAIL_PATTERN, detail_shard_size, &writer)
-        machine = MachineIndex.new(pubid_class: @pubid_class)
+        if emit_index?
+          machine = MachineIndex.new(pubid_class: @pubid_class,
+                                     index_name: @index_name,
+                                     committed: committed_index)
+        end
         total = 0
 
         each_document do |doc|
           total += 1
           summary << compact_record(doc)
           detail << detail_record(doc) if emit_detail?
-          machine.add(*machine_record(doc)) if emit_index?
+          machine&.add(*machine_record(doc))
         end
         summary.flush
         detail.flush
@@ -537,7 +661,7 @@ module Relaton
       def each_document
         return to_enum(:each_document) unless block_given?
 
-        repo_root = File.dirname(File.expand_path(data_dir))
+        repo_root = self.repo_root
         seen = {}
         source_dirs(repo_root).each do |dir|
           dir_ids = {}
@@ -701,13 +825,27 @@ module Relaton
       def purge_stale!
         return unless overwrite
 
+        # Read before the glob deletes it. `--index-name` accepts a name
+        # `index-v*` does not match, so the previous build's own manifest is
+        # the only record of which monolith it wrote.
+        previous = previous_index_name
         # `base:` rather than interpolating `output` into the pattern: an output
         # path containing glob metacharacters (`[`, `{`, `*`, `?`, …) would
         # otherwise match nothing, and the stale shards would survive silently.
-        Dir.glob(STALE_GLOBS, base: output).each do |name|
-          path = File.join(output, name)
-          File.delete(path) if File.file?(path)
-        end
+        paths = Dir.glob(STALE_GLOBS, base: output).map { |name| File.join(output, name) }
+        paths += %w[yaml zip].map { |ext| File.join(output, "#{previous}.#{ext}") } if previous
+        paths.uniq.each { |path| File.delete(path) if File.file?(path) }
+      end
+
+      # The monolith name a previous build recorded, if it is a safe basename.
+      def previous_index_name
+        path = File.join(output, "index", "manifest.json")
+        return unless File.file?(path)
+
+        name = JSON.parse(File.read(path))["index"]
+        name if name.is_a?(String) && name.match?(INDEX_NAME)
+      rescue JSON::ParserError
+        nil
       end
 
       def write_file(path, content)
