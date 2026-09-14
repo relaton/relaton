@@ -303,8 +303,34 @@ would not transparently inflate it.
 | `--detail-shard-size` | Detail records per `detail-NNNN.json` (default `500`). This is how much is fetched to open one detail page, so keep it modest.
 | `--[no-]detail` | Emit the detail shards (default `true`). `--no-detail` roughly halves the deployed site and degrades detail pages to the summary fields plus links.
 | `--[no-]static` | Also index a sibling `static/` folder next to `DATA-DIR` (auto-detected, default `true`). Pass `--no-static` to index `DATA-DIR` only.
+| `--pubid-flavor` | Flavor whose pubid `Identifier` parses each docid and whose `INDEXFILE` names the published index (e.g. `iso`, `iho`, `iec`). **Required** unless `--no-machine-index`.
+| `--[no-]machine-index` | Emit the machine-consumable index (default `true`). `--no-machine-index` builds the human site only, and is the way to run without `--pubid-flavor`.
+| `--index-name` | Base name for the published index, overriding the flavor's `INDEXFILE` (e.g. `index-v2`). For a corpus that is not a relaton flavor. Must be a single file name — no `/` and no leading `.`.
+| `--[no-]publish-data` | Copy the scanned corpus to `_site/data/` so document fetches share the Pages origin (default `false`). For a repo whose records are served only from Pages; it roughly doubles the deployed size, and most repos are already served by `raw.githubusercontent.com`.
 | `-f, --overwrite` | Overwrite existing output files (default `true`).
 |===
+
+==== The machine index
+
+Alongside the human site, `relaton index` publishes a machine-consumable copy of
+the index so a Relaton client can resolve a reference from the Pages origin:
+
+[source]
+----
+_site/index-v2.yaml           the whole index, same shape as the repo's own
+_site/index-v2.zip            its zip sibling — what `Relaton::Index url:` fetches
+_site/index/manifest.json     the lookup rule
+_site/index/shard-00000.json  one bucket of rows
+----
+
+The monolith is named from the flavor's own `INDEXFILE` (hence `index-v2` for
+ISO, `index-v3` for IHO), so it is the file that flavor's consumer already
+fetches. Shard buckets are `crc32(pubid.root.number.to_s) % shards`, the same
+key `Relaton::Index` narrows on, so a document family lands in one shard.
+
+The wire contract — manifest fields, shard naming, and what the shards cannot
+serve — is specified in `docs/data-repository-format.adoc` in the `relaton`
+repo.
 
 NOTE: Some `relaton-data-<flavor>` repos keep manually-curated bibliographic YAML
 records (documents the crawler can't fetch — e.g. ISO/IEC Directives, JCGM/GUM
@@ -319,28 +345,33 @@ copy wins. Use `--no-static` to suppress this.
 [source,console]
 ----
 # From the checked-out data repo (as in the GitHub Action):
-$ relaton index data --output _site --base-url \
+$ relaton index data --output _site --pubid-flavor bipm --base-url \
     https://raw.githubusercontent.com/relaton/relaton-data-bipm/v2
 
-# From a local folder of YAML docs (default ./data), with a custom title:
-$ relaton index ./my-docs --title "My Standards Index"
+# From a local folder of YAML docs (default ./data), human site only:
+$ relaton index ./my-docs --title "My Standards Index" --no-machine-index
 
 # Branded per flavor — title, search-result blurb and tab icon:
-$ relaton index data --title "W3C Index" \
+$ relaton index data --pubid-flavor w3c --title "W3C Index" \
     --description "Welcome to the World Wide Web Consortium standards index site!" \
     --favicon https://www.w3.org/assets/logos/w3c/w3c-no-bars.svg
 
 # Ad-hoc, cloning the official data repo by flavor:
-$ relaton index --flavor bipm --output _site
+$ relaton index --flavor bipm --pubid-flavor bipm --output _site
 
 # From an arbitrary GitHub repo, pinning the branch to clone:
-$ relaton index --repo relaton/relaton-data-bipm --branch v2 --output _site
+$ relaton index --repo relaton/relaton-data-bipm --branch v2 \
+    --pubid-flavor bipm --output _site
+
+# A corpus that is not a relaton flavor: name the index explicitly:
+$ relaton index data --pubid-flavor iso --index-name index-v2 --output _site
 
 # Tune the shard layout for a very large corpus:
-$ relaton index data --shard-size 10000 --detail-shard-size 250 --output _site
+$ relaton index data --pubid-flavor iso --shard-size 10000 \
+    --detail-shard-size 250 --output _site
 
 # Skip the detail shards entirely (smaller site, summary-only detail pages):
-$ relaton index data --no-detail --output _site
+$ relaton index data --pubid-flavor iso --no-detail --output _site
 ----
 
 [IMPORTANT]
