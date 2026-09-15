@@ -29,8 +29,7 @@ jobs:
   # `:spec` flavor suite. The workflow sets up Java for Jing/RelaxNG. Each gem
   # resolves its own bundle (relaton-cli's Gemfile pins `relaton` at `../..`).
   rake:
-    # TODO: revert to @main after relaton/support#83 merges (dry-run pin).
-    uses: relaton/support/.github/workflows/rake-monorepo.yml@ci/monorepo-include-root-java
+    uses: relaton/support/.github/workflows/rake-monorepo.yml@main
     with:
       gem_directory: gems
       include_root: true
