@@ -226,8 +226,15 @@ RSpec.describe Relaton::Db::Registry do
   end
 
   it "defaults #prefixes to [prefix] for a flavor with no pubid backing" do
-    expect(Relaton::Db::Registry.instance.find_processor(:relaton_omg).prefixes)
-      .to eq ["OMG"]
+    expect(Relaton::Db::Registry.instance.find_processor(:relaton_un).prefixes)
+      .to eq ["UN"]
+  end
+
+  # OMG reads its prefixes from Pubid::Omg, which has only its own token.
+  it "sources OMG's #prefixes from pubid" do
+    processor = Relaton::Db::Registry.instance.find_processor(:relaton_omg)
+    expect(processor.instance_variable_get(:@pubid_flavor)).to eq :Omg
+    expect(processor.prefixes).to eq ["OMG"]
   end
 
   it "find processot by dataset" do
