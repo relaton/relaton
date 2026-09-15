@@ -28,9 +28,66 @@ The gem extends `relaton-bib` (~> 2.0.0-alpha.1), the core Relaton bibliographic
 - `Relaton::Omg::Ext` < `Bib::Ext` — overrides `get_schema_version` to return the OMG model version
 - `Relaton::Omg::Bibitem` < `Item` — includes `Bib::BibitemShared`, for `<bibitem>` XML
 - `Relaton::Omg::Bibdata` < `Item` — includes `Bib::BibdataShared`, for `<bibdata>` XML
+- `Relaton::Omg::Docidentifier` < `Bib::Docidentifier` — the document id, backed by `Pubid::Omg`; `Item` declares it, so XML and YAML deserialization produce it too
 - `Relaton::Omg::Processor` < `Core::Processor` — relaton-core integration, delegates to `Bibliography`, `Bibitem`, `Item`
 - `Relaton::Omg::Bibliography` — fetches standards via `Scraper`
 - `Relaton::Omg::Scraper` — scrapes https://www.omg.org/spec for bibliographic data
+
+### References are parsed with pubid
+
+OMG uses `Pubid::Omg` and no hand regex. OMG publishes no index and has no data
+repository, so this is the BSI and CEN shape: parse the reference, and back the
+document id with pubid. There is no `INDEXFILE` and no `pubid_class:`. Do not
+add an index.
+
+The grammar is `OMG <ACRONYM>[ <VERSION>][<sep><PART>]`, where `<sep>` is a
+space, or a slash after a version. The version can carry a beta label (`2.5 beta`,
+`2.0 beta 1`). The part is a volume or a format name (`Superstructure`, `PDF`).
+
+- **An unrecognized reference raises.** `Scraper.scrape_page` lets
+  `Pubid::Errors::ParseError` propagate, so
+  `OMG Model Driven Architecture Guide rev. 2.0` raises and does not show as
+  "Not found". Only the transport errors are rescued, by name.
+- **The request URL is the acronym and the version, and nothing else.**
+  `get_doc` builds `https://www.omg.org/spec/<ACRONYM>/<VERSION>`, with each
+  space of the version turned into `/` (`1.0 beta 2` becomes `1.0/beta/2`). The
+  part stays out of the URL: `fetch_link` uses it to find the part's PDF link
+  on the version page, and `fetch_title` appends it. The cassettes replay only
+  while the URL does not change.
+- **The docid version comes from the page, not from the query.** That is why
+  `get "OMG AMI4CCM"` answers `OMG AMI4CCM 1.1`. `fetch_docid` and the History
+  ids of `fetch_relation` are rendered by
+  `Pubid::Omg::Identifiers::Specification`, not by parsing a joined string.
+- **pubid renders one separator.** `OMG DDS 1.4/PDF` renders back as
+  `OMG DDS 1.4 PDF`. Both spellings name the same document, and one rendering
+  keeps `==` and `matches?` true between them. If you echo a caller's
+  reference, echo the string, not `pubid.to_s`.
+- **Known limit.** OMG's URL spelling `Beta2` (label and number joined) parses
+  as a part, not a version. It round-trips, so nothing is lost.
+- **The acronym is the URL segment, verbatim.** 30 of the 270 acronyms in the
+  OMG catalog carry a hyphen, a slash, a plus, or start in lower case
+  (`DDS-XTypes`, `EDMC-FIBO/BE`, `VSIPL++`, `smartant`). pubid PR #376 accepts
+  all 270. A slash **before** the version belongs to the acronym
+  (`OMG EDMC-FIBO/BE 1.1` fetches `spec/EDMC-FIBO/BE/1.1`); a slash **after**
+  the version separates the part. So `OMG UML/Superstructure` is the acronym
+  `UML/Superstructure`; write the part behind a space. With pubid `ce2f75ef`
+  (PR #372) those 30 raised, and the migration waited for #376. Fix a grammar
+  gap in pubid; do not split the acronym in the flavor.
+
+`Docidentifier` parses its `content` on the data side and rescues the parse, so
+a value that is not an OMG identifier stays verbatim with a nil `pubid`. Its
+mutators:
+
+- `remove_date!` drops the **version**. OMG identifiers carry no date, and the
+  version is the discriminator, as IALA maps `remove_date!` onto its edition.
+  So `to_most_recent_reference` turns `OMG AMI4CCM 1.0` into `OMG AMI4CCM`.
+- `remove_part!` drops the part: `OMG UML 2.1.1 Superstructure` becomes
+  `OMG UML 2.1.1`.
+- `to_all_parts!` is the inherited no-op. An OMG part is a name, not a numbered
+  part, so there is no "all parts" form.
+
+The processor sets `@pubid_flavor = :Omg`. That changes nothing today:
+`Pubid::Omg.prefixes` is `["OMG"]`, the same as `@prefix`.
 
 ### Publication date comes from JSON-LD, not the visible text
 
@@ -71,4 +128,4 @@ Items can be serialized to/from YAML and XML. Tests verify round-trip fidelity f
 
 - Ruby >= 3.1.0
 - Rubocop inherits from Ribose OSS guide with `rubocop-rails` required but Rails cops disabled
-- OMG document reference format: `OMG {ACRONYM} {VERSION}` (e.g., `OMG AMI4CCM 1.0`)
+- OMG document reference format: `OMG {ACRONYM}[ {VERSION}][ {PART}]` (e.g., `OMG AMI4CCM 1.0`, `OMG UML 2.1.1 Superstructure`)

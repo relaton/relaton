@@ -2,6 +2,7 @@
 
 require "json"
 require "mechanize"
+require "pubid"
 
 module Relaton
   module Omg
@@ -9,17 +10,22 @@ module Relaton
       URL_PATTERN = "https://www.omg.org/spec/"
       LD_DATE = "https://www.omg.org/techprocess/ab/SpecificationMetadata/publicationDate"
 
-      def initialize(acronym, version = nil, spec = nil)
+      # @param acronym [String] the specification acronym, e.g. "UML"
+      # @param version [String, nil] the version, e.g. "2.1.1" or "2.5 beta 1"
+      # @param part [String, nil] the document part, e.g. "Superstructure"
+      def initialize(acronym, version = nil, part = nil)
         @acronym = acronym
         @version = version
-        @spec = spec
+        @part = part
       end
 
+      # @param ref [String] the OMG reference, e.g. "OMG UML 2.1.1 Superstructure"
+      # @return [Relaton::Omg::ItemData, nil] nil when the page is not found
+      # @raise [Pubid::Errors::ParseError] when the reference is not an OMG
+      #   identifier
       def self.scrape_page(ref)
-        %r{^OMG (?<acronym>[^\s]+)(?:[\s/](?<version>[\d.]+(?:\sbeta(?:\s\d)?)?))?(?:[\s/](?<spec>\w+))?$} =~ ref
-        return unless acronym
-
-        scraper = new(acronym, version, spec)
+        pubid = ::Pubid::Omg::Identifier.parse(ref)
+        scraper = new(pubid.acronym, pubid.version, pubid.part)
         doc = scraper.get_doc
         return if doc.nil? || scraper.fetch_link.empty?
 
@@ -58,15 +64,15 @@ module Relaton
 
       def fetch_title
         content = @doc.at('//dt[.="Title:"]/following-sibling::dd').text
-        content += ": #{@spec}" if @spec
+        content += ": #{@part}" if @part
         [Bib::Title.new(type: "main", content: content, language: "en", script: "Latn")]
       end
 
+      # The version comes from the page, not from the query, so a versionless
+      # query (`OMG AMI4CCM`) answers with the version that the page shows.
       def fetch_docid
-        id = ["OMG", @acronym]
-        id << doc_version if doc_version
-        id << @spec if @spec
-        [Bib::Docidentifier.new(content: id.join(" "), type: "OMG", primary: true)]
+        id = render_id(@acronym, doc_version, @part)
+        [Docidentifier.new(content: id, type: "OMG", primary: true)]
       end
 
       def fetch_abstract
@@ -128,8 +134,8 @@ module Relaton
         return @links if @links
 
         @links = []
-        if @spec
-          a = @doc.at("//a[@href='#{@url}/#{@spec}/PDF']")
+        if @part
+          a = @doc.at("//a[@href='#{@url}/#{@part}/PDF']")
           @links << Bib::Uri.new(type: "src", content: a[:href]) if a
         else
           a = @doc.at('//dt[.="This Document:"]/following-sibling::dd/a')
@@ -146,8 +152,8 @@ module Relaton
           ver = row.at("td").text
           unless ver == doc_version
             acronym = row.at("td[3]/a")[:href].split("/")[4]
-            id = ["OMG", acronym, ver].join(" ")
-            docid = Bib::Docidentifier.new(content: id, type: "OMG")
+            id = render_id(acronym, ver)
+            docid = Docidentifier.new(content: id, type: "OMG")
             bibitem = Bib::ItemBase.new(formattedref: Bib::Formattedref.new(content: id), docidentifier: [docid])
             mem << Bib::Relation.new(type: "obsoletes", bibitem: bibitem)
           end
@@ -165,6 +171,15 @@ module Relaton
         @doc.xpath(
           '//dt/span/a[contains(., "IPR Mode")]/../../following-sibling::dd/span',
         ).map { |l| l.text.match(/[\w\s-]+/).to_s.strip }
+      end
+
+      private
+
+      # @return [String] the identifier, rendered by pubid
+      def render_id(acronym, version, part = nil)
+        ::Pubid::Omg::Identifiers::Specification.new(
+          acronym: acronym, version: version, part: part,
+        ).to_s
       end
     end
   end

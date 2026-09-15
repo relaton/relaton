@@ -79,8 +79,33 @@ RSpec.describe Relaton::Omg::Bibliography do
   end
 
   it "deals with incorrect reference" do
-    item = described_class.get "OMG Model Driven Architecture Guide rev. 2.0"
-    expect(item).to be_nil
+    expect do
+      described_class.get "OMG Model Driven Architecture Guide rev. 2.0"
+    end.to raise_error Pubid::Errors::ParseError
+  end
+
+  it "backs the docidentifiers with pubid", vcr: "omg_ami4ccm_1_0" do
+    item = described_class.get "OMG AMI4CCM 1.0"
+    docid = item.docidentifier.first
+    expect(docid).to be_instance_of Relaton::Omg::Docidentifier
+    expect(docid.pubid.version).to eq "1.0"
+    expect(item.to_most_recent_reference.docidentifier.first.content)
+      .to eq "OMG AMI4CCM"
+  end
+
+  it "keeps the document part out of the request URL", vcr: "omg_uml_2.1.1_superstructure" do
+    item = described_class.get "OMG UML 2.1.1 Superstructure"
+    expect(item.source.map(&:content).map(&:to_s))
+      .to eq ["https://www.omg.org/spec/UML/2.1.1/Superstructure/PDF"]
+    relation = item.relation.first.bibitem.docidentifier.first
+    expect(relation).to be_instance_of Relaton::Omg::Docidentifier
+    expect(relation.content).to eq "OMG UML 2.0"
+  end
+
+  it "reads a docidentifier from XML as an Omg::Docidentifier" do
+    xml = File.read "fixtures/omg_ami4ccm_1_0.xml", encoding: "UTF-8"
+    item = Relaton::Omg::Bibitem.from_xml xml
+    expect(item.docidentifier.first).to be_instance_of Relaton::Omg::Docidentifier
   end
 
   it "converts from XML to Hash" do

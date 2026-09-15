@@ -6,6 +6,7 @@ module Relaton
       def initialize # rubocop:disable Lint/MissingSuper
         @short = :relaton_omg
         @prefix = "OMG"
+        @pubid_flavor = :Omg # Pubid::Omg.prefixes is ["OMG"], the same as @prefix
         @defaultprefix = /^OMG /
         @idtype = "OMG"
       end
