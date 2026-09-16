@@ -23,8 +23,8 @@ module Relaton
           xpath = '//table[contains(@class, "standard_list_table")]/tr/td/a'
           t_xpath = "../preceding-sibling::td[4]"
           hits = doc.xpath(xpath).map do |h|
-            docref = h.at(t_xpath).text.gsub(/â\u0080\u0094/, "-")
-            status = h.at("../preceding-sibling::td[1]").text.delete "\r\n"
+            docref = h.at_xpath(t_xpath).text.gsub(/â\u0080\u0094/, "-")
+            status = h.at_xpath("../preceding-sibling::td[1]").text.delete "\r\n"
             pid = h[:href].sub(%r{/$}, "")
             Hit.new pid: pid, docref: docref, status: status, scraper: self
           end
@@ -89,7 +89,7 @@ module Relaton
 
         def get_titles(doc)
           xpz = '//td[contains(.,"中文标题")]/following-sibling::td[1]'
-          titles = Bib::Title.from_string doc.at(xpz)
+          titles = Bib::Title.from_string doc.at_xpath(xpz)
             .text, "zh", "Hans"
           xpe = '//td[contains(.,"英文标题")]/following-sibling::td[1]'
           ten = doc.xpath(xpe).text

@@ -314,13 +314,13 @@ module Relaton
       def create_relations(doc) # rubocop:disable Metrics/MethodLength
         doc.xpath('//ROW[STATUS[.!="PREPARING" and .!="PUBLISHED"]]')
           .map do |r|
-          r_type = r.at("STATUS").text.downcase
+          r_type = r.at_xpath("STATUS").text.downcase
           type = case r_type
                 when "revised", "replaced" then "updates"
                 when "withdrawn" then "obsoletes"
                 else r_type
                 end
-          ref = r.at("FULL_NAME").text
+          ref = r.at_xpath("FULL_NAME").text
           docid = Docidentifier.new(content: ref, type: "IEC", primary: true)
           bibitem = ItemData.new(formattedref: Bib::Formattedref.new(content: ref), docidentifier: [docid])
           Relation.new type: type, bibitem: bibitem

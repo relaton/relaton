@@ -200,7 +200,7 @@ module Relaton
         else
           @errors[:docid_2] &&= true
         end
-        isbn = doc.at('//h3[contains(.,"ISBN")]/following-sibling::span')&.text
+        isbn = doc.at_xpath('//h3[contains(.,"ISBN")]/following-sibling::span')&.text
         if isbn && !isbn.strip.empty?
           docid << Bib::Docidentifier.new(type: "ISBN", content: isbn)
           @errors[:docid_isbn] &&= false
@@ -211,7 +211,7 @@ module Relaton
       end
 
       def parse_code(hit, doc = nil)
-        code = hit.at("h3/a").text.strip.squeeze(" ").sub(/\u25b9/, "").gsub(" / ", "/")
+        code = hit.at_xpath("h3/a").text.strip.squeeze(" ").sub(/\u25b9/, "").gsub(" / ", "/")
         c2idx = %r{(?:\(|/)(?<c2>(?:ISO|IEC)\s[^()]+)} =~ code
         code = code[0...c2idx].strip if c2idx
         [primary_code(code, doc), c2]
@@ -221,7 +221,7 @@ module Relaton
         /^(?<code1>[^(]+)(?:\((?<code2>[a-zA-Z]+\d+,(?:\sPages)?[^)]+))?/ =~ code
         if code1&.match?(/^CIE/)
           parse_cie_code code1, code2, doc
-        elsif (pcode = doc&.at('//h3[.="Product Code(s):"]/following-sibling::span'))
+        elsif (pcode = doc&.at_xpath('//h3[.="Product Code(s):"]/following-sibling::span'))
           "CIE #{pcode.text.strip.match(/[^,]+/)}"
         else
           num = code.match(/(?<=\()\w{2}\d+,.+(?=\))/).to_s.gsub(/,(?=\s)/, "").gsub(/,(?=\S)/, " ")
@@ -231,7 +231,7 @@ module Relaton
 
       def parse_cie_code(code1, code2, doc = nil) # rubocop:disable Metrics/CyclomaticComplexity
         code = code1.size > 25 && code2 ? "CIE #{code2.sub(/,(\sPages)?/, '')}" : code1
-        add = doc&.at("//hgroup/h2")&.text&.match(/(Add)endum\s(\d+)$/)
+        add = doc&.at_xpath("//hgroup/h2")&.text&.match(/(Add)endum\s(\d+)$/)
         return code unless add
 
         "#{code} #{add[1]} #{add[2]}"
@@ -244,7 +244,7 @@ module Relaton
       # @param doc [Mechanize::Page]
       # @return [Array<Relaton::Bib::Title>]
       def fetch_title(doc)
-        t = doc.at("//hgroup/h2/text()", "//hgroup/h1/text()")
+        t = doc.at_xpath("//hgroup/h2/text()", "//hgroup/h1/text()")
         unless t && !t.text.strip.empty?
           @errors[:title] &&= true
           return []
@@ -270,7 +270,7 @@ module Relaton
       # @param doc [Mechanize::Page]
       # @return [String]
       def fetch_edition(doc)
-        ed = doc.at("//h3[.='Edition:']/following-sibling::span")
+        ed = doc.at_xpath("//h3[.='Edition:']/following-sibling::span")
         @errors[:edition] &&= true
         return unless ed
 
@@ -285,16 +285,16 @@ module Relaton
       # @return [Array<Relaton::Cie::Relation>]
       def fetch_relation(doc) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
         rels = doc.xpath('//section[@class="history"]/ol/li[not(contains(@class,"selected-product"))]').map do |rel|
-          ref = rel.at("a")
+          ref = rel.at_xpath("a")
           url = "https://www.techstreet.com#{ref[:href]}"
-          title = Bib::Title.from_string ref.at('p/span[@class="title"]').text
-          did = ref.at("h3").text
+          title = Bib::Title.from_string ref.at_xpath('p/span[@class="title"]').text
+          did = ref.at_xpath("h3").text
           docid = [Bib::Docidentifier.new(type: "CIE", content: did, primary: true)]
-          on = ref.at("p/time")
+          on = ref.at_xpath("p/time")
           date = [Bib::Date.new(type: "published", at: on[:datetime])]
           source = [Bib::Uri.new(type: "src", content: url)]
           bibitem = ItemData.new docidentifier: docid, title: title, source: source, date: date
-          type = ref.at('//li/i[contains(@class,"historical")]') ? "updates" : "updatedBy"
+          type = ref.at_xpath('//li/i[contains(@class,"historical")]') ? "updates" : "updatedBy"
           Bib::Relation.new(type: type, bibitem: bibitem)
         end
         @errors[:relation] &&= rels.empty?
@@ -313,7 +313,7 @@ module Relaton
       # @param doc [Mechanize::Page]
       # @return [Array<Relaton::Bib::LocalizedMarkedUpString>]
       def fetch_abstract(doc)
-        content = doc.at('//div[contains(@class,"description")]')&.text&.strip
+        content = doc.at_xpath('//div[contains(@class,"description")]')&.text&.strip
         if content.nil? || content.empty?
           @errors[:abstract] &&= true
           return []
@@ -425,7 +425,7 @@ module Relaton
       # @param hit [Moxml::Element]
       # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       def parse_page(hit, pos = nil, worker_agent = agent, pacing = nil)
-        url = hit.at('h3/a')[:href]
+        url = hit.at_xpath('h3/a')[:href]
         doc = time_req(pacing) { worker_agent.get url }
         @mutex.synchronize do
           item = ItemData.new(

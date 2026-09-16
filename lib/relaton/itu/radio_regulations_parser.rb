@@ -30,7 +30,7 @@ module Relaton
 
       # @return [Array<Relaton::Bib::Title>]
       def fetch_titles
-        title = doc.at("//title")&.text&.strip
+        title = doc.at_xpath("//title")&.text&.strip
         return [] if title.nil? || title.empty?
 
         Relaton::Bib::Title.from_string title, "en", "Latn"
@@ -44,7 +44,7 @@ module Relaton
       def doc_date
         return @doc_date if defined? @doc_date
 
-        date_str = doc.at("//td[@class='title']/text()")&.text&.slice(/(?<=Year:\s)(?:\d{1,2}\.\w+\.)?\d{4}/)
+        date_str = doc.at_xpath("//td[@class='title']/text()")&.text&.slice(/(?<=Year:\s)(?:\d{1,2}\.\w+\.)?\d{4}/)
         @doc_date = date_str ? roman_to_arabic(date_str) : nil
       end
 

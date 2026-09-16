@@ -52,7 +52,7 @@ module Relaton
 
       def parse(content)
         xml = Moxml.parse(content)
-        registry = xml.at("/xmlns:registry")
+        registry = xml.at_xpath("/xmlns:registry")
         doc = Parser.parse registry, nil, @errors
         save_doc doc
         registry.xpath("./xmlns:registry").each { |r| save_doc Parser.parse(r, doc, @errors) }
