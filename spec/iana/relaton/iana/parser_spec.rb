@@ -10,7 +10,7 @@ RSpec.describe Relaton::Iana::Parser do
     let(:xml) { Nokogiri::XML File.read("fixtures/rpki.xml", encoding: "UTF-8") }
 
     subject do
-      described_class.new xml.at("/xmlns:registry"), nil
+      described_class.new xml.at_xpath("/xmlns:registry"), nil
     end
 
     it "parse" do

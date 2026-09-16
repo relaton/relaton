@@ -460,7 +460,7 @@ module Relaton
       def collect_hits(url = URL, hits = [])
         result = time_req(listing_pacing) { agent.get url }
         hits.concat result.xpath("//li[@data-product]").to_a
-        np = result.at '//a[@class="next_page"]'
+        np = result.at_xpath '//a[@class="next_page"]'
         return hits unless np
 
         next_href = np[:href]

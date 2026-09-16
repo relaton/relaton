@@ -54,7 +54,7 @@ describe Relaton::Ecma::EditionParser do
         </html>
       HTML
 
-      source = subject.edition_source doc.at("//ul/li")
+      source = subject.edition_source doc.at_xpath("//ul/li")
 
       expect(source).to be_instance_of Array
       expect(source.size).to eq 1

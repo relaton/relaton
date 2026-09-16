@@ -22,7 +22,7 @@ module Relaton
       end
 
       def fetch # rubocop:disable Metrics/MethodLength
-        @doc = @agent.get(@url).at "//div[@id='main']/section"
+        @doc = @agent.get(@url).at_xpath "//div[@id='main']/section"
         contributors = fetch_contributor
         eg_contributor = fetch_editorialgroup_contributor
         contributors << eg_contributor if eg_contributor

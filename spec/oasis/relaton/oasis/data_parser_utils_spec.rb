@@ -5,7 +5,7 @@ require "relaton/oasis/data_fetcher"
 RSpec.describe Relaton::Oasis::DataParserUtils do
   let(:node) do
     Nokogiri::HTML("<details><summary><div><h2>T</h2></div></summary></details>")
-      .at("//details")
+      .at_xpath("//details")
   end
   let(:parser) { Relaton::Oasis::DataParser.new(node) }
   let(:agent) { instance_double(Mechanize) }
@@ -35,7 +35,7 @@ RSpec.describe Relaton::Oasis::DataParserUtils do
         </details>
       HTML
       dp = Relaton::Oasis::DataParser.new(
-        Nokogiri::HTML(html).at("//details"), errors,
+        Nokogiri::HTML(html).at_xpath("//details"), errors,
       )
       allow(dp).to receive(:page).and_return(nil)
       dp.send(:parse_editors_from_text)
@@ -86,7 +86,7 @@ RSpec.describe Relaton::Oasis::DataParserUtils do
           </div><h2>Title</h2></div></summary>
         </details>
       HTML
-      n = Nokogiri::HTML(html).at("//details")
+      n = Nokogiri::HTML(html).at_xpath("//details")
       test_obj = Object.new
       test_obj.instance_variable_set(:@errors, errors)
       test_obj.extend Relaton::Oasis::DataParserUtils
@@ -190,7 +190,7 @@ RSpec.describe Relaton::Oasis::DataParserUtils do
           </div></div></div>
         </details>
       HTML
-      Relaton::Oasis::DataParser.new(Nokogiri::HTML(html).at("//details"))
+      Relaton::Oasis::DataParser.new(Nokogiri::HTML(html).at_xpath("//details"))
     end
 
     it "returns 'specification' for Committee Specification" do
@@ -229,7 +229,7 @@ RSpec.describe Relaton::Oasis::DataParserUtils do
 
     def parser_for(title)
       html = "<details><summary><div><h2>#{title}</h2></div></summary></details>"
-      Relaton::Oasis::DataParser.new Nokogiri::HTML(html).at("//details"),
+      Relaton::Oasis::DataParser.new Nokogiri::HTML(html).at_xpath("//details"),
                                      errors
     end
 
