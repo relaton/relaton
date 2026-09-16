@@ -128,7 +128,7 @@ module Relaton
       def to_yaml(bib) = bib.to_yaml
       def to_bibxml(bib) = bib.to_rfcxml
 
-      # @param hit [Nokogiri::XML::Element]
+      # @param hit [Moxml::Element]
       def parse_page(hit) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         DataParser.new(hit, @errors).parse.each { |item| write_file item }
       end

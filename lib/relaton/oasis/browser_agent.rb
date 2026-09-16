@@ -1,5 +1,5 @@
 require "ferrum"
-require "nokogiri"
+require "moxml"
 
 module Relaton
   module Oasis
@@ -42,7 +42,7 @@ module Relaton
       def get(url)
         @browser.go_to(url)
         wait_for_challenge
-        Nokogiri::HTML(@browser.body)
+        Moxml.new.parse_html(@browser.body)
       end
 
       # HTTP status code of the most recent navigation's main resource,

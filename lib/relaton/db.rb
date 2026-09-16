@@ -1,7 +1,7 @@
 require "relaton/bib"
 require "yaml"
 require "net/http"
-require "nokogiri"
+require "moxml"
 require "fileutils"
 require "date"
 
@@ -169,9 +169,13 @@ module Relaton
     # @return [String]
     def to_xml
       db = @local_db || @db || return
-      Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
-        xml.documents { xml.parent.add_child db.all.join(" ") }
-      end.to_xml
+      context = Moxml.new
+      doc = context.create_document
+      root = doc.create_element("documents")
+      doc.add_child(root)
+      context.parse_fragment(db.all.join(" ")).children
+        .each { |child| root.add_child(child) }
+      doc.to_xml
     end
 
     private
@@ -381,7 +385,7 @@ module Relaton
     end
 
     def pub_date_in_range?(entry, opts) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-      doc = Nokogiri::XML(entry)
+      doc = Moxml.parse(entry)
       date_str = doc.at("//date[@type='published']/on")&.text
       return false unless date_str
 

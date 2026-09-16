@@ -1,4 +1,4 @@
-require "nokogiri"
+require "moxml"
 # require "parslet"
 require "pubid"
 require "relaton/index"

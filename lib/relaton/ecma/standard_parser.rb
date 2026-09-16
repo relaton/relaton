@@ -5,7 +5,7 @@ module Relaton
 
       ATTRS = %i[docidentifier title date source abstract relation edition ext].freeze
 
-      # @param [Nokogiri::XML::Element] hit document hit
+      # @param [Moxml::Element] hit document hit
       # @param [Mechanize::Page] doc fetched document page
       # @param [Hash] errors error tracking hash
       def initialize(hit:, doc:, errors: {})
