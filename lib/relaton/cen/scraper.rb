@@ -53,7 +53,7 @@ module Relaton
         # @param doc [Mechanize::Page]
         # @return [Array<Relaton::Bib::LocalizedMarkedUpString>]
         def fetch_abstract(doc)
-          content = doc.at("//tr[th[.='Abstract/Scope']]/td")
+          content = doc.at_xpath("//tr[th[.='Abstract/Scope']]/td")
           [Bib::Abstract.new(content: content.text, language: "en", script: "Latn")]
         end
 
@@ -68,7 +68,7 @@ module Relaton
         # @param doc [Mechanize::Page]
         # @return [Relaton::Bib::DocumentStatus, nil]
         def fetch_status(doc)
-          s = doc.at("//tr[th[.='Status']]/td")
+          s = doc.at_xpath("//tr[th[.='Status']]/td")
           return unless s
 
           stage = Bib::Status::Stage.new(content: s.text.strip)
@@ -98,7 +98,7 @@ module Relaton
           doc.xpath(
             "//div[@id='DASHBOARD_LISTRELATIONS']/table/tr[th[.!='Sales Points']]",
           ).each_with_object([]) do |rt, acc|
-            type = relation_type rt.at("th").text.downcase
+            type = relation_type rt.at_xpath("th").text.downcase
             rt.xpath("td/a").each do |r|
               acc << Bib::Relation.new(type: type, bibitem: create_relation(r))
             end
@@ -124,7 +124,7 @@ module Relaton
         # @param doc [Mechanize::Page]
         # @return [Array<Relaton::Bib::Title>]
         def fetch_titles(doc)
-          te = doc.at("//tr[th[.='Title']]/td").text.strip
+          te = doc.at_xpath("//tr[th[.='Title']]/td").text.strip
           Bib::Title.from_string te, "en", "Latn"
         end
 
@@ -134,10 +134,10 @@ module Relaton
         def fetch_dates(doc) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/MethodLength
           doc.xpath("//div[@id='DASHBOARD_LISTIMPLEMENTATIONDATES']/table/tr")
             .each_with_object([]) do |d, acc|
-            at = d.at("td").text
+            at = d.at_xpath("td").text
             next if at.empty?
 
-            t = d.at("th").text
+            t = d.at_xpath("th").text
             type = case t
                   when /DOR/ then "adapted"
                   when /DAV/ then "issued"
@@ -154,8 +154,8 @@ module Relaton
         # @param doc [Mechanize::Page]
         # @return [Array<Relaton::Bib::Contributor>]
         def fetch_contributors(doc)
-          code = doc.at("//tr/td/h1/text()").text
-          title = doc.at("//tr/td[3]/h1").text
+          code = doc.at_xpath("//tr/td/h1/text()").text
+          title = doc.at_xpath("//tr/td[3]/h1").text
           %r{/(?<type>\w+)(?:\s(?<num>[^/]+))?$} =~ code
           org = owner_entity
 
@@ -190,7 +190,7 @@ module Relaton
         # @param doc [Mechanize::Page]
         # @return [Array<Bib::Copyright>]
         def fetch_copyright(doc)
-          date = doc.at("//tr[th[.='date of Availability (DAV)']]/td").text
+          date = doc.at_xpath("//tr[th[.='date of Availability (DAV)']]/td").text
           owner = Bib::ContributionInfo.new(organization: owner_entity)
           from = date.match(/^\d{4}/).to_s
           [Bib::Copyright.new(owner: [owner], from: from)]

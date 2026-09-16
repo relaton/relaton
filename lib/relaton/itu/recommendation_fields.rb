@@ -227,7 +227,7 @@ module Relaton
       def workgroup_from_page
         url = "https://www.itu.int/ITU-T/recommendations/rec.aspx?rec=#{idrec}&lang=en"
         page = agent.get(url)
-        wg = page.at('//span[contains(@id, "uc_rec_main_info1_rpt_main_ctl00_Label8")]/a')
+        wg = page.at_xpath('//span[contains(@id, "uc_rec_main_info1_rpt_main_ctl00_Label8")]/a')
         wg&.text
       end
 
@@ -290,7 +290,7 @@ module Relaton
         return unless doc["imp_dms_link"]
 
         @doc_page ||= request_document(doc["imp_dms_link"])
-        wrd_elm = @doc_page.at("//font[contains(.,'Word')]/../..")
+        wrd_elm = @doc_page.at_xpath("//font[contains(.,'Word')]/../..")
         yield wrd_elm[:href] if block_given? && wrd_elm
       end
 

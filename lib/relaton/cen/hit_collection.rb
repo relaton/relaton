@@ -105,7 +105,7 @@ module Relaton
       # @return [Array<RelatonCen::Hit>]
       def hits(resp)
         resp.xpath("//table[@class='dashlist']/tbody/tr/td[2]").map do |h|
-          ref = h.at("strong/a")
+          ref = h.at_xpath("strong/a")
           code = ref.text.strip
           url = ref[:href]
           Hit.new({ code: code, url: url }, self)

@@ -57,7 +57,7 @@ module Relaton
         # @param doc [Moxml::Document]
         # @return [Array<Relaton::Bib::Title>]
         def get_titles(doc)
-          tzh = doc.at("//h4").text.delete("\r\n\t")
+          tzh = doc.at_xpath("//h4").text.delete("\r\n\t")
           Bib::Title.from_string(tzh, "zh", "Hans")
         end
 
@@ -81,7 +81,7 @@ module Relaton
         # @param doc [Moxml::Document]
         # @return [Array<String>]
         def get_ccs(doc)
-          array(doc.at("//dt[contains(text(), '中国标准分类号')]/following-sibling::dd")).map do |cc|
+          array(doc.at_xpath("//dt[contains(text(), '中国标准分类号')]/following-sibling::dd")).map do |cc|
             text = Cnccs.fetch(cc.text.strip)&.description
             CCS.new code: cc.text, text: text
           end

@@ -20,7 +20,7 @@ module Relaton
 
         sibling_xpath = "./strong/following-sibling::text()" \
                         "|./span[strong]/following-sibling::text()"
-        if @node.at(sibling_xpath)
+        if @node.at_xpath(sibling_xpath)
           nodes_xpath = "./strong/following-sibling::node()" \
                         "|./span[strong]/following-sibling::node()"
           @text = @node.xpath(nodes_xpath).text.strip
@@ -34,7 +34,7 @@ module Relaton
 
         xpath = "./span[@class='citationTitle' " \
                 "or @class='citeTitle']|./em|./i"
-        t = @node.at(xpath)
+        t = @node.at_xpath(xpath)
         @title = if t
                    t.text
                  else
@@ -83,7 +83,7 @@ module Relaton
       # @return [String] document number
       #
       def parse_docnumber
-        ref = @node.at("./span/strong|./strong|./b/span")
+        ref = @node.at_xpath("./span/strong|./strong|./b/span")
         num = ref.text.match(/[^\[\]]+/).to_s
         id = parse_errata(num)
         # some part refs need "Pt" to distinguish from root doc
@@ -183,7 +183,7 @@ module Relaton
       # @return [Array<Bib::Relation>] document relations
       #
       def parse_relation
-        parser = DataParser.new(@node.at("./ancestor::details"), @errors, agent: @agent)
+        parser = DataParser.new(@node.at_xpath("./ancestor::details"), @errors, agent: @agent)
         fref = parser.parse_docid[0].content
         bib = ItemData.new(formattedref: Bib::Formattedref.new(content: fref))
         result = [Bib::Relation.new(type: "partOf", bibitem: bib)]
@@ -221,7 +221,7 @@ module Relaton
       end
 
       def link_node
-        @link_node = @node.at("./a|./following-sibling::p[1]/a")
+        @link_node = @node.at_xpath("./a|./following-sibling::p[1]/a")
       end
 
       #
@@ -230,7 +230,7 @@ module Relaton
       # @return [Array<String>] technology areas
       #
       def parse_technology_area
-        result = super(@node.at("./ancestor::details"))
+        result = super(@node.at_xpath("./ancestor::details"))
         @errors[:part_technology_area] &&= result.empty?
         result
       end

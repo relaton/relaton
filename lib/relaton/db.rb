@@ -169,13 +169,10 @@ module Relaton
     # @return [String]
     def to_xml
       db = @local_db || @db || return
-      context = Moxml.new
-      doc = context.create_document
-      root = doc.create_element("documents")
-      doc.add_child(root)
-      context.parse_fragment(db.all.join(" ")).children
-        .each { |child| root.add_child(child) }
-      doc.to_xml
+      parts = db.all.join(" ")
+      Moxml.parse(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<documents>#{parts}</documents>",
+      ).to_xml(indent: 0, expand_empty: false)
     end
 
     private
@@ -386,7 +383,7 @@ module Relaton
 
     def pub_date_in_range?(entry, opts) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       doc = Moxml.parse(entry)
-      date_str = doc.at("//date[@type='published']/on")&.text
+      date_str = doc.at_xpath("//date[@type='published']/on")&.text
       return false unless date_str
 
       date = parse_pub_date(date_str)

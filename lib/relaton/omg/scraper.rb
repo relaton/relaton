@@ -63,7 +63,7 @@ module Relaton
       end
 
       def fetch_title
-        content = @doc.at('//dt[.="Title:"]/following-sibling::dd').text
+        content = @doc.at_xpath('//dt[.="Title:"]/following-sibling::dd').text
         content += ": #{@part}" if @part
         [Bib::Title.new(type: "main", content: content, language: "en", script: "Latn")]
       end
@@ -76,7 +76,7 @@ module Relaton
       end
 
       def fetch_abstract
-        content = @doc.at('//section[@id="document-metadata"]/div/div/p').text
+        content = @doc.at_xpath('//section[@id="document-metadata"]/div/div/p').text
         [Bib::Abstract.new(content: content, language: "en", script: "Latn")]
       end
 
@@ -85,7 +85,7 @@ module Relaton
       end
 
       def doc_version
-        @doc_version ||= @doc.at('//dt[.="Version:"]/following-sibling::dd/p/span').text
+        @doc_version ||= @doc.at_xpath('//dt[.="Version:"]/following-sibling::dd/p/span').text
       end
 
       def fetch_date
@@ -105,7 +105,7 @@ module Relaton
       #
       # @return [Date, nil]
       def jsonld_date
-        script = @doc.at('//script[@type="application/ld+json"]')
+        script = @doc.at_xpath('//script[@type="application/ld+json"]')
         return unless script
 
         node = JSON.parse(script.text).find { |e| e.is_a?(Hash) && e[LD_DATE] }
@@ -117,7 +117,7 @@ module Relaton
 
       # @return [Date, nil]
       def dd_date
-        text = @doc.at('//dt[.="Publication Date:"]/following-sibling::dd').text.strip
+        text = @doc.at_xpath('//dt[.="Publication Date:"]/following-sibling::dd').text.strip
         ::Date.parse text
       rescue ::Date::Error
         Util.warn "Cannot parse the publication date `#{text}`."
@@ -125,7 +125,7 @@ module Relaton
       end
 
       def fetch_status
-        status = @doc.at('//dt[.="Document Status:"]/following-sibling::dd')
+        status = @doc.at_xpath('//dt[.="Document Status:"]/following-sibling::dd')
         stage = status.text.strip.match(/\w+/).to_s
         Bib::Status.new(stage: Bib::Status::Stage.new(content: stage))
       end
@@ -135,12 +135,12 @@ module Relaton
 
         @links = []
         if @part
-          a = @doc.at("//a[@href='#{@url}/#{@part}/PDF']")
+          a = @doc.at_xpath("//a[@href='#{@url}/#{@part}/PDF']")
           @links << Bib::Uri.new(type: "src", content: a[:href]) if a
         else
-          a = @doc.at('//dt[.="This Document:"]/following-sibling::dd/a')
+          a = @doc.at_xpath('//dt[.="This Document:"]/following-sibling::dd/a')
           @links << Bib::Uri.new(type: "src", content: a[:href]) if a
-          pdf = @doc.at('//a[@class="download-document"]')
+          pdf = @doc.at_xpath('//a[@class="download-document"]')
           @links << Bib::Uri.new(type: "pdf", content: pdf[:href]) if pdf
         end
         @links
@@ -149,9 +149,9 @@ module Relaton
       def fetch_relation
         v = @doc.xpath('//h2[.="History"]/following-sibling::section/div/table/tbody/tr')
         v.reduce([]) do |mem, row|
-          ver = row.at("td").text
+          ver = row.at_xpath("td").text
           unless ver == doc_version
-            acronym = row.at("td[3]/a")[:href].split("/")[4]
+            acronym = row.at_xpath("td[3]/a")[:href].split("/")[4]
             id = render_id(acronym, ver)
             docid = Docidentifier.new(content: id, type: "OMG")
             bibitem = Bib::ItemBase.new(formattedref: Bib::Formattedref.new(content: id), docidentifier: [docid])
