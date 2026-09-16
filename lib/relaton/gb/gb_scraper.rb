@@ -20,7 +20,7 @@ module Relaton
           hits = doc.xpath(
             "//table[contains(@class, 'result_list')]/tbody[2]/tr",
           ).map do |h|
-            ref = h.at "./td[2]/a"
+            ref = h.at_xpath "./td[2]/a"
             pid = ref[:onclick].match(/[0-9A-F]+/).to_s
             status = h.at_xpath("./td[7]").text.strip
             rdate = h.at_xpath("./td[8]").text.strip

@@ -331,7 +331,7 @@ module Relaton
       end
 
       def strip_html(html)
-        Moxml.new.parse_fragment(html).text.strip.gsub(/\s+/, " ")
+        Moxml.new.parse_fragment(html).map(&:text).join.strip.gsub(/\s+/, " ")
       end
 
       # ---- copyright -------------------------------------------------------

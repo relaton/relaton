@@ -417,7 +417,7 @@ module Relaton
       end
 
       def parse_titles(doc)
-        # head = doc.at "//nav[contains(@class,'heading-condensed')]"
+        # head = doc.at_xpath "//nav[contains(@class,'heading-condensed')]"
         ttls = doc.xpath("//h1[@class='stdTitle']/span[position()>1]").map(&:text)
         return ttls if @errors[:title] &&= ttls.empty?
 
@@ -462,7 +462,7 @@ module Relaton
         elsif pub_date_str
           dates << Bib::Date.new(type: "published", at: pub_date_str.text)
         end
-        corr_data = @doc.at "//span[@itemprop='dateModified']"
+        corr_data = @doc.at_xpath "//span[@itemprop='dateModified']"
         @errors[:date_corr] &&= corr_data.nil?
         dates << Bib::Date.new(type: "corrected", at: corr_data.text) if corr_data
         dates
@@ -528,7 +528,7 @@ module Relaton
         rss = @doc.at_xpath("//a[contains(@href, 'rss')]")
         @errors[:link_rss] &&= rss.nil?
         source << Bib::Uri.new(type: "rss", content: DOMAIN + rss[:href]) if rss
-        pub = @doc.at "//p[contains(., 'publicly available')]/a",
+        pub = @doc.at_xpath "//p[contains(., 'publicly available')]/a",
                       "//p[contains(., 'can be downloaded from the')]/a"
         @errors[:link_pub] &&= pub.nil?
         source << Bib::Uri.new(type: "pub", content: pub[:href]) if pub

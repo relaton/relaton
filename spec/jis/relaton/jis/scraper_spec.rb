@@ -56,7 +56,7 @@ describe Relaton::Jis::Scraper do
     end
 
     it "#fetch_ics" do
-      doc = Nokogiri::HTML(<<~HTML).at("//div[@id='main']/section")
+      doc = Nokogiri::HTML(<<~HTML).at_xpath("//div[@id='main']/section")
         <div id="main">
           <section>
             <table>

@@ -4,7 +4,7 @@ describe Relaton::Ecma::StandardParser do
   let(:hit) do
     Nokogiri::HTML(
       '<a href="https://ecma-international.org/publications-and-standards/standards/ecma-370/">ECMA-370</a>'
-    ).at("a")
+    ).at_xpath("a")
   end
   let(:translations_doc) do
     Nokogiri::HTML <<~HTML

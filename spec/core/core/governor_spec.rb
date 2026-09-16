@@ -5,7 +5,7 @@ require "relaton/core/governor"
 # spec/w3c/relaton/w3c/governor_spec.rb, which still runs against the subclass
 # and must keep passing unedited — that is the promotion's acceptance test.
 RSpec.describe Relaton::Core::Governor do
-  let(:now) { [Time.at(0)] }
+  let(:now) { [Time.at_xpath(0)] }
   let(:clock) { -> { now[0] } }
   let(:slept) { [] }
   let(:sleeper) { ->(secs) { slept << secs; now[0] += secs } }
