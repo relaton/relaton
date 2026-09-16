@@ -81,7 +81,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "mini_portile2", "~> 2.8.0"
   spec.add_dependency "niso-jats", "~> 0.3.4"
   spec.add_dependency "nokogiri", ">= 1.16"
-  spec.add_dependency "openssl", "~> 3.3.2"
   spec.add_dependency "parallel", "~> 1.26"
   spec.add_dependency "parslet", "~> 2.0.0"
   spec.add_dependency "psych", "~> 5.2.0"
