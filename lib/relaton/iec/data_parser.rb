@@ -294,7 +294,7 @@ module Relaton
         result = begin
           uri = URI "#{DOMAIN}/webstore/webstore.nsf/AjaxRequestXML?Openagent&url=#{urn_id}"
           resp = Net::HTTP.get_response uri
-          doc = Nokogiri::XML resp.body
+          doc = Moxml.parse resp.body
           create_relations doc
         rescue StandardError => e
           try += 1
@@ -307,7 +307,7 @@ module Relaton
       #
       # Create relations.
       #
-      # @param [Nokogiri::XML::Document] doc XML document
+      # @param [Moxml::Document] doc XML document
       #
       # @return [Array<Relaton::Bib::Relation>] relations
       #

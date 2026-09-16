@@ -1,4 +1,4 @@
-require "nokogiri"
+require "moxml"
 require "relaton/bib"
 require_relative "version"
 require_relative "omg/util"

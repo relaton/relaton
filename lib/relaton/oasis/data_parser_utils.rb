@@ -83,7 +83,7 @@ module Relaton
       # @param [#get] agent HTTP client responding to #get(url)
       # @param [Integer] retries number of retries
       #
-      # @return [Nokogiri::HTML::Document, Mechanize::Page, nil] page or nil
+      # @return [Moxml::Document, Mechanize::Page, nil] page or nil
       #
       def retry_page(url, agent, retries = 3)
         sleep 1 # to avoid 429 error

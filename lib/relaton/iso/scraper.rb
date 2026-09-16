@@ -208,7 +208,7 @@ module Relaton
 
       # Get page.
       # @param path [String] page's path
-      # @return [Array<Nokogiri::HTML::Document, String>]
+      # @return [Array<Moxml::Document, String>]
       def get_page(path) # rubocop:disable Metrics/MethodLength
         try = 0
         begin
@@ -276,12 +276,12 @@ module Relaton
       # @param [Net::HTTPOK] resp HTTP response
       # @param [URI::HTTPS] uri URI of the page
       #
-      # @return [Nokogiri::HTML4::Document] document
+      # @return [Moxml::Document] document
       # @raise [Relaton::RequestError] if the page could not be parsed
       #
       def try_if_fail(resp, uri)
         10.times do
-          doc = Nokogiri::HTML(resp.body)
+          doc = Moxml.new.parse_html(resp.body)
           # stop trying if page has a document id
           return doc if item_ref(doc)
 
@@ -312,7 +312,7 @@ module Relaton
       #
       # Parse ID from the document.
       #
-      # @param [Nokogiri::HTML::Document] doc document to parse
+      # @param [Moxml::Document] doc document to parse
       #
       # @return [String, nil] ID
       #
@@ -383,7 +383,7 @@ module Relaton
       #
       # Create relations.
       #
-      # @param [Nokogiri::HTML::Element] rel relation element
+      # @param [Moxml::Element] rel relation element
       # @param [String] type relation type
       # @param [Hash{Symbol=>String}] date relation document date
       # @option date [String] :type date type
@@ -400,7 +400,7 @@ module Relaton
       end
 
       # Fetch titles.
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @param lang [String]
       # @return [Array<RelatonBib::TypedTitleString>]
       def fetch_title(doc, lang) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize

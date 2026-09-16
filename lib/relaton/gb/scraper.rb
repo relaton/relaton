@@ -15,7 +15,7 @@ module Relaton
 
       @prefixes = nil
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @param src [String]
       # @param hit [RelatonGb::Hit]
       # @return [Hash]
@@ -41,7 +41,7 @@ module Relaton
         [Docidentifier.new(content: docref, type: "Chinese Standard", primary: true)]
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @param docref [Strings]
       # @return [Array<Relaton::Bib::Contributor>]
       def get_contributors(doc, docref)
@@ -67,7 +67,7 @@ module Relaton
         Bib::TypedLocalizedString.new language: lang, content: content
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @return [Array<Relaton::Bib::Title>]
       def get_titles(doc)
         tzh = doc.at("//td[contains(text(), '中文标准名称')]/b").text
@@ -78,7 +78,7 @@ module Relaton
         titles + Relaton::Bib::Title.from_string(ten, "en", "Latn")
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @param status [String, NilClass]
       # @return [Relaton::Bib::Status]
       def get_status(doc, status = nil)
@@ -91,14 +91,14 @@ module Relaton
 
       private
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @return [Array<String>]
       def get_ccs(doc)
         code = doc.at("//div[contains(text(), '中国标准分类号')]/following-sibling::div").text.strip
         [CCS.new(code: code)]
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @return [Array<Relaton::Bib::ICS>]
       def get_ics(doc)
         ics = doc.at("//div[contains(text(), '国际标准分类号')]/following-sibling::div"\
@@ -109,7 +109,7 @@ module Relaton
         [Bib::ICS.new(code: code)]
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @return [String]
       def get_scope(doc)
         issued = doc.at("//div[contains(., '发布单位')]/following-sibling::div")
@@ -150,7 +150,7 @@ module Relaton
         (Bib::Uri.new(type: "src", content: src))
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @return [Array<Hash>]
       #   * :type [String] type of date
       #   * :on [String] date
@@ -177,7 +177,7 @@ module Relaton
         Doctype.new content: "standard"
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @param ref [String]
       # @return [Relaton::Gb::GbType]
       def get_gbtype(doc, ref)

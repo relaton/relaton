@@ -564,7 +564,7 @@ module Relaton
       # the first cell, the title in the second.
       #
       # @param url [String]
-      # @return [Array<Array(String, Nokogiri::XML::Element, Nokogiri::XML::NodeSet)>]
+      # @return [Array<Array(String, Moxml::Element, Moxml::NodeSet)>]
       def rows(url)
         get(url).search("//a[contains(@href,'parent=R-')]").filter_map do |a|
           id = a[:href].to_s[PARENT_RE, :id]
@@ -576,7 +576,7 @@ module Relaton
       # The title cell carries an optional red annotation ("Note - Suppressed on
       # …"), which is not part of the title.
       #
-      # @param cell [Nokogiri::XML::Element, nil]
+      # @param cell [Moxml::Element, nil]
       # @return [String]
       def title_text(cell)
         return "" unless cell

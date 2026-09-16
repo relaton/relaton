@@ -1,6 +1,6 @@
 require "digest/md5"
 require "net/http"
-require "nokogiri"
+require "moxml"
 require "pubid"
 require "zip"
 require "relaton/index"

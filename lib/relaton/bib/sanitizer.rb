@@ -1,4 +1,4 @@
-require "nokogiri"
+require "moxml"
 
 module Relaton
   module Bib
@@ -63,11 +63,6 @@ module Relaton
       # Reserved prefixes. XML declares both, so the content must not.
       NS_RESERVED = %w[xml xmlns].freeze
 
-      # Serialise without the FORMAT option, so the sanitiser keeps the
-      # shape of element-only content instead of adding newlines and
-      # indent.
-      SAVE_OPTS = Nokogiri::XML::Node::SaveOptions::AS_XML
-
       def self.sanitize(content)
         return content unless sanitizable?(content)
 
@@ -75,9 +70,7 @@ module Relaton
         return content if node.nil?
 
         sanitize_children(node)
-        node.children.map do |c|
-          c.to_xml(encoding: "UTF-8", save_with: SAVE_OPTS)
-        end.join
+        node.children.map { |c| c.to_xml(encoding: "UTF-8", indent: 0, expand_empty: false) }.join
       end
 
       #
@@ -85,13 +78,23 @@ module Relaton
       #
       # @param [String] content The raw marked-up content.
       #
-      # @return [Nokogiri::XML::Node, nil] The node, or nil when the
-      #   content does not parse.
+      # @return [Moxml::Element, nil] The wrapper element, or nil when
+      #   the content does not parse.
       #
+      # moxml's parse_fragment returns detached nodes without a parent
+      # chain, so the document that owns their C memory can be collected
+      # while the node wrappers live on. Parse under a synthetic root
+      # instead — the same wrapper machinery parse_with_prefixes uses —
+      # which keeps the document reachable from the root.
       def self.parse(content)
-        fragment = Nokogiri::XML::DocumentFragment.parse(content)
-        return fragment if fragment.errors.empty?
+        # leptris accepts undeclared prefixes instead of failing the
+        # parse, so detect them by scan and take the placeholder path
+        # directly.
+        return parse_with_prefixes(content) if placeholder_declarations(content)
 
+        name = wrapper_name(content)
+        Moxml.parse("<#{name}>#{content}</#{name}>").root
+      rescue Moxml::ParseError
         parse_with_prefixes(content)
       end
       private_class_method :parse
@@ -112,16 +115,16 @@ module Relaton
       #
       # @param [String] content The raw marked-up content.
       #
-      # @return [Nokogiri::XML::Element, nil] The wrapper element, or nil
+      # @return [Moxml::Element, nil] The wrapper element, or nil
       #   when the content uses no prefix or does not parse.
       #
       def self.parse_with_prefixes(content)
         decl = placeholder_declarations(content) or return
         name = wrapper_name(content)
-        doc = Nokogiri::XML "<#{name} #{decl}>#{content}</#{name}>"
-        return unless doc.errors.empty?
-
+        doc = Moxml.parse "<#{name} #{decl}>#{content}</#{name}>"
         drop_placeholder_namespaces doc.root
+      rescue Moxml::ParseError
+        nil
       end
       private_class_method :parse_with_prefixes
 
@@ -183,19 +186,40 @@ module Relaton
       # reach the output, so the declarations never leak. Do not
       # serialise the root itself.
       #
-      # @param [Nokogiri::XML::Element] root The wrapper element.
+      # @param [Moxml::Element] root The wrapper element.
       #
-      # @return [Nokogiri::XML::Element] The same element.
+      # @return [Moxml::Element] The same element.
       #
       def self.drop_placeholder_namespaces(root)
         placeholders = root.namespace_definitions
-        root.traverse do |node|
-          node.namespace = nil if placeholders.include?(node.namespace)
+        traverse(root) do |node|
+          if node.element? && placeholder_bound?(node, placeholders)
+            # moxml keeps the prefix in the C node name; renaming to the
+            # local name is the un-prefix operation.
+            node.name = node.name
+          end
           next unless node.element?
 
           drop_attribute_namespaces node, placeholders
         end
         root
+      end
+
+      # Is the node bound to a wrapper placeholder rather than to a
+      # namespace it declares itself? A content element may re-declare
+      # the same prefix and URI (spec: "keeps a namespace that reuses
+      # the placeholder URI"); that declaration is its own, not the
+      # wrapper's, and must survive.
+      def self.placeholder_bound?(node, placeholders)
+        ns = node.namespace
+        return false unless placeholders.include?(ns)
+
+        # declared_namespaces yields Namespace wrappers or [prefix,
+        # uri] pairs depending on the adapter path.
+        node.declared_namespaces.none? do |own|
+          prefix, uri = own.respond_to?(:prefix) ? [own.prefix, own.uri] : own
+          prefix == ns.prefix && uri == ns.uri
+        end
       end
       private_class_method :drop_placeholder_namespaces
 
@@ -208,21 +232,23 @@ module Relaton
       # target redefined" -- the unparseable output this whole path
       # exists to prevent. Drop the prefixed one instead.
       #
-      # @param [Nokogiri::XML::Element] node The element.
-      # @param [Array<Nokogiri::XML::Namespace>] placeholders The
-      #   wrapper's own declarations.
+      # @param [Moxml::Element] node The element.
+      # @param [Array] placeholders The wrapper's own declarations.
       #
       # @return [void]
       #
       def self.drop_attribute_namespaces(node, placeholders)
-        node.attribute_nodes.each do |attr|
+        node.attributes.each do |attr|
           next unless placeholders.include?(attr.namespace)
 
-          if plain_attribute?(node, attr.name) then attr.unlink
-          else attr.namespace = nil
+          if plain_attribute?(node, attr.name) then attr.remove
+          else attr.name = attr.name
           end
         end
       end
+      # (attribute prefixes: a content element that re-declares the
+      # placeholder keeps its prefixed attributes — the placeholder is
+      # out of scope for them the same way it is for element names)
       private_class_method :drop_attribute_namespaces
 
       #
@@ -232,13 +258,13 @@ module Relaton
       # the prefixed attribute itself and every un-prefixing would look
       # like a collision. Match on the namespace as well.
       #
-      # @param [Nokogiri::XML::Element] node The element.
+      # @param [Moxml::Element] node The element.
       # @param [String] name The un-prefixed attribute name.
       #
       # @return [Boolean] Whether the element carries it.
       #
       def self.plain_attribute?(node, name)
-        node.attribute_nodes.any? { |a| a.namespace.nil? && a.name == name }
+        node.attributes.any? { |a| a.namespace.nil? && a.name == name }
       end
       private_class_method :plain_attribute?
 
@@ -255,10 +281,25 @@ module Relaton
           next if OPAQUE.include?(child.name)
 
           sanitize_children(child)
-          child.replace(child.children) unless ALLOWED.include?(child.name)
+          unwrap(child) unless ALLOWED.include?(child.name)
         end
       end
       private_class_method :sanitize_children
+
+      # Replace an element with its own children (Nokogiri's
+      # Node#replace(children) has no single-node moxml counterpart).
+      def self.unwrap(child)
+        child.children.to_a.each { |c| child.add_previous_sibling(c) }
+        child.remove
+      end
+      private_class_method :unwrap
+
+      # Depth-first walk over node and all descendants.
+      def self.traverse(node, &block)
+        block.call(node)
+        node.children.to_a.each { |c| traverse(c, &block) }
+      end
+      private_class_method :traverse
     end
   end
 end
