@@ -10,7 +10,7 @@ RSpec.describe Relaton::W3c::Governor do
   let(:sleeper) { ->(secs) { slept << secs; @now += secs } }
   let(:no_jitter) { ->(_secs) { 0 } }
 
-  before { @now = Time.at_xpath(1_000_000) }
+  before { @now = Time.at(1_000_000) }
 
   subject(:governor) do
     described_class.new(base: 60, max: 900, give_up_after: 5,

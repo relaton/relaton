@@ -351,7 +351,7 @@ module Relaton
         rels = @doc.xpath(
           "//ul[@class='steps']/li", "//div[contains(@class, 'sub-step')]"
         ).reduce([]) do |a, r|
-          type, date = relation_type(r.at_xpath("h4", "h5").text.strip)
+          type, date = relation_type(r.at_xpath("h4|h5").text.strip)
           next a if types.include?(type)
 
           a + create_relations(r, type, date)
