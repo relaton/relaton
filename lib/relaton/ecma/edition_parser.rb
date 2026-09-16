@@ -21,7 +21,7 @@ module Relaton
         docid = @bib[:docidentifier]
         @doc.xpath('//div[@id="main"]/div[1]/div/main/article/div/div/standard/div/ul/li').map do |hit|
           bib = @bib.dup
-          id, ed, bib[:date], vol = edition_id_parts hit.at_xpath("./span", "./a").text
+          id, ed, bib[:date], vol = edition_id_parts hit.at_xpath("./span|./a").text
           bib[:source] = edition_source(hit) + edition_translation_source(ed)
           next if ed.nil? || ed.empty?
 

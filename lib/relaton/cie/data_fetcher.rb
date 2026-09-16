@@ -244,7 +244,7 @@ module Relaton
       # @param doc [Mechanize::Page]
       # @return [Array<Relaton::Bib::Title>]
       def fetch_title(doc)
-        t = doc.at_xpath("//hgroup/h2/text()", "//hgroup/h1/text()")
+        t = doc.at_xpath("//hgroup/h2/text()|//hgroup/h1/text()")
         unless t && !t.text.strip.empty?
           @errors[:title] &&= true
           return []
