@@ -2,6 +2,8 @@
 
 source "https://rubygems.org"
 
+git_source(:github) { |repo| "https://github.com/#{repo}" }
+
 gemspec
 
 # TEMP PIN: the `jcgm`, `bipm`, `etsi`, `cie`, `itu`, `ieee`, `iana` and `ietf`
@@ -74,6 +76,12 @@ gemspec
 # deserialization root, so the old alias would NameError at IHO/ETSI index load.
 # TODO: revert to the released pubid once these changes ship in a pubid release.
 gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"
+
+# TEMP PIN: lutaml-model#779 — the adapter resolver raw-requires deep adapter
+# files (json/yaml yeptris adapters) whose class bodies reference autoloaded
+# bases; when lutaml/json/adapter.rb is not preloaded the resolver reports
+# UnknownAdapterTypeError. Drop when the fix ships in a release.
+gem "lutaml-model", github: "lutaml/lutaml-model", branch: "fix/yeptris-adapter-raw-require"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
