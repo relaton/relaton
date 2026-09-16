@@ -83,7 +83,7 @@ RSpec.describe Relaton::Iso::Scraper do
       end
 
       it "fails to parse document ID" do
-        expect(doc).to receive(:at).with("//h1/span[1]").and_return nil
+        expect(doc).to receive(:at_xpath).with("//h1/span[1]").and_return nil
         expect(subject.id).to be_nil
         expect(errors).to eq id: true
       end
@@ -96,7 +96,7 @@ RSpec.describe Relaton::Iso::Scraper do
       end
 
       it "fails to parse edition" do
-        expect(doc).to receive(:at).with("//div[div[.='Edition']]/text()[last()]").and_return nil
+        expect(doc).to receive(:at_xpath).with("//div[div[.='Edition']]/text()[last()]").and_return nil
         expect(subject.edition).to be_nil
         expect(errors).to eq edition: true
       end
@@ -216,7 +216,7 @@ RSpec.describe Relaton::Iso::Scraper do
       end
 
       it "fails to parse item reference" do
-        expect(doc).to receive(:at).with("//main//section/div/div/div//h1/span[1]").and_return nil
+        expect(doc).to receive(:at_xpath).with("//main//section/div/div/div//h1/span[1]").and_return nil
         expect(subject.send(:item_ref, doc)).to be_nil
         expect(errors).to eq reference: true
       end
@@ -236,7 +236,7 @@ RSpec.describe Relaton::Iso::Scraper do
       end
 
       it "fails to parse stage code" do
-        expect(doc).to receive(:at).with(
+        expect(doc).to receive(:at_xpath).with(
           "//ul[@class='dropdown-menu']/li[@class='active']/a/span[@class='stage-code']",
         ).and_return nil
         expect(subject.send(:stage_code)).to be_nil
@@ -261,7 +261,7 @@ RSpec.describe Relaton::Iso::Scraper do
       end
 
       it "fails to parse editorialgroup" do
-        expect(doc).to receive(:at).with(
+        expect(doc).to receive(:at_xpath).with(
           "//div[contains(., 'Technical Committe')]/following-sibling::span/a",
         ).and_return nil
         expect(subject.send(:fetch_editorialgroup_contributor)).to be_nil
@@ -313,10 +313,10 @@ RSpec.describe Relaton::Iso::Scraper do
     it "#fetch_source" do
       pub = double "pub_ref"
       expect(pub).to receive(:"[]").with(:href).and_return "https://www.iso.org/standard/62510.html"
-      expect(doc).to receive(:at).with(
+      expect(doc).to receive(:at_xpath).with(
         "//p[contains(., 'publicly available')]/a", "//p[contains(., 'can be downloaded from the')]/a"
       ).and_return pub
-      allow(doc).to receive(:at).and_call_original
+      allow(doc).to receive(:at_xpath).and_call_original
       source = subject.send(:fetch_source, "https://www.iso.org/standard/62510.html")
       expect(source).to be_instance_of Array
       expect(source.size).to eq 4
@@ -379,8 +379,8 @@ RSpec.describe Relaton::Iso::Scraper do
       end
 
       it "published & updated from doc" do
-        expect(doc).to receive(:at).with("//span[@itemprop='releaseDate']").and_return double(text: "2002-06-07")
-        allow(doc).to receive(:at).and_call_original
+        expect(doc).to receive(:at_xpath).with("//span[@itemprop='releaseDate']").and_return double(text: "2002-06-07")
+        allow(doc).to receive(:at_xpath).and_call_original
         dates = subject.send(:fetch_dates)
         expect(dates.size).to eq 2
         expect(dates[0].type).to eq "published"
@@ -390,8 +390,8 @@ RSpec.describe Relaton::Iso::Scraper do
       end
 
       it "from reference" do
-        expect(doc).to receive(:at).with("//span[@itemprop='releaseDate']").and_return nil
-        allow(doc).to receive(:at).and_call_original
+        expect(doc).to receive(:at_xpath).with("//span[@itemprop='releaseDate']").and_return nil
+        allow(doc).to receive(:at_xpath).and_call_original
         dates = subject.send(:fetch_dates)
         expect(dates.size).to eq 1
         expect(dates[0].type).to eq "published"
@@ -399,9 +399,9 @@ RSpec.describe Relaton::Iso::Scraper do
       end
 
       it "corrected" do
-        expect(doc).to receive(:at).with("//span[@itemprop='releaseDate']").and_call_original
-        expect(doc).to receive(:at).with("//span[@itemprop='dateModified']").and_return double(text: "2002-06-07")
-        allow(doc).to receive(:at).and_call_original
+        expect(doc).to receive(:at_xpath).with("//span[@itemprop='releaseDate']").and_call_original
+        expect(doc).to receive(:at_xpath).with("//span[@itemprop='dateModified']").and_return double(text: "2002-06-07")
+        allow(doc).to receive(:at_xpath).and_call_original
         dates = subject.send(:fetch_dates)
         expect(dates.size).to eq 2
         expect(dates[1].type).to eq "corrected"
@@ -477,7 +477,7 @@ RSpec.describe Relaton::Iso::Scraper do
       )
       expect(Net::HTTP).to receive(:get_response).with(:uri).and_return resp
       doc = subject.send(:try_if_fail, resp, :uri)
-      expect(doc.at("h1").text).to eq "ISO 123"
+      expect(doc.at_xpath("//h1").text).to eq "ISO 123"
     end
 
     it "fail" do

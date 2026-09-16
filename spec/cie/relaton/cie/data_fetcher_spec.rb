@@ -5,7 +5,7 @@ require "relaton/cie/data_fetcher"
 RSpec.describe Relaton::Cie::DataFetcher do
   context "instance methods" do
     let(:hit) do
-      Nokogiri::HTML(<<~HTML).at("li")
+      Nokogiri::HTML(<<~HTML).at_xpath("//li")
         <li data-product="2930375">
           <div class="cover product_image">
             <p class="notice version-notice">
@@ -93,7 +93,7 @@ RSpec.describe Relaton::Cie::DataFetcher do
       # blank detail page (the fetch_* extractors all degrade to empty/nil on a
       # bare document, so no fixture is needed here).
       def hit_for(code, href)
-        Nokogiri::HTML(<<~HTML).at("li")
+        Nokogiri::HTML(<<~HTML).at_xpath("//li")
           <li data-product="#{code}"><h3><a href="#{href}">#{code}</a></h3></li>
         HTML
       end
@@ -430,7 +430,7 @@ RSpec.describe Relaton::Cie::DataFetcher do
       end
 
       it "two codes" do
-        hit = Nokogiri::HTML(<<~HTML).at("li")
+        hit = Nokogiri::HTML(<<~HTML).at_xpath("//li")
           <li data-product="CIE S 006.1/E-1998 (ISO 16508:1999)">
             <h3><a href="/cie/standards/S-014-1-E-2006">CIE S 006.1/E-1998 (ISO 16508:1999)</a></h3>
           </li>

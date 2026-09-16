@@ -9,15 +9,15 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
 
   let(:mqtt_v50) do
     html = File.read("fixtures/mqtt-v50.html", encoding: "UTF-8")
-    Nokogiri::HTML(html).at("//details")
+    Nokogiri::HTML(html).at_xpath("//details")
   end
 
   let(:csaf_v20) do
     html = File.read("fixtures/csaf-v20.html", encoding: "UTF-8")
-    Nokogiri::HTML(html).at("//details")
+    Nokogiri::HTML(html).at_xpath("//details")
   end
 
-  subject { described_class.new(node.at("//details")) }
+  subject { described_class.new(node.at_xpath("//details")) }
 
   it "parse", vcr: "amqp-v10" do
     bib = subject.parse
@@ -61,7 +61,7 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
             </div>
           </details>
         EOHTML
-        parser = described_class.new doc.at("//details")
+        parser = described_class.new doc.at_xpath("//details")
         docid = parser.parse_docid
         expect(docid).to be_a Array
         expect(docid[0]).to be_a Relaton::Bib::Docidentifier
@@ -91,7 +91,7 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
             </div>
           </details>
         EOHTML
-        parser = described_class.new doc.at("//details")
+        parser = described_class.new doc.at_xpath("//details")
         docid = parser.parse_docid
         expect(docid[0].content).to eq(
           "OASIS soleconn-v1.0-CS01",
@@ -118,7 +118,7 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
             </div>
           </details>
         EOHTML
-        parser = described_class.new doc.at("//details")
+        parser = described_class.new doc.at_xpath("//details")
         docid = parser.parse_docid
         expect(docid[0].content).to eq(
           "OASIS OSLC-AM-3.0-Part1-PS01",
@@ -143,7 +143,7 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
             </div>
           </details>
         EOHTML
-        parser = described_class.new doc.at("//details")
+        parser = described_class.new doc.at_xpath("//details")
         docid = parser.parse_docid
         expect(docid[0].content).to eq "OASIS amqp-core"
       end
@@ -159,7 +159,7 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
               </summary>
             </details>
           EOHTML
-          parser = described_class.new doc.at("//details")
+          parser = described_class.new doc.at_xpath("//details")
           dociid = parser.parse_docid
           expect(dociid[0].content).to eq(
             "OASIS EDXL-HAVE-v2.0",
@@ -176,7 +176,7 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
               </summary>
             </details>
           EOHTML
-          parser = described_class.new doc.at("//details")
+          parser = described_class.new doc.at_xpath("//details")
           dociid = parser.parse_docid
           expect(dociid[0].content).to eq(
             "OASIS EDXL-HAVE-v2.0",
@@ -193,7 +193,7 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
               </summary>
             </details>
           EOHTML
-          parser = described_class.new doc.at("//details")
+          parser = described_class.new doc.at_xpath("//details")
           dociid = parser.parse_docid
           expect(dociid[0].content).to eq(
             "OASIS ebXML-MSS-v2.0",
@@ -244,7 +244,7 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
           </div>
         </details>
       EOHTML
-      parser = described_class.new doc.at("//details")
+      parser = described_class.new doc.at_xpath("//details")
       expect(parser.parse_editorialgroup_contributor).to eq []
     end
 
@@ -287,7 +287,7 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
           </div>
         </details>
       EOHTML
-      parser = described_class.new doc.at("//details")
+      parser = described_class.new doc.at_xpath("//details")
       contrib = parser.parse_editorialgroup_contributor
       expect(contrib.size).to eq 1
       org = contrib[0].organization
@@ -338,7 +338,7 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
       "fixtures/odata-json-format-40.html",
       encoding: "UTF-8",
     )
-    dp = described_class.new doc.at("//details")
+    dp = described_class.new doc.at_xpath("//details")
     bib = dp.parse
     expect(bib.docidentifier[0].content).to eq(
       "OASIS OData-JSON-Format-v4.0",
@@ -539,37 +539,37 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
     let(:errors) { Hash.new(true) }
 
     it "sets @errors[:title] to false on success" do
-      parser = described_class.new(node.at("//details"), errors)
+      parser = described_class.new(node.at_xpath("//details"), errors)
       parser.parse_title
       expect(errors[:title]).to be false
     end
 
     it "sets @errors[:date] to false on success" do
-      parser = described_class.new(node.at("//details"), errors)
+      parser = described_class.new(node.at_xpath("//details"), errors)
       parser.parse_date
       expect(errors[:date]).to be false
     end
 
     it "sets @errors[:abstract] to false on success" do
-      parser = described_class.new(node.at("//details"), errors)
+      parser = described_class.new(node.at_xpath("//details"), errors)
       parser.parse_abstract
       expect(errors[:abstract]).to be false
     end
 
     it "sets @errors[:editorialgroup_contributor] to false on success" do
-      parser = described_class.new(node.at("//details"), errors)
+      parser = described_class.new(node.at_xpath("//details"), errors)
       parser.parse_editorialgroup_contributor
       expect(errors[:editorialgroup_contributor]).to be false
     end
 
     it "sets @errors[:authorizer] to false on success" do
-      parser = described_class.new(node.at("//details"), errors)
+      parser = described_class.new(node.at_xpath("//details"), errors)
       parser.parse_authorizer
       expect(errors[:authorizer]).to be false
     end
 
     it "sets @errors[:relation] to false on success" do
-      parser = described_class.new(node.at("//details"), errors)
+      parser = described_class.new(node.at_xpath("//details"), errors)
       parser.parse_relation
       expect(errors[:relation]).to be false
     end
@@ -581,13 +581,13 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
     end
 
     it "sets @errors[:docnumber] to false on success" do
-      parser = described_class.new(node.at("//details"), errors)
+      parser = described_class.new(node.at_xpath("//details"), errors)
       parser.parse_docnumber
       expect(errors[:docnumber]).to be false
     end
 
     it "sets @errors[:technology_area] to false on success" do
-      parser = described_class.new(node.at("//details"), errors)
+      parser = described_class.new(node.at_xpath("//details"), errors)
       parser.parse_technology_area
       expect(errors[:technology_area]).to be false
     end
@@ -597,7 +597,7 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
     doc = Nokogiri::HTML File.read(
       "fixtures/ciq-v10.html", encoding: "UTF-8"
     )
-    dp = described_class.new doc.at("//details")
+    dp = described_class.new doc.at_xpath("//details")
     editors = dp.parse_editors
     expect(editors).to be_a Array
     expect(editors.size).to eq 1
