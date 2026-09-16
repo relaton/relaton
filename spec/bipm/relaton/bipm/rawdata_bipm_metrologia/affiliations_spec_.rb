@@ -17,7 +17,7 @@ describe Relaton::Bipm::RawdataBipmMetrologia::Affiliations do
 
   context "parse affiliation" do
     it "with institution & subdivision" do
-      aff = Nokogiri::XML(<<~XML).at_xpath("aff")
+      aff = Nokogiri::XML(<<~XML).at_xpath("//aff")
         <aff id="affiliation01">
           <label>1</label>
 Division of Physical Metrology, <institution xlink:type="simple">Korea Research Institute of Standards and Science</institution>, 267 Gajeong-ro, Yuseong-gu, Daejeon 305-340, <country>Republic of Korea</country>
@@ -34,7 +34,7 @@ Division of Physical Metrology, <institution xlink:type="simple">Korea Research 
     end
 
     it "with institution only" do
-      aff = Nokogiri::XML(<<~XML).at_xpath("aff")
+      aff = Nokogiri::XML(<<~XML).at_xpath("//aff")
         <aff id="affiliation01">
           <label>1</label>
           <institution xlink:type="simple">Bureau International des Poids et Mesures (BIPM)</institution>, Pavillon de Breteuil, 92312 CEDEX, Sèvres, <country>France</country>
@@ -51,7 +51,7 @@ Division of Physical Metrology, <institution xlink:type="simple">Korea Research 
     end
 
     it "without institution" do
-      aff = Nokogiri::XML(<<~XML).at_xpath("aff")
+      aff = Nokogiri::XML(<<~XML).at_xpath("//aff")
         <aff id="aff1">
           <label>1</label>Division of Applied Physics, National Research Council, Ottawa, Canada</aff>
       XML
@@ -65,7 +65,7 @@ Division of Physical Metrology, <institution xlink:type="simple">Korea Research 
     end
 
     it "name only" do
-      aff = Nokogiri::XML(<<~XML).at_xpath("aff")
+      aff = Nokogiri::XML(<<~XML).at_xpath("//aff")
         <aff id="aff1">
           <label>1</label>University of Cambridge</aff>
       XML
