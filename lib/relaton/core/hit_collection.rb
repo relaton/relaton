@@ -1,5 +1,5 @@
 require "forwardable"
-require "nokogiri"
+require "moxml"
 require "weakref"
 require_relative "hit"
 
@@ -51,21 +51,22 @@ module Relaton
       # Renders the collection as XML
       #
       # @param opts [Hash] options
-      # @option opts [Nokogiri::XML::Builder] :builder XML builder
+      # @option opts [Moxml::Builder] :builder XML builder
       # @option opts [Boolean] :bibdata render bibdata if true
       # @option opts [String, Symbol] :lang language
       #
       # @return [String] XML representation of the collection
       #
       def to_xml(**opts)
-        builder = Nokogiri::XML::Builder.new(encoding: "UTF-8") do |xml|
-          xml.documents do
-            @array.each do |hit|
-              xml << hit.to_xml(**opts)
-            end
-          end
+        context = Moxml.new
+        doc = context.create_document
+        root = doc.create_element("documents")
+        doc.add_child(root)
+        @array.each do |hit|
+          context.parse_fragment(hit.to_xml(**opts)).children
+            .each { |child| root.add_child(child) }
         end
-        builder.to_xml
+        doc.to_xml
       end
 
       #

@@ -4,7 +4,7 @@ module Relaton
       #
       # Document parser initalization
       #
-      # @param [Nokogiri::XML::Element] xml
+      # @param [Moxml::Element] xml
       #
       def initialize(xml, rootdoc, errors = {})
         @xml = xml
@@ -15,7 +15,7 @@ module Relaton
       #
       # Initialize document parser and run it
       #
-      # @param [Nokogiri::XML::Element] xml
+      # @param [Moxml::Element] xml
       #
       # @return [Relaton::Iana::ItemData, nil] bibliographic item
       #

@@ -19,7 +19,7 @@ module Relaton::Bipm
       #
       def self.parse(dir)
         affiliations = Dir["#{dir}/*.xml"].each_with_object([]) do |path, m|
-          doc = Nokogiri::XML(File.read(path, encoding: "UTF-8"))
+          doc = Moxml.parse(File.read(path, encoding: "UTF-8"))
           doc.xpath("//aff").each do |aff|
             m << parse_affiliation(aff) if aff.at("institution")
           end
@@ -31,7 +31,7 @@ module Relaton::Bipm
       # Parse affiliation organization
       # https://github.com/relaton/relaton-data-bipm/issues/17#issuecomment-1367035444
       #
-      # @param [Nokogiri::XML::Element] aff
+      # @param [Moxml::Element] aff
       #
       # @return [Relaton::Bib::Affiliation] Organization name, country, division, street address
       #

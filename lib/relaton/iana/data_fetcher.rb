@@ -51,7 +51,7 @@ module Relaton
       end
 
       def parse(content)
-        xml = Nokogiri::XML(content)
+        xml = Moxml.parse(content)
         registry = xml.at("/xmlns:registry")
         doc = Parser.parse registry, nil, @errors
         save_doc doc

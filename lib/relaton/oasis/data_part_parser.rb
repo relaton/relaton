@@ -7,7 +7,7 @@ module Relaton
       #
       # Initialize parser.
       #
-      # @param [Nokogiri::HTML::Element] node document node
+      # @param [Moxml::Element] node document node
       #
       def initialize(node, errors = {}, agent: nil)
         @node = node

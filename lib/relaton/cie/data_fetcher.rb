@@ -3,7 +3,7 @@
 require "English"
 require "fileutils"
 require "ferrum"
-require "nokogiri"
+require "moxml"
 require "pubid"
 require "relaton/index"
 require "relaton/bib"
@@ -58,7 +58,7 @@ module Relaton
       def get(url)
         @browser.go_to(url)
         wait_for_challenge
-        Nokogiri::HTML(@browser.body)
+        Moxml.new.parse_html(@browser.body)
       end
 
       def quit
@@ -181,7 +181,7 @@ module Relaton
         Util.error msg
       end
 
-      # @param hit [Nokogiri::HTML::Document]
+      # @param hit [Moxml::Document]
       # @param doc [Mechanize::Page]
       # @return [Array<Relaton::Bib::Docidentifier>]
       def fetch_docid(hit, doc)
@@ -422,7 +422,7 @@ module Relaton
       # workers. Called directly (single stubbed agent) by specs and from the
       # pool with a per-worker agent/pacing/position.
       #
-      # @param hit [Nokogiri::HTML::Element]
+      # @param hit [Moxml::Element]
       # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       def parse_page(hit, pos = nil, worker_agent = agent, pacing = nil)
         url = hit.at('h3/a')[:href]

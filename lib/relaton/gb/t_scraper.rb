@@ -1,7 +1,7 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
-require "nokogiri"
+require "moxml"
 require_relative "scraper"
 require_relative "hit_collection"
 require_relative "hit"
@@ -55,7 +55,7 @@ module Relaton
         private
 
         # rubocop:disable Metrics/MethodLength
-        # @param doc [Nokogiri::HTML::Document]
+        # @param doc [Moxml::Document]
         # @param src [String]
         # @param hit [RelatonGb::Hit]
         # @return [Hash]

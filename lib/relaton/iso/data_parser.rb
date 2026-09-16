@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "nokogiri"
+require "moxml"
 require_relative "../iso"
 require_relative "scraper"
 
@@ -331,7 +331,7 @@ module Relaton
       end
 
       def strip_html(html)
-        Nokogiri::HTML.fragment(html).text.strip.gsub(/\s+/, " ")
+        Moxml.new.parse_fragment(html).text.strip.gsub(/\s+/, " ")
       end
 
       # ---- copyright -------------------------------------------------------

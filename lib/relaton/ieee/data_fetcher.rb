@@ -147,7 +147,7 @@ module Relaton
       # IdamsParser#parse_relation, so mutates crossrefs under a mutex.
       #
       # @param [String] docnumber of main document
-      # @param [Nokogiri::XML::Element] amsid relation data
+      # @param [Moxml::Element] amsid relation data
       #
       def add_crossref(docnumber, amsid)
         return if RELATION_TYPES[amsid.type] == false

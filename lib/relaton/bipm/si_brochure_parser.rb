@@ -1,4 +1,4 @@
-require "nokogiri"
+require "moxml"
 
 module Relaton::Bipm
   class SiBrochureParser
@@ -129,7 +129,7 @@ module Relaton::Bipm
     end
 
     def extract_editorialgroup(xml)
-      doc = Nokogiri::XML(xml)
+      doc = Moxml.parse(xml)
       doc.xpath("//editorialgroup/committee").map do |committee|
         acronym = committee["acronym"]
         names = committee.xpath("variant").map do |v|

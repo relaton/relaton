@@ -5,6 +5,11 @@
 # `require "relaton/<flavor>"`, loading that flavor's code on demand rather than
 # at `require "relaton"`. When adding a flavor, add an autoload line here.
 require "relaton/version"
+require "moxml"
+
+# YAML through yeptris (Psych-compatible drop-in; stdlib Psych is kept
+# as Yeptris::Psych::ORIGINAL). Must load before any YAML/Psych use.
+require "yeptris/psych"
 
 module Relaton
   autoload :Logger, "relaton/logger"
