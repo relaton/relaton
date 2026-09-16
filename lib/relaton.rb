@@ -9,7 +9,14 @@ require "moxml"
 
 # YAML through yeptris (Psych-compatible drop-in; stdlib Psych is kept
 # as Yeptris::Psych::ORIGINAL). Must load before any YAML/Psych use.
-require "yeptris/psych"
+# yeptris 0.5 moved the exclusive drop-in rebind to yeptris/psych/drop_in
+# — plain yeptris/psych only defines the namespace and leaves stdlib
+# Psych in place (yeptris-ruby#95, bug 3).
+# Load stdlib Psych first: the drop-in keeps it as Yeptris::Psych::ORIGINAL,
+# and a later plain require "psych" against the rebound constant is a
+# superclass mismatch (yeptris-ruby#95, bug 3 follow-on).
+require "psych"
+require "yeptris/psych/drop_in"
 
 module Relaton
   autoload :Logger, "relaton/logger"
