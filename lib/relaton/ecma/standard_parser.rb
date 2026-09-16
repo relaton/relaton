@@ -68,7 +68,7 @@ module Relaton
       def fetch_source # rubocop:disable Metrics/AbcSize
         source = []
         source << Bib::Uri.new(type: "src", content: @hit[:href]) if @hit[:href]
-        ref = @doc.at('//div[@class="ecma-item-content-wrapper"]/span/a',
+        ref = @doc.at_xpath('//div[@class="ecma-item-content-wrapper"]/span/a',
                       '//div[@class="ecma-item-content-wrapper"]/a')
         source << Bib::Uri.new(type: "pdf", content: ref[:href]) if ref
         result = source + edition_translation_source(fetch_edition_content)
@@ -80,7 +80,7 @@ module Relaton
       def fetch_relation # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity
         edition_parser = EditionParser.new(doc: @doc, bib: {}, errors: @errors)
         result = @doc.xpath("//ul[@class='ecma-item-archives']/li").filter_map do |rel|
-          ref, ed, date, vol = edition_parser.edition_id_parts rel.at("span").text
+          ref, ed, date, vol = edition_parser.edition_id_parts rel.at_xpath("span").text
           next if ed.nil? || ed.empty?
 
           docid = Docidentifier.new(type: "ECMA", content: ref, primary: true)
@@ -109,7 +109,7 @@ module Relaton
       private
 
       def fetch_edition_content
-        @doc.at('//p[@class="ecma-item-edition"]')&.text&.match(/^\d+(?=(?:st|nd|th|rd))/)&.to_s
+        @doc.at_xpath('//p[@class="ecma-item-edition"]')&.text&.match(/^\d+(?=(?:st|nd|th|rd))/)&.to_s
       end
 
       def edition_translation_source(edition)
@@ -120,8 +120,8 @@ module Relaton
         return [] unless @doc
 
         @doc.xpath("//h2[.='Translations']/following-sibling::ul/li").map do |l|
-          a = l.at("span/a")
-          id = l.at("span").text
+          a = l.at_xpath("span/a")
+          id = l.at_xpath("span").text
           %r{\w+[\d-]+,\s(?<lang>\w+)\sversion,\s(?<ed>[\d.]+)(?:st|nd|rd|th)\sedition} =~ id
           case lang
           when "Japanese"

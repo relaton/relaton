@@ -25,7 +25,7 @@ describe Relaton::Ccsds::Processor do
 
   context "#from_xml" do
     it "calls Item.from_xml" do
-      item = subject.from_xml("<bibitem></bibitemI>")
+      item = subject.from_xml("<bibitem></bibitem>")
       expect(item).to be_instance_of Relaton::Ccsds::ItemData
     end
   end

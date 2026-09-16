@@ -70,7 +70,11 @@ module Relaton
         # lutaml-model has no built-in dispatch on root element name
         # (polymorphic_map only works on attribute discriminators), so we
         # peek at the root tag with moxml and forward to the right class.
-        root_name = Moxml.parse(xml.to_s).root&.name
+        root_name = begin
+          Moxml.parse(xml.to_s).root&.name
+        rescue Moxml::ParseError
+          nil
+        end
         klass = root_name == "bibdata" ? namespace::Bibdata : namespace::Bibitem
         klass.from_xml(xml, options)
       end

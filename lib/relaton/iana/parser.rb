@@ -50,7 +50,7 @@ module Relaton
       # @return [Array<Relaton::Bib::Title>] title
       #
       def parse_title
-        content = @xml.at("./xmlns:title")&.text || @xml[:id]
+        content = @xml.at_xpath("./xmlns:title")&.text || @xml[:id]
         result = [Bib::Title.new(content: content, language: "en", script: "Latn")]
         @errors[:title] &&= result.empty?
         result

@@ -58,15 +58,10 @@ module Relaton
       # @return [String] XML representation of the collection
       #
       def to_xml(**opts)
-        context = Moxml.new
-        doc = context.create_document
-        root = doc.create_element("documents")
-        doc.add_child(root)
-        @array.each do |hit|
-          context.parse_fragment(hit.to_xml(**opts)).children
-            .each { |child| root.add_child(child) }
-        end
-        doc.to_xml
+        parts = @array.map { |hit| hit.to_xml(**opts) }.join
+        Moxml.parse(
+          "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<documents>#{parts}</documents>",
+        ).to_xml(indent: 0, expand_empty: false)
       end
 
       #

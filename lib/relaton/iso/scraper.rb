@@ -95,7 +95,7 @@ module Relaton
       def id
         return @id if defined?(@id)
 
-        did = @doc.at("//h1/span[1]")
+        did = @doc.at_xpath("//h1/span[1]")
         @errors[:id] &&= did.nil?
         @id = did && did.text.split(" | ").first.strip
       end
@@ -117,7 +117,7 @@ module Relaton
       def edition
         return @edition if defined?(@edition)
 
-        ed = @doc.at("//div[div[.='Edition']]/text()[last()]")
+        ed = @doc.at_xpath("//div[div[.='Edition']]/text()[last()]")
         @errors[:edition] &&= ed.nil?
         @edition = ed && Bib::Edition.new(content: ed.text.match(/\d+$/).to_s)
       end
@@ -172,7 +172,7 @@ module Relaton
         langs = languages.each_with_object([]) do |l, s|
           # Don't need to get page for en. We already have it.
           d = l[:path] ? get_page(l[:path])[0] : @doc
-          unless d.at("//h5[@class='help-block'][.='недоступно на русском языке']")
+          unless d.at_xpath("//h5[@class='help-block'][.='недоступно на русском языке']")
             s << l
             titles += fetch_title(d, l[:lang])
 
@@ -317,7 +317,7 @@ module Relaton
       # @return [String, nil] ID
       #
       def item_ref(doc)
-        ref = doc.at("//main//section/div/div/div//h1/span[1]")
+        ref = doc.at_xpath("//main//section/div/div/div//h1/span[1]")
         @errors[:reference] &&= ref.nil?
         ref&.text&.strip
       end
@@ -334,7 +334,7 @@ module Relaton
       def stage_code
         return @stage_code if defined?(@stage_code)
 
-        stc = @doc.at("//ul[@class='dropdown-menu']/li[@class='active']/a/span[@class='stage-code']")
+        stc = @doc.at_xpath("//ul[@class='dropdown-menu']/li[@class='active']/a/span[@class='stage-code']")
         @errors[:stage] &&= stc.nil?
         @stage_code = stc&.text
       end
@@ -351,7 +351,7 @@ module Relaton
         rels = @doc.xpath(
           "//ul[@class='steps']/li", "//div[contains(@class, 'sub-step')]"
         ).reduce([]) do |a, r|
-          type, date = relation_type(r.at("h4", "h5").text.strip)
+          type, date = relation_type(r.at_xpath("h4", "h5").text.strip)
           next a if types.include?(type)
 
           a + create_relations(r, type, date)
@@ -455,7 +455,7 @@ module Relaton
       def fetch_dates # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
         dates = []
         %r{^[^\s]+\s[\d-]+:(?<ref_date_str>\d{4})} =~ id
-        pub_date_str = @doc.at("//span[@itemprop='releaseDate']")
+        pub_date_str = @doc.at_xpath("//span[@itemprop='releaseDate']")
         @errors[:date_pub] &&= pub_date_str.nil?
         if ref_date_str
           dates += parse_date_from_id ref_date_str, pub_date_str
@@ -522,10 +522,10 @@ module Relaton
       #
       def fetch_source(url) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength
         source = [Bib::Uri.new(type: "src", content: url)]
-        obp = @doc.at("//a[.='Read sample']")
+        obp = @doc.at_xpath("//a[.='Read sample']")
         @errors[:link_obp] &&= obp.nil?
         source << Bib::Uri.new(type: "obp", content: obp[:href]) if obp
-        rss = @doc.at("//a[contains(@href, 'rss')]")
+        rss = @doc.at_xpath("//a[contains(@href, 'rss')]")
         @errors[:link_rss] &&= rss.nil?
         source << Bib::Uri.new(type: "rss", content: DOMAIN + rss[:href]) if rss
         pub = @doc.at "//p[contains(., 'publicly available')]/a",
@@ -542,7 +542,7 @@ module Relaton
         owner_name = ref.match(/.*?(?=\s)/).to_s
         from = ref.match(/(?<=:)\d{4}/).to_s
         if from.empty?
-          date = @doc.at(
+          date = @doc.at_xpath(
             "//span[@itemprop='releaseDate']",
             "//ul[@id='stages']/li[contains(@class,'active')]/ul/li[@class='active']/a/span[@class='stage-date']",
           )
@@ -585,7 +585,7 @@ module Relaton
       # @return [Relaton::Bib::Contributor, nil]
       #
       def fetch_editorialgroup_contributor # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
-        wg = @doc.at(
+        wg = @doc.at_xpath(
           "//div[contains(., 'Technical Committe')]" \
           "/following-sibling::span/a",
         )

@@ -156,7 +156,7 @@ module Relaton
         href = email[:href]
         if href.start_with?("mailto:")
           [href.split(":")[1]]
-        elsif (cf_email = email.at(".//span[@data-cfemail]"))
+        elsif (cf_email = email.at_xpath(".//span[@data-cfemail]"))
           decoded = decode_cf_email(cf_email["data-cfemail"])
           return [] if decoded.empty?
 

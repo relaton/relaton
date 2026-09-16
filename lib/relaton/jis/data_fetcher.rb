@@ -114,12 +114,12 @@ module Relaton
       end
 
       def parse_offset(resp) # rubocop:disable Metrics/AbcSize
-        if resp.at('//*[@id="btnPaging"]') # first page
+        if resp.at_xpath('//*[@id="btnPaging"]') # first page
           xpath = '//script[contains(.,"var count =")]'
-          @count = resp.at(xpath).text.match(/var count = (\d+);/)[1]
-          resp.at("//*[@id='offset']")[:value].to_i
+          @count = resp.at_xpath(xpath).text.match(/var count = (\d+);/)[1]
+          resp.at_xpath("//*[@id='offset']")[:value].to_i
         else
-          script = resp.at("//script").text
+          script = resp.at_xpath("//script").text
           script.match(/\("offset"\)\.value = '(\d+)'/)[1].to_i
         end
       end
