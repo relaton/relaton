@@ -185,10 +185,12 @@ item, so `EN 13306` answers with the 2017 record and `EN 1325` with the
 part-less one.
 
 A consolidated identifier (`EN 285:2015+A1:2021`) holds its base document and
-its supplements in `#identifiers` and answers **none** of the
-`supplement_type`/`supplement_number`/`supplement_year` accessors itself, so
-`supplements` reads `identifiers.drop(1)` for it and `[id]` for a plain
-amendment or corrigendum.
+its supplements in `#identifiers` and does not answer `supplement_type`
+itself, so `supplements` reads `identifiers.drop(1)` for it and `[id]` for a
+plain amendment or corrigendum. The sort key reads the supplement's `number`
+and `year`, which every pubid version answers: pubid removes the
+`supplement_number`/`supplement_year` aliases.
+The `:supplement_year` exclude key is a different thing and stays.
 
 ## External dependencies
 

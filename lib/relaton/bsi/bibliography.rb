@@ -57,8 +57,8 @@ module Relaton::Bsi
       # Whether a query and a candidate hit denote the same BSI document, at the
       # fuzziness the hit filter asks for. Built entirely on pubid: `base_document`
       # peels supplements/wrappers, `matches?` compares ignoring the publication
-      # date, and the uniform `Amendment`/`Corrigendum` `#supplement_*` interface
-      # supplies the amendment number/year.
+      # date, and the `Amendment`/`Corrigendum` `#supplement_type`, `#number` and
+      # `#year` supply the amendment type, number and year.
       #
       # @param query [Pubid::Bsi::Identifier]
       # @param hit   [Pubid::Bsi::Identifier]
@@ -77,10 +77,14 @@ module Relaton::Bsi
 
       private
 
+      # The year of the dated document at the root of a reference. pubid holds
+      # an adopted standard (`BS EN ISO 8848:2021`) in `base`, so its
+      # `base_document.year` is nil; `#root` reaches the dated document for
+      # every form, on the pubid before that change and after it.
       # @param id [Pubid::Bsi::Identifier, nil]
       # @return [String, nil]
       def year_of(id)
-        id&.base_document&.year&.to_s
+        id&.root&.year&.to_s
       end
 
       # Same base document, ignoring the publication date. `:month` is excluded
@@ -91,8 +95,8 @@ module Relaton::Bsi
       end
 
       # The `Amendment`/`Corrigendum` supplement of a reference, if any — peeling
-      # an Expert-commentary wrapper first. Both supplements expose the uniform
-      # `#supplement_type` / `#supplement_number` / `#supplement_year`.
+      # an Expert-commentary wrapper first. Both supplements expose
+      # `#supplement_type`, `#number` and `#year`.
       def supplement_of(id)
         while id.is_a?(Ids::ExpertCommentary)
           inner = id.base
@@ -112,9 +116,22 @@ module Relaton::Bsi
         return false if hit_supp.nil?
 
         query_supp.supplement_type == hit_supp.supplement_type &&
-          query_supp.supplement_number == hit_supp.supplement_number &&
-          (query_supp.supplement_year.nil? ||
-            query_supp.supplement_year == hit_supp.supplement_year)
+          supplement_number(query_supp) == supplement_number(hit_supp) &&
+          (supplement_year(query_supp).nil? ||
+            supplement_year(query_supp) == supplement_year(hit_supp))
+      end
+
+      # The number and the year of a supplement. pubid removes the
+      # `#supplement_number` / `#supplement_year` aliases and stores the values
+      # in `#number` / `#year`. An older pubid still answers the aliases and
+      # leaves `#number` / `#year` nil, so the alias wins while it exists.
+      # TODO: read `#number` / `#year` directly once pubid `main` has no alias.
+      def supplement_number(supp)
+        supp.respond_to?(:supplement_number) ? supp.supplement_number : supp.number
+      end
+
+      def supplement_year(supp)
+        supp.respond_to?(:supplement_year) ? supp.supplement_year : supp.year
       end
 
       # Canonical marker for the free-text suffix pubid parses into a typed
