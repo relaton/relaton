@@ -31,6 +31,20 @@ describe Relaton::Bsi::Bibliography do
       expect(described_class.publication_year("BS 7273-4:2015+A1:2021")).to eq "2015"
     end
 
+    it "reads the base year of an adopted consolidated reference" do
+      expect(described_class.publication_year("BS EN ISO 14044:2006+A2:2020")).to eq "2006"
+    end
+
+    # `base_document.year` is nil for these two on every pubid; `#root` reaches
+    # the dated document.
+    it "reads the year of an adopted draft for development" do
+      expect(described_class.publication_year("DD ENV ISO 11079:1999")).to eq "1999"
+    end
+
+    it "reads the base year of an addendum" do
+      expect(described_class.publication_year("BS 449-2:1969 Addendum No. 1:1975")).to eq "1969"
+    end
+
     it "is nil for an undated reference" do
       expect(described_class.publication_year("BS 5266-1")).to be_nil
     end
@@ -54,6 +68,14 @@ describe Relaton::Bsi::Bibliography do
     it "treats the amendment year as optional when the query omits it" do
       expect(same?("BS EN ISO 14044:2006+A2", "BS EN ISO 14044:2006+A2:2020"))
         .to be true
+    end
+
+    it "rejects a different amendment number" do
+      expect(same?("BS 7273-4:2015+A1", "BS 7273-4:2015+A2:2020")).to be false
+    end
+
+    it "rejects a different amendment year" do
+      expect(same?("BS 7273-4:2015+A1:2020", "BS 7273-4:2015+A1:2021")).to be false
     end
 
     it "does not match a bare reference against its amended variant" do
