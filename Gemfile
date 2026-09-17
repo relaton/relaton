@@ -77,12 +77,6 @@ gemspec
 # TODO: revert to the released pubid once these changes ship in a pubid release.
 gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"
 
-# TEMP PIN: lutaml-model#779 — the adapter resolver raw-requires deep adapter
-# files (json/yaml yeptris adapters) whose class bodies reference autoloaded
-# bases; when lutaml/json/adapter.rb is not preloaded the resolver reports
-# UnknownAdapterTypeError. Drop when the fix ships in a release.
-gem "lutaml-model", github: "lutaml/lutaml-model", branch: "fix/yeptris-adapter-raw-require"
-
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
 # build_all`, so rake must live outside those groups or publishing can't run it.
