@@ -114,14 +114,21 @@ from the v2 rows, for relaton v2 consumers only.
   narrows only for a non-`String` argument, so passing text would disable the
   binary search however the index was built. `pubid_class:` alone fixes
   nothing; both had to change together.
-- **`#ignored` ignores exactly what the reference omitted** (`version`,
-  `stage`, `part`, `label` — the ETSI/W3C/OGC idiom). `number` is never
-  ignorable: it is the specification name, the whole identity of an OASIS
-  record and the key the index bsearches on.
+- **Selection is pubid's asymmetric subset match** (`Pubid::SubsetMatch`):
+  `pubid === row[:id]`, the reference on the left. A component the reference
+  omits (`version`, `stage`, `part`, `label`) matches any value; a component it
+  states must be equal. `number` is always stated: it is the specification name,
+  the whole identity of an OASIS record and the key the index bsearches on.
+  `#ignored` survives only for `#ranking_key`, which counts the components the
+  caller did not ask for. Measured over the whole fixture index (605 rows,
+  6,795 comparisons): the subset match and the old
+  `matches?(…, ignore: #ignored)` agree on every pair.
 - **There is no substring fallback.** After normalization the only unparseable
   inputs are a blank string and one over pubid's 1000-character cap, and a
   substring scan for `""` matches every row — worse than a miss. An
-  unparseable reference warns and returns nil.
+  unparseable reference raises `Pubid::Errors::ParseError`
+  (`spec/oasis/relaton/oasis/bibliography_spec.rb` pins it), so a malformed
+  identifier stays distinct from an absent document.
 
 ##### Ordering: `#ranking_key`
 

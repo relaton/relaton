@@ -222,6 +222,17 @@ describe Relaton::Ccsds::DataFetcher do
         expect(subject).not_to receive(:create_relations)
         subject.search_relations bibid, bib
       end
+
+      # Selection is pubid's asymmetric subset match, so only the language the
+      # id leaves out is a wildcard. Another edition of the same number states
+      # a different value and must not be pulled in.
+      it "does not take another edition of the same number" do
+        expect(subject.index).to receive(:search).and_yield(
+          id: Pubid::Ccsds::Identifier.parse("CCSDS 123.0-B-2 - French Translated"), file: "file.yaml",
+        )
+        expect(subject).not_to receive(:create_relations)
+        subject.search_relations bibid, bib
+      end
     end
 
     context "#search_translations" do
@@ -240,6 +251,18 @@ describe Relaton::Ccsds::DataFetcher do
       it "not found" do
         bib = double(:bibitem, docidentifier: [double(id: bibid)])
         expect(subject.index).to receive(:search).and_yield(id: Pubid::Ccsds::Identifier.parse(bibid), file: "file.yaml")
+        expect(subject).not_to receive(:create_instance_relation)
+        subject.search_translations bibid, bib
+      end
+
+      # The language is the only wildcard: a translation of another edition
+      # states a different edition, so the subset match rejects it.
+      it "does not take a translation of another edition" do
+        bib = double(:bibitem, docidentifier: [double(id: bibid)])
+        expect(subject.index).to receive(:search).and_yield(
+          id: Pubid::Ccsds::Identifier.parse("CCSDS 123.0-B-2 - Russian Translated"),
+          file: "file.yaml",
+        )
         expect(subject).not_to receive(:create_instance_relation)
         subject.search_translations bibid, bib
       end

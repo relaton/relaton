@@ -60,7 +60,20 @@ module Relaton
       end
 
       #
-      # Search index for a given ID
+      # Search index for a given ID.
+      #
+      # Without a block, two identifiers are matched with pubid's asymmetric
+      # subset match `id === item[:id]` (`Pubid::SubsetMatch`): the query is the
+      # reference, and a component it leaves nil or empty matches any value, so
+      # `OGC 12-128` answers with `12-128r19`. That is what a search by
+      # reference means. A caller that needs **exact** equality says so with a
+      # block — `search(id) { |r| r[:id] == id }` — because a nil component is a
+      # wildcard here, not "the document has none": over the fixture indexes the
+      # subset match accepts 345 CCSDS pairs and 20,513 IETF pairs that `==`
+      # rejects (a draft slug matches each of its versions). `Relaton::Ccsds`
+      # and `Relaton::Ietf` are the two callers that do that.
+      #
+      # A String query keeps the substring match it always had.
       #
       # @param [String, Pubid::Identifier] id ID to search for
       #
@@ -149,13 +162,15 @@ module Relaton
         end || index.size
       end
 
+      # The query is the reference, so two identifiers take the subset match.
+      # See #search for the exact-equality escape hatch.
       def match_item(item, id)
         if item[:id].is_a?(String)
           item[:id].include?(id.is_a?(String) ? id : id.to_s)
         elsif id.is_a?(String)
           item[:id].to_s.include?(id)
         else
-          item[:id] == id
+          id === item[:id]
         end
       end
     end

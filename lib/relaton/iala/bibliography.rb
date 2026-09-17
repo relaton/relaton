@@ -47,16 +47,17 @@ module Relaton
         #
         # Passing the pubid to `Index::Type#search` is what enables the binary
         # search on `id.root.number` — with a block alone, or with the plain
-        # string this used to pass, the whole index is scanned. `edition` and
-        # `language` are IALA's only optional components, so the ETSI idiom
-        # reduces to ignoring each one the reference omits: that is how a bare
-        # `IALA M0001` still finds the `Ed 9.0 (E)` row. The document type is
-        # deliberately NOT ignorable — it is the identifier's class, and 17 of
+        # string this used to pass, the whole index is scanned. Selection is
+        # `Type#search`'s default with no block — pubid's asymmetric subset
+        # match (`Pubid::SubsetMatch`): the reference on the left, the row on
+        # the right, and a component the reference omits matches any value.
+        # `edition` and `language` are IALA's only
+        # optional components, so a bare `IALA M0001` still finds the
+        # `Ed 9.0 (E)` row. The document type is deliberately NOT a wildcard —
+        # it is the identifier's class, and `===` requires the same class. 17 of
         # the 309 index numbers are shared by two types, so `R1001` and `C1001`
-        # must never match each other.
-        #
-        # A reference pubid cannot parse falls back to the previous behaviour,
-        # a full scan matching `id.to_s` as a substring.
+        # must never match each other. An `Annex` row carries its base
+        # identifier, which `===` compares with its own subset match.
         #
         # @param text [String]
         # @return [Hash, nil]
@@ -69,18 +70,8 @@ module Relaton
         # identifier. ecma, w3c and xsf never had one.
         def best_match(text)
           pubid = parse_ref text
-          rows = index.search(pubid) { |r| pubid.matches?(r[:id], ignore: ignored(pubid)) }
+          rows = index.search(pubid)
           rows.max_by { |r| [edition_key(r[:id].edition), language_key(r[:id]), r[:file]] }
-        end
-
-        # The components the reference left out, which the row may therefore
-        # carry freely.
-        #
-        # @param pubid [Pubid::Iala::Identifier]
-        # @return [Array<Symbol>]
-        #
-        def ignored(pubid)
-          %i[edition language].select { |attr| pubid.public_send(attr).nil? }
         end
 
         #

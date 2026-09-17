@@ -80,6 +80,16 @@ end
 # => [{ id: "B-4 2.19.0", file: "data/b-4_2_19_0.xml" }]
 ----
 
+A string reference matches a row as a substring, as above. An identifier
+reference takes pubid's asymmetric subset match `reference === row[:id]`: a
+component the reference leaves out matches any value, so `OGC 12-128` answers
+with the `12-128r19` row. Pass a block for exact equality:
+
+[source,ruby]
+----
+index.search(pubid) { |row| row[:id] == pubid }
+----
+
 === Using pubid_class for structured identifiers
 
 The `pubid_class` option allows index entries to be deserialized into structured identifier objects instead of plain strings or hashes. The class must include `Pubid::Core::Identifier` and provide a `.create(**hash)` factory method.

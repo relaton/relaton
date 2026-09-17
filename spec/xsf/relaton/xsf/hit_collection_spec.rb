@@ -39,6 +39,21 @@ RSpec.describe Relaton::Xsf::HitCollection do
     end
   end
 
+  # `#rows` selects with pubid's asymmetric subset match. An XEP identifier
+  # states everything it has, so the match is a plain equality -- which is the
+  # point: one row per XEP, and no number may answer for another.
+  context "subset match" do
+    def id(ref) = Pubid::Xsf::Identifier.parse(ref)
+
+    it "matches an identical identifier" do
+      expect(id("XEP 0001") === id("XEP 0001")).to be true
+    end
+
+    it "does not match another number" do
+      expect(id("XEP 0001") === id("XEP 0002")).to be false
+    end
+  end
+
   context "lookup" do
     it "returns the row for an identifier" do
       expect(files(pubid("XEP 0001"))).to eq ["xep-0001.yaml"]

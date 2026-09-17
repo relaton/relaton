@@ -80,4 +80,25 @@ RSpec.describe "Pubid::Oasis contract" do
       )
     end
   end
+
+  # `Bibliography#find_index_entry` selects rows with pubid's asymmetric subset
+  # match: the reference on the left, the row on the right. A component the
+  # reference omits matches any value; a component it states must be equal. The
+  # direction is the whole contract, so both directions are asserted.
+  context "subset match" do
+    def id(ref) = Pubid::Oasis::Identifier.parse(ref)
+
+    it "lets a reference reach a row that states more" do
+      expect(id("OASIS STIX") === id("OASIS STIX-v2.1-CS02")).to be true
+    end
+
+    it "is not symmetric" do
+      expect(id("OASIS STIX-v2.1-CS02") === id("OASIS STIX")).to be false
+    end
+
+    it "keeps a fully stated reference on its own row" do
+      expect(id("OASIS STIX-v2.1-CS02") === id("OASIS STIX-v2.1-CS01"))
+        .to be false
+    end
+  end
 end
