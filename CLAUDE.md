@@ -529,18 +529,24 @@ regex back.
   itself. It is also **`Index::Type#search`'s default** when the call passes no
   block, so OASIS, W3C, XSF, IALA and OGC just call `index.search(pubid)`; the
   two callers that need exact equality — `Relaton::Ccsds::HitCollection#rows`
-  and `Relaton::Ietf::Scraper#fetch_doc` — pass `{ |r| r[:id] == id }` and say
-  why (see `lib/relaton/index/CLAUDE.md`). JCGM and CCSDS's crawler
-  (`Data::Fetcher#search_relations`/`#search_translations`) call `===` directly;
-  measured over their fixture indexes, 1.24 M comparisons agree with the old
-  `matches?(…, ignore: …)` on every pair.
+  and `Relaton::Ietf::Scraper#fetch_doc` — pass `exact: true` (`==`) and say
+  why (see `lib/relaton/index/CLAUDE.md`). JCGM calls `===` directly. CCSDS's
+  crawler (`Data::Fetcher#search_relations`/`#search_translations`) did too, until
+  pubid#408 made CCSDS `language` `subset_strict`. It now matches with
+  `row[:id].exclude(:language) == bibid_pid`, because discovering translations is
+  a wildcard query. A flavor can have both kinds of consumer: `===` serves a user
+  reference, and a crawler that discovers related records must name its wildcard.
   Two flavor properties decide whether a site may switch:
   - **A nil must mean "any value", not "this document has none".** ECMA `part`,
-    3GPP `suffix`/`parts`, CalConnect `series`, CEN stage, GOST `copublisher`,
-    Plateau `annex`, OIML `suffix`/`part` and CCSDS `language` (in
+    3GPP `suffix`/`parts`, ETSI `parts`, CalConnect `series`, CEN stage, GOST `copublisher`,
+    Plateau `annex`, OIML `suffix`/`part` and CCSDS `language`/`suffix` (in
     `HitCollection#rows`) read a nil as "none", so `===` would widen the match —
-    `ECMA-418` would answer with `ECMA-418-1`. They keep `matches?` until pubid
-    gains a per-attribute hook (`subset_attribute_match?`).
+    `ECMA-418` would answer with `ECMA-418-1`. pubid#408 added the per-attribute
+    hook `subset_strict`, and declared it for these nine flavors. Their sites
+    other than CCSDS still call `matches?`, and they may switch now. It missed CCSDS
+    `suffix`: `CCSDS 101.0-B-4 === CCSDS 101.0-B-4-S` is still true, so
+    `HitCollection#rows` keeps `exact: true`. Before a site switches to `===`,
+    measure `===` against the old match over the flavor's fixture index.
   - **The site must not ignore a value the query states.** ISO (edition,
     `all_parts`, default stage), IEC, ITU, BSI and JIS (the year — they need
     every year for the "found other years" message) and BIPM (the default

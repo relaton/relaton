@@ -106,6 +106,28 @@ describe Relaton::Index::Type do
         it "takes exact equality from a block instead" do
           expect(subject.search(bare) { |r| r[:id] == bare }).to be_empty
         end
+
+        context "with exact: true" do
+          it "does not let a reference reach the rows that state more" do
+            expect(subject.search(bare, exact: true)).to be_empty
+          end
+
+          it "returns the row equal to the reference" do
+            subject.add_or_update bare, "file3"
+            expect(subject.search(bare, exact: true)).to eq [{ id: bare, file: "file3" }]
+          end
+
+          it "compares a String with == instead of a substring" do
+            subject.add_or_update "ISO 30", "file30"
+            expect(subject.search("ISO 3", exact: true)).to be_empty
+            expect(subject.search("ISO 30", exact: true)).to eq [{ id: "ISO 30", file: "file30" }]
+          end
+
+          it "refuses a block as well" do
+            expect { subject.search(bare, exact: true) { true } }
+              .to raise_error ArgumentError, /exact/
+          end
+        end
       end
 
       context "when provided index in old format" do

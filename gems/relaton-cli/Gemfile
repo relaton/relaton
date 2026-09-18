@@ -10,6 +10,11 @@ gem "relaton", path: "../.."
 # add openssl as an explicit gem to fix SSL verification issues in GHA.
 # gem "openssl"
 
+# `canon` comes in through `lutaml-model`. Keep it below 0.3.52, as the root
+# Gemfile does: from that version it installs `yeptris`, which replaces
+# `Object#to_yaml` and raises `NameError` on Windows. See the root Gemfile.
+gem "canon", "< 0.3.52"
+
 gem "byebug", "~> 11.0"
 gem "debug"
 gem "equivalent-xml", "~> 0.6"

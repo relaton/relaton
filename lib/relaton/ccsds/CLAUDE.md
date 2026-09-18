@@ -43,6 +43,14 @@ language-less user reference must not reach a translation). `exclude(:language)`
 drops the language from the row on both sides, mirroring
 `HitCollection#rows` (`r[:id].exclude(:edition) == pubid`).
 
+`HitCollection#rows` keeps `index.search(pubid, exact: true)` for an edition
+reference, although `language` is strict now. CCSDS `suffix` is still a nil
+wildcard in pubid, so the bare `index.search(pubid)` makes `CCSDS 101.0-B-4`
+also return the historical `CCSDS 101.0-B-4-S` (260 such pairs in the index
+fixture). The `hit_collection_spec` "historical and a translated sibling"
+example guards this. Drop `exact: true` only after pubid declares `suffix`
+`subset_strict` too.
+
 `#search_relations` excludes the document's own row with
 `row[:id] == bib.docidentifier.first.pubid` — pubid to pubid. It compared a
 `Pubid::Ccsds::Identifier` with a `String` (`.content`) before and was always

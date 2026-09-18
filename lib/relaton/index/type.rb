@@ -66,22 +66,28 @@ module Relaton
       # subset match `id === item[:id]` (`Pubid::SubsetMatch`): the query is the
       # reference, and a component it leaves nil or empty matches any value, so
       # `OGC 12-128` answers with `12-128r19`. That is what a search by
-      # reference means. A caller that needs **exact** equality says so with a
-      # block — `search(id) { |r| r[:id] == id }` — because a nil component is a
-      # wildcard here, not "the document has none": over the fixture indexes the
-      # subset match accepts 345 CCSDS pairs and 20,513 IETF pairs that `==`
-      # rejects (a draft slug matches each of its versions). `Relaton::Ccsds`
-      # and `Relaton::Ietf` are the two callers that do that.
+      # reference means. A caller that needs **exact** equality passes
+      # `exact: true`, which selects the rows with `item[:id] == id`. A nil
+      # component is a wildcard for `===`, not "the document has none": over
+      # the fixture indexes the subset match accepts 260 CCSDS pairs (the `-S`
+      # suffix) and 20,513 IETF pairs (a draft slug matches each of its
+      # versions) that `==` rejects. `Relaton::Ccsds` and `Relaton::Ietf` are
+      # the two callers that pass it.
       #
-      # A String query keeps the substring match it always had.
+      # A String query keeps the substring match it always had, unless it is
+      # `exact:`.
       #
       # @param [String, Pubid::Identifier] id ID to search for
+      # @param [Boolean] exact match with `==` instead of the subset match
       #
       # @return [Array<Hash>] search results
       #
-      def search(id = nil, &block)
+      def search(id = nil, exact: false, &block)
+        raise ArgumentError, "search takes exact: or a block, not both" if exact && block
+
         items = search_candidates(id)
         return items.select(&block) if block
+        return items.select { |i| i[:id] == id } if exact
 
         items.select { |i| match_item(i, id) }
       end
