@@ -97,12 +97,12 @@ module Relaton
       # `exclude` returns a fresh instance, so mutating this copy is safe.
       # Remove once pubid create() splits compound parts itself.
       def normalize_compound_part(pubid)
-        num = pubid.part&.value.to_s
+        num = pubid.part.to_s
         return pubid unless pubid.subpart.nil? && num.include?("-")
 
         head, tail = num.split("-", 2)
-        pubid.part = ::Pubid::Iso::Components::Code.new(value: head)
-        pubid.subpart = ::Pubid::Iso::Components::Code.new(value: tail)
+        pubid.part = head
+        pubid.subpart = tail
         pubid
       end
 
@@ -162,7 +162,7 @@ module Relaton
         if opts[:publication_date_before] || opts[:publication_date_after]
           parts = parts.select { |h| Bibliography.send(:year_in_range?, (h.pubid.date&.year || h.hit[:year]).to_i, opts) }
         end
-        hit = parts.min_by { |h| h.pubid.part.value.to_i }
+        hit = parts.min_by { |h| h.pubid.part.to_i }
         return @array.first&.item unless hit
 
         bibitem = hit.item
