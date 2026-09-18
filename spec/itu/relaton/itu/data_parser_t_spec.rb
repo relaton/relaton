@@ -53,7 +53,12 @@ describe Relaton::Itu::DataParserT do
     let(:detail) do
       { "summary" => "Information technology – Cloud computing – Overview and vocabulary",
         "iso_number" => "ISO/IEC 17788:2014 (Common)",
-        "status" => "Superseded" }.to_json
+        "status" => "Superseded",
+        "handle_id" => "https://handle.itu.int/11.1002/1000/5194",
+        "handle_id_pdf_link" => pdf_link }.to_json
+    end
+    let(:pdf_link) do
+      "https://www.itu.int/rec/dologin_pub.asp?lang=e&id=T-REC-A.1-200010-S!!PDF-E&type=items"
     end
     let(:wg_page) do
       page = double("rec.aspx page")
@@ -102,9 +107,26 @@ describe Relaton::Itu::DataParserT do
       expect(bib.relation.last.bibitem.docidentifier.first.content).to eq "A Suppl. 2 (12/2022)"
     end
 
+    it "uses the handle and PDF URIs as the source, as the live path does" do
+      bib = described_class.parse(row, agent)
+      expect(bib.source.map { |s| [s.type, s.content.to_s] }).to eq [
+        ["src", "https://handle.itu.int/11.1002/1000/5194"],
+        ["pdf", pdf_link],
+      ]
+    end
+
+    it "keeps the row source when the header has no handle_id" do
+      allow(agent).to receive(:get).with(a_string_including("getRecHdrDetail"))
+        .and_return(double("resp", body: { "summary" => "Overview" }.to_json))
+      bib = described_class.parse(row, agent)
+      expect(bib.source.map { |s| [s.type, s.content.to_s] })
+        .to eq [["src", "https://www.itu.int/rec/T-REC-A.1-200010-S"]]
+    end
+
     it "degrades to the thin record when the detail fetch fails" do
       allow(agent).to receive(:get).and_raise(SocketError)
       bib = described_class.parse(row, agent)
+      expect(bib.source.map { |s| s.content.to_s }).to eq ["https://www.itu.int/rec/T-REC-A.1-200010-S"]
       expect(bib.docidentifier.map { |d| d.content }).to eq ["ITU-T A.1 (10/2000)"]
       expect(bib.abstract).to eq []
       expect(bib.contributor).to eq []

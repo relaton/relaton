@@ -377,7 +377,10 @@ consumer-only load never pulls the crawler in.
   **editorial-group + publisher contributors** (the editorial group from the
   `rec.aspx` workgroup page), the **edition** (`getRecEditions` → the row's own
   `Version`) and the **relations** (`hasEdition` per sibling edition,
-  `complementOf` per `getRecSupplements` entry). The **date** is upgraded to
+  `complementOf` per `getRecSupplements` entry). The **source** becomes the
+  live path's pair — `src` = `handle_id`, `pdf` = `handle_id_pdf_link`, both from
+  the same `getRecHdrDetail` response, so no extra call; a header without
+  `handle_id` (or a failed enrichment) keeps the row's `dms_link`. The **date** is upgraded to
   day-precision from the row's `approval_date` (no extra call); **copyright** and
   the Geneva **place** are derived from the row alone (`#fetch_copyright`), so
   even an un-enriched record carries them. Enrichment is **best-effort** — a
