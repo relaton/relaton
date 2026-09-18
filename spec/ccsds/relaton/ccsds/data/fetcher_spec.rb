@@ -64,7 +64,7 @@ describe Relaton::Ccsds::DataFetcher do
     end
 
     context "#save_bib" do
-      let(:docid) { Relaton::Bib::Docidentifier.new(content: identifier) }
+      let(:docid) { Relaton::Ccsds::Docidentifier.new(content: identifier) }
       let(:bib) { Relaton::Ccsds::ItemData.new(docidentifier: [docid]) }
       let(:id) { Pubid::Ccsds::Identifier.parse(identifier) }
 
@@ -182,29 +182,41 @@ describe Relaton::Ccsds::DataFetcher do
 
     context "#search_instance_translation" do
       it "instance" do
-        docid = Relaton::Bib::Docidentifier.new(type: "CCSDS", content: "CCSDS 123.0-B-1")
+        docid = Relaton::Ccsds::Docidentifier.new(type: "CCSDS", content: "CCSDS 123.0-B-1")
         bib = Relaton::Ccsds::ItemData.new(docidentifier: [docid])
-        expect(subject).to receive(:search_translations).with("CCSDS 123.0-B-1", bib)
+        expect(subject).to receive(:search_translations).with(Pubid::Ccsds::Identifier.parse("CCSDS 123.0-B-1"), bib)
         subject.search_instance_translation bib
       end
 
       it "translation" do
-        docid = Relaton::Bib::Docidentifier.new(type: "CCSDS", content: "CCSDS 123.0-B-1 - French Translated")
+        docid = Relaton::Ccsds::Docidentifier.new(type: "CCSDS", content: "CCSDS 123.0-B-1 - French Translated")
         bib = Relaton::Ccsds::ItemData.new(docidentifier: [docid])
-        expect(subject).to receive(:search_relations).with "CCSDS 123.0-B-1", bib
+        expect(subject).to receive(:search_relations).with(Pubid::Ccsds::Identifier.parse("CCSDS 123.0-B-1"), bib)
         subject.search_instance_translation bib
       end
     end
 
     context "#search_relations" do
-      let(:bibid) { "CCSDS 123.0-B-1" }
-      let(:docid) { Relaton::Bib::Docidentifier.new(type: "CCSDS", content: "CCSDS 123.0-B-1 -- Russian Translated") }
+      let(:bibid) { Pubid::Ccsds::Identifier.parse("CCSDS 123.0-B-1") }
+      let(:docid) { Relaton::Ccsds::Docidentifier.new(type: "CCSDS", content: "CCSDS 123.0-B-1 -- Russian Translated") }
       let(:bib) { Relaton::Ccsds::ItemData.new(docidentifier: [docid]) }
 
       it "found instance" do
-        expect(subject.index).to receive(:search).and_yield(id: Pubid::Ccsds::Identifier.parse(bibid), file: "file.yaml")
+        expect(subject.index).to receive(:search).and_yield(id: bibid, file: "file.yaml")
         expect(subject).to receive(:create_relations).with(bib, "file.yaml")
         subject.search_relations bibid, bib
+      end
+
+      # The self-exclusion compares pubid to pubid: a re-crawl over an index that
+      # already holds the document must not give it a relation to itself.
+      it "excludes the document's own row" do
+        docid = Relaton::Ccsds::Docidentifier.new(type: "CCSDS", content: "CCSDS 123.0-B-1 - Russian Translated")
+        own = Relaton::Ccsds::ItemData.new(docidentifier: [docid])
+        expect(subject.index).to receive(:search).and_yield(
+          id: Pubid::Ccsds::Identifier.parse("CCSDS 123.0-B-1 - Russian Translated"), file: "file.yaml",
+        )
+        expect(subject).not_to receive(:create_relations)
+        subject.search_relations bibid, own
       end
 
       it "found another translation" do
@@ -223,9 +235,9 @@ describe Relaton::Ccsds::DataFetcher do
         subject.search_relations bibid, bib
       end
 
-      # Selection is pubid's asymmetric subset match, so only the language the
-      # id leaves out is a wildcard. Another edition of the same number states
-      # a different value and must not be pulled in.
+      # Selection drops only the language (`exclude(:language) == bibid_pid`).
+      # Another edition of the same number keeps a different edition and must
+      # not be pulled in.
       it "does not take another edition of the same number" do
         expect(subject.index).to receive(:search).and_yield(
           id: Pubid::Ccsds::Identifier.parse("CCSDS 123.0-B-2 - French Translated"), file: "file.yaml",
@@ -236,7 +248,7 @@ describe Relaton::Ccsds::DataFetcher do
     end
 
     context "#search_translations" do
-      let(:bibid) { "CCSDS 123.0-B-1" }
+      let(:bibid) { Pubid::Ccsds::Identifier.parse("CCSDS 123.0-B-1") }
 
       it "found" do
         bib = double(:bibitem, docidentifier: [double(id: bibid)])
@@ -250,13 +262,13 @@ describe Relaton::Ccsds::DataFetcher do
 
       it "not found" do
         bib = double(:bibitem, docidentifier: [double(id: bibid)])
-        expect(subject.index).to receive(:search).and_yield(id: Pubid::Ccsds::Identifier.parse(bibid), file: "file.yaml")
+        expect(subject.index).to receive(:search).and_yield(id: bibid, file: "file.yaml")
         expect(subject).not_to receive(:create_instance_relation)
         subject.search_translations bibid, bib
       end
 
-      # The language is the only wildcard: a translation of another edition
-      # states a different edition, so the subset match rejects it.
+      # Only the language is dropped: a translation of another edition keeps a
+      # different edition, so `exclude(:language) == bibid_pid` rejects it.
       it "does not take a translation of another edition" do
         bib = double(:bibitem, docidentifier: [double(id: bibid)])
         expect(subject.index).to receive(:search).and_yield(

@@ -22,21 +22,33 @@ duplicated per flavor for now (to be hoisted into `Bib::Docidentifier` once ever
 flavor's id is Pubid-backed).
 
 **Translation relations use pubid's subset match.**
-`Data::Fetcher#search_relations` and `#search_translations` derive a
-language-less identifier from the document's own id and select index rows with
-`bibid_pid === row[:id]` (`Pubid::SubsetMatch`, the reference on the left). The
-language is the only component the derived id leaves out, so a translated row
-matches and another edition of the same number does not.
-`HitCollection#rows` keeps `exclude(:edition)` instead: a CCSDS reference that
-omits the language must **not** reach a translation, and a nil component is a
-wildcard for `===`.
+`Data::Fetcher#search_instance_translation` reads the document's **already
+parsed** id from `bib.docidentifier.first.pubid` (not `content`, which it would
+re-parse), derives the language-less reference with `pubid.exclude(:language)`,
+and picks the branch by `bibid == pubid` — no language means an instance
+(`#search_translations`), a language means a translation (`#search_relations`).
+This is more correct than the old `TRRGX` string test: `content` returns
+`@pubid.to_s`, which reorders components, so a translated corrigendum
+(`CCSDS 320.0-B-1-S - German Translated Cor. 1`) put the language mid-string and
+the `$`-anchored `TRRGX` missed it; `exclude(:language)` strips the language down
+the whole base chain. `TRRGX` still serves `translation_relation_types` and
+`DataParser#relation_type`, which match raw relation-id strings.
+`#search_relations` and `#search_translations` receive that pubid and select
+index rows with `row[:id].exclude(:language) == bibid_pid` — a
+language-agnostic match, so a translated row and the instance both match while
+another edition of the same number does not. This does **not** use `===`:
+pubid declares CCSDS `language` `subset_strict`, so a nil reference language
+means "has none" (a wildcard would be wrong for `HitCollection`, where a
+language-less user reference must not reach a translation). `exclude(:language)`
+drops the language from the row on both sides, mirroring
+`HitCollection#rows` (`r[:id].exclude(:edition) == pubid`).
 
-**Known gap, older than that swap:** `#search_relations` excludes the document's
-own row with `row[:id] == bib.docidentifier.first.content`, which compares a
-`Pubid::Ccsds::Identifier` with a `String` and is therefore always false. A
-re-crawl over an index that already holds the document can give it a relation to
-itself. The fix is to compare `row[:id].to_s`, or to parse the content once; it
-needs a regression example, because no spec yields the document's own row.
+`#search_relations` excludes the document's own row with
+`row[:id] == bib.docidentifier.first.pubid` — pubid to pubid. It compared a
+`Pubid::Ccsds::Identifier` with a `String` (`.content`) before and was always
+false, so a re-crawl over an index that already held the document gave it a
+relation to itself. Covered by the `#search_relations` "excludes the document's
+own row" example.
 
 ## Development
 
