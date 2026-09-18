@@ -24,6 +24,30 @@ RSpec.describe Relaton::Jcgm::Bibliography do
     expect(bib.docidentifier.first.content).to eq "JCGM GUM-6:2020"
   end
 
+  # `#pubid_match?` selects rows with pubid's asymmetric subset match: the
+  # reference on the left, the row on the right. The year is the optional
+  # component; the document type is the identifier's class, which `===`
+  # compares, so a guide never answers for its corrigendum.
+  context "subset match" do
+    def id(ref) = Pubid::Jcgm.parse(ref)
+
+    it "lets a year-less reference reach a dated row" do
+      expect(id("JCGM 200") === id("JCGM 200:2012")).to be true
+    end
+
+    it "is not symmetric" do
+      expect(id("JCGM 200:2012") === id("JCGM 200")).to be false
+    end
+
+    it "keeps a stated year on its own edition" do
+      expect(id("JCGM 200:2008") === id("JCGM 200:2012")).to be false
+    end
+
+    it "keeps a guide apart from its corrigendum" do
+      expect(id("JCGM 200:2008") === id("JCGM 200:2008 Corrigendum")).to be false
+    end
+  end
+
   it "distinguishes editions by year (200:2008 vs 200:2012)" do
     expect(described_class.get("JCGM 200:2008").docidentifier.first.content).to eq "JCGM 200:2008"
     expect(described_class.get("JCGM 200:2012").docidentifier.first.content).to eq "JCGM 200:2012"

@@ -40,10 +40,13 @@ module Relaton
       #
       # Passing the pubid to `Index::Type#search` is what enables the binary
       # search on `id.root.number` — with the plain string this used to pass,
-      # the whole index is scanned however the index was built. `revision` is
-      # OGC's only optional component, so the ETSI idiom reduces to ignoring it
-      # when the reference omits it: that is how a bare `OGC 12-128` still finds
-      # the `r19` row. `year` is never ignorable — the bsearch key is the
+      # the whole index is scanned however the index was built. Selection is
+      # `Type#search`'s default with no block — pubid's asymmetric subset match
+      # (`Pubid::SubsetMatch`): the reference on the left, the row on the right,
+      # and a component it omits matches any
+      # value. `revision` is OGC's only optional component, so a
+      # bare `OGC 12-128` still finds the `r19` row, while `OGC 12-128r19`
+      # reaches only its own. `year` is always stated — the bsearch key is the
       # `<nnn>` field alone, so one bucket holds every year that reused the
       # number (`05-007` and `17-007` share bucket `007`).
       #
@@ -58,17 +61,8 @@ module Relaton
       # identifier. ecma, w3c and xsf never had one.
       def best_match(text)
         pubid = parse_ref text
-        rows = index.search(pubid) { |r| pubid.matches?(r[:id], ignore: ignored(pubid)) }
+        rows = index.search(pubid)
         rows.max_by { |r| [revision_key(r[:id].revision), r[:file]] }
-      end
-
-      # The components the reference left out, which the row may carry freely.
-      #
-      # @param pubid [Pubid::Ogc::Identifier]
-      # @return [Array<Symbol>]
-      #
-      def ignored(pubid)
-        pubid.revision.nil? ? %i[revision] : []
       end
 
       #

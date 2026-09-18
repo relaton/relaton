@@ -232,19 +232,21 @@ narrowing — also silently.
 
 **How a reference is matched.** `Bibliography#best_match` passes the parsed
 pubid to `Index::Type#search`, which is what enables the bsearch; a block alone
-scans everything. It then follows the ETSI idiom
-(`lib/relaton/etsi/bibliography.rb`) — ignore exactly what the reference omitted:
+scans everything. It then selects with pubid's asymmetric subset match
+(`Pubid::SubsetMatch`) — the reference on the left, a component it omits matches
+any value:
 
 ```ruby
-ignore = %i[date].select { |attr| pubid.public_send(attr).nil? }
-rows = index.search(pubid) { |r| pubid.matches?(r[:id], ignore: ignore) }
+rows = index.search(pubid) { |r| pubid === r[:id] }
 ```
 
-`date` is W3C's only optional component. The maturity level is **not**
-ignorable: it is the identifier's class, and `Pubid::Identifier#matches?`
-compares through `exclude` → `self.class.new(...)`, so `WD-`, `REC-` and a bare
-slug never match each other — the contract the bespoke `PubId#==` had for its
-`stage`/`type`. Newest edition wins, with the file path breaking ties because
+`date` is W3C's only optional component, so an undated `REC-xml-names` still
+finds the dated row and a dated reference reaches only its own. The maturity
+level is **not** a wildcard: it is the identifier's class, and `===` requires
+the same class, so `WD-`, `REC-` and a bare slug never match each other — the
+contract the bespoke `PubId#==` had for its `stage`/`type`. Measured over the
+whole fixture index (17,303 rows, 1,214,578 comparisons): the subset match and
+the old `matches?(…, ignore: [:date])` agree on every pair. Newest edition wins, with the file path breaking ties because
 undated rows all score 0 and the index sort is not stable.
 
 Two things the narrowing cannot do, both handled around it:

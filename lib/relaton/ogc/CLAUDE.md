@@ -83,9 +83,10 @@ every docidentifier (`item_data.rb:74`, `:87`), so `#to_all_parts` and
 not catch it. The mapping is OGC-specific:
 
 - **`remove_date!` → clears `revision`.** OGC carries no date component;
-  `revision` is its version discriminator — the same component
-  `HitCollection#ignored` treats as omittable — so clearing it yields the
-  version-agnostic ("most recent") reference: `12-128r19` → `12-128`.
+  `revision` is its version discriminator — the same component a reference may
+  omit, which `HitCollection#best_match` then treats as a wildcard — so clearing
+  it yields the version-agnostic ("most recent") reference: `12-128r19` →
+  `12-128`.
 - **`year` is never cleared.** It looks date-like but is half the document
   number (`12-128`), not a publication qualifier; dropping it would leave
   `-128`, which identifies nothing.
@@ -121,15 +122,20 @@ only: the delete never reads the index (see `lib/relaton/index/CLAUDE.md`).
   when the argument is not a `String`, so passing the reference text — which
   this flavor used to do — disables the binary search however the index was
   built. `pubid_class:` alone fixes nothing; both had to change together.
-- **Ignore what the reference omits.** `revision` is OGC's only optional
-  component, so a bare `OGC 12-128` finds the `r19` row through
-  `ignore: %i[revision]`.
-- **`year` is never ignorable.** The bsearch key is the `<nnn>` field alone, so
+- **Selection is pubid's asymmetric subset match** (`Pubid::SubsetMatch`):
+  `pubid === r[:id]`, the reference on the left. A component the reference omits
+  matches any value, so a bare `OGC 12-128` finds the `r19` row, while
+  `OGC 12-128r19` reaches only its own. `revision` is OGC's only optional
+  component. Measured over the whole fixture index (1,258 rows, 19,590
+  comparisons): the subset match and the old `matches?(…, ignore: [:revision])`
+  agree on every pair.
+- **`year` is always stated.** The bsearch key is the `<nnn>` field alone, so
   one bucket holds every year that reused the number — `05-015`, `08-015r2`,
   `26-015r1` all sit in bucket `015` (179 buckets, largest 20). `year` is what
   tells them apart.
-- **An unparseable reference still searches**, by the previous full-scan
-  substring match on `id.to_s`.
+- **An unparseable reference raises**, and the previous full-scan substring
+  match on `id.to_s` is gone with the rescue: it answered an ambiguous
+  reference with whichever row sorted first.
 
 #### Ordering: latest revision wins
 

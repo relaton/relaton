@@ -29,10 +29,14 @@ Namespace `Relaton::Jcgm`; require path `relaton/jcgm`. Retrieval flow:
    ::Pubid::Jcgm::Identifier)`. Because rows are stored as `Pubid::Jcgm`
    identifiers, the generated index carries the structured `_type:
    pubid:jcgm:{guide,gum-guide,amendment,meeting}` form (not BIPM's bespoke
-   `{group,type,number,year}` hash). Matching uses `pubid_match?`/`stem`: the
-   year-stripped stem plus an optional exact-year filter — guide editions
-   (`200:2008` vs `200:2012`) differ only by year and the latest is chosen via
-   `max_by(&:year)`; meetings differ by number, which stays in the stem.
+   `{group,type,number,year}` hash). Matching is `pubid_match?`: pubid's
+   asymmetric subset match (`query === row_id`, `Pubid::SubsetMatch`) plus an
+   optional exact-year filter for the `year` argument. Guide editions
+   (`200:2008` vs `200:2012`) differ only by year, so a year-less reference
+   reaches both and the latest is chosen via `max_by(&:year)`; meetings differ
+   by number, which the reference states. The document type is the identifier's
+   class, and `===` requires the same class, so a guide never answers for its
+   corrigendum.
 3. **Model** (`item.rb`, `ext.rb`, `doctype.rb`, `structured_identifier.rb`,
    `docidentifier.rb`, …) — the records are **BIPM-shaped** (meetings are
    `type: proceedings` / `ext.doctype: meeting-report`; guides are `type:

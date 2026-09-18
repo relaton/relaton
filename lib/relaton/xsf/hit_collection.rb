@@ -14,9 +14,10 @@ module Relaton
       # result beats a NoMethodError if some other caller constructs one.
       #
       # An XEP identifier is only a publisher and a number: no edition, no date,
-      # no part. So nothing is ignorable and `matches?` is a plain equality --
-      # which is the point. Ids are unique, one row per XEP, so there is no
-      # selection order to apply either.
+      # no part. So the reference states everything, and `Type#search`'s default
+      # subset match (`Pubid::SubsetMatch`) is a plain equality -- which is the
+      # point. Ids are unique, one row per XEP, so there is no selection order
+      # to apply either.
       #
       # @return [self]
       #
@@ -43,7 +44,7 @@ module Relaton
       def rows
         return [] unless ref
 
-        index.search(ref) { |row| ref.matches? row[:id] }
+        index.search(ref)
           .sort_by { |row| row[:id].to_s }
       end
     end

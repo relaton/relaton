@@ -38,21 +38,22 @@ module Relaton
         #
         # Passing the pubid to `Index::Type#search` is what enables the binary
         # search on `id.root.number` — with a block alone the whole index is
-        # scanned. `date` is W3C's only optional component, so the ETSI idiom
-        # (`lib/relaton/etsi/bibliography.rb`) reduces to ignoring it when the
-        # reference omits it, which is how an undated `REC-xml-names` still
-        # finds the dated row. The maturity level is deliberately NOT
-        # ignorable: it is the identifier's class, and `matches?` compares
-        # through `exclude` -> `self.class.new(...)`, so `WD-`, `REC-` and a
-        # bare slug never match each other — the same contract the bespoke
-        # `PubId#==` had for its `stage`/`type`.
+        # scanned. Selection is `Type#search`'s default with no block — pubid's
+        # asymmetric subset match (`Pubid::SubsetMatch`): the reference on the
+        # left, the row on the right, and a component it omits matches any
+        # value. `date`
+        # is W3C's only optional component, so an undated `REC-xml-names` still
+        # finds the dated row, while a dated reference reaches only its own.
+        # The maturity level is deliberately NOT a wildcard: it is the
+        # identifier's class, and `===` requires the same class, so `WD-`,
+        # `REC-` and a bare slug never match each other — the same contract the
+        # bespoke `PubId#==` had for its `stage`/`type`.
         #
         # @param pubid [Pubid::W3c::Identifier]
         # @return [Hash, nil]
         #
         def best_match(pubid)
-          ignore = %i[date].select { |attr| pubid.public_send(attr).nil? }
-          rows = index.search(pubid) { |r| pubid.matches?(r[:id], ignore: ignore) }
+          rows = index.search(pubid)
           rows = index.search { |r| loose_match? r[:id], pubid } if rows.empty?
 
           # Newest edition wins. Undated rows all score 0, so the file path

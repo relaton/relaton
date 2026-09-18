@@ -413,9 +413,9 @@ regex back.
   through `Relaton::W3c::Docidentifier#pubid` — W3C ids are named rather than
   numbered, so pubid #339 had to rename the slug attribute `code` -> `number`
   (no alias) before an index-v2 was possible at all. The consumer narrows with
-  `Pubid::Identifier#matches?`, ignoring only what the reference omitted (the
-  ETSI idiom); a URL and a leading `TR-` are normalized in the flavor, since
-  neither is an identifier. See `lib/relaton/w3c/CLAUDE.md`.
+  the subset match `pubid === row[:id]` (see **Matching a reference**); a URL
+  and a leading `TR-` are normalized in the flavor, since neither is an
+  identifier. See `lib/relaton/w3c/CLAUDE.md`.
   **3GPP** is the same shape at the largest scale in the gem — 88,464 rows,
   3,767 number buckets, largest 979 — so it is where the "`pubid_class:` alone
   fixes nothing" rule bites hardest: `Type#search_candidates` narrows only for a
@@ -521,6 +521,33 @@ regex back.
   amendment year — that lets a base reference match its own amendment's record.
   Ignore it only when the query itself names a supplement that carries no year.
   See `lib/relaton/cen/CLAUDE.md`.
+- **Matching a reference: `reference === row`, where a nil is a wildcard.**
+  pubid's `Pubid::SubsetMatch` gives every identifier an **asymmetric** `===`:
+  the reference is the receiver, and a component it leaves nil or empty matches
+  any value, while identical classes are required. That replaces computing an
+  `ignore:` list per flavor, because `===` reads the omission from the reference
+  itself. It is also **`Index::Type#search`'s default** when the call passes no
+  block, so OASIS, W3C, XSF, IALA and OGC just call `index.search(pubid)`; the
+  two callers that need exact equality — `Relaton::Ccsds::HitCollection#rows`
+  and `Relaton::Ietf::Scraper#fetch_doc` — pass `{ |r| r[:id] == id }` and say
+  why (see `lib/relaton/index/CLAUDE.md`). JCGM and CCSDS's crawler
+  (`Data::Fetcher#search_relations`/`#search_translations`) call `===` directly;
+  measured over their fixture indexes, 1.24 M comparisons agree with the old
+  `matches?(…, ignore: …)` on every pair.
+  Two flavor properties decide whether a site may switch:
+  - **A nil must mean "any value", not "this document has none".** ECMA `part`,
+    3GPP `suffix`/`parts`, CalConnect `series`, CEN stage, GOST `copublisher`,
+    Plateau `annex`, OIML `suffix`/`part` and CCSDS `language` (in
+    `HitCollection#rows`) read a nil as "none", so `===` would widen the match —
+    `ECMA-418` would answer with `ECMA-418-1`. They keep `matches?` until pubid
+    gains a per-attribute hook (`subset_attribute_match?`).
+  - **The site must not ignore a value the query states.** ISO (edition,
+    `all_parts`, default stage), IEC, ITU, BSI and JIS (the year — they need
+    every year for the "found other years" message) and BIPM (the default
+    `form`) ignore stated values on purpose, so `===` would narrow the match.
+    They keep `exclude`/`matches?`.
+  `#exclude` stays what it is: a way to build a copy without a component, for
+  rendering and for the mutators (`Docidentifier#remove_date!`, …).
 - **An unrecognized query reference raises.** A flavor parses the caller's
   reference with pubid and lets `Pubid::Errors::ParseError` (a
   `Parslet::ParseFailed`) propagate: relaton-cli rescues it and prints

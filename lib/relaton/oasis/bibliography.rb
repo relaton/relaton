@@ -64,6 +64,11 @@ module Relaton
         # only when the argument is not a `String`, so passing the reference
         # text would disable the binary search however the index was built.
         #
+        # Selection is `Type#search`'s default with no block — pubid's
+        # asymmetric subset match (`Pubid::SubsetMatch`): the reference on the
+        # left, and a component it omits (`version`, `stage`, `part`, `label`)
+        # matches any value, which is what `#ranking_key` then orders.
+        #
         # A reference pubid cannot parse finds nothing, and there is no
         # substring fallback. `#parse_ref` supplies the publisher token, so
         # after normalization the only unparseable inputs are a blank string
@@ -80,9 +85,7 @@ module Relaton
           pubid = parse_ref text
           return unless pubid
 
-          rows = index.search(pubid) do |row|
-            pubid.matches? row[:id], ignore: ignored(pubid)
-          end
+          rows = index.search(pubid)
           rows.max_by { |row| ranking_key pubid, row[:id] }
         end
 
@@ -118,11 +121,12 @@ module Relaton
         end
 
         #
-        # Ignore exactly what the reference left out (the ETSI/W3C/OGC idiom),
-        # so `OASIS STIX` reaches every STIX row while
-        # `OASIS STIX-v2.1-CS02` reaches only its own. `number` — the
-        # specification name — is never ignorable: it is the whole identity of
-        # an OASIS record and the key the index bsearches on.
+        # The components the reference left out, which the row may therefore
+        # carry freely. `#find_index_entry` no longer needs this list — pubid's
+        # `===` reads the omission from the reference itself — but
+        # `#ranking_key` still counts the components the caller did not ask for.
+        # `number` — the specification name — is never optional: it is the whole
+        # identity of an OASIS record and the key the index bsearches on.
         #
         # @param pubid [Pubid::Oasis::Identifier]
         # @return [Array<Symbol>]

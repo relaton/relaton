@@ -74,20 +74,40 @@ describe Relaton::W3c::Bibliography do
 
   # The point of index-v2: `Index::Type#search` binary-searches on
   # `id.root.number` when it is handed the pubid, instead of scanning all
-  # 17,303 rows. Asserted by counting the rows the block actually sees.
+  # 17,303 rows. Asserted by counting the candidates the bsearch returns --
+  # `#best_match` passes no block, so the rows it sees cannot be counted
+  # through one.
   it "narrows the index by number instead of scanning it" do
     index = Relaton::Index.find_or_create(:W3C, url: true)
-    seen = 0
-    allow(index).to receive(:search).and_wrap_original do |orig, *args, &blk|
-      orig.call(*args) { |r| seen += 1; blk.call(r) }
+    pubid = Pubid::W3c::Identifier.parse("W3C REC-xml-names-20091208")
+    candidates = index.send(:candidates_by_number, pubid)
+
+    expect(candidates.size).to be > 0
+    expect(candidates.size).to be < index.index.size / 100
+  end
+
+  # `#best_match` selects rows with pubid's asymmetric subset match: the
+  # reference on the left, the row on the right. `date` is W3C's only optional
+  # component, so an undated reference reaches the dated row and a dated one
+  # does not reach a row that states another date. The maturity level is the
+  # identifier's class, which `===` compares, so `WD-` never answers for `REC-`.
+  context "subset match" do
+    def id(ref) = Pubid::W3c::Identifier.parse(ref)
+
+    it "lets an undated reference reach a dated row" do
+      expect(id("W3C REC-xml-names") === id("W3C REC-xml-names-19990114"))
+        .to be true
     end
-    allow(described_class).to receive(:index).and_return(index)
 
-    described_class.send :best_match,
-                         Pubid::W3c::Identifier.parse("W3C REC-xml-names-20091208")
+    it "is not symmetric" do
+      expect(id("W3C REC-xml-names-19990114") === id("W3C REC-xml-names"))
+        .to be false
+    end
 
-    expect(seen).to be > 0
-    expect(seen).to be < index.index.size / 100
+    it "keeps the maturity levels apart" do
+      expect(id("W3C WD-xml-names") === id("W3C REC-xml-names-19990114"))
+        .to be false
+    end
   end
 
   # `PubId#==` compared its slug with `casecmp?`, but the bsearch key is

@@ -36,7 +36,7 @@ bin/console
 
 - **Pool** — Object pool that caches Type instances by document type (`:ISO`, `:IEC`, `:IHO`, etc.). Reuses existing indexes if parameters match, recreates if they change.
 
-- **Type** — Represents one index for a document type. Holds an array of `{id:, file:}` hashes. Provides `add_or_update`, `search` (string substring match or block), and `save`.
+- **Type** — Represents one index for a document type. Holds an array of `{id:, file:}` hashes. Provides `add_or_update`, `search` (subset match, string substring match, or block), and `save`.
 
 - **FileIO** — Handles reading/writing/downloading index files. Three modes based on `@url`: string URL (download and cache to `~/.relaton/{type}/`), `true` (read local file from `~/.relaton/{type}/`), `nil` (read from current directory). Uses class-level Mutex for thread-safe downloads. Validates index format on load.
 
@@ -51,6 +51,26 @@ bin/console
 3. FileIO either reads local YAML or downloads ZIP from URL, extracts, validates format
 4. Search matches against `:id` field (string comparison via `include?` or custom block)
 5. `save` writes index as YAML to local file
+
+### What `#search` matches without a block
+
+Search is narrow, then match. The **match** step, for two identifiers, is
+pubid's asymmetric subset match `id === item[:id]` (`Pubid::SubsetMatch`): the
+query is the reference, and a component it leaves nil or empty matches any
+value. That is what a search by reference means, so a flavor whose optional
+components are true wildcards passes **no block** — OASIS, W3C, XSF, IALA and
+OGC each call `index.search(pubid)`.
+
+A nil is a wildcard here, not "the document has none". A caller that needs
+**exact** equality says so with a block, `search(id) { |r| r[:id] == id }`, and
+two do:
+
+| caller | why |
+|---|---|
+| `Relaton::Ccsds::HitCollection#rows` (edition branch) | the omitted language would reach the translations — 345 such pairs in the index fixture |
+| `Relaton::Ietf::Scraper#fetch_doc` | a draft slug omits the version, so `draft-foo` would match every `draft-foo-NN` and `.first` would pick one — 20,513 such pairs in the first 40k fixture rows |
+
+A String query keeps the substring match it always had, in both directions.
 
 ### The narrowing key — one expression, six call sites
 

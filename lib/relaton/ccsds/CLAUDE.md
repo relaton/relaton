@@ -21,6 +21,23 @@ part-stripped id is the best available rendering. This mirrors
 duplicated per flavor for now (to be hoisted into `Bib::Docidentifier` once every
 flavor's id is Pubid-backed).
 
+**Translation relations use pubid's subset match.**
+`Data::Fetcher#search_relations` and `#search_translations` derive a
+language-less identifier from the document's own id and select index rows with
+`bibid_pid === row[:id]` (`Pubid::SubsetMatch`, the reference on the left). The
+language is the only component the derived id leaves out, so a translated row
+matches and another edition of the same number does not.
+`HitCollection#rows` keeps `exclude(:edition)` instead: a CCSDS reference that
+omits the language must **not** reach a translation, and a nil component is a
+wildcard for `===`.
+
+**Known gap, older than that swap:** `#search_relations` excludes the document's
+own row with `row[:id] == bib.docidentifier.first.content`, which compares a
+`Pubid::Ccsds::Identifier` with a `String` and is therefore always false. A
+re-crawl over an index that already holds the document can give it a relation to
+itself. The fix is to compare `row[:id].to_s`, or to parse the content once; it
+needs a regression example, because no spec yields the document's own row.
+
 ## Development
 
 - `bundle install` — install dependencies

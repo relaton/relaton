@@ -36,8 +36,13 @@ module Relaton
       # `match_item`'s `item[:id].to_s.include?(id)`, which renders every pubid in
       # the index on every lookup — measured at ~40 s per reference against the
       # 177k-row index, versus sub-millisecond for a parsed one.
+      # The block keeps the match **exact**. `Type#search` without one takes
+      # pubid's subset match, where a component the query omits is a wildcard —
+      # and an Internet-Draft slug omits the version, so `draft-foo` would match
+      # every `draft-foo-NN` and `.first` would return an arbitrary one (20,513
+      # such pairs in the first 40k rows of the index fixture).
       def fetch_doc(id)
-        row = index.search(id).first
+        row = index.search(id) { |r| r[:id] == id }.first
         get_page "#{IETF}#{row[:file]}" if row
       end
 

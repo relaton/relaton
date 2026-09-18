@@ -51,12 +51,16 @@ never reads the index (see `lib/relaton/index/CLAUDE.md`).
 - **Pass the pubid, not the string.** `Type#search_candidates` narrows only when
   the argument is not a `String`, so passing the reference text — which this
   flavor used to do — disables the binary search however the index was built.
-- **Ignore what the reference omits.** `edition` and `language` are IALA's only
-  optional components, so a bare `IALA M0001` finds the `Ed 9.0 (E)` row through
-  `matches?(row_id, ignore: %i[edition language])`.
-- **The document type is never ignorable.** It is the identifier's class, and 17
-  of the 309 index numbers are shared by two types (`R1001` and `C1001` are
-  different documents), so `matches?` must keep them apart.
+- **Selection is pubid's asymmetric subset match** (`Pubid::SubsetMatch`):
+  `pubid === r[:id]`, the reference on the left. A component the reference omits
+  matches any value, so a bare `IALA M0001` finds the `Ed 9.0 (E)` row, while
+  `IALA R0106 Ed 2.1 (F)` reaches only its own. `edition` and `language` are
+  IALA's only optional components.
+- **The document type is never a wildcard.** It is the identifier's class, and
+  `===` requires the same class. 17 of the 309 index numbers are shared by two
+  types (`R1001` and `C1001` are different documents), so they stay apart. An
+  `Annex` row carries its base identifier, which `===` compares with its own
+  subset match.
 - **Newest edition wins, deterministically.** Editions are dotted versions and
   must be compared segment-by-segment as integers: `"10.0"` is newer than
   `"9.0"` but loses as a string. No published edition has a segment above 9
@@ -64,9 +68,11 @@ never reads the index (see `lib/relaton/index/CLAUDE.md`).
   the edition text and then the file path, because the index sort is not stable.
   Among rows of one edition the language-neutral record wins: it is the base
   document, the others are translations.
-- **An unparseable reference still searches.** `parse_ref` returns nil rather
-  than raising, and the search falls back to the previous full-scan substring
-  match on `id.to_s`.
+- **An unparseable reference raises.** `parse_ref` lets
+  `Pubid::Errors::ParseError` propagate, and the full-scan substring fallback is
+  gone with it: a substring match answered an ambiguous reference with whichever
+  row sorted first, instead of telling the caller the reference is not an
+  identifier.
 
 `require "pubid"` sits in `lib/relaton/iala.rb` (the IANA/IHO form), so pubid
 loads with the flavor. `Processor#remove_index_file` names no pubid class, so the
