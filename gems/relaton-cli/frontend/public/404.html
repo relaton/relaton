@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Redirecting…</title>
+    <script>
+      // GitHub Pages has no URL rewrites, so path-based document URLs
+      // (/doc/<id>) land on this 404 fallback. Hand the id to the app as
+      // ?doc=<id>, preserving the site's base path wherever it is hosted.
+      (function () {
+        var m = location.pathname.match(/\/doc\/([^/?#]+)$/);
+        var root = m ? location.pathname.slice(0, m.index) : location.pathname.replace(/[^/]*$/, "");
+        location.replace(root + "?doc=" + (m ? m[1] : ""));
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>

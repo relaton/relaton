@@ -103,7 +103,7 @@ describe("DocumentDetail", () => {
     it("links a target that is in the dataset to its ?doc= page", () => {
       const w = mount(DocumentDetail, { props: { doc: rich, hasDoc } });
       const hrefs = w.findAll("a").map((a) => a.attributes("href"));
-      expect(hrefs).toContain("?doc=ISO+1234%3A2015");
+      expect(hrefs).toContain("/doc/ISO%201234%3A2015");
     });
 
     it("renders a target outside the dataset as plain text, not a link", () => {

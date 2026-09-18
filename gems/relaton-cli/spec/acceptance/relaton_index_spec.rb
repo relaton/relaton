@@ -17,7 +17,7 @@ RSpec.describe "Relaton index" do
   end
 
   it "generates a browsable index site from a data folder" do
-    Relaton::Cli.start(["index", data_dir, "-o", @out, "-t", "BIPM Index"])
+    Relaton::Cli.start(["index", data_dir, "-o", @out, "-t", "BIPM Index", "--no-machine-index"])
 
     index = File.join(@out, "index.html")
     expect(File).to exist(index)
@@ -34,8 +34,44 @@ RSpec.describe "Relaton index" do
     expect(records.first.keys).to contain_exactly("r", "c", "t", "s", "d", "u", "l")
   end
 
+  it "names the machine index from --pubid-flavor" do
+    Dir.mktmpdir("acc-pubid-") do |repo|
+      FileUtils.mkdir_p(File.join(repo, "data"))
+      File.write(File.join(repo, "data", "iso-1.yaml"),
+                 "---\ndocidentifier:\n- content: ISO 1234\n  primary: true\n")
+      Relaton::Cli.start(["index", File.join(repo, "data"), "-o", @out,
+                          "--pubid-flavor", "iso"])
+
+      manifest = JSON.parse(File.read(File.join(@out, "index", "manifest.json")))
+      expect(manifest).to include("index" => "index-v2", "key" => "root-number")
+      expect(File).to exist(File.join(@out, "index-v2.zip"))
+    end
+  end
+
+  it "lets --index-name override the derived index name" do
+    Dir.mktmpdir("acc-name-") do |repo|
+      FileUtils.mkdir_p(File.join(repo, "data"))
+      File.write(File.join(repo, "data", "iso-1.yaml"),
+                 "---\ndocidentifier:\n- content: ISO 1234\n  primary: true\n")
+      Relaton::Cli.start(["index", File.join(repo, "data"), "-o", @out,
+                          "--pubid-flavor", "iso", "--index-name", "index-v7"])
+
+      expect(File).to exist(File.join(@out, "index-v7.yaml"))
+    end
+  end
+
+  # Every data repo publishes a pubid index, so a machine index with no parser
+  # would be a plain-string file no consumer narrows on. Raising beats writing
+  # one: an unattended deploy that quietly published it would look green.
+  it "fails when a machine index is asked for with no pubid flavor" do
+    expect { Relaton::Cli.start(["index", data_dir, "-o", @out]) }
+      .to raise_error(ArgumentError, /pubid-flavor is required/)
+
+    expect(File).not_to exist(File.join(@out, "index.html"))
+  end
+
   it "honours --shard-size by splitting the corpus across shards" do
-    Relaton::Cli.start(["index", data_dir, "-o", @out, "--shard-size", "1"])
+    Relaton::Cli.start(["index", data_dir, "-o", @out, "--shard-size", "1", "--no-machine-index"])
 
     expect(shard_files.map { |f| File.basename(f) })
       .to eq(%w[search-0000.json search-0001.json])
@@ -43,14 +79,14 @@ RSpec.describe "Relaton index" do
   end
 
   it "honours --no-detail" do
-    Relaton::Cli.start(["index", data_dir, "-o", @out, "--no-detail"])
+    Relaton::Cli.start(["index", data_dir, "-o", @out, "--no-detail", "--no-machine-index"])
 
     expect(shard_files("detail")).to be_empty
     expect(File.read(File.join(@out, "index.html"))).to include('data-detail-shards="0"')
   end
 
   it "honours --description and --favicon" do
-    Relaton::Cli.start(["index", data_dir, "-o", @out,
+    Relaton::Cli.start(["index", data_dir, "-o", @out, "--no-machine-index",
                         "--description", "The BIPM standards index.",
                         "--favicon", "https://www.bipm.org/favicon.svg"])
 
@@ -63,7 +99,7 @@ RSpec.describe "Relaton index" do
   end
 
   it "omits the description and favicon tags when the flags are absent" do
-    Relaton::Cli.start(["index", data_dir, "-o", @out])
+    Relaton::Cli.start(["index", data_dir, "-o", @out, "--no-machine-index"])
 
     html = File.read(File.join(@out, "index.html"))
     expect(html).not_to include('name="description"')
@@ -90,7 +126,7 @@ RSpec.describe "Relaton index" do
     end
 
     it "includes the static/ docs in the generated site by default" do
-      Relaton::Cli.start(["index", data_dir, "-o", @out])
+      Relaton::Cli.start(["index", data_dir, "-o", @out, "--no-machine-index"])
 
       ids = records.map { |r| r["r"] }
       expect(ids).to include("NIST Research Library (2022)")
@@ -98,7 +134,7 @@ RSpec.describe "Relaton index" do
     end
 
     it "omits the static/ docs with --no-static" do
-      Relaton::Cli.start(["index", data_dir, "-o", @out, "--no-static"])
+      Relaton::Cli.start(["index", data_dir, "-o", @out, "--no-static", "--no-machine-index"])
 
       expect(records.map { |r| r["r"] }).not_to include("NIST Research Library (2022)")
     end

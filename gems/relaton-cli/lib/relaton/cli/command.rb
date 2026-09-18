@@ -173,6 +173,21 @@ module Relaton
                       desc: "Also index a sibling static/ folder next to DATA-DIR (auto-detected); --no-static disables"
       option :overwrite, aliases: :f, type: :boolean, default: true,
                          desc: "Overwrite existing output files"
+      option :"publish-data", type: :boolean, default: false,
+                              desc: "Copy the corpus onto the site so document fetches " \
+                                    "share the Pages origin (for repos whose data is " \
+                                    "served only from there); --no-publish-data disables"
+      option :"pubid-flavor",
+             desc: "Flavor whose pubid Identifier parses docids and whose INDEXFILE " \
+                   "names the published index (e.g. iso, iho, iec). Required unless " \
+                   "--no-machine-index"
+      option :"machine-index", type: :boolean, default: true,
+                               desc: "Emit the machine-consumable index (index/manifest.json, " \
+                                     "index/shard-NNNNN.json and the index-vN monolith); " \
+                                     "--no-machine-index builds the human site only"
+      option :"index-name",
+             desc: "Base name for the published index, overriding the flavor's " \
+                   "INDEXFILE (e.g. index-v2). For a corpus that is not a relaton flavor"
 
       def index(data_dir = nil)
         with_index_source(data_dir) do |dir, default_base_url, default_title|
@@ -188,6 +203,10 @@ module Relaton
             base_url: options[:"base-url"] || default_base_url,
             static: options[:static],
             overwrite: options[:overwrite],
+            publish_data: options[:"publish-data"],
+            flavor: options[:"pubid-flavor"],
+            machine_index: options[:"machine-index"],
+            index_name: options[:"index-name"],
           )
         end
       end

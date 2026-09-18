@@ -48,7 +48,17 @@ export function writePageToUrl(
  * same `URLSearchParams` encoding as `writeDocToUrl`, so the two agree exactly.
  */
 export function docHref(id: string): string {
-  return `?${new URLSearchParams({ [DOC_PARAM]: id }).toString()}`;
+  return `${docPathBase()}/doc/${encodeURIComponent(id)}`;
+}
+
+// The app root (site base path) for path-based doc URLs: whatever precedes a
+// trailing `/doc/<id>` segment on the current pathname, or the full pathname
+// when none (the list view at `/` or `/index.html`).
+function docPathBase(): string {
+  const p = window.location.pathname;
+  const cut = p.lastIndexOf("/doc/");
+  const base = cut >= 0 ? p.slice(0, cut) : p.replace(/\/index\.html$/, "");
+  return base === "/" ? "" : base.replace(/\/+$/, "");
 }
 
 /**
@@ -59,6 +69,15 @@ export function docHref(id: string): string {
 export function readDocFromUrl(
   search: string = typeof window !== "undefined" ? window.location.search : "",
 ): string | null {
+  if (search === (typeof window !== "undefined" ? window.location.search : "")) {
+    // Path-based URLs first: `/doc/<id>` served via the 404 fallback (GitHub
+    // Pages has no rewrites) or written by writeDocToUrl below.
+    const m = window.location.pathname.match(/\/doc\/([^/?#]+)$/);
+    if (m) {
+      const fromPath = decodeURIComponent(m[1]);
+      if (fromPath.trim() !== "") return fromPath;
+    }
+  }
   const raw = new URLSearchParams(search).get(DOC_PARAM);
   return raw && raw.trim() !== "" ? raw : null;
 }
@@ -75,9 +94,18 @@ export function writeDocToUrl(
 ): void {
   if (typeof window === "undefined" || !window.history) return;
   const url = new URL(window.location.href);
-  if (!id) url.searchParams.delete(DOC_PARAM);
-  else url.searchParams.set(DOC_PARAM, id);
-  const target = `${url.pathname}${url.search}${url.hash}`;
+  if (id) {
+    // Canonical per-document URLs are path-based (`<root>/doc/<id>`) so each
+    // document has a shareable address; `?doc=` remains readable for links
+    // written before paths existed and by the 404 fallback redirect.
+    const base = docPathBase();
+    const target = `${base}/doc/${encodeURIComponent(id)}${url.search && url.searchParams.has(PARAM) ? `?${url.searchParams}` : ""}${url.hash}`;
+    if (mode === "push") window.history.pushState(window.history.state, "", target);
+    else window.history.replaceState(window.history.state, "", target);
+    return;
+  }
+  url.searchParams.delete(DOC_PARAM);
+  const target = `${docPathBase()}/${url.search}${url.hash}`;
   if (mode === "push") window.history.pushState(window.history.state, "", target);
   else window.history.replaceState(window.history.state, "", target);
 }
