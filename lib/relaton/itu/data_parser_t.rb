@@ -45,6 +45,7 @@ module Relaton
 
         enr = enrichment(row, agent, cache)
         date = fetch_date(row, errors)
+        row_source = fetch_source(row, errors)
         Relaton::Itu::ItemData.new(
           docidentifier: docid + enr.fetch(:iso, []),
           title: fetch_title(row, errors),
@@ -56,7 +57,7 @@ module Relaton
           contributor: enr.fetch(:contributor, []),
           copyright: fetch_copyright(date),
           place: [Relaton::Bib::Place.new(city: "Geneva")],
-          source: fetch_source(row, errors), script: ["Latn"],
+          source: enr[:source] || row_source, script: ["Latn"],
           type: "standard",
           ext: Relaton::Itu::Ext.new(doctype: fetch_doctype(row, errors), flavor: "itu"),
         )
@@ -73,7 +74,10 @@ module Relaton
       #   family-invariant endpoints are fetched once per recommendation rather
       #   than once per edition. Like `errors`, it is threaded through as a
       #   parameter rather than held as state — DataParserT is `extend self`.
-      # @return [Hash] { iso:, abstract:, status:, contributor: }
+      #   The source is the handle URI and the PDF URI, as on the live path. It
+      #   is nil when the header has no handle_id, so the row source is used.
+      # @return [Hash] { iso:, abstract:, status:, edition:, relation:,
+      #   contributor:, source: }
       def enrichment(row, agent, cache = NullCache.instance)
         return {} unless agent && row["idrec"]
 
@@ -86,6 +90,7 @@ module Relaton
           edition: (Relaton::Bib::Edition.new(content: ed) if ed),
           relation: f.fetch_relations,
           contributor: [f.publisher("ITU"), f.editorial_group("T")].compact,
+          source: (f.fetch_source if f.doc["handle_id"]),
         }
       rescue StandardError => e
         Util.warn "ITU-T enrichment failed for idrec=#{row['idrec']}: #{e.message}"
