@@ -31,6 +31,19 @@ describe Relaton::Ccsds::HitCollection do
       expect(subject[0].hit[:code]).to eq(Pubid::Ccsds::Identifier.parse(id))
     end
 
+    context "when the index holds a historical and a translated sibling" do
+      let(:index_rows) do
+        { "CCSDS 101.0-B-4": "data/CCSDS-101.0-B-4.xml",
+          "CCSDS 101.0-B-4-S": "data/CCSDS-101.0-B-4-S.xml",
+          "CCSDS 101.0-B-4 - French Translated": "data/CCSDS-101.0-B-4-French.xml" }
+      end
+      let(:id) { "CCSDS 101.0-B-4" }
+
+      it "returns only the exact identifier" do
+        expect(subject.map { _1.hit[:code] }.map(&:to_s)).to eq ["CCSDS 101.0-B-4"]
+      end
+    end
+
     context "when reference without edition" do
       let(:match_identifiers) { ["CCSDS 103.0-B-1", "CCSDS 103.0-B-2"] }
       let(:id) { "CCSDS 103.0-B" }

@@ -52,7 +52,7 @@ bin/console
 4. Search matches against `:id` field (string comparison via `include?` or custom block)
 5. `save` writes index as YAML to local file
 
-### What `#search` matches without a block
+### What `#search` matches by default
 
 Search is narrow, then match. The **match** step, for two identifiers, is
 pubid's asymmetric subset match `id === item[:id]` (`Pubid::SubsetMatch`): the
@@ -62,15 +62,19 @@ components are true wildcards passes **no block** — OASIS, W3C, XSF, IALA and
 OGC each call `index.search(pubid)`.
 
 A nil is a wildcard here, not "the document has none". A caller that needs
-**exact** equality says so with a block, `search(id) { |r| r[:id] == id }`, and
-two do:
+**exact** equality says so with `search(id, exact: true)`, which selects the
+rows with `item[:id] == id`. The binary-search narrowing still runs first. Two
+callers do:
 
 | caller | why |
 |---|---|
-| `Relaton::Ccsds::HitCollection#rows` (edition branch) | the omitted language would reach the translations — 345 such pairs in the index fixture |
+| `Relaton::Ccsds::HitCollection#rows` (edition branch) | pubid's CCSDS `suffix` is a wildcard, so `CCSDS 101.0-B-4` would also reach the historical `101.0-B-4-S` — 260 such pairs in the index fixture. (The omitted language reached the translations too, until pubid#408 made `language` `subset_strict`.) |
 | `Relaton::Ietf::Scraper#fetch_doc` | a draft slug omits the version, so `draft-foo` would match every `draft-foo-NN` and `.first` would pick one — 20,513 such pairs in the first 40k fixture rows |
 
-A String query keeps the substring match it always had, in both directions.
+A String query keeps the substring match it always had, in both directions;
+with `exact: true` it is compared with `==`. A block is a custom predicate for
+any other rule, and `search` raises `ArgumentError` if it gets both a block and
+`exact: true`.
 
 ### The narrowing key — one expression, six call sites
 
