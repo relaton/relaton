@@ -34,12 +34,14 @@ the `$`-anchored `TRRGX` missed it; `exclude(:language)` strips the language dow
 the whole base chain. `TRRGX` still serves `translation_relation_types` and
 `DataParser#relation_type`, which match raw relation-id strings.
 `#search_relations` and `#search_translations` receive that pubid and select
-index rows with `bibid_pid === row[:id]` (`Pubid::SubsetMatch`, the reference on
-the left). The language is the only component the derived id leaves out, so a
-translated row matches and another edition of the same number does not.
-`HitCollection#rows` keeps `exclude(:edition)` instead: a CCSDS reference that
-omits the language must **not** reach a translation, and a nil component is a
-wildcard for `===`.
+index rows with `row[:id].exclude(:language) == bibid_pid` — a
+language-agnostic match, so a translated row and the instance both match while
+another edition of the same number does not. This does **not** use `===`:
+pubid declares CCSDS `language` `subset_strict`, so a nil reference language
+means "has none" (a wildcard would be wrong for `HitCollection`, where a
+language-less user reference must not reach a translation). `exclude(:language)`
+drops the language from the row on both sides, mirroring
+`HitCollection#rows` (`r[:id].exclude(:edition) == pubid`).
 
 `#search_relations` excludes the document's own row with
 `row[:id] == bib.docidentifier.first.pubid` — pubid to pubid. It compared a
