@@ -22,7 +22,7 @@ module Relaton
       end
 
       def fetch # rubocop:disable Metrics/MethodLength
-        @doc = @agent.get(@url).at "//div[@id='main']/section"
+        @doc = @agent.get(@url).at_xpath "//div[@id='main']/section"
         contributors = fetch_contributor
         eg_contributor = fetch_editorialgroup_contributor
         contributors << eg_contributor if eg_contributor
@@ -33,7 +33,7 @@ module Relaton
 
       def fetch_title
         result = { "ja" => "Jpan", "en" => "Latn" }.map.with_index do |(lang, script), i|
-          content = @doc.at("./h2/text()[#{i + 2}]").text.strip
+          content = @doc.at_xpath("./h2/text()[#{i + 2}]").text.strip
           Bib::Title.new content: content, language: lang, script: script
         end
         @errors[:title] &&= result.empty?
@@ -84,12 +84,12 @@ module Relaton
       end
 
       def document_id
-        @document_id ||= @doc.at("./h2/text()[1]")&.text&.strip
+        @document_id ||= @doc.at_xpath("./h2/text()[1]")&.text&.strip
       end
 
       def fetch_date
         result = DATETYPES.each_with_object([]) do |(key, type), a|
-          node = @doc.at("./div/div/div/p/text()[contains(.,'#{key}')]")
+          node = @doc.at_xpath("./div/div/div/p/text()[contains(.,'#{key}')]")
           next unless node
 
           at = node.text.match(/\d{4}-\d{2}-\d{2}/).to_s
@@ -116,7 +116,7 @@ module Relaton
       def langs_scripts # rubocop:disable Metrics/MethodLength
         @langs_scripts ||= begin
           result = LANGS.each_with_object([]) do |(key, lang), a|
-            l = @doc.at(
+            l = @doc.at_xpath(
               "./div/div/div[@class='blockContentFile']/div/div/p[1]" \
               "/span[contains(.,'#{key}')]/following-sibling::span",
             )
@@ -132,7 +132,7 @@ module Relaton
       def fetch_status
         xpath = "./div/div/div/p/text()[contains(.,'状態')]" \
                 "/following-sibling::span"
-        st = @doc.at(xpath)
+        st = @doc.at_xpath(xpath)
         status_val = STATUSES[st&.text&.strip]
         @errors[:status] &&= status_val.nil?
         return unless status_val
@@ -155,7 +155,7 @@ module Relaton
       end
 
       def fetch_ics
-        td = @doc.at("./table/tr[th[.='ICS']]/td")
+        td = @doc.at_xpath("./table/tr[th[.='ICS']]/td")
         @errors[:ics] &&= td.nil?
         return [] unless td
 
@@ -194,7 +194,7 @@ module Relaton
       end
 
       def fetch_editorialgroup_contributor # rubocop:disable Metrics/MethodLength
-        node = @doc.at("./table/tr[th[.='原案作成団体']]/td")
+        node = @doc.at_xpath("./table/tr[th[.='原案作成団体']]/td")
         @errors[:editorialgroup] &&= node.nil?
         return unless node
 

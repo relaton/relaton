@@ -19,9 +19,9 @@ module Relaton::Bipm
       #
       def self.parse(dir)
         affiliations = Dir["#{dir}/*.xml"].each_with_object([]) do |path, m|
-          doc = Nokogiri::XML(File.read(path, encoding: "UTF-8"))
+          doc = Moxml.parse(File.read(path, encoding: "UTF-8"))
           doc.xpath("//aff").each do |aff|
-            m << parse_affiliation(aff) if aff.at("institution")
+            m << parse_affiliation(aff) if aff.at_xpath("institution")
           end
         end.uniq { |a| a.organization.name.first.content }
         new affiliations
@@ -31,18 +31,18 @@ module Relaton::Bipm
       # Parse affiliation organization
       # https://github.com/relaton/relaton-data-bipm/issues/17#issuecomment-1367035444
       #
-      # @param [Nokogiri::XML::Element] aff
+      # @param [Moxml::Element] aff
       #
       # @return [Relaton::Bib::Affiliation] Organization name, country, division, street address
       #
       def self.parse_affiliation(aff)
-        text = aff.at("text()").text
+        text = aff.at_xpath("text()").text
         return if text.include? "Permanent address:" || text.include?("1005 Southover Lane") ||
           text == "Germany" || text.starts_with?("Guest") || text.starts_with?("Deceased") ||
           text.include?("Author to whom any correspondence should be addressed")
 
         args = {}
-        institution = aff.at('institution')
+        institution = aff.at_xpath('institution')
         if institution
           name = institution.text
           return if name == "1005 Southover Lane"
@@ -72,7 +72,7 @@ module Relaton::Bipm
         address = []
         addr = aff.xpath("text()[preceding-sibling::institution]").text.gsub(/^\W*|\W*$/, "")
         address << addr unless addr.empty?
-        country = aff.at('country')
+        country = aff.at_xpath('country')
         address << country.text if country && !country.text.empty?
         address = address.join(", ")
         return [] if address.empty?

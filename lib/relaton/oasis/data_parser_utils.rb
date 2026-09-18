@@ -83,7 +83,7 @@ module Relaton
       # @param [#get] agent HTTP client responding to #get(url)
       # @param [Integer] retries number of retries
       #
-      # @return [Nokogiri::HTML::Document, Mechanize::Page, nil] page or nil
+      # @return [Moxml::Document, Mechanize::Page, nil] page or nil
       #
       def retry_page(url, agent, retries = 3)
         sleep 1 # to avoid 429 error
@@ -156,7 +156,7 @@ module Relaton
         href = email[:href]
         if href.start_with?("mailto:")
           [href.split(":")[1]]
-        elsif (cf_email = email.at(".//span[@data-cfemail]"))
+        elsif (cf_email = email.at_xpath(".//span[@data-cfemail]"))
           decoded = decode_cf_email(cf_email["data-cfemail"])
           return [] if decoded.empty?
 

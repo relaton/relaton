@@ -80,13 +80,14 @@ Gem::Specification.new do |spec|
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "mini_portile2", "~> 2.8.0"
   spec.add_dependency "niso-jats", "~> 0.3.4"
-  spec.add_dependency "nokogiri", ">= 1.16"
+  spec.add_dependency "moxml", ">= 0.5"
+  spec.add_dependency "leptris", ">= 1.9.80"
   spec.add_dependency "parallel", "~> 1.26"
   spec.add_dependency "parslet", "~> 2.0.0"
-  spec.add_dependency "psych", "~> 5.2.0"
+  spec.add_dependency "yeptris", ">= 0.4"
   spec.add_dependency "pubid", "~> 2.0.0.alpha.10"
   spec.add_dependency "rfcxml", "~> 0.4.3"
-  spec.add_dependency "rubyzip", "~> 2.3.0"
+  spec.add_dependency "rubyzip", "~> 3.4"
   # 0.3.3 is the floor, not a preference: it sets an identifying User-Agent
   # (a bare Faraday one trips Cloudflare's bot heuristics on api.w3.org) and
   # makes its 403 retry actually fire. See lib/relaton/w3c/CLAUDE.md.

@@ -5,7 +5,7 @@ module Relaton
 
       ATTRS = %i[docidentifier title date source ext].freeze
 
-      # @param [Nokogiri::XML::Element] hit document hit
+      # @param [Moxml::Element] hit document hit
       # @param [Hash] errors error tracking hash
       def initialize(hit:, errors: {})
         @hit = hit
@@ -23,7 +23,7 @@ module Relaton
 
       # @return [Array<Relaton::Ecma::Docidentifier>]
       def fetch_docidentifier
-        code = "ECMA MEM/#{@hit.at('div[1]//p').text}"
+        code = "ECMA MEM/#{@hit.at_xpath('div[1]//p').text}"
         docid = super(code)
         @errors[:memento_docidentifier] &&= docid.empty?
         docid
@@ -31,7 +31,7 @@ module Relaton
 
       # @return [Array<Relaton::Bib::Title>]
       def fetch_title
-        year = @hit.at("div[1]//p").text
+        year = @hit.at_xpath("div[1]//p").text
         content = "\"Memento #{year}\" for year #{year}"
         result = [Bib::Title.new(content: content, language: "en", script: "Latn")]
         @errors[:memento_title] &&= result.empty?
@@ -40,7 +40,7 @@ module Relaton
 
       # @return [Array<Relaton::Bib::Date>]
       def fetch_date
-        date = @hit.at("div[2]//p").text
+        date = @hit.at_xpath("div[2]//p").text
         on = Date.strptime(date, "%B %Y").strftime "%Y-%m"
         result = [Bib::Date.new(type: "published", at: on)]
         @errors[:memento_date] &&= result.empty?

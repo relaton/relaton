@@ -294,7 +294,7 @@ module Relaton
         result = begin
           uri = URI "#{DOMAIN}/webstore/webstore.nsf/AjaxRequestXML?Openagent&url=#{urn_id}"
           resp = Net::HTTP.get_response uri
-          doc = Nokogiri::XML resp.body
+          doc = Moxml.parse resp.body
           create_relations doc
         rescue StandardError => e
           try += 1
@@ -307,20 +307,20 @@ module Relaton
       #
       # Create relations.
       #
-      # @param [Nokogiri::XML::Document] doc XML document
+      # @param [Moxml::Document] doc XML document
       #
       # @return [Array<Relaton::Bib::Relation>] relations
       #
       def create_relations(doc) # rubocop:disable Metrics/MethodLength
         doc.xpath('//ROW[STATUS[.!="PREPARING" and .!="PUBLISHED"]]')
           .map do |r|
-          r_type = r.at("STATUS").text.downcase
+          r_type = r.at_xpath("STATUS").text.downcase
           type = case r_type
                 when "revised", "replaced" then "updates"
                 when "withdrawn" then "obsoletes"
                 else r_type
                 end
-          ref = r.at("FULL_NAME").text
+          ref = r.at_xpath("FULL_NAME").text
           docid = Docidentifier.new(content: ref, type: "IEC", primary: true)
           bibitem = ItemData.new(formattedref: Bib::Formattedref.new(content: ref), docidentifier: [docid])
           Relation.new type: type, bibitem: bibitem

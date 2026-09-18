@@ -121,11 +121,12 @@ module Relaton
         bibid_pid = ::Pubid::Ccsds::Identifier.parse(bibid)
         # search(bibid_pid) narrows candidates by number via binary search first.
         index.search(bibid_pid) do |row|
-          # The reference on the left: `bibid_pid` states no language, so a
-          # translated row matches too (pubid's `===`, see `SubsetMatch`).
+          # pubid's `===` treats a nil `language` as "the original, not a
+          # translation" (subset_strict), so the language aspect is excluded
+          # explicitly; the row's own language decides instance vs translation.
           # TODO: the second test compares a Pubid with a String, so it never
           # excludes the document's own row.
-          next unless bibid_pid === row[:id]
+          next unless bibid_pid.matches?(row[:id], ignore: [:language])
           next if row[:id] == bib.docidentifier.first.content
 
           create_relations bib, row[:file]
@@ -138,8 +139,10 @@ module Relaton
         # there are same identifiers in index but with word "Translated"
         # search(bibid_pid) narrows candidates by number via binary search first.
         index.search(bibid_pid) do |row|
-          # `bibid_pid` states no language, so `===` accepts a translated row.
-          next unless row[:id].language && bibid_pid === row[:id]
+          # Only a translated row qualifies, matched with the language aspect
+          # excluded (`===` alone would reject it: the reference is English).
+          next unless row[:id].language &&
+                       bibid_pid.matches?(row[:id], ignore: [:language])
 
           create_instance_relation bib, row[:file]
         end

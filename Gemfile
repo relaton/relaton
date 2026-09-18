@@ -2,6 +2,8 @@
 
 source "https://rubygems.org"
 
+git_source(:github) { |repo| "https://github.com/#{repo}" }
+
 gemspec
 
 # TEMP PIN: the `jcgm`, `bipm`, `etsi`, `cie`, `itu`, `ieee`, `iana` and `ietf`

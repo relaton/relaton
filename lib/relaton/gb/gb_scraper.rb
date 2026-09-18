@@ -1,7 +1,7 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
-require "nokogiri"
+require "moxml"
 require_relative "scraper"
 
 module Relaton
@@ -20,10 +20,10 @@ module Relaton
           hits = doc.xpath(
             "//table[contains(@class, 'result_list')]/tbody[2]/tr",
           ).map do |h|
-            ref = h.at "./td[2]/a"
+            ref = h.at_xpath "./td[2]/a"
             pid = ref[:onclick].match(/[0-9A-F]+/).to_s
-            status = h.at("./td[7]").text.strip
-            rdate = h.at("./td[8]").text.strip
+            status = h.at_xpath("./td[7]").text.strip
+            rdate = h.at_xpath("./td[8]").text.strip
             Hit.new pid: pid, docref: ref.text, scraper: self,
                     release_date: rdate, status: status
           end
@@ -52,7 +52,7 @@ module Relaton
         #   * :type [String]
         #   * :name [String]
         # def get_committee(doc, _ref)
-        #   name = doc.at("//div[contains(., '归口单位') or contains(., '归口部门')]/following-sibling::div")
+        #   name = doc.at_xpath("//div[contains(., '归口单位') or contains(., '归口部门')]/following-sibling::div")
         #   Committee.new(type: "technical", content: name.text.delete("\r\n\t\t"))
         # end
       end

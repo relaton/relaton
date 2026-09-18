@@ -6,7 +6,7 @@ module Relaton
       #
       # Initialize parser
       #
-      # @param [Nokogiri::XML::Element] hit document hit
+      # @param [Moxml::Element] hit document hit
       # @param [Hash] errors error tracking hash
       #
       def initialize(hit, errors = {})

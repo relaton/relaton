@@ -332,7 +332,7 @@ module Relaton
       #
       # Get RFC index
       #
-      # @return [Nokogiri::XML::Document] RFC index
+      # @return [Moxml::Document] RFC index
       #
       def rfc_index
         uri = URI "https://www.rfc-editor.org/rfc-index.xml"

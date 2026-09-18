@@ -21,7 +21,7 @@ describe Relaton::Oasis::DataPartParser do
         </div>
       </details>
     EOHTML
-    doc.at("//p")
+    doc.at_xpath("//p")
   end
 
   subject { described_class.new(node) }
@@ -49,7 +49,7 @@ describe Relaton::Oasis::DataPartParser do
           </div>
         </details>
       EOHTML
-      doc.at("//p")
+      doc.at_xpath("//p")
     end
 
     before { allow(subject).to receive(:page).and_return(nil) }
@@ -97,7 +97,7 @@ describe Relaton::Oasis::DataPartParser do
           </div>
         </details>
       EOHTML
-      doc.at("//p")
+      doc.at_xpath("//p")
     end
 
     subject { described_class.new(part_node, errors) }
@@ -250,7 +250,7 @@ describe Relaton::Oasis::DataPartParser do
           </div>
         </details>
       EOHTML
-      doc.at("//p")
+      doc.at_xpath("//p")
     end
 
     it "falls back to text when no title element and regex doesn't match" do

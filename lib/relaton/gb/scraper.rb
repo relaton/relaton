@@ -15,7 +15,7 @@ module Relaton
 
       @prefixes = nil
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @param src [String]
       # @param hit [RelatonGb::Hit]
       # @return [Hash]
@@ -41,7 +41,7 @@ module Relaton
         [Docidentifier.new(content: docref, type: "Chinese Standard", primary: true)]
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @param docref [Strings]
       # @return [Array<Relaton::Bib::Contributor>]
       def get_contributors(doc, docref)
@@ -68,22 +68,22 @@ module Relaton
         Bib::TypedLocalizedString.new language: lang, content: content
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @return [Array<Relaton::Bib::Title>]
       def get_titles(doc)
-        tzh = doc.at("//td[contains(text(), '中文标准名称')]/b").text
+        tzh = doc.at_xpath("//td[contains(text(), '中文标准名称')]/b").text
         titles = Relaton::Bib::Title.from_string tzh, "zh", "Hans"
-        ten = doc.at("//td[contains(text(), '英文标准名称')]").text.match(/[\w\s]+/).to_s
+        ten = doc.at_xpath("//td[contains(text(), '英文标准名称')]").text.match(/[\w\s]+/).to_s
         return titles if ten.empty?
 
         titles + Relaton::Bib::Title.from_string(ten, "en", "Latn")
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @param status [String, NilClass]
       # @return [Relaton::Bib::Status]
       def get_status(doc, status = nil)
-        status ||= doc.at("//td[contains(., '标准状态')]/span")&.text&.strip
+        status ||= doc.at_xpath("//td[contains(., '标准状态')]/span")&.text&.strip
         return unless STAGES[status]
 
         stage = Bib::Status::Stage.new content: STAGES[status]
@@ -92,17 +92,17 @@ module Relaton
 
       private
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @return [Array<String>]
       def get_ccs(doc)
-        code = doc.at("//div[contains(text(), '中国标准分类号')]/following-sibling::div").text.strip
+        code = doc.at_xpath("//div[contains(text(), '中国标准分类号')]/following-sibling::div").text.strip
         [CCS.new(code: code)]
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @return [Array<Relaton::Bib::ICS>]
       def get_ics(doc)
-        ics = doc.at("//div[contains(text(), '国际标准分类号')]/following-sibling::div"\
+        ics = doc.at_xpath("//div[contains(text(), '国际标准分类号')]/following-sibling::div"\
                     " | //dt[contains(text(), '国际标准分类号')]/following-sibling::dd")
         return [] unless ics
 
@@ -110,10 +110,10 @@ module Relaton
         [Bib::ICS.new(code: code)]
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @return [String]
       def get_scope(doc)
-        issued = doc.at("//div[contains(., '发布单位')]/following-sibling::div")
+        issued = doc.at_xpath("//div[contains(., '发布单位')]/following-sibling::div")
         case issued&.text
         when /国家标准/ then "national"
         when /^行业标准/ then "sector"
@@ -148,12 +148,12 @@ module Relaton
         (Bib::Uri.new(type: "src", content: src))
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @return [Array<Hash>]
       #   * :type [String] type of date
       #   * :on [String] date
       def get_dates(doc)
-        date = doc.at("//div[contains(text(), '发布日期')]/following-sibling::div"\
+        date = doc.at_xpath("//div[contains(text(), '发布日期')]/following-sibling::div"\
                       " | //dt[contains(text(), '发布日期')]/following-sibling::dd")
         [Bib::Date.new(type: "published", at: date.text.delete("\r\n\t\t"))]
       end
@@ -175,7 +175,7 @@ module Relaton
         Doctype.new content: "standard"
       end
 
-      # @param doc [Nokogiri::HTML::Document]
+      # @param doc [Moxml::Document]
       # @param ref [String]
       # @return [Relaton::Gb::GbType]
       def get_gbtype(doc, ref)

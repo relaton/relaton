@@ -4,7 +4,7 @@ module Relaton
       #
       # Document parser initalization
       #
-      # @param [Nokogiri::XML::Element] xml
+      # @param [Moxml::Element] xml
       #
       def initialize(xml, rootdoc, errors = {})
         @xml = xml
@@ -15,7 +15,7 @@ module Relaton
       #
       # Initialize document parser and run it
       #
-      # @param [Nokogiri::XML::Element] xml
+      # @param [Moxml::Element] xml
       #
       # @return [Relaton::Iana::ItemData, nil] bibliographic item
       #
@@ -50,7 +50,7 @@ module Relaton
       # @return [Array<Relaton::Bib::Title>] title
       #
       def parse_title
-        content = @xml.at("./xmlns:title")&.text || @xml[:id]
+        content = @xml.at_xpath("./xmlns:title")&.text || @xml[:id]
         result = [Bib::Title.new(content: content, language: "en", script: "Latn")]
         @errors[:title] &&= result.empty?
         result

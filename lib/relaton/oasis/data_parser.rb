@@ -7,7 +7,7 @@ module Relaton
       #
       # Initialize parser.
       #
-      # @param [Nokogiri::HTML::Element] node document node
+      # @param [Moxml::Element] node document node
       #
       def initialize(node, errors = {}, agent: nil)
         @node = node
@@ -16,14 +16,14 @@ module Relaton
       end
 
       def title
-        @title ||= @node.at("./summary/div/h2").text
+        @title ||= @node.at_xpath("./summary/div/h2").text
       end
 
       def text
         xpath = "./div/div/div[contains(@class, " \
                 "'standard__grid--cite-as')]" \
                 "/p[em or i or a or span]"
-        @text ||= @node.at(xpath)&.text&.strip
+        @text ||= @node.at_xpath(xpath)&.text&.strip
       end
 
       #
@@ -144,7 +144,7 @@ module Relaton
         xpath = "./div/div/div[contains(@class, " \
                 "'standard__grid--cite-as')]" \
                 "/p[strong or span/strong]/a"
-        @link_node ||= @node.at(xpath)
+        @link_node ||= @node.at_xpath(xpath)
       end
 
       #
@@ -220,7 +220,7 @@ module Relaton
         parts = document_part_refs
         result = case parts.size
                  when 0
-                   txt = @node.at("./summary/div/h2").text
+                   txt = @node.at_xpath("./summary/div/h2").text
                    parse_spec title_to_docid(txt)
                  when 1 then parse_part parse_spec(parts[0])
                  else parts_to_docid parts

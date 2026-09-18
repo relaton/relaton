@@ -3,7 +3,7 @@
 
 require "net/http"
 require "json"
-require "nokogiri"
+require "moxml"
 require_relative "scraper"
 require_relative "item"
 require_relative "hit_collection"
@@ -44,7 +44,7 @@ module Relaton
         def scrape_doc(hit)
           src = "https://hbba.sacinfo.org.cn/stdDetail/#{hit.pid}"
           page_uri = URI src
-          doc = Nokogiri::HTML Net::HTTP.get(page_uri)
+          doc = Moxml.new.parse_html Net::HTTP.get(page_uri)
           ItemData.new(**scrapped_data(doc, src, hit))
         rescue SocketError, Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
               Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError,
@@ -54,14 +54,14 @@ module Relaton
 
         private
 
-        # @param doc [Nokogiri::HTML::Document]
+        # @param doc [Moxml::Document]
         # @return [Array<Relaton::Bib::Title>]
         def get_titles(doc)
-          tzh = doc.at("//h4").text.delete("\r\n\t")
+          tzh = doc.at_xpath("//h4").text.delete("\r\n\t")
           Bib::Title.from_string(tzh, "zh", "Hans")
         end
 
-        # @param _doc [Nokogiri::HTML::Document]
+        # @param _doc [Moxml::Document]
         # @param ref [String]
         # @return [Hash]
         #   * :type [String]
@@ -72,16 +72,16 @@ module Relaton
         #   { type: "technical", name: name }
         # end
 
-        # @param _doc [Nokogiri::HTML::Document]
+        # @param _doc [Moxml::Document]
         # @return [String]
         def get_scope(_doc)
           "sector"
         end
 
-        # @param doc [Nokogiri::HTML::Document]
+        # @param doc [Moxml::Document]
         # @return [Array<String>]
         def get_ccs(doc)
-          array(doc.at("//dt[contains(text(), '中国标准分类号')]/following-sibling::dd")).map do |cc|
+          array(doc.at_xpath("//dt[contains(text(), '中国标准分类号')]/following-sibling::dd")).map do |cc|
             text = Cnccs.fetch(cc.text.strip)&.description
             CCS.new code: cc.text, text: text
           end
