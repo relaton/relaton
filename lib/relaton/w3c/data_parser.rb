@@ -371,7 +371,7 @@ module Relaton
         Bib::Organization.new(
           name: [Bib::TypedLocalizedString.new(content: "World Wide Web Consortium")],
           abbreviation: Bib::LocalizedString.new(content: "W3C"),
-          uri: Bib::Uri.new(content: "https://www.w3.org"),
+          uri: [Bib::Uri.new(content: "https://www.w3.org")],
         )
       end
     end

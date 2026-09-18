@@ -61,7 +61,7 @@ RSpec.describe Relaton::W3c::DataParser do
       expect(doc.contributor[0].organization).to be_instance_of Relaton::Bib::Organization
       expect(doc.contributor[0].organization.name[0].content).to eq "World Wide Web Consortium"
       expect(doc.contributor[0].organization.abbreviation.content).to eq "W3C"
-      expect(doc.contributor[0].organization.uri.content.to_s).to eq "https://www.w3.org"
+      expect(doc.contributor[0].organization.uri[0].content.to_s).to eq "https://www.w3.org"
       expect(doc.contributor[0].role[0].type).to eq "publisher"
       expect(doc.contributor[1].person.name.surname.content).to eq "Jennings"
       expect(doc.contributor[1].person.name.forename[0].content).to eq "Cullen"
