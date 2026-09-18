@@ -101,39 +101,38 @@ module Relaton
       # @return [void]
       #
       def search_instance_translation(bib)
-        bibid = bib.docidentifier.first.content.dup
-        if bibid.sub!(TRRGX, "")
-          search_relations bibid, bib
+        pubid = bib.docidentifier.first.pubid
+        return unless pubid # unparseable content: no relation to search
+
+        bibid = pubid.exclude(:language)
+        if bibid == pubid
+          search_translations bibid, bib # no language: this is an instance
         else
-          search_translations bibid, bib
+          search_relations bibid, bib # has a language: this is a translation
         end
       end
 
       #
       # Search instance or translation relation
       #
-      # @param [String] bibid instance bibitem id
+      # @param [Pubid::Ccsds::Identifier] bibid_pid language-less instance id
       # @param [Relaton::Ccsds::ItemData] bib instance or translation bibitem
       #
       # @return [void]
       #
-      def search_relations(bibid, bib)
-        bibid_pid = ::Pubid::Ccsds::Identifier.parse(bibid)
+      def search_relations(bibid_pid, bib)
         # search(bibid_pid) narrows candidates by number via binary search first.
         index.search(bibid_pid) do |row|
           # The reference on the left: `bibid_pid` states no language, so a
           # translated row matches too (pubid's `===`, see `SubsetMatch`).
-          # TODO: the second test compares a Pubid with a String, so it never
-          # excludes the document's own row.
           next unless bibid_pid === row[:id]
-          next if row[:id] == bib.docidentifier.first.content
+          next if row[:id] == bib.docidentifier.first.pubid # exclude the document's own row
 
           create_relations bib, row[:file]
         end
       end
 
-      def search_translations(bibid, bib)
-        bibid_pid = ::Pubid::Ccsds::Identifier.parse(bibid)
+      def search_translations(bibid_pid, bib)
         # will call create_instance_relation if
         # there are same identifiers in index but with word "Translated"
         # search(bibid_pid) narrows candidates by number via binary search first.
