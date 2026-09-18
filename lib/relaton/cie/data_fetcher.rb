@@ -211,7 +211,7 @@ module Relaton
       end
 
       def parse_code(hit, doc = nil)
-        code = hit.at_xpath("h3/a").text.strip.squeeze(" ").sub(/\u25b9/, "").gsub(" / ", "/")
+        code = hit.at_xpath(".//h3/a").text.strip.squeeze(" ").sub(/\u25b9/, "").gsub(" / ", "/")
         c2idx = %r{(?:\(|/)(?<c2>(?:ISO|IEC)\s[^()]+)} =~ code
         code = code[0...c2idx].strip if c2idx
         [primary_code(code, doc), c2]
@@ -285,12 +285,12 @@ module Relaton
       # @return [Array<Relaton::Cie::Relation>]
       def fetch_relation(doc) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
         rels = doc.xpath('//section[@class="history"]/ol/li[not(contains(@class,"selected-product"))]').map do |rel|
-          ref = rel.at_xpath("a")
+          ref = rel.at_xpath(".//a")
           url = "https://www.techstreet.com#{ref[:href]}"
-          title = Bib::Title.from_string ref.at_xpath('p/span[@class="title"]').text
-          did = ref.at_xpath("h3").text
+          title = Bib::Title.from_string ref.at_xpath('.//p/span[@class="title"]').text
+          did = ref.at_xpath(".//h3").text
           docid = [Bib::Docidentifier.new(type: "CIE", content: did, primary: true)]
-          on = ref.at_xpath("p/time")
+          on = ref.at_xpath(".//p/time")
           date = [Bib::Date.new(type: "published", at: on[:datetime])]
           source = [Bib::Uri.new(type: "src", content: url)]
           bibitem = ItemData.new docidentifier: docid, title: title, source: source, date: date
@@ -425,7 +425,7 @@ module Relaton
       # @param hit [Moxml::Element]
       # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       def parse_page(hit, pos = nil, worker_agent = agent, pacing = nil)
-        url = hit.at_xpath('h3/a')[:href]
+        url = hit.at_xpath('.//h3/a')[:href]
         doc = time_req(pacing) { worker_agent.get url }
         @mutex.synchronize do
           item = ItemData.new(
