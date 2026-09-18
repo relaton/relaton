@@ -47,8 +47,9 @@ module Relaton
       # mapping is OGC-specific:
       #
       # - **`remove_date!` → clears `revision`.** OGC carries no date component;
-      #   `revision` is its version discriminator — the same component
-      #   `HitCollection#ignored` treats as omittable — so clearing it yields
+      #   `revision` is its version discriminator — the same component a
+      #   reference may omit, which `HitCollection#best_match` then treats as a
+      #   wildcard — so clearing it yields
       #   the version-agnostic ("most recent") reference: `12-128r19` →
       #   `12-128`.
       # - **`year` is never cleared.** It looks date-like but is half the

@@ -31,7 +31,11 @@ module Relaton
 
       def rows
         if pubid.edition
-          index.search(pubid)
+          # The block keeps the match **exact**. `Type#search` without one takes
+          # pubid's subset match, where the language a CCSDS reference omits is
+          # a wildcard, so the reference would also reach its translations (345
+          # such pairs in the index fixture).
+          index.search(pubid) { |r| r[:id] == pubid }
         else
           # search(pubid) narrows candidates by number via binary search first.
           index.search(pubid) { |r| r[:id].exclude(:edition) == pubid }

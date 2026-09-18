@@ -75,6 +75,39 @@ describe Relaton::Index::Type do
         end
       end
 
+      # Without a block the query is the REFERENCE: two identifiers take
+      # pubid's asymmetric subset match, so a component the query omits matches
+      # any value. A caller that needs exact equality passes a block; CCSDS and
+      # IETF are the two that do.
+      context "without block, matching identifiers" do
+        let(:ed1) { TestIdentifier.create(number: 3, publisher: "ISO", edition: "1") }
+        let(:ed2) { TestIdentifier.create(number: 3, publisher: "ISO", edition: "2") }
+        let(:bare) { TestIdentifier.create(number: 3, publisher: "ISO") }
+
+        before do
+          subject.add_or_update ed1, "file3-1"
+          subject.add_or_update ed2, "file3-2"
+        end
+
+        it "lets a reference reach the rows that state more" do
+          expect(subject.search(bare).map { |r| r[:file] })
+            .to eq %w[file3-1 file3-2]
+        end
+
+        it "keeps a fully stated reference on its own row" do
+          expect(subject.search(ed2)).to eq [{ id: ed2, file: "file3-2" }]
+        end
+
+        it "is not symmetric: a stated edition does not match a bare row" do
+          subject.add_or_update bare, "file3"
+          expect(subject.search(ed1).map { |r| r[:file] }).to eq %w[file3-1]
+        end
+
+        it "takes exact equality from a block instead" do
+          expect(subject.search(bare) { |r| r[:id] == bare }).to be_empty
+        end
+      end
+
       context "when provided index in old format" do
         let(:index) { [{ id: "ISO 1", file: "file1" }, { id: "ISO 2", file: "file2" }] }
 

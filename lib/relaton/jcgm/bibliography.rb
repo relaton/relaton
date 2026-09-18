@@ -75,26 +75,21 @@ module Relaton
         end
 
         # `row_id` and `query` are both `Pubid::Jcgm::Identifier` instances.
-        # Matching is on the year-stripped "stem": guides distinguish editions by
-        # year (`JCGM 200:2008` vs `:2012`), so the year is excluded from the stem
-        # and the latest edition is picked by `max_by` in #search. Meetings
-        # distinguish by number (`17th` vs `18th`), which stays in the stem, so
-        # they never collapse together. The type is inherent to the pubid string,
-        # so cross-type collisions cannot occur. `year` lets a caller pin an
-        # edition the reference string omitted.
+        # Matching is pubid's asymmetric subset match (`Pubid::SubsetMatch`):
+        # the reference on the left, the row on the right, and a component the
+        # reference omits matches any value. Guides distinguish editions by year
+        # (`JCGM 200:2008` vs `:2012`), so a reference without a year reaches
+        # both and the latest edition is picked by `max_by` in #search. Meetings
+        # distinguish by number (`17th` vs `18th`), which the reference states,
+        # so they never collapse together. The type is the identifier's class,
+        # and `===` requires the same class, so cross-type collisions cannot
+        # occur. The `year` argument lets a caller pin an edition the reference
+        # string omitted; a year the reference states is compared by `===`
+        # itself.
         def pubid_match?(row_id, query, year)
           wanted_year = (query.year || year)&.to_s
-          stem(row_id) == stem(query) &&
+          query === row_id &&
             (wanted_year.nil? || row_id.year.to_s == wanted_year)
-        end
-
-        # The identifier without its edition year, via pubid's own model
-        # (`#exclude` returns a copy, so the cached index id is untouched). Falls
-        # back to the full string if `exclude` isn't supported for the type.
-        def stem(pubid)
-          pubid.exclude(:year).to_s
-        rescue StandardError
-          pubid.to_s
         end
       end
     end

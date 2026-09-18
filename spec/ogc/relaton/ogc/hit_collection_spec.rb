@@ -35,6 +35,26 @@ RSpec.describe Relaton::Ogc::HitCollection do
     end
   end
 
+  # `#best_match` selects rows with pubid's asymmetric subset match: the
+  # reference on the left, the row on the right. `revision` is OGC's only
+  # optional component; `year` is half the document number, so it is always
+  # stated and never a wildcard.
+  context "subset match" do
+    def id(ref) = Pubid::Ogc::Identifier.parse(ref)
+
+    it "lets a bare reference reach a revision row" do
+      expect(id("12-128") === id("12-128r19")).to be true
+    end
+
+    it "is not symmetric" do
+      expect(id("12-128r19") === id("12-128")).to be false
+    end
+
+    it "keeps years that reuse a number apart" do
+      expect(id("05-015") === id("26-015r1")).to be false
+    end
+  end
+
   context "row selection" do
     it "returns the latest revision for a bare reference" do
       # 12-128 is published as r10, r11, r12, r12a, r14, r15, r17, r18, r19.

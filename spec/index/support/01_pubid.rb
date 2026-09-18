@@ -7,6 +7,7 @@ require "lutaml/model"
 class TestIdentifier < Lutaml::Model::Serializable
   attribute :publisher, :string
   attribute :number, :string
+  attribute :edition, :string
 
   def self.create(**attrs)
     attrs[:number] = attrs[:number].to_s if attrs.key?(:number)
@@ -27,7 +28,20 @@ class TestIdentifier < Lutaml::Model::Serializable
   def ==(other)
     return false unless other.is_a?(TestIdentifier)
 
-    publisher == other.publisher && number == other.number
+    publisher == other.publisher && number == other.number &&
+      edition == other.edition
+  end
+
+  # `Pubid::SubsetMatch` in miniature: the receiver is the reference, and a
+  # component it leaves nil matches any value. `Relaton::Index::Type#search`
+  # calls this when it gets no block, so the stub has to answer it.
+  def ===(other)
+    return false unless other.is_a?(TestIdentifier)
+
+    %i[publisher number edition].all? do |attr|
+      mine = public_send(attr)
+      mine.nil? || mine == other.public_send(attr)
+    end
   end
 
   alias eql? ==
@@ -38,6 +52,6 @@ class TestIdentifier < Lutaml::Model::Serializable
 
   # String-search code paths in Relaton::Index::Type rely on to_s.
   def to_s
-    [publisher, number].compact.join(" ")
+    [publisher, number, edition].compact.join(" ")
   end
 end

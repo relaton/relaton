@@ -84,8 +84,7 @@ module Relaton
         sup = supplements(id).first
         return ["", "", ""] unless sup
 
-        [sup.supplement_type.to_s, sup.supplement_number.to_s,
-         sup.supplement_year.to_s]
+        [sup.supplement_type.to_s, sup.number.to_s, sup.year.to_s]
       end
 
       # A consolidated identifier (`EN 285:2015+A1:2021`) holds its base

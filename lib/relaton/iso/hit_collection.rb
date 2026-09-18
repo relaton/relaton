@@ -100,9 +100,7 @@ module Relaton
         num = pubid.part.to_s
         return pubid unless pubid.subpart.nil? && num.include?("-")
 
-        head, tail = num.split("-", 2)
-        pubid.part = head
-        pubid.subpart = tail
+pubid.part, pubid.subpart = num.split("-", 2)
         pubid
       end
 

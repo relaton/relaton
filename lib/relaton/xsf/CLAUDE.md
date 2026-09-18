@@ -45,9 +45,9 @@ never reads the index (see `lib/relaton/index/CLAUDE.md`).
 
 An XEP identifier is a publisher and a number, nothing else — no edition, no
 date, no part, and one row per XEP (520 rows, ids unique). That makes this the
-simplest flavor in the sweep: there is no selection order to preserve and
-nothing is ignorable in `matches?`, so lookup is exact equality after
-narrowing.
+simplest flavor in the sweep: there is no selection order to preserve, and the
+reference states every component it has, so pubid's asymmetric subset match
+(`ref === row[:id]`, `Pubid::SubsetMatch`) is exact equality after narrowing.
 
 ### The index guard, and the two rows that are pages rather than XEPs
 

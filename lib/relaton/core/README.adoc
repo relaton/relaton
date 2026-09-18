@@ -2,7 +2,11 @@
 
 == Usage
 
-=== Exclude attributes when compare
+=== Match a partial reference against a document identifier
+
+`#===` is a subset match: the reference is the receiver, the candidate is the
+argument. A component the reference leaves out matches any value. The match is
+NOT symmetric.
 
 [source,ruby]
 ----
@@ -14,6 +18,20 @@ pubid_second = Identifier.parse("ISO 1")
 pubid_first == pubid_second
 => false
 
+pubid_second === pubid_first
+=> true
+
+pubid_first === pubid_second
+=> false
+----
+
+=== Exclude attributes when compare
+
+Use `#exclude` to build a copy without a component, for example to render a
+reference without its year. For matching, prefer `#===`.
+
+[source,ruby]
+----
 pubid_first.exclude(:year) == pubid_second
 => true
 ----

@@ -26,6 +26,26 @@ RSpec.describe Relaton::Iala::Bibliography do
     end
   end
 
+  # `#best_match` selects rows with pubid's asymmetric subset match: the
+  # reference on the left, the row on the right. `edition` and `language` are
+  # IALA's only optional components, and the document type is the identifier's
+  # class, which `===` compares.
+  context "subset match" do
+    def id(ref) = Pubid::Iala::Identifier.parse(ref)
+
+    it "lets a bare reference reach an edition row" do
+      expect(id("IALA M0001") === id("IALA M0001 Ed 9.0 (E)")).to be true
+    end
+
+    it "is not symmetric" do
+      expect(id("IALA M0001 Ed 9.0 (E)") === id("IALA M0001")).to be false
+    end
+
+    it "keeps two document types that share a number apart" do
+      expect(id("IALA R1001") === id("IALA C1001 Ed 3.1")).to be false
+    end
+  end
+
   context "row selection" do
     it "returns the newest edition" do
       # 0101 is published as edition "2" and edition "3.0".

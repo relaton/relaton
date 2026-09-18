@@ -70,33 +70,39 @@ describe Relaton::Iso::HitCollection do
   end
 
   describe "#normalize_compound_part" do
-    # The v1-generated index stores a compound part such as "5-1-3" whole in a
-    # single Code (subpart nil), the way Relaton::Index materialises rows. A
-    # parsed query splits it, so the candidate must be re-split before
-    # comparison. The Code component exposes its number via `value`, not
-    # `number`.
+    # The v1-generated index stores a compound part such as "5-1-3" whole in
+    # the part string (subpart nil), the way Relaton::Index materialises rows.
+    # A parsed query splits it, so the candidate must be re-split before
+    # comparison. pubid holds ISO part and subpart as plain strings.
     it "splits a compound part value on the first dash" do
       cand = ::Pubid::Iso::Identifier.parse "ISO 19115"
-      cand.part = ::Pubid::Iso::Components::Code.new(value: "5-1-3")
+      cand.part = "5-1-3"
       result = subject.normalize_compound_part cand
-      expect(result.part.value).to eq "5"
-      expect(result.subpart.value).to eq "1-3"
+      expect(result.part).to eq "5"
+      expect(result.subpart).to eq "1-3"
     end
 
     it "leaves a simple (dash-free) part unchanged" do
       cand = ::Pubid::Iso::Identifier.parse "ISO 19115-2"
       result = subject.normalize_compound_part cand
-      expect(result.part.value).to eq "2"
+      expect(result.part).to eq "2"
       expect(result.subpart).to be_nil
     end
 
     it "leaves an already-split part (subpart present) unchanged" do
       cand = ::Pubid::Iso::Identifier.parse "ISO 19115"
-      cand.part = ::Pubid::Iso::Components::Code.new(value: "5-1")
-      cand.subpart = ::Pubid::Iso::Components::Code.new(value: "3")
+      cand.part = "5-1"
+      cand.subpart = "3"
       result = subject.normalize_compound_part cand
-      expect(result.part.value).to eq "5-1"
-      expect(result.subpart.value).to eq "3"
+      expect(result.part).to eq "5-1"
+      expect(result.subpart).to eq "3"
+    end
+
+    it "leaves an identifier without a part unchanged" do
+      cand = ::Pubid::Iso::Identifier.parse "ISO 19115"
+      result = subject.normalize_compound_part cand
+      expect(result.part).to be_nil
+      expect(result.subpart).to be_nil
     end
   end
 
