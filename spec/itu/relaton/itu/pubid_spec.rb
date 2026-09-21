@@ -61,6 +61,22 @@ describe Relaton::Itu::Pubid do
         /\[relaton-itu\] ERROR: `ITU- T\.4` is invalid ITU publication identifier/
       ).to_stderr_from_any_process
     end
+
+    # relaton-cli rescues Pubid::Errors::Error, so the local grammar must raise
+    # pubid's class. It is still a Parslet::ParseFailed and keeps the cause.
+    it "raises Pubid::Errors::ParseError" do
+      error = nil
+      expect do
+        described_class.parse("ITU- T.4")
+      rescue Pubid::Errors::Error => e
+        error = e
+      end.to output.to_stderr_from_any_process
+      expect(error).to be_a Pubid::Errors::ParseError
+      expect(error).to be_a Parslet::ParseFailed
+      expect(error.input).to eq "ITU- T.4"
+      expect(error.flavor).to eq "itu"
+      expect(error.parse_failure_cause).not_to be_nil
+    end
   end
 
   context "#to_ref" do

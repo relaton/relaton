@@ -9,10 +9,10 @@ module Relaton
       # @param text [String]
       # @return [Relaton::Etsi::ItemData, nil]
       def search(text) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-        # An unrecognized reference raises Parslet::ParseFailed; like ISO we let
-        # it propagate — the CLI turns it into a friendly message and API callers
-        # rescue it themselves. Valid partial refs parse with the omitted
-        # refinements (version/date/part) left blank.
+        # An unrecognized reference raises Pubid::Errors::ParseError; like
+        # ISO we let it propagate — the CLI turns it into a friendly message
+        # and API callers rescue it themselves. Valid partial refs parse with
+        # the omitted refinements (version/date/part) left blank.
         pubid = ::Pubid::Etsi.parse text
 
         index = Relaton::Index.find_or_create :etsi, url: "#{SOURCE}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",

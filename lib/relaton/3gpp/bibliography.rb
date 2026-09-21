@@ -10,7 +10,7 @@ module Relaton
       # @return [Relaton::ThreeGpp::ItemData, nil]
       def search(text)
         # An unrecognized reference raises; like ISO and ETSI we let it
-        # propagate — relaton-cli rescues Parslet::ParseFailed and renders
+        # propagate — relaton-cli rescues Pubid::Errors::Error and renders
         # "… is not a recognized standards identifier", and API callers rescue
         # it themselves. The rescue below lists transport errors only, so it
         # does not swallow the parse error.

@@ -555,8 +555,8 @@ regex back.
   `#exclude` stays what it is: a way to build a copy without a component, for
   rendering and for the mutators (`Docidentifier#remove_date!`, …).
 - **An unrecognized query reference raises.** A flavor parses the caller's
-  reference with pubid and lets `Pubid::Errors::ParseError` (a
-  `Parslet::ParseFailed`) propagate: relaton-cli rescues it and prints
+  reference with pubid and lets `Pubid::Errors::ParseError` propagate:
+  relaton-cli rescues the marker module `Pubid::Errors::Error` and prints
   `"…" is not a recognized standards identifier`. Returning nil instead makes
   "malformed" look like "not found". Rescue a parse only on the data side —
   a catalogue hit (`Relaton::Bsi::Hit#pubid`), a machine-derived probe

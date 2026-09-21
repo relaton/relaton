@@ -82,7 +82,11 @@ module Relaton
       rescue Parslet::ParseFailed => e
         Util.error "`#{id}` is invalid ITU publication identifier\n" \
                    "#{e.parse_failure_cause.ascii_tree}"
-        raise e
+        # This grammar is local, so re-raise it as pubid's error: relaton-cli
+        # rescues `Pubid::Errors::Error`. `::` is needed, because inside this
+        # class a bare `Pubid` is `Relaton::Itu::Pubid`.
+        raise ::Pubid::Errors::ParseError.new(e.message, e.parse_failure_cause,
+                                              input: id, flavor: "itu")
       end
 
       def to_h(with_type: true) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity

@@ -58,7 +58,7 @@ module Relaton
         # not any inside the number). Then force :human rendering.
         spaced = str.sub(/\A(NIST|NBS)\.([A-Z][A-Za-z]*)\./, '\1 \2 ')
         ::Pubid::Nist::Identifier.parse(spaced).to_s(format: :human)
-      rescue Parslet::ParseFailed
+      rescue ::Pubid::Errors::ParseError
         str.gsub(".", " ").sub(/^[\D]+/, &:upcase)
       end
 

@@ -37,7 +37,7 @@ module Relaton::Bsi
 
       # Parse a BSI reference with pubid. An unrecognized reference raises;
       # like ISO and 3GPP we let it propagate -- relaton-cli rescues
-      # Parslet::ParseFailed and renders "... is not a recognized standards
+      # Pubid::Errors::Error and renders "... is not a recognized standards
       # identifier". A catalogue hit code is a different case: `Hit#pubid`
       # rescues, because one odd Algolia row must not abort the search.
       # @param [String] code document identifier

@@ -31,11 +31,12 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = Gem::Requirement.new(">= 3.3.0")
 
   spec.add_dependency "liquid", "~> 5"
-  # The CLI requires "parslet" directly to rescue Parslet::ParseFailed when a
+  # The CLI requires "pubid" directly to rescue Pubid::Errors::Error when a
   # reference is unparseable (see command.rb / subcommand_collection.rb). It is
   # already a runtime dep of `relaton`, but declare it here too so the require
   # is self-supporting rather than dependent on relaton's transitive graph.
-  spec.add_dependency "parslet", "~> 2.0.0"
+  # 2.0.0.pre.alpha.11 is the first pubid with `Pubid::Errors`.
+  spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.11"
   # relaton bundles every flavor plus Relaton::Bib, so depending on `relaton`
   # alone is sufficient — relaton-bib is no longer published standalone.
   spec.add_dependency "relaton", "= #{relaton_version}"

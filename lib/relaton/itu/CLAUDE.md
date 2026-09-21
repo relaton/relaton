@@ -557,7 +557,12 @@ The wiring mirrors NIST/ETSI/CIE:
 
 The local `Relaton::Itu::Pubid` (a Parslet **ref** parser in `pubid.rb`) is
 unrelated to the external `::Pubid::Itu` gem class used for indexing; both coexist
-without collision.
+without collision. It parses the caller's reference in `Bibliography.get` and
+`.search`, and each hit code in `.search_filter` and `Scraper#createdocid`, so
+its failure re-raises as `::Pubid::Errors::ParseError` (still a
+`Parslet::ParseFailed`, with the parslet cause kept): relaton-cli rescues
+`Pubid::Errors::Error`, and a plain Parslet error would crash the CLI. Inside
+the class write `::Pubid`, because a bare `Pubid` is the local class.
 
 ## Testing
 

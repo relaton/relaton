@@ -1,4 +1,4 @@
-require "parslet"
+require "pubid"
 require "relaton/cli/full_text_search"
 
 module Relaton
@@ -131,7 +131,7 @@ module Relaton
           File.write colfile, coll.to_yaml, encoding: "UTF-8"
         else Util.info "No matching bibliographic entry found"
         end
-      rescue Parslet::ParseFailed
+      rescue Pubid::Errors::Error
         Util.error %("#{code}" is not a recognized standards identifier)
       end
 

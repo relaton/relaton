@@ -246,7 +246,22 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
     it "reports a friendly message for a malformed identifier" do
       db = double "db"
       expect(Relaton).to receive(:db).and_return db
-      expect(db).to receive(:fetch).and_raise Parslet::ParseFailed.new("bad id")
+      expect(db).to receive(:fetch)
+        .and_raise Pubid::Errors::ParseError.new("bad id")
+      expect do
+        Relaton::Cli::Command.start [
+          "collection", "fetch", "not a reference", "-t", "ISO",
+          "-d", "spec/fixtures", "-c", "sample-collection.yaml"
+        ]
+      end.to output(/"not a reference" is not a recognized standards identifier/)
+        .to_stderr_from_any_process
+    end
+
+    it "reports a friendly message for an identifier pubid cannot take" do
+      db = double "db"
+      expect(Relaton).to receive(:db).and_return db
+      expect(db).to receive(:fetch)
+        .and_raise Pubid::Errors::InvalidInputError.new("too long")
       expect do
         Relaton::Cli::Command.start [
           "collection", "fetch", "not a reference", "-t", "ISO",

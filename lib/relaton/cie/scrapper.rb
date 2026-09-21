@@ -10,7 +10,7 @@ module Relaton
         # @return [Relaton::Cie::ItemData]
         def scrape_page(code)
           # An unrecognized reference raises; like ISO and 3GPP we let it
-          # propagate -- relaton-cli rescues Parslet::ParseFailed and renders
+          # propagate -- relaton-cli rescues Pubid::Errors::Error and renders
           # "... is not a recognized standards identifier". Partial refs
           # (`CIE 001`, `CIE 15`) parse, so nothing valid is lost.
           pubid = ::Pubid::Cie.parse code

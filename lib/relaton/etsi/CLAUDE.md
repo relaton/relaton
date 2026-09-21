@@ -84,7 +84,7 @@ it ships in a pubid release. The wiring mirrors NIST/JCGM:
   id it can't parse **or** `to_hash`-serialize, so one malformed record can never
   abort the crawl or corrupt the index. (No current ETSI record is skipped.)
 - **Consumer** (`Bibliography#search`): parses the reference with
-  `::Pubid::Etsi.parse` and lets a `Parslet::ParseFailed` on an unrecognized ref
+  `::Pubid::Etsi.parse` and lets a `Pubid::Errors::ParseError` on an unrecognized ref
   **propagate** (ISO parity — the CLI renders a friendly message, API callers
   rescue it), then `#best_match` does the ISO-style lookup:
   `index.search(pubid) { |row| pubid.matches?(row[:id], ignore:) }`. The `pubid`
@@ -94,7 +94,7 @@ it ships in a pubid release. The wiring mirrors NIST/JCGM:
   `ETSI GS ZSM 012` matches every edition, a part-less `ETSI EN 300 175` matches
   every part, and a fully-qualified ref matches only its edition; `max_by
   { edition_key(row[:id]) }` returns the most recent. Requires pubid `main`
-  (partial-ref parsing, `Parslet::ParseFailed` on failure, and part exclusion
+  (partial-ref parsing, `Pubid::Errors::ParseError` on failure, and part exclusion
   inside `code`).
 - **`#edition_key` orders on the parsed version, never on the rendered id.** ETSI
   versions are not zero-padded, so a String comparison of `row[:id].to_s` orders

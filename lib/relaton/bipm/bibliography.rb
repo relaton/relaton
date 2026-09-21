@@ -108,7 +108,7 @@ module Relaton::Bipm
         return unless match
 
         parse_ref "#{match[:stem]} #{match[:number].sub(/\A0+(?=\d)/, '')} (#{match[:year]})"
-      rescue Parslet::ParseFailed
+      rescue ::Pubid::Errors::ParseError
         nil
       end
 
@@ -202,7 +202,7 @@ module Relaton::Bipm
       # `CCTF Meeting 14 (1999)`, `SI Brochure Part 1`, …) and normalizes them
       # to BIPM's canonical spelling. An unrecognized reference raises; like
       # ISO and 3GPP we let it propagate -- relaton-cli rescues
-      # Parslet::ParseFailed and renders "... is not a recognized standards
+      # Pubid::Errors::Error and renders "... is not a recognized standards
       # identifier".
       #
       # @param reference [String]

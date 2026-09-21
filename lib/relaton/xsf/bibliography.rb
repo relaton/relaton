@@ -13,7 +13,7 @@ module Relaton
       # search; `Core::HitCollection` takes a `String` or a pubid by design.
       #
       # An unrecognized reference **raises**; like ISO, ETSI and 3GPP we let it
-      # propagate. relaton-cli rescues `Parslet::ParseFailed` and renders
+      # propagate. relaton-cli rescues `Pubid::Errors::Error` and renders
       # `"..." is not a recognized standards identifier`
       # (`gems/relaton-cli/lib/relaton/cli/command.rb:324`,
       # `subcommand_collection.rb:134`), and `Db#fetch` logs it via the
@@ -63,8 +63,8 @@ module Relaton
       #
       # The token match is case-insensitive, so `xep 0001` resolves too.
       #
-      # Anything else raises -- see `.search`. `Pubid::Errors::ParseError` is a
-      # `Parslet::ParseFailed`, which is the class relaton-cli rescues.
+      # Anything else raises -- see `.search`. `Pubid::Errors::ParseError`
+      # includes `Pubid::Errors::Error`, which is the class relaton-cli rescues.
       #
       # @param ref [String]
       # @return [Pubid::Xsf::Identifier]
