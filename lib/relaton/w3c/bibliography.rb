@@ -123,7 +123,7 @@ module Relaton
         # @return [Pubid::W3c::Identifier, nil]
         #
         # An unrecognized reference **raises**; like ISO, ETSI and 3GPP we let it
-        # propagate. relaton-cli rescues `Parslet::ParseFailed` and renders
+        # propagate. relaton-cli rescues `Pubid::Errors::Error` and renders
         # `"..." is not a recognized standards identifier`
         # (`gems/relaton-cli/lib/relaton/cli/command.rb:324`), and `Db#fetch`
         # logs it through the `StandardError` arm at `lib/relaton/db.rb:122`.

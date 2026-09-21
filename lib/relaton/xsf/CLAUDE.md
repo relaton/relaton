@@ -117,13 +117,13 @@ does carry a revision.
   a truncated reference silently resolved to whichever sorted first. It now
   returns nothing.
 - **An unrecognized reference raises.** Like ISO, ETSI and 3GPP, the parse
-  error propagates: relaton-cli rescues `Parslet::ParseFailed` and renders
+  error propagates: relaton-cli rescues `Pubid::Errors::Error` and renders
   `"..." is not a recognized standards identifier`
   (`gems/relaton-cli/lib/relaton/cli/command.rb:324`,
   `subcommand_collection.rb:134`), and `Db#fetch` logs it through the
   `StandardError` arm at `lib/relaton/db.rb:122`. `Pubid::Errors::ParseError`
-  **is** a `Parslet::ParseFailed`, which is what makes the CLI's rescue work
-  for every flavor.
+  includes the marker module `Pubid::Errors::Error`, which is what makes the
+  CLI's rescue work for every flavor.
 
   Rescuing into a warning and an empty result — which several flavors still do
   — collapses "this identifier is malformed" into "no such document", and a

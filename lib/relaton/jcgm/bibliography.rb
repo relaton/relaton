@@ -56,7 +56,7 @@ module Relaton
 
         # Parse a reference into a Pubid::Jcgm identifier. An unrecognized
         # reference raises; like ISO and 3GPP we let it propagate --
-        # relaton-cli rescues Parslet::ParseFailed and renders "... is not a
+        # relaton-cli rescues Pubid::Errors::Error and renders "... is not a
         # recognized standards identifier". The `search` rescue lists transport
         # errors only, so it does not swallow the parse error.
         def parse_ref(text)

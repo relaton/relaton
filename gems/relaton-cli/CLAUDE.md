@@ -51,11 +51,14 @@ Current fetch options that use this pattern: `--no-cache`, `--all-parts`, `--kee
 
 ### Malformed-identifier handling (CLI is the friendly layer)
 
-The `relaton` library **raises** `Parslet::ParseFailed` (from pubid's parser)
-when a reference can't be parsed — it does not swallow it, so API consumers of
-`Relaton::Db` handle it themselves. The **CLI** is the single place that turns
-it into a user-facing message: `fetch_document` rescues `Parslet::ParseFailed`
-(alongside `Relaton::RequestError`) and returns `"<code>" is not a recognized
+The `relaton` library **raises** `Pubid::Errors::ParseError` when a reference
+can't be parsed — it does not swallow it, so API consumers of `Relaton::Db`
+handle it themselves. Every flavor raises that class, including ITU, whose own
+Parslet grammar (`Relaton::Itu::Pubid`) re-raises its failure as one. The
+**CLI** is the single place that turns it into a user-facing message:
+`fetch_document` rescues the marker module `Pubid::Errors::Error` — which also
+covers `Pubid::Errors::InvalidInputError` (input too long) — (alongside
+`Relaton::RequestError`) and returns `"<code>" is not a recognized
 standards identifier`, and `SubcommandCollection#fetch` — which bypasses
 `fetch_document` — rescues it too, emitting the same message via `Util.error`.
 The paths that actually reach pubid's parser are `relaton fetch` (→
@@ -63,11 +66,14 @@ The paths that actually reach pubid's parser are `relaton fetch` (→
 `Db#fetch`). `relaton db fetch` is a **cache-only** lookup (`fetch_db: true`
 short-circuits `check_bibliocache` to a cache-key read via `std_id`, which is
 plain string manipulation, never `processor.get`), so it never parses and can't
-raise `Parslet::ParseFailed` — a malformed id there simply misses the cache and
+raise a parse error — a malformed id there simply misses the cache and
 prints "No matching bibliographic entry found". `command.rb` and
-`subcommand_collection.rb` therefore `require "parslet"` at load time so the
+`subcommand_collection.rb` therefore `require "pubid"` at load time so the
 constant resolves even when an unrelated exception (e.g. an `ArgumentError` from
-`parse_date_option`) is the one propagating through the rescue chain.
+`parse_date_option`) is the one propagating through the rescue chain:
+`require "relaton"` loads pubid lazily, so it may not be loaded yet. `Pubid::Errors`
+first shipped in pubid `2.0.0.pre.alpha.11`, which is why `relaton.gemspec`
+pins `~> 2.0.0.pre.alpha.11`.
 
 ### Core Data Classes
 

@@ -321,7 +321,7 @@ module Relaton
         pubid = ::Pubid::Iso::Identifier.parse(ref_no_type_stage)
         resp, = isobib_search_filter(pubid, opts, any_types_stages: true)
         resp.map &:pubid
-      rescue Parslet::ParseFailed
+      rescue ::Pubid::Errors::ParseError
         # The type/stage-stripped variant is a machine-derived probe, not the
         # user's identifier; if it doesn't parse there are simply no
         # alternative-type/stage candidates. The original reference already

@@ -9,7 +9,7 @@ module Relaton
 
       # Only a transport failure is rescued, and it becomes the
       # Relaton::RequestError that Relaton::Db retries. Anything else keeps
-      # its own class: an unrecognized reference raises Parslet::ParseFailed
+      # its own class: an unrecognized reference raises Pubid::Errors::ParseError
       # (relaton-cli reports it), and a bug keeps its backtrace.
       def get(code, _year = nil, _opts = {}) # rubocop:disable Metrics/MethodLength
         Util.info "Fetching ...", key: code
