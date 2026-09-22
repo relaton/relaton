@@ -40,19 +40,16 @@ module Relaton
         # @param code [String] the GB standard Code to look up (e..g "GB/T 20223")
         # @param year [String] the year the standard was published (optional)
         # @param opts [Hash] options; restricted to :all_parts if all-parts reference is required
-        # @return [String] Relaton XML serialisation of reference
-        def get(code, year = nil, opts = {}) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
-          if year.nil?
-            /^(?<code1>[^-]+)-(?<year1>[^-]+)$/ =~ code
-            unless code1.nil?
-              code = code1
-              year = year1
-            end
-          end
-
-          code += ".1" if opts[:all_parts]
-          code, year = code.split("-", 2) if code.include?("-")
-          ret = get1(code, year, opts)
+        # @return [Relaton::Gb::ItemData, nil]
+        # @raise [Pubid::Errors::ParseError] when the code is not a GB
+        #   identifier
+        def get(code, year = nil, opts = {})
+          require "pubid"
+          pubid = ::Pubid::Gb::Identifier.parse(code)
+          year = (year || pubid.year)&.to_s
+          pubid = pubid.exclude(:year)
+          pubid.part = "1" if opts[:all_parts]
+          ret = get1(pubid, year, opts)
           return nil if ret.nil?
 
           ret = ret.to_most_recent_reference unless year
@@ -62,47 +59,76 @@ module Relaton
 
         private
 
-        def fetch_ref_err(code, year, missed_years) # rubocop:disable Metrics/MethodLength
-          # id = year ? "#{code}:#{year}" : code
-          # Util.info "WARNING: No match found on the GB website for `#{id}`. " \
-          #           "The code must be exactly like it is on the website."
+        # @param pubid [Pubid::Gb::Identifier] the reference without a year
+        def fetch_ref_err(pubid, year, missed_years) # rubocop:disable Metrics/MethodLength
           unless missed_years.empty?
             Util.info "(There was no match for `#{year}`, though there " \
                       "were matches found for `#{missed_years.join('`, `')}`.)"
           end
-          if /\d-\d/.match? code
+          if pubid.part
             Util.info "The provided document part may not exist, or " \
                       "the document may no longer be published in parts."
           else
             Util.info "If you wanted to cite all document parts for the " \
-                      "reference, use `#{code} (all parts)`.\nIf the document " \
+                      "reference, use `#{pubid} (all parts)`.\nIf the document " \
                       "is not a standard, use its document type abbreviation " \
                       "(TS, TR, PAS, Guide)."
           end
           nil
         end
 
-        def get1(code, year, _opts)
+        # @param pubid [Pubid::Gb::Identifier] the reference without a year
+        # @param year [String, nil]
+        def get1(pubid, year, _opts)
           # search must include year whenever available
-          searchcode = code + (year.nil? ? "" : "-#{year}")
-          result = search_filter(searchcode) || return
+          query = with_year(pubid, year)
+          searchcode = query.to_s
+          result = search_filter(query) || return
           ret = results_filter(result, year)
           if ret[:ret]
             Util.info "Found: `#{ret[:ret].docidentifier.first.content}`", key: searchcode
             ret[:ret]
           else
             Util.info "Not found.", key: searchcode
-            fetch_ref_err(code, year, ret[:years])
+            fetch_ref_err(pubid, year, ret[:years])
           end
         end
 
-        def search_filter(code)
-          # search filter needs to incorporate year
-          docidrx = %r{^[^\s]+\s[\d.-]+}
-          result = search(code)
-          result.select! do |hit|
-            hit.docref && hit.docref.match(docidrx).to_s.include?(code)
+        # @param pubid [Pubid::Gb::Identifier]
+        # @param year [String, nil]
+        # @return [Pubid::Gb::Identifier] a copy of pubid that carries the year
+        def with_year(pubid, year)
+          return pubid unless year
+
+          dated = pubid.exclude
+          dated.date = ::Pubid::Components::Date.new(year: year)
+          dated
+        end
+
+        # Keeps the hits that name the queried document. A query with no year
+        # matches every year. A query with no part matches only the part-less
+        # document: in GB, `GB/T 20223` and `GB/T 20223.1` are two documents.
+        #
+        # @param query [Pubid::Gb::Identifier]
+        # @return [Relaton::Gb::HitCollection, nil]
+        def search_filter(query)
+          ignore = query.year ? [] : %i[year]
+          result = search(query.to_s)
+          result&.select! do |hit|
+            hit_pubid = parse_docref(hit.docref)
+            hit_pubid && query.matches?(hit_pubid, ignore: ignore)
           end
+        end
+
+        # A portal docref is data, so a value pubid cannot read is nil and
+        # drops the hit.
+        #
+        # @param docref [String, nil]
+        # @return [Pubid::Gb::Identifier, nil]
+        def parse_docref(docref)
+          ::Pubid::Gb::Identifier.parse(docref) if docref
+        rescue StandardError
+          nil
         end
 
         # Sort through the results from Isobib, fetching them three at a time,

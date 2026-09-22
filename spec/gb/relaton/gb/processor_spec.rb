@@ -14,6 +14,11 @@ describe Relaton::Gb::Processor do
       expect(processor.prefix).to eq "CN"
     end
 
+    it "sources the global prefixes from Pubid::Gb" do
+      expect(processor.prefixes).to include("GB", "GB/T", "GB/Z", "JB/T", "T/")
+      expect(processor.prefixes).not_to include("CN")
+    end
+
     it "sets defaultprefix to match GB standards" do
       expect(processor.defaultprefix).to eq(/^(GB|GB\/T|GB\/Z) /)
     end

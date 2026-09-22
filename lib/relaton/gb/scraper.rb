@@ -45,8 +45,7 @@ module Relaton
       # @param docref [Strings]
       # @return [Array<Relaton::Bib::Contributor>]
       def get_contributors(doc, docref)
-        name = docref.match(/^[^\s]+/).to_s
-        name.sub!(%r{/[TZ]$}, "") unless name =~ /^GB/
+        name = docref_pubid(docref)&.publisher&.to_s
         gbtype = get_gbtype(doc, docref)
         org_names = %w[en zh].map { |l| create_org_name(l, name, gbtype) }.compact
         return [] unless org_names.any?
@@ -120,11 +119,14 @@ module Relaton
         end
       end
 
+      # The publisher of a social group standard names the group
+      # (`T/GZAEPI`), so only its first segment keys `yaml/prefixes.yaml`.
+      #
       # @param ref [String]
-      # @return [String]
+      # @return [Hash{String=>String}, nil]
       def get_prefix(ref)
-        pref = ref.match(/^[^\s]+/).to_s.split("/").first
-        prefix pref
+        pref = docref_pubid(ref)&.publisher&.to_s
+        prefix pref.split("/").first if pref
       end
 
       # @param pref [String]
@@ -137,7 +139,7 @@ module Relaton
       # @param ref [String]
       # @return [String]
       def get_mandate(ref)
-        case ref.match(%r{(?<=\/)[^\s]+}).to_s
+        case docref_pubid(ref)&.mandate
         when "T" then "recommended"
         when "Z" then "guidelines"
         else "mandatory"
@@ -180,14 +182,29 @@ module Relaton
       # @return [Relaton::Gb::GbType]
       def get_gbtype(doc, ref)
         # ref = get_ref(doc)
-        GbType.new(scope: get_scope(doc), prefix: get_prefix(ref)["prefix"], mandate: get_mandate(ref), topic: "other")
+        GbType.new(scope: get_scope(doc), prefix: get_prefix(ref)&.fetch("prefix", nil), mandate: get_mandate(ref), topic: "other")
+      end
+
+      # A portal docref is data, so a value pubid cannot read is nil rather
+      # than an error.
+      #
+      # @param docref [String]
+      # @return [Pubid::Gb::Identifier, nil]
+      def docref_pubid(docref)
+        require "pubid"
+        ::Pubid::Gb::Identifier.parse(docref)
+      rescue StandardError
+        nil
       end
 
       # @param docref [String]
-      # @return [Array<String>] array of matched groups [docnumber, partnumber]
+      # @return [Array<String, nil>] the id without part and year (e.g.
+      #   `GB/T 5606`), the part, and the year
       def parse_docref(docref)
-        m = docref.match(/^([^–—.-]*\d+)\.?((?<=\.)\d+|)(?:-(\d{4}))?/)
-        [m[1], m[2], m[3]]
+        pubid = docref_pubid(docref)
+        return [docref, nil, nil] unless pubid
+
+        [pubid.exclude(:part, :year).to_s, pubid.part, pubid.year]
       end
 
       # @param docref [String]
