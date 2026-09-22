@@ -8,6 +8,9 @@ module Relaton
       def initialize
         @short = :relaton_gb
         @prefix = "CN"
+        # Global prefixes come from Pubid::Gb.prefixes. "CN" is not one of
+        # them, so it leaves the register; routing still reads @prefix.
+        @pubid_flavor = :Gb
         @defaultprefix = %r{^(GB|GB/T|GB/Z) }
         @idtype = "Chinese Standard"
       end

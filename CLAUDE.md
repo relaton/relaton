@@ -520,7 +520,10 @@ regex back.
   the same decision for the selection, so CEN needs the idiom only where it
   appends the `year` argument. A base reference must never match its own
   amendment's record; `===` requires the same class, which enforces that.
-  See `lib/relaton/cen/CLAUDE.md`.
+  See `lib/relaton/cen/CLAUDE.md`. **GB** is the same shape over three portal
+  scrapers, and it is the counter-example to CEN's `===`: it selects its hits
+  with `matches?`, because pubid does not make a GB `part` strict (next
+  bullet). See `lib/relaton/gb/CLAUDE.md`.
 - **Matching a reference: `reference === row`, where a nil is a wildcard.**
   pubid's `Pubid::SubsetMatch` gives every identifier an **asymmetric** `===`:
   the reference is the receiver, and a component it leaves nil or empty matches
@@ -549,7 +552,10 @@ regex back.
     `ECMA-418` would answer with `ECMA-418-1`. pubid#408 added the per-attribute
     hook `subset_strict`, and declared it for these nine flavors. Seven
     switched to `===`: ECMA, 3GPP, ETSI, CalConnect, CEN, GOST and Plateau.
-    It missed CCSDS
+    It missed GB `part`, which reads a nil the same way — measured on pubid
+    `622f9e99`, `GB/T 20223-2006 === GB/T 20223.1-2006` is true, and that is
+    the pair `spec/gb/relaton/gb_spec.rb` forbids — so GB keeps `matches?` in
+    `Bibliography.search_filter` (it has no index). It missed CCSDS
     `suffix`: `CCSDS 101.0-B-4 === CCSDS 101.0-B-4-S` is still true, so
     `HitCollection#rows` keeps `exact: true`. It also missed OIML `language`
     and `subpart`, and OIML compares the `year_on_base` render flag, so OIML

@@ -42,6 +42,22 @@ RSpec.describe "Relaton.prefix_flavor" do
     expect(Relaton.prefix_flavor("CLC")).to eq [Relaton::Cen]
   end
 
+  # GB's canonical @prefix is "CN", which is not an identifier token, so it
+  # stays out of the register once the list comes from Pubid::Gb.prefixes.
+  it "resolves a pubid-sourced GB prefix (GB/T)" do
+    expect(Relaton.prefix_flavor("GB/T")).to eq [Relaton::Gb]
+  end
+
+  it "does not register GB's canonical CN prefix" do
+    expect(Relaton.prefix_flavor("CN")).to eq []
+  end
+
+  # HB is the Chinese aviation sector code in Pubid::Gb, a NIST handbook series
+  # and a BSI handbook. SUPPORTED_GEMS lists relaton/gb first.
+  it "resolves HB to every owning flavor" do
+    expect(Relaton.prefix_flavor("HB")).to eq [Relaton::Gb, Relaton::Nist, Relaton::Bsi]
+  end
+
   it "is case-insensitive" do
     expect(Relaton.prefix_flavor("iso/iec")).to eq Relaton.prefix_flavor("ISO/IEC")
   end
