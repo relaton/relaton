@@ -77,43 +77,6 @@ module Relaton
           id.exclude(*keys) == id
         end
 
-        # @return [Boolean] true when the reference names a supplement
-        def supplement?(id)
-          id.base_document != id
-        end
-
-        #
-        # What the query left unsaid, and so must not narrow the hits by. Keeps
-        # the rules the `code_to_parts` comparison had: no part matches any
-        # part, no year matches any year, the supplement must be EQUAL, and only
-        # the supplement's year is optional.
-        #
-        # The `supplement?` half of the last rule is belt and braces, and is
-        # kept deliberately. pubid's `matches?` is
-        # `exclude(*ignore) == other.exclude(*ignore)`, and its `==` is
-        # class-strict, so a base-document class can never equal a supplement
-        # wrapper however long the ignore list grows — measured on pubid
-        # `b4d52e5d6`, `CEN ISO/TS 21003-7` does not match
-        # `CEN ISO/TS 21003-7:2008/A1:2010` even with `:supplement_year`
-        # ignored. That is pubid's internal invariant, not a documented
-        # contract, and the rule it happens to enforce is this flavor's: a base
-        # reference must never answer with its own amendment's record. So the
-        # guard states the rule here rather than inheriting it by luck, and
-        # `does not answer a base reference with an amendment` in
-        # `spec/cen/relaton/cen_spec.rb` covers it.
-        #
-        # @param query [Pubid::CenCenelec::Identifier]
-        #
-        # @return [Array<Symbol>]
-        #
-        def ignored_components(query)
-          ignore = []
-          ignore.push :part, :subpart if absent? query, :part, :subpart
-          ignore << :year if absent? query, :year
-          ignore << :supplement_year if supplement?(query) && absent?(query, :supplement_year)
-          ignore
-        end
-
         def fetch_ref_err(_code, year, missed_years)
           unless missed_years.empty?
             Util.info "There was no match for `#{year}`, though there " \
@@ -130,16 +93,21 @@ module Relaton
         # pubid's. A hit whose code the grammar cannot read is dropped rather
         # than aborting the search.
         #
+        # The selection is pubid's subset match `query === hit.pubid`. A part,
+        # a year or a supplement year that the query omits matches any value.
+        # pubid declares the CEN `type`, `stage` and `typed_stage` strict, so
+        # `EN 1325` matches neither `prEN 1325` nor `CEN/TS 1325`. The class
+        # must be identical, so a base reference never answers with its own
+        # amendment's record, and a supplement reference never answers with
+        # its base document.
+        #
         # @param code [String] the raw reference, as the portal form wants it
         # @param query [Pubid::CenCenelec::Identifier]
         #
         # @return [Relaton::Cen::HitCollection]
         #
         def search_filter(code, query)
-          ignore = ignored_components query
-          search(code).select! do |hit|
-            hit.pubid && query.matches?(hit.pubid, ignore: ignore)
-          end
+          search(code).select! { |hit| hit.pubid && query === hit.pubid }
         end
 
         # Sort through the results from Isobib, fetching them three at a time,

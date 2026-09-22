@@ -20,13 +20,7 @@ module Relaton
         def search(text, year = nil, _opts = {}) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
           pubid = text.is_a?(String) ? ::Pubid::Oiml.parse(text) : text
           Util.info "Fetching from Relaton repository ...", key: pubid.to_s
-          # Pass the pubid so Relaton::Index narrows candidates by number via
-          # binary search before applying the block. Every row's `:id` is a
-          # Pubid::Oiml::Identifier (Relaton::Index deserialized it via the
-          # `pubid_class` passed in `#index`), so the block compares pubids and
-          # the result picks the latest edition.
-          row = index.search(pubid) { |r| pubid_match?(r[:id], pubid, year) }
-                     .max_by { |r| r[:id].year.to_i }
+          row = best_row(pubid, year)
           unless row
             Util.info "Not found.", key: pubid.to_s
             return
@@ -84,6 +78,42 @@ module Relaton
           )
         end
 
+        # The index row for a reference: the latest edition among the rows it
+        # matches.
+        #
+        # The pubid is passed to `Index::Type#search`, so the index narrows
+        # candidates by number via binary search, and each row's `:id` is a
+        # Pubid::Oiml::Identifier (deserialized via the `pubid_class` in
+        # `#index`).
+        #
+        # A Bulletin matches exactly (`exact: true`). Its year is part of its
+        # locator, not an edition: the issue and the sequence render after the
+        # year, so the stem below reduces every article of one year to
+        # `OIML Bulletin`, and a lookup used to return any one of them.
+        #
+        # This flavor does not use pubid's subset match `===` yet. Measured
+        # over the full `relaton-data-oiml` index, `===` lets a language-less
+        # Amendment, Annex or Errata reference reach its translations
+        # (`language` is not strict), lets `OIML R 137-1 (F)` reach
+        # `OIML R 137-1-2:2012 (F)` (`subpart` is not strict), and rejects
+        # `OIML R 102:1995 Annex B-C` for `OIML R 102 Annex B-C` (the
+        # `year_on_base` render flag is compared).
+        #
+        # @param query [Pubid::Oiml::Identifier]
+        # @param year [String, nil]
+        # @return [Hash, nil] the index row (`{ id:, file: }`)
+        def best_row(query, year)
+          return index.search(query, exact: true).first if bulletin?(query)
+
+          index.search(query) { |r| pubid_match?(r[:id], query, year) }
+               .max_by { |r| r[:id].year.to_i }
+        end
+
+        # @return [Boolean] true for an identifier of an OIML Bulletin
+        def bulletin?(pubid)
+          pubid.is_a?(::Pubid::Oiml::Identifiers::Bulletin)
+        end
+
         # Both `row_id` and `query` are Pubid::Oiml::Identifier instances.
         # Matching is on the year/language-stripped "stem" (e.g. `OIML R 138`),
         # which keeps the type letter and any amendment suffix — so an amendment
@@ -91,8 +121,8 @@ module Relaton
         # does not expose the suffix as its own attribute. Language must match
         # exactly (a language-less query targets the language-less abstract
         # record); year is nil-tolerant so an unqualified query finds the latest
-        # edition (selected by `max_by` in #search). The `year` argument lets a
-        # caller pin an edition the reference string omitted.
+        # edition (selected by `max_by` in #best_row). The `year` argument lets
+        # a caller pin an edition the reference string omitted.
         def pubid_match?(row_id, query, year)
           wanted_year = (query.year || year)&.to_s
           stem(row_id) == stem(query) &&

@@ -129,43 +129,34 @@ reproduce the old `"2:3"` partnumber.
 
 `search_filter` sends the caller's **raw reference text** to the portal form —
 that is search-engine input, not identifier parsing (the BSI precedent) — and
-selects with `query.matches?(hit.pubid, ignore: …)`. One idiom decides what to
-ignore, and it needs no per-class accessor: **a component is absent from a
-reference when excluding it changes nothing.**
+selects with pubid's subset match `query === hit.pubid`. A component that the
+query omits matches any value, and `===` reads the omission from the query
+itself, nested identifiers included (`CEN ISO/TS 21003-7` keeps its part on the
+adopted ISO document). That gives the rules the old comparison had:
 
-```ruby
-def absent?(id, *keys) = id.exclude(*keys) == id
-def supplement?(id)    = id.base_document != id
-```
+- no part → any part
+- no base year → any year
+- a supplement that carries **no year** → any supplement year:
+  `EN 285:2015+A1` → `EN 285:2015+A1:2021`, but never → `EN 285:2015`
 
-That works for the forms that hold the component on a nested identifier, where a
-direct accessor returns nil (`CEN ISO/TS 21003-7` keeps its part on the adopted
-ISO document, yet `absent?(id, :part, :subpart)` is correctly false). The list
-keeps the rules the old comparison had:
+pubid declares the CEN `type`, `stage` and `typed_stage` strict (pubid#408), so
+`EN 1325` matches neither the draft `prEN 1325` nor `CEN/TS 1325`. `===`
+requires the same class, and pubid documents that a reference never falls back
+to the base document of a wrapper, so **a base reference never answers with its
+own amendment's record**, and a supplement reference never answers with its
+base document. That is this flavor's rule, and it used to need a
+`supplement?` guard, because `matches?` enforced it only through the
+class-strict `==`, which was pubid's internal invariant rather than a contract.
+`spec/cen/relaton/cen/bibliography_spec.rb` still covers it (`never selects a
+supplement for a base reference`), so a pubid that relaxed `===` would fail
+loudly here.
 
-- no part → ignore `:part, :subpart`
-- no base year → ignore `:year`
-- a supplement that carries **no year** → ignore `:supplement_year`
+Measured over the 61 hit codes the cassettes hold (141 queries: each code and
+its forms without year, part and supplement year): `===` and the old
+`matches?(…, ignore: ignored_components(query))` agree on all 8,601 pairs.
 
-The third condition's `supplement?` half is **belt and braces, kept on purpose.**
-pubid's `matches?` is `exclude(*ignore) == other.exclude(*ignore)`, and its `==`
-is **class-strict** (`Lutaml::Model::ComparableModel#same_class?` uses
-`instance_of?`), so a base-document class can never equal a supplement wrapper
-however long the ignore list grows: measured on pubid `b4d52e5d6`,
-`CEN ISO/TS 21003-7` does not match `CEN ISO/TS 21003-7:2008/A1:2010` even with
-`:supplement_year` ignored. Don't read the guard as load-bearing today — but
-don't delete it either. That class-strictness is pubid's internal invariant,
-not a documented contract, while "a base reference must never answer with its
-own amendment's record" is **this flavor's** rule, which the old code stated
-explicitly by requiring amendment identity. The guard keeps the rule in the
-flavor rather than inherited by luck, and
-`spec/cen/relaton/cen/bibliography_spec.rb` covers it (`never selects a
-supplement for a base reference`), so a pubid that relaxed `==` would fail
-loudly here instead of quietly returning an amendment.
-
-So `:supplement_year` is ignored only when the query itself names a supplement
-without a year: `EN 285:2015+A1` → `EN 285:2015+A1:2021`, but never
-→ `EN 285:2015`.
+`absent?(id, *keys)` (`id.exclude(*keys) == id`) stays for `get`, which appends
+the `year` argument to a reference that names no year.
 
 Two selections got **stricter**, and both were latent bugs in the regex:
 `code_to_parts` required a literal `+` for its `amd` group and never compared its
@@ -208,8 +199,8 @@ RSpec with WebMock + VCR (cassettes in `spec/vcr_cassettes/`, record `:once`, 7-
   every identifier form the portal serves, including the two rows above that the
   old regex left unchanged.
 - `spec/cen/relaton/cen/bibliography_spec.rb` unit-tests hit **selection** with
-  **no HTTP at all**: the ignore-list table and `matches?` are the whole of
-  `search_filter`'s decision, and driving them directly covers pairs no cassette
+  **no HTTP at all**: `query === hit` is the whole of `search_filter`'s
+  decision, and driving it directly covers pairs no cassette
   can. That matters here — the cassettes hold a detail page only for the
   document their own example fetched, so an example that selects a *different*
   hit from the same search (say the 2008 record in `cen_iso_ts_21003_7`) dies

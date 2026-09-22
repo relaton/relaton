@@ -28,7 +28,7 @@ Namespace: `Relaton::Gost`. Retrieval flow:
    file: "index-v2.yaml", pubid_class: ::Pubid::Gost::Identifier)`. Each row's `:id` is a
    `_type: pubid:gost:{interstate,national}-standard` hash that `Relaton::Index` rebuilds into
    a `Pubid::Gost` identifier via `from_hash`; passing the parsed pubid to `#search` lets it
-   binary-search candidates by number before the block runs `pubid_match?`. `INDEXFILE =
+   binary-search candidates by number (see `Bibliography#rows`). `INDEXFILE =
    "index-v2"` is in `lib/relaton/gost.rb`.
 3. **Item / ItemData / Ext** (`item.rb`, `item_data.rb`, `ext.rb`) — `Item` extends
    `Bib::Item`, re-declares `ext` to the typed `Gost::Ext` and `docidentifier` to the pubid
@@ -55,17 +55,18 @@ There are no scrapers — everything comes from the curated index + GitHub YAML.
 ## Pubid
 
 The flavor is **pubid-backed** via `Pubid::Gost` (metanorma/pubid#108), on the `pubid` `main`
-branch the root `Gemfile` already pins (for JCGM). `pubid_match?` uses the idiomatic
-`query.matches?(row_id, ignore: [:year])` for an undated citation (matches every edition
-sharing subtype + number; interstate vs national and `1.1` vs `1.10` stay distinct because
-`matches?` compares the full identifier) and an exact `matches?` for a dated one. This relies
-on `Pubid::Gost#exclude(:year)` honouring GOST's `year` attribute — that pubid fix (base
-`exclude` no longer *deletes* `:year` when mapping to `:date`) is what unblocked the idiom; an
-older pubid where `exclude(:year)` no-ops would make undated lookups match nothing. The
+branch the root `Gemfile` already pins (for JCGM). `Bibliography#rows` selects a dated
+citation with `index.search(query, exact: true)` (pubid `==`) and an undated one with the
+default subset match `query === row`: the omitted year matches any value, so it matches every
+edition sharing subtype + number. `===` requires the same class, so interstate and national
+stay distinct, and `1.1` does not match `1.10`. pubid declares `copublisher` strict for GOST
+(pubid#408), so an omitted copublisher means "none". Measured over the full
+`relaton-data-gost` index (37,508 rows): `===` and the old `matches?(…, ignore: [:year])` agree
+on all 94,279 pairs. The
 `relaton-data-gost` `index-v2.yaml` was built with this **same** pubid, so the rows deserialize
 (a mismatched pubid would make `Relaton::Index` reject the whole index — cf. the root
 `CLAUDE.md` JCGM note). If the root `Gemfile` reverts the pubid pin to a release, that release
-must carry both `Pubid::Gost` and the `exclude(:year)` fix.
+must carry `Pubid::Gost` and `subset_strict`.
 
 ## Dataset
 

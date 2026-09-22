@@ -36,6 +36,13 @@ module Relaton
         # `ECMA-6 (draft)` silently resolved to ECMA-6 and now does not. See
         # lib/relaton/ecma/CLAUDE.md for the measured table.
         #
+        # The rows are selected with pubid's subset match `pubid === row`, the
+        # default of `Index::Type#search`. An `edition` or a `volume` that the
+        # reference omits matches any value, so a bare `ECMA-269` reaches the
+        # edition rows. pubid declares `part` strict for ECMA, so a bare
+        # `ECMA-418` does not match `ECMA-418-1`. The class must be identical,
+        # which keeps `ECMA-100` and `ECMA TR/100` apart.
+        #
         # @param ref [String] the ECMA reference (e.g. "ECMA-6", "ECMA-269 ed3 vol2")
         #
         # @return [Array<Hash>] matching index rows
@@ -44,7 +51,7 @@ module Relaton
           pubid = parse_ref ref
           return [] unless pubid
 
-          index.search(pubid) { |row| pubid.matches? row[:id], ignore: ignored(pubid) }
+          index.search(pubid)
         end
 
         #
@@ -67,23 +74,6 @@ module Relaton
         # such document", leaving a caller unable to tell them apart.
         def parse_ref(ref)
           ::Pubid::Ecma::Identifier.parse ref.to_s.strip
-        end
-
-        #
-        # The components the reference left out, which a row may carry freely.
-        #
-        # `edition` and `volume` are the only two: they are index metadata, and
-        # a document's own docidentifier carries neither (see
-        # `Relaton::Ecma::Docidentifier`), so a bare `ECMA-269` has to reach the
-        # edition rows. `number`, `part` and the identifier's CLASS are never
-        # ignorable — `matches?` compares the class, which is what keeps
-        # `ECMA-100` and `ECMA TR/100` apart.
-        #
-        # @param pubid [Pubid::Ecma::Identifier]
-        # @return [Array<Symbol>]
-        #
-        def ignored(pubid)
-          %i[edition volume].select { |attr| pubid.public_send(attr).nil? }
         end
 
         # @param code [String] the ECMA standard Code to look up (e..g "ECMA-6")

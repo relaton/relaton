@@ -32,6 +32,12 @@ module Relaton::Calconnect
     # documents and `CC/A 1` with every `CC/A 1xxx`. A number now matches
     # exactly, and a leading zero is significant (`CC/A 0001` is not `CC/A 1`).
     #
+    # The rows are selected with pubid's subset match `pubid === row`, the
+    # default of `Index::Type#search`. A date that the reference omits matches
+    # any value. pubid declares `series` strict for CalConnect, so the series
+    # keeps `CC/CD 51016` and `CC/WD 51016` apart, and a series-less
+    # `CC 36010` does not match `CC/WD 36010`.
+    #
     # @param ref [String]
     # @return [Array<Hash>] matching index rows
     #
@@ -39,10 +45,7 @@ module Relaton::Calconnect
       pubid = parse_ref ref
       return [] unless pubid
 
-      rows = index.search(pubid) do |row|
-        pubid.matches? row[:id], ignore: ignored(pubid)
-      end
-      rows.sort_by { |row| [recency_key(row[:id]), row[:file]] }
+      index.search(pubid).sort_by { |row| [recency_key(row[:id]), row[:file]] }
     end
 
     #
@@ -64,21 +67,6 @@ module Relaton::Calconnect
     # such document", leaving a caller unable to tell them apart.
     def parse_ref(ref)
       ::Pubid::Calconnect::Identifier.parse ref.to_s.strip
-    end
-
-    #
-    # The components the reference left out, which a row may carry freely.
-    #
-    # The date is the only one: CalConnect's other components are the
-    # identifier's own identity. `series` in particular is never ignorable — it
-    # is what keeps `CC/CD 51016` and `CC/WD 51016` apart — and neither is the
-    # absence of a series, so `CC 36010` does not match `CC/WD 36010`.
-    #
-    # @param pubid [Pubid::Calconnect::Identifier]
-    # @return [Array<Symbol>]
-    #
-    def ignored(pubid)
-      pubid.date.nil? ? %i[year] : []
     end
 
     #

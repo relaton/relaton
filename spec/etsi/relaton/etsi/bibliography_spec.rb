@@ -58,6 +58,23 @@ describe Relaton::Etsi::Bibliography do
     expect(row[:file]).to eq "data/new.yaml"
   end
 
+  it "does not answer a base reference with its corrigendum" do
+    # The index holds ETSI ETR 310 ed.1 (1996-08) and its corrigendum
+    # ETR 310/C1 ed.1 (1996-10). The corrigendum is newer, so a match that
+    # let the base reference reach it resolved to the corrigendum.
+    stub_yaml "data/etsi-etr-310-ed-1-1996-08.yaml"
+    expect { described_class.get "ETSI ETR 310" }.to output.to_stderr_from_any_process
+  end
+
+  it "resolves a fully-qualified part-less reference to that exact edition" do
+    # ETSI GR ZSM 011 carries no part and has V1.1.1 (2023-02) and
+    # V2.1.1 (2024-09) in the index. A part-less reference asks for every
+    # part, which must not also widen the version and the date.
+    stub_yaml "data/etsi-gr-zsm-011-v1-1-1-2023-02.yaml"
+    expect { described_class.get "ETSI GR ZSM 011 V1.1.1 (2023-02)" }
+      .to output.to_stderr_from_any_process
+  end
+
   it "resolves a part-less reference to one of its parts" do
     # ETSI EN 300 175 has parts 1..8 in the index; a part-less ref matches them
     # all (part excluded) and resolves to one of them rather than nothing.

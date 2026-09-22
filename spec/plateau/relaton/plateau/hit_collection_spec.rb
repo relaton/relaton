@@ -12,9 +12,10 @@ RSpec.describe Relaton::Plateau::HitCollection do
 
   describe "#find" do
     it "finds exact match" do
-      expect(index).to receive(:search).and_yield(
-        { id: "PLATEAU Handbook #01 第2.0版", file: "data/plateau-handbook-01-20.yaml" }
-      ).and_return([{ id: "PLATEAU Handbook #01 第2.0版", file: "data/plateau-handbook-01-20.yaml" }])
+      row = { id: "PLATEAU Handbook #01 第2.0版", file: "data/plateau-handbook-01-20.yaml" }
+      expect(index).to receive(:search)
+        .with(Pubid::Plateau.parse("PLATEAU Handbook #01 第2.0版"), exact: true)
+        .and_return([row])
 
       collection = described_class.new("PLATEAU Handbook #01 第2.0版").find
       expect(collection).to be_instance_of described_class
@@ -27,7 +28,8 @@ RSpec.describe Relaton::Plateau::HitCollection do
         { id: "PLATEAU Handbook #01 第2.0版", file: "data/plateau-handbook-01-20.yaml" },
         { id: "PLATEAU Handbook #01 第1.0版", file: "data/plateau-handbook-01-10.yaml" },
       ]
-      expect(index).to receive(:search).and_return(rows)
+      expect(index).to receive(:search)
+        .with(Pubid::Plateau.parse("PLATEAU Handbook #01"), exact: false).and_return(rows)
 
       collection = described_class.new("PLATEAU Handbook #01").find
       expect(collection.size).to eq 2
@@ -97,5 +99,43 @@ RSpec.describe Relaton::Plateau::HitCollection do
       collection = described_class.new("PLATEAU Handbook #01 第1.0版")
       expect(collection.index).to eq index
     end
+  end
+end
+
+# The rows `#find` selects from the committed index fixture. pubid declares
+# `annex` strict for PLATEAU, so a reference without an annex means the
+# document itself, not "any annex".
+RSpec.describe Relaton::Plateau::HitCollection, "against the index fixture" do
+  let(:fixture_index) do
+    yaml = Zip::File.open(INDEX_ZIP_PATH) { |zip| zip.first.get_input_stream.read }
+    file = File.join(Dir.mktmpdir("relaton-plateau-spec"), "index-v2.yaml")
+    File.write(file, yaml)
+    Relaton::Index::Type.new(:plateau, nil, file, nil, ::Pubid::Plateau::Identifier)
+  end
+
+  before do
+    allow(Relaton::Index).to receive(:find_or_create).and_return(fixture_index)
+  end
+
+  def ids(ref)
+    described_class.new(ref).find.map { |hit| hit.hit[:id].to_s }.sort
+  end
+
+  it "does not answer a reference without an annex with an annex" do
+    expect(ids("PLATEAU Handbook #03")).to eq [
+      "PLATEAU Handbook #03 第1.0版", "PLATEAU Handbook #03 第2.0版",
+      "PLATEAU Handbook #03 第3.0版", "PLATEAU Handbook #03 第4.0版"
+    ]
+  end
+
+  it "finds every edition of an annex" do
+    expect(ids("PLATEAU Handbook #03-1")).to eq [
+      "PLATEAU Handbook #03-1 第1.0版", "PLATEAU Handbook #03-1 第2.0版",
+      "PLATEAU Handbook #03-1 第3.0版"
+    ]
+  end
+
+  it "finds one edition of the document" do
+    expect(ids("PLATEAU Handbook #03 第3.0版")).to eq ["PLATEAU Handbook #03 第3.0版"]
   end
 end

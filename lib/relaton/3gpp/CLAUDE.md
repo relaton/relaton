@@ -22,8 +22,8 @@ every 3GPP item**. The mapping is 3GPP-specific:
   is a collection, so it is emptied rather than nil'd — `Identifier#code`
   renders through `parts.map`.
 - **`remove_date!` → clears `release` AND `version`.** 3GPP carries no date;
-  those two are its version discriminators — the same pair
-  `Bibliography#ignored` treats as omittable — so clearing both yields the
+  those two are its version discriminators — the same pair that
+  `Bibliography#best_match` lets a reference omit — so clearing both yields the
   version-agnostic ("most recent") reference `TS 23.207`.
 - **`to_all_parts!` → both, then wraps `@pubid` in pubid's `AllParts`.**
   `content` stays the plain stripped id — the Tgpp renderer has no
@@ -64,24 +64,29 @@ never reads the index (see `lib/relaton/index/CLAUDE.md`).
   when the argument is not a `String`, so passing the reference text — which
   this flavor used to do — disables the binary search however the index was
   built. `pubid_class:` alone fixes nothing; both had to change together.
-- **Ignore what the reference omits.** `release` and `version` are 3GPP's only
-  optional components, so a bare `3GPP TS 23.207` finds the
-  `REL-19/19.0.0` row through `ignore: %i[release version]`.
-- **`suffix` and `parts` are never ignorable.** They are part of the document
-  code (`TS 29.198-04-1`, `TR 00.01U`), not qualifiers, so `TS 29.198` must not
-  match `TS 29.198-04-1` and `TR 00.01` must not match `TR 00.01U`.
-- **Neither is the document type.** It is the identifier's class, and
-  `matches?` compares through `exclude` -> `self.class.new(...)`, so
-  `TS 23.207` and `TR 23.207` never match. (No document code in the corpus is
-  actually carried by both types — measured over all 88,464 rows — so the
-  specs pin this with a negative lookup rather than a fixture pair.)
-- **`matches?` needs a pubid new enough to default `parts` to `[]`.** A parsed
-  identifier has always had `parts == []`; one deserialized from an index row
-  used to have `parts == nil`, and `matches?` is attribute-wise, so every
-  part-less row silently failed to match its own reference — 366 of the 387
-  fixture rows. Fixed upstream in pubid (`242ad5b`); the flavor briefly carried
-  a `to_hash`-comparing workaround, which is gone. If part-less lookups ever
-  start returning nil again, check the installed pubid before the flavor.
+- **Select with the subset match.** `best_match` calls `index.search(pubid)`
+  with no block, so `Index::Type#search` selects with pubid's `pubid === row`.
+  `release` and `version` are 3GPP's only optional components: one that the
+  reference omits matches any value, so a bare `3GPP TS 23.207` finds the
+  `REL-19/19.0.0` row. Measured over the full `relaton-data-3gpp` index
+  (88,464 rows): `===` and the old `matches?(…, ignore: %i[release version])`
+  agree on all 31,305,864 pairs.
+- **`suffix` and `parts` are strict.** They are part of the document code
+  (`TS 29.198-04-1`, `TR 00.01U`), not qualifiers, so pubid declares them
+  `subset_strict` for 3GPP (pubid#408): `TS 29.198` does not match
+  `TS 29.198-04-1`, and `TR 00.01` does not match `TR 00.01U`.
+- **Neither is the document type.** It is the identifier's class, and `===`
+  requires the same class, so `TS 23.207` and `TR 23.207` never match. (No
+  document code in the corpus is actually carried by both types — measured
+  over all 88,464 rows — so the specs pin this with a negative lookup rather
+  than a fixture pair.)
+- **A part-less row must deserialize with `parts == []`.** A parsed identifier
+  has always had `parts == []`; one deserialized from an index row used to
+  have `parts == nil`. With `parts` strict, nil and empty are the same value,
+  but the old attribute-wise `matches?` made every part-less row silently fail
+  to match its own reference — 366 of the 387 fixture rows. Fixed upstream in
+  pubid (`242ad5b`). If part-less lookups ever start returning nil again,
+  check the installed pubid before the flavor.
 - **An unrecognized reference raises.** Like ISO and ETSI, the parse error
   propagates out of `search`, so relaton-cli renders `"…" is not a recognized
   standards identifier` (`gems/relaton-cli/lib/relaton/cli/command.rb:324`,

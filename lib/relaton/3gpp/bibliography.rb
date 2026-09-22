@@ -58,32 +58,21 @@ module Relaton
       # disabled the narrowing however the index was built. With 88,464 rows in
       # 3,767 number buckets that is the whole point of the index-v2 migration.
       #
-      # `release` and `version` are 3GPP's only optional components, so the
-      # ETSI idiom reduces to ignoring each one the reference omits: that is
-      # how a bare `3GPP TS 23.207` still finds the `REL-19/19.0.0` row.
-      # `suffix` and `parts` are deliberately NOT ignorable — they are part of
-      # the document code (`TS 29.198-04-1`, `TR 00.01U`), not qualifiers. Nor
-      # is the document type: it is the identifier's class, and `matches?`
-      # compares through `exclude` -> `self.class.new(...)`, so `TS 23.207` and
-      # `TR 23.207` never match each other.
+      # The rows are selected with pubid's subset match `pubid === row`, the
+      # default of `Index::Type#search`. `release` and `version` are 3GPP's
+      # only optional components: when the reference omits one, it matches
+      # any value, so a bare `3GPP TS 23.207` still finds the `REL-19/19.0.0`
+      # row. pubid declares `suffix` and `parts` strict for 3GPP, because they
+      # are part of the document code (`TS 29.198-04-1`, `TR 00.01U`), not
+      # qualifiers. The document type is the identifier's class, and `===`
+      # requires the same class, so `TS 23.207` and `TR 23.207` never match.
       #
       # @param pubid [::Pubid::Tgpp::Identifier]
       # @return [Hash, nil] the winning index row (`{ id:, file: }`)
       #
       def best_match(pubid)
-        ignore = ignored(pubid)
-        index.search(pubid) { |r| pubid.matches?(r[:id], ignore: ignore) }
+        index.search(pubid)
              .max_by { |r| [version_key(r[:id].version), r[:id].to_s, r[:file]] }
-      end
-
-      # The components the reference left out, which a row may therefore carry
-      # freely.
-      #
-      # @param pubid [::Pubid::Tgpp::Identifier]
-      # @return [Array<Symbol>]
-      #
-      def ignored(pubid)
-        %i[release version].select { |attr| pubid.public_send(attr).nil? }
       end
 
       #
