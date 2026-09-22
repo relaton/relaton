@@ -42,7 +42,7 @@ module Relaton
       end
 
       def to_all_parts!
-        @pubid&.all_parts = true
+        @pubid &&= @pubid.to_all_parts
       end
     end
   end

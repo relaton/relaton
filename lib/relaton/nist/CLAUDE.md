@@ -110,9 +110,11 @@ NIST-specific gotchas (why this isn't a straight copy of IEC/CCSDS):
   numbered editions/revisions (`e2`, `r5`). Dates that ride the `update`
   component (some NBS supplements) are left intact — `update` also encodes
   non-date update codes (`/Upd2`), so stripping it would corrupt identity.
-- **No `(all parts)` rendering.** pubid-nist never emits an all-parts marker, so
-  `to_all_parts!` sets the `all_parts` flag as an invisible no-op and the
-  part-stripped id is the best available rendering, matching IEC/CCSDS.
+- **No `(all parts)` marker in `content`.** `content` is live-derived from
+  `@pubid`, so `to_all_parts!` freezes the already-stripped rendering into
+  `@raw_content` before wrapping `@pubid` in pubid's `AllParts` — matching
+  IEC/CCSDS. `#pubid` itself, read directly, now answers `all_parts? ==
+  true` and renders WITH pubid's generic "(all parts)" marker.
 
 ### Serialization Round-Trip Pattern
 

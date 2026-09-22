@@ -43,8 +43,11 @@ Component mapping:
   the identifier really does change and a consumer reading `#pubid` sees it.
 - **`remove_part!` → clears `part`/`subpart`.** Real here: `ECMA-418-1` →
   `ECMA-418`.
-- **`to_all_parts!` → both, plus `all_parts`** behind a `respond_to?` guard; the
-  ECMA renderer emits no marker for the flag.
+- **`to_all_parts!` → both, then wraps `@pubid` in pubid's `AllParts`.**
+  `content` stays the plain stripped id — the ECMA renderer has no
+  "(all parts)" marker, and `content` is cached from the pre-wrap pubid on
+  purpose. `#pubid` itself, read directly, now answers `all_parts? == true`
+  and renders WITH pubid's generic marker (`#to_s`), since it's the wrapper.
 
 ## Index
 

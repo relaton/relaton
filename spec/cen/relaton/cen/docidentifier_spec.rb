@@ -123,12 +123,16 @@ RSpec.describe Relaton::Cen::Docidentifier do
   end
 
   # A write must not re-parse: the re-rendered string goes back through the
-  # aliased inherited setter, so an in-place flag such as `all_parts` survives.
+  # aliased inherited setter, so the mutated pubid survives. `content` is
+  # cached separately from `@pubid` (stored before the wrap), so it stays the
+  # bare stripped form even though `#pubid` is now the all-parts wrapper,
+  # whose own `#to_s` — pubid's generic "(all parts)" marker — CEN's own
+  # renderer never had.
   it "re-renders through the inherited setter, keeping the mutated pubid" do
     id = docid("EN 1325-1:1996")
     id.to_all_parts!
 
-    expect(id.pubid.to_s).to eq "EN 1325"
+    expect(id.pubid.to_s).to eq "EN 1325 (all parts)"
     expect(id.content).to eq "EN 1325"
   end
 end

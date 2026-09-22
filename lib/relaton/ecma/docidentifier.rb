@@ -67,9 +67,12 @@ module Relaton
       #   `#pubid` sees it.
       # - **`remove_part!` → clears `part`/`subpart`.** Real here:
       #   "ECMA-418-1" -> "ECMA-418".
-      # - **`to_all_parts!` → both, plus `all_parts`** behind a `respond_to?`
-      #   guard; the ECMA renderer emits no marker for the flag, so the
-      #   stripped id is the best available rendering.
+      # - **`to_all_parts!` → both, then wraps `@pubid` in pubid's `AllParts`.**
+      #   `content` stays the plain stripped id — ECMA's own renderer has no
+      #   "(all parts)" marker, and `content` is cached from the pre-wrap
+      #   pubid on purpose. `#pubid` itself, read directly, now answers
+      #   `all_parts? == true` and renders WITH pubid's generic marker
+      #   (`#to_s`), since it's the wrapper.
       #
       # All three no-op safely when `@pubid` is nil, so `Bib::ItemData`'s
       # `#to_all_parts` / `#to_most_recent_reference` never raise on ECMA items.
@@ -83,12 +86,15 @@ module Relaton
       end
 
       def to_all_parts!
-        return unless @pubid
+        return if !@pubid || @pubid.all_parts?
 
+        # `#exclude` (no args) rebuilds a full independent copy — `remove_part!`
+        # / `remove_date!` mutate `@pubid` in place, so a bare reference here
+        # would lose the original part/edition to that mutation too.
+        original = @pubid.exclude
         remove_part!
         remove_date!
-        @pubid.all_parts = true if @pubid.respond_to?(:all_parts=)
-        refresh_content!
+        @pubid = original.to_all_parts
       end
 
       private

@@ -25,10 +25,11 @@ every 3GPP item**. The mapping is 3GPP-specific:
   those two are its version discriminators — the same pair
   `Bibliography#ignored` treats as omittable — so clearing both yields the
   version-agnostic ("most recent") reference `TS 23.207`.
-- **`to_all_parts!` → both, plus `all_parts`.** That attribute is inherited
-  from the pubid base class, but the Tgpp renderer emits no marker for it, so
-  the flag is invisible in the rendered string; the stripped id is the best
-  available rendering. Set behind a `respond_to?` guard, as IALA does.
+- **`to_all_parts!` → both, then wraps `@pubid` in pubid's `AllParts`.**
+  `content` stays the plain stripped id — the Tgpp renderer has no
+  "(all parts)" marker, and `content` is cached from the pre-wrap pubid on
+  purpose. `#pubid` itself, read directly, now answers `all_parts? == true`
+  and renders WITH pubid's generic marker (`#to_s`), since it's the wrapper.
 
 All three no-op safely when `@pubid` is nil, so `ItemData#to_all_parts` and
 `#to_most_recent_reference` never raise.

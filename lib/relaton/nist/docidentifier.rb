@@ -25,9 +25,12 @@ module Relaton
     #   year component, while preserving non-year editions/revisions (`r5`, `e2`).
     #   Dates carried in the `update` component (some NBS supplements) are left
     #   intact — `update` also encodes non-date update codes (`/Upd2`).
-    # - **No `(all parts)` rendering.** pubid-nist never emits an all-parts
-    #   marker, so `to_all_parts!` degrades to part+date+stage removal and sets
-    #   the `all_parts` flag as an (invisible) no-op, matching IEC/CCSDS.
+    # - **No `(all parts)` marker in `content`.** `content` is live-derived
+    #   from `@pubid` (see below), so `to_all_parts!` freezes the already
+    #   part+date+stage-stripped rendering into `@raw_content` before
+    #   wrapping `@pubid` — matching IEC/CCSDS. `#pubid` itself, read
+    #   directly, now answers `all_parts? == true` and renders WITH pubid's
+    #   generic "(all parts)" marker, since it's the wrapper.
     class Docidentifier < Bib::Docidentifier
       attribute :content, :string
 
@@ -75,14 +78,21 @@ module Relaton
         content.to_s
       end
 
+      # `#exclude` (no args) clones the whole graph (incl. a supplement's
+      # base), since `walk_chain` mutates it in place. `@raw_content` freezes
+      # the stripped rendering — `content` is live from `@pubid`, and the
+      # wrapper would otherwise add pubid's generic "(all parts)" marker,
+      # which pubid-nist itself never has. `identifiers` then keeps the
+      # ORIGINAL part/date/stage, not the stripped working copy.
       def to_all_parts!
-        return unless @pubid
+        return if !@pubid || @pubid.all_parts?
 
+        original = @pubid.exclude
         remove_part!
         remove_date!
         remove_stage!
-        @pubid.all_parts = true if @pubid.respond_to?(:all_parts=)
-        refresh_content!
+        @raw_content = to_s
+        @pubid = original.to_all_parts
       end
 
       def remove_part!

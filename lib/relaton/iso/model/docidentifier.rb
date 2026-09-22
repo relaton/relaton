@@ -68,13 +68,17 @@ module Relaton
         content.to_s
       end
 
+      # `remove_part!`/`remove_date!` are unnecessary here: `to_all_parts`'s
+      # own identity computation already excludes part/date (down the whole
+      # base chain, so a supplement's own year is dropped too — a disclosed
+      # pubid behavior change, not a bug; see spec/iso/…/docidentifier_spec.rb
+      # "#to_all_parts!"). `remove_stage!` stays: stage isn't one of the
+      # attributes pubid's `all_parts_edition_keys` strips.
       def to_all_parts!
         return unless @pubid
 
-        remove_part!
-        remove_date!
         remove_stage!
-        @pubid.all_parts = true
+        @pubid = @pubid.to_all_parts
         refresh_content!
       end
 

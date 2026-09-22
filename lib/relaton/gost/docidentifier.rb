@@ -10,8 +10,9 @@ module Relaton
       # Capture the inherited content setter before overriding #content=, so
       # #refresh_content! can write the re-rendered string back WITHOUT
       # re-parsing. `remove_date!` used to re-sync through `self.content=`,
-      # which rebuilds @pubid from the string; harmless on its own, but it
-      # would discard the `all_parts = true` that `to_all_parts!` sets.
+      # which rebuilds @pubid from the string; harmless on its own, but a
+      # re-parse of an all-parts wrapper's own rendering (which carries
+      # pubid's "(all parts)" marker) would not round-trip at all.
       alias_method :store_content, :content=
 
       def initialize(attrs = {}, options = {})
@@ -48,12 +49,17 @@ module Relaton
       end
 
       def to_all_parts!
-        return unless @pubid
+        return if !@pubid || @pubid.all_parts?
 
+        # `remove_part!`/`remove_date!` mutate `@pubid` in place via direct
+        # attribute setters, so a bare reference (or a shallow `.dup`) would
+        # still see those mutations. `#exclude` with no args rebuilds the
+        # whole identifier as new objects — a real, independent snapshot —
+        # so the all-parts wrapper below keeps the original part and date.
+        original = @pubid.exclude
         remove_part!
         remove_date!
-        @pubid.all_parts = true if @pubid.respond_to?(:all_parts=)
-        refresh_content!
+        @pubid = original.to_all_parts
       end
 
       private

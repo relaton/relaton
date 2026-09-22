@@ -112,14 +112,17 @@ neither string ends in a bare year, so the regex stripped **nothing** and
 CEN-only key, and it resets the supplement's year and month together. Note that
 ISO and IEC are different — there `exclude(:year)` removes *every* year.
 
-`remove_part!` is `exclude(:part, :subpart)`, and `to_all_parts!` is both plus
-the `all_parts` flag. **`Pubid::CenCenelec::Renderer` never reads
-`all_parts`**, so the flag is invisible in `content` — setting it on `EN 1325`
-renders `EN 1325` either way — and `to_all_parts!` degrades to a rendered
-part-and-date strip while the flag is set structurally, for anything that later
-reads the pubid rather than the string. BSI and IALA make the same trade-off,
-for the same reason. pubid holds a sub-part **inside** `part` (`61375-2-3`
-gives `"2-3"`), which is also why `fetch_structuredid` swaps the separator to
+`remove_part!` is `exclude(:part, :subpart)`, and `to_all_parts!` does both,
+then wraps `@pubid` in pubid's `AllParts` (a generic `Pubid::AllPartsIdentifier`
+— CEN has no dedicated `AllParts` subclass). `content` stays the plain
+part-and-date-stripped string: **`Pubid::CenCenelec::Renderer` never reads
+`all_parts`**, so CEN's own renderer never had a marker, and `content` is
+cached from the pre-wrap pubid on purpose. `#pubid` itself, read directly, now
+answers `all_parts? == true` and renders WITH pubid's generic "(all parts)"
+marker (`#to_s`), since it's the wrapper. BSI and IALA make the same
+content/`#pubid` trade-off, for the same reason. pubid holds a sub-part
+**inside** `part` (`61375-2-3` gives `"2-3"`), which is also why
+`fetch_structuredid` swaps the separator to
 reproduce the old `"2:3"` partnumber.
 
 ### Hit selection — what the query left unsaid

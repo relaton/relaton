@@ -13,13 +13,16 @@ wired into `model/item.rb` (`attribute :docidentifier, Docidentifier`) so
 `from_xml`/`from_yaml` and `DataParser#parse_docidentifier` yield this class.
 `remove_date!` is effectively a no-op today — CCSDS ids carry no date component —
 but is implemented for parity with ISO/IEC. `to_all_parts!` drops the part
-component (e.g. `CCSDS 121.0-B-3` → `CCSDS 121-B-3`) and sets `all_parts` on the
-pubid; note pubid-ccsds does **not** render an `(all parts)` marker the way
-pubid-iso does, so the flag is currently invisible in the string form — the
-part-stripped id is the best available rendering. This mirrors
-`lib/relaton/iec/model/docidentifier.rb`; the shared skeleton is intentionally
-duplicated per flavor for now (to be hoisted into `Bib::Docidentifier` once every
-flavor's id is Pubid-backed).
+component (e.g. `CCSDS 121.0-B-3` → `CCSDS 121-B-3`), freezes that rendering
+into `@raw_content` (since `content` is live-derived from `@pubid`), then
+wraps `@pubid` in pubid's `AllParts`. pubid-ccsds has no dedicated `AllParts`
+subclass — unlike pubid-iso — so the wrapper is the generic
+`Pubid::AllPartsIdentifier`: `content` stays the plain part-stripped id, but
+`#pubid` itself, read directly, now answers `all_parts? == true` and renders
+WITH pubid's generic "(all parts)" marker, since it's the wrapper. This
+mirrors `lib/relaton/iec/model/docidentifier.rb`; the shared skeleton is
+intentionally duplicated per flavor for now (to be hoisted into
+`Bib::Docidentifier` once every flavor's id is Pubid-backed).
 
 **Translation relations use pubid's subset match.**
 `Data::Fetcher#search_instance_translation` reads the document's **already

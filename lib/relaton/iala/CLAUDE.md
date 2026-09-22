@@ -24,11 +24,12 @@ only `publisher`/`number`/`edition`/`language`, so the mapping is IALA-specific:
   (e.g. `0103-1`), so the part is not a separable component. Implemented anyway
   so it never raises, and it starts working automatically if pubid-iala ever
   models `part` separately.
-- **`to_all_parts!` → `remove_part!` + `remove_date!` + `all_parts = true`.**
-  Drops the edition and flags the identifier; note the IALA renderer does not
-  emit an all-parts marker, so the flag is invisible in the string form — the
-  edition-stripped id is the best available rendering. Mirrors
-  `lib/relaton/iec/model/docidentifier.rb`.
+- **`to_all_parts!` → `remove_part!` + `remove_date!`, then wraps `@pubid` in
+  pubid's `AllParts`.** `content` stays the edition-stripped string — IALA's
+  own renderer has no "(all parts)" marker, and `content` is cached from the
+  pre-wrap pubid on purpose. `#pubid` itself, read directly, now answers
+  `all_parts? == true` and renders WITH pubid's generic marker (`#to_s`),
+  since it's the wrapper. Mirrors `lib/relaton/iec/model/docidentifier.rb`.
 
 All three no-op safely when `@pubid` is nil, so `Bib::ItemData#to_all_parts` /
 `#to_most_recent_reference` never raise on IALA items.
