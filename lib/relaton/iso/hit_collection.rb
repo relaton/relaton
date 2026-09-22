@@ -28,12 +28,21 @@ module Relaton
         out
       end
 
+      # `ref` itself when it is a plain identifier; the wrapped member when an
+      # all-parts request wrapped it. pubid's `==` is class-strict, so
+      # comparing against index rows (always plain identifiers) needs this
+      # unwrapped form — `ref.root` would over-unwrap a supplement's own
+      # `.base` chain, which this must leave intact.
+      def ref_document
+        ref.all_parts? ? ref.identifiers.first : ref
+      end
+
       def ref_pubid_no_year
         @ref_pubid_no_year ||=
-          if ref.base
-            ref.dup.tap { |r| r.base = r.base.exclude(:date) }
+          if ref_document.base
+            ref_document.dup.tap { |r| r.base = r.base.exclude(:date) }
           else
-            ref.exclude(:date)
+            ref_document.exclude(:date)
           end
       end
 
@@ -61,7 +70,7 @@ module Relaton
         end.map { |row| Hit.new row, self }
         # An all-parts query drops :part from the match, so multiple rows can
         # resolve to the same pubid; collapse them so each part appears once.
-        @array.uniq! { |h| h.pubid.to_s } if ref.root.all_parts
+        @array.uniq! { |h| h.pubid.to_s } if ref.all_parts
         # Most-recent first (pubid string desc ~ year desc), then float
         # published-stage ids above drafts. An undated query excludes :stage
         # when matching, so a future draft (e.g. ISO/AWI) matches alongside the
@@ -118,8 +127,13 @@ module Relaton
         return @excludings if defined? @excludings
 
         excl_attrs = %i[year]
-        excl_attrs << :part if ref.root.part.nil? || ref.root.all_parts
-        if default_published_stage?(ref) || ref.root.all_parts
+        excl_attrs << :part if ref.root.part.nil? || ref.all_parts
+        # `ref_document` (not `ref`), since an all-parts-wrapped `ref`'s own
+        # `typed_stage` is never set (always nil) — reading it directly would
+        # answer "no stage specified" for the wrapper regardless of the real
+        # underlying document's stage. Correct today only because this is
+        # OR'd with `ref.all_parts` (already true whenever wrapped).
+        if default_published_stage?(ref_document) || ref.all_parts
           excl_attrs << :stage
           excl_attrs << :iteration
         end
@@ -147,7 +161,7 @@ module Relaton
         @excludings = nil if options != opts
         @opts = options
 
-        if !ref.root.all_parts || size == 1
+        if !ref.all_parts || size == 1
           any? && first.item # (opts[:lang])
         else
           to_all_parts

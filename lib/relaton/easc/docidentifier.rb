@@ -53,9 +53,12 @@ module Relaton
       # - **`remove_part!` → clears the (unused) `part`/`subpart`.** EASC models
       #   no part, so this is a no-op for the rendered string; implemented so it
       #   never raises, and it starts working if pubid-easc ever adds one.
-      # - **`to_all_parts!` → both, plus `all_parts`** behind a `respond_to?`
-      #   guard; the EASC renderer emits no marker for it, so the stripped id is
-      #   the best available rendering.
+      # - **`to_all_parts!` → both, then wraps `@pubid` in pubid's `AllParts`.**
+      #   `content` stays the plain stripped id — EASC's own renderer has no
+      #   "(all parts)" marker, and `content` is cached from the pre-wrap
+      #   pubid on purpose. `#pubid` itself, read directly, now answers
+      #   `all_parts? == true` and renders WITH pubid's generic marker
+      #   (`#to_s`), since it's the wrapper.
       #
       # All three no-op safely when `@pubid` is nil.
 
@@ -68,12 +71,15 @@ module Relaton
       end
 
       def to_all_parts!
-        return unless @pubid
+        return if !@pubid || @pubid.all_parts?
 
+        # `#exclude` (no args) rebuilds a full independent copy — `remove_part!`
+        # / `remove_date!` mutate `@pubid` in place, so a bare reference here
+        # would lose the original year to that mutation too.
+        original = @pubid.exclude
         remove_part!
         remove_date!
-        @pubid.all_parts = true if @pubid.respond_to?(:all_parts=)
-        refresh_content!
+        @pubid = original.to_all_parts
       end
 
       private

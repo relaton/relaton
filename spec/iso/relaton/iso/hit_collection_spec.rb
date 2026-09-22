@@ -51,7 +51,7 @@ describe Relaton::Iso::HitCollection do
     end
 
     it "fing all parts & reverse sort by pubid" do
-      ref.all_parts = true
+      subject.instance_variable_set :@ref, ref.to_all_parts
       expect(subject.find.size).to eq 3
       expect(subject.first.pubid.to_s).to eq "ISO 19115-3:2016"
     end
@@ -112,7 +112,7 @@ describe Relaton::Iso::HitCollection do
     end
 
     it "returns excluded parts with all_parts" do
-      ref.all_parts = true
+      subject.instance_variable_set :@ref, ref.to_all_parts
       expect(subject.excludings).to eq %i[year part stage iteration]
     end
 
@@ -134,7 +134,7 @@ describe Relaton::Iso::HitCollection do
     end
 
     it "all_parts" do
-      ref.all_parts = true
+      subject.instance_variable_set :@ref, ref.to_all_parts
       subject.instance_variable_set :@array, [hit1, hit2]
       expect(subject).to receive(:to_all_parts).and_return :doc
       expect(subject.fetch_doc).to be :doc

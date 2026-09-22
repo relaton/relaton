@@ -34,11 +34,14 @@ module Relaton
         original_content&.to_s
       end
 
-      # The parsed identifier, when the content is a BSI reference.
-      # @return [Pubid::Bsi::Identifier, nil]
+      # The parsed identifier, when the content is a BSI reference. BSI has no
+      # dedicated pubid `AllParts` subclass, so `#to_all_parts!` stores the
+      # generic `Pubid::AllPartsIdentifier` wrapper here — not a
+      # `Pubid::Bsi::Identifier` — hence the second branch.
+      # @return [Pubid::Bsi::Identifier, Pubid::AllParts, nil]
       def pubid
         c = original_content
-        c if c.is_a?(::Pubid::Bsi::Identifier)
+        c if c.is_a?(::Pubid::Bsi::Identifier) || c.is_a?(::Pubid::AllParts)
       end
 
       def to_s
@@ -65,17 +68,22 @@ module Relaton
         self.content = pubid.exclude(:part, :subpart)
       end
 
-      # Reduce to the all-parts form. BSI's pubid renderer does not emit an
-      # "(all parts)" marker (unlike ISO), so the rendered content degrades to
-      # the part+date-stripped form; the inherited `all_parts` flag is still set
-      # on the resulting identifier for structural/serialization correctness
-      # (guarded by `respond_to?` for identifier types that lack the setter).
+      # Reduce to the all-parts form by wrapping `pubid` AS-IS (not a
+      # part/date-stripped copy): `to_all_parts`'s own identity computation
+      # already strips part/date for rendering (`#to_s`/`#===`), and wrapping
+      # the original keeps `identifiers` holding the real identifier this
+      # reference came from. BSI has no dedicated pubid `AllParts` subclass
+      # (unlike ISO/IEC), so the wrapper is the generic
+      # `Pubid::AllPartsIdentifier` — its `#to_s` DOES print a "(all parts)"
+      # marker, unlike BSI's own renderer, which never had one. Because BSI
+      # stores its parsed pubid as the single source of `content`
+      # (`Iso::Type::Pubid`), `content` and `#pubid` can't diverge here the
+      # way they do for flavors with a separately cached content string:
+      # both now show the marker (see `#pubid` above, widened to accept it).
       def to_all_parts!
-        return unless pubid
+        return if !pubid || pubid.all_parts?
 
-        all_parts = pubid.exclude(:part, :subpart, :date, :month)
-        all_parts.all_parts = true if all_parts.respond_to?(:all_parts=)
-        self.content = all_parts
+        self.content = pubid.to_all_parts
       end
 
       private

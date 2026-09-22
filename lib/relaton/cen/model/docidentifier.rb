@@ -62,22 +62,25 @@ module Relaton
         replace_pubid @pubid.exclude(:part, :subpart)
       end
 
-      # Strips the part and the date, and flags the identifier.
+      # Strips the part and the date, then wraps `@pubid` in pubid's `AllParts`.
       #
-      # `Pubid::CenCenelec::Renderer` never reads `all_parts`, so the flag is
-      # invisible in `content` — measured on pubid `b4d52e5d6`, setting it on
-      # `EN 1325` renders `EN 1325` either way. So this degrades to a rendered
-      # part-and-date strip while the flag is set structurally, for anything
-      # that later reads the pubid rather than the string. Same trade-off as
-      # `Relaton::Bsi::Docidentifier` and `Relaton::Iala::Docidentifier`, whose
-      # renderers emit no all-parts marker either.
+      # `content` stays the plain part-and-date-stripped string —
+      # `Pubid::CenCenelec::Renderer` has no "(all parts)" marker of its own,
+      # and `content` is cached from the pre-wrap pubid on purpose (see
+      # below). `#pubid` itself, read directly, now answers
+      # `all_parts? == true` and renders WITH pubid's own generic marker
+      # (`#to_s`), since it's the wrapper. Same trade-off as
+      # `Relaton::Bsi::Docidentifier` and `Relaton::Iala::Docidentifier`.
       def to_all_parts!
-        return unless @pubid
+        return if !@pubid || @pubid.all_parts?
 
+        # `#exclude` (no args) rebuilds a full independent copy. `remove_part!`
+        # / `remove_date!` happen to replace `@pubid` rather than mutate it in
+        # place here, but this stays correct even if that changes.
+        original = @pubid.exclude
         remove_part!
         remove_date!
-        @pubid.all_parts = true
-        refresh_content!
+        @pubid = original.to_all_parts
       end
 
       private

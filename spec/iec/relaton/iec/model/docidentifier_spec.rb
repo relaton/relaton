@@ -139,5 +139,34 @@ describe Relaton::Iec::Docidentifier do
       expect(docid.to_s).to eq "IEC TR 60034 (all parts)"
       expect(docid.pubid.all_parts).to be true
     end
+
+    it "keeps the original part and date on the wrapped identifier" do
+      docid = build_docid("IEC 60027-1:1992")
+      docid.to_all_parts!
+      member = docid.pubid.identifiers.first
+      expect(member.part).to eq "1"
+      expect(member.date.year).to eq "1992"
+    end
+
+    # pubid's `AllParts` wrapper computes its rendered identity as edition-
+    # agnostic down the WHOLE base chain (`all_parts_edition_keys` excludes
+    # date/year/edition/version at every level, not just the top one), so an
+    # amendment's own year is dropped from the rendering too — even though it
+    # is preserved on the wrapped identifier itself (see below). This is a
+    # real, disclosed change from the pre-migration renderer, which kept a
+    # supplement's own year (`IEC 60027/AMD1:1997`); see the root `CLAUDE.md`
+    # all-parts hand-off.
+    it "drops the amendment's own year from the rendering" do
+      docid = build_docid("IEC 60027-1:1992/AMD1:1997")
+      docid.to_all_parts!
+      expect(docid.to_s).to eq "IEC 60027/AMD1 (all parts)"
+    end
+
+    it "keeps the amendment's own year on the wrapped identifier" do
+      docid = build_docid("IEC 60027-1:1992/AMD1:1997")
+      docid.to_all_parts!
+      member = docid.pubid.identifiers.first
+      expect(member.date.year).to eq "1997"
+    end
   end
 end

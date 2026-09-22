@@ -94,9 +94,11 @@ not catch it. The mapping is OGC-specific:
   rendered string today — OGC models no part — but implemented so it never
   raises, and it starts working if pubid-ogc ever adds one. (The IALA
   precedent.)
-- **`to_all_parts!` → both, plus `all_parts`** behind a `respond_to?` guard;
-  the OGC renderer emits no marker for it, so the stripped id is the best
-  available rendering.
+- **`to_all_parts!` → both, then wraps `@pubid` in pubid's `AllParts`.**
+  `content` stays the plain stripped id — OGC's own renderer has no
+  "(all parts)" marker, and `content` is cached from the pre-wrap pubid on
+  purpose. `#pubid` itself, read directly, now answers `all_parts? == true`
+  and renders WITH pubid's generic marker (`#to_s`), since it's the wrapper.
 
 `refresh_content!` renders a bare `to_s`. The OGC printed form carries no
 publisher token and the stored `content` does not either, so — unlike 3GPP,

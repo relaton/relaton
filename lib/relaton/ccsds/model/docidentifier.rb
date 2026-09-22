@@ -65,12 +65,24 @@ module Relaton
       end
 
       def to_all_parts!
-        return unless @pubid
+        return if !@pubid || @pubid.all_parts?
 
+        # `#exclude` (no args) rebuilds a full independent copy, including
+        # the base chain of a supplement/corrigendum — `remove_attr!` walks
+        # and mutates that whole chain in place, so even a shallow `.dup`
+        # would still lose the original part/date to that mutation.
+        original = @pubid.exclude
         remove_part!
         remove_date!
-        @pubid.all_parts = true if @pubid.respond_to?(:all_parts=)
-        refresh_content!
+        # `content` is live-derived from `@pubid` (see above), and the wrapped
+        # all-parts identifier renders a "(all parts)" marker pubid-ccsds
+        # itself never has — so freeze the already-stripped rendering into
+        # `@raw_content` (checked first by `content`) before wrapping.
+        @raw_content = to_s
+        # Wrap the ORIGINAL (unstripped) pubid, not the part/date-stripped
+        # working copy above — `identifiers` should hold the real identifier
+        # this all-parts reference was derived from.
+        @pubid = original.to_all_parts
       end
 
       def remove_part!

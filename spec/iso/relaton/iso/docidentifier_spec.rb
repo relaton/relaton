@@ -99,6 +99,50 @@ describe Relaton::Iso::Docidentifier do
     end
   end
 
+  context "#to_all_parts!" do
+    let(:type) { "ISO" }
+
+    it "drops the part and date" do
+      docid = described_class.new content: "ISO 19115-1:2014", type: type
+      docid.to_all_parts!
+      expect(docid.to_s).to eq "ISO 19115 (all parts)"
+      expect(docid.pubid.all_parts).to be true
+    end
+
+    it "keeps the original part and date on the wrapped identifier" do
+      docid = described_class.new content: "ISO 19115-1:2014", type: type
+      docid.to_all_parts!
+      member = docid.pubid.identifiers.first
+      expect(member.part).to eq "1"
+      expect(member.date.year).to eq "2014"
+    end
+
+    # pubid's `AllParts` wrapper computes its rendered identity as edition-
+    # agnostic down the WHOLE base chain (`all_parts_edition_keys` excludes
+    # date/year/edition/version at every level, not just the top one), so an
+    # amendment's own year is dropped from the rendering too — even though it
+    # is preserved on the wrapped identifier itself (see below). This is a
+    # real, disclosed change from the pre-migration renderer, which kept a
+    # supplement's own year (`ISO 19115-1/Amd 1:2018`); see the root
+    # `CLAUDE.md` all-parts hand-off.
+    it "drops the amendment's own year from the rendering" do
+      docid = described_class.new(
+        content: "ISO 19115-1:2014/Amd 1:2018", type: type,
+      )
+      docid.to_all_parts!
+      expect(docid.to_s).to eq "ISO 19115/Amd 1 (all parts)"
+    end
+
+    it "keeps the amendment's own year on the wrapped identifier" do
+      docid = described_class.new(
+        content: "ISO 19115-1:2014/Amd 1:2018", type: type,
+      )
+      docid.to_all_parts!
+      member = docid.pubid.identifiers.first
+      expect(member.date.year).to eq "2018"
+    end
+  end
+
   context "#exclude_year" do
     let(:type) { "ISO" }
 

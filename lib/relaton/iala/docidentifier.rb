@@ -9,8 +9,9 @@ module Relaton
 
       # Capture the inherited (LocalizedMarkedUpString) content setter before
       # overriding #content=, so #refresh_content! can write the re-rendered
-      # string back WITHOUT re-parsing (a re-parse would rebuild @pubid from the
-      # string and discard in-place mutations such as `all_parts = true`).
+      # string back WITHOUT re-parsing (a re-parse would rebuild @pubid from
+      # the string, which may not even parse back — e.g. an all-parts
+      # wrapper's own "(all parts)" rendering — and discard the mutation).
       alias_method :store_content, :content=
 
       def initialize(attrs = {}, options = {})
@@ -59,12 +60,15 @@ module Relaton
       end
 
       def to_all_parts!
-        return unless @pubid
+        return if !@pubid || @pubid.all_parts?
 
+        # `#exclude` (no args) rebuilds a full independent copy — `remove_part!`
+        # / `remove_date!` mutate `@pubid` in place, so a bare reference here
+        # would lose the original edition to that mutation too.
+        original = @pubid.exclude
         remove_part!
         remove_date!
-        @pubid.all_parts = true if @pubid.respond_to?(:all_parts=)
-        refresh_content!
+        @pubid = original.to_all_parts
       end
 
       private

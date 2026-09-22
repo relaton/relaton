@@ -71,11 +71,16 @@ module Relaton
       # `JIS C 0364-2-21:1999` -> `JIS C 0364 (all parts)`, with `all_parts`
       # set on `#pubid`.
       def to_all_parts!
-        return unless pubid
+        return if !pubid || pubid.all_parts?
 
+        # `#exclude` (no args) rebuilds a full independent copy;
+        # `change_document` itself never mutates in place (it only reassigns
+        # `@pubid`), but this stays correct even if that changes.
+        original = @pubid.exclude
         change_document { |id| id.exclude(:parts, :year, :reaffirmed) }
-        @pubid.all_parts = true
-        store_content "#{render(@pubid.exclude(:all_parts))} (all parts)"
+        document = render(@pubid)
+        @pubid = original.to_all_parts
+        store_content "#{document} (all parts)"
       end
 
       private

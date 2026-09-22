@@ -92,27 +92,35 @@ describe Relaton::Bsi::Docidentifier do
   end
 
   describe "#to_all_parts!" do
-    # BSI's pubid renderer does not emit an "(all parts)" marker (unlike ISO),
-    # so the rendered content degrades to the part+date-stripped form while the
-    # structural `all_parts` flag is still set on the underlying identifier.
+    # BSI has no dedicated pubid `AllParts` subclass, so `#to_all_parts` wraps
+    # the part+date-stripped identifier in the generic `Pubid::AllPartsIdentifier`,
+    # whose renderer DOES emit a "(all parts)" marker — unlike the old boolean
+    # `all_parts` flag, which BSI's own renderer never read. Because BSI stores
+    # its parsed pubid as the single source of `content` (`Iso::Type::Pubid`),
+    # `content` and `pubid` cannot diverge: both now reflect the wrapper.
     it "strips the part and date and sets the all_parts flag" do
       did = described_class.new(type: "BSI", content: "BS 7273-4:2015")
       did.to_all_parts!
-      expect(did.content).to eq "BS 7273"
+      expect(did.content).to eq "BS 7273 (all parts)"
       expect(did.pubid.all_parts).to be true
     end
 
     it "strips part+date from an adopted-standard id and sets the flag" do
       did = described_class.new(type: "BSI", content: "BS EN ISO 8848-1:2021")
       did.to_all_parts!
-      expect(did.content).to eq "BS EN ISO 8848"
+      expect(did.content).to eq "BS EN ISO 8848 (all parts)"
       expect(did.pubid.all_parts).to be true
     end
 
-    it "keeps the amendment while dropping part+date on a consolidated id" do
+    it "keeps the amendment number on a consolidated id, dropping the rest" do
       did = described_class.new(type: "BSI", content: "BS 7273-4:2015+A1:2021")
       did.to_all_parts!
-      expect(did.content).to eq "BS 7273+A1:2021"
+      # pubid's `AllParts` wrapper computes its rendered "identity" as
+      # edition-agnostic down the whole base chain (`all_parts_edition_keys`
+      # excludes any `date`/`year`/`edition`/`version`, not just the top-level
+      # one), so the amendment's own year is dropped too, though its number
+      # (A1) stays.
+      expect(did.content).to eq "BS 7273+A1 (all parts)"
       expect(did.pubid.all_parts).to be true
     end
 
