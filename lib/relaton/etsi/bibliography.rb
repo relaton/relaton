@@ -33,23 +33,42 @@ module Relaton
 
       # Match the reference against the index and return the most recent edition.
       #
-      # The reference is compared as a pubid, ignoring the refinements it omits
-      # (version/date, and part when absent) so a bare `ETSI GS ZSM 012` matches
-      # every edition and a part-less `ETSI EN 300 175` matches every part, while
-      # a fully-qualified ref matches only that edition (nothing to ignore). The
-      # pubid — not a String — is passed to `index.search` so the index narrows
-      # candidates by number via binary search before the block runs; each row's
-      # `:id` is already a Pubid::Etsi identifier (deserialized via `pubid_class`).
+      # The rows are selected with pubid's subset match `pubid === row`. A
+      # version or a date that the reference omits matches any value, so a
+      # bare `ETSI GS ZSM 012` matches every edition, while a fully-qualified
+      # ref matches only that edition. The class must be identical, so a base
+      # reference such as `ETSI ETR 310` does not reach its amendment or
+      # corrigendum (`ETR 310/C1`).
+      # The pubid — not a String — is passed to `index.search` so the index
+      # narrows candidates by number via binary search; each row's `:id` is
+      # already a Pubid::Etsi identifier (deserialized via `pubid_class`).
       # `max_by` on `edition_key` picks the latest edition among the matches.
+      #
+      # pubid declares `parts` strict for ETSI, so a part-less reference asks
+      # for every part by matching each row **without its parts** (see
+      # #comparable). `#to_all_parts` cannot serve here: a
+      # `Pubid::AllPartsIdentifier` compares the document alone, so it also
+      # drops the version and the date, and
+      # `ETSI GR ZSM 011 V1.1.1 (2023-02)` would answer with V2.1.1.
       #
       # @param index [Relaton::Index::Type]
       # @param pubid [::Pubid::Etsi::Identifier]
       # @return [Hash, nil] the winning index row (`{ id:, file: }`)
       def best_match(index, pubid)
-        ignore = %i[version date].select { |attr| pubid.public_send(attr).nil? }
-        ignore << :part if pubid.code&.parts.to_a.empty? # part-less ref → all parts
-        index.search(pubid) { |row| pubid.matches?(row[:id], ignore: ignore) }
+        all_parts = pubid.code&.parts.to_a.empty?
+        index.search(pubid) { |row| pubid === comparable(row[:id], all_parts) }
              .max_by { |row| edition_key(row[:id]) }
+      end
+
+      # The row as the reference sees it: without its parts when the reference
+      # names none, unchanged otherwise. `#exclude` returns a copy, so the
+      # cached index id is untouched.
+      #
+      # @param id [::Pubid::Etsi::Identifier]
+      # @param all_parts [Boolean] the reference names no part
+      # @return [::Pubid::Etsi::Identifier]
+      def comparable(id, all_parts)
+        all_parts ? id.exclude(:part, :subpart, :parts) : id
       end
 
       # Sort key for one edition: the version numbers, then the publication date.

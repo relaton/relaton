@@ -108,12 +108,14 @@ distinct.
   string this flavor used to pass disabled the binary search however the index
   was built. `pubid_class:` alone fixes nothing; both had to change together.
   Measured: `ECMA-269` now narrows to 12 of 804 rows.
-- **Ignore what the reference omits.** `edition` and `volume` are the only two
-  ignorable components, because they are index metadata that a document's own
-  docidentifier never carries. `number`, `part` and the identifier's CLASS are
-  never ignorable: `matches?` compares the class, which is what keeps
-  `ECMA-100` and `ECMA TR/100` apart, and what stops a bare `ECMA-418` matching
-  `ECMA-418-1`.
+- **Select with the subset match.** `search` calls `index.search(pubid)` with
+  no block, so `Index::Type#search` selects with pubid's `pubid === row`. An
+  `edition` or `volume` that the reference omits matches any value; they are
+  index metadata that a document's own docidentifier never carries. pubid
+  declares `part` strict for ECMA (pubid#408), so a bare `ECMA-418` does not
+  match `ECMA-418-1`. `===` requires the same class, which keeps `ECMA-100`
+  and `ECMA TR/100` apart. Measured over the 804-row fixture: `===` and the
+  old `matches?(…, ignore: %i[edition volume])` agree on all 6,492 pairs.
 - **An unparseable reference finds nothing**, with a warning. There is
   deliberately no substring-scan fallback (OGC has one): an ECMA row renders as
   `ECMA-262 ed17`, so a scan would answer a truncated `ECMA-26` with every

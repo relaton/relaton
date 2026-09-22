@@ -87,10 +87,13 @@ emits canonical, so nothing is expected to skip).
 `Pubid::Errors::ParseError`; `Bibliography.get` rescues transport errors only,
 as `Relaton::RequestError`, and `Hit#item` raises that same error on a
 non-200) and matches on **pubid objects**, mirroring the
-other pubid flavors (ETSI `matches?`, JCGM `exclude`): an exact edition uses
-`row[:id] == ref` (pubid `==` compares type + number + annex + edition); a
-family query (`ref.edition.nil?` — an edition-less handbook, or any Technical
-Report) uses `ref.matches?(row[:id], ignore: [:edition])`. This keeps the
+other pubid flavors: an exact edition uses `index.search(ref, exact: true)`
+(pubid `==` compares type + number + annex + edition); a family query
+(`ref.edition.nil?` — an edition-less handbook, or any Technical Report) uses
+the default subset match `ref === row`, where the omitted edition matches any
+value. pubid declares `annex` strict for PLATEAU (pubid#408), so
+`PLATEAU Handbook #03` does not reach the annex `#03-1`;
+`hit_collection_spec.rb` pins that against the index fixture. This keeps the
 family-vs-exact decision and the match on the *same* parsed identifier (no raw
 `@ref` regex). Canonical (`第1.0版`), edition-less (`#00`), and **legacy Latin**
 (`#00 1.0`) references all resolve — `Pubid::Plateau` normalizes Latin input to

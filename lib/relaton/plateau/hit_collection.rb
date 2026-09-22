@@ -11,15 +11,14 @@ module Relaton
       # fetched document is not a pubid). Matching itself is done on pubid objects.
       EDITION_SUFFIX = / (?:第[\d.]+版|\d+\.\d+)$/
 
+      # An edition-less reference selects every edition of the document with
+      # pubid's subset match `pubid_ref === row`: the omitted edition matches
+      # any value, and pubid declares `annex` strict for PLATEAU, so
+      # `PLATEAU Handbook #03` does not reach `#03-1`. A reference with an
+      # edition selects that one row with `==`.
       def find
-        @array = index.search(pubid_ref) do |row|
-          if all_editions?
-            # same document (type + number + annex), any edition
-            pubid_ref.matches?(row[:id], ignore: [:edition])
-          else
-            row[:id] == pubid_ref # a specific edition (pubid ==: type/number/annex/edition)
-          end
-        end.map { |row| Hit.new(row, self) }
+        @array = index.search(pubid_ref, exact: !all_editions?)
+          .map { |row| Hit.new(row, self) }
         self
       end
 

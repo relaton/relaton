@@ -58,18 +58,23 @@ Search is narrow, then match. The **match** step, for two identifiers, is
 pubid's asymmetric subset match `id === item[:id]` (`Pubid::SubsetMatch`): the
 query is the reference, and a component it leaves nil or empty matches any
 value. That is what a search by reference means, so a flavor whose optional
-components are true wildcards passes **no block** — OASIS, W3C, XSF, IALA and
-OGC each call `index.search(pubid)`.
+components are true wildcards passes **no block** — OASIS, W3C, XSF, IALA,
+OGC, ECMA, 3GPP, CalConnect, GOST and Plateau each call
+`index.search(pubid)`. A component that a flavor reads as "none" when nil is
+declared `subset_strict` in pubid (pubid#408), so `===` compares it exactly.
 
 A nil is a wildcard here, not "the document has none". A caller that needs
 **exact** equality says so with `search(id, exact: true)`, which selects the
-rows with `item[:id] == id`. The binary-search narrowing still runs first. Two
-callers do:
+rows with `item[:id] == id`. The binary-search narrowing still runs first.
+These callers do:
 
 | caller | why |
 |---|---|
 | `Relaton::Ccsds::HitCollection#rows` (edition branch) | pubid's CCSDS `suffix` is a wildcard, so `CCSDS 101.0-B-4` would also reach the historical `101.0-B-4-S` — 260 such pairs in the index fixture. (The omitted language reached the translations too, until pubid#408 made `language` `subset_strict`.) |
 | `Relaton::Ietf::Scraper#fetch_doc` | a draft slug omits the version, so `draft-foo` would match every `draft-foo-NN` and `.first` would pick one — 20,513 such pairs in the first 40k fixture rows |
+| `Relaton::Gost::Bibliography#rows` (dated citation) | a dated citation names one edition; it replaces the old `query.matches?(row)` with no ignore list, which is `==` |
+| `Relaton::Plateau::HitCollection#find` (reference with an edition) | a reference with an edition names that one row, as the old `row[:id] == ref` block did |
+| `Relaton::Oiml::Bibliography#best_row` (a Bulletin) | a Bulletin's year, issue and sequence are its locator, so `OIML Bulletin 1960` is the volume and not every article of 1960 |
 
 A String query keeps the substring match it always had, in both directions;
 with `exact: true` it is compared with `==`. A block is a custom predicate for

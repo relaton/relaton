@@ -44,11 +44,13 @@ v1 assertion in this suite.
   the argument is not a `String`, and a block alone never narrows — so the plain
   string this flavor used to pass disabled the binary search however the index
   was built. `pubid_class:` alone fixes nothing; both had to change together.
-- **Ignore what the reference omits.** The date is the only ignorable
-  component. `series` is never ignorable — it is what keeps `CC/CD 51016` and
-  `CC/WD 51016` apart — and neither is its *absence*, so `CC 36010` does not
-  match `CC/WD 36010`. `matches?` compares the identifier's class and every
-  non-ignored attribute.
+- **Select with the subset match.** `search_index` calls
+  `index.search(pubid)` with no block, so `Index::Type#search` selects with
+  pubid's `pubid === row`. A date that the reference omits matches any value.
+  pubid declares `series` strict for CalConnect (pubid#408): the series keeps
+  `CC/CD 51016` and `CC/WD 51016` apart, and its *absence* is a value too, so
+  `CC 36010` does not match `CC/WD 36010`. Measured over the 191-row fixture:
+  `===` and the old `matches?(…, ignore: %i[year])` agree on all 406 pairs.
 - **An unparseable reference finds nothing**, with a warning, and is a miss
   rather than an error — it must never surface as a `Relaton::RequestError`.
 

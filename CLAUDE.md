@@ -506,7 +506,7 @@ regex back.
   scrapes has neither. **CEN** is the worked example: it crawls
   `standards.cencenelec.eu`, publishes no index and has no data repo, so the
   migration is parse the query with pubid, select the hits with
-  `matches?(hit.pubid, ignore: …)`, and back the `Docidentifier` with pubid —
+  `query === hit.pubid`, and back the `Docidentifier` with pubid —
   no index, no `pubid_class:`, no data-repo step. Two rules generalize from it.
   First, **`#root` is the accessor that answers for every form**: an
   `AdoptedEuropeanNorm` (`CEN ISO/TS 21003-7:2019`) holds its number, part and
@@ -516,10 +516,10 @@ regex back.
   missed all three adopted forms. Second, **decide "the query omitted this"
   by exclusion, not by an accessor**: `id.exclude(*keys) == id` is true exactly
   when the component is absent, and it keeps working for the components that
-  live on a nested identifier, where the direct accessor reads nil. What it
-  must NOT do is ignore the supplement year whenever the query names no
-  amendment year — that lets a base reference match its own amendment's record.
-  Ignore it only when the query itself names a supplement that carries no year.
+  live on a nested identifier, where the direct accessor reads nil. `===` makes
+  the same decision for the selection, so CEN needs the idiom only where it
+  appends the `year` argument. A base reference must never match its own
+  amendment's record; `===` requires the same class, which enforces that.
   See `lib/relaton/cen/CLAUDE.md`.
 - **Matching a reference: `reference === row`, where a nil is a wildcard.**
   pubid's `Pubid::SubsetMatch` gives every identifier an **asymmetric** `===`:
@@ -527,10 +527,15 @@ regex back.
   any value, while identical classes are required. That replaces computing an
   `ignore:` list per flavor, because `===` reads the omission from the reference
   itself. It is also **`Index::Type#search`'s default** when the call passes no
-  block, so OASIS, W3C, XSF, IALA and OGC just call `index.search(pubid)`; the
-  two callers that need exact equality — `Relaton::Ccsds::HitCollection#rows`
-  and `Relaton::Ietf::Scraper#fetch_doc` — pass `exact: true` (`==`) and say
-  why (see `lib/relaton/index/CLAUDE.md`). JCGM calls `===` directly. CCSDS's
+  block, so OASIS, W3C, XSF, IALA, OGC, ECMA, 3GPP, CalConnect, GOST
+  and Plateau just call `index.search(pubid)`; ETSI passes a block that strips
+  the row's parts for a part-less reference (see `lib/relaton/etsi/CLAUDE.md`
+  — `#to_all_parts` would drop the version and the date too). A caller that needs exact
+  equality passes `exact: true` (`==`) and says why:
+  `Relaton::Ccsds::HitCollection#rows`, `Relaton::Ietf::Scraper#fetch_doc`,
+  a dated GOST or an edition-bearing Plateau reference, and an OIML Bulletin (see
+  `lib/relaton/index/CLAUDE.md`). JCGM and CEN (`search_filter`, over portal
+  hits) call `===` directly. CCSDS's
   crawler (`Data::Fetcher#search_relations`/`#search_translations`) did too, until
   pubid#408 made CCSDS `language` `subset_strict`. It now matches with
   `row[:id].exclude(:language) == bibid_pid`, because discovering translations is
@@ -542,11 +547,25 @@ regex back.
     Plateau `annex`, OIML `suffix`/`part` and CCSDS `language`/`suffix` (in
     `HitCollection#rows`) read a nil as "none", so `===` would widen the match —
     `ECMA-418` would answer with `ECMA-418-1`. pubid#408 added the per-attribute
-    hook `subset_strict`, and declared it for these nine flavors. Their sites
-    other than CCSDS still call `matches?`, and they may switch now. It missed CCSDS
+    hook `subset_strict`, and declared it for these nine flavors. Seven
+    switched to `===`: ECMA, 3GPP, ETSI, CalConnect, CEN, GOST and Plateau.
+    It missed CCSDS
     `suffix`: `CCSDS 101.0-B-4 === CCSDS 101.0-B-4-S` is still true, so
-    `HitCollection#rows` keeps `exact: true`. Before a site switches to `===`,
-    measure `===` against the old match over the flavor's fixture index.
+    `HitCollection#rows` keeps `exact: true`. It also missed OIML `language`
+    and `subpart`, and OIML compares the `year_on_base` render flag, so OIML
+    keeps its own `pubid_match?` (see `lib/relaton/oiml/CLAUDE.md`).
+    **Before a site switches to `===`, measure `===` against the old match**
+    over the flavor's index — the full data index where one is at hand, since
+    a fixture subset can miss a whole class (the 11-row OIML fixture showed 0
+    differences; the 5,646-row data index showed 192 regressions). Build
+    queries from every row and from its forms without each optional component,
+    parse them from text as a caller does (an `exclude` copy can differ from a
+    parsed reference), and compare over each `root.number` bucket. ECMA,
+    3GPP (the full 88,464-row data index), CalConnect, GOST (the full
+    37,508-row data index), Plateau and CEN agreed on every pair. ETSI did not, and there the old match was the defect: it
+    let a base reference reach its own amendment or corrigendum
+    (`ETSI ETR 310` → `ETR 310/C1`). A switch that changes an answer needs a
+    spec that pins the new one.
   - **The site must not ignore a value the query states.** ISO (edition,
     `all_parts`, default stage), IEC, ITU, BSI and JIS (the year — they need
     every year for the "found other years" message) and BIPM (the default

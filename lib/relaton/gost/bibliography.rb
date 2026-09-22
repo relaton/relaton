@@ -27,10 +27,8 @@ module Relaton
           pubid = text.is_a?(String) ? ::Pubid::Gost.parse(text) : text
           Util.info "Fetching from Relaton repository ...", key: pubid.to_s
           # Pass the pubid so Relaton::Index narrows candidates by number via
-          # binary search before applying the block; pick the latest edition
-          # for an undated citation.
-          row = index.search(pubid) { |r| pubid_match?(r[:id], pubid, year) }
-                     .max_by { |r| r[:id].year.to_i }
+          # binary search; pick the latest edition for an undated citation.
+          row = rows(pubid, year).max_by { |r| r[:id].year.to_i }
           unless row
             Util.info "Not found.", key: pubid.to_s
             return
@@ -83,18 +81,25 @@ module Relaton
           )
         end
 
-        # Both `row_id` and `query` are Pubid::Gost identifiers. A dated citation
-        # matches exactly; an undated one matches every edition sharing the
-        # subtype + number (`ignore: [:year]` — interstate vs national, and
-        # `1.1` vs `1.10`, stay distinct because `matches?` compares the full
-        # identifier). The `year` argument pins an edition the reference string
-        # omitted. (Relies on Pubid::Gost `exclude(:year)` honouring its `year`
-        # attribute — metanorma/pubid, the fix that unblocked this idiom.)
-        def pubid_match?(row_id, query, year)
-          return query.matches?(row_id) if query.year
+        # The index rows for a citation. A dated citation matches exactly
+        # (`exact: true`, pubid `==`). An undated one takes pubid's subset
+        # match `query === row`, so it matches every edition of the document:
+        # the omitted year matches any value. The class must be identical, so
+        # interstate and national standards stay distinct, and `1.1` does not
+        # match `1.10`. pubid declares `copublisher` strict for GOST, so an
+        # omitted copublisher means "none". The `year` argument pins an edition
+        # the reference string omitted.
+        #
+        # @param query [Pubid::Gost::Identifier]
+        # @param year [String, nil]
+        # @return [Array<Hash>]
+        def rows(query, year)
+          return index.search(query, exact: true) if query.year
 
-          query.matches?(row_id, ignore: [:year]) &&
-            (year.nil? || row_id.year.to_s == year.to_s)
+          rows = index.search(query)
+          return rows unless year
+
+          rows.select { |r| r[:id].year.to_s == year.to_s }
         end
       end
     end

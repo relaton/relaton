@@ -86,16 +86,34 @@ it ships in a pubid release. The wiring mirrors NIST/JCGM:
 - **Consumer** (`Bibliography#search`): parses the reference with
   `::Pubid::Etsi.parse` and lets a `Pubid::Errors::ParseError` on an unrecognized ref
   **propagate** (ISO parity — the CLI renders a friendly message, API callers
-  rescue it), then `#best_match` does the ISO-style lookup:
-  `index.search(pubid) { |row| pubid.matches?(row[:id], ignore:) }`. The `pubid`
-  (not a String) lets `Relaton::Index` narrow candidates by number via binary
-  search before the block; `ignore` is the refinements the ref omits — `version`
-  /`date` when nil, and `:part` when `pubid.code.parts` is empty — so a bare
-  `ETSI GS ZSM 012` matches every edition, a part-less `ETSI EN 300 175` matches
-  every part, and a fully-qualified ref matches only its edition; `max_by
-  { edition_key(row[:id]) }` returns the most recent. Requires pubid `main`
-  (partial-ref parsing, `Pubid::Errors::ParseError` on failure, and part exclusion
-  inside `code`).
+  rescue it), then `#best_match` selects with pubid's subset match
+  `pubid === row`. The `pubid` (not a String) lets `Relaton::Index` narrow
+  candidates by number via binary search. A `version` or `date` that the ref
+  omits matches any value, so a bare `ETSI GS ZSM 012` matches every edition
+  and a fully-qualified ref matches only its edition.
+  `max_by { edition_key(row[:id]) }` returns the most recent.
+  Requires pubid `main` (partial-ref parsing, `Pubid::Errors::ParseError` on
+  failure, `subset_strict`).
+- **A part-less reference strips the ROW's parts, it does not ask pubid for
+  "all parts".** pubid declares `parts` strict for ETSI (pubid#408), so a
+  part-less ref matches no part row on its own. `#comparable` therefore
+  matches each row without its parts (`exclude(:part, :subpart, :parts)`, a
+  copy — the cached index id is untouched), and `ETSI EN 300 175` reaches its
+  16 part rows. **Do not use `#to_all_parts` here.** Since pubid#433 "all
+  parts" is a class, and `Pubid::AllPartsIdentifier#===` compares the document
+  alone: it drops the version and the date as well, so
+  `ETSI GR ZSM 011 V1.1.1 (2023-02)` answered with V2.1.1 (2024-09) — 586,487
+  pairs over the fixture. `resolves a fully-qualified part-less reference to
+  that exact edition` in `bibliography_spec.rb` pins it.
+- **A base reference does not reach its supplements.** `===` requires the
+  same class, so `ETSI ETR 310` does not match the corrigendum
+  `ETSI ETR 310/C1`, and a corrigendum of the base (`ETS 300 092-1/C1`) does
+  not match a corrigendum of its amendment (`092-1/A1/C1`). The
+  `matches?(…, ignore:)` it replaced did match them: over the 28,651-row
+  fixture, 298 pairs changed, all of them a supplement row that the old match
+  let in, and 218 of 94,079 references resolved to a newer amendment or
+  corrigendum instead of the document itself (`ETSI ETR 310` →
+  `ETR 310/C1 ed.1 (1996-10)`). `bibliography_spec.rb` pins that case.
 - **`#edition_key` orders on the parsed version, never on the rendered id.** ETSI
   versions are not zero-padded, so a String comparison of `row[:id].to_s` orders
   `V9.0.0` above `V19.0.0` and `ed.9` above `ed.11` — it picked the wrong edition
