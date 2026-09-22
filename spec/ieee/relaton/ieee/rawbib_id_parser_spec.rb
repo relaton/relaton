@@ -95,12 +95,17 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
     end
   end
 
-  # The ISO-led P-drafts P16326 WD5, P24774_D1 and P24774_D3 expect the bespoke
-  # fallback id. pubid f8b4bf83/b568442b parses them as a published id and drops
-  # the P, the draft and the month. The lost draft digit makes `faithful?` reject
-  # the pubid parse.
-  # Update these rows when pubid keeps the draft (hand-off
-  # metanorma__pubid__ieee-joint-stageless-steals-iso-p-drafts).
+  # The hand-off metanorma__pubid__ieee-joint-stageless-steals-iso-p-drafts asked
+  # pubid to stop dropping the P/draft/month on ISO-led joint drafts; that fix
+  # has landed on pubid main, so these ids now keep the project marker. `P16326
+  # WD.4a`/`WD5` render as `.../D=WD.<n>` — not a leaked token, but pubid's own
+  # documented notation (IEEE-DRAFT-STAGES.md §1.2) for a stage-only draft with
+  # no separate IEEE draft number, produced by a hand-curated rewrite in
+  # pubid's `data/ieee/update_codes.yaml` (itself sourced from relaton's own
+  # ieee-update-codes-oneoffs / ieee-update-codes-dashD-drafts hand-offs). The
+  # `ISO/IEC13210 ... ANSI/IEEE ...` row is rewritten by the same table to a
+  # `"; "`-joined form that pubid's dual-identifier dispatch renders back out
+  # joined with `" and "`.
   it_behaves_like "parse normtitle", "A.I.E.E. No. 15 May-1928", "AIEE No 15-192805"
   it_behaves_like "parse normtitle", "IEEE Std P1073.1.3.4/D3.0", "IEEE Std P11073.00101"
   it_behaves_like "parse normtitle", "IEEE P1073.2.1.1/D08", "IEEE P1073.2.1.1/D08"
@@ -114,39 +119,39 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
   it_behaves_like "parse normtitle", "IEEE Std 960-1993, IEEE Std 1177-1993", "IEEE Std 960-1993 and IEEE Std 1177-1993"
   it_behaves_like "parse normtitle", "IEEE P802.11ajD8.0, August 2017", "IEEE P802.11aj/D8.0, August, 2017"
   it_behaves_like "parse normtitle", "IEEE P802.11ajD9.0, November 2017", "IEEE P802.11aj/D9.0, November, 2017"
-  it_behaves_like "parse normtitle", "ISO/IEC/IEEE P29119-4-DISMay2013", "ISO/IEC/IEEE 29119.4.DISMay2013"
+  it_behaves_like "parse normtitle", "ISO/IEC/IEEE P29119-4-DISMay2013", "ISO/IEC/IEEE P29119.4.DISMay2013"
   it_behaves_like "parse normtitle", "IEEE-P15026-3-DIS-January 2015", "ISO/IEC/IEEE P15026-3/DDIS January, 2015"
-  it_behaves_like "parse normtitle", "ANSI/IEEE PC63.7/D rev17, December 2014", "ANSI/IEEE C63.7-2014Rev17"
-  it_behaves_like "parse normtitle", "IEC/IEEE P62271-37-013:2015 D13.4", "IEC/IEEE 62271.37.013/D13.4"
+  it_behaves_like "parse normtitle", "ANSI/IEEE PC63.7/D rev17, December 2014", "ANSI/IEEE PC63.7-2014Rev17"
+  it_behaves_like "parse normtitle", "IEC/IEEE P62271-37-013:2015 D13.4", "IEC/IEEE P62271.37.013/D13.4"
   it_behaves_like "parse normtitle", "PC37.30.2/D043 Rev 18, May 2015", "IEEE Std PC37.30.2Rev18/D043"
   it_behaves_like "parse normtitle", "IEC/IEEE FDIS 62582-5 IEC/IEEE 2015", "IEC/IEEE FDIS 62582.5:2015"
   it_behaves_like "parse normtitle", "ISO/IEC/IEEE P15289:2016, 3rd Ed FDIS/D2", "ISO/IEC/IEEE FDIS P15289./E-3/D-2-2016"
   it_behaves_like "parse normtitle", "IEEE P802.15.4REVi/D09, April 2011 (Revision of IEEE Std 802.15.4-2006)", "IEEE P802.15.4/D09, April, 2011"
   it_behaves_like "parse normtitle", "Draft IEEE P802.15.4REVi/D09, April 2011 (Revision of IEEE Std 802.15.4-2006)", "IEEE P802.15.4Revi/D09, 04 2011"
-  it_behaves_like "parse normtitle", "ISO/IEC/IEEE DIS P42020:201x(E), June 2017", "ISO/IEC/IEEE DIS 42020:2017"
+  it_behaves_like "parse normtitle", "ISO/IEC/IEEE DIS P42020:201x(E), June 2017", "ISO/IEC/IEEE DIS P42020:2017"
   it_behaves_like "parse normtitle", "IEEE/IEC P62582 CD2 proposal, May 2017", "IEEE/IEC CD2 P62582-2017-05"
-  it_behaves_like "parse normtitle", "ISO/IEC/IEEE P16326:201x WD.4a, July 2017", "ISO/IEC/IEEE 16326-2017-07/D4a"
+  it_behaves_like "parse normtitle", "ISO/IEC/IEEE P16326:201x WD.4a, July 2017", "ISO/IEC/IEEE P16326:2017/D=WD.4a"
   it_behaves_like "parse normtitle", "ISO/IEC/IEEE CD.1 P21839, October 2017", "ISO/IEC/IEEE CD1 P21839-2017-10"
   it_behaves_like "parse normtitle", "IEEE P3001.2/D5, August 2017", "IEEE P3001.2/D5, August, 2017"
   it_behaves_like "parse normtitle", "P3001.2/D5, August 2017", "IEEE P3001.2/D5, August, 2017"
-  it_behaves_like "parse normtitle", "ISO/IEC/IEEE P16326:201x WD5, December 2017", "ISO/IEC/IEEE P16326/D-5-2017-12"
-  it_behaves_like "parse normtitle", "ISO/IEC/IEEE DIS P16326/201x, December 2018", "ISO/IEC/IEEE DIS 16326:2018"
+  it_behaves_like "parse normtitle", "ISO/IEC/IEEE P16326:201x WD5, December 2017", "ISO/IEC/IEEE P16326:2017/D=WD.5"
+  it_behaves_like "parse normtitle", "ISO/IEC/IEEE DIS P16326/201x, December 2018", "ISO/IEC/IEEE DIS P16326:2018"
   it_behaves_like "parse normtitle", "ISO/IEC/IEEE/P21839, 2019(E)", "ISO/IEC/IEEE P21839.2019/P"
-  it_behaves_like "parse normtitle", "ISO/IEC/IEEE P42020/V1.9, August 2018", "ISO/IEC/IEEE 42020/DV1.9, August, 2018"
+  it_behaves_like "parse normtitle", "ISO/IEC/IEEE P42020/V1.9, August 2018", "ISO/IEC/IEEE P42020/DV1.9, August, 2018"
   it_behaves_like "parse normtitle", "ISO/IEC/IEEE CD2 P12207-2: 201x(E), February 2019", "ISO/IEC/IEEE CD2 P12207.2-2019-02"
   it_behaves_like "parse normtitle", "ISO/IEC/IEEE P42010.WD4:2019(E)", "ISO/IEC/IEEE P42010.2019/D4"
-  it_behaves_like "parse normtitle", "IEC/IEEE P63195_CDV/V3, February 2020", "IEC/IEEE CDV 63195:2020"
-  it_behaves_like "parse normtitle", "ISO /IEC/IEEE P24774_D1, February 2020", "ISO/IEC/IEEE P24774/D-1-2020-02"
+  it_behaves_like "parse normtitle", "IEC/IEEE P63195_CDV/V3, February 2020", "IEC/IEEE CDV P63195:2020"
+  it_behaves_like "parse normtitle", "ISO /IEC/IEEE P24774_D1, February 2020", "ISO/IEC/IEEE P24774/D1, February, 2020"
   it_behaves_like "parse normtitle", "IEEE/ISO/IEC P42010.CD1-V1.0, April 2020", "IEEE/ISO/IEC CD1 P42010-2020-04"
-  it_behaves_like "parse normtitle", "ISO/IEC/IEEE/P16085_DIS, March 2020", "ISO/IEC/IEEE DIS 16085:2020"
-  it_behaves_like "parse normtitle", "ISO/IEC/IEEE P24774/DIS, July 2020", "ISO/IEC/IEEE 24774/DDIS, July 2020"
+  it_behaves_like "parse normtitle", "ISO/IEC/IEEE/P16085_DIS, March 2020", "ISO/IEC/IEEE DIS P16085:2020"
+  it_behaves_like "parse normtitle", "ISO/IEC/IEEE P24774/DIS, July 2020", "ISO/IEC/IEEE P24774/DDIS, July 2020"
   it_behaves_like "parse normtitle", "ANSI/IEEE Std: Outdoor Apparatus Bushings", "ANSI/IEEE 21-1976-11"
-  it_behaves_like "parse normtitle", "Unapproved Draft Std ISO/IEC FDIS 15288:2007(E) IEEE P15288/D3,", "ISO/IEC/IEEE FDIS 15288:2007"
+  it_behaves_like "parse normtitle", "Unapproved Draft Std ISO/IEC FDIS 15288:2007(E) IEEE P15288/D3,", "ISO/IEC/IEEE FDIS P15288:2007"
   it_behaves_like "parse normtitle", "Draft National Electrical Safety Code, January 2016", "IEEE Std PC2-2016-01"
   it_behaves_like "parse normtitle", "ANSI/IEEE-ANS-7-4.3.2-1982", "ANSI/IEEE/ANS 7.4-3-2-1982"
   it_behaves_like "parse normtitle", "IEEE Unapproved Draft Std P802.1AB/REVD2.2, Dec 2007", "IEEE Unapproved P802.1AB/D2.2, Dec 2007"
   it_behaves_like "parse normtitle", "International Standard ISO/IEC 8802-9: 1996(E) ANSI/IEEE Std 802.9, 1996 Edition", "ISO/IEC/IEEE 802.9-1996"
-  it_behaves_like "parse normtitle", "ISO/IEC13210: 1994 (E) ANSI/IEEE Std 1003.3-1991", "ISO/IEC/IEEE 13210:1994"
+  it_behaves_like "parse normtitle", "ISO/IEC13210: 1994 (E) ANSI/IEEE Std 1003.3-1991", "ISO/IEC 13210:1994 (E) and ANSI/IEEE 1003.3-1991"
   it_behaves_like "parse normtitle", "J-STD-016-1995", "IEEE Std 016-1995"
   it_behaves_like "parse normtitle", "Std 802.1ak-2007 (Amendment to IEEE Std 802.1QTM-2005)", "IEEE Std 802.1ak-2007"
   it_behaves_like "parse normtitle", "IS0/IEC/IEEE 8802-11:2012/Amd.5:2015(E) (Adoption of IEEE Std 802.11af-2014)", "ISO/IEC/IEEE 802.11/Amd 5-2012"
@@ -156,7 +161,7 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
   it_behaves_like "parse normtitle", "Amendment to IEEE Std 802.11-2007 as amended by IEEE Std 802.11k-2008...", "IEEE Std 802.11u-2007"
   it_behaves_like "parse normtitle", "Std 11073-10417-2009", "IEEE Std 11073-10417-2009"
   it_behaves_like "parse normtitle", "ANSI/ IEEE C37.23-1969", "ANSI/IEEE C37.23-1969"
-  it_behaves_like "parse normtitle", "ISO /IEC/IEEE P24774_D3, January 2021", "ISO/IEC/IEEE P24774/D-3-2021-01"
+  it_behaves_like "parse normtitle", "ISO /IEC/IEEE P24774_D3, January 2021", "ISO/IEC/IEEE P24774/D3, January, 2021"
   it_behaves_like "parse normtitle", "Nuclear EQ Sourcebook and Supplement", "IEEE Std 7438946"
   it_behaves_like "parse normtitle", "IEEE Unapproved Draft Std P802.3-2008 (P802.3bb)/Cor 1/D2.0, Jul 2009", "IEEE Unapproved P802.3/D2.0, Jul 2009 (IEEE P802.3bb)/Cor. 1"
 
