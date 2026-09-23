@@ -103,9 +103,10 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
   # no separate IEEE draft number, produced by a hand-curated rewrite in
   # pubid's `data/ieee/update_codes.yaml` (itself sourced from relaton's own
   # ieee-update-codes-oneoffs / ieee-update-codes-dashD-drafts hand-offs). The
-  # `ISO/IEC13210 ... ANSI/IEEE ...` row is rewritten by the same table to a
-  # `"; "`-joined form that pubid's dual-identifier dispatch renders back out
-  # joined with `" and "`.
+  # `ISO/IEC 8802-9 ... ANSI/IEEE 802.9 ...` and `ISO/IEC13210 ... ANSI/IEEE ...`
+  # rows are rewritten by the same table to a `"; "`-joined double-label form
+  # that pubid's dual-identifier dispatch renders back out joined with `" and "`.
+  # Each carries the ISO/IEC label and the IEEE label of one document.
   it_behaves_like "parse normtitle", "A.I.E.E. No. 15 May-1928", "AIEE No 15-192805"
   it_behaves_like "parse normtitle", "IEEE Std P1073.1.3.4/D3.0", "IEEE Std P11073.00101"
   it_behaves_like "parse normtitle", "IEEE P1073.2.1.1/D08", "IEEE P1073.2.1.1/D08"
@@ -150,7 +151,7 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
   it_behaves_like "parse normtitle", "Draft National Electrical Safety Code, January 2016", "IEEE Std PC2-2016-01"
   it_behaves_like "parse normtitle", "ANSI/IEEE-ANS-7-4.3.2-1982", "ANSI/IEEE/ANS 7.4-3-2-1982"
   it_behaves_like "parse normtitle", "IEEE Unapproved Draft Std P802.1AB/REVD2.2, Dec 2007", "IEEE Unapproved P802.1AB/D2.2, Dec 2007"
-  it_behaves_like "parse normtitle", "International Standard ISO/IEC 8802-9: 1996(E) ANSI/IEEE Std 802.9, 1996 Edition", "ISO/IEC/IEEE 802.9-1996"
+  it_behaves_like "parse normtitle", "International Standard ISO/IEC 8802-9: 1996(E) ANSI/IEEE Std 802.9, 1996 Edition", "ISO/IEC 8802-9:1996 (E) and ANSI/IEEE 802.9-1996"
   it_behaves_like "parse normtitle", "ISO/IEC13210: 1994 (E) ANSI/IEEE Std 1003.3-1991", "ISO/IEC 13210:1994 (E) and ANSI/IEEE 1003.3-1991"
   it_behaves_like "parse normtitle", "J-STD-016-1995", "IEEE Std 016-1995"
   it_behaves_like "parse normtitle", "Std 802.1ak-2007 (Amendment to IEEE Std 802.1QTM-2005)", "IEEE Std 802.1ak-2007"
