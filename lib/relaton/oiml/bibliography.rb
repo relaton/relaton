@@ -57,7 +57,7 @@ module Relaton
           return item unless item
 
           pubid = ref.is_a?(String) ? ::Pubid::Oiml.parse(ref) : ref
-          dated = pubid.year || year
+          dated = oiml_side(pubid).year || year
           # Keep the year only when the citation genuinely asks for it: a resolved
           # year (unless keep_year is explicitly false), or keep_year truthy. (ISO
           # also keeps for :all_parts; OIML has no all-parts retrieval, so search
@@ -106,12 +106,30 @@ module Relaton
           return index.search(query, exact: true).first if bulletin?(query)
 
           index.search(query) { |r| pubid_match?(r[:id], query, year) }
-               .max_by { |r| r[:id].year.to_i }
+               .max_by { |r| oiml_side(r[:id]).year.to_i }
         end
 
         # @return [Boolean] true for an identifier of an OIML Bulletin
         def bulletin?(pubid)
           pubid.is_a?(::Pubid::Oiml::Identifiers::Bulletin)
+        end
+
+        # A document OIML co-publishes with another SDO (ISO confirmed so far)
+        # is a Pubid::Oiml::Identifiers::DualPublished — a "|"-joined pair
+        # (pubid#437), e.g. `ISO 4064-1:2024|OIML R 49-1:2024`. It delegates
+        # #root/#code/#type/#stage/#iteration/#publisher to whichever side is
+        # OIML, but NOT #year or #language — those read nil on the wrapper
+        # itself regardless of what either side holds. This unwraps to the
+        # OIML side for those reads (a plain, non-dual pubid is returned
+        # unchanged), so a query and a row agree on year/language/stem
+        # whether either one is dual-published or not, and regardless of
+        # which side print order named first.
+        #
+        # @param pubid [Pubid::Oiml::Identifier] a plain or dual-published pubid
+        # @return [Pubid::Oiml::Identifier] the OIML-flavored side (itself, for
+        #   a plain pubid)
+        def oiml_side(pubid)
+          pubid.is_a?(::Pubid::Oiml::Identifiers::DualPublished) ? pubid.oiml_identifier : pubid
         end
 
         # Both `row_id` and `query` are Pubid::Oiml::Identifier instances.
@@ -124,10 +142,12 @@ module Relaton
         # edition (selected by `max_by` in #best_row). The `year` argument lets
         # a caller pin an edition the reference string omitted.
         def pubid_match?(row_id, query, year)
-          wanted_year = (query.year || year)&.to_s
-          stem(row_id) == stem(query) &&
-            row_id.language.to_s == query.language.to_s &&
-            (wanted_year.nil? || row_id.year.to_s == wanted_year)
+          row = oiml_side(row_id)
+          q = oiml_side(query)
+          wanted_year = (q.year || year)&.to_s
+          stem(row) == stem(q) &&
+            row.language.to_s == q.language.to_s &&
+            (wanted_year.nil? || row.year.to_s == wanted_year)
         end
 
         # The identifier without its edition year or language, e.g.
@@ -135,8 +155,13 @@ module Relaton
         # via #exclude (returns a copy, so the cached index id is untouched)
         # rather than string surgery on #to_s. The amendment suffix is kept, so
         # an amendment (`OIML R 138-Amend`) never reduces to the base record.
+        #
+        # Reduced through #oiml_side first: `#exclude` recurses correctly into
+        # both sides of a DualPublished (unlike a direct #year/#language read),
+        # but a plain query has no external side to reduce to, so comparing
+        # full dual-published stems against a plain one would never match.
         def stem(pubid)
-          pubid.exclude(:year, :language).to_s
+          oiml_side(pubid).exclude(:year, :language).to_s
         end
       end
     end

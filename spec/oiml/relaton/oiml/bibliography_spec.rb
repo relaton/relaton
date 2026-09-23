@@ -77,4 +77,40 @@ RSpec.describe Relaton::Oiml::Bibliography do
       expect(row_for("OIML R 138", "2001", rows: rows)).to eq "r138-2001.yaml"
     end
   end
+
+  # A document OIML co-publishes with another SDO (ISO confirmed so far) is
+  # indexed under a Pubid::Oiml::Identifiers::DualPublished row (pubid#437,
+  # relaton#180) — a single "|"-joined id naming both sides. `#root` already
+  # delegates to the OIML side, so the row buckets correctly with no
+  # `Relaton::Index` change; what needs care is matching, since a `stem`/
+  # `year`/`language` read directly off the wrapper is a silent no-op (see
+  # `lib/relaton/oiml/CLAUDE.md`) — `stem`/`pubid_match?`/`best_row` route
+  # through the OIML side explicitly instead.
+  context "a dual-published identifier" do
+    let(:rows) do
+      { "OIML R 49-1:2020|ISO 4064-1:2020" => "r49-1-2020.yaml",
+        "ISO 4064-1:2024|OIML R 49-1:2024" => "r49-1-2024.yaml",
+        "OIML R 49-1:2024 (E)|ISO 4064-1:2024" => "r49-1-2024-e.yaml" }
+    end
+
+    it "resolves a plain OIML query to the dual-published row" do
+      expect(row_for("OIML R 49-1:2024", rows: rows)).to eq "r49-1-2024.yaml"
+    end
+
+    it "resolves a dual-published query printed in the other order" do
+      expect(row_for("OIML R 49-1:2024|ISO 4064-1:2024", rows: rows)).to eq "r49-1-2024.yaml"
+    end
+
+    it "resolves an undated reference to the latest language-less edition" do
+      expect(row_for("OIML R 49-1", rows: rows)).to eq "r49-1-2024.yaml"
+    end
+
+    it "resolves a language to that translation" do
+      expect(row_for("OIML R 49-1:2024 (E)", rows: rows)).to eq "r49-1-2024-e.yaml"
+    end
+
+    it "pins the edition that the year argument names" do
+      expect(row_for("OIML R 49-1", "2020", rows: rows)).to eq "r49-1-2020.yaml"
+    end
+  end
 end
