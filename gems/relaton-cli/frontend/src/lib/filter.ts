@@ -43,10 +43,18 @@ export function compareDocuments(
 ): number {
   let cmp = 0;
   switch (key) {
-    case "date":
-      // Missing dates sort last regardless of direction feel — use empty string.
-      cmp = (a.date ?? "").localeCompare(b.date ?? "");
+    case "date": {
+      // Missing dates sort last regardless of direction. An empty string
+      // compared with localeCompare sorts FIRST ascending — with tens of
+      // thousands of undated records that made date-asc look like no-op.
+      const ad = a.date;
+      const bd = b.date;
+      if (!ad && !bd) return 0;
+      if (!ad) return 1;
+      if (!bd) return -1;
+      cmp = ad.localeCompare(bd);
       break;
+    }
     case "title":
       cmp = collator.compare(a.title, b.title);
       break;

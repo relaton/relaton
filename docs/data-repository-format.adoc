@@ -270,6 +270,76 @@ jekyll-index:
 `baseurl`, `add_type_to_reference`, and (for pubid indexes) `pubid_class` +
 `pubid_require`; `title`, `description`, and `paginate` are standard Jekyll keys.
 
+=== The machine index on the Pages site
+
+`relaton index` (relaton-cli) publishes a *machine-consumable* copy of the index
+beside the browsable site, so a client can resolve a reference from the Pages
+origin instead of `raw.githubusercontent.com`:
+
+[source]
+----
+<site>/index-vN.yaml            the whole index, same shape as the repo's own
+<site>/index-vN.zip             its zip sibling — what `Relaton::Index url:` fetches
+<site>/index/manifest.json      the lookup rule (below)
+<site>/index/shard-NNNNN.json   one bucket of rows, 5 digits, zero-padded
+----
+
+The monolith is named from the flavor's own `INDEXFILE`, so it is the file that
+flavor's consumer already fetches. The name is *not* derived from the data —
+nothing about a crawl may rename a published file.
+
+`index/manifest.json`:
+
+[source,json]
+----
+{
+  "version": 2,
+  "index": "index-v2",
+  "count": 79556,
+  "shards": 8192,
+  "key": "root-number",
+  "algorithm": "crc32",
+  "generated": "2026-01-01"
+}
+----
+
+`index`:: the monolith's base name; fetch `"#{index}.zip"`.
+`count`:: rows actually published, which can be fewer than the documents scanned.
+`shards`:: how many buckets, always a power of two. *`0` means the corpus is
+  below the sharding threshold* — there are no shard files, only the monolith.
+`key` + `algorithm`:: the lookup rule.
+
+==== Resolving a reference from the shards
+
+....
+shard = crc32(pubid.root.number.to_s) % shards
+GET index/shard-<shard, %05d>.json
+....
+
+A shard is an array of `{"r": rendered docid, "file": path, "id": pubid hash}`.
+`id` is the same hash the monolith carries for that row, and `file` is
+repo-relative, so a client prefixes its own base URL.
+
+Three properties a client may rely on:
+
+* *The key is the same expression `Relaton::Index` narrows on* —
+  `id.root.number.to_s` at `Type#candidates_by_number` and the load-time sort in
+  `FileIO#deserialize_pubid`. A document family (base, parts, amendments) shares
+  one root, so it is never split across shards. There is no fallback key: an
+  identifier with no root number keys on `""` and lands in shard 0.
+* *An absent shard means not-found.* Empty buckets are not written, so a 404 is
+  an answer, not an error.
+* *Every row is structured.* A row whose id could not be resolved at all is
+  dropped, not written as a plain string — `FileIO#deserialize_id` rejects the
+  *whole* index on the first row it cannot deserialize.
+
+==== What the shards cannot serve
+
+A *substring* query has no computable key. `Type#search_candidates` narrows only
+for a non-`String` query, and `Type#match_item` substring-matches across the
+whole index, so such a query needs the monolith. That — not backward
+compatibility — is why the whole-index artifact is still published.
+
 == Exceptions and notes
 
 * *`relaton-data-sdo`* is **not** a document index. Its `index.yaml` is an

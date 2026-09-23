@@ -102,13 +102,11 @@ describe("writeDocToUrl", () => {
     vi.restoreAllMocks();
   });
 
-  it("sets ?doc=ID (encoded) while preserving other params", () => {
+  it("sets a path-based /doc/ID URL (encoded) while preserving page", () => {
     window.history.replaceState(null, "", "/?page=2");
     writeDocToUrl("CCRI 21 (2009)");
-    const params = new URLSearchParams(window.location.search);
-    expect(params.get("doc")).toBe("CCRI 21 (2009)");
-    expect(params.get("page")).toBe("2");
-    expect(window.location.search).toContain("doc=CCRI+21");
+    expect(window.location.pathname).toBe("/doc/CCRI%2021%20(2009)");
+    expect(new URLSearchParams(window.location.search).get("page")).toBe("2");
   });
 
   it("round-trips an id with spaces and parens", () => {
@@ -116,12 +114,16 @@ describe("writeDocToUrl", () => {
     expect(readDocFromUrl()).toBe("BIPM SI Brochure (2019)");
   });
 
-  it("deletes the doc param when passed null", () => {
-    window.history.replaceState(null, "", "/?doc=X&page=2");
+  it("reads a path-based id written by the 404 fallback or a shared link", () => {
+    window.history.replaceState(null, "", "/doc/BCP%203?page=1");
+    expect(readDocFromUrl()).toBe("BCP 3");
+  });
+
+  it("returns to the list path when passed null", () => {
+    window.history.replaceState(null, "", "/doc/X?page=2");
     writeDocToUrl(null);
-    const params = new URLSearchParams(window.location.search);
-    expect(params.has("doc")).toBe(false);
-    expect(params.get("page")).toBe("2");
+    expect(window.location.pathname).toBe("/");
+    expect(new URLSearchParams(window.location.search).get("page")).toBe("2");
   });
 
   it("uses replaceState by default and pushState when asked", () => {
@@ -136,12 +138,14 @@ describe("writeDocToUrl", () => {
 });
 
 describe("docHref", () => {
-  it("builds a relative ?doc= link", () => {
-    expect(docHref("ISO 1234:2020")).toBe("?doc=ISO+1234%3A2020");
+  it("builds a relative path-based /doc/ link", () => {
+    window.history.replaceState(null, "", "/");
+    expect(docHref("ISO 1234:2020")).toBe("/doc/ISO%201234%3A2020");
   });
 
   it("encodes ids so they round-trip through readDocFromUrl", () => {
     const id = "CCRI 21st Meeting (2009)";
-    expect(readDocFromUrl(docHref(id))).toBe(id);
+    window.history.replaceState(null, "", docHref(id));
+    expect(readDocFromUrl()).toBe(id);
   });
 });

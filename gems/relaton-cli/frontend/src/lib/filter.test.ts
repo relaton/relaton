@@ -66,3 +66,22 @@ describe("applyFilters", () => {
     expect(out.map((d) => d.id)).toEqual(["CCRI 2"]);
   });
 });
+
+describe("date sort with missing dates", () => {
+  it("sorts undated documents last in both directions", () => {
+    const docs = [
+      doc({ id: "undated-a", title: "x" }),
+      doc({ id: "dated-2020", title: "x", date: "2020-01-01" }),
+      doc({ id: "undated-b", title: "x" }),
+      doc({ id: "dated-1999", title: "x", date: "1999-01-01" }),
+    ];
+    const opts = (sortDir: SortDir) => ({
+      query: "", doctypes: new Set(), stages: new Set(),
+      sortKey: "date" as const, sortDir,
+    });
+    expect(applyFilters(docs, opts("asc")).map((d) => d.id))
+      .toEqual(["dated-1999", "dated-2020", "undated-a", "undated-b"]);
+    expect(applyFilters(docs, opts("desc")).map((d) => d.id))
+      .toEqual(["dated-2020", "dated-1999", "undated-a", "undated-b"]);
+  });
+});
