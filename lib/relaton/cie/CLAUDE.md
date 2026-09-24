@@ -29,12 +29,10 @@ as a `_type: pubid:cie:…` map (mirrors the NIST/ETSI flavors).
 
 The published `relaton-data-cie/index-v2` uses CIE **proceedings** ids
 (`_type: pubid:cie:proceedings` with `paper`/`page_range`) and the **flattened**
-`to_hash` (`number`/`year` scalar, no nested `code`). That support is on pubid **`main`**
-but **not** in the released `2.0.0.pre.alpha.8` that `relaton.gemspec` pins — the
-released pubid strips `paper`/`page_range` and emits the nested shape, so
-`Relaton::Index` would reject the whole published index. So the root `Gemfile`
-temporarily pins `pubid` to `git: …/pubid.git, branch: main` (shared with the ETSI/JCGM
-flavors); revert to the released pubid once these ship in a pubid release.
+`to_hash` (`number`/`year` scalar, no nested `code`). That support first shipped in
+the released pubid `2.0.0.pre.alpha.13`, which `relaton.gemspec` pins — an older
+pubid strips `paper`/`page_range` and emits the nested shape, so `Relaton::Index`
+would reject the whole published index.
 
 Note the CIE grammar extensions **do** parse the techstreet variant ids like
 `CIE x051:2025/zcunvy` (as `Conference` `@variant` ids), so — unlike the old pubid —

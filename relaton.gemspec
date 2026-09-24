@@ -87,7 +87,7 @@ Gem::Specification.new do |spec|
   # 2.0.0.pre.alpha.11 is the first release with `Pubid::Errors`, which relaton
   # and relaton-cli rescue. `alpha.10` sorts below `pre.alpha.8`, so the old
   # `~> 2.0.0.alpha.10` pin also accepted `pre.alpha.8`/`9`, which lack it.
-  spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.11"
+  spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.13"
   spec.add_dependency "rfcxml", "~> 0.4.3"
   spec.add_dependency "rubyzip", "~> 3.7"
   # 0.3.3 is the floor, not a preference: it sets an identifying User-Agent

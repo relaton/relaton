@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   # already a runtime dep of `relaton`, but declare it here too so the require
   # is self-supporting rather than dependent on relaton's transitive graph.
   # 2.0.0.pre.alpha.11 is the first pubid with `Pubid::Errors`.
-  spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.11"
+  spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.13"
   # relaton bundles every flavor plus Relaton::Bib, so depending on `relaton`
   # alone is sufficient — relaton-bib is no longer published standalone.
   spec.add_dependency "relaton", "= #{relaton_version}"

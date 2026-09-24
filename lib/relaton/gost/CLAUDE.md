@@ -65,8 +65,8 @@ stay distinct, and `1.1` does not match `1.10`. pubid declares `copublisher` str
 on all 94,279 pairs. The
 `relaton-data-gost` `index-v2.yaml` was built with this **same** pubid, so the rows deserialize
 (a mismatched pubid would make `Relaton::Index` reject the whole index — cf. the root
-`CLAUDE.md` JCGM note). If the root `Gemfile` reverts the pubid pin to a release, that release
-must carry `Pubid::Gost` and `subset_strict`.
+`CLAUDE.md` JCGM note). The pinned release `2.0.0.pre.alpha.13` carries `Pubid::Gost` and
+`subset_strict`; any lower pin must too.
 
 ## Dataset
 
