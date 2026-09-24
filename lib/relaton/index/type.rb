@@ -13,14 +13,26 @@ module Relaton
       # @param [Array<Symbol>] id_keys keys of identifier to be used for sorting index
       #   format of index file is checked if id_keys all is provided at least in one of the IDs
       # @param [Pubid::Identifier, nil] pubid class for deserialization
+      # @param [String, nil] pages_url base URL of the Pages site that serves
+      #   the machine index. With it the type reads the index from there, in
+      #   memory (see ShardSource), and a parsed query fetches one shard only.
       #
-      def initialize(type, url = nil, file = nil, id_keys = nil, pubid_class = nil) # rubocop:disable Metrics/ParameterLists
+      def initialize(type, url = nil, file = nil, id_keys = nil, pubid_class = nil, # rubocop:disable Metrics/ParameterLists
+                     pages_url: nil)
         @file = file
+        @dir = type.to_s.downcase
+        @pubid_class = pubid_class
+        @pages_url = pages_url
         filename = file || Index.config.filename
-        @file_io = FileIO.new type.to_s.downcase, url, filename, id_keys, pubid_class
+        @file_io = FileIO.new @dir, url, filename, id_keys, pubid_class
+        @source = new_source
       end
 
+      # With a Pages source the whole index is not kept here: the source holds
+      # it, and drops it when its 24 h expire.
       def index
+        return @source.whole_index if @source
+
         @index ||= @file_io.read
       end
 
@@ -31,11 +43,14 @@ module Relaton
       # @param [Hash] **args arguments
       # @option args [String, nil] :url external URL to index, used to fetch index for searching files
       # @option args [String, nil] :file output file name
+      # @option args [String, nil] :pages_url base URL of the Pages site
       #
       # @return [Boolean] true if index is actual, false otherwise
       #
       def actual?(**args)
-        (!args.key?(:url) || args[:url] == @file_io.url) && (!args.key?(:file) || args[:file] == @file)
+        (!args.key?(:url) || args[:url] == @file_io.url) &&
+          (!args.key?(:file) || args[:file] == @file) &&
+          (!args.key?(:pages_url) || args[:pages_url] == @pages_url)
       end
 
       #
@@ -107,7 +122,10 @@ module Relaton
       # @return [void]
       #
       def remove_file
-        @file_io.remove
+        # A Pages source has no file: its FileIO would resolve the default
+        # filename against the working directory.
+        @file_io.remove unless @source
+        @source = new_source
         @index = nil
         @id_lookup = nil
       end
@@ -131,7 +149,15 @@ module Relaton
         end
       end
 
+      def new_source
+        ShardSource.new(@dir, @pages_url, @pubid_class) if @pages_url
+      end
+
       def search_candidates(id)
+        # A parsed query reads only its own shard. `@index`, once loaded, is
+        # never refreshed, so the shards stay the fresher answer.
+        return @source.rows(id) if @source && id && !id.is_a?(String)
+
         # index needs to be created to check if sorted
         idx = index
         if @file_io.sorted && id && !id.is_a?(String)

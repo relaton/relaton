@@ -114,6 +114,34 @@ results.first[:id].publisher
 # => "ISO"
 ----
 
+=== Reading the machine index on a Pages site
+
+A data repository's GitHub Pages site publishes a sharded copy of its index
+(`index/manifest.json` and `index/shard-NNNNN.json`, see
+`docs/data-repository-format.adoc`). Give its base URL as `pages_url:` in place
+of `url:`, with a `pubid_class:`:
+
+[source,ruby]
+----
+index = Relaton::Index.find_or_create :W3C,
+  pages_url: "https://relaton.github.io/relaton-data-w3c/",
+  pubid_class: Pubid::W3c::Identifier
+index.search(Pubid::W3c::Identifier.parse("W3C REC-xml-names"))
+----
+
+A parsed query reads the manifest and the one shard
+`crc32(id.root.number.to_s) % shards`. A String query and a search with only a
+block read the whole index, which the manifest names. Nothing is written to
+disk: the manifest, the shards and the whole index stay in memory for 24 hours.
+
+* An absent shard (HTTP 404) is "not found", and the search returns `[]`.
+* A network error, or an HTTP status other than 200 and 404, raises
+  `Relaton::RequestError`.
+* A missing or unsupported manifest, or a row that the pubid class cannot read,
+  raises `Relaton::Index::Error`.
+
+There is no fallback to the `url:` zip.
+
 === Remove all index records
 
 This method removes all records from the index object. The index file is not removed.
