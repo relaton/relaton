@@ -68,22 +68,30 @@ module Relaton
         self.content = pubid.exclude(:part, :subpart)
       end
 
-      # Reduce to the all-parts form by wrapping `pubid` AS-IS (not a
-      # part/date-stripped copy): `to_all_parts`'s own identity computation
-      # already strips part/date for rendering (`#to_s`/`#===`), and wrapping
-      # the original keeps `identifiers` holding the real identifier this
-      # reference came from. BSI has no dedicated pubid `AllParts` subclass
-      # (unlike ISO/IEC), so the wrapper is the generic
-      # `Pubid::AllPartsIdentifier` — its `#to_s` DOES print a "(all parts)"
-      # marker, unlike BSI's own renderer, which never had one. Because BSI
-      # stores its parsed pubid as the single source of `content`
-      # (`Iso::Type::Pubid`), `content` and `#pubid` can't diverge here the
-      # way they do for flavors with a separately cached content string:
-      # both now show the marker (see `#pubid` above, widened to accept it).
+      # Reduce to the all-parts form by wrapping `pubid` (not a part-stripped
+      # copy): `to_all_parts`'s own identity computation already strips
+      # part/date for rendering (`#to_s`/`#===`), and wrapping the original
+      # keeps `identifiers` holding the real identifier this reference came
+      # from. The one exception is a supplement's own year: pubid protects an
+      # `Amendment`/`Corrigendum`'s own date from a bare `exclude(:date)` (the
+      # same protection `#remove_date!` above relies on to drop the base
+      # year while keeping the amendment's), but `to_all_parts` builds its
+      # identity through that same `exclude`, so the protection would leave a
+      # consolidated id's amendment year distinguishing editions that
+      # "(all parts)" is meant to collapse — hence the explicit
+      # `exclude(:supplement_year)` pre-step, which force-clears it instead.
+      # BSI has no dedicated pubid `AllParts` subclass (unlike ISO/IEC), so
+      # the wrapper is the generic `Pubid::AllPartsIdentifier` — its `#to_s`
+      # DOES print a "(all parts)" marker, unlike BSI's own renderer, which
+      # never had one. Because BSI stores its parsed pubid as the single
+      # source of `content` (`Iso::Type::Pubid`), `content` and `#pubid`
+      # can't diverge here the way they do for flavors with a separately
+      # cached content string: both now show the marker (see `#pubid` above,
+      # widened to accept it).
       def to_all_parts!
         return if !pubid || pubid.all_parts?
 
-        self.content = pubid.to_all_parts
+        self.content = pubid.exclude(:supplement_year).to_all_parts
       end
 
       private
