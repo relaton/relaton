@@ -24,8 +24,6 @@ require_relative "bib/model/relation"
 module Relaton
   # class Error < StandardError; end
 
-  class RequestError < StandardError; end
-
   class << self
     #
     # Read schema versions from file

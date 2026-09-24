@@ -218,9 +218,28 @@ pins pubid to `main`, so a checkout whose lock predates that merge still has the
 old attribute: run `bundle update pubid`, not `bundle install`, because an
 already-locked git source does not refloat.
 
+**Where the consumer reads it: the Pages machine index (relaton#189 pilot).**
+`Bibliography#index` is `find_or_create(:W3C, pages_url: PAGES_URL,
+pubid_class: ...)`, not the `index-v2.zip` under `SOURCE`. A parsed query reads
+`index/manifest.json` and the one `index/shard-NNNNN.json` of its slug from
+`https://relaton.github.io/relaton-data-w3c/`, in memory for 24 h — three
+requests for a lookup, including the document, in place of a 180 KB zip. A Pages
+failure raises `Relaton::RequestError`, with no fallback to the zip. Only the
+case-insensitive `#loose_match?` fallback reads every row (the Pages copy of the
+zip), and only after an exact miss. Documents still come from `SOURCE`.
+`get`/`search` accept a parsed `Pubid::W3c::Identifier` as well as a String, so
+`Relaton::Db` can hand over the pubid it parsed (#189 change 2).
+
+**The Pages copy lags the data repo.** The site is rebuilt by the `Deploy`
+workflow, not by the crawler's push, so a document the crawler committed after
+the last deploy is not in any shard yet. On 2026-09-23 the Pages index had
+17,396 rows against 17,444 in `v2/index-v2.zip`: the 48 missing rows
+(`webxrlayers-1`, `rdf12-xml`, …) were committed at 20:01, after the 18:54
+deploy. Until the next deploy those references answer "not found".
+
 **Producer and consumer must stay in step.** Both pass
 `pubid_class: ::Pubid::W3c::Identifier` — `DataFetcher#index` and
-`Bibliography#index`. (`Processor#remove_index_file` passes `url: true` and
+`Bibliography#index` (which deserializes the shard rows with it). (`Processor#remove_index_file` passes `url: true` and
 `file:` only: the delete never reads the index, see
 `lib/relaton/index/CLAUDE.md`.) On the producer side
 `#index_primary` stores the pubid **object**: `Relaton::Index::FileIO#save` only

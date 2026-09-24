@@ -5,12 +5,14 @@ require "zip"
 require "relaton/logger"
 
 require_relative "version"
+require_relative "core/request_error"
 require_relative "index/file_storage"
 require_relative "index/config"
 require_relative "index/util"
 require_relative "index/pool"
 require_relative "index/type"
 require_relative "index/file_io"
+require_relative "index/shard_source"
 
 module Relaton
   module Index

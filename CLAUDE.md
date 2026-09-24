@@ -88,6 +88,15 @@ write round-trips for both ASCII and UTF-8 content. This was latent until
 `Relaton::Sdo` cached the first index with non-ASCII names; don't reintroduce an
 `encoding:` transcode on write.
 
+**Pages shard client (relaton#189, W3C pilot).** `Relaton::Index.find_or_create`
+takes `pages_url:` in place of `url:`; the `Type` then reads the data repo's Pages
+machine index (`index/manifest.json` + one `index/shard-NNNNN.json`) through
+`Relaton::Index::ShardSource`, in memory for 24 h, with no disk cache and **no
+fallback** to the `index-vN.zip` — a transport failure raises
+`Relaton::RequestError`, a shard 404 is "not found". Only `Relaton::W3c` uses it
+so far (`Bibliography::PAGES_URL`); the other flavors still read the zip until
+their Pages sites publish a manifest. See `lib/relaton/index/CLAUDE.md`.
+
 **Crawl politeness lives in `core`, bindings live in the flavor.** Two shared
 components under `lib/relaton/core/` carry the "don't get banned, don't burn the
 CI job" logic that more than one crawler needs: **`Pacer`** (one shared request

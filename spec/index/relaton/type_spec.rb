@@ -300,4 +300,85 @@ describe Relaton::Index::Type do
       expect(index).to eq []
     end
   end
+
+  # A `pages_url:` makes the type read the machine index on the Pages site: a
+  # parsed query reads one shard, and only a String query or a block-only
+  # search needs every row. `#search` filters those rows the same way.
+  context "with pages_url" do
+    subject do
+      described_class.new(:ISO, nil, nil, nil, TestIdentifier, pages_url: pages)
+    end
+
+    let(:pages) { "https://relaton.github.io/relaton-data-iso/" }
+    let(:source) { instance_double(Relaton::Index::ShardSource) }
+    let(:ed1) { TestIdentifier.create(number: 3, publisher: "ISO", edition: "1") }
+    let(:ed2) { TestIdentifier.create(number: 3, publisher: "ISO", edition: "2") }
+    let(:bare) { TestIdentifier.create(number: 3, publisher: "ISO") }
+    let(:rows) { [{ id: ed1, file: "f1" }, { id: ed2, file: "f2" }] }
+
+    before do
+      allow(Relaton::Index::ShardSource).to receive(:new)
+        .with("iso", pages, TestIdentifier).and_return(source)
+    end
+
+    it "searches the shard rows of a parsed query with the subset match" do
+      expect(source).to receive(:rows).with(bare).and_return(rows)
+      expect(source).not_to receive(:whole_index)
+      expect(subject.search(bare).map { |r| r[:file] }).to eq %w[f1 f2]
+    end
+
+    it "keeps exact: on the shard rows" do
+      allow(source).to receive(:rows).and_return(rows)
+      expect(subject.search(bare, exact: true)).to be_empty
+      expect(subject.search(ed2, exact: true)).to eq [{ id: ed2, file: "f2" }]
+    end
+
+    it "answers not found from an empty shard" do
+      allow(source).to receive(:rows).and_return([])
+      expect(subject.search(bare)).to eq []
+    end
+
+    it "searches the whole index for a String query" do
+      expect(source).not_to receive(:rows)
+      expect(source).to receive(:whole_index).and_return(rows)
+      expect(subject.search("ISO 3 2")).to eq [{ id: ed2, file: "f2" }]
+    end
+
+    it "searches the whole index for a block-only search" do
+      expect(source).to receive(:whole_index).and_return(rows)
+      expect(subject.search { |r| r[:file] == "f1" }).to eq [rows.first]
+    end
+
+    it "lets a transport error through" do
+      allow(source).to receive(:rows).and_raise Relaton::RequestError, "503"
+      expect { subject.search(bare) }.to raise_error Relaton::RequestError
+    end
+
+    describe "#actual?" do
+      it "is true for the same pages_url" do
+        expect(subject.actual?(pages_url: pages)).to be true
+      end
+
+      it "is false for another pages_url" do
+        expect(subject.actual?(pages_url: "https://example.org/")).to be false
+      end
+
+      it "is false when the pages_url is left out of a call that gives a url" do
+        expect(subject.actual?(url: "https://example.org/index.zip")).to be false
+      end
+    end
+
+    it "does not keep the whole index, so it expires with the source" do
+      expect(source).to receive(:whole_index).twice.and_return(rows, [])
+      expect(subject.index).to eq rows
+      expect(subject.index).to eq []
+    end
+
+    it "#remove_file drops the rows held in memory, and deletes no file" do
+      allow(Relaton::Index::ShardSource).to receive(:new).and_return(source, :fresh)
+      expect(Relaton::Index.config.storage).not_to receive(:remove)
+      subject.remove_file
+      expect(subject.instance_variable_get(:@source)).to eq :fresh
+    end
+  end
 end

@@ -40,6 +40,8 @@ bin/console
 
 - **FileIO** — Handles reading/writing/downloading index files. Three modes based on `@url`: string URL (download and cache to `~/.relaton/{type}/`), `true` (read local file from `~/.relaton/{type}/`), `nil` (read from current directory). Uses class-level Mutex for thread-safe downloads. Validates index format on load.
 
+- **ShardSource** (`shard_source.rb`) — Reads the machine index on a data repo's Pages site (relaton#189): `index/manifest.json`, then the one `index/shard-NNNNN.json` at `Zlib.crc32(id.root.number.to_s) % shards`. Memory only, 24 h TTL, one `Mutex`. Built by `Type` when `find_or_create` gets `pages_url:`. Reuses `FileIO#deserialize_id`/`#deserialize_pubid` through a file-less `FileIO`.
+
 - **FileStorage** — Storage abstraction module with `ctime`, `read`, `write`, `remove`. Can be replaced via `Config.storage=` for custom backends (e.g., S3).
 
 - **Config** — Global configuration: `storage`, `storage_dir`, `filename` (default: "index.yaml").
@@ -51,6 +53,11 @@ bin/console
 3. FileIO either reads local YAML or downloads ZIP from URL, extracts, validates format
 4. Search matches against `:id` field (string comparison via `include?` or custom block)
 5. `save` writes index as YAML to local file
+
+With `pages_url:` (W3C, the #189 pilot) steps 2–3 change: a non-String query
+goes to `ShardSource#rows` and reads one shard, and `Type#index` (a String query,
+a block-only search) is `ShardSource#whole_index`, the `<index>.zip` that the
+manifest names, read from the Pages site. No `FileIO#read`, no disk cache.
 
 ### What `#search` matches by default
 
@@ -148,6 +155,7 @@ the same arguments:
 |---|---|---|
 | producer — `DataFetcher#index` | none (`file:` is CWD-relative) | **yes** — `FileIO#save` calls `to_hash` only for instances of it |
 | consumer — `Bibliography`/`HitCollection#index` | the published `.zip` | **yes** — without it the rows stay raw hashes and `Type#search` stops narrowing |
+| consumer on the Pages shards (W3C) | none; **`pages_url:`** | **yes** — a shard row is deserialized with it |
 | delete — `Processor#remove_index_file` | **`true`** | **no** |
 
 The delete path is `Type#remove_file` → `FileIO#remove` →
@@ -161,6 +169,20 @@ bug until `url: true` was added. `spec/index/relaton/type_spec.rb` and
 
 ### Key Design Decisions
 
+- **The shard path does not fall back.** A shard 404 is "not found" (`[]`), a
+  transport failure raises `Relaton::RequestError` so `Db#net_retry` retries it,
+  and an unreadable manifest/shard raises `Relaton::Index::Error`. Falling back to
+  the monolith would turn a Pages outage into a silent full download.
+  `Relaton::RequestError` is declared in `lib/relaton/core/request_error.rb`
+  (`Relaton::Core::RequestError` is an alias). `relaton/index` requires that one file,
+  not all of `relaton/core` or `relaton/bib`.
+- **`Type#actual?` compares `pages_url`.** Without it `Pool#type` would keep
+  serving a zip-backed `Type` to a caller that asks for the shards, or the
+  reverse. A spec fixture that seeds the pool must answer `actual?` for
+  `pages_url:` as well (see `spec/w3c/support/webmock.rb`).
+- **`Type#search` does not look at a loaded `@index` in shard mode.** A parsed
+  query always goes to its shard, so the 24 h TTL applies; `@index`, once
+  loaded, is not refreshed.
 - Remote indexes cached for 24 hours at `~/.relaton/{type}/index.yaml`
 - Thread safety via `@@mutex` in FileIO prevents concurrent downloads of the same file
 - Pubid deserialization is optional — when `pubid_class` is provided, string IDs are converted to structured objects

@@ -8,16 +8,18 @@ module Relaton
     # Class methods for search W3C standards.
     class Bibliography
       SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-w3c/v2/"
+      # The Pages site of the data repo: it serves the machine index (manifest
+      # and shards) that `#index` reads. The documents still come from SOURCE.
+      PAGES_URL = "https://relaton.github.io/relaton-data-w3c/"
 
       class << self
-        # @param text [String]
+        # @param ref [String, Pubid::W3c::Identifier] a reference, or one
+        #   already parsed (relaton#189: `Relaton::Db` parses it once)
         # @return [Relaton::W3c::ItemData]
-        def search(text)
-          # A reference pubid rejects is a miss, not an error: `parse_ref`
-          # returns nil rather than raising, so it never becomes a
-          # `Relaton::RequestError` from the transport rescue below.
-          pubid = parse_ref text
-          return unless pubid
+        def search(ref)
+          # A reference pubid rejects raises `Pubid::Errors::ParseError`, which
+          # the transport rescue below does not catch.
+          pubid = ref.is_a?(::Pubid::W3c::Identifier) ? ref : parse_ref(ref)
 
           row = best_match pubid
           return unless row
@@ -101,10 +103,16 @@ module Relaton
             (pubid.date.nil? || row_id.date == pubid.date)
         end
 
+        #
+        # The machine index on the Pages site (relaton#189, W3C is the pilot).
+        # A parsed query reads only its own shard; the whole index is read, in
+        # memory, only by the case-insensitive fallback in `#best_match`.
+        # A Pages failure raises `Relaton::RequestError`, with no fallback to
+        # the `index-v2.zip` in the data repo.
+        #
         def index
           Relaton::Index.find_or_create(
-            :W3C, url: "#{SOURCE}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
-            pubid_class: ::Pubid::W3c::Identifier
+            :W3C, pages_url: PAGES_URL, pubid_class: ::Pubid::W3c::Identifier
           )
         end
 
@@ -142,20 +150,22 @@ module Relaton
           "W3C #{ref}"
         end
 
-        # @param ref [String] the W3C standard Code to look up
+        # @param ref [String, Pubid::W3c::Identifier] the W3C standard Code
+        #   to look up, or its parsed identifier
         # @param year [String, NilClass] not used
         # @param opts [Hash] options
         # @return [Relaton::W3c::ItemData]
         def get(ref, _year = nil, _opts = {})
-          Util.info "Fetching from Relaton repository ...", key: ref
+          key = ref.to_s
+          Util.info "Fetching from Relaton repository ...", key: key
           result = search(ref)
           unless result
-            Util.info "Not found.", key: ref
+            Util.info "Not found.", key: key
             return
           end
 
           found = result.docidentifier.first.content
-          Util.info "Found: `#{found}`", key: ref
+          Util.info "Found: `#{found}`", key: key
           result
         end
       end

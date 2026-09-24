@@ -26,6 +26,14 @@ describe Relaton::Index::Pool do
           expect(subject.type(:ISO, url: :url2, file: :file2)).not_to eq(type)
         end
       end
+
+      context "when only pages_url changes" do
+        it "creates new Type" do
+          type = subject.type("ISO", pages_url: "https://a.io/", pubid_class: TestIdentifier)
+          expect(subject.type("ISO", pages_url: "https://a.io/")).to eq(type)
+          expect(subject.type("ISO", pages_url: "https://b.io/")).not_to eq(type)
+        end
+      end
     end
 
     it "#remove" do

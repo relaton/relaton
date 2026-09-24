@@ -33,7 +33,10 @@ module W3cIndexFixture
     type = Relaton::Index::Type.new(:W3C, nil, file, nil,
                                     ::Pubid::W3c::Identifier)
     type.index # force the deserialize + sort once, offline
-    type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
+    # `Bibliography#index` asks with `pages_url:`, a test with `url:`.
+    type.define_singleton_method(:actual?) do |**args|
+      args.key?(:url) || args.key?(:pages_url)
+    end
     type
   end
 end
