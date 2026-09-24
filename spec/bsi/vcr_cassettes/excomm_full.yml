@@ -8,7 +8,7 @@ http_interactions:
       string: '{"query":"BS 7273-4:2015+A1:2021 Ex"}'
     headers:
       User-Agent:
-      - Algolia for Ruby (2.3.4), Ruby (3.4.7)
+      - Algolia for Ruby (2.3.4), Ruby (3.4.10)
       X-Algolia-Api-Key:
       - a057b4e74099445df2eddb7940828a10
       X-Algolia-Application-Id:
@@ -31,7 +31,7 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Thu, 17 Sep 2026 15:02:28 GMT
+      - Thu, 24 Sep 2026 15:35:36 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Transfer-Encoding:
@@ -45,7 +45,7 @@ http_interactions:
       Cache-Control:
       - no-store
       Correlation-Id:
-      - 575YE1-219Wg-BCEcL4ApJgE
+      - 575YE1-21C9n-GD3kHPTtQJi
       Access-Control-Expose-Headers:
       - Correlation-ID
       Access-Control-Allow-Origin:
@@ -91,8 +91,8 @@ http_interactions:
         7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021 Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]},{"value":"<em>BS7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021
         Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]},{"value":"<em>BS7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]},{"value":"<em>BS
         7273</em>-<em>4</em>:<em>2015</em>+<em>A1</em>:<em>2021Ex</em>Comm","matchLevel":"full","fullyHighlighted":false,"matchedWords":["bs","7273","4","2015","a1","2021","ex"]}],"publisher":{"value":"BSI","matchLevel":"none","matchedWords":[]},"status":{"value":"Withdrawn","matchLevel":"none","matchedWords":[]}}}}}],"nbHits":1,"page":0,"nbPages":1,"hitsPerPage":20,"exhaustiveNbHits":true,"exhaustiveTypo":true,"exhaustive":{"nbHits":true,"typo":true},"query":"BS
-        7273-4:2015+A1:2021 Ex","params":"query=BS+7273-4%3A2015%2BA1%3A2021+Ex&distinct=1&filters=NOT+tags%3Ahas-digital&filters=NOT+tags%3Anot-for-sale&filters=NOT+product_type%3Amembership","renderingContent":{},"processingTimeMS":3,"processingTimingsMS":{"_request":{"queue":1,"roundTrip":119},"fetch":{"total":1},"getIdx":{"load":{"total":1},"total":1},"total":3},"serverTimeMS":14}'
-  recorded_at: Thu, 17 Sep 2026 15:02:28 GMT
+        7273-4:2015+A1:2021 Ex","params":"query=BS+7273-4%3A2015%2BA1%3A2021+Ex&distinct=1&filters=NOT+tags%3Ahas-digital&filters=NOT+tags%3Anot-for-sale&filters=NOT+product_type%3Amembership","renderingContent":{},"processingTimeMS":3,"processingTimingsMS":{"_request":{"roundTrip":110},"fetch":{"total":1},"getIdx":{"load":{"total":1},"total":1},"total":3},"serverTimeMS":3}'
+  recorded_at: Thu, 24 Sep 2026 15:35:35 GMT
 - request:
     method: post
     uri: https://shop-bsi.myshopify.com/api/2021-04/graphql.json
@@ -126,7 +126,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 17 Sep 2026 15:02:29 GMT
+      - Thu, 24 Sep 2026 15:35:36 GMT
       Content-Type:
       - application/json; charset=utf-8
       Transfer-Encoding:
@@ -146,22 +146,22 @@ http_interactions:
       Server:
       - cloudflare
       Set-Cookie:
-      - _shopify_analytics=:AaCv4_wbAAEAe2ELzw-9482brgG8X7bJwzDKW7K2IlL4L08orT436Ylvq0Uqs2mbvZQHX1lOQ9Kou9lr8IJOzJO3sim9FQ8AOr4U4q3QjTUPrIkAaogFrYPZ9Y7z5Ojz5g20uHrLrt62bzCHVuF-jLDju1k:;
+      - _shopify_analytics=:AaDUDtLVAAEAyndt2qkpLHvqhKcCHZZYxYrrDsi-SGsq9JhsPzNlSBP065tSpWdWzOJZgjStjHB_oQELmUB_pXkLYX7JxZxmVUN8jjAWjiyv50Xh_31AxEuX5QydB--UH8pO8PaPvr96hGjLawjEmGdMMx8:;
         Max-Age=31536000; Path=/; HttpOnly; Secure; Priority=High; SameSite=Lax
-      - _shopify_essential=:AaCv4_wYAAEAvvPRRGyk06CTrVNBFGPIhx5gdO4hhz6HYjcUV7btOptxMf0Pr3znBQsPazAm4q3wyX5Tw0BFe19geY1ifWDLflTfQ8qqgakcrIsMg4I5gIvd4Nr2BkJxjM3jaAwvC1DI8jQRBDKLnhwEnhQwxwGVa5XC5wvzh6NpyKHraH96x-To9ak-rv7Zs7LWGUWSna3x2aRJTRC18xE_AYg3cvmAaJH_kfGKtAxnGO-lfasbd-BIGL9_fV_4VsoIgL-BcomeDKEari7fLaAlOV2cMlDWIKHA-iODlPILOGzEDOusYzCSwueqzY4_YUEEBifGrZP9f5lUA5CLiOWd2G6ZbCVCnDAvs0b4bkcW6AeMBq3BINIpo8k73-TTO30s-do79gmWNRdkzA5MAv9rrTw3Ydgd3ww6n6gg3Z4EL5k1t1K0mxoeVetNeBSevYn8127BuyDUp33OuUG7QYX6q1JQFuY:;
+      - _shopify_essential=:AaDUDtLQAAEA0hUgP7VDwdYcau2QRVREhBuV8exb-NltyyyJ_BJV6n29C2pRN92EBFUQl9gTSXndJxE4q8q5sCbB95Jfv0OlfWBLOEOeWY-IS25Pv9tEN8CkRa8dfSeFKZBhwQZvF0_RsXTC1CULWzASDNz-eUw0Mbboc_R8EIycjlyqCi_iRx1sqeXUwxjXDXO9v82YhhjiOnIavX5PZpoeyp139ym7lAJc8AlflZI3q9Hn5zA5STP81NJovikEd2hg7594TX1Zub6Q-3v3R13Jz_ctLbddJMXTcfAebQ:;
         Max-Age=31536000; Path=/; HttpOnly; Secure; Priority=High; SameSite=Lax
-      - _shopify_marketing=:AaCv4_wbAAEAirirf8SEG9ufIcYZACtOn6mxXLn0QyUGU60qXAlbp79rR_805NSlVvw9oZdzA6Cjrq4HUfFYwLCN2MOWdFvpJyKX3spLoeEgkzZuxmZVb7FTNw60hO_vfM4Y0g8v2XrmD7yfub2ymU-M0X8:;
+      - _shopify_marketing=:AaDUDtLVAAEACAC3oEAhZxZqmRCX6LMOhgJA4lDxGfHWSQSxZJjRYNP3bQykVWYZn3JD1MUN7IobYWlc60anZolMaPvIeX6svGLm5eXAuvsDNITJtL5plDI-DlyXXF7rgC410u4532dYtNNMYN8ElTO0hyQ:;
         Max-Age=31536000; Path=/; HttpOnly; Secure; Priority=High; SameSite=Lax
-      - _shopify_s=b1160a0b-7347-472a-8111-c5ddd30357a1; path=/; domain=shop-bsi.myshopify.com;
-        expires=Thu, 17 Sep 2026 15:32:29 GMT
-      - _shopify_y=1798cc02-ac7c-4258-9f59-98ddeff35607; path=/; domain=shop-bsi.myshopify.com;
-        expires=Fri, 17 Sep 2027 21:02:29 GMT
+      - _shopify_s=911cd742-dd8b-4874-9263-471d11bd8fe2; path=/; domain=shop-bsi.myshopify.com;
+        expires=Thu, 24 Sep 2026 16:05:36 GMT
+      - _shopify_y=1247eee3-29b5-4a12-8fba-c8d5b033d44e; path=/; domain=shop-bsi.myshopify.com;
+        expires=Fri, 24 Sep 2027 21:35:36 GMT
       X-Shopify-Api-Deprecated-Reason:
       - https://shopify.dev/api/usage/versioning#deprecation-practices
       Shopify-Complexity-Score:
       - '0'
       Shopify-Complexity-Score-V2:
-      - '38'
+      - '52'
       X-Frame-Options:
       - DENY
       Content-Security-Policy:
@@ -173,7 +173,7 @@ http_interactions:
       Nel:
       - '{"report_to":"cf-nel","success_fraction":0.01,"max_age":604800}'
       Report-To:
-      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=QOGm8kMD6Ra5iC%2BvCQGjwB1ex92Wq6P%2Fcy3LRN0hqjpxhGJs6obZIMJz7uUfiy546q0nSWsXk0yXhwwiKtTKvsev3IacWfyEt%2Bu9P7Q%2F8P9%2BJGBWUlUfJrckhXY85oMf9ZVThxkxUzNOLWfwD7wMp%2FSPv%2FA%3D"}]}'
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=pzEeL7NkpbhKzIaH0aArqUth9YFyzXfvwDLTMSvdz4U11bw99KVDZIx2Wc7fg4n1IaNcn1hAmnOiyEdVMIMZz4tynCHphoEq2xLYp98oYRKromnc8lLM8snFo2X2tZtsdDDmpm5Hq%2Bw%3D"}]}'
       Vary:
       - Accept,accept-encoding
       Cdn-Cache-Control:
@@ -183,12 +183,11 @@ http_interactions:
       Powered-By:
       - Shopify
       Server-Timing:
-      - ipv6
-      - processing;dur=42, db;dur=25, asn;desc="11426", edge;desc="IAD", country;desc="US",
-        servedBy;desc="6sfz", graphql;desc="storefront/query/Relaton__Bsi__Scraper__Query__GetProducts",
-        gqlSelectionNames;desc="sfr/productByHandle", requestID;desc="6b6a511c-4914-44db-9e0e-1319f2144275-1789657348",
-        _y;desc="1798cc02-ac7c-4258-9f59-98ddeff35607", _s;desc="b1160a0b-7347-472a-8111-c5ddd30357a1",
-        _ye;desc="1821214949", _se;desc="1789659149"
+      - processing;dur=59;desc="gc:2", db;dur=33, db_async;dur=0.479, asn;desc="11426",
+        edge;desc="IAD", country;desc="US", servedBy;desc="s98q", graphql;desc="storefront/query/Relaton__Bsi__Scraper__Query__GetProducts",
+        gqlSelectionNames;desc="sfr/productByHandle", requestID;desc="99150c73-b601-4bdc-b5ad-f689b348ca36-1790264136",
+        _y;desc="1247eee3-29b5-4a12-8fba-c8d5b033d44e", _s;desc="911cd742-dd8b-4874-9263-471d11bd8fe2",
+        _cta;desc="1", _ye;desc="1821821736", _se;desc="1790265936"
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Xss-Protection:
@@ -196,14 +195,14 @@ http_interactions:
       X-Dc:
       - gcp-us-east1,gcp-us-east1,gcp-us-east1
       X-Request-Id:
-      - 6b6a511c-4914-44db-9e0e-1319f2144275-1789657348
+      - 99150c73-b601-4bdc-b5ad-f689b348ca36-1790264136
       X-Download-Options:
       - noopen
       Cf-Ray:
-      - a3c8fdfe9ecc25d1-IAD
+      - a402dc2359fb0576-IAD
     body:
       encoding: ASCII-8BIT
       string: '{"data":{"productByHandle":{"createdAt":"2021-08-14T08:03:52Z","publishedAt":"2026-08-14T15:02:47Z","updatedAt":"2026-08-29T14:43:49Z","productType":"publication","committee":{"value":"FSH/12/4"},"designated":{"value":"false"},"packContents":null,"summary":null,"corrigendumHandle":null,"variants":{"edges":[{"node":{"version":{"value":"basic"},"isbn":{"value":"978
         0 539 16669 9"}}}]},"description":""}},"extensions":{"cost":{"requestedQueryCost":51}}}'
-  recorded_at: Thu, 17 Sep 2026 15:02:29 GMT
+  recorded_at: Thu, 24 Sep 2026 15:35:36 GMT
 recorded_with: VCR 6.4.0
