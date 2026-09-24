@@ -43,14 +43,14 @@ module Relaton
         if year&.respond_to?(:to_i)
           query_pubid.root.date = ::Pubid::Components::Date.new(year: year.to_s)
         end
-        query_pubid.root.all_parts = opts[:all_parts] if opts[:all_parts]
+        query_pubid = query_pubid.to_all_parts if opts[:all_parts]
         Util.info "Fetching from Relaton repository ...", key: query_pubid.to_s
 
         hits, missed_year_ids = isobib_search_filter(query_pubid, opts)
         tip_ids = look_up_with_any_types_stages(hits, ref, opts)
 
         date_filter = opts[:publication_date_before] || opts[:publication_date_after]
-        if date_filter && !query_pubid.root.all_parts
+        if date_filter && !query_pubid.all_parts
           ret = find_match_by_date(hits, query_pubid, opts)
         else
           ret = hits.fetch_doc(date_filter ? opts : {})
@@ -304,7 +304,11 @@ module Relaton
           Util.info "TIP: Matches exist for #{ids}.", key: pubid.to_s
         end
 
-        if pubid.part
+        # `pubid` may itself be the all-parts wrapper (an all-parts query that
+        # still found nothing): its own `part` is always nil (never delegated),
+        # so read the underlying document via `#root`, and skip suggesting
+        # "(all parts)" to a caller who already asked for it.
+        if pubid.all_parts || pubid.root.part
           Util.info "TIP: If it cannot be found, the document may no longer be published in parts.", key: pubid.to_s
         else
           Util.info "TIP: If you wish to cite all document parts for the reference, " \
@@ -321,7 +325,7 @@ module Relaton
         pubid = ::Pubid::Iso::Identifier.parse(ref_no_type_stage)
         resp, = isobib_search_filter(pubid, opts, any_types_stages: true)
         resp.map &:pubid
-      rescue Parslet::ParseFailed
+      rescue ::Pubid::Errors::ParseError
         # The type/stage-stripped variant is a machine-derived probe, not the
         # user's identifier; if it doesn't parse there are simply no
         # alternative-type/stage candidates. The original reference already
@@ -357,11 +361,11 @@ module Relaton
       #
       def filter_hits(hit_collection, query_pubid, any_types_stages) # rubocop:disable Metrics/AbcSize
         # filter out
-        excludings = build_excludings(query_pubid.root.all_parts, any_types_stages)
+        excludings = build_excludings(query_pubid.all_parts, any_types_stages)
         no_year_ref = hit_collection.ref_pubid_no_year.exclude(*excludings)
         hit_collection.select! do |i|
           pubid_match?(i.pubid, query_pubid, excludings, no_year_ref) &&
-            !(query_pubid.root.all_parts && i.pubid.part.nil?)
+            !(query_pubid.all_parts && i.pubid.part.nil?)
         end
 
         filter_hits_by_year(hit_collection, query_pubid.root.date&.year)
@@ -400,9 +404,7 @@ module Relaton
         num = pubid.part.to_s
         return pubid unless pubid.subpart.nil? && num.include?("-")
 
-        head, tail = num.split("-", 2)
-        pubid.part = head
-        pubid.subpart = tail
+        pubid.part, pubid.subpart = num.split("-", 2)
         pubid
       end
     end
