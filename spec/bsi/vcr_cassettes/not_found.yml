@@ -8,7 +8,7 @@ http_interactions:
       string: '{"query":"BS 99999"}'
     headers:
       User-Agent:
-      - Algolia for Ruby (2.3.4), Ruby (3.4.7)
+      - Algolia for Ruby (2.3.4), Ruby (3.4.10)
       X-Algolia-Api-Key:
       - a057b4e74099445df2eddb7940828a10
       X-Algolia-Application-Id:
@@ -31,21 +31,21 @@ http_interactions:
       Server:
       - nginx
       Date:
-      - Wed, 16 Sep 2026 02:45:33 GMT
+      - Thu, 24 Sep 2026 15:35:34 GMT
       Content-Type:
       - application/json; charset=UTF-8
       Content-Length:
-      - '467'
+      - '410'
       Connection:
       - keep-alive
       X-Alg-Pt:
-      - '2'
+      - '1'
       Accept-Encoding:
       - deflate, gzip
       Cache-Control:
       - no-store
       Correlation-Id:
-      - 575YE1-218xZ-E1e6xsjNmiB
+      - 575YE1-21C9n-0D350NVc8EA
       Access-Control-Expose-Headers:
       - Correlation-ID
       Access-Control-Allow-Origin:
@@ -61,6 +61,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"hits":[],"nbHits":0,"page":0,"nbPages":0,"hitsPerPage":20,"exhaustiveNbHits":true,"exhaustiveTypo":true,"exhaustive":{"nbHits":true,"typo":true},"query":"BS
-        99999","params":"query=BS+99999&distinct=1&filters=NOT+tags%3Ahas-digital&filters=NOT+tags%3Anot-for-sale&filters=NOT+product_type%3Amembership","renderingContent":{},"processingTimeMS":3,"processingTimingsMS":{"_request":{"roundTrip":110},"getIdx":{"load":{"total":1},"total":1},"total":3},"serverTimeMS":3}'
-  recorded_at: Wed, 16 Sep 2026 02:45:33 GMT
+        99999","params":"query=BS+99999&distinct=1&filters=NOT+tags%3Ahas-digital&filters=NOT+tags%3Anot-for-sale&filters=NOT+product_type%3Amembership","renderingContent":{},"processingTimeMS":1,"processingTimingsMS":{"_request":{"roundTrip":125},"total":0}}'
+  recorded_at: Thu, 24 Sep 2026 15:35:33 GMT
 recorded_with: VCR 6.4.0

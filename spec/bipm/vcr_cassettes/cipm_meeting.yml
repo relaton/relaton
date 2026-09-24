@@ -12,7 +12,7 @@ http_interactions:
       Accept:
       - "*/*"
       User-Agent:
-      - Mechanize/2.14.1 Ruby/3.4.7p58 (http://github.com/sparklemotion/mechanize/)
+      - Mechanize/2.14.1 Ruby/3.4.10p104 (http://github.com/sparklemotion/mechanize/)
       Accept-Language:
       - en-us,en;q=0.5
       Host:
@@ -47,7 +47,7 @@ http_interactions:
       X-Xss-Protection:
       - 1; mode=block
       X-Github-Request-Id:
-      - 7C9C:2ED8BB:53B79A:74BAA1:6AABFF10
+      - FF30:2570C0:5A664:82E44:6AB53DF6
       X-Github-Edge-Region:
       - iad
       Content-Encoding:
@@ -55,17 +55,17 @@ http_interactions:
       Accept-Ranges:
       - bytes
       Date:
-      - Thu, 17 Sep 2026 14:54:09 GMT
+      - Thu, 24 Sep 2026 15:36:01 GMT
       Via:
       - 1.1 varnish
       X-Served-By:
-      - cache-pdk-kfty8610032-PDK
+      - cache-pdk-kpdk2140086-PDK
       X-Cache:
-      - MISS
+      - HIT
       X-Cache-Hits:
       - '0'
       X-Timer:
-      - S1789656849.095261,VS0,VE111
+      - S1790264162.824922,VS0,VE46
       Vary:
       - Authorization,Accept-Encoding
       Access-Control-Allow-Origin:
@@ -73,9 +73,9 @@ http_interactions:
       Cross-Origin-Resource-Policy:
       - cross-origin
       X-Fastly-Request-Id:
-      - 0d80e8269bb2582656885366480b44bae1b98c20
+      - dfe503f0e554a6d79ef1029f6b362d25d0e7f69c
       Expires:
-      - Thu, 17 Sep 2026 14:59:09 GMT
+      - Thu, 24 Sep 2026 15:41:01 GMT
       Source-Age:
       - '0'
     body:
@@ -105,5 +105,5 @@ http_interactions:
         6kAkN9isV1c0WuFgs2KY+us1fkeja3x97a+j1TJg0TX9T1ye/x+5PP88Ls9/
         EZfnn8/ldRN6Fpc3oOMsl7fB/urV5b26vFeX9+ryTnV5xULzR/bTRuj5V5zn
         GKsADc1yWzTYl9NHsCwVyrwPHTBUIBxtz59aR7yAbnix+A322V5HDRwAAA==
-  recorded_at: Thu, 17 Sep 2026 14:54:09 GMT
+  recorded_at: Thu, 24 Sep 2026 15:36:01 GMT
 recorded_with: VCR 6.4.0
