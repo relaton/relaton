@@ -120,6 +120,39 @@ id from silently halving the crawl (see the `data_fetcher.rb` history):
   `File.binwrite(state_path, …)` so `merge_state_files` sees its `saved_writes`
   and `reconcile_staged_outputs` doesn't delete the whole batch's staged files.
   Reconcile also logs the straggler-cleanup count so an anomaly isn't silent.
+- **A title-fragment id can still slip past `#no_standard_number?`.**
+  `#no_standard_number?` only fires for a `publicationsubtype` in
+  `NON_STANDARD_SUBTYPES`, and a generic mid-tier `RawbibIdParser` fallback
+  branch meant for a real catalog number (e.g. "publisher, number, part",
+  built for `"IEEE 802.3"`) can still read a short, numbered title as one
+  (`"WEB 3.0: The Evolution of ..."` → `WEB 3.0`) for a subtype spelling that
+  list doesn't cover. `RawbibIdParser.fabricated_title_id?(pid, title,
+  isbn_present)` is a second, subtype-agnostic guard on the *resolved id*
+  itself, called from both `IdamsParser#pubid` (full parse, `title` from
+  `@doc.btitle` — distinct from `normtitle`, which for a genuine standard
+  holds its designation, not prose) and `DataFetcher#extract_index_entry`
+  (cheap-parse prefilter, `title` the *last* `<title>` in the raw XML — the
+  first is always the top-level designation, present even for a real
+  standard). It must run in both places for the same reason
+  `#no_standard_number?` does: the prefilter groups files by docnumber before
+  the full parse ever runs, so a fabricated id left un-nilled there still
+  merges a whitepaper's group with an unrelated document's and can silently
+  drop a file from the corpus.
+  **The check is on the id's *class*, not (only) the title prefix:** it
+  requires `pid.is_a?(Renderer)` — i.e. the unvalidated bespoke fallback
+  string, never a real `::Pubid::Ieee::Identifier` that pubid's own grammar
+  actually parsed — **and** the title is a literal prefix of `pid.to_s`
+  **and** the document carries a real ISBN. Title-prefix and ISBN alone are
+  not enough: measured over 9,091 successfully-parsed raw-corpus records, 7
+  genuine, correctly-resolved standards have a title that literally begins
+  with their own real designation and also carry an ISBN (`"IEEE Std
+  1636.99-2013, IEEE Standard for ..."`) — an earlier version of this guard
+  without the `Renderer` restriction nulled out their real ids. All 7 resolve
+  to a real `Pubid::Ieee::Identifier`, never a `Renderer`, so the class check
+  is what tells them apart from the 25 known fabricated ids in a
+  `relaton-data-ieee` audit, all of which are `Renderer`s. A flagged record is
+  treated like any other unparseable id: `docnumber` is nil and
+  `DataFetcher#parse_entry` skips it with the `PubID parse error` warning.
 
 ## Testing
 

@@ -322,7 +322,13 @@ module Relaton
         docnumber = nil
         if normtitle && stdnumber
           pubid = RawbibIdParser.parse(normtitle, stdnumber)
-          docnumber = pubid&.to_s
+          # The article title (what `IdamsParser#pubid` compares against) is
+          # the *last* `<title>` in the file: the top-level one (first) is the
+          # designation, present even for a real standard.
+          title = cheap_extract_field(xml, "title", last: true)
+          isbn = xml.include?("<isbn")
+          fabricated = RawbibIdParser.fabricated_title_id?(pubid, title, isbn)
+          docnumber = pubid&.to_s unless fabricated
         end
         [idx, file, docnumber, file.include?("/updates.")]
       rescue StandardError
@@ -348,9 +354,11 @@ module Relaton
         NON_STANDARD_SUBTYPES.include?(subtype) && !stdnumber.to_s.match?(/\d/)
       end
 
-      def cheap_extract_field(xml, tag)
-        m = xml.match(%r{<#{tag}[^>]*?>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</#{tag}>}m)
-        m && m[1].strip
+      def cheap_extract_field(xml, tag, last: false)
+        re = %r{<#{tag}[^>]*?>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?</#{tag}>}m
+        matches = xml.scan(re)
+        m = last ? matches.last : matches.first
+        m && m[0].strip
       end
 
       def select_prefilter_winners(index, total)

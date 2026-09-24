@@ -226,6 +226,32 @@ RSpec.describe Relaton::Ieee::DataFetcher do
       end
     end
 
+    # A record whose `publicationsubtype` isn't one of `NON_STANDARD_SUBTYPES`
+    # (so `#no_standard_number?` doesn't fire) can still have no real IEEE
+    # designation. Here the generic "publisher, number, part" fallback branch
+    # in `RawbibIdParser` (meant for a catalog number like "IEEE 802.3") reads
+    # the book's own title as if it were one ("WEB 3.0: The Evolution of
+    # Information-Centric Networks" -> `WEB 3.0`). The record carries a real
+    # ISBN, so the fabrication is detectable and must be skipped rather than
+    # published as the primary docid.
+    context "record whose id is a fragment of its own title" do
+      let(:file) { "fixtures/examples/web-3-0.xml" }
+
+      it "skips it in the full parse" do
+        expect do
+          expect(df.send(:parse_entry, 0, file)).to be_nil
+        end.to output(/WARN: PubID parse error/).to_stderr_from_any_process
+      end
+
+      # The prefilter groups files by docnumber before the full parse ever
+      # runs (see `#no_standard_number?`'s own comment above): a fabricated
+      # docnumber left un-nilled here would still merge this record's group
+      # with an unrelated one and silently drop a file from the corpus.
+      it "gives no docnumber in the prefilter, avoiding a group collision" do
+        expect(df.send(:extract_index_entry, 0, file)[2]).to be_nil
+      end
+    end
+
     context "save document" do
       let(:bib) { Relaton::Ieee::ItemData.new docnumber: "5678" }
 
