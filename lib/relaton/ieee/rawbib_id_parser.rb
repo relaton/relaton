@@ -40,6 +40,38 @@ module Relaton
         rendered # neither pubid parse kept every digit — keep the bespoke id
       end
 
+      #
+      # True when `pid` is not a real IEEE designation but a leading fragment
+      # of the document's own title, coined by a generic {#parse_fallback}
+      # branch built for a genuine catalog number (e.g. "IEEE 802.3") that
+      # also happens to match a short title's opening words ("WEB 3.0: The
+      # Evolution of ..." -> `WEB 3.0`). Restricting this to the unvalidated
+      # `Renderer` fallback (never a pubid grammar match) is what keeps a
+      # genuine, correctly-resolved standard safe: measured over 9,091
+      # successfully-parsed records in the raw corpus, 7 real standards whose
+      # title happens to literally start with their own real designation
+      # (`IEEE Std 1636.99-2013, IEEE Standard for ...`) resolve to a real
+      # `::Pubid::Ieee::Identifier`, never a `Renderer`, so they are never
+      # flagged. `DataFetcher#no_standard_number?` catches most title-fragment
+      # records upfront by `publicationsubtype`, but that list can't cover
+      # every vendor subtype spelling, so this is a second, subtype-agnostic
+      # guard on the resolved id itself. Requiring a real ISBN keeps a
+      # genuine `Renderer` id (the ~1.3% that miss the faithfulness guard;
+      # see {#parse}) whose title coincidentally starts with it from being
+      # discarded.
+      #
+      # @param [::Pubid::Ieee::Identifier, Renderer, nil] pid
+      # @param [String, nil] title the document's own (non-normtitle) title
+      # @param [Boolean] isbn_present whether the document carries a real ISBN
+      #
+      # @return [Boolean]
+      #
+      def fabricated_title_id?(pid, title, isbn_present)
+        return false unless pid.is_a?(Renderer)
+
+        !!(title && isbn_present && title.start_with?(pid.to_s))
+      end
+
       # Parse a canonical id string into a pubid identifier, or nil on failure.
       def pubid_parse(str)
         ::Pubid::Ieee::Identifier.parse(str)

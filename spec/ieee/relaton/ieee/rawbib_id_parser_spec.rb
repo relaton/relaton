@@ -232,4 +232,47 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
       expect(described_class.parse(nt, "C57.13.3-2025").to_s).to eq "IEEE Std C57.13.3-2025"
     end
   end
+
+  # A generic `parse_fallback` branch built for a real catalog number (e.g.
+  # "IEEE 802.3") can also match the opening words of an unrelated title
+  # ("WEB 3.0: The Evolution of ..." -> `WEB 3.0`), for a `publicationsubtype`
+  # `DataFetcher#no_standard_number?` doesn't cover. `#fabricated_title_id?`
+  # is the second, subtype-agnostic guard on the resolved id itself.
+  context "fabricated_title_id?" do
+    let(:title) { "WEB 3.0: The Evolution of Information-Centric Networks" }
+    let(:pid) { described_class.parse(title, "") }
+
+    it "flags a title-fragment Renderer id with a real ISBN" do
+      expect(pid).to be_instance_of Relaton::Ieee::RawbibIdParser::Renderer
+      expect(described_class.fabricated_title_id?(pid, title, true)).to be true
+    end
+
+    it "does not flag it without a real ISBN" do
+      expect(described_class.fabricated_title_id?(pid, title, false))
+        .to be false
+    end
+
+    it "does not flag it without a title" do
+      expect(described_class.fabricated_title_id?(pid, nil, true)).to be false
+    end
+
+    it "does not flag nil" do
+      expect(described_class.fabricated_title_id?(nil, title, true)).to be false
+    end
+
+    # Measured over 9,091 successfully-parsed raw-corpus records: 7 genuine
+    # standards have a title that literally begins with their own real
+    # designation and also carry an ISBN, but all 7 resolve to a real
+    # `::Pubid::Ieee::Identifier` (pubid validated the grammar), never the
+    # unvalidated `Renderer` fallback — so restricting the guard to `Renderer`
+    # is what keeps them from being discarded as "fabricated".
+    it "does not flag a real pubid id, even with a title-prefix and an ISBN" do
+      nt = "IEEE Std 1636.99-2013, IEEE Standard for Software Interface " \
+           "for Maintenance Information Collection and Analysis (SIMICA)."
+      real_pid = described_class.parse(nt, "1636.99-2013")
+      expect(real_pid).to be_instance_of Pubid::Ieee::Identifiers::Standard
+      expect(described_class.fabricated_title_id?(real_pid, nt, true))
+        .to be false
+    end
+  end
 end

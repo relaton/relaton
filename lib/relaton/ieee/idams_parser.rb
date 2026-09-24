@@ -60,7 +60,11 @@ module Relaton
 
         normtitle = @doc.normtitle
         stdnumber = @doc.publicationinfo.stdnumber
-        @pubid = RawbibIdParser.parse(normtitle, stdnumber)
+        pid = RawbibIdParser.parse(normtitle, stdnumber)
+        title = @doc.btitle.find { |t| t[:type] == "main" }&.dig(:content)
+        isbn = @doc.isbn_doi.any? { |id| id[:type] == "ISBN" }
+        fabricated = RawbibIdParser.fabricated_title_id?(pid, title, isbn)
+        @pubid = fabricated ? nil : pid
       end
 
       #

@@ -50,6 +50,23 @@ describe Relaton::Ieee::IdamsParser do
       end
     end
 
+    # A record with no real IEEE designation (a book/whitepaper cited by
+    # title) whose `publicationsubtype` isn't one `DataFetcher` recognizes as
+    # non-standard, so `RawbibIdParser` still runs and a generic fallback
+    # branch reads the title's own words as a catalog number+part
+    # ("WEB 3.0: The Evolution of ..." -> `WEB 3.0`). It carries a real ISBN.
+    context "title-fragment docid" do
+      let(:source_xml) { File.read "fixtures/examples/web-3-0.xml" }
+
+      it "does not fabricate an IEEE docid from the title" do
+        expect(subject.send(:pubid)).to be_nil
+        expect(bibitem.docnumber).to be_nil
+        expect(bibitem.docidentifier.map(&:type)).not_to include "IEEE"
+        expect(bibitem.docidentifier.map(&:content))
+          .to include "978-1-5044-7570-9"
+      end
+    end
+
     context "backrefs" do
       let(:source_xml) { File.read "fixtures/examples/07873195.xml" }
       let(:xml) { bibitem.to_xml bibdata: true }
