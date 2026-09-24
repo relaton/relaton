@@ -46,10 +46,6 @@ require_relative "ext"
 require_relative "item_shared"
 require_relative "type/plain_date"
 
-Lutaml::Model::Config.configure do |config|
-  config.xml_adapter_type = :nokogiri
-end
-
 module Relaton
   module Bib
     class Relation < Lutaml::Model::Serializable

@@ -10,6 +10,16 @@
 
 require "bundler/setup"
 require_relative "simplecov_env" # start coverage before any app code loads
+
+# Adapter selection is an end-user concern — the library never sets it.
+# The suite pins it so every run exercises one known serialization stack.
+# TODO(lutaml-model#856): flip to :leptris once its serializer calls the
+# mapped reader for map_content (derived-content models currently
+# serialize empty under it).
+require "lutaml/model"
+Lutaml::Model::Config.configure do |config|
+  config.xml_adapter_type = :nokogiri
+end
 require "rspec/matchers"
 require "equivalent-xml"
 require "jing"
