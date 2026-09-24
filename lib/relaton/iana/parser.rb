@@ -1,5 +1,9 @@
 module Relaton
   module Iana
+    # The IANA registry XML uses a default namespace, and moxml (unlike raw
+    # nokogiri) does not bind the literal `xmlns:` prefix to it — every
+    # namespaced query passes this binding explicitly.
+    NS = { "xmlns" => "http://www.iana.org/assignments" }.freeze
     class Parser
       #
       # Document parser initalization
@@ -50,7 +54,7 @@ module Relaton
       # @return [Array<Relaton::Bib::Title>] title
       #
       def parse_title
-        content = @xml.at_xpath("./xmlns:title")&.text || @xml[:id]
+        content = @xml.at_xpath("./xmlns:title", NS)&.text || @xml[:id]
         result = [Bib::Title.new(content: content, language: "en", script: "Latn")]
         @errors[:title] &&= result.empty?
         result
@@ -121,7 +125,7 @@ module Relaton
       # @return [Array<Relaton::Bib::Date>] date
       #
       def parse_date
-        d = @xml.xpath("./xmlns:created|./xmlns:published|./xmlns:updated").map do |dt|
+        d = @xml.xpath("./xmlns:created|./xmlns:published|./xmlns:updated", NS).map do |dt|
           Bib::Date.new(type: dt.name, at: dt.text)
         end
         result = d.none? && @rootdoc ? @rootdoc.date : d
