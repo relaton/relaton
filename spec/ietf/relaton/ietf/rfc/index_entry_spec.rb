@@ -325,11 +325,10 @@ RSpec.describe Relaton::Ietf::Rfc::Entry do
       expect(xml_out).to include("<stream>Legacy</stream>")
     end
 
-    it "creates series from stream" do
+    it "puts the stream in ext, not in series" do
       item = subject.to_item
-      series = item.series.first
-      expect(series.type).to eq "stream"
-      expect(series.title[0].content).to eq "IETF"
+      expect(item.series.map { |s| s.type }).to all(be_nil.or eq("main"))
+      expect(item.ext.stream).to eq "IETF"
     end
 
     it "handles entry without stream" do
@@ -502,8 +501,8 @@ RSpec.describe Relaton::Ietf::Rfc::Entry do
     end
 
     it "creates correct series" do
-      # is-also (BCP) + RFC + stream (IETF) = 3
-      expect(item.series.size).to eq 3
+      # is-also (BCP) + RFC = 2; the stream is ext.stream, not a series
+      expect(item.series.size).to eq 2
 
       bcp_series = item.series.find { |s| s.title[0].content == "BCP" }
       expect(bcp_series.number).to eq "26"
@@ -511,8 +510,22 @@ RSpec.describe Relaton::Ietf::Rfc::Entry do
       rfc_series = item.series.find { |s| s.title[0].content == "RFC" }
       expect(rfc_series.number).to eq "139"
 
-      stream_series = item.series.find { |s| s.type == "stream" }
-      expect(stream_series.title[0].content).to eq "IETF"
+      expect(item.ext.stream).to eq "IETF"
+    end
+
+    it "canonicalises stream casing from rfc-index" do
+      xml = <<~XML
+        <rfc-entry xmlns="https://www.rfc-editor.org/rfc-index">
+          <doc-id>RFC1097</doc-id>
+          <title>Cybermind</title>
+          <author><name>P. Padlipsky</name></author>
+          <date><month>October</month><year>1994</year></date>
+          <current-status>UNKNOWN</current-status>
+          <stream>INDEPENDENT</stream>
+        </rfc-entry>
+      XML
+      item = described_class.from_xml(xml).to_item
+      expect(item.ext.stream).to eq "Independent"
     end
 
     it "creates committee contributor from wg_acronym" do

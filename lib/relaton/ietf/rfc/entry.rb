@@ -195,8 +195,7 @@ module Relaton
             formattedref: build_formattedref,
             date: build_subseries_date(rfc_index),
             relation: build_relations(rfc_index, wg_names: wg_names),
-            series: build_series,
-            ext: Ext.new(doctype: Doctype.new(content: "rfc"), stream: stream, flavor: "ietf"),
+            ext: Ext.new(doctype: Doctype.new(content: "rfc"), stream: canonical_stream, flavor: "ietf"),
           )
         end
 
@@ -257,13 +256,6 @@ module Relaton
           id = ref.sub(/^([A-Z]+)0*(\d+)$/, '\1 \2')
           docid = Bib::Docidentifier.new(type: "IETF", content: id, primary: true)
           ItemData.new(formattedref: Bib::Formattedref.new(content: ref), docidentifier: [docid])
-        end
-
-        def build_series
-          return [] unless stream
-
-          t = Bib::Title.new(content: stream)
-          [Bib::Series.new(type: "stream", title: [t])]
         end
 
         # --- RFC entry builders ---
@@ -388,7 +380,7 @@ module Relaton
         def build_rfc_series
           series = build_rfc_is_also_series
           series << Bib::Series.new(title: [Bib::Title.new(content: "RFC")], number: shortnum)
-          series + build_rfc_stream_series
+          series
         end
 
         def build_rfc_is_also_series
@@ -401,27 +393,31 @@ module Relaton
           end
         end
 
-        def build_rfc_stream_series
-          return [] unless stream
-
-          t = Bib::Title.new(content: stream)
-          [Bib::Series.new(type: "stream", title: [t])]
-        end
-
         STREAM_ORGS = {
           "IETF" => ["IETF", "Internet Engineering Task Force"],
           "IRTF" => ["IRTF", "Internet Research Task Force"],
           "IAB" => ["IAB", "Internet Architecture Board"],
         }.freeze
 
+        # rfc-index.xml spells the independent stream "INDEPENDENT";
+        # Ext.stream's declared values use "Independent". Match case-insensitively
+        # against the declared values so both Ext.stream and STREAM_ORGS see the
+        # canonical spelling.
+        def canonical_stream
+          return unless stream
+
+          values = Ext.attributes[:stream].options[:values]
+          values.find { |v| v.casecmp?(stream) } || stream
+        end
+
         def build_rfc_ext
-          Ext.new(doctype: Doctype.new(content: "rfc"), stream: stream, flavor: "ietf")
+          Ext.new(doctype: Doctype.new(content: "rfc"), stream: canonical_stream, flavor: "ietf")
         end
 
         def build_committee_contributor(wg_names = {})
           return if wg_acronym.nil? || wg_acronym == "NON WORKING GROUP"
 
-          abbr, name = STREAM_ORGS[stream]
+          abbr, name = STREAM_ORGS[canonical_stream]
           org = if abbr
                   Ietf::BibXMLParser.build_org(abbr, name)
                 else
