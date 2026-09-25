@@ -72,9 +72,8 @@ amendment,corrigendum}` hash (the whole published ETSI corpus round-trips on the
 pinned pubid — see the root `CLAUDE.md` pubid-pin note). The rows use the **flat,
 compact** shape (`type`/`number`/`version`/`year`/`month` as scalars under
 `_type`) that the published `relaton-data-etsi` index carries — the ETSI
-`to_hash` flattening lives on pubid `main` (merged from
-`refactor/flatten-etsi-to-hash`), which the root `Gemfile` temporarily pins until
-it ships in a pubid release. The wiring mirrors NIST/JCGM:
+`to_hash` flattening (merged from `refactor/flatten-etsi-to-hash`) ships in the
+released pubid `2.0.0.pre.alpha.13` that the gemspec pins. The wiring mirrors NIST/JCGM:
 
 - **Producer** (`DataFetcher`): `index` calls `find_or_create(:etsi, file:
   "#{INDEXFILE}.yaml", pubid_class: ::Pubid::Etsi::Identifier)`; `#save` parses the

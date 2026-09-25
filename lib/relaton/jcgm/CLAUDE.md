@@ -100,10 +100,8 @@ the `_type` forms.
 `pubid` (umbrella gem, provides `Pubid::Jcgm`), `relaton-bib`, `relaton-index`,
 `relaton-core`.
 
-> **Temporary dependency pin:** the JCGM support (meetings, bare `GUM`/`VIM-N`
-> guides, the `Corrigendum` type, and the flattened compact `to_hash`) lives on
-> pubid **`main`**, not the released `2.0.0.pre.alpha.8` the gemspec pins, so the
-> repo `Gemfile` pins `pubid` to `git: …/pubid.git, branch: main`. This is the
-> same pubid that built the published `relaton-data-jcgm` index — a mismatched
-> pubid would make `Relaton::Index` reject that index. Revert to the released
-> pubid once these changes ship.
+> **Dependency pin:** the JCGM support (meetings, bare `GUM`/`VIM-N` guides, the
+> `Corrigendum` type, and the flattened compact `to_hash`) first shipped in the
+> released pubid `2.0.0.pre.alpha.13`, which the gemspec pins. Its `lib/` is
+> identical to the pubid `main` that built the published `relaton-data-jcgm`
+> index — a mismatched pubid would make `Relaton::Index` reject that index.

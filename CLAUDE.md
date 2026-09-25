@@ -138,18 +138,17 @@ none and `bundle install` regenerates a correct one. A leftover local lock with
 `remote: ../relaton-<flavor>` entries is monorepo-era rot — delete it and
 `bundle install` (that's what a stale `spec:cli` bundle-install failure means).
 
-**JCGM flavor & temporary pubid pin.** `Relaton::Jcgm` (`lib/relaton/jcgm/`) is a
+**JCGM flavor & the pubid pin.** `Relaton::Jcgm` (`lib/relaton/jcgm/`) is a
 pubid-backed flavor split out of BIPM (JCGM records moved to their own
 `relaton-data-jcgm` repo, stored as `_type: pubid:jcgm:{guide,gum-guide,amendment,
-corrigendum,meeting}`). It needs the JCGM support (meetings, bare `GUM`/`VIM-N`
-guides, the `Corrigendum` type, and the flattened compact `to_hash`) that lives on
-pubid **`main`** but isn't in the released `2.0.0.pre.alpha.8` that
-`relaton.gemspec` pins — so the root `Gemfile` **temporarily pins** `pubid` to
-`git: …/pubid.git, branch: main`. This is the **same pubid that built the published
-`relaton-data-jcgm` index**, so the flavor deserializes it (an older/mismatched
-pubid would make `Relaton::Index` reject the whole index). Revert the pin to the
-released `pubid ~> 2.0.0.pre.alpha.8` once these changes ship in a release. See
-`lib/relaton/jcgm/CLAUDE.md`.
+corrigendum,meeting}`). Both gemspecs pin the released `pubid ~> 2.0.0.pre.alpha.13`,
+the first release carrying everything the flavors need (JCGM meetings and the
+flattened compact `to_hash`, BIPM/ETSI/CIE/ITU/IEEE/IANA/IETF/GOST index shapes,
+`subset_strict`). Its `lib/` is identical to the pubid `main` that built the
+published `relaton-data-*` indexes; the root `Gemfile` no longer carries a git pin.
+A pubid whose `to_hash` differs from the one that built an index makes
+`Relaton::Index` reject the whole index, so bump the pin in step with the data
+repos. See `lib/relaton/jcgm/CLAUDE.md`.
 
 **`json` is pinned below 3 (`relaton.gemspec`).** json 3.0.0 made the
 `JSON.parse` options keyword-only, and Faraday's JSON response middleware still
@@ -161,14 +160,13 @@ as `Lutaml::Hal::ParsingError`, and the whole `spec/w3c` suite fails. Nothing el
 in the bundle asks for json 3. Drop the pin once Faraday parses with keyword
 options; `spec/w3c/relaton/w3c/faraday_json_spec.rb` is the guard that says when.
 
-**Stale-pubid-lock trap.** Because that pin is a **git branch** and `Gemfile.lock`
-is gitignored, the installed pubid is whatever a past `bundle install` froze —
-and `bundle install` does **not** refloat an already-locked git source. A lock
-left behind by an earlier session therefore keeps reproducing *old* pubid
-rendering, producing IEEE/BIPM spec failures that don't reproduce on CI (which
-resolves fresh). Before diagnosing any pubid-shaped rendering failure, check
-`grep -A2 pubid.git Gemfile.lock` against `git ls-remote …/pubid.git main` and
-run **`bundle update pubid`** (not `bundle install`). Only after that is a
+**Stale-pubid-lock trap.** `Gemfile.lock` is gitignored, so the installed pubid
+is whatever a past `bundle install` froze. A lock left behind by an earlier
+session (for example one still locked to the old `git: …/pubid.git` source)
+keeps reproducing *old* pubid rendering, producing spec failures that don't
+reproduce on CI (which resolves fresh). Before diagnosing any pubid-shaped
+rendering failure, check `grep -n "pubid (" Gemfile.lock` and run
+**`bundle update pubid`** (not `bundle install`). Only after that is a
 failure worth treating as a code bug.
 
 ## Testing
