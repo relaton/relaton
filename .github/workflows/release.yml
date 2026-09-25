@@ -30,15 +30,78 @@ jobs:
     uses: relaton/support/.github/workflows/release.yml@main
     with:
       next_version: ${{ github.event.inputs.next_version || 'skip' }}
-      # Build + push both gems from the repo root. `rake build_all` builds
-      # relaton (root gemspec) and relaton-cli. Non-'skip' bumps + tags the
-      # `relaton` version (lib/relaton/version.rb) — the single source of truth;
-      # relaton-cli derives its own version and its exact `relaton` dependency
-      # from that file at build time, so both gems ship at the bumped version
-      # under one tag with nothing to hand-sync.
+      # Non-'skip' bumps + tags the `relaton` version (lib/relaton/version.rb)
+      # — the single source of truth; relaton-cli derives its own version and
+      # its exact `relaton` dependency from that file at build time.
+      #
+      # The shared workflow runs `release_command` ONLY on its API-key path. On
+      # its OIDC (Trusted Publishing) path, which is the one this repo takes, it
+      # ignores `release_command` and pushes just the root gemspec — so
+      # relaton-cli is published by the `release-cli` job below instead. If the
+      # API-key path is ever taken, this command pushes both gems and
+      # `release-cli` sees relaton-cli already published and skips.
       release_command: |
         bundle exec rake build_all
         gem push pkg/relaton-*.gem
         gem push gems/relaton-cli/relaton-cli-*.gem
     secrets:
       rubygems-api-key: ${{ secrets.RELATON_CI_RUBYGEMS_API_KEY }}
+
+  # Publishes relaton-cli at the version `release` just bumped to (or at the
+  # current version with next_version=skip). Needs Node: the gem ships the
+  # compiled frontend bundle (see gems/relaton-cli/CLAUDE.md).
+  release-cli:
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: gems/relaton-cli
+    steps:
+      # A branch name as `ref` checks out the branch tip, which includes the
+      # version-bump commit `release` pushed after this run started.
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Read relaton-cli version
+        id: version
+        run: echo "value=$(ruby -e 'puts Gem::Specification.load("relaton-cli.gemspec").version')" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if already published
+        id: guard
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          if curl -sf https://rubygems.org/api/v1/versions/relaton-cli.json |
+            ruby -rjson -e 'exit JSON.parse($stdin.read).any? { |v| v["number"] == ENV["VERSION"] } ? 0 : 1'; then
+            echo "::notice::relaton-cli $VERSION is already on rubygems.org; skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build frontend and gem
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          (cd frontend && npm ci && npm run build)
+          gem build relaton-cli.gemspec
+
+      - name: Configure RubyGems credentials for Trusted Publishing
+        if: steps.guard.outputs.skip != 'true'
+        uses: rubygems/configure-rubygems-credentials@v2.1.0
+
+      - name: Push gem
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          gem push relaton-cli-${{ steps.version.outputs.value }}.gem
+          gem exec rubygems-await relaton-cli-${{ steps.version.outputs.value }}.gem

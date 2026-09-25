@@ -325,20 +325,31 @@ suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
 ## Releasing
 
 Both gems ship from `.github/workflows/release.yml` (manual **Actions → release
-→ Run workflow**, or a `do-release` `repository_dispatch`). It delegates to the
-shared `relaton/support` → `metanorma/ci` `rubygems-release.yml`: for a non-`skip`
-`next_version` that job runs `gem bump --version <next> --tag --push` on the one
-root `lib/relaton/version.rb`, then runs this repo's `release_command`
-(`rake build_all` + `gem push` for **both** gems). Because relaton-cli derives
-its version and its exact `relaton` pin from that same root file at build time
-(see **Single `VERSION`**), one bump + one tag publishes `relaton` and
-`relaton-cli` together at the same version — no per-gem version bump needed.
+→ Run workflow**, or a `do-release` `repository_dispatch`). Its `release` job
+delegates to the shared `relaton/support` → `metanorma/ci` `rubygems-release.yml`:
+for a non-`skip` `next_version` that job runs `gem bump --version <next> --tag
+--push` on the one root `lib/relaton/version.rb`, then publishes `relaton`.
+Its `release-cli` job then checks out the bumped branch tip and publishes
+`relaton-cli`. Because relaton-cli derives its version and its exact `relaton`
+pin from that same root file at build time (see **Single `VERSION`**), one bump
++ one tag publishes both gems at the same version — no per-gem version bump.
+
+**The shared workflow ignores `release_command` on its OIDC path.** It runs
+`release_command` only when the `rubygems-api-key` secret is non-empty. This
+repo publishes through Trusted Publishing (OIDC), where the shared job runs
+`gem build *.gemspec` in the root and pushes `relaton` only. That is how
+`3.0.0.pre.alpha.2`–`.4` shipped `relaton` with no `relaton-cli`, while every
+run reported success. `release-cli` exists for that reason; it skips a version
+already on rubygems.org, so `next_version: skip` backfills a missing CLI
+release. It authenticates with `rubygems/configure-rubygems-credentials`, so
+`relaton-cli` needs its own Trusted Publisher on rubygems.org for
+`relaton/relaton` `release.yml`.
 
 **Node in the release env (relaton-cli frontend).** relaton-cli's `relaton index`
 command ships a compiled Vue+Tailwind bundle built from `gems/relaton-cli/frontend/`.
-`rake build_all` now runs `rake build_frontend` (`npm ci` + `vite build`) before
-`gem build`, so the **release job must have Node available** (the built
-`frontend/dist/*` is gitignored and packaged explicitly by the gemspec). If Node
+`release-cli` sets up Node and runs `npm ci` + `npm run build` before `gem build`
+(`rake build_all` does the same through `rake build_frontend`). The built
+`frontend/dist/*` is gitignored and packaged explicitly by the gemspec. If Node
 is absent the gem builds without the bundle and `relaton index` raises
 `FrontendAssets::BuildMissingError`. See `gems/relaton-cli/CLAUDE.md`.
 
