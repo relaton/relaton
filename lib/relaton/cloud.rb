@@ -32,9 +32,26 @@ module Relaton
     # The record's bytes. NotFoundError means the repository definitively
     # does not have the key; BackendError means the network/service broke.
     #
-    # @param key [String] the collection's storage key (e.g. a primary docid)
+    # @param key [String] the collection's storage key (see .resolve_key)
     def read(key, source:)
       source.read(key)
+    end
+
+    # Resolves a reference to the collection's storage key. The contract's
+    # keys are URL-safe storage keys; slash-bearing docids live in the
+    # manifest's entries[].metadata.docid. Resolution is manifest-driven and
+    # explicit: exact storage-key match first, then the docid metadata,
+    # then nil — there is no path-encoding guesswork.
+    #
+    # @param ref [String] a storage key or a primary docidentifier
+    # @return [String, nil]
+    def resolve_key(ref, source:)
+      return ref if source.manifest.key?(ref)
+
+      found = source.manifest.entries.find do |e|
+        e.metadata["docid"]&.casecmp?(ref)
+      end
+      found&.key
     end
 
     # The parsed record: the model class is declared by the caller — never

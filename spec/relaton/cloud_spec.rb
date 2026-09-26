@@ -46,6 +46,16 @@ RSpec.describe Relaton::Cloud do
     expect(got.id).to eq("RFC7231")
   end
 
+  it "resolves a docid reference to the storage key through the manifest" do
+    skip "conformance fixtures not found at #{fixture_dir}" unless File.directory?(fixture_dir)
+
+    source = rest_over_fixtures
+    # the fixture keys ARE the docids here; both spellings resolve
+    expect(described_class.resolve_key("RFC 7231", source: source)).to eq("RFC 7231")
+    expect(described_class.resolve_key("rfc 7231", source: source)).to eq("RFC 7231")
+    expect(described_class.resolve_key("RFC 9999", source: source)).to be_nil
+  end
+
   it "pulls a whole collection into a GCR-style local package" do
     skip "conformance fixtures not found at #{fixture_dir}" unless File.directory?(fixture_dir)
 
