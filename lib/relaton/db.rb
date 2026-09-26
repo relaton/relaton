@@ -6,6 +6,8 @@ require "fileutils"
 require "date"
 
 module Relaton
+  autoload :Cloud, "relaton/cloud"
+
   class Db
     # @param global_cache [String] directory of global DB
     # @param local_cache [String] directory of local DB
