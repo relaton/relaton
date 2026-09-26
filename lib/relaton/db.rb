@@ -1,4 +1,5 @@
 require "relaton/bib"
+require "pubid"
 require "yaml"
 require "net/http"
 require "moxml"
@@ -66,7 +67,13 @@ module Relaton
     ##
     def fetch(text, year = nil, opts = {})
       reference = text.strip
-      stdclass = @registry.class_by_ref(reference) || return
+      parsed = begin
+        Pubid.parse(reference)
+      rescue Pubid::Errors::Error, Parslet::ParseFailed
+        nil
+      end
+      stdclass = (parsed && @registry.class_by_pubid(parsed)) ||
+                 @registry.class_by_ref(reference) || return
       processor = @registry[stdclass]
       ref = if processor.respond_to?(:urn_to_code)
               processor.urn_to_code(reference)&.first
