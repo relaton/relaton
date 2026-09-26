@@ -47,7 +47,7 @@ module Relaton
         @pages_url = pages_url.end_with?("/") ? pages_url : "#{pages_url}/"
         # Only the deserialization helpers are used: this FileIO reads and
         # writes no file.
-        @file_io = FileIO.new(dir, nil, nil, nil, pubid_class)
+        @file_io = FileIO.new(dir, pubid_class: pubid_class)
         @mutex = Mutex.new
         @state = nil
       end

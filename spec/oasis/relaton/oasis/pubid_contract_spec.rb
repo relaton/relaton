@@ -75,9 +75,7 @@ RSpec.describe "Pubid::Oasis contract" do
     end
 
     def index_type(file)
-      Relaton::Index::Type.new(
-        :oasis_contract, nil, file, nil, ::Pubid::Oasis::Identifier
-      )
+      Relaton::Index::Type.new(:oasis_contract, file: file, pubid_class: ::Pubid::Oasis::Identifier)
     end
   end
 

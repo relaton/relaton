@@ -16,7 +16,7 @@ RSpec.configure do |config|
     index_file = File.join(Dir.mktmpdir("relaton-iec-spec"), "index-v2.yaml")
     File.write(index_file, yaml)
 
-    type = Relaton::Index::Type.new(:IEC, nil, index_file, nil, ::Pubid::Iec::Identifier)
+    type = Relaton::Index::Type.new(:IEC, file: index_file, pubid_class: ::Pubid::Iec::Identifier)
     type.index # force the offline read + deserialize + sort now, before net is blocked
     # Always treat this pooled index as current. DataFetcher#index calls
     # `find_or_create(:iec, ...)` WITHOUT a :url, and `Pool#type` upcases the

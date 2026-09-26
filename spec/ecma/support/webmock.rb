@@ -31,8 +31,7 @@ module EcmaIndexFixture
                      "#{Relaton::Ecma::INDEXFILE}.yaml")
     File.write file, yaml, encoding: "UTF-8"
 
-    type = Relaton::Index::Type.new(:ECMA, nil, file, nil,
-                                    ::Pubid::Ecma::Identifier)
+    type = Relaton::Index::Type.new(:ECMA, file: file, pubid_class: ::Pubid::Ecma::Identifier)
     type.index # force the deserialize + sort once, offline
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
     type

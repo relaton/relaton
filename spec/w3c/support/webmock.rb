@@ -30,8 +30,7 @@ module W3cIndexFixture
                      "#{Relaton::W3c::INDEXFILE}.yaml")
     File.write file, yaml, encoding: "UTF-8"
 
-    type = Relaton::Index::Type.new(:W3C, nil, file, nil,
-                                    ::Pubid::W3c::Identifier)
+    type = Relaton::Index::Type.new(:W3C, file: file, pubid_class: ::Pubid::W3c::Identifier)
     type.index # force the deserialize + sort once, offline
     # `Bibliography#index` asks with `pages_url:`, a test with `url:`.
     type.define_singleton_method(:actual?) do |**args|

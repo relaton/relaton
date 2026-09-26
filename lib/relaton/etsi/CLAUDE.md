@@ -176,7 +176,7 @@ editions land in `data/` before merging the re-crawl.
 - **Index fixture:** `spec/fixtures/index-v2.zip` (pubid `_type:` rows) is loaded
   into the `Relaton::Index` pool in `before(:suite)` (`spec/support/webmock.rb`):
   the YAML is written to a temp file and read through
-  `Relaton::Index::Type.new(:etsi, nil, file, nil, ::Pubid::Etsi::Identifier)`,
+  `Relaton::Index::Type.new(:etsi, file:, pubid_class: ::Pubid::Etsi::Identifier)`,
   and `type.index` forces the offline `pubid_class` deserialize before the net is
   blocked; `actual?` is overridden to match only the remote (`url:`) lookup so the
   producer-side `find_or_create(:etsi, file:, pubid_class:)` still gets a fresh

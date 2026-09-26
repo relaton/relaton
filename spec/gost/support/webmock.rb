@@ -19,7 +19,7 @@ RSpec.configure do |config|
     index_file = File.join(Dir.mktmpdir("relaton-gost-spec"), "#{Relaton::Gost::INDEXFILE}.yaml")
     File.write(index_file, yaml)
 
-    type = Relaton::Index::Type.new(:gost, nil, index_file, nil, ::Pubid::Gost::Identifier)
+    type = Relaton::Index::Type.new(:gost, file: index_file, pubid_class: ::Pubid::Gost::Identifier)
     type.index
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
 

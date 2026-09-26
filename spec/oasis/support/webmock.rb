@@ -37,8 +37,7 @@ module OasisIndexFixture
     # write round-trips, because `FileIO#read` decodes as UTF-8.
     File.binwrite file, yaml
 
-    type = Relaton::Index::Type.new(:oasis, nil, file, nil,
-                                    ::Pubid::Oasis::Identifier)
+    type = Relaton::Index::Type.new(:oasis, file: file, pubid_class: ::Pubid::Oasis::Identifier)
     type.index # force the deserialize + sort once, offline
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
     type

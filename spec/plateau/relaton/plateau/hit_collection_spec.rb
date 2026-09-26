@@ -110,7 +110,7 @@ RSpec.describe Relaton::Plateau::HitCollection, "against the index fixture" do
     yaml = Zip::File.open(INDEX_ZIP_PATH) { |zip| zip.first.get_input_stream.read }
     file = File.join(Dir.mktmpdir("relaton-plateau-spec"), "index-v2.yaml")
     File.write(file, yaml)
-    Relaton::Index::Type.new(:plateau, nil, file, nil, ::Pubid::Plateau::Identifier)
+    Relaton::Index::Type.new(:plateau, file: file, pubid_class: ::Pubid::Plateau::Identifier)
   end
 
   before do

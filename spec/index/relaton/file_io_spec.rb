@@ -2,7 +2,7 @@ require "uri"
 
 describe Relaton::Index::FileIO do
   it "create FileIO" do
-    fio = described_class.new("iso", :url, :filename, nil)
+    fio = described_class.new("iso", url: :url, filename: :filename)
     expect(fio.instance_variable_get(:@dir)).to eq "iso"
     expect(fio.instance_variable_get(:@url)).to eq :url
     expect(fio.instance_variable_get(:@filename)).to eq :filename
@@ -10,14 +10,14 @@ describe Relaton::Index::FileIO do
 
   context "instace methods" do
     subject do
-      subj = described_class.new("iso", nil, "index.yaml", nil, pubid_class)
+      subj = described_class.new("iso", filename: "index.yaml", pubid_class: pubid_class)
       subj.instance_variable_set(:@file, "index.yaml")
       subj
     end
     let(:pubid_class) { TestIdentifier }
 
     context "#deserialize_pubid" do
-      let(:file_io) { described_class.new("iso", nil, "index.yaml", nil, pubid_class) }
+      let(:file_io) { described_class.new("iso", filename: "index.yaml", pubid_class: pubid_class) }
       let(:index) { [{ id: { publisher: "ISO", number: 1 } }] }
 
       context "when pubid_class is specified" do
@@ -67,13 +67,13 @@ describe Relaton::Index::FileIO do
 
     context "#read" do
       it "without url" do
-        fio = described_class.new("iso", nil, "index.yaml", nil)
+        fio = described_class.new("iso", filename: "index.yaml")
         expect(fio).to receive(:read_file).and_return :index
         expect(fio.read).to be :index
       end
 
       context "with url" do
-        subject { described_class.new("iso", "url", "index.yaml", nil) }
+        subject { described_class.new("iso", url: "url", filename: "index.yaml") }
 
         it "index file exists and actual" do
           expect(subject).to receive(:check_file).and_return :index
@@ -102,7 +102,7 @@ describe Relaton::Index::FileIO do
 
         Array.new(2) do
           Thread.new do
-            described_class.new("iso", "url", "index.yaml", nil).read
+            described_class.new("iso", url: "url", filename: "index.yaml").read
           end
         end.each(&:join)
       end

@@ -12,8 +12,17 @@ RSpec.describe Relaton::Index do
   end
 
   context "#find_or_create" do
-    subject { described_class.find_or_create("ISO", url: :url, file: :file, id_keys: :keys) }
+    subject { described_class.find_or_create("ISO", url: :url, file: :file) }
     it { is_expected.to be_a(Relaton::Index::Type) }
+  end
+
+  context "#find_or_create with deprecated id_keys" do
+    it "warns and ignores the key" do
+      expect(Relaton.logger_pool).to receive(:warn)
+        .with(/id_keys is deprecated/, "relaton-index").and_call_original
+      expect(described_class.find_or_create("ISO", file: :deprecated_file, id_keys: :keys))
+        .to be_a(Relaton::Index::Type)
+    end
   end
 
   it "remove local index" do
@@ -23,7 +32,7 @@ RSpec.describe Relaton::Index do
   end
 
   it "close" do
-    pool = double("pool")
+    pool = Relaton::Index::Pool.new
     expect(pool).to receive(:remove).with(:IHO)
     described_class.instance_variable_set(:@pool, pool)
     described_class.close :IHO

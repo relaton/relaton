@@ -29,8 +29,7 @@ module OgcIndexFixture
                      "#{Relaton::Ogc::INDEXFILE}.yaml")
     File.write file, yaml, encoding: "UTF-8"
 
-    type = Relaton::Index::Type.new(:ogc, nil, file, nil,
-                                    ::Pubid::Ogc::Identifier)
+    type = Relaton::Index::Type.new(:ogc, file: file, pubid_class: ::Pubid::Ogc::Identifier)
     type.index # force the deserialize + sort once, offline
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
     type

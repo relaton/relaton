@@ -10,7 +10,7 @@ RSpec.describe Relaton::Jcgm::DataFetcher do
   # Reload the freshly-written index through Relaton::Index so each row's :id is
   # a Pubid::Jcgm identifier (avoids hand-parsing the symbol-keyed YAML).
   def index_rows
-    Relaton::Index::Type.new(:jcgm, nil, "index-v1.yaml", nil, ::Pubid::Jcgm::Identifier).index
+    Relaton::Index::Type.new(:jcgm, file: "index-v1.yaml", pubid_class: ::Pubid::Jcgm::Identifier).index
   end
 
   around do |example|

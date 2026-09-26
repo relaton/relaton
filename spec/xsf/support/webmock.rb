@@ -28,8 +28,7 @@ module XsfIndexFixture
                      "#{Relaton::Xsf::INDEXFILE}.yaml")
     File.write file, yaml, encoding: "UTF-8"
 
-    type = Relaton::Index::Type.new(:xsf, nil, file, nil,
-                                    ::Pubid::Xsf::Identifier)
+    type = Relaton::Index::Type.new(:xsf, file: file, pubid_class: ::Pubid::Xsf::Identifier)
     type.index # force the deserialize + sort once, offline
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
     type

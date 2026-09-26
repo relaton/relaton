@@ -37,8 +37,7 @@ module CalconnectIndexFixture
                      "#{Relaton::Calconnect::INDEXFILE}.yaml")
     File.write file, yaml, encoding: "UTF-8"
 
-    type = Relaton::Index::Type.new(:CC, nil, file, nil,
-                                    ::Pubid::Calconnect::Identifier)
+    type = Relaton::Index::Type.new(:CC, file: file, pubid_class: ::Pubid::Calconnect::Identifier)
     type.index # force the deserialize + sort once, offline
     # Answers "actual" to the CONSUMER call, which passes `url:`, so a lookup
     # gets these rows instead of downloading. It answers false to the producer's

@@ -16,7 +16,7 @@ RSpec.configure do |config|
     index_file = File.join(Dir.mktmpdir("relaton-nist-spec"), "index-v2.yaml")
     File.write(index_file, yaml)
 
-    type = Relaton::Index::Type.new(:nist, nil, index_file, nil, ::Pubid::Nist::Identifier)
+    type = Relaton::Index::Type.new(:nist, file: index_file, pubid_class: ::Pubid::Nist::Identifier)
     type.index # force the offline read + deserialize now, before net is blocked
     # actual? only matches the remote (url:) lookup so the producer-side
     # find_or_create(:nist, file:, pubid_class:) still gets a fresh instance.

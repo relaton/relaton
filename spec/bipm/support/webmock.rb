@@ -15,7 +15,7 @@ RSpec.configure do |config|
     index_file = File.join(Dir.mktmpdir("relaton-bipm-spec"), "index-v2.yaml")
     File.write(index_file, yaml)
 
-    type = Relaton::Index::Type.new(:bipm, nil, index_file, nil, ::Pubid::Bipm::Identifier)
+    type = Relaton::Index::Type.new(:bipm, file: index_file, pubid_class: ::Pubid::Bipm::Identifier)
     type.index
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
 

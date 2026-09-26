@@ -2,7 +2,7 @@ describe Relaton::Index::Type do
   before { Relaton::Index.instance_variable_set(:@config, nil) }
 
   context "instace methods" do
-    subject { described_class.new(:ISO, :url, "index.yaml") }
+    subject { described_class.new(:ISO, url: :url, file: "index.yaml") }
 
     context "#actual?" do
       it "no url and file" do
@@ -152,7 +152,7 @@ describe Relaton::Index::Type do
     context "#search with binary search" do
       subject do
         described_class.new(
-          :ISO, :url, "index.yaml", nil, TestIdentifier
+          :ISO, url: :url, file: "index.yaml", pubid_class: TestIdentifier
         )
       end
 
@@ -282,13 +282,13 @@ describe Relaton::Index::Type do
       after { FileUtils.rm_rf dir }
 
       it "removes the cached file without a pubid_class" do
-        described_class.new(:ISO, true, "index.yaml").remove_file
+        described_class.new(:ISO, url: true, file: "index.yaml").remove_file
         expect(File.exist?(cached)).to be false
       end
 
       it "removes the same file with a pubid_class, and never calls it" do
         pubid_class = double("pubid_class") # raises on any message
-        described_class.new(:ISO, true, "index.yaml", nil, pubid_class)
+        described_class.new(:ISO, url: true, file: "index.yaml", pubid_class: pubid_class)
           .remove_file
         expect(File.exist?(cached)).to be false
       end
@@ -306,7 +306,7 @@ describe Relaton::Index::Type do
   # search needs every row. `#search` filters those rows the same way.
   context "with pages_url" do
     subject do
-      described_class.new(:ISO, nil, nil, nil, TestIdentifier, pages_url: pages)
+      described_class.new(:ISO, pubid_class: TestIdentifier, pages_url: pages)
     end
 
     let(:pages) { "https://relaton.github.io/relaton-data-iso/" }

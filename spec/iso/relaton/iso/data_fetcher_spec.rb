@@ -123,9 +123,7 @@ describe Relaton::Iso::DataFetcher do
     stale = File.join(output_dir, "stale.yaml")
     File.write(stale, "stale")
     Relaton::Index.pool.remove(:iso) # force a fresh read of the on-disk index
-    seed = Relaton::Index::Type.new(
-      :iso, nil, "#{Relaton::Iso::INDEXFILE}.yaml", nil, ::Pubid::Iso::Identifier,
-    )
+    seed = Relaton::Index::Type.new(:iso, file: "#{Relaton::Iso::INDEXFILE}.yaml", pubid_class: ::Pubid::Iso::Identifier,)
     seed.add_or_update(
       ::Pubid::Iso::Identifier.parse("ISO/DIS 9999"), "data/iso-dis-9999.yaml",
     )
