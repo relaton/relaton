@@ -46,6 +46,57 @@ RSpec.describe Relaton::Cloud do
     expect(got.id).to eq("RFC7231")
   end
 
+  it "fetches a record by reference into a real Relaton model" do
+    skip "conformance fixtures not found at #{fixture_dir}" unless File.directory?(fixture_dir)
+
+    # v3 models declare ItemData as their deserialization target — the
+    # record's data object, exactly what Relaton::Db builds Items from.
+    item = described_class.fetch("RFC 7231", Relaton::Bib::Item, source: rest_over_fixtures)
+    expect(item).to be_a(Relaton::Bib::ItemData)
+    expect(item.id).to eq("RFC7231")
+    expect(item.docidentifier.first.content).to eq("RFC 7231")
+  end
+
+  it "fetches through an explicit local package cache, write-through" do
+    skip "conformance fixtures not found at #{fixture_dir}" unless File.directory?(fixture_dir)
+
+    cache = Lutaml::Store::Source.for(:directory, path: File.join(Dir.mktmpdir, "cache"))
+    item = described_class.fetch("RFC 7231", Relaton::Bib::Item,
+                                 source: rest_over_fixtures, cache: cache)
+    expect(item.id).to eq("RFC7231")
+    # the cache holds the record for the next, offline call
+    offline = described_class.fetch("RFC 7231", Relaton::Bib::Item,
+                                    source: Lutaml::Store::Source.for(
+                                      :rest, base_url: "https://unreachable.test",
+                                      collection: "fixtures",
+                                      transport: ->(_u, _h) { raise SocketError, "offline" }
+                                    ), cache: cache)
+    expect(offline.id).to eq("RFC7231")
+  end
+
+  it "keeps serving fetches offline once the local package holds the record" do
+    skip "conformance fixtures not found at #{fixture_dir}" unless File.directory?(fixture_dir)
+
+    cache = Lutaml::Store::Source.for(:directory, path: File.join(Dir.mktmpdir, "cache"))
+    described_class.fetch("RFC 7231", Relaton::Bib::Item,
+                          source: rest_over_fixtures, cache: cache)
+    offline = described_class.fetch(
+      "RFC 7231", Relaton::Bib::Item,
+      source: Lutaml::Store::Source.for(
+        :rest, base_url: "https://unreachable.test", collection: "fixtures",
+        transport: ->(_u, _h) { raise SocketError, "offline" }
+      ), cache: cache
+    )
+    expect(offline.id).to eq("RFC7231")
+  end
+
+  it "raises NotFoundError for an unknown reference" do
+    skip "conformance fixtures not found at #{fixture_dir}" unless File.directory?(fixture_dir)
+
+    expect { described_class.fetch("RFC 9999", Relaton::Bib::Item, source: rest_over_fixtures) }
+      .to raise_error(Lutaml::Store::NotFoundError, /unknown reference/)
+  end
+
   it "resolves a docid reference to the storage key through the manifest" do
     skip "conformance fixtures not found at #{fixture_dir}" unless File.directory?(fixture_dir)
 

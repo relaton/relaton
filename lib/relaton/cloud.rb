@@ -46,9 +46,16 @@ module Relaton
     # @param ref [String] a storage key or a primary docidentifier
     # @return [String, nil]
     def resolve_key(ref, source:)
-      return ref if source.manifest.key?(ref)
+      manifest = begin
+        source.manifest
+      rescue Lutaml::Store::NotFoundError
+        # a fresh local package holds no manifest yet — it holds no keys
+        return nil
+      end
 
-      found = source.manifest.entries.find do |e|
+      return ref if manifest.key?(ref)
+
+      found = manifest.entries.find do |e|
         e.metadata["docid"]&.casecmp?(ref)
       end
       found&.key
@@ -58,6 +65,45 @@ module Relaton
     # inferred.
     def get(key, model_class, source:)
       source.get(key, model_class)
+    end
+
+    # Reference in, parsed model out: resolves the reference through the
+    # manifest, reads the record (from the cloud source, or the local
+    # package when one is given), and deserializes with the caller's model
+    # class. The record's format is self-describing (Format.guess), so the
+    # same call serves YAML, JSON and XML records.
+    #
+    # @param ref [String] a storage key or a primary docidentifier
+    # @param model_class [Class] e.g. Relaton::Bib::Item (YAML/JSON
+    #   records) or Relaton::Bib::Bibdata (XML bibdata records)
+    # @param cache [Lutaml::Store::Source::Directory, nil] read-through
+    #   local package (writes through on a miss)
+    # @return the model instance
+    def fetch(ref, model_class, source:, cache: nil)
+      if cache
+        # Offline-first: resolve and read against the local package before
+        # touching the source — its manifest carries the same docid metadata.
+        local_key = resolve_key(ref, source: cache)
+        if local_key
+          return deserialize(cache.read(local_key), model_class)
+        end
+      end
+
+      key = resolve_key(ref, source: source)
+      raise Lutaml::Store::NotFoundError, "unknown reference: #{ref.inspect}" unless key
+
+      body = if cache
+               Lutaml::Store::Repository.new(source: source, cache: cache).read(key)
+             else
+               source.read(key)
+             end
+
+      deserialize(body, model_class)
+    end
+
+    def deserialize(body, model_class)
+      Lutaml::Store::Format.resolve(Lutaml::Store::Format.guess(body))
+                           .deserialize(body, model_class)
     end
 
     # Mirrors the whole collection into a GCR-style local package.
