@@ -1,5 +1,4 @@
 require "relaton/bib"
-require "pubid"
 require "yaml"
 require "net/http"
 require "moxml"
@@ -67,6 +66,7 @@ module Relaton
     ##
     def fetch(text, year = nil, opts = {})
       reference = text.strip
+      require "pubid"
       parsed = begin
         Pubid.parse(reference)
       rescue Pubid::Errors::Error, Parslet::ParseFailed
