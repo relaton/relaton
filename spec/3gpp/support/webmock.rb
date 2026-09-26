@@ -33,8 +33,9 @@ module ThreeGppIndexFixture
                      "#{Relaton::ThreeGpp::INDEXFILE}.yaml")
     File.write file, yaml, encoding: "UTF-8"
 
-    type = Relaton::Index::Type.new("3GPP", nil, file, nil,
-                                    ::Pubid::Tgpp::Identifier)
+    type = Relaton::Index::Type.new(
+      "3GPP", file: file, pubid_class: ::Pubid::Tgpp::Identifier
+    )
     type.index # force the deserialize + sort once, offline
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
     type

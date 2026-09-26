@@ -18,7 +18,7 @@ RSpec.describe Relaton::Jcgm do
       Dir.mktmpdir("jcgm-index") do |dir|
         file = File.join(dir, "#{described_class::INDEXFILE}.yaml")
         File.write file, yaml
-        rows = Relaton::Index::Type.new(:jcgm, nil, file, nil, ::Pubid::Jcgm::Identifier).index
+        rows = Relaton::Index::Type.new(:jcgm, file: file, pubid_class: ::Pubid::Jcgm::Identifier).index
         # Every row's id came back as a concrete Pubid::Jcgm identifier subtype.
         expect(rows).not_to be_empty
         expect(rows.map { |r| r[:id] }).to all(be_a(::Pubid::Jcgm::Identifier))

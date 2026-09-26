@@ -593,7 +593,7 @@ the class write `::Pubid`, because a bare `Pubid` is the local class.
 
   It is loaded into the `Relaton::Index` pool in `before(:suite)`
   (`spec/support/webmock.rb`): the YAML is written to a temp file and read through
-  `Relaton::Index::Type.new(:itu, nil, file, nil, ::Pubid::Itu::Identifier)`, and
+  `Relaton::Index::Type.new(:itu, file:, pubid_class: ::Pubid::Itu::Identifier)`, and
   `type.index` forces the offline `pubid_class` deserialize before the net is
   blocked; `actual?` is overridden to match only the remote (`url:`) lookup. The
   fixture is **re-seated in `before(:each)`** because a producer-side

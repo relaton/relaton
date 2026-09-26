@@ -28,11 +28,11 @@ module Relaton
       #   if nil then the fiename is used to read and write file (used to create indes in GH actions)
       # @param [Pubid::Identifier] pubid class for deserialization
       #
-      # `id_keys` is accepted for backward compatibility but no longer used: the
+      # The index format check round-trips each id through `pubid_class`;
       # index format is now validated by round-tripping a sample of ids through
       # the pubid class (see #check_serialization), which understands the pubid
       # v2 (lutaml) `_type` serialization that the old key-allowlist could not.
-      def initialize(dir, url, filename, _id_keys = nil, pubid_class = nil)
+      def initialize(dir, url: nil, filename: nil, pubid_class: nil)
         @dir = dir
         @url = url
         @filename = filename

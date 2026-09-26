@@ -8,7 +8,7 @@ For the data-repository layout, the index file specification (schema, `:id` v1/v
 
 === Creating an index object
 
-The gem provides the `Relaton::Index.find_or_create {type}, url: {url}, file: {filename}, id_keys: {keys}, pubid_class: {class}` method to create an index object. The first argument is the type of dataset (ISO, IEC, IHO, etc.). The second argument is the URL to the zipped remote index file. The third argument is the filename of the local index file. The fourth argument is an array of ID's parts names. The fifth argument is a class that implements `Pubid::Core::Identifier` for deserializing ID hashes into structured identifier objects. The URL, filename, keys, and pubid_class are optional.
+The gem provides the `Relaton::Index.find_or_create {type}, url: {url}, file: {filename}, pubid_class: {class}` method to create an index object. The first argument is the type of dataset (ISO, IEC, IHO, etc.). `url` is the URL to the zipped remote index file, `filename` is the local index file, and `pubid_class` is a class that implements `Pubid::Core::Identifier` for deserializing ID hashes into structured identifier objects. All three keywords are optional.
 
 If the URL is specified and the local file in a `/{home}/.relaton/{type}` dir doesn't exist or is outdated, the index file will be downloaded from the URL saved as a local file and an index object will be created from the file. If the file in the `/{home}/.relaton/{type}` exists and is actual, the index object will be created from the local file.
 
@@ -27,7 +27,7 @@ If the URL or filename is specified and has a new value, different from what was
 require 'relaton/index'
 
 # Create a new index object. The first argument is the type of dataset (ISO, IEC, IHO, etc.) URL and filename are optional.
-Relaton::Index.find_or_create :IHO, url: "https://raw.githubusercontent.com/relaton/relaton-data-iho/master/index.zip", file: "index-iho.yaml", id_keys: %i[number part year]
+Relaton::Index.find_or_create :IHO, url: "https://raw.githubusercontent.com/relaton/relaton-data-iho/master/index.zip", file: "index-iho.yaml"
 
 # Find an existing index object (created before).
 Relaton::Index.find_or_create :IHO

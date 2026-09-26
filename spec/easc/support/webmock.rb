@@ -33,7 +33,7 @@ RSpec.configure do |config|
     index_file = File.join(Dir.mktmpdir("relaton-easc-spec"), "#{Relaton::Easc::INDEXFILE}.yaml")
     File.write(index_file, index.to_yaml)
 
-    type = Relaton::Index::Type.new(:easc, nil, index_file, nil, ::Pubid::Easc::Identifier)
+    type = Relaton::Index::Type.new(:easc, file: index_file, pubid_class: ::Pubid::Easc::Identifier)
     type.index
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
 

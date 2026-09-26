@@ -27,7 +27,7 @@ module IanaIndexFixture
     # pubid_class rebuilds each row's :id into a
     # Pubid::Iana::Identifiers::Registry via from_hash; `#index` forces the
     # offline read + deserialize + sort now, before the net is blocked.
-    type = Relaton::Index::Type.new(:iana, nil, index_file, nil, ::Pubid::Iana::Identifier)
+    type = Relaton::Index::Type.new(:iana, file: index_file, pubid_class: ::Pubid::Iana::Identifier)
     type.index
     # Claim only the consumer (`url:`) lookup, so DataFetcher's producer-side
     # `find_or_create(file:, pubid_class:)` still gets a fresh, empty Type.

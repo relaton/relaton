@@ -14,7 +14,6 @@ module Relaton
       # @param [String] type <description>
       # @param [String, nil] url external URL to index, used to fetch index for searching files
       # @param [String, nil] file output file name
-      # @param [Array<Symbol>, nil] id_keys keys to check if index is correct
       # @param [String, nil] pages_url base URL of the Pages site that serves
       #   the machine index (manifest + shards), see Relaton::Index::ShardSource
       #
@@ -24,9 +23,11 @@ module Relaton
         if @pool[type.upcase.to_sym]&.actual?(**args)
           @pool[type.upcase.to_sym]
         else
+          if args.key?(:id_keys)
+            Util.warn "id_keys is deprecated and ignored by Relaton::Index"
+          end
           @pool[type.upcase.to_sym] = Type.new(
-            type, args[:url], args[:file], args[:id_keys], args[:pubid_class],
-            pages_url: args[:pages_url]
+            type, **args.slice(:url, :file, :pubid_class, :pages_url)
           )
         end
       end

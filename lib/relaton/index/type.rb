@@ -10,21 +10,18 @@ module Relaton
       # @param [String, Symbol] type type of index (ISO, IEC, etc.)
       # @param [String, nil] url external URL to index, used to fetch index for searching files
       # @param [String, nil] file output file name
-      # @param [Array<Symbol>] id_keys keys of identifier to be used for sorting index
-      #   format of index file is checked if id_keys all is provided at least in one of the IDs
       # @param [Pubid::Identifier, nil] pubid class for deserialization
       # @param [String, nil] pages_url base URL of the Pages site that serves
       #   the machine index. With it the type reads the index from there, in
       #   memory (see ShardSource), and a parsed query fetches one shard only.
       #
-      def initialize(type, url = nil, file = nil, id_keys = nil, pubid_class = nil, # rubocop:disable Metrics/ParameterLists
-                     pages_url: nil)
+      def initialize(type, url: nil, file: nil, pubid_class: nil, pages_url: nil)
         @file = file
         @dir = type.to_s.downcase
         @pubid_class = pubid_class
         @pages_url = pages_url
         filename = file || Index.config.filename
-        @file_io = FileIO.new @dir, url, filename, id_keys, pubid_class
+        @file_io = FileIO.new @dir, url: url, filename: filename, pubid_class: pubid_class
         @source = new_source
       end
 

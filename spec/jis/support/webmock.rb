@@ -12,7 +12,7 @@ RSpec.configure do |config|
     index_file = File.join(Dir.mktmpdir("relaton-jis-spec"), "index-v2.yaml")
     File.write(index_file, yaml)
 
-    type = Relaton::Index::Type.new(:jis, nil, index_file, nil, ::Pubid::Jis::Identifier)
+    type = Relaton::Index::Type.new(:jis, file: index_file, pubid_class: ::Pubid::Jis::Identifier)
     type.index # force the offline read + deserialize now, before net is blocked
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
 

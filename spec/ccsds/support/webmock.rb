@@ -14,7 +14,7 @@ RSpec.configure do |config|
       { id: Pubid::Ccsds::Identifier.from_hash(r[:id]), file: r[:file] }
     end
 
-    type = Relaton::Index::Type.new(:ccsds, nil, "index-v2.yaml")
+    type = Relaton::Index::Type.new(:ccsds, file: "index-v2.yaml")
     type.instance_variable_set(:@index, index_data)
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
 

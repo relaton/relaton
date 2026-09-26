@@ -60,7 +60,7 @@ RSpec.describe Relaton::Iho do
 
     # Routing tests for the new structured-identifier attributes
     # introduced for relaton/relaton-iho#23 / metanorma-iho#344. Each
-    # exercises a different `id_keys` field (part / annex / appendix /
+    # exercises a different pubid field (part / annex / appendix /
     # supplement) plus the umbrella-vs-subdivision disambiguation.
     it "by part", vcr: "iho_s100_part5" do
       result = Relaton::Iho::Bibliography.get "IHO S-100 Part 5 5.2.0"

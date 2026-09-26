@@ -16,7 +16,7 @@ RSpec.configure do |config|
     index_file = File.join(Dir.mktmpdir("relaton-ieee-spec"), "index-v2.yaml")
     File.write(index_file, yaml)
 
-    type = Relaton::Index::Type.new(:ieee, nil, index_file, nil, ::Pubid::Ieee::Identifier)
+    type = Relaton::Index::Type.new(:ieee, file: index_file, pubid_class: ::Pubid::Ieee::Identifier)
     type.index # force the offline read + deserialize + sort now, before net is blocked
     # actual? only matches the remote (url:) lookup so a producer-side
     # find_or_create(:ieee, file:, pubid_class:) still gets a fresh instance.

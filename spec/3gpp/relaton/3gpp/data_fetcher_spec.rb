@@ -468,7 +468,7 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
       expect(File.read(path)).to include "_type: pubid:3gpp:technical-report"
 
       consumer = Relaton::Index::Type.new(
-        "3GPP", nil, path, nil, ::Pubid::Tgpp::Identifier
+        "3GPP", file: path, pubid_class: ::Pubid::Tgpp::Identifier
       )
       expect(consumer.index.map { |r| r[:id].to_s }).to match_array ids
       # Sorted by root.number on load, which is what keeps the bsearch valid.

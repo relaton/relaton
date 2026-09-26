@@ -19,7 +19,7 @@ RSpec.configure do |config|
     index_file = File.join(Dir.mktmpdir("relaton-oiml-spec"), "#{Relaton::Oiml::INDEXFILE}.yaml")
     File.write(index_file, yaml)
 
-    type = Relaton::Index::Type.new(:oiml, nil, index_file, nil, ::Pubid::Oiml::Identifier)
+    type = Relaton::Index::Type.new(:oiml, file: index_file, pubid_class: ::Pubid::Oiml::Identifier)
     type.index
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
 

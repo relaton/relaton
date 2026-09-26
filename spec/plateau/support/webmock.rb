@@ -16,7 +16,7 @@ RSpec.configure do |config|
     index_file = File.join(Dir.mktmpdir("relaton-plateau-spec"), "index-v2.yaml")
     File.write(index_file, yaml)
 
-    type = Relaton::Index::Type.new(:plateau, nil, index_file, nil, ::Pubid::Plateau::Identifier)
+    type = Relaton::Index::Type.new(:plateau, file: index_file, pubid_class: ::Pubid::Plateau::Identifier)
     type.index # force the offline read + deserialize now, before net is blocked
     # actual? only matches the remote (url:) lookup so the producer-side
     # find_or_create(:plateau, file:, pubid_class:) still gets a fresh instance.

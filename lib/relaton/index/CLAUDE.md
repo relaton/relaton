@@ -48,7 +48,7 @@ bin/console
 
 ### Data Flow
 
-1. `Relaton::Index.find_or_create(:TYPE, url:, file:, id_keys:, pubid_class:)` → Pool looks up or creates Type
+1. `Relaton::Index.find_or_create(:TYPE, url:, file:, pubid_class:, pages_url:)` → Pool looks up or creates Type (`id_keys:` is accepted for one release with a deprecation warning, then ignored)
 2. Type lazily loads index via FileIO on first access
 3. FileIO either reads local YAML or downloads ZIP from URL, extracts, validates format
 4. Search matches against `:id` field (string comparison via `include?` or custom block)

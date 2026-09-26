@@ -28,8 +28,7 @@ RSpec.configure do |config|
     end
     rows.sort_by! { |r| r[:id].root.number.to_s }
 
-    type = Relaton::Index::Type.new(:IETF, nil, "index-v2.yaml", nil,
-                                    ::Pubid::Ietf::Identifier)
+    type = Relaton::Index::Type.new(:IETF, file: "index-v2.yaml", pubid_class: ::Pubid::Ietf::Identifier)
     type.instance_variable_set(:@index, rows)
     type.instance_variable_get(:@file_io).sorted = true
     type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
