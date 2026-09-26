@@ -391,6 +391,28 @@ describe Relaton::Iec::DataParser do
         expect(Net::HTTP).to receive(:get_response).and_raise(StandardError).exactly(3).times
         expect { subject.send :relation }.to raise_error StandardError
       end
+
+      it "returns empty array for redirect response" do
+        resp = Net::HTTPMovedPermanently.new("1.1", "301", "Moved Permanently")
+        expect(Net::HTTP).to receive(:get_response).once.and_return resp
+        expect(subject.send(:relation)).to eq []
+      end
+
+      it "returns empty array for malformed body" do
+        body = <<~HTML
+          <html>
+          <head><title>301 Moved Permanently</title></head>
+          <body>
+          <center><h1>301 Moved Permanently</h1></center>
+          <hr><center>nginx</center>
+          </body>
+          </html>
+        HTML
+        resp = double "response", body: body
+        expect(Net::HTTP).to receive(:get_response).once.and_return resp
+        expect { expect(subject.send(:relation)).to eq [] }
+          .to output(/Failed to parse relations/).to_stderr_from_any_process
+      end
     end
   end
 end

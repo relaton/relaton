@@ -289,19 +289,34 @@ module Relaton
       #
       # @return [Array<Relaton::Bib::Relation>] relation
       #
-      def relation # rubocop:disable Metrics/MethodLength
+      def relation
+        result = fetch_relations
+        @errors[:relation] &&= result.empty?
+        result
+      end
+
+      #
+      # Fetch relations from the webstore. Retry on network errors only.
+      # A non-success response (the legacy endpoint now redirects to a 404
+      # HTML page) or a malformed body gives no relations.
+      #
+      # @return [Array<Relaton::Bib::Relation>] relations
+      #
+      def fetch_relations # rubocop:disable Metrics/MethodLength
         try = 0
-        result = begin
+        begin
           uri = URI "#{DOMAIN}/webstore/webstore.nsf/AjaxRequestXML?Openagent&url=#{urn_id}"
           resp = Net::HTTP.get_response uri
-          doc = Moxml.parse resp.body
-          create_relations doc
         rescue StandardError => e
           try += 1
           try < 3 ? retry : raise(e)
         end
-        @errors[:relation] &&= result.empty?
-        result
+        return [] if resp.is_a?(Net::HTTPResponse) && !resp.is_a?(Net::HTTPSuccess)
+
+        create_relations Moxml.parse(resp.body)
+      rescue Moxml::ParseError => e
+        Util.warn "Failed to parse relations for `#{urn_id}`: #{e.message.lines.first&.strip}"
+        []
       end
 
       #
