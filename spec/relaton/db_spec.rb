@@ -591,4 +591,20 @@ RSpec.describe Relaton::Db do
       Timeout.timeout(50) { queue.pop }
     end
   end
+
+  context "#fetch parse-first routing (relaton#205)" do
+    it "routes by the parsed pubid class and parses once" do
+      expect(Pubid).to receive(:parse).with("ISO 8601-1:2021").once.and_call_original
+      expect(Relaton::Iso::Bibliography).to receive(:get).with(
+        "ISO 8601-1:2021", anything, anything
+      ).and_return(nil)
+      subject.fetch("ISO 8601-1:2021")
+    end
+
+    it "keeps DOI-shaped strings out of parse-routed flavors" do
+      expect(Relaton::Un::Bibliography).not_to receive(:get)
+      subject.fetch("10.17487/RFC3986")
+    end
+  end
+
 end

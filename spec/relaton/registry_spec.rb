@@ -246,4 +246,29 @@ RSpec.describe Relaton::Db::Registry do
     expect(Relaton::Db::Registry.instance.find_processor_by_dataset("etsi-csv"))
       .to be_instance_of Relaton::Etsi::Processor
   end
+
+  context "#class_by_pubid (relaton#205)" do
+    ["ISO 8601-1:2021", "RFC 3986", "3GPP TS 23.040", "CEN/TS 17267"].each do |ref|
+      it "routes \#{ref.inspect} by the parsed pubid class" do
+        expect(described_class.instance.class_by_pubid(Pubid.parse(ref))).not_to be_nil
+      end
+    end
+
+    it "does not hijack DOI-shaped strings with the Un namespace" do
+      expect(described_class.instance.class_by_pubid(Pubid.parse("10.17487/RFC3986")))
+        .to be_nil
+    end
+
+    it "returns nil for a namespace outside the parse-routed allowlist" do
+      un_doc = Object.new
+      un_doc.define_singleton_method(:class) do
+        Class.new do
+          def self.name
+            "Pubid::Un::Identifiers::Document"
+          end
+        end
+      end
+      expect(described_class.instance.class_by_pubid(un_doc)).to be_nil
+    end
+  end
 end

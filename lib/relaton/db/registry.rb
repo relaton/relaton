@@ -92,6 +92,37 @@ module Relaton
       end
 
       #
+      # Pubid namespaces whose spelling differs from the processor short
+      # name.
+      PUBID_FLAVOR_ALIASES = { "cencenelec" => "cen", "tgpp" => "3gpp" }.freeze
+
+      # Flavors routed by the parsed Pubid class (relaton#205, pilot). Only
+      # processors on this list answer parse-first routing: an allowlist,
+      # not a guess. Pubid::Un is deliberately absent — its Document
+      # identifier parses DOI-shaped strings ("10.17487/RFC3986") that must
+      # not be hijacked away from their current handling.
+      PARSE_ROUTED_FLAVORS = %w[
+        bipm bs cencenelec calconnect cc ccsds cen cie csa
+        ecma ecs etsi gost iala iana iec ieee ietf iso itu
+        jcgm jis nist oasis ogc oiml plateau w3c xsf 3gpp
+      ].freeze
+
+      # Find the processor that owns the parsed Pubid's flavor. The
+      # namespace is matched against the processor short name, with the
+      # alias table for the spellings that differ.
+      #
+      # @param pubid [Pubid::Core::Identifier] parsed query
+      # @return [Symbol, nil] standard class name
+      #
+      def class_by_pubid(pubid)
+        ns = pubid.class.name.split("::")[1]&.downcase
+        flavor = PUBID_FLAVOR_ALIASES.fetch(ns, ns)
+        return nil unless PARSE_ROUTED_FLAVORS.include?(flavor)
+
+        key = "relaton_#{flavor}".to_sym
+        processors.key?(key) ? key : nil
+      end
+
       # Find processor by refernce or prefix
       #
       # @param ref [String] reference or prefix
