@@ -77,6 +77,7 @@ Gem::Specification.new do |spec|
   # happily resolve to an older one and NameError at rescue time.
   spec.add_dependency "lutaml-hal", "~> 0.2", ">= 0.2.5"
   spec.add_dependency "lutaml-model", "~> 0.8.0"
+  spec.add_dependency "lutaml-store", "~> 0.2"
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "mini_portile2", "~> 2.8.0"
   spec.add_dependency "niso-jats", "~> 0.3.4"

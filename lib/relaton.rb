@@ -58,6 +58,7 @@ module Relaton
   autoload :Plateau, "relaton/plateau"
   autoload :Doi, "relaton/doi"
   autoload :Sdo, "relaton/sdo"
+  autoload :Cloud, "relaton/cloud"
 
   # Global PubID prefix register (relaton-db#103). Maps an SDO document-ID
   # prefix to the flavor module(s) that own it. Conflicting prefixes (e.g.
