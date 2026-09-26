@@ -188,6 +188,9 @@ describe Relaton::Iec::DataFetcher do
 
       before do
         allow_any_instance_of(Relaton::Iec::DataParser).to receive(:relation).and_return []
+        # Keep the shared pooled index clean: a new row unsorts it, and every
+        # later search then scans all 32k rows instead of a binary search.
+        allow(subject).to receive(:index).and_return instance_double(Relaton::Index::Type, add_or_update: nil)
       end
 
       it "and save YAML" do
