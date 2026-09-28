@@ -76,7 +76,7 @@ Gem::Specification.new do |spec|
   # rate-limit signal) only exists from 0.2.5 — w3c_api's own `~> 0.2.1` would
   # happily resolve to an older one and NameError at rescue time.
   spec.add_dependency "lutaml-hal", "~> 0.2", ">= 0.2.5"
-  spec.add_dependency "lutaml-model", "~> 0.8.0"
+  spec.add_dependency "lutaml-model", ">= 0.8.15", "< 0.8.74" # 0.8.74 regresses pubid to_hash
   spec.add_dependency "lutaml-store", "~> 0.3"
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "mini_portile2", "~> 2.8.0"
@@ -89,6 +89,7 @@ Gem::Specification.new do |spec|
   # and relaton-cli rescue. `alpha.10` sorts below `pre.alpha.8`, so the old
   # `~> 2.0.0.alpha.10` pin also accepted `pre.alpha.8`/`9`, which lack it.
   spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.13"
+
   spec.add_dependency "yeptris", ">= 0.4"
   spec.add_dependency "rfcxml", "~> 0.4.3"
   spec.add_dependency "rubyzip", "~> 3.7"
