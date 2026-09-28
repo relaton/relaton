@@ -9,16 +9,18 @@ FIXTURE_ROOT = ENV["RELATON_CLOUD_FIXTURES"] ||
                File.expand_path("../../../TODO.relaton-cloud-store/fixtures", __dir__)
 
 # These examples exercise the lutaml-store source layer, which ships with
-# lutaml/lutaml-store (PRs #7-#9). Until that lands in the resolved
-# lutaml-store release, the suite self-skips instead of failing on the
-# missing constants.
-SOURCES_AVAILABLE = defined?(Lutaml::Store::Source) ? true : false
+# lutaml/lutaml-store (released 0.3.0). The guard is evaluated lazily so
+# the gem's autoloads have run by the time examples execute.
+def sources_available?
+  require "lutaml/store"
+  defined?(Lutaml::Store::Source) ? true : false
+end
 
 RSpec.describe Relaton::Cloud do
   let(:fixture_dir) { FIXTURE_ROOT }
 
   before do
-    skip "lutaml-store source layer not released yet" unless SOURCES_AVAILABLE
+    skip "lutaml-store source layer not released yet" unless sources_available?
   end
 
   def rest_over_fixtures
