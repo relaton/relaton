@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe Relaton::Itu::Bibliography do
-  let(:pubid) { Relaton::Itu::Pubid.parse("ITU-T A.1") }
+  let(:pubid) { ::Pubid::Itu.parse("ITU-T A.1") }
   let(:hit_collection) { Relaton::Itu::HitCollection.new(pubid) }
 
   before do
@@ -17,17 +17,62 @@ RSpec.describe Relaton::Itu::Bibliography do
       expect(result).to eq hit_collection
     end
 
-    it "parses String to Pubid first" do
-      allow(Relaton::Itu::Pubid).to receive(:parse).and_call_original
+    it "parses a String reference with Pubid::Itu" do
+      allow(::Pubid::Itu).to receive(:parse).and_call_original
       described_class.search("ITU-T A.1")
-      expect(Relaton::Itu::Pubid).to have_received(:parse).with("ITU-T A.1")
+      expect(::Pubid::Itu).to have_received(:parse).with("ITU-T A.1")
+    end
+
+    # The reference reaches HitCollection as the identifier the caller wrote:
+    # the parse keeps every component, and it keeps the identifier type.
+    def searched_with(ref)
+      described_class.search(ref)
+      pubid = nil
+      expect(Relaton::Itu::HitCollection).to have_received(:new) { |arg| pubid = arg }
+      pubid
+    end
+
+    it "keeps the version and the date of a bare `v10` spelling" do
+      expect(searched_with("ITU-T H.222.0 v10 (04/2025)").to_s).to eq "ITU-T H.222.0 (V10) (04/2025)"
+    end
+
+    it "reads ITU's publication id as the dated recommendation" do
+      expect(searched_with("T-REC-T.4-200307-I").to_s).to eq "ITU-T T.4 (07/2003)"
+    end
+
+    it "drops the redundant REC type word" do
+      expect(searched_with("ITU-T REC T.4").to_s).to eq "ITU-T T.4"
+    end
+
+    it "reads a -YYYYMM suffix as the edition date, not as a part" do
+      expect(searched_with("ITU-T T.4-200307").to_s).to eq "ITU-T T.4 (07/2003)"
+    end
+
+    # ITU-R Recommendations and Reports number independently, so the bare
+    # "ITU-R BT.2020-1" names both Rec. BT.2020-1 (06/2014) and Report
+    # BT.2020-1 (2000). Both citation orders of the Report must stay a Report.
+    it "keeps a Report distinct from the Recommendation of the same number" do
+      expect(searched_with("ITU-R Report BT.2020-1")).to be_a ::Pubid::Itu::Identifiers::Report
+    end
+
+    it "parses the Radio Regulations and the Operational Bulletins" do
+      expect(searched_with("ITU-R RR (2020)")).to be_a ::Pubid::Itu::Identifiers::RadioRegulations
     end
 
     it "logs correction hint for malformed string ref" do
       malformed = "ITU-T A.Suppl. 2"
-      allow(Relaton::Itu::HitCollection).to receive(:new).and_return(hit_collection)
-      expect { described_class.search(malformed) }
-        .to output(/Incorrect reference.*the reference should be/).to_stderr_from_any_process
+      expect do
+        expect { described_class.search(malformed) }.to raise_error ::Pubid::Errors::ParseError
+      end.to output(/Incorrect reference.*the reference should be/).to_stderr_from_any_process
+    end
+
+    # relaton-cli rescues Pubid::Errors::Error and prints "not a recognized
+    # standards identifier". Returning nil would make "malformed" look like
+    # "not found".
+    it "raises a Pubid parse error for a reference Pubid::Itu cannot parse" do
+      expect { described_class.search("ITU G.191") }.to raise_error(::Pubid::Errors::ParseError) { |e|
+        expect(e).to be_a ::Pubid::Errors::Error
+      }
     end
 
     it "propagates RequestError from HitCollection#search" do
@@ -48,6 +93,25 @@ RSpec.describe Relaton::Itu::Bibliography do
 
     before do
       allow(hit_collection).to receive(:select).and_return([])
+    end
+
+    it "adds the year argument to a reference that carries none" do
+      expect { described_class.get("ITU-R RR", "2020") }.to output.to_stderr_from_any_process
+      expect(Relaton::Itu::HitCollection).to have_received(:new) { |ref|
+        expect(ref).to be_a ::Pubid::Itu::Identifiers::RadioRegulations
+        expect(ref.to_s).to eq "ITU-R RR (2020)"
+      }
+    end
+
+    it "keeps the year the reference already names" do
+      expect { described_class.get("ITU-T A.1 (2019)", "2024") }.to output.to_stderr_from_any_process
+      expect(Relaton::Itu::HitCollection).to have_received(:new) { |ref| expect(ref.to_s).to eq "ITU-T A.1 (2019)" }
+    end
+
+    it "raises a Pubid parse error for a reference Pubid::Itu cannot parse" do
+      expect { described_class.get("ITU-T G.Suppl.47") }
+        .to raise_error(::Pubid::Errors::ParseError)
+        .and output(/Incorrect reference/).to_stderr_from_any_process
     end
 
     context "when matching result found" do
@@ -134,7 +198,7 @@ RSpec.describe Relaton::Itu::Bibliography do
 
   describe "private methods" do
     describe "#fetch_ref_err" do
-      let(:refid) { Relaton::Itu::Pubid.parse("ITU-T A.1 (2020)") }
+      let(:refid) { ::Pubid::Itu.parse("ITU-T A.1 (2020)") }
 
       it "logs Not found" do
         expect { described_class.send(:fetch_ref_err, refid, []) }
@@ -154,11 +218,101 @@ RSpec.describe Relaton::Itu::Bibliography do
       end
     end
 
+    describe "#search_filter" do
+      def filtered(ref, *codes)
+        hits = codes.map { |c| double("Hit", hit: { code: c }) }
+        allow(described_class).to receive(:search).and_return(hits)
+        described_class.send(:search_filter, ::Pubid::Itu.parse(ref)).map { |h| h.hit[:code] }
+      end
+
+      it "keeps every dated edition of the referenced document" do
+        expect(filtered("ITU-T A.1 (2019)", "ITU-T A.1 (10/2000)", "ITU-T A.1 (2019)"))
+          .to eq ["ITU-T A.1 (10/2000)", "ITU-T A.1 (2019)"]
+      end
+
+      it "drops a supplement of the referenced document" do
+        expect(filtered("ITU-T G.989.2", "ITU-T G.989.2 (12/2014)", "ITU-T G.989.2 (2014) Amd. 1 (04/2016)"))
+          .to eq ["ITU-T G.989.2 (12/2014)"]
+      end
+
+      # The old local grammar did not model `Cor.`/`Err.`: it stopped at the
+      # base's date, so a base reference kept its own corrigenda and errata.
+      it "drops a corrigendum and an erratum of the referenced document" do
+        expect(filtered("ITU-T Z.100", "ITU-T Z.100 (06/2021)", "ITU-T Z.100 (1999) Cor. 1 (10/2001)"))
+          .to eq ["ITU-T Z.100 (06/2021)"]
+        expect(filtered("ITU-T A.13", "ITU-T A.13 (2019)", "ITU-T A.13 (2019) Err. 1 (02/2023)"))
+          .to eq ["ITU-T A.13 (2019)"]
+      end
+
+      # Both are "Amd. 1" of G.989.2, to different editions. A reference that
+      # dates the amendment itself names one of them.
+      it "narrows to the amendment the reference dates" do
+        expect(filtered("ITU-T G.989.2 Amd. 1 (04/2016)",
+                        "ITU-T G.989.2 (2019) Amd. 1 (10/2020)", "ITU-T G.989.2 (2014) Amd. 1 (04/2016)"))
+          .to eq ["ITU-T G.989.2 (2014) Amd. 1 (04/2016)"]
+      end
+
+      it "narrows to the version the amended recommendation names" do
+        expect(filtered("ITU-T H.264 (V14) (2019) Amd. 1",
+                        "ITU-T H.264 (V14) (2019) Amd. 1 (01/2020)", "ITU-T H.264 (V13) (2019) Amd. 1 (01/2020)"))
+          .to eq ["ITU-T H.264 (V14) (2019) Amd. 1 (01/2020)"]
+      end
+
+      it "does not keep a document with a longer number" do
+        expect(filtered("ITU-T H.264", "ITU-T H.264 (05/2003)", "ITU-T H.264.1 (03/2005)"))
+          .to eq ["ITU-T H.264 (05/2003)"]
+      end
+
+      it "narrows to the version the reference names" do
+        expect(filtered("ITU-T H.264 (V14)", "ITU-T H.264 (V14) (08/2021)", "ITU-T H.264 (05/2003)"))
+          .to eq ["ITU-T H.264 (V14) (08/2021)"]
+      end
+
+      it "keeps every version when the reference names none" do
+        expect(filtered("ITU-T H.264", "ITU-T H.264 (V14) (08/2021)", "ITU-T H.264 (05/2003)"))
+          .to eq ["ITU-T H.264 (V14) (08/2021)", "ITU-T H.264 (05/2003)"]
+      end
+
+      it "does not answer a Report with the Recommendation of the same number" do
+        expect(filtered("Report ITU-R BT.2020-1", "ITU-R BT.2020-1", "Report ITU-R BT.2020-1"))
+          .to eq ["Report ITU-R BT.2020-1"]
+      end
+
+      it "keeps a hit that carries no code" do
+        hit = double("Hit", hit: { url: "u" })
+        allow(described_class).to receive(:search).and_return([hit])
+        expect(described_class.send(:search_filter, ::Pubid::Itu.parse("ITU-R BO.600-1"))).to eq [hit]
+      end
+    end
+
+    # The year a hit is filtered on is the first date of its code — for an
+    # amendment, the year of the recommendation it amends. The reference's
+    # year must be read the same way.
+    describe "#edition_year" do
+      def year(ref) = described_class.send(:edition_year, ::Pubid::Itu.parse(ref))
+
+      it { expect(year("ITU-T A.1 (10/2000)")).to eq "2000" }
+      it { expect(year("ITU-T A.1")).to be_nil }
+      it { expect(year("ITU-T A Suppl. 2 (12/2022)")).to eq "2022" }
+      it { expect(year("ITU-T Z.100 Annex F2 (06/2021)")).to eq "2021" }
+      it { expect(year("ITU-T Z.100 (06/2021) Annex F1")).to eq "2021" }
+      it { expect(year("ITU-T G.989.2 (2014) Amd. 1 (04/2016)")).to eq "2014" }
+      it { expect(year("ITU-T G.989.2 Amd. 1 (04/2016)")).to be_nil }
+    end
+
     describe "#isobib_results_filter" do
       let(:item) { double("Item") }
 
+      it "reads an amendment reference's year from the amended recommendation" do
+        refid = ::Pubid::Itu.parse("ITU-T G.989.2 Amd. 1 (04/2016)")
+        hit = double("Hit", hit: { code: "ITU-T G.989.2 (2014) Amd. 1 (04/2016)" })
+        allow(hit).to receive(:item).and_return(item)
+
+        expect(described_class.send(:isobib_results_filter, [hit], refid)).to eq({ ret: item })
+      end
+
       it "returns {ret: item} when year matches" do
-        refid = Relaton::Itu::Pubid.parse("ITU-T A.1 (2019)")
+        refid = ::Pubid::Itu.parse("ITU-T A.1 (2019)")
         hit = double("Hit", hit: { code: "ITU-T A.1 (2019)" })
         allow(hit).to receive(:item).and_return(item)
 
@@ -167,7 +321,7 @@ RSpec.describe Relaton::Itu::Bibliography do
       end
 
       it "returns {years: [...]} when year does not match" do
-        refid = Relaton::Itu::Pubid.parse("ITU-T A.1 (2020)")
+        refid = ::Pubid::Itu.parse("ITU-T A.1 (2020)")
         hit = double("Hit", hit: { code: "ITU-T A.1 (2019)" })
 
         result = described_class.send(:isobib_results_filter, [hit], refid)
@@ -175,7 +329,7 @@ RSpec.describe Relaton::Itu::Bibliography do
       end
 
       it "returns {ret: item} when refid has no year" do
-        refid = Relaton::Itu::Pubid.parse("ITU-T A.1")
+        refid = ::Pubid::Itu.parse("ITU-T A.1")
         hit = double("Hit", hit: { code: "ITU-T A.1 (2019)" })
         allow(hit).to receive(:item).and_return(item)
 

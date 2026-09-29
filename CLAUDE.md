@@ -145,10 +145,24 @@ corrigendum,meeting}`). Both gemspecs pin the released `pubid ~> 2.0.0.pre.alpha
 the first release carrying everything the flavors need (JCGM meetings and the
 flattened compact `to_hash`, BIPM/ETSI/CIE/ITU/IEEE/IANA/IETF/GOST index shapes,
 `subset_strict`). Its `lib/` is identical to the pubid `main` that built the
-published `relaton-data-*` indexes; the root `Gemfile` no longer carries a git pin.
+published `relaton-data-*` indexes.
 A pubid whose `to_hash` differs from the one that built an index makes
 `Relaton::Index` reject the whole index, so bump the pin in step with the data
 repos. See `lib/relaton/jcgm/CLAUDE.md`.
+
+**Temporary git pin: pubid `ref: "27454393"` (root `Gemfile`).** The ITU flavor
+parses every caller reference with `Pubid::Itu`, which needs pubid #460 (Radio
+Regulations, the Operational Bulletin sector and date, ITU publication ids,
+`-YYYYMM` as a date). #460 is merged but not released. The pin is a **fixed
+ref**, not `branch: "main"`: `27454393` is the last pubid `main` commit that
+parses with parslet. The commits after it parse through parsanol "PG" grammar
+artifacts, and no published parsanol can load them yet — pubid builds against
+an unreleased local parsanol and does not declare it in its gemspec, so a git
+install of pubid `main` fails in 22 of the 41 suites
+(`uninitialized constant Pubid::Pg::Backend::Parsanol`). A `parsanol` git pin
+does not help: parsanol `main` rejects pubid's grammars, and the PR branch that
+reads them renames the module to `Parsanol::PARG`. Move to the next pubid
+release (and bump both gemspecs) once pubid depends on a released parsanol.
 
 **`json` is pinned below 3 (`relaton.gemspec`).** json 3.0.0 made the
 `JSON.parse` options keyword-only, and Faraday's JSON response middleware still
@@ -165,9 +179,14 @@ is whatever a past `bundle install` froze. A lock left behind by an earlier
 session (for example one still locked to the old `git: …/pubid.git` source)
 keeps reproducing *old* pubid rendering, producing spec failures that don't
 reproduce on CI (which resolves fresh). Before diagnosing any pubid-shaped
-rendering failure, check `grep -n "pubid (" Gemfile.lock` and run
-**`bundle update pubid`** (not `bundle install`). Only after that is a
-failure worth treating as a code bug.
+rendering failure, check `grep -n -A3 "pubid.git" Gemfile.lock` against the
+`ref:` in the `Gemfile` and run **`bundle update pubid`** (not
+`bundle install`). Only after that is a failure worth treating as a code bug.
+
+**Run the suites with a UTF-8 locale.** With `LANG` unset Ruby reads files as
+US-ASCII: `rake spec` then reports most suites as "no examples run" and aborts
+in `SpecReporter.failure_details` with `Encoding::CompatibilityError`. Use
+`LANG=C.UTF-8 bundle exec rake spec`.
 
 ## Testing
 
@@ -610,8 +629,11 @@ regex back.
   catches the parse error too, and it turns a transport failure into a class
   that `Relaton::Db#net_retry` does not retry (only `Relaton::RequestError` is
   retried). Rescue the transport errors by name, as JCGM and Plateau do.
-  Intentional exceptions: IETF (an out-of-flavor ref logs "Not found") and
-  ITU's derived `index_pubid_ref` probe.
+  Intentional exception: IETF (an out-of-flavor ref logs "Not found"). ITU
+  was the other one — its local Parslet grammar silently dropped what it could
+  not read (`ITU-T H.222.0 v10 (04/2025)` became `ITU-T H.222.0`) — until it
+  moved to `Pubid::Itu` for the query too; a hit code ITU's live API spells
+  unparseably is data, and `Bibliography.search_filter` drops that hit.
 - Don't reintroduce per-flavor gems/gemspecs or the combined-build step — it's
   one gem now.
 - Don't add `relaton-cli` as a runtime dep of `relaton`.

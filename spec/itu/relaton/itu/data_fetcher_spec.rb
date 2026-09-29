@@ -191,13 +191,13 @@ end
             it "indexes records already on disk and reports the ids it can't parse" do
               Dir.mktmpdir do |dir|
                 good = write_record dir, "itu-r-bo-600-1.yaml", "ITU-R BO.600-1"
-                bad = write_record dir, "itu-r-rr.yaml", "ITU-R RR"
+                bad = write_record dir, "itu-r-iv-ix.yaml", "ITU-R IV.IX"
                 index = double "index"
                 allow(subject).to receive(:index).and_return index
                 expect(index).to receive(:add_or_update).with(kind_of(::Pubid::Itu::Identifier), good).once
 
                 expect(subject.index_files("#{dir}/*.yaml")).to eq 1
-                expect(subject.unparseable_ids).to eq [["ITU-R RR", bad]]
+                expect(subject.unparseable_ids).to eq [["ITU-R IV.IX", bad]]
               end
             end
 
@@ -280,12 +280,13 @@ end
             end
 
             it "records an unparseable id instead of indexing a raw string" do
-              # ITU-R RR (Radio Regulations) is not modelled by pubid, so it must be
-              # recorded (and surfaced as a GitHub issue) rather than corrupt the index.
+              # A Roman-numeral fragment left by the decommissioned RunSearch crawler
+              # has no document number, so pubid rejects it. It must be recorded
+              # (and surfaced as a GitHub issue) rather than corrupt the index.
               expect(index_double).not_to receive(:add_or_update)
-              subject.send(:index_primary, "ITU-R RR", "data/itu-r-rr.yaml")
+              subject.send(:index_primary, "ITU-R IV.IX", "data/itu-r-iv-ix.yaml")
               expect(subject.send(:unparseable_ids))
-                .to eq([["ITU-R RR", "data/itu-r-rr.yaml"]])
+                .to eq([["ITU-R IV.IX", "data/itu-r-iv-ix.yaml"]])
             end
 
             it "reports recorded unparseable ids through the error machinery" do

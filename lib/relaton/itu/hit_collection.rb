@@ -24,21 +24,21 @@ module Relaton
       RECEDITIONS_URL = "#{DOMAIN}/mws/api/recommendations/getRecEditions?idrec=%<idrec>s&lang=en".freeze
       HANDLE_URL = "http://handle.itu.int/11.1002/1000/%<idrec>s-en".freeze
 
+      # `ref` is a Pubid::Itu identifier; its class and sector pick the route.
       def search
-        case ref.to_ref
-        # `ref` is a parsed Pubid, so only the abbreviated `OB.N` form survives
-        # here — the local grammar reduces "Operational Bulletin 1096" to the
-        # code "Operational" and drops the year, which no route can resolve.
-        when %r{^ITU-R\sRR}, %r{\bOB\.} then request_publication
-        when /^ITU-T/ then request_recommendation
-        # A Report reference renders "Report ITU-R …" (the discriminator leads,
-        # as ITU cites it), so it no longer starts with the sector — but it is
-        # still served from the index like any other ITU-R document.
-        when /^ITU-R\s/, /^Report\sITU-R\s/ then request_document
+        if publication?(ref) then request_publication
+        # an annex to a bulletin has no landing page, and it is not a
+        # recommendation either
+        elsif publication?(ref.root) then @array = []
+        else
+          case sector
+          when "T" then request_recommendation
+          when "R" then request_document
+          end
         end
       rescue Mechanize::ResponseCodeError, SocketError, Timeout::Error, Errno::ECONNRESET,
               EOFError, Net::ProtocolError, OpenSSL::SSL::SSLError => e
-        raise Relaton::RequestError, "Could not access #{ref.to_ref}: #{e.message}"
+        raise Relaton::RequestError, "Could not access #{ref}: #{e.message}"
       end
 
       def agent
@@ -70,6 +70,21 @@ module Relaton
 
       private
 
+      # Radio Regulations and Operational Bulletins live on www.itu.int/pub,
+      # not in the dataset.
+      def publication?(id)
+        id.is_a?(::Pubid::Itu::Identifiers::RadioRegulations) ||
+          id.is_a?(::Pubid::Itu::Identifiers::SpecialPublication)
+      end
+
+      # An annex or an appendix carries its sector on the recommendation it
+      # belongs to.
+      #
+      # @return [String, nil] "T" or "R"
+      def sector
+        (ref.sector || ref.root.sector)&.to_s
+      end
+
       # ITU-T Recommendations and supplements. The index is preferred (offline,
       # every edition, no scraping); the live path covers what the dataset does
       # not have — Implementers' Guides, the `(V##)`/`Annex` forms the data
@@ -86,9 +101,8 @@ module Relaton
 
       # @return [Array<Relaton::Itu::Hit>] newest edition first
       def index_hits
-        pubid = index_pubid_ref
-        return [] unless pubid
-
+        # Every edition is a candidate; Bibliography selects the year.
+        pubid = ref.exclude(:year, :month, :day)
         Util.info "Fetching from Relaton repository ...", key: ref.to_s
         index.search(pubid) { |i| index_match?(pubid, i[:id]) }
           .map { |r| index_hit r }.sort_by { |h| edition_key h.hit[:code] }.reverse
@@ -112,7 +126,10 @@ module Relaton
       def year_satisfied?(hits)
         return false if hits.empty?
 
-        ref.year.nil? || hits.any? { |h| edition_key(h.hit[:code]).first == ref.year.to_i }
+        year = Bibliography.edition_year(ref)
+        return true if year.nil?
+
+        hits.any? { |h| edition_key(h.hit[:code]).first == year.to_i }
       end
 
       # The edition date of a rendered docidentifier, as `[year, month]`. Uses
@@ -135,14 +152,13 @@ module Relaton
 
       def request_document # rubocop:todo Metrics/MethodLength, Metrics/AbcSize
         Util.info "Fetching from Relaton repository ...", key: ref.to_s
-        # Pass the reference's parsed pubid (not a String) so Relaton::Index can
+        # Pass the reference as a pubid (not a String) so Relaton::Index can
         # narrow candidates by document number before the block; `index_match?`
         # then matches every edition when the reference omits the part and the
         # exact edition when it names one. Rows are Pubid::Itu objects (not
         # Comparable), so rank by the numeric edition in `code.parts` (`["3"]` → 3)
         # to return the latest — index order isn't by edition.
-        pubid = pubid_ref
-        row = index.search(pubid) { |i| index_match?(pubid, i[:id]) }
+        row = index.search(ref) { |i| index_match?(ref, i[:id]) }
           .max_by { |i| i[:id].code&.parts&.last.to_i }
         return unless row
 
@@ -153,30 +169,6 @@ module Relaton
         hit = Hit.new({ url: url, ref: ref }, self)
         hit.item = item
         @array = [hit]
-      end
-
-      # Parse the reference into a Pubid::Itu identifier for the index lookup. A
-      # ref pubid can't parse raises (a `Pubid`/`Parslet` error) and propagates to
-      # the caller (relaton-cli / API callers rescue it), mirroring the ETSI
-      # flavor — the consumer no longer degrades to a raw-string substring search.
-      #
-      # @return [::Pubid::Itu::Identifier]
-      def pubid_ref
-        ::Pubid::Itu.parse ref.to_ref
-      end
-
-      # The reference as a pubid for an ITU-T index lookup, stripped of its
-      # edition date (every edition is a candidate; Bibliography selects the
-      # year). Unlike `#pubid_ref` this **rescues** an unparseable reference: the
-      # ITU-T path has a live fallback to degrade to, and a malformed reference
-      # (e.g. `ITU-T G.Suppl.47`) should warn and report "Not found", not raise.
-      #
-      # @return [::Pubid::Itu::Identifier, nil]
-      def index_pubid_ref
-        undated = ref.dup.tap { |r| r.year = r.month = r.day = nil }
-        ::Pubid::Itu.parse undated.to_ref
-      rescue StandardError
-        nil
       end
 
       # Does an index row's id match the reference? When the reference omits the
@@ -227,9 +219,15 @@ module Relaton
         nil
       end
 
-      # @return [String] the `rec=` value for the rec.aspx lookup
+      # The `rec=` value for the rec.aspx lookup: the document without its
+      # sector, edition date or version — "H.264", "A Suppl. 2",
+      # "G.989 Suppl. 1". An amendment or an annex is looked up by the
+      # recommendation it belongs to.
+      #
+      # @return [String]
       def rec_query
-        ref.suppl ? "#{ref.code} Suppl. #{ref.suppl}" : ref.code
+        Bibliography.document(ref).exclude(:year, :month, :day, :version)
+          .to_s.delete_prefix("ITU-T ")
       end
 
       # @param idrec [String]
@@ -244,10 +242,14 @@ module Relaton
       # @param edition [Hash] a getRecEditions entry
       # @return [Relaton::Itu::Hit]
       def recommendation_hit(edition)
+        # The crawler's rec_name canonicalisation ("G 231" -> "G.231"): the
+        # code is parsed with Pubid::Itu, which rejects the space spelling.
+        require_relative "data_parser_t"
+        name = DataParserT.normalize_rec_name edition["rec_name"]
         # No `:ref` key: it drives Hit#gi_imp, which would route an Implementers'
         # Guide reference onto the getImplGuides endpoints.
         Hit.new({
-          code: "ITU-T #{edition['rec_name']}",
+          code: "ITU-T #{name}",
           title: edition["title"],
           url: format(HANDLE_URL, idrec: edition["idrec"]),
           type: "recommendation",
@@ -279,21 +281,31 @@ module Relaton
       end
 
       # The /pub identifier for a Radio Regulation or an Operational Bulletin
-      # (`OB.1096` → `T-SP-OB.1096-2016`). nil — no hit — rather than a bogus URL
-      # when the bulletin reference carries no number.
+      # (`OB.1096` → `T-SP-OB.1096-2016`). nil — no hit — for any other special
+      # publication, which has no derivable landing page.
       #
       # @return [String, nil]
       def publication_id
-        return "R-REG-RR-#{ref.year}" if ref.code == "RR"
+        return "R-REG-RR-#{ref.year}" if radio_regulations?
 
-        num = ref.code[/\d+/]
-        "T-SP-OB.#{num}-#{ref.year}" if num
+        "T-SP-OB.#{ref.number}-#{ref.year}" if bulletin?
       end
 
-      # @return [String] the docidentifier-friendly code (year only, no month)
+      # The docidentifier (year only, no month or day). A bulletin keeps its
+      # sector even when the reference is the sector-less `ITU OB No. 1096`.
+      #
+      # @return [String]
       def publication_code
-        "#{ref.prefix}-#{ref.sector} #{ref.code} (#{ref.year})"
+        return "ITU-R RR (#{ref.year})" if radio_regulations?
+
+        "ITU-T OB.#{ref.number} (#{ref.year})"
       end
+
+      def radio_regulations?
+        ref.is_a? ::Pubid::Itu::Identifiers::RadioRegulations
+      end
+
+      def bulletin? = ref.series.to_s == "OB"
     end
   end
 end

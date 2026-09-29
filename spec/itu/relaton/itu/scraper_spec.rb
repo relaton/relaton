@@ -37,6 +37,17 @@ RSpec.describe Relaton::Itu::Scraper do
 
       expect(scraper.send(:docid).map(&:content)).to eq ["ITU-R RR (2020)"]
     end
+
+    # The code is data from ITU, not the caller's reference: a spelling pubid
+    # cannot identify is kept as ITU wrote it rather than failing the record.
+    it "keeps a code pubid cannot parse as it is" do
+      parser = double("RecommendationParser", doc: { "rec_name" => "G 231 (10/1976)" }, iso_docid: nil)
+      scraper = scraper_for({ url: "http://handle.itu.int/11.1002/1000/1-en" }, parser)
+
+      docid = scraper.send(:docid).first
+      expect(docid.content).to eq "ITU-T G 231 (10/1976)"
+      expect(docid.type).to eq "ITU"
+    end
   end
 
   context "when server is unavailable" do
