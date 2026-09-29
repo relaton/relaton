@@ -73,11 +73,17 @@ describe Relaton::Itu::Docidentifier do
       expect(subject.content).to eq "ITU-T H.222.0 (V10)"
     end
 
+    it "removes the year of the Radio Regulations" do
+      subject = docid("ITU-R RR (2020)")
+      subject.remove_date!
+      expect(subject.content).to eq "ITU-R RR"
+    end
+
     context "when the content does not parse" do
       it "leaves the content unchanged" do
-        subject = docid("ITU-R RR (2020)")
+        subject = docid("ITU-R IV.IX")
         subject.remove_date!
-        expect(subject.content).to eq "ITU-R RR (2020)"
+        expect(subject.content).to eq "ITU-R IV.IX"
       end
 
       it "leaves a reference without a publisher unchanged" do

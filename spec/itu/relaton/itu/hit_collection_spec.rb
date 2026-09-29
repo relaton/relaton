@@ -13,7 +13,7 @@ RSpec.describe Relaton::Itu::HitCollection do
 
   describe "#search" do
     context "error handling" do
-      let(:ref) { Relaton::Itu::Pubid.parse("ITU-R BO.600-1") }
+      let(:ref) { ::Pubid::Itu.parse("ITU-R BO.600-1") }
       subject(:collection) { described_class.new ref }
 
       before { stub_index [row("ITU-R BO.600-1", "data/r.yaml")] }
@@ -30,7 +30,7 @@ RSpec.describe Relaton::Itu::HitCollection do
     end
 
     context "with ITU-T ref found in the index" do
-      subject(:collection) { described_class.new Relaton::Itu::Pubid.parse("ITU-T Z.100") }
+      subject(:collection) { described_class.new ::Pubid::Itu.parse("ITU-T Z.100") }
 
       before do
         stub_index [
@@ -78,7 +78,7 @@ RSpec.describe Relaton::Itu::HitCollection do
 
       it "falls back to the live path when the index has no row at all" do
         stub_index []
-        collection = described_class.new Relaton::Itu::Pubid.parse("ITU-T H.264")
+        collection = described_class.new ::Pubid::Itu.parse("ITU-T H.264")
 
         expect { collection.search }.to output(/Fetching from www\.itu\.int/).to_stderr_from_any_process
         expect(collection.size).to eq 2
@@ -91,7 +91,7 @@ RSpec.describe Relaton::Itu::HitCollection do
 
       it "falls back to the live path when no indexed edition has the requested year" do
         stub_index [row("ITU-T H.264 (04/2013)", "data/itu-t-h-264-04-2013.yaml")]
-        collection = described_class.new Relaton::Itu::Pubid.parse("ITU-T H.264 (08/2021)")
+        collection = described_class.new ::Pubid::Itu.parse("ITU-T H.264 (08/2021)")
 
         expect { collection.search }.to output(/Fetching from www\.itu\.int/).to_stderr_from_any_process
         expect(collection.map { |h| h.hit[:code] }).to include "ITU-T H.264 (V14) (08/2021)"
@@ -101,17 +101,53 @@ RSpec.describe Relaton::Itu::HitCollection do
         stub_index [row("ITU-T H.264 (04/2013)", "data/itu-t-h-264-04-2013.yaml")]
         allow_any_instance_of(Mechanize).to receive(:get)
           .with(a_string_including("rec.aspx")).and_return(double("Page", body: "<html>no match</html>"))
-        collection = described_class.new Relaton::Itu::Pubid.parse("ITU-T H.264 (08/2021)")
+        collection = described_class.new ::Pubid::Itu.parse("ITU-T H.264 (08/2021)")
 
         expect { collection.search }.to output(/Fetching/).to_stderr_from_any_process
         expect(collection.map { |h| h.hit[:code] }).to eq ["ITU-T H.264 (04/2013)"]
       end
 
-      it "uses the live path for a reference pubid cannot parse" do
-        expect(Relaton::Index).not_to receive(:find_or_create)
+      # An annex carries its sector on the recommendation it annexes, so the
+      # route must read it from there.
+      it "routes an annex of an ITU-T recommendation like the recommendation" do
+        stub_index [row("ITU-T Z.100 Annex F2 (06/2021)", "data/itu-t-z-100-annex-f2-06-2021.yaml")]
+        collection = described_class.new ::Pubid::Itu.parse("ITU-T Z.100 Annex F2")
+
+        expect { collection.search }.to output(/Fetching from Relaton repository/).to_stderr_from_any_process
+        expect(collection.map { |h| h.hit[:code] }).to eq ["ITU-T Z.100 Annex F2 (06/2021)"]
+      end
+
+      it "asks rec.aspx for a supplement to a recommendation by the supplement" do
+        stub_index []
         allow_any_instance_of(Mechanize).to receive(:get)
-          .with(a_string_including("rec.aspx")).and_return(double("Page", body: "<html>no match</html>"))
-        collection = described_class.new Relaton::Itu::Pubid.parse("ITU-T G.Suppl.47")
+          .with(a_string_including("rec.aspx?rec=G.989+Suppl.+1")).and_return(double("Page", body: "<html></html>"))
+        collection = described_class.new ::Pubid::Itu.parse("ITU-T G.989 Suppl. 1")
+
+        expect { collection.search }.to output(/Fetching from www\.itu\.int/).to_stderr_from_any_process
+        expect(collection).to be_empty
+      end
+
+      # searchRecs/getRecEditions sometimes put a space where the series dot
+      # belongs; the crawler canonicalises it (DataParserT.normalize_rec_name),
+      # and so must the live path, or the hit's code cannot be identified.
+      it "canonicalises the rec_name of a live edition" do
+        stub_index []
+        allow_any_instance_of(Mechanize).to receive(:get)
+          .with(a_string_including("rec.aspx?rec=G.231")).and_return(rec_page)
+        allow_any_instance_of(Mechanize).to receive(:get)
+          .with(a_string_including("getRecEditions?idrec=14659"))
+          .and_return(double("Response", body: [{ "idrec" => 1, "rec_name" => "G 231 (10/1976)" }].to_json))
+        collection = described_class.new ::Pubid::Itu.parse("ITU-T G.231")
+
+        expect { collection.search }.to output(/Fetching from www\.itu\.int/).to_stderr_from_any_process
+        expect(collection.first.hit[:code]).to eq "ITU-T G.231 (10/1976)"
+      end
+
+      it "asks rec.aspx for a supplement by its series and number" do
+        stub_index []
+        allow_any_instance_of(Mechanize).to receive(:get)
+          .with(a_string_including("rec.aspx?rec=A+Suppl.+2")).and_return(double("Page", body: "<html></html>"))
+        collection = described_class.new ::Pubid::Itu.parse("ITU-T A Suppl. 2")
 
         expect { collection.search }.to output(/Fetching from www\.itu\.int/).to_stderr_from_any_process
         expect(collection).to be_empty
@@ -122,7 +158,7 @@ RSpec.describe Relaton::Itu::HitCollection do
         page = double("Page", code: "404", uri: URI("https://www.itu.int/x"))
         allow_any_instance_of(Mechanize).to receive(:get)
           .and_raise(Mechanize::ResponseCodeError.new(page))
-        collection = described_class.new Relaton::Itu::Pubid.parse("ITU-T Z.9999")
+        collection = described_class.new ::Pubid::Itu.parse("ITU-T Z.9999")
 
         expect { collection.search }.to output(/Fetching/).to_stderr_from_any_process
         expect(collection).to be_empty
@@ -133,7 +169,7 @@ RSpec.describe Relaton::Itu::HitCollection do
       it "builds a hit for the Radio Regulations /pub landing page" do
         page = double("Page", uri: URI("https://www.itu.int/pub/R-REG-RR-2020"))
         allow_any_instance_of(Mechanize).to receive(:get).and_return(page)
-        collection = described_class.new Relaton::Itu::Pubid.parse("ITU-R RR (2020)")
+        collection = described_class.new ::Pubid::Itu.parse("ITU-R RR (2020)")
 
         expect { collection.search }.to output(/Fetching from www\.itu\.int/).to_stderr_from_any_process
         expect(collection.size).to eq 1
@@ -145,7 +181,7 @@ RSpec.describe Relaton::Itu::HitCollection do
       it "builds a hit for the Operational Bulletin /pub landing page" do
         page = double("Page", uri: URI("https://www.itu.int/pub/T-SP-OB.1096-2016"))
         allow_any_instance_of(Mechanize).to receive(:get).and_return(page)
-        collection = described_class.new Relaton::Itu::Pubid.parse("ITU-T OB.1096 - 15.III.2016")
+        collection = described_class.new ::Pubid::Itu.parse("ITU-T OB.1096 - 15.III.2016")
 
         expect { collection.search }.to output(/Fetching/).to_stderr_from_any_process
         expect(collection.first.hit[:url]).to eq "https://www.itu.int/pub/T-SP-OB.1096-2016"
@@ -155,7 +191,7 @@ RSpec.describe Relaton::Itu::HitCollection do
       it "returns empty when the /pub page redirects to notfound" do
         page = double("Page", uri: URI("https://www.itu.int/en/publications/pages/notfound.aspx"))
         allow_any_instance_of(Mechanize).to receive(:get).and_return(page)
-        collection = described_class.new Relaton::Itu::Pubid.parse("ITU-R RR (2014)")
+        collection = described_class.new ::Pubid::Itu.parse("ITU-R RR (2014)")
 
         expect { collection.search }.to output(/Fetching/).to_stderr_from_any_process
         expect(collection).to be_empty
@@ -165,23 +201,36 @@ RSpec.describe Relaton::Itu::HitCollection do
         page = double("Page", code: "404", uri: URI("https://www.itu.int/pub/x"))
         allow_any_instance_of(Mechanize).to receive(:get)
           .and_raise(Mechanize::ResponseCodeError.new(page))
-        collection = described_class.new Relaton::Itu::Pubid.parse("ITU-R RR (2014)")
+        collection = described_class.new ::Pubid::Itu.parse("ITU-R RR (2014)")
 
         expect { collection.search }.to output(/Fetching/).to_stderr_from_any_process
         expect(collection).to be_empty
       end
 
-      it "returns empty when the bulletin reference carries no number" do
+      # An annex to a bulletin has no landing page of its own, and it is not
+      # a recommendation either, so no route can answer it.
+      it "returns empty for an annex to a bulletin" do
         expect_any_instance_of(Mechanize).not_to receive(:get)
-        collection = described_class.new Relaton::Itu::Pubid.parse("ITU-T OB. (2016)")
+        expect(Relaton::Index).not_to receive(:find_or_create)
+        collection = described_class.new ::Pubid::Itu.parse("Annex to ITU-T OB.1096 (2016)")
+
+        collection.search
+        expect(collection).to be_empty
+      end
+
+      it "builds the same hit for a bulletin cited without its sector" do
+        page = double("Page", uri: URI("https://www.itu.int/pub/T-SP-OB.1096-2016"))
+        allow_any_instance_of(Mechanize).to receive(:get).and_return(page)
+        collection = described_class.new ::Pubid::Itu.parse("ITU OB No. 1096 (2016)")
 
         expect { collection.search }.to output(/Fetching/).to_stderr_from_any_process
-        expect(collection).to be_empty
+        expect(collection.first.hit[:url]).to eq "https://www.itu.int/pub/T-SP-OB.1096-2016"
+        expect(collection.first.hit[:code]).to eq "ITU-T OB.1096 (2016)"
       end
 
       it "returns empty when the reference has no year" do
         expect_any_instance_of(Mechanize).not_to receive(:get)
-        collection = described_class.new Relaton::Itu::Pubid.parse("ITU-R RR")
+        collection = described_class.new ::Pubid::Itu.parse("ITU-R RR")
 
         expect { collection.search }.to output(/Fetching/).to_stderr_from_any_process
         expect(collection).to be_empty
@@ -189,7 +238,7 @@ RSpec.describe Relaton::Itu::HitCollection do
     end
 
     context "with ITU-R ref (request_document path)" do
-      let(:ref) { Relaton::Itu::Pubid.parse("ITU-R BO.600-1") }
+      let(:ref) { ::Pubid::Itu.parse("ITU-R BO.600-1") }
       subject(:collection) { described_class.new ref }
 
       it "fetches document from index" do
@@ -232,7 +281,7 @@ RSpec.describe Relaton::Itu::HitCollection do
         allow_any_instance_of(Mechanize).to receive(:get).and_return(resp)
         allow(Relaton::Itu::Item).to receive(:from_yaml).and_return(item)
 
-        col = described_class.new(Relaton::Itu::Pubid.parse("ITU-R P.838"))
+        col = described_class.new(::Pubid::Itu.parse("ITU-R P.838"))
         expect { col.search }.to output(/Fetching from Relaton repository/).to_stderr_from_any_process
         expect(col.size).to eq 1
         expect(col.first.hit[:url]).to include("itu-r-p-838-3.yaml")
@@ -250,7 +299,7 @@ RSpec.describe Relaton::Itu::HitCollection do
         allow_any_instance_of(Mechanize).to receive(:get).and_return(resp)
         allow(Relaton::Itu::Item).to receive(:from_yaml).and_return(item)
 
-        col = described_class.new(Relaton::Itu::Pubid.parse("ITU-R P.530"))
+        col = described_class.new(::Pubid::Itu.parse("ITU-R P.530"))
         expect { col.search }.to output(/Fetching from Relaton repository/).to_stderr_from_any_process
         expect(col.first.hit[:url]).to include("itu-r-p-530-19.yaml")
       end
@@ -258,7 +307,7 @@ RSpec.describe Relaton::Itu::HitCollection do
   end
 
   describe "#index_match?" do
-    subject(:collection) { described_class.new(Relaton::Itu::Pubid.parse("ITU-R P.838")) }
+    subject(:collection) { described_class.new(::Pubid::Itu.parse("ITU-R P.838")) }
 
     # Both the reference and the index row are Pubid::Itu identifiers — pubid's
     # `matches?` compares structured ids, so the row (deserialized index) is a
@@ -322,7 +371,7 @@ RSpec.describe Relaton::Itu::HitCollection do
   end
 
   describe "#fetch_item" do
-    subject(:collection) { described_class.new(Relaton::Itu::Pubid.parse("ITU-T L.163")) }
+    subject(:collection) { described_class.new(::Pubid::Itu.parse("ITU-T L.163")) }
 
     it "returns nil when the document is not in the data repository" do
       # Mechanize raises on 404 instead of returning the response

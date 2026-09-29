@@ -33,15 +33,27 @@ All model classes use `Lutaml::Model::Serializable` for XML/YAML serialization:
 ### Runtime lookup (`HitCollection#search`)
 
 ITU removed the `net4/.../GlobalSearch/RunSearch` endpoint (F5 WAF, HTTP 500) that
-used to *discover* every reference. Discovery now has three routes, matched in this
-order (an Operational Bulletin reference matches both `^ITU-T` and `OB.`, so the
-publication arm must come first):
+used to *discover* every reference. The reference reaches `HitCollection` as a
+`Pubid::Itu` identifier, and its **class and sector** pick one of three routes
+(`#search`; an annex or appendix reads its sector from `root`):
 
 | reference | route | source |
 |---|---|---|
-| `ITU-R RR …`, `… OB.N …` | `#request_publication` | live `www.itu.int/pub/{R-REG-RR-YYYY \| T-SP-OB.N-YYYY}` |
-| `ITU-T …` | `#request_recommendation` | combined `index-v2`, live fallback |
-| `ITU-R …` | `#request_document` | combined `index-v2` |
+| `RadioRegulations` (`ITU-R RR (2020)`), `SpecialPublication` (`ITU-T OB.1096 (2016)`) | `#request_publication` | live `www.itu.int/pub/{R-REG-RR-YYYY \| T-SP-OB.N-YYYY}` |
+| sector `T` | `#request_recommendation` | combined `index-v2`, live fallback |
+| sector `R` (recommendation, report, handbook, question) | `#request_document` | combined `index-v2` |
+
+The caller's reference is parsed with `::Pubid::Itu.parse` in
+`Bibliography.get`/`.search`, and a `Pubid::Errors::ParseError` **propagates**
+(repo rule "An unrecognized query reference raises"). This replaced a local
+Parslet grammar, `Relaton::Itu::Pubid`, which ended in `any.repeat` and so
+silently dropped what it could not read (`ITU-T H.222.0 v10 (04/2025)` became
+`ITU-T H.222.0`). pubid #460 added the forms the local grammar had and pubid
+lacked: `RadioRegulations`, the OB sector and its ` - 15.III.2016` date, ITU's
+publication ids (`T-REC-T.4-200307-I`, `ITU-T REC T.4`) and `-YYYYMM` read as
+a date rather than a part. Forms neither parses well now **raise**: `ITU G.191`
+(no sector), `ITU-T G.Suppl.47` (the "Incorrect reference" hint is still
+logged first), `ITU-T OB. (2016)`.
 
 - **Publications** (Radio Regulations, Operational Bulletins) are **not** in the
   dataset, but their landing-page id is derivable from the reference, so no search
@@ -67,6 +79,41 @@ publication arm must come first):
   index has no annex rows and `getRecEditions` returns no `Annex` entries. Undated
   `ITU-R RR` / `OB.` references are also unresolvable: the `/pub` id needs a year
   and there is no enumeration source left to find the latest.
+- **Selecting the hits (`Bibliography.search_filter`)** keeps a hit when
+  `refid.matches?(hit_pubid, ignore: %i[year month day] (+ :version when neither
+  the reference nor the recommendation it amends names one))` **and**, for an
+  amending supplement, the supplement's **own** stated date equals the hit's
+  (`ignore:` drops the date at every level, so without that check
+  `ITU-T G.989.2 Amd. 1 (04/2016)` also kept the `(2019) Amd. 1 (10/2020)` row
+  and returned it). **Not `===`**: it reads a missing `subseries` as "any
+  value", so `ITU-T H.264` would keep `ITU-T H.264.1`. Measured against the old
+  local match over the 5,361-row index fixture (every row id as a hit, queried
+  by every row id and its undated and version-less forms, per `root.number`
+  bucket): the **only** changes are 194 `Cor.`/`Err.` pairs — a base reference
+  no longer keeps its own corrigenda and errata, and `Cor. 1` to one edition no
+  longer matches `Cor. 1` to another (the old grammar did not model `Cor.`/`Err.`
+  and stopped at the base's date — the ETSI-style defect). A hit code that does
+  not parse is data and is dropped. ITU-R hits carry no `:code`, so the filter
+  never sees them.
+- **The year a reference selects by (`Bibliography.edition_year`)** mirrors the
+  hit side, which reads the **first** date of the hit code: for an
+  `Amendment`/`Corrigendum`/`Errata`/`Addendum` it is the **base's** year
+  (`ITU-T G.989.2 (2014) Amd. 1 (04/2016)` → 2014; `ITU-T G.989.2 Amd. 1
+  (04/2016)` → none); for an `AnnexOfRecommendation`/`AppendixOfRecommendation`
+  the base's year when it has one, else its own (`ITU-T Z.100 (06/2021) Annex
+  F1` and `ITU-T Z.100 Annex F2 (06/2021)` → 2021); else the identifier's own.
+  `get(code, year)` adds `year` to a reference that has none, on the base for an
+  amending supplement. `Bibliography.document` names the recommendation an
+  amending supplement, annex or appendix belongs to — `Amendment` is a
+  `Supplement` subclass, so the lists are explicit: a supplement to a
+  recommendation (`ITU-T G.989 Suppl. 1`) is a document of its own, and
+  `rec.aspx` is asked for it, not for `G.989`.
+- **Other routes that must not reach a search:** an annex to a bulletin
+  (`Annex to ITU-T OB.1096 (2016)`, root a `SpecialPublication`) returns no
+  hit. A live edition's `rec_name` gets the crawler's
+  `DataParserT.normalize_rec_name` (`G 231` → `G.231`) before it becomes a hit
+  code, and `Scraper#createdocid` keeps a code pubid cannot parse as ITU wrote
+  it — both are data, so a parse failure there must not fail the record.
 - **Index hits are lazy.** `#index_hits` builds one `Hit` per matching row carrying
   `code:` (`row[:id].to_s` — the same dated docidentifier the data record holds),
   `url:` and `file:`; `Hit#item` branches on `:file` and calls
@@ -366,8 +413,7 @@ consumer-only load never pulls the crawler in.
   `recommendation-{supplement,amendment,corrigendum,annex}`, else `recommendation`).
   A browser `User-Agent` (`USER_AGENT`) is sent because `www.itu.int` sits behind
   the same F5 WAF. Forms `Pubid::Itu` can't parse (e.g. `Annex` variants) are still
-  written as data files but left unindexed and surfaced via `#report_errors`
-  (same graceful degradation as `ITU-R RR`).
+  written as data files but left unindexed and surfaced via `#report_errors`.
 - **ITU-T enrichment** (`DataParserT.parse(row, agent, errors)`) — the searchRecs
   row is metadata-thin (docid/title/date/source/doctype), so each record is
   enriched to match the live runtime output: `#fetch_recommendations` builds a
@@ -469,11 +515,11 @@ serialized to its `_type: pubid:itu:{recommendation,handbook,question,…}` hash
 `_type`, e.g. `sector: R`, `number: '600'`, `parts: ['1']`) that the published
 `relaton-data-itu` index-v2 carries (both sectors; `pubid:itu:supplement` and
 `pubid:itu:amendment` rows come with the ITU-T half). That flat shape + the handbook/question
-identifier types (and pubid #290's `matches?`/`exclude` fix) live on pubid `main`,
-which the root `Gemfile` **temporarily pins** (see the pubid-pin note there) — it is
-the same pubid that built the published index, so the flavor deserializes it (a
-mismatched pubid produces the older nested shape and `Relaton::Index` rejects the
-whole index).
+identifier types (and pubid #290's `matches?`/`exclude` fix) are in the released
+pubid; the query forms of #460 are not yet, so the root `Gemfile` **temporarily
+pins** pubid to the #460 merge (see the pin note in the root `CLAUDE.md`). A
+mismatched pubid produces a different `to_hash` shape and `Relaton::Index`
+rejects the whole index.
 The wiring mirrors NIST/ETSI/CIE:
 
 - **Producer** (`DataFetcher`): `#index` calls `find_or_create(:itu, file:
@@ -489,10 +535,11 @@ The wiring mirrors NIST/ETSI/CIE:
   labelled `Annex`es (#320), and — since **#325** — every remaining ITU-T print
   form the corpus carries: `Technical Cor.`, Appendices, `bis`/`ter`
   (`ITU-T V.25 ter`), the D-series `R` suffix, series supplements, joint
-  numbering, `Add. N`, and bare `v10`/`V2`/`v.1` versions. What the guard still
-  skips is `ITU-R RR` (Radio Regulations, which the consumer serves via
-  `#request_publication` anyway) and the malformed ITU-R docids described under
-  **Index/data gap** below. The **published** index predates #325, so the gap
+  numbering, `Add. N`, and bare `v10`/`V2`/`v.1` versions; since **#460** it also
+  parses `ITU-R RR` (`pubid:itu:radio-regulations`, `root.number` `"RR"`), so a
+  Radio Regulations record on disk now **indexes** (the consumer still serves RR
+  from `/pub`). What the guard still skips is the malformed ITU-R docids
+  described under **Index/data gap** below. The **published** index predates #325, so the gap
   closes on the next crawl. A skipped id is **not indexed** but
   its data file is still written; `#index_primary` records it in `#unparseable_ids`,
   and `#report_errors` (ISO-style) surfaces them at `:error` through the `gh_issue`
@@ -503,13 +550,10 @@ The wiring mirrors NIST/ETSI/CIE:
   pubid_class: ::Pubid::Itu::Identifier)` against the **combined** repo — one index
   serves both sectors — then `index.search(pubid) { |i| index_match?(pubid, i[:id]) }`.
   The reference is passed as a pubid (not a String) so `Relaton::Index` narrows by
-  document number (`id.root.number`) before the block. ITU-R parses via `#pubid_ref`
-  (a ref pubid can't parse **raises** and propagates to the caller — relaton-cli /
-  API callers rescue it — mirroring ETSI; the consumer no longer degrades to a
-  raw-string substring search); ITU-T parses via `#index_pubid_ref`, which strips
-  the edition date and **rescues** a parse failure to `nil`, because that path has
-  a live fallback and a malformed reference (`ITU-T G.Suppl.47`) must warn and
-  report "Not found", not raise.
+  document number (`id.root.number`) before the block. `HitCollection` receives
+  the reference already parsed (see **Runtime lookup**): ITU-R searches with
+  `ref` itself, ITU-T with `ref.exclude(:year, :month, :day)`, because every
+  edition is a candidate and `Bibliography` selects the year.
 - `#index_match?` delegates to pubid's structured `pubid.matches?(id, ignore:)`,
   ignoring `:parts` **only when the reference omits the part** — so a bare
   `ITU-R P.838` matches **every edition** (all `P.838-N`) while `ITU-R P.838-2`
@@ -555,14 +599,10 @@ The wiring mirrors NIST/ETSI/CIE:
   needs no `pubid_class:`: the delete never reads the index (see
   `lib/relaton/index/CLAUDE.md`).
 
-The local `Relaton::Itu::Pubid` (a Parslet **ref** parser in `pubid.rb`) is
-unrelated to the external `::Pubid::Itu` gem class used for indexing; both coexist
-without collision. It parses the caller's reference in `Bibliography.get` and
-`.search`, and each hit code in `.search_filter` and `Scraper#createdocid`, so
-its failure re-raises as `::Pubid::Errors::ParseError` (still a
-`Parslet::ParseFailed`, with the parslet cause kept): relaton-cli rescues
-`Pubid::Errors::Error`, and a plain Parslet error would crash the CLI. Inside
-the class write `::Pubid`, because a bare `Pubid` is the local class.
+There is **one** ITU parser, `::Pubid::Itu`: for the caller's reference, the
+hit codes (`Bibliography.search_filter`, `Scraper#createdocid`), the
+`Docidentifier` and the index. The local Parslet grammar `Relaton::Itu::Pubid`
+is gone (see **Runtime lookup**).
 
 ## Testing
 

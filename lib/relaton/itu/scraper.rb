@@ -112,11 +112,21 @@ module Relaton
           type = "ISO"
           text.match(/[^(]+/).to_s.strip.squeeze(" ")
         else
-          pubid = Pubid.parse(text)
-          type = pubid.prefix
-          pubid.to_s
+          type = "ITU"
+          canonical_id text
         end => id
         Docidentifier.new(type: type, content: id, primary: true)
+      end
+
+      # The pubid spelling of an ITU code. The code is data from ITU, so a
+      # form pubid cannot identify is kept as ITU wrote it.
+      #
+      # @param text [String]
+      # @return [String]
+      def canonical_id(text)
+        ::Pubid::Itu.parse(text).to_s
+      rescue ::Pubid::Errors::ParseError
+        text
       end
 
       # @return [Array<Relaton::Bib::Contributor>]

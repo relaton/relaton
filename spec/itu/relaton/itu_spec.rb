@@ -110,12 +110,13 @@ RSpec.describe Relaton::Itu do
       end
     end
 
+    # The hint names the spelling to use, and the reference still raises: it is
+    # not an identifier Pubid::Itu recognizes, and a nil would read as "not found".
     it "warn when supplement reference is incorrect" do
-      VCR.use_cassette "itu_t_g_suppl_47" do
-        expect do
-          Relaton::Itu::Bibliography.get "ITU-T G.Suppl.47"
-        end.to output(/Incorrect reference/).to_stderr_from_any_process
-      end
+      expect do
+        expect { Relaton::Itu::Bibliography.get "ITU-T G.Suppl.47" }
+          .to raise_error ::Pubid::Errors::ParseError
+      end.to output(/Incorrect reference.*ITU-T G Suppl\. 47/).to_stderr_from_any_process
     end
   end
 
