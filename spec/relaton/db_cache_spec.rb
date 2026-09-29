@@ -1,4 +1,5 @@
 require "fileutils"
+require "relaton/db"
 require "timeout"
 
 RSpec.describe Relaton::Db::Cache do
@@ -102,6 +103,20 @@ RSpec.describe Relaton::Db::Cache do
       cache.store pubid("ISO 19115-1:2014"), xml,
                   item_key: pubid("ISO 19115-1:2014")
       expect(cache.rows.size).to eq 1
+    end
+  end
+
+  context "when a stale file occupies the cache path" do
+    it "replaces it with a working cache directory" do
+      stale_path = "testcache-stale"
+      FileUtils.rm_rf stale_path
+      File.write stale_path, "XXX"
+      stale_cache = described_class.new stale_path
+      stale_cache[pubid("ISO 19115-1")] = xml
+      expect(File.directory?(stale_path)).to be true
+      expect(stale_cache[pubid("ISO 19115-1")]).to eq xml
+    ensure
+      FileUtils.rm_rf stale_path
     end
   end
 

@@ -43,6 +43,10 @@ module Relaton
       # @param dir [String] cache directory
       def initialize(dir)
         @dir = dir
+        # A stale file at the cache path (e.g. a placeholder left by cache
+        # migration flows) makes every write raise Errno::EEXIST; replace
+        # it with the cache directory.
+        FileUtils.rm_rf dir if File.exist?(dir) && !File.directory?(dir)
         archive_old_layout
         open_stores
         check_versions
