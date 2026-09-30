@@ -12,6 +12,7 @@ module Relaton
       def initialize
         @short = :relaton_adobe
         @prefix = "Adobe"
+        @pubid_identifier = :Adobe # Db cache key
         @defaultprefix = %r{^(?:Adobe|ATN)}
         @idtype = "Adobe"
       end
@@ -19,6 +20,14 @@ module Relaton
       def get(code, date, opts)
         require_relative "../adobe"
         Bibliography.get(code, date, opts)
+      end
+
+      # `Bibliography.get` reads a reference pubid cannot parse as a miss
+      # (`pubid_for`), so it gets no key here either: it is not cached.
+      def cache_pubid(ref)
+        super
+      rescue StandardError
+        nil
       end
 
       def from_xml(xml)

@@ -99,8 +99,8 @@ module Relaton
       result = []
       db = @db || @local_db
       if db
-        result += db.all do |file, xml|
-          search_xml file, xml, text, edition, year
+        result += db.all do |processor, xml|
+          search_xml processor, xml, text, edition, year
         end.compact
       end
       result
@@ -205,17 +205,15 @@ module Relaton
       opts.merge(code: code, year: year).map { |k, v| "#{k}=#{v}" }.join "&"
     end
 
-    def search_xml(file, xml, text, edition, year)
+    def search_xml(processor, xml, text, edition, year)
+      return unless processor
       return unless text.nil? || match_xml_text?(xml, text)
 
-      search_edition_year(file, xml, edition, year)
+      search_edition_year(processor, xml, edition, year)
     end
 
-    def search_edition_year(file, content, edition, year) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-      processor = @registry.processor_by_ref(file.split("/")[-2])
-      item = if file.match?(/xml$/) then processor.from_xml(content)
-             else processor.from_yaml(content)
-             end
+    def search_edition_year(processor, content, edition, year) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+      item = processor.from_xml(content)
       item if (edition.nil? || item.edition.content == edition) && (year.nil? ||
         item.date.detect do |d|
           d.type == "published" && d.at.to_date.year.to_s == year.to_s
@@ -250,7 +248,9 @@ module Relaton
       if updates
         doc.relation << Bib::Relation.new(bibitem: updates, type: "updates")
       end
-      divider = stdclass == :relaton_itu ? " " : "/"
+      # The supplement joins its base as the flavor's identifier spells it:
+      # `NIST SP 800-38A Add`, not `/Add`, which pubid does not parse.
+      divider = %i[relaton_itu relaton_nist].include?(stdclass) ? " " : "/"
       refs[1..].each_with_object(doc) do |c, d|
         bib = check_bibliocache(ref + divider + c, year, opts, stdclass)
         if bib
@@ -261,16 +261,50 @@ module Relaton
       end
     end
 
+    # The legacy string cache key, for a processor with no pubid class. The
+    # publication date range is not part of it: it filters, it is not
+    # identity.
     def std_id(code, year, opts, stdclass)
       prefix, code = strip_id_wrapper(code, stdclass)
       ret = code
       ret += (stdclass == :relaton_gb ? "-" : ":") + year if year
       ret += " (all parts)" if opts[:all_parts]
-      after = opts[:publication_date_after]
-      ret += " after-#{after}" if after
-      before = opts[:publication_date_before]
-      ret += " before-#{before}" if before
       ["#{prefix}(#{ret.strip})", code]
+    end
+
+    #
+    # The cache key of a query: the flavor's parsed pubid, with the `year`
+    # and `all_parts` options folded in. A reference the flavor cannot parse
+    # raises `Pubid::Errors::ParseError`. Nil when the flavor has a pubid
+    # class but gives no key for this query (a miss by the flavor's own rule,
+    # or a query whose answer the cache cannot hold, such as a CCSDS format):
+    # that query is not cached. A processor with no pubid class gets the
+    # legacy string key.
+    #
+    # @return [Pubid::Identifier, String, nil]
+    #
+    def cache_key(code, year, opts, stdclass)
+      processor = @registry[stdclass]
+      unless processor.pubid_class
+        return std_id(code, year, opts, stdclass).first
+      end
+
+      processor.cache_key(code, year, opts)
+    end
+
+    # The key of a fetched document, from its primary identifier. The
+    # identifier is data, so an unparseable one gives no key.
+    def item_key(bib, stdclass)
+      docid = bib.docidentifier.detect(&:primary) || bib.docidentifier.first
+      return unless docid&.content
+
+      cache_key docid.content, nil, {}, stdclass
+    rescue ::Pubid::Errors::Error, Parslet::ParseFailed
+      nil
+    end
+
+    def date_range?(opts)
+      opts[:publication_date_before] || opts[:publication_date_after]
     end
 
     def strip_id_wrapper(code, stdclass)
@@ -290,23 +324,9 @@ module Relaton
     end
 
     def check_bibliocache(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
-      if opts[:publication_date_before] || opts[:publication_date_after]
-        base_opts = opts.except(
-          :publication_date_before, :publication_date_after
-        )
-        base_id, = std_id(code, year, base_opts, stdclass)
-        db = @local_db || @db
-        if db&.valid_entry?(base_id, year)
-          entry = db[base_id]
-          if entry && !entry.match?(/^not_found/) &&
-              pub_date_in_range?(entry, opts)
-            return bib_retval(entry, stdclass)
-          end
-        end
-      end
-
-      id, searchcode = std_id(code, year, opts, stdclass)
-      db = @local_db || @db
+      _, searchcode = strip_id_wrapper(code, stdclass)
+      id = cache_key(searchcode, year, opts, stdclass)
+      db = id && (@local_db || @db)
       altdb = @local_db && @db ? @db : nil
       if db.nil?
         return if opts[:fetch_db]
@@ -314,10 +334,11 @@ module Relaton
         bibentry = new_bib_entry(searchcode, year, opts, stdclass)
         return bib_retval(bibentry, stdclass)
       end
-
-      @semaphore.synchronize do
-        db.delete(id) unless db.valid_entry?(id, year)
+      if date_range?(opts)
+        return check_date_range(searchcode, id, year, opts, stdclass)
       end
+
+      @semaphore.synchronize { db.expire id, year }
       if altdb
         return bib_retval(altdb[id], stdclass) if opts[:fetch_db]
 
@@ -350,28 +371,60 @@ module Relaton
       entry
     end
 
-    def fetch_entry(code, year, opts, stdclass, **args)
+    def fetch_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize
       processor = @registry[stdclass]
       bib = net_retry(code, year, opts, processor, opts.fetch(:retries, 1))
-
-      entry = check_entry(bib, stdclass, **args)
+      entry = bib_entry bib
       return entry if args[:db].nil?
 
-      @semaphore.synchronize { args[:db][args[:id]] ||= entry }
-      args[:no_cache] ? bib_entry(bib) : entry
+      # `no_cache` refreshes a cached entry, but a failed fetch does not
+      # replace a cached document with `not_found`.
+      refresh = opts[:no_cache] && bib.respond_to?(:to_xml)
+      @semaphore.synchronize do
+        if refresh || !args[:db][args[:id]]
+          save_bib args[:db], args[:id], bib, entry, stdclass
+        end
+      end
+      entry
     end
 
-    def check_entry(bib, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-      bib_id = bib && bib.docidentifier.first&.content
+    #
+    # Cache a fetched document. The document's own identifier gets a row;
+    # when the query key differs from it (an undated or incomplete query),
+    # the query gets a row that points to the same document.
+    #
+    def save_bib(db, key, bib, entry, stdclass)
+      item = bib.respond_to?(:docidentifier) && item_key(bib, stdclass)
+      db.store key, entry, item_key: item || nil
+    end
 
-      quoted = Regexp.quote("(#{bib_id})")
-      if args[:db] && args[:id] && bib_id &&
-          args[:id] !~ /#{quoted}/
-        bid = std_id(bib.docidentifier.first.content, nil, {}, stdclass).first
-        @semaphore.synchronize { args[:db][bid] ||= bib_entry bib }
-        "redirection #{bid}"
-      else bib_entry bib
+    #
+    # A publication date range selects among the cached editions of the
+    # reference, so it is not part of the key. On a miss the flavor is asked
+    # with the range, and its answer is cached under its own identifier only:
+    # the query row keeps pointing to the latest edition.
+    #
+    def check_date_range(code, key, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+      caches = [@local_db, @db].compact
+      cached = caches.flat_map { |c| c.candidates(key) }.filter_map do |_, xml|
+        date = published_date(xml)
+        [date, xml] if date && pub_date_in_range?(xml, opts)
+      end.max_by(&:first)
+      return bib_retval(cached.last, stdclass) if cached && !opts[:no_cache]
+      return if opts[:fetch_db]
+
+      processor = @registry[stdclass]
+      bib = net_retry(code, year, opts, processor, opts.fetch(:retries, 1))
+      return unless bib.respond_to?(:to_xml)
+
+      entry = bib_entry bib
+      item = item_key(bib, stdclass)
+      if item
+        @semaphore.synchronize do
+          [@local_db, @db].compact.each { |c| c.store item, entry }
+        end
       end
+      bib_retval entry, stdclass
     end
 
     def net_retry(code, year, opts, processor, retries)
@@ -390,19 +443,25 @@ module Relaton
       end
     end
 
-    def pub_date_in_range?(entry, opts) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-      doc = Moxml.parse(entry)
-      date_str = doc.at_xpath("//date[@type='published']/on")&.text
-      return false unless date_str
+    # @param entry [String] document XML
+    # @return [Date, nil] the published date
+    def published_date(entry)
+      date_str = Moxml.parse(entry)
+        .at_xpath("//date[@type='published']/on")&.text
+      date_str && parse_pub_date(date_str)
+    end
 
-      date = parse_pub_date(date_str)
+    def pub_date_in_range?(entry, opts) # rubocop:disable Metrics/CyclomaticComplexity
+      date = published_date(entry)
       return false unless date
 
+      # `parse_pub_date`, not `Date.parse`: a bound may be "YYYY" or
+      # "YYYY-MM", which `Date.parse` rejects.
       after = opts[:publication_date_after]
-      return false if after && date < Date.parse(after.to_s)
+      return false if after && date < parse_pub_date(after.to_s)
 
       before = opts[:publication_date_before]
-      return false if before && date >= Date.parse(before.to_s)
+      return false if before && date >= parse_pub_date(before.to_s)
 
       true
     end
@@ -417,18 +476,8 @@ module Relaton
       nil
     end
 
-    def open_cache_biblio(dir) # rubocop:disable Metrics/MethodLength
-      return nil if dir.nil?
-
-      db = Cache.new dir
-
-      Dir["#{dir}/*/"].each do |fdir|
-        next if db.check_version?(fdir)
-
-        FileUtils.rm_rf(fdir, secure: true)
-        Util.info "cache #{fdir}: version is obsolete and cache is cleared."
-      end
-      db
+    def open_cache_biblio(dir)
+      dir && Cache.new(dir)
     end
 
     def process_queue(qwp)

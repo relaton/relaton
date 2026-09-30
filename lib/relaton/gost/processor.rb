@@ -12,6 +12,7 @@ module Relaton
       def initialize
         @short = :relaton_gost
         @prefix = "GOST"
+        @pubid_identifier = :Gost # Db cache key
         # Both Latin "GOST" and Cyrillic "ГОСТ" route here. The trailing
         # \b keeps the prefix from swallowing longer tokens ("GOSTA …").
         @defaultprefix = %r{^(?:GOST|ГОСТ)\b}

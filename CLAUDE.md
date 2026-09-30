@@ -97,6 +97,20 @@ fallback** to the `index-vN.zip` — a transport failure raises
 so far (`Bibliography::PAGES_URL`); the other flavors still read the zip until
 their Pages sites publish a manifest. See `lib/relaton/index/CLAUDE.md`.
 
+**The `Db` cache is keyed by pubid (relaton#189 item 2, #204).** `Db::Cache`
+is an index on two lutaml-store `FileSystem` stores (`<dir>/v2/{rows,docs}`),
+bucketed by `<flavor>/<root number>`, with no string-derived file names and no
+redirect entries: a query row and the fetched document's own row point to one
+file. The key is `Core::Processor#cache_key` — the reference parsed **as
+written** by the routed flavor's pubid class, with `year`/`all_parts` folded
+in; the publication date range is not in it. **Only canonical references are
+accepted:** relaton does not rewrite `I-D.…`, `BIPM Metrologia …`, a W3C URL,
+`NIST … (IPD)` and the like any more, so `Db#fetch` raises for them (the
+published data carries canonical ids only). An old cache is moved
+to `<dir>-v1.bak`, never deleted. Pin `lutaml-store ~> 0.3.2`: 0.3.0's adapter
+had no thread/process exclusion (lutaml/lutaml-store#17). See
+`lib/relaton/db/CLAUDE.md`.
+
 **Crawl politeness lives in `core`, bindings live in the flavor.** Two shared
 components under `lib/relaton/core/` carry the "don't get banned, don't burn the
 CI job" logic that more than one crawler needs: **`Pacer`** (one shared request
@@ -426,6 +440,9 @@ regex back.
   `lib/relaton.rb`, add the prefix to `Relaton::Db::Registry::SUPPORTED_GEMS`,
   add its external deps to `relaton.gemspec`, put `<flavor>(-compile).rng` in
   `grammar/`, add specs under `spec/<flavor>/`, and a `lib/relaton/<flavor>/CLAUDE.md`.
+  For the `Db` cache key, the processor sets `@pubid_flavor` (or
+  `@pubid_identifier`, which leaves `#prefixes` alone); it overrides
+  `cache_pubid` only when `get` reads an unparseable reference as a miss.
 - **Index-file constant.** A flavor that publishes an index names it with a single
   `INDEXFILE = "index-vN"` constant (one word, **no extension**) in its top-level
   `lib/relaton/<flavor>.rb`; call sites append `.yaml`/`.zip` (`"#{INDEXFILE}.yaml"`,

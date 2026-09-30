@@ -10,6 +10,7 @@ module Relaton
       def initialize # rubocop:disable Lint/MissingSuper
         @short = :relaton_jis
         @prefix = "JIS"
+        @pubid_identifier = :Jis # Db cache key
         @defaultprefix = %r{^(JIS|TR)\s}
         @idtype = "JIS"
         @datasets = %w[jis-webdesk]

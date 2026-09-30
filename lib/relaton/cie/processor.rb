@@ -6,6 +6,7 @@ module Relaton
       def initialize # rubocop:disable Lint/MissingSuper
         @short = :relaton_cie
         @prefix = "CIE"
+        @pubid_identifier = :Cie # Db cache key
         @defaultprefix = /^CIE(-|\s)/
         @idtype = "CIE"
         @datasets = %w[cie-techstreet]

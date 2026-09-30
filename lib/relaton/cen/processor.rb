@@ -20,6 +20,11 @@ module Relaton
         ::Relaton::Cen::Bibliography.get(code, date, opts)
       end
 
+      # `Bibliography.get` applies a year to the document the reference names.
+      def fold_year(pubid, year)
+        fold_year_on_root pubid, year
+      end
+
       # @param xml [String]
       # @return [Relaton::Cen::ItemData]
       def from_xml(xml)

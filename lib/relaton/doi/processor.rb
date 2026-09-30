@@ -8,6 +8,7 @@ module Relaton
       def initialize # rubocop:disable Lint/MissingSuper
         @short = :relaton_doi
         @prefix = "DOI"
+        @pubid_identifier = :Doi # Db cache key
         @defaultprefix = %r{^doi:}
         @idtype = "DOI"
       end

@@ -8,6 +8,7 @@ module Relaton
       def initialize # rubocop:disable Lint/MissingSuper
         @short = :relaton_isbn
         @prefix = "ISBN"
+        @pubid_identifier = :Isbn # Db cache key
         @defaultprefix = /^ISBN\s/
         @idtype = "ISBN"
         @datasets = %w[]
@@ -20,6 +21,15 @@ module Relaton
       def get(code, date, opts)
         require_relative "../isbn"
         ::Relaton::Isbn::OpenLibrary.get(code, date, opts)
+      end
+
+      # `OpenLibrary.get` reads an incorrect ISBN as a miss, so a reference
+      # pubid cannot parse (it checks the check digit too) gets no key here
+      # either: it is not cached.
+      def cache_pubid(ref)
+        super
+      rescue StandardError
+        nil
       end
 
       #

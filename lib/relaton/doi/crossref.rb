@@ -18,7 +18,9 @@ module Relaton
       #
       def get(doi)
         Util.info "Fetching from search.crossref.org ...", key: doi
-        id = doi.sub(%r{^doi:}, "")
+        # Every form Pubid::Doi reads as this DOI (Relaton::Db keys them as
+        # one), so a miss on one form is not cached for the others.
+        id = doi.sub(%r{\A(?:doi:|https?://(?:dx\.)?doi\.org/)}i, "")
         message = get_by_id id
         if message
           Util.info "Found: `#{message['DOI']}`", key: doi

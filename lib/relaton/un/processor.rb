@@ -10,6 +10,7 @@ module Relaton
       def initialize
         @short = :relaton_un
         @prefix = "UN"
+        @pubid_identifier = :Un # Db cache key
         @defaultprefix = %r{^UN\s}
         @idtype = "UN"
       end

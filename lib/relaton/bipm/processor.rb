@@ -8,6 +8,7 @@ module Relaton
       def initialize
         @short = :relaton_bipm
         @prefix = "BIPM"
+        @pubid_identifier = :Bipm # Db cache key
         @defaultprefix = %r{^(?:BIPM|CCTF|CCDS|CGPM|CIPM|JCRB)(?!\w)}
         @idtype = "BIPM"
         @datasets = %w[bipm-data-outcomes bipm-si-brochure rawdata-bipm-metrologia]

@@ -8,6 +8,7 @@ module Relaton
       def initialize
         @short = :relaton_iho
         @prefix = "IHO"
+        @pubid_identifier = :Iho # Db cache key
         @defaultprefix = %r{^IHO\s}
         @idtype = "IHO"
       end

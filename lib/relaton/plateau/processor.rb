@@ -8,6 +8,7 @@ module Relaton
       def initialize # rubocop:disable Lint/MissingSuper
         @short = :relaton_plateau
         @prefix = "PLATEAU"
+        @pubid_identifier = :Plateau # Db cache key
         @defaultprefix = /^PLATEAU\s/
         @idtype = "PLATEAU"
         @datasets = %w[plateau-handbooks plateau-technical-reports]

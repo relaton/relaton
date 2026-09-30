@@ -5,6 +5,18 @@ describe Relaton::Doi::Crossref do
     expect(described_class.get("doi:10.6028/nist.ir.8245")).to eq :bibitem
   end
 
+  # Relaton::Db keys a DOI with Pubid::Doi, which reads these forms as one
+  # DOI; the flavor must answer them alike, or a miss on one form is cached
+  # as `not_found` for all of them.
+  %w[DOI:10.6028/nist.ir.8245 https://doi.org/10.6028/nist.ir.8245
+     http://dx.doi.org/10.6028/nist.ir.8245].each do |ref|
+    it "asks Crossref for the DOI itself of #{ref}" do
+      expect(described_class).to receive(:get_by_id)
+        .with("10.6028/nist.ir.8245").and_return(nil)
+      described_class.get(ref)
+    end
+  end
+
   context "get_by_id" do
     let(:agent) { instance_double(Mechanize) }
 
