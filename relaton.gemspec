@@ -47,7 +47,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "algolia", "~> 2.3.0"
   spec.add_dependency "base64", ">= 0"
   spec.add_dependency "bibtex-ruby", ">= 0"
-  spec.add_dependency "liquid", ">= 0"
   spec.add_dependency "cnccs", "~> 0.1.1"
   spec.add_dependency "concurrent-ruby", "~> 1.0"
   spec.add_dependency "csv", "~> 3.3"
