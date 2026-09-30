@@ -152,6 +152,26 @@ module Relaton
         Converter::Bibtex.from_item(self).to_s
       end
 
+      def to_ris
+        Converter::Ris.from_item(self)
+      end
+
+      def to_csl_json
+        Converter::Csl.from_item(self)
+      end
+
+      def to_iso690
+        Converter::Citation.iso690(self)
+      end
+
+      def to_chicago
+        Converter::Citation.chicago(self)
+      end
+
+      def to_apa
+        Converter::Citation.apa(self)
+      end
+
       def to_asciibib
         Converter::Asciibib.from_item(self)
       end

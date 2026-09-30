@@ -19,6 +19,16 @@ require_relative "bib/model/bibdata"
 require_relative "bib/converter/bibxml"
 require_relative "bib/converter/bibtex"
 require_relative "bib/converter/asciibib"
+
+module Relaton
+  module Bib
+    module Converter
+      autoload :Ris, "relaton/bib/converter/ris"
+      autoload :Csl, "relaton/bib/converter/csl"
+      autoload :Citation, "relaton/bib/converter/citation"
+    end
+  end
+end
 require_relative "bib/model/relation"
 
 module Relaton
