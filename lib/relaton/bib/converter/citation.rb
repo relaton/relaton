@@ -14,43 +14,58 @@ module Relaton
       # liquid templates plus a name form in styles.yml — adding a style
       # adds files, never engine code (Citation.register for
       # out-of-gem styles).
+      # A citation style is a capsule: a directory with style.yml (its
+      # name form) and templates/ (liquid, keyed by resource type). The
+      # engine discovers capsules under formats/ and treats a registered
+      # external capsule identically — including the ItemData#to_#{style}
+      # delegate — so built-ins and extensions are indistinguishable and
+      # adding a style edits no existing file.
       module Citation
-        TEMPLATES_DIR = File.expand_path("citation/templates", __dir__)
-        STYLES_FILE = File.expand_path("citation/styles.yml", __dir__)
+        FORMATS_DIR = File.expand_path("citation/formats", __dir__)
 
         class << self
           def profiles
-            @profiles ||= YAML.load_file(STYLES_FILE)
-                              .to_h { |style, cfg| [style.to_sym, cfg.transform_keys(&:to_sym)] }
+            @profiles ||= {}
           end
 
-          def iso690(item) = render(item, style: :iso690)
+          def styles
+            profiles.keys
+          end
 
-          def chicago(item) = render(item, style: :chicago)
-
-          def apa(item) = render(item, style: :apa)
-
-          def render(item, style:, profile: nil)
-            cfg = profile || profiles.fetch(style) do
+          def render(item, style:)
+            profile = profiles.fetch(style.to_sym) do
               raise ArgumentError, "unknown citation style: #{style}"
             end
-            components = Components.new(item, name_format: cfg.fetch(:name_format))
+            components = Components.new(item, name_format: profile.fetch(:name_format))
             fields = components.fields
-            template = Liquid::Template.parse(template_for(style, fields[:type_key], cfg))
+            template = Liquid::Template.parse(template_for(fields[:type_key], profile))
             cleanup(template.render(fields.transform_keys(&:to_s)))
           end
 
-          # Registers an out-of-gem style: its name form and a directory
-          # of liquid templates keyed by resource type. The engine and
-          # built-in styles are untouched.
           def register(style, name_format:, templates_dir:)
             profiles[style.to_sym] = { name_format:, templates_dir: }
+            define_item_delegate(style.to_sym)
           end
 
           private
 
-          def template_for(style, type_key, cfg)
-            dir = cfg[:templates_dir] || File.join(TEMPLATES_DIR, style.to_s)
+          def discover!
+            Dir[File.join(FORMATS_DIR, "*", "style.yml")].each do |manifest|
+              dir = File.dirname(manifest)
+              register(File.basename(dir).to_sym,
+                name_format: YAML.load_file(manifest).fetch("name_format"),
+                templates_dir: File.join(dir, "templates"))
+            end
+          end
+
+          def define_item_delegate(style)
+            return if Relaton::Bib::ItemData.method_defined?(:"to_#{style}")
+
+            Relaton::Bib::ItemData.define_method(:"to_#{style}") { Citation.render(self, style:) }
+          end
+
+          def template_for(type_key, profile)
+            dir = profile[:templates_dir]
             specific = File.join(dir, "#{type_key}.liquid")
             path = File.exist?(specific) ? specific : File.join(dir, "default.liquid")
             File.read(path)
@@ -63,13 +78,17 @@ module Relaton
           end
         end
 
+        discover!
+
         # Extracts the ISO 690 component inventory from a Relaton item as
         # display-ready values. One citation language, decomposed title
         # composition, primary identifier; names are formatted per the
         # style's name form so templates stay pure placement.
         class Components
+          # Name forms are the second extension surface: a capsule's
+          # style.yml names one, new forms register here.
           NAME_FORMATS = {
-            "surname_initials" => ->(n) { iso690_name(n) },
+            "surname_initials" => ->(n) { "#{n[:family]}, #{initials(n[:given])}" },
             "family_given" => ->(n) { "#{n[:family]}, #{n[:given]}" },
             "family_initials" => ->(n) { "#{n[:family]}, #{initials(n[:given])}" },
           }.freeze
@@ -96,12 +115,6 @@ module Relaton
               org_authors: org_author_names,
               access_url: source_uri,
             }.transform_values { |v| v.respond_to?(:empty?) && v.empty? ? nil : v }
-          end
-
-          def self.iso690_name(name_parts)
-            return "" unless name_parts[:family]
-
-            "#{name_parts[:family]}, #{initials(name_parts[:given])}"
           end
 
           def self.initials(given)
