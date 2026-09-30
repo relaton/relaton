@@ -18,6 +18,17 @@ describe Relaton::Isbn::OpenLibrary do
       end.to output(include("[relaton-isbn] INFO: (ISBN 9780120644810) Not found.")).to_stderr_from_any_process
     end
 
+    it "accepts a parsed pubid, ISBN-13 or ISBN-10" do
+      require "pubid"
+      { "ISBN 978-0-306-40615-7" => "9780306406157",
+        "ISBN 0-306-40615-2" => "9780306406157" }.each do |ref, isbn13|
+        pubid = Pubid::Isbn::Identifier.parse ref
+        expect(described_class).to receive(:request_api).with(isbn13)
+          .and_return nil
+        expect(described_class.get(pubid)).to be_nil
+      end
+    end
+
     it "incorrect ISBN" do
       expect do
         expect(described_class).not_to receive(:request_api)
