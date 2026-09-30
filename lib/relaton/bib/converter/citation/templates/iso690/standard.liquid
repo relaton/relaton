@@ -1,0 +1,1 @@
+{% if docid %}{{ docid }}, {% endif %}{{ title }}{% if edition %}. Edition {{ edition }}{% endif %}{% if publisher %}. {{ publisher }}{% if year %}, {{ year }}{% endif %}{% else %}{% if year %}. {{ year }}{% endif %}{% endif %}.

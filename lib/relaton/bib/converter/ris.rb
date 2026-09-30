@@ -79,14 +79,7 @@ module Relaton
           end
 
           def primary_title
-            titles = Array(@item.title).select { |t| t.content.to_s != "" }
-            intro = titles.find { |t| t.type == "title-intro" }
-            main = titles.find { |t| t.type == "title-main" }
-            part = titles.find { |t| t.type == "title-part" }
-            composite = titles.find { |t| t.type == "main" }
-            base = [intro&.content.to_s, main&.content.to_s].reject(&:empty?)
-            base = [composite&.content.to_s].compact if base.empty?
-            base.push(part&.content.to_s).reject(&:empty?).join(" — ")
+            Citation::Components.title_of(@item)
           end
 
           def primary_docid

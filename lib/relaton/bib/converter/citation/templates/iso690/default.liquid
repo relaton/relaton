@@ -1,0 +1,1 @@
+{% if authors.size > 0 %}{{ authors | join: " ; " }}. {% else %}{% if org_authors.size > 0 %}{{ org_authors | first }}. {% else %}{% if docid %}{{ docid }}. {% endif %}{% endif %}{% endif %}{{ title }}{% if edition %}. Edition {{ edition }}{% endif %}{% if publisher %}. {{ publisher }}{% if year %}, {{ year }}{% endif %}{% else %}{% if year %}. {{ year }}{% endif %}{% endif %}.

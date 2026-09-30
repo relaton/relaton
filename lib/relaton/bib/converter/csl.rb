@@ -85,9 +85,7 @@ module Relaton
           end
 
           def primary_title
-            titles = Array(@item.title).select { |t| t.content.to_s != "" }
-            en = titles.find { |t| t.language.to_s == "eng" || t.language.to_s == "en" }
-            (en || titles.first)&.content.to_s
+            Citation::Components.title_of(@item)
           end
 
           def primary_docid
