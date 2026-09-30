@@ -8,23 +8,27 @@ module Relaton
 
       ENDPOINT = "http://openlibrary.org/api/volumes/brief/isbn/".freeze
 
-      def get(ref, _date = nil, _opts = {}) # rubocop:disable Metrics/MethodLength
-        Util.info "Fetching from OpenLibrary ...", key: ref
+      # @param ref [String, Pubid::Isbn::Identifier] an ISBN-10 or ISBN-13
+      # @return [Relaton::Bib::ItemData, nil]
+      def get(ref, _date = nil, _opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+        Util.info "Fetching from OpenLibrary ...", key: ref.to_s
 
-        isbn = Isbn.new(ref).parse
+        # A parsed pubid gives its digits (`raw`); `Isbn#parse` validates them
+        # and converts an ISBN-10 to ISBN-13, as for a String.
+        isbn = Isbn.new(ref.is_a?(String) ? ref : ref.raw).parse
         unless isbn
-          Util.info "Incorrect ISBN.", key: ref
+          Util.info "Incorrect ISBN.", key: ref.to_s
           return
         end
 
         resp = request_api isbn
         unless resp
-          Util.info "Not found.", key: ref
+          Util.info "Not found.", key: ref.to_s
           return
         end
 
         bib = Parser.parse resp
-        Util.info "Found: `#{bib.docidentifier.first.content}`", key: ref
+        Util.info "Found: `#{bib.docidentifier.first.content}`", key: ref.to_s
         bib
       end
 

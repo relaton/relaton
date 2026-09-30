@@ -24,7 +24,11 @@ rubocop -a                     # Lint with auto-correct
 
 Key classes in `lib/relaton/doi/`:
 
-- **`Crossref`** — module with `get(doi)` and `get_by_id(id)`. Uses **Mechanize** (`Mechanize.new` with a custom `USER_AGENT`). `get_by_id` retries twice, backing off by `x-rate-limit-interval * n`, then raises `Relaton::RequestError`; only a 404 returns nil.
+- **`Crossref`** — module with `get(doi)` and `get_by_id(id)`. `get` takes a
+  String or a parsed `Pubid::Doi::Identifier`; `doi_of` reduces either to the
+  bare `prefix/suffix` the API takes. It strips a `doi:` scheme in any case
+  and a `doi.org` URL, because `Relaton::Db` keys all of those as one DOI — a
+  form this method did not read would get a miss cached for the others. Uses **Mechanize** (`Mechanize.new` with a custom `USER_AGENT`). `get_by_id` retries twice, backing off by `x-rate-limit-interval * n`, then raises `Relaton::RequestError`; only a 404 returns nil.
 - **`Parser`** — largest file (~827 lines). Converts Crossref JSON hashes to Relaton objects. Factory method `parse(src)` delegates to `create_bibitem` which picks the right ItemData class based on DOI pattern (`/nist/` → `Nist::ItemData`, `/rfc\d+/` → `Ietf::ItemData`, etc.). Contains ~30 `parse_*` helper methods for individual bibliographic fields.
 - **`Processor`** — `Relaton::Processor` subclass for the Relaton registry system. Entry point for `get`, `from_xml`, `hash_to_bib`.
 - **`Util`** — logging utility, extends `Relaton::Bib::Util` with `PROGNAME = "relaton-doi"`.

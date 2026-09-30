@@ -10,25 +10,40 @@ module Relaton
       #
       # Get a document by DOI from the CrossRef API.
       #
-      # @param [String] doi The DOI.
+      # @param [String, Pubid::Doi::Identifier] doi The DOI.
       #
       # @return [RelatonBib::BibliographicItem, RelatonIetf::IetfBibliographicItem,
       #   RelatonBipm::BipmBibliographicItem, RelatonIeee::IeeeBibliographicItem,
       #   RelatonNist::NistBibliographicItem] The bibitem.
       #
       def get(doi)
-        Util.info "Fetching from search.crossref.org ...", key: doi
-        # Every form Pubid::Doi reads as this DOI (Relaton::Db keys them as
-        # one), so a miss on one form is not cached for the others.
-        id = doi.sub(%r{\A(?:doi:|https?://(?:dx\.)?doi\.org/)}i, "")
-        message = get_by_id id
+        key = doi.to_s
+        Util.info "Fetching from search.crossref.org ...", key: key
+        message = get_by_id doi_of(doi)
         if message
-          Util.info "Found: `#{message['DOI']}`", key: doi
+          Util.info "Found: `#{message['DOI']}`", key: key
           Parser.parse message
         else
-          Util.info "Not found.", key: doi
+          Util.info "Not found.", key: key
           nil
         end
+      end
+
+      #
+      # The DOI itself (`<prefix>/<suffix>`), as the Crossref API takes it.
+      #
+      # A parsed pubid gives it from its components. A String may carry a
+      # `doi:` scheme (in any case) or a `doi.org` URL: Relaton::Db keys every
+      # form Pubid::Doi reads as one DOI, so all of them must reach the same
+      # DOI here, or a miss on one form is cached for the others.
+      #
+      # @param [String, Pubid::Doi::Identifier] doi
+      # @return [String]
+      #
+      def doi_of(doi)
+        return "#{doi.prefix}/#{doi.suffix}" unless doi.is_a?(String)
+
+        doi.sub(%r{\A(?:doi:|https?://(?:dx\.)?doi\.org/)}i, "")
       end
 
       #

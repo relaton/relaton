@@ -5,6 +5,14 @@ describe Relaton::Doi::Crossref do
     expect(described_class.get("doi:10.6028/nist.ir.8245")).to eq :bibitem
   end
 
+  it "accepts a parsed pubid" do
+    require "pubid"
+    pubid = Pubid::Doi::Identifier.parse "doi:10.6028/nist.ir.8245"
+    expect(described_class).to receive(:get_by_id)
+      .with("10.6028/nist.ir.8245").and_return(nil)
+    described_class.get(pubid)
+  end
+
   # Relaton::Db keys a DOI with Pubid::Doi, which reads these forms as one
   # DOI; the flavor must answer them alike, or a miss on one form is cached
   # as `not_found` for all of them.

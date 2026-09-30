@@ -19,6 +19,8 @@ bin/console                                # IRB with gem loaded
 
 Request flow: `OpenLibrary.get(code)` → `Isbn.new(code).parse` (validates/normalizes ISBN) → `OpenLibrary.request_api(isbn)` (HTTP to openlibrary.org) → `Parser.parse(json)` (builds `ItemData`)
 
+`get` also takes a parsed `Pubid::Isbn::Identifier`: its digits (`raw`, 10 or 13) go through the same `Isbn#parse`.
+
 Key modules under `Relaton::Isbn`:
 - **OpenLibrary** — API client, main entry point via `.get`
 - **Isbn** — ISBN-10/13 validation and conversion (always normalizes to ISBN-13)

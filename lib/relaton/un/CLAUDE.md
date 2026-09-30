@@ -44,6 +44,16 @@ Bib::Item (from relaton-bib)
         └── Relaton::Un::Bibdata   # includes Bib::BibdataShared (for <bibdata> XML)
 ```
 
+### Lookup
+
+`Bibliography.get` takes a String (`UN TRADE/CEFACT/2004/32`, the `UN ` token
+optional) or a parsed `Pubid::Un::Identifier`, which renders the document
+symbol without the token (`TRADE/CEFACT/2004/32`) — the form the UN data
+itself writes. Either becomes the symbol the search matches (`document_symbol`).
+`Relaton::Db` still routes UN by the `UN ` prefix: `Pubid::Un` also parses
+many bare DOIs (`10.6028/NIST.IR.8245`, pubid/pubid#465), so UN is not on
+`Registry::PARSE_ROUTED_FLAVORS`.
+
 ### Key Classes (all in `lib/relaton/un/`)
 
 - **ItemData** — extends `Bib::ItemData`; the UN-specific data container used by `Item` via `model ItemData`

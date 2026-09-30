@@ -28,6 +28,14 @@ describe Relaton::Un::Bibliography do
     ).to_stderr
   end
 
+  it "accepts a parsed pubid" do
+    require "pubid"
+    pubid = Pubid::Un::Identifier.parse "UN TRADE/CEFACT/2004/32"
+    expect(described_class).to receive(:isobib_search_filter)
+      .with("TRADE/CEFACT/2004/32").and_return nil
+    expect(described_class.get(pubid)).to be_nil
+  end
+
   it "not found document", vcr: "not_found" do
     result = Relaton::Un::Bibliography.get "UN NOT/FOUND"
     expect(result).to be_nil
