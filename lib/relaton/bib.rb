@@ -25,7 +25,7 @@ module Relaton
     module Converter
       autoload :Ris, "relaton/bib/converter/ris"
       autoload :Csl, "relaton/bib/converter/csl"
-      autoload :Citation, "relaton/bib/converter/citation"
+      autoload :Titles, "relaton/bib/converter/titles"
     end
   end
 end

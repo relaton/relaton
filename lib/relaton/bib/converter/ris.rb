@@ -79,7 +79,7 @@ module Relaton
           end
 
           def primary_title
-            Citation::Components.title_of(@item)
+            Titles.of(@item)
           end
 
           def primary_docid
