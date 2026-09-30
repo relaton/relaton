@@ -47,6 +47,16 @@ module Relaton
         @pubid_class ||= ::Pubid.const_get(flavor)::Identifier
       end
 
+      # Whether the flavor's identifiers print without a publisher token
+      # (OGC `19-025r1`, 3GPP `TS 23.207:REL-18/18.0.0`). Routing then takes
+      # an exact parse by the flavor although no prefix of it claims the
+      # reference (Registry#route).
+      #
+      # @return [Boolean]
+      def bare_identifiers?
+        false
+      end
+
       # Parse a query reference into a pubid. A flavor that normalizes a
       # reference before it parses overrides this. A parse error propagates:
       # an unrecognized reference is not "not found".
@@ -88,9 +98,11 @@ module Relaton
       # @param ref [String]
       # @param year [String, Integer, nil]
       # @param opts [Hash]
+      # @param parsed [Pubid::Identifier, nil] the reference as the router
+      #   already parsed it with this flavor's class; parsed here otherwise
       # @return [Pubid::Identifier, nil]
-      def cache_key(ref, year, opts)
-        pubid = cache_pubid(ref)
+      def cache_key(ref, year, opts, parsed = nil) # rubocop:disable Metrics/CyclomaticComplexity
+        pubid = parsed || cache_pubid(ref)
         # A flavor that reads an unparseable reference as a miss (IANA, IEEE)
         # gives nil or the raw String: no pubid key then.
         return if pubid.nil? || !pubid.is_a?(::Pubid::Identifier)

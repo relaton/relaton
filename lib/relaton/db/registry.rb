@@ -1,4 +1,5 @@
 require "singleton"
+require_relative "../core/request_error"
 
 module Relaton
   class Db
@@ -111,37 +112,42 @@ module Relaton
       end
 
       #
-      # Pubid namespaces whose spelling differs from the processor short
-      # name.
-      PUBID_FLAVOR_ALIASES = { "cencenelec" => "cen", "tgpp" => "3gpp" }.freeze
-
-      # Flavors routed by the parsed Pubid class (relaton#205, pilot). Only
-      # processors on this list answer parse-first routing: an allowlist,
-      # not a guess. Pubid::Un is deliberately absent — its Document
-      # identifier parses DOI-shaped strings ("10.17487/RFC3986") that must
-      # not be hijacked away from their current handling. DOI and ISBN are
-      # present: their canonical forms carry their own token (`doi:…`,
-      # `ISBN …`), which pubid detects exactly as the prefix regex routes it.
-      PARSE_ROUTED_FLAVORS = %w[
-        bipm bs cencenelec calconnect cc ccsds cen cie csa doi
-        ecma ecs etsi gost iala iana iec ieee ietf isbn iso itu
-        jcgm jis nist oasis ogc oiml plateau w3c xsf 3gpp
-      ].freeze
-
-      # Find the processor that owns the parsed Pubid's flavor. The
-      # namespace is matched against the processor short name, with the
-      # alias table for the spellings that differ.
+      # Route a reference to its flavor (relaton#205).
       #
-      # @param pubid [Pubid::Core::Identifier] parsed query
-      # @return [Symbol, nil] standard class name
+      # 1. The reference is parsed with pubid. Only the parsing flavor's own
+      #    **exact** parse counts (#exact_parse): `Pubid.parse` falls back to a
+      #    partial parse by any flavor (`ATN5014` as `IEC ATN5014`), and a
+      #    permissive grammar reads another publisher's string exactly
+      #    (`ISO REF` as IEC).
+      # 2. The parse routes by class ancestry (#processor_by_pubid), so the
+      #    registration order does not matter.
+      # 3. A co-published identifier routes to the co-publisher its printed
+      #    form names first (`ISO/IEC …` → ISO, `IEC/ISO …` → IEC). This is
+      #    relaton's routing policy (#205): there is no canonical form of the
+      #    identifier, pubid does not route records (pubid#469), and
+      #    `Pubid.parse` tries the owners of a joint prefix in alphabetical
+      #    order.
+      # 4. Otherwise the prefix regex (#class_by_ref) routes: a combined
+      #    reference, the `PREFIX(code)` wrapper, a spelling a flavor
+      #    normalizes, a flavor's free text.
       #
-      def class_by_pubid(pubid)
-        ns = pubid.class.name.split("::")[1]&.downcase
-        flavor = PUBID_FLAVOR_ALIASES.fetch(ns, ns)
-        return nil unless PARSE_ROUTED_FLAVORS.include?(flavor)
+      # @param reference [String]
+      # @return [Array(Symbol, Pubid::Identifier)] the standard class, and the
+      #   parsed pubid when it is that flavor's own exact parse (else nil)
+      # @raise [Relaton::UnknownReferenceError] no flavor recognizes it
+      #
+      def route(reference) # rubocop:disable Metrics/CyclomaticComplexity
+        parsed = exact_parse reference
+        stdclass = parsed && class_by_parsed(parsed, reference)
+        parsed = nil unless stdclass
+        lead = joint_lead reference
+        return [lead, stdclass == lead ? parsed : nil] if lead
+        return [stdclass, parsed] if stdclass
 
-        key = "relaton_#{flavor}".to_sym
-        processors.key?(key) ? key : nil
+        stdclass = class_by_ref(reference)
+        raise UnknownReferenceError, reference unless stdclass
+
+        [stdclass, nil]
       end
 
       # Find processor by refernce or prefix
@@ -190,6 +196,89 @@ module Relaton
       end
 
       private
+
+      # The reference parsed by pubid, when the parse renders the reference
+      # back (pubid's round-trip test). pubid itself is loaded here, not at
+      # registration. `Pubid.parse` raises a plain ArgumentError for a URN no
+      # flavor owns (`urn:foo:bar`): that is no parse either.
+      #
+      # @param reference [String]
+      # @return [Pubid::Identifier, nil]
+      def exact_parse(reference)
+        require "pubid"
+        parsed = ::Pubid.parse reference
+        parsed if parsed.to_s == reference
+      rescue ArgumentError, ::Pubid::Errors::Error, Parslet::ParseFailed
+        nil
+      end
+
+      # Whether the flavor of +pubid+ owns a prefix +reference+ starts with.
+      def claims?(pubid, reference)
+        flavor = ::Pubid.const_get pubid.class.name.split("::")[1]
+        return false unless flavor.respond_to?(:prefixes)
+
+        flavor.prefixes.any? { |pref| prefix_of?(pref, reference) }
+      end
+
+      # A prefix matches when the reference ends there or goes on with a
+      # separator, or when the prefix itself ends with one (`doi:10.…`).
+      def prefix_of?(prefix, reference)
+        return false unless reference.start_with?(prefix)
+
+        rest = reference[prefix.length]
+        rest.nil? || !alnum?(rest) || !alnum?(prefix[-1])
+      end
+
+      def alnum?(char)
+        char.match?(/[[:alnum:]]/)
+      end
+
+      # The flavor of an exact parse, when the parse is that flavor's own: the
+      # flavor claims the reference by one of its prefixes, or its identifiers
+      # print without one (Core::Processor#bare_identifiers?). A permissive
+      # grammar reads other publishers' strings exactly (`ISO REF` as IEC,
+      # `ABC 123456` as GB, a bare DOI as UN), but it does not claim them.
+      #
+      # @param pubid [Pubid::Identifier]
+      # @param reference [String]
+      # @return [Symbol, nil] the standard class
+      def class_by_parsed(pubid, reference)
+        processor = processor_by_pubid(pubid) or return
+        return unless processor.bare_identifiers? || claims?(pubid, reference)
+
+        processor.short
+      end
+
+      # The co-publisher that a joint prefix names first (`ISO/IEC 27001` →
+      # ISO). Nil unless the reference starts with a prefix several flavors
+      # own.
+      #
+      # @param reference [String]
+      # @return [Symbol, nil] the standard class
+      def joint_lead(reference)
+        prefix = joint_prefixes.detect do |pref|
+          reference == pref || reference.start_with?("#{pref} ")
+        end
+        return unless prefix
+
+        lead = prefix.split("/").first
+        owners = processors_by_prefix(prefix)
+        owners.detect { |p| p.prefix.casecmp?(lead) }&.short
+      end
+
+      # Prefixes that more than one flavor owns (`ISO/IEC`, `ISO/IEC/IEEE`),
+      # longest first.
+      #
+      # @return [Array<String>]
+      def joint_prefixes
+        @joint_prefixes ||= processors.values.flat_map(&:prefixes).uniq
+          .select { |pref| pref.include?("/") && joint?(pref) }
+          .sort_by { |pref| -pref.size }
+      end
+
+      def joint?(prefix)
+        processors_by_prefix(prefix).size > 1
+      end
 
       # The flavor namespace for a processor: the module enclosing its class.
       # Relaton::Iso::Processor -> Relaton::Iso. Derived from the class name so

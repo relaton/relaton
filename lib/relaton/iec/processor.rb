@@ -63,7 +63,12 @@ module Relaton
 
       # @param code [String]
       # @return [String, nil]
+      # Only a URN: `Relaton::Iec.urn_to_code` splits on `:`, so it would
+      # rewrite any reference with enough colons
+      # (`IEC 60034-1:1969+AMD1:1977+AMD2:1979+AMD3:1980 CSV`).
       def urn_to_code(code)
+        return unless code.match?(/\Aurn:/i)
+
         require_relative "../iec"
         Relaton::Iec.urn_to_code code
       end

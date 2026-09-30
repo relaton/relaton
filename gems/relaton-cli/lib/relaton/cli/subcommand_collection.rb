@@ -131,6 +131,8 @@ module Relaton
           File.write colfile, coll.to_yaml, encoding: "UTF-8"
         else Util.info "No matching bibliographic entry found"
         end
+      rescue Relaton::UnknownReferenceError => e
+        Util.warn e.message
       rescue Pubid::Errors::Error
         Util.error %("#{code}" is not a recognized standards identifier)
       end

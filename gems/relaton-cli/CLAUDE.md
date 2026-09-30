@@ -75,6 +75,13 @@ constant resolves even when an unrelated exception (e.g. an `ArgumentError` from
 first shipped in pubid `2.0.0.pre.alpha.11`, which is why `relaton.gemspec`
 pins `~> 2.0.0.pre.alpha.11`.
 
+A reference that **no flavor recognizes** is a different error:
+`Relaton::Db` raises `Relaton::UnknownReferenceError` (a `Relaton::Error`, not
+a `Pubid::Errors::Error`) when routing finds no flavor (relaton#205).
+`fetch_document` and `SubcommandCollection#fetch` rescue it, log its message
+(`` `<code>` is not a recognized standards identifier``) with `Util.warn`, and
+return no document, so `relaton fetch` prints the supported types.
+
 ### Core Data Classes
 
 - `lib/relaton/bibdata.rb` — `Relaton::Bibdata` wraps `RelatonBib::BibliographicItem`, adding URL type handling and serialization to XML/YAML/Hash. Uses `method_missing` to delegate to the underlying bibitem.

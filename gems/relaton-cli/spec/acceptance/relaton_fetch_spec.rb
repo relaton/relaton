@@ -232,6 +232,18 @@ RSpec.describe "Relaton Fetch" do
       Relaton::Cli::RelatonDb.instance.instance_variable_set :@db, nil
     end
 
+    it "logs a reference no flavor recognizes and returns no document" do
+      expect(db).to receive(:fetch)
+        .and_raise Relaton::UnknownReferenceError.new("XYZ 1")
+      expect(Relaton::Cli).to receive(:relaton).and_return(db)
+      command = Relaton::Cli::Command.new
+      expect do
+        expect(command.send(:fetch_document, "XYZ 1", {})).to be_nil
+      end.to output(/`XYZ 1` is not a recognized standards identifier/)
+        .to_stderr_from_any_process
+      Relaton::Cli::RelatonDb.instance.instance_variable_set :@db, nil
+    end
+
     it "reports a friendly message for an identifier pubid cannot take" do
       expect(db).to receive(:fetch)
         .and_raise Pubid::Errors::InvalidInputError.new("too long")

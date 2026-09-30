@@ -437,8 +437,8 @@ RSpec.describe Relaton::Db do
     after(:each) { db.clear }
 
     it "one document" do
-      item = db.fetch_db "ISO((ISO 124)"
-      expect(item).to be_nil
+      expect { db.fetch_db "ISO((ISO 124)" }
+        .to raise_error Relaton::UnknownReferenceError
       item = db.fetch_db "ISO(ISO 123)"
       expect(item).to be_instance_of Relaton::Iso::ItemData
     end
@@ -580,6 +580,13 @@ RSpec.describe Relaton::Db do
     expect(bib).to be_instance_of Relaton::Iso::ItemData
   end
 
+  it "fetch std with the flavor the caller names" do
+    expect(Relaton::Iso::Bibliography).not_to receive(:get)
+    expect(Relaton::Iec::Bibliography).to receive(:get)
+      .with("ISO 19115-1", nil, {}).and_return nil
+    Relaton::Db.new(nil, nil).fetch_std("ISO 19115-1", nil, :relaton_iec, {})
+  end
+
   context "async fetch" do
     let(:queue) { Queue.new }
 
@@ -648,17 +655,39 @@ RSpec.describe Relaton::Db do
   end
 
   context "#fetch parse-first routing (relaton#205)" do
-    it "routes by the parsed pubid class and parses once" do
+    it "routes by the parsed pubid class and keys the cache with that parse" do
       expect(Pubid).to receive(:parse).with("ISO 8601-1:2021").once.and_call_original
+      expect(Relaton::Db::Registry.instance[:relaton_iso])
+        .not_to receive(:cache_pubid)
       expect(Relaton::Iso::Bibliography).to receive(:get).with(
         "ISO 8601-1:2021", anything, anything
       ).and_return(nil)
       subject.fetch("ISO 8601-1:2021")
     end
 
-    it "keeps DOI-shaped strings out of parse-routed flavors" do
+    it "routes a co-published identifier to the flavor its printed form names first" do
+      expect(Relaton::Iec::Bibliography).not_to receive(:get)
+      expect(Relaton::Iso::Bibliography).to receive(:get)
+        .with("ISO/IEC 27001:2022", anything, anything).and_return(nil)
+      subject.fetch("ISO/IEC 27001:2022")
+    end
+
+    it "raises for a DOI-shaped string no flavor claims" do
       expect(Relaton::Un::Bibliography).not_to receive(:get)
-      subject.fetch("10.17487/RFC3986")
+      expect { subject.fetch("10.17487/RFC3986") }
+        .to raise_error Relaton::UnknownReferenceError
+    end
+
+    it "hands an IEC reference with many colons to IEC unchanged" do
+      ref = "IEC 60034-1:1969+AMD1:1977+AMD2:1979+AMD3:1980 CSV"
+      expect(Relaton::Iec::Bibliography).to receive(:get)
+        .with(ref, anything, anything).and_return(nil)
+      subject.fetch ref
+    end
+
+    it "raises for a reference no flavor recognizes" do
+      expect { subject.fetch("ABC 123456") }
+        .to raise_error Relaton::UnknownReferenceError, /ABC 123456/
     end
   end
 

@@ -257,6 +257,20 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
         .to_stderr_from_any_process
     end
 
+    it "logs a reference no flavor recognizes" do
+      db = double "db"
+      expect(Relaton).to receive(:db).and_return db
+      expect(db).to receive(:fetch)
+        .and_raise Relaton::UnknownReferenceError.new("XYZ 1")
+      expect do
+        Relaton::Cli::Command.start [
+          "collection", "fetch", "XYZ 1", "-t", "ISO",
+          "-d", "spec/fixtures", "-c", "sample-collection.yaml"
+        ]
+      end.to output(/`XYZ 1` is not a recognized standards identifier/)
+        .to_stderr_from_any_process
+    end
+
     it "reports a friendly message for an identifier pubid cannot take" do
       db = double "db"
       expect(Relaton).to receive(:db).and_return db

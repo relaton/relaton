@@ -14,9 +14,11 @@ RSpec.describe Relaton::Db do
   end
 
   it "rejects an illegal reference prefix" do
-    expect { @db.fetch("XYZ XYZ", nil, {}) }.to output(
-      /\[relaton-db\] INFO: \(XYZ XYZ\) `XYZ XYZ` does not/,
-    ).to_stderr_from_any_process
+    expect { @db.fetch("XYZ XYZ", nil, {}) }
+      .to raise_error(Relaton::UnknownReferenceError, /XYZ XYZ/)
+      .and output(
+        /\[relaton-db\] INFO: \(XYZ XYZ\) `XYZ XYZ` does not/,
+      ).to_stderr_from_any_process
   end
 
   context "gets an ISO reference" do
