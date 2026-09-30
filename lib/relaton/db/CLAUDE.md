@@ -83,28 +83,118 @@ relaton proper, destined for a separate store/gem; don't add it to the processor
 
 The dual-cache strategy uses a **global cache** (`~/.relaton/cache`) and an optional **local cache** (project-level). `check_bibliocache` checks local first, falls back to global, and syncs between them.
 
-### DbCache (lib/relaton/db/cache.rb) — File-based Storage
+### Cache (lib/relaton/db/cache.rb) — pubid-keyed index on lutaml-store
 
-Stores entries as files under `{dir}/{prefix}/{filename}.{ext}` (e.g., `testcache/iso/iso_19115-1.xml`). Key behaviors:
-- Cache keys are wrapped like `ISO(ISO 19115-1:2014)` and converted to filenames via regex
-- Entries can be XML, "not_found {date}", or "redirection {target_key}"
-- Undated references expire after 60 days; dated ones persist indefinitely
-- Version tracking per prefix directory invalidates cache when processor grammar changes
-- File locking (`LOCK_EX`) for thread-safe concurrent writes
+relaton#189 item 2 / relaton#204. Two lutaml-store `FileSystem` stores under
+`<dir>/v2/`:
+
+- **`rows/`** — the index. One store key per **bucket**, `<flavor>/<root number>`
+  (`iso/19115`), whose value is the list of the bucket's `CacheEntry` rows
+  (`lib/relaton/db/cache_entry.rb`): `id` (the pubid's `to_hash`) or `key` (a
+  legacy string), `status` (`doc` / `not_found`), `file`, `fetched`. A lookup
+  reads one small bucket; a write is one atomic `update` of it. A `_versions`
+  key holds each flavor's `grammar_hash`; a changed one drops that flavor's
+  rows and documents on open.
+- **`docs/`** — the XML documents. **Several rows can point to one document.**
+  A fetch whose answer has another identifier than the query
+  (`ISO 19115-1` → `ISO 19115-1:2014`) writes the query row and the item row,
+  both naming the same file. There are no redirect entries. A document is
+  deleted with the last row that points to it; a row whose document is gone is
+  a miss.
+
+Matching: the **exact** row first (canonical `to_hash`, not pubid `==`, which
+is false after a `from_hash` round trip for some flavors, e.g. UN). Only a
+**dated** query then falls back to `query === row_id` in the same bucket —
+an undated query keeps its own row, so the 60-day expiry of undated entries
+still applies and it never answers with another query's year-stripped copy.
+**`===` alone is too wide here**: it reads an omitted `part` as "any part", so
+`ISO 19115:2003 === ISO 19115-1:2003` (and the same for IEC, BSI, JIS, GB).
+`Cache#subset_of?` therefore also requires that every component the row adds
+(at any depth) is allowed: only a language for the dated fallback
+(`LANGUAGE_COMPONENTS`), a year/date/month or a language for the date-range
+`candidates` (`EDITION_COMPONENTS`). A row with no `root.number` (DOI, ISBN)
+goes to one of 256 digest buckets (`<flavor>/~<hex>`).
+
+Locking and atomic writes come from lutaml-store (≥ 0.3.2 — 0.3.0's
+FileSystem adapter was unsafe, lutaml/lutaml-store#17): an exclusive `flock`
+on `<root>/.lock` plus a per-root Monitor for `update`/`transaction`, and temp
+file + rename per write. `Cache#store` writes the document and both rows in
+one `rows` transaction; the lock order is always `rows`, then `docs`.
+
+An old file-per-key cache (anything in `<dir>` beside `v2/`) is **moved** to
+`<dir>-v1.bak` on open, never deleted — **once**: when the `.bak` exists the
+old entries stay where they are, because an older relaton sharing the
+directory writes the old layout again, and v2 ignores it.
+
+Keys: a parsed pubid; a wrapped string (`ISO(ISO 19115-1)`), which the cache
+parses through the prefix's processor — `load_entry`/`save_entry` still take
+it; or a plain string no processor owns (bucket `_key/<string>`).
 
 ### WorkersPool (lib/relaton/db/workers_pool.rb)
 
 Thread pool for `fetch_async`. Default 10 threads per processor, overridable via `RELATON_FETCH_PARALLEL` env var.
 
-### Cache Key Format
+### Cache key
 
-`std_id` builds keys like `ISO(ISO 19115-1:2014 (all parts) after-2020-01-01)`. The filename regex in `db/cache.rb` uses `[^)]+` — suffixes use `-` not parentheses to avoid breaking it.
+`Db#cache_key` asks the processor: `Core::Processor#cache_key(ref, year,
+opts)` parses the reference **as written** with the routed flavor's pubid
+class (`#cache_pubid` → `pubid_class.parse`), then folds `year`
+(`#fold_year`) and `all_parts` (`to_all_parts`) into the pubid.
+`#pubid_class` reads `@pubid_identifier`, else `@pubid_flavor` —
+`@pubid_identifier` exists so a flavor can key its cache with pubid without
+also sourcing `#prefixes` from pubid.
+
+- **Canonical references only.** Relaton does not rewrite a non-canonical
+  citation before it parses it: `I-D.draft-…`, `IETF RFC 8341`,
+  `BIPM Metrologia …`, a W3C URL, `NIST … (IPD)` / `(January 2014)` /
+  `NISTIR 8200:2018`, `JIS … (規格群)`, a lowercase `iec …`, an en dash — each
+  raises `Pubid::Errors::ParseError` from `Db#fetch`, although the flavor's own
+  `get` still reads it when called directly. The canonical identifiers the data
+  repos publish all parse as written (measured over every spec index fixture);
+  pubid/pubid#463 and #464, which asked pubid to accept the other spellings,
+  were closed for this.
+- **References with one key must get one answer from the flavor.** pubid can
+  read several spellings as one identifier (`doi:…`, `DOI:…` and a
+  `https://doi.org/…` URL are one `Pubid::Doi` key). If the flavor's `get`
+  answers only some of them, a miss on another spelling is cached as
+  `not_found` under the shared key and poisons the canonical one for 60 days.
+  So `Doi::Crossref.get` strips every such prefix. Check this whenever a
+  flavor joins `Registry::PARSE_ROUTED_FLAVORS` (DOI and ISBN did so with this
+  change; UN stays out, because `Pubid::Un` also reads a bare DOI).
+- **Generated references must be canonical too.** `combine_doc` joins an ITU
+  or NIST supplement with a space (`NIST SP 800-38A Add`), since pubid does not
+  parse `NIST SP 800-38A/Add`.
+- **A processor overrides `cache_pubid` only for policy**, not to normalize:
+  Adobe, IANA, IEEE and ISBN read an unparseable reference as a miss, so their
+  parse error means "no key"; IEC answers `IEV` with the vocabulary, so `IEV`
+  gets no key.
+- **A parse error propagates** out of `Db#fetch` (root `CLAUDE.md`, "An
+  unrecognized query reference raises").
+- **The year goes where the flavor's `get` puts it.** The default
+  `#fold_year` sets the identifier's own year; ISO, CEN and BSI apply a year
+  to `#root` (the base document of a supplement, the adopted document of an
+  adoption), so their processors use `#fold_year_on_root`. A flavor with no
+  year component drops it, which matches their `get` (it ignores the year).
+- **No key, no cache.** A processor with a pubid class that answers `nil` is
+  not cached for that query: a flavor miss by the flavor's own rule (Adobe,
+  IANA, IEEE, an incorrect ISBN, `IEV`) and a query whose answer the cache
+  cannot hold (a CCSDS format, which filters the item's sources; an OGC year,
+  which is not the pubid's document-number year).
+- **The publication date range is never in the key.** It selects among the
+  cached editions (`Cache#candidates` + `pub_date_in_range?`); on a miss the
+  flavor is asked with the range and the answer is cached under **its own**
+  identifier only, so the undated query row keeps pointing to the latest
+  edition. Bounds may be `YYYY`, `YYYY-MM` or `YYYY-MM-DD`.
+- A processor with **no** pubid class (a third-party one) keeps the legacy
+  string key from `std_id` (`ISO(ISO 19115-1:2014 (all parts))`).
 
 ## Testing
 
 - Umbrella (Db) specs live in `spec/relaton/` and run from there (`rake spec:relaton`)
 - RSpec with VCR cassettes in `spec/relaton/vcr_cassettes/` for recorded HTTP interactions
-- Tests create `testcache`/`testcache2` directories and clean them in `before(:each)`
+- Tests create `testcache`/`testcache2` directories and clean them in `before(:each)`.
+  Assert cache contents through `Relaton::Db::Cache` (`#[]`, `#rows`, `#all`),
+  not through file names: the store names its files itself.
 - Cache-related tests need `<fetched>` elements in XML for `valid_entry?` to return true
 - Integration tests in `spec/relaton/relaton_spec.rb`; unit tests under `spec/relaton/`
 - **ISO lookups are stubbed, not cassette-recorded.** Flavor gems (relaton-iso/iec/nist)
@@ -119,4 +209,6 @@ Thread pool for `fetch_async`. Default 10 threads per processor, overridable via
 ## Style
 
 - RuboCop config inherits from [Ribose OSS guides](https://github.com/riboseinc/oss-guides), target Ruby 3.3
-- Thread safety via `@semaphore` (Mutex) around cache reads/writes in Db
+- Each cache operation is atomic in lutaml-store (threads and processes). `Db`'s
+  `@semaphore` (Mutex) only serializes its own check-then-act sequences across
+  the two caches (validity check, clone, fetch-and-store).

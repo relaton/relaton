@@ -8,6 +8,7 @@ module Relaton
       def initialize # rubocop:disable Lint/MissingSuper
         @short = :relaton_etsi
         @prefix = "ETSI"
+        @pubid_identifier = :Etsi # Db cache key
         @defaultprefix = %r{^ETSI\s}
         @idtype = "ETSI"
         @datasets = %w[etsi-csv]

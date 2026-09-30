@@ -12,6 +12,7 @@ module Relaton
       def initialize
         @short = :relaton_easc
         @prefix = "EASC"
+        @pubid_identifier = :Easc # Db cache key
         # Both Cyrillic and Latin series prefixes route here.
         @defaultprefix = %r{^(?:ПМГ|РМГ|PMG|RMG)\b}
         @idtype = "EASC"

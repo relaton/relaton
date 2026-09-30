@@ -8,6 +8,7 @@ module Relaton
       def initialize # rubocop:disable Lint/MissingSuper
         @short = :relaton_iana
         @prefix = "IANA"
+        @pubid_identifier = :Iana # Db cache key
         @defaultprefix = %r{^IANA\s}
         @idtype = "IANA"
         @datasets = %w[iana-registries]
@@ -33,6 +34,14 @@ module Relaton
       def fetch_data(source, opts)
         require_relative "data_fetcher"
         DataFetcher.fetch(source, **opts)
+      end
+
+      # `get` reads a reference pubid cannot parse as a miss, so it gets no key
+      # here either: it is not cached.
+      def cache_pubid(ref)
+        super
+      rescue StandardError
+        nil
       end
 
       # @param xml [String]

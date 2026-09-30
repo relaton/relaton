@@ -8,6 +8,7 @@ module Relaton
       def initialize # rubocop:disable Lint/MissingSuper
         @short = :relaton_ccsds
         @prefix = "CCSDS"
+        @pubid_identifier = :Ccsds # Db cache key
         @defaultprefix = %r{^CCSDS(?!\w)}
         @idtype = "CCSDS"
         @datasets = %w[ccsds]
@@ -20,6 +21,17 @@ module Relaton
       def get(code, date, opts)
         require_relative "../ccsds"
         Bibliography.get(code, date, opts)
+      end
+
+      # A format (` (DOC)` or `opts[:format]`) keeps only the item's sources
+      # of that format, a filter the Db cache cannot apply to a cached item:
+      # such a query gets no key, so it is not cached.
+      def cache_key(ref, year, opts)
+        require_relative "../ccsds"
+        _, format_opts = Bibliography.parse_format(ref, opts.dup)
+        return if format_opts[:format]
+
+        super
       end
 
       #

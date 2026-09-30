@@ -17,11 +17,11 @@ RSpec.describe Relaton::Db do
 
   context "instance methods" do
     context "#search_edition_year" do
-      it "create bibitem from YAML content" do
-        h = { "docid" => [{ "id" => "ISO 123", type: "ISO",
-                            "primary" => true }] }
-        item = subject.send :search_edition_year, "iso/item.yaml", h.to_yaml,
-                            nil, nil
+      it "create bibitem from XML content" do
+        processor = Relaton::Db::Registry.instance[:relaton_iso]
+        xml = '<bibdata><docidentifier type="ISO" primary="true">' \
+              "ISO 123</docidentifier></bibdata>"
+        item = subject.send :search_edition_year, processor, xml, nil, nil
         expect(item).to be_instance_of Relaton::Iso::ItemData
       end
     end
@@ -69,45 +69,121 @@ RSpec.describe Relaton::Db do
 
     context "#fetch_entry" do
       let(:db_cache) { double "db_cache" }
+      let(:bib) do
+        docid = Relaton::Bib::Docidentifier.new(content: "ISO 123:2020",
+                                                type: "ISO", primary: true)
+        Relaton::Iso::ItemData.new docidentifier: [docid]
+      end
 
       before do
         expect(subject).to receive(:net_retry).with(
-          "ISO 123", nil, {},
+          "ISO 123", nil, kind_of(Hash),
           kind_of(Relaton::Iso::Processor), 1
-        ).and_return :bib
+        ).and_return bib
       end
 
-      it "using cache" do
-        expect(db_cache).to receive(:[]).with("ISO(ISO 123)")
-          .and_return nil
-        expect(db_cache).to receive(:[]=)
-          .with("ISO(ISO 123)", :entry)
-        expect(subject).to receive(:check_entry).with(
-          :bib, :relaton_iso,
-          db: db_cache, id: "ISO(ISO 123)"
-        ).and_return :entry
+      it "caches the document under the query and its own key" do
+        expect(db_cache).to receive(:[]).with(:key).and_return nil
+        expect(db_cache).to receive(:store) do |key, entry, item_key:|
+          expect(key).to be :key
+          expect(entry).to include "ISO 123:2020"
+          expect(item_key.to_s).to eq "ISO 123:2020"
+        end
         entry = subject.send :fetch_entry, "ISO 123", nil, {}, :relaton_iso,
-                             db: db_cache, id: "ISO(ISO 123)"
-        expect(entry).to be :entry
+                             db: db_cache, id: :key
+        expect(entry).to include "ISO 123:2020"
       end
 
       it "DbCache is undefined" do
-        expect(subject).to receive(:check_entry).with(:bib, :relaton_iso,
-                                                      **{}).and_return :entry
         entry = subject.send :fetch_entry, "ISO 123", nil, {}, :relaton_iso
-        expect(entry).to be :entry
+        expect(entry).to include "ISO 123:2020"
       end
 
-      it "not using cache" do
-        expect(subject).to receive(:bib_entry).with(:bib).and_return :entry
-        expect(subject).to receive(:check_entry).with(
-          :bib, :relaton_iso, db: db_cache, id: "ISO(ISO 123)", no_cache: true
-        ).and_return :entry
-        expect(db_cache).to receive(:[]).with("ISO(ISO 123)").and_return :entry
-        entry = subject.send :fetch_entry, "ISO 123", nil, {}, :relaton_iso,
-                             db: db_cache, id: "ISO(ISO 123)", no_cache: true
-        expect(entry).to be :entry
+      it "not using cache refreshes the cached entry" do
+        expect(db_cache).not_to receive(:[])
+        expect(db_cache).to receive(:store)
+        entry = subject.send :fetch_entry, "ISO 123", nil, { no_cache: true },
+                             :relaton_iso, db: db_cache, id: :key
+        expect(entry).to include "ISO 123:2020"
       end
+    end
+  end
+
+  context "pubid cache keys" do
+    let(:db) { Relaton::Db.new "testcache", nil }
+
+    def iso_item(id, published: nil)
+      docid = Relaton::Bib::Docidentifier.new(content: id, type: "ISO",
+                                              primary: true)
+      date = []
+      if published
+        date << Relaton::Bib::Date.new(type: "published", at: published)
+      end
+      Relaton::Iso::ItemData.new(docidentifier: [docid], date: date,
+                                 fetched: Date.today.to_s)
+    end
+
+    def doc_files
+      Dir["testcache/v2/docs/**/*.xml"]
+    end
+
+    after { FileUtils.rm_rf "testcache" }
+
+    it "keeps an undated query and its dated document in one file" do
+      item = iso_item("ISO 19115-1:2014")
+      expect(Relaton::Iso::Bibliography).to receive(:get)
+        .with("ISO 19115-1", nil, {}).once.and_return item
+      expect(db.fetch("ISO 19115-1").docidentifier.first.content)
+        .to eq "ISO 19115-1:2014"
+      expect(db.fetch("ISO 19115-1:2014").docidentifier.first.content)
+        .to eq "ISO 19115-1:2014"
+      expect(doc_files.size).to eq 1
+    end
+
+    it "writes one file for queries that differ only by date range" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).once
+        .and_return iso_item("ISO 19115-1:2014", published: "2014-04-01")
+      %w[2010 2012 2014].each do |after|
+        bib = db.fetch "ISO 19115-1", nil, publication_date_after: after
+        expect(bib.docidentifier.first.content).to eq "ISO 19115-1:2014"
+      end
+      expect(doc_files.size).to eq 1
+    end
+
+    it "does not answer a date range with an edition outside it" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).twice
+        .and_return iso_item("ISO 19115-1:2014", published: "2014-04-01")
+      db.fetch "ISO 19115-1", nil, publication_date_after: "2010"
+      db.fetch "ISO 19115-1", nil, publication_date_after: "2020"
+    end
+
+    it "keeps the cached document when a no_cache fetch finds nothing" do
+      expect(Relaton::Iso::Bibliography).to receive(:get)
+        .and_return(iso_item("ISO 19115-1:2014"), nil)
+      db.fetch "ISO 19115-1:2014"
+      db.fetch "ISO 19115-1:2014", nil, no_cache: true
+      expect(db.fetch_db("ISO 19115-1:2014")).to be_instance_of Relaton::Iso::ItemData
+    end
+
+    it "does not raise for a reference the flavor reads as a miss" do
+      expect(Relaton::Adobe::Bibliography).to receive(:get).and_return nil
+      expect(db.fetch("Adobe Glyph List")).to be_nil
+    end
+
+    it "raises for a reference the flavor cannot parse" do
+      expect(Relaton::Iso::Bibliography).not_to receive(:get)
+      expect { db.fetch "ISO 111111" }.to raise_error Pubid::Errors::ParseError
+    end
+
+    it "keeps the string key for a processor with no pubid class" do
+      processor = Relaton::Db::Registry.instance[:relaton_iso]
+      allow(processor).to receive(:pubid_class).and_return nil
+      allow(processor).to receive(:cache_key).and_return nil
+      expect(Relaton::Iso::Bibliography).to receive(:get).once
+        .and_return iso_item("ISO 123")
+      2.times { db.fetch "ISO 123" }
+      expect(Relaton::Db::Cache.new("testcache").rows.map { _1["key"] })
+        .to eq ["ISO(ISO 123)"]
     end
   end
 
@@ -216,42 +292,24 @@ RSpec.describe Relaton::Db do
                             publication_date_before: "2020-01-01")
       expect(result).to be true
     end
+
+    it "accepts YYYY and YYYY-MM bounds" do
+      expect(subject.send(:pub_date_in_range?, xml_with_date,
+                          publication_date_after: "2019",
+                          publication_date_before: "2019-07")).to be true
+      expect(subject.send(:pub_date_in_range?, xml_with_date,
+                          publication_date_after: "2019-07")).to be false
+    end
   end
 
-  context "#std_id with date options" do
-    it "includes after suffix" do
-      id, code = subject.send(
-        :std_id, "ISO 19115-1", nil,
-        { publication_date_after: "2018-01-01" }, :relaton_iso
-      )
-      expect(id).to eq "ISO(ISO 19115-1 after-2018-01-01)"
-      expect(code).to eq "ISO 19115-1"
-    end
-
-    it "includes before suffix" do
-      id, code = subject.send(
-        :std_id, "ISO 19115-1", nil,
-        { publication_date_before: "2020-12-31" }, :relaton_iso
-      )
-      expect(id).to eq "ISO(ISO 19115-1 before-2020-12-31)"
-      expect(code).to eq "ISO 19115-1"
-    end
-
-    it "includes both after and before suffixes" do
+  context "#std_id" do
+    it "keeps the publication date range out of the key" do
       id, code = subject.send(
         :std_id, "ISO 19115-1", nil,
         { publication_date_after: "2018-01-01",
           publication_date_before: "2020-12-31" },
         :relaton_iso
       )
-      expect(id).to eq(
-        "ISO(ISO 19115-1 after-2018-01-01 before-2020-12-31)",
-      )
-      expect(code).to eq "ISO 19115-1"
-    end
-
-    it "does not change key without date options" do
-      id, code = subject.send(:std_id, "ISO 19115-1", nil, {}, :relaton_iso)
       expect(id).to eq "ISO(ISO 19115-1)"
       expect(code).to eq "ISO 19115-1"
     end
@@ -259,13 +317,10 @@ RSpec.describe Relaton::Db do
     it "combines with year and all_parts" do
       id, = subject.send(
         :std_id, "ISO 19115-1", "2014",
-        { all_parts: true,
-          publication_date_after: "2014-01-01" },
+        { all_parts: true, publication_date_after: "2014-01-01" },
         :relaton_iso
       )
-      expect(id).to eq(
-        "ISO(ISO 19115-1:2014 (all parts) after-2014-01-01)",
-      )
+      expect(id).to eq "ISO(ISO 19115-1:2014 (all parts))"
     end
   end
 
@@ -355,11 +410,11 @@ RSpec.describe Relaton::Db do
     end
 
     it "clear" do
-      expect(File.exist?("testcache/iso")).to be true
-      expect(File.exist?("testcache2/iso")).to be true
+      expect(Relaton::Db::Cache.new("testcache").all).to be_any
+      expect(Relaton::Db::Cache.new("testcache2").all).to be_any
       db.clear
-      expect(File.exist?("testcache/iso")).to be false
-      expect(File.exist?("testcache2/iso")).to be false
+      expect(Relaton::Db::Cache.new("testcache").all).to be_empty
+      expect(Relaton::Db::Cache.new("testcache2").all).to be_empty
     end
   end
 

@@ -36,6 +36,14 @@ module Relaton
         DataFetcher.fetch(source, **opts)
       end
 
+      # `get` reads a reference pubid cannot parse as a miss, so it gets no key
+      # here either: it is not cached.
+      def cache_pubid(ref)
+        super
+      rescue StandardError
+        nil
+      end
+
       # @param xml [String]
       # @return [Relaton::Ieee::ItemData]
       def from_xml(xml)

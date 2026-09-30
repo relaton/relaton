@@ -92,6 +92,25 @@ module Relaton
       end
 
       #
+      # The processor whose pubid class the identifier belongs to. Only the
+      # generic `Pubid::AllPartsIdentifier`, which belongs to no flavor, is
+      # matched through the document it wraps (`#root`). Any other identifier
+      # is matched by its own class: the `#root` of an adoption is the adopted
+      # document, so `CEN ISO/TS 21003-7` would otherwise be filed as ISO.
+      #
+      # @param pubid [Pubid::Identifier]
+      # @return [Relaton::Core::Processor, nil]
+      #
+      def processor_by_pubid(pubid)
+        generic = pubid.instance_of?(::Pubid::AllPartsIdentifier)
+        id = generic ? pubid.root : pubid
+        processors.values.detect do |processor|
+          klass = processor.pubid_class
+          klass && id.is_a?(klass)
+        end
+      end
+
+      #
       # Pubid namespaces whose spelling differs from the processor short
       # name.
       PUBID_FLAVOR_ALIASES = { "cencenelec" => "cen", "tgpp" => "3gpp" }.freeze
@@ -100,10 +119,12 @@ module Relaton
       # processors on this list answer parse-first routing: an allowlist,
       # not a guess. Pubid::Un is deliberately absent — its Document
       # identifier parses DOI-shaped strings ("10.17487/RFC3986") that must
-      # not be hijacked away from their current handling.
+      # not be hijacked away from their current handling. DOI and ISBN are
+      # present: their canonical forms carry their own token (`doi:…`,
+      # `ISBN …`), which pubid detects exactly as the prefix regex routes it.
       PARSE_ROUTED_FLAVORS = %w[
-        bipm bs cencenelec calconnect cc ccsds cen cie csa
-        ecma ecs etsi gost iala iana iec ieee ietf iso itu
+        bipm bs cencenelec calconnect cc ccsds cen cie csa doi
+        ecma ecs etsi gost iala iana iec ieee ietf isbn iso itu
         jcgm jis nist oasis ogc oiml plateau w3c xsf 3gpp
       ].freeze
 

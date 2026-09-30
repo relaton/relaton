@@ -46,6 +46,7 @@ module Relaton
         opts[:format] ||= Regexp.last_match(1)
         [ref, opts]
       end
+      public :parse_format
 
       def fetch_item(ref)
         hit = search(ref).first

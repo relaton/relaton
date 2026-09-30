@@ -8,6 +8,7 @@ module Relaton
       def initialize # rubocop:disable Lint/MissingSuper
         @short = :relaton_w3c
         @prefix = "W3C"
+        @pubid_identifier = :W3c # Db cache key
         @defaultprefix = %r{^W3C\s}
         @idtype = "W3C"
         @datasets = %w[w3c-api]

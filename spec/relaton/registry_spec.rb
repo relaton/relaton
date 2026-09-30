@@ -254,6 +254,16 @@ RSpec.describe Relaton::Db::Registry do
       end
     end
 
+    {
+      "doi:10.6028/NIST.IR.8245" => :relaton_doi,
+      "ISBN 978-0-306-40615-7" => :relaton_isbn,
+    }.each do |ref, short|
+      it "routes the canonical #{ref.inspect} to #{short}" do
+        expect(described_class.instance.class_by_pubid(Pubid.parse(ref)))
+          .to be short
+      end
+    end
+
     it "does not hijack DOI-shaped strings with the Un namespace" do
       expect(described_class.instance.class_by_pubid(Pubid.parse("10.17487/RFC3986")))
         .to be_nil

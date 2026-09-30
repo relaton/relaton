@@ -8,6 +8,7 @@ module Relaton
       def initialize
         @short = :relaton_oiml
         @prefix = "OIML"
+        @pubid_identifier = :Oiml # Db cache key
         @defaultprefix = %r{^OIML\s}
         @idtype = "OIML"
       end

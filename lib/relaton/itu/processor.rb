@@ -6,6 +6,7 @@ module Relaton
       def initialize
         @short = :relaton_itu
         @prefix = "ITU"
+        @pubid_identifier = :Itu # Db cache key
         @defaultprefix = %r{^ITU\s}
         @idtype = "ITU"
         @datasets = %w[itu-r itu-t]

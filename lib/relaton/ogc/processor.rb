@@ -21,6 +21,13 @@ module Relaton
         Bibliography.get(code, date, opts)
       end
 
+      # The `year` argument filters by publication year, but an OGC pubid's
+      # `year` is the year in the document number (`19` in `OGC 19-025r1`),
+      # so it cannot be folded into the key: such a query is not cached.
+      def cache_key(ref, year, opts)
+        year ? nil : super
+      end
+
       # @param source [String]
       # @param opts [Hash]
       def fetch_data(_source, opts)

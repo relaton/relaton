@@ -414,13 +414,13 @@ RSpec.describe Relaton::Db do
 
   it "get BSI reference" do
     require "relaton/bsi"
-    docid = Relaton::Bib::Docidentifier.new(content: "BSI BS EN ISO 8848",
+    docid = Relaton::Bib::Docidentifier.new(content: "BS EN ISO 8848",
                                             type: "BSI")
     item = Relaton::Bsi::ItemData.new docidentifier: [docid]
     expect(Relaton::Bsi::Bibliography).to receive(:get).with(
-      "BSI BS EN ISO 8848", nil, {}
+      "BS EN ISO 8848", nil, {}
     ).and_return item
-    bib = @db.fetch "BSI BS EN ISO 8848"
+    bib = @db.fetch "BS EN ISO 8848"
     expect(bib).to be_instance_of Relaton::Bsi::ItemData
   end
 
@@ -475,15 +475,15 @@ RSpec.describe Relaton::Db do
   it "get BIPM reference" do
     require "relaton/bipm"
     docid = Relaton::Bib::Docidentifier.new(
-      content: "BIPM Metrologia 29 6 373", type: "BIPM",
+      content: "Metrologia 29 6 373", type: "BIPM",
     )
     item = Relaton::Bipm::ItemData.new docidentifier: [docid]
     expect(Relaton::Bipm::Bibliography).to receive(:get).with(
-      "BIPM Metrologia 29 6 373", nil, {}
+      "Metrologia 29 6 373", nil, {}
     ).and_return item
-    bib = @db.fetch "BIPM Metrologia 29 6 373"
+    bib = @db.fetch "Metrologia 29 6 373"
     expect(bib).to be_instance_of Relaton::Bipm::ItemData
-    expect(bib.docidentifier.first.content).to eq "BIPM Metrologia 29 6 373"
+    expect(bib.docidentifier.first.content).to eq "Metrologia 29 6 373"
   end
 
   it "get DOI reference" do
@@ -535,28 +535,28 @@ RSpec.describe Relaton::Db do
 
   it "get ISBN reference" do
     require "relaton/isbn"
-    docid = Relaton::Bib::Docidentifier.new(content: "ISBN 978-0-580-50101-4",
+    docid = Relaton::Bib::Docidentifier.new(content: "ISBN 978-0-306-40615-7",
                                             type: "ISBN")
     item = Relaton::Bib::ItemData.new docidentifier: [docid]
     expect(Relaton::Isbn::OpenLibrary).to receive(:get).with(
-      "ISBN 978-0-580-50101-4", nil, {}
+      "ISBN 978-0-306-40615-7", nil, {}
     ).and_return item
-    bib = @db.fetch "ISBN 978-0-580-50101-4"
+    bib = @db.fetch "ISBN 978-0-306-40615-7"
     expect(bib).to be_instance_of Relaton::Bib::ItemData
-    expect(bib.docidentifier.first.content).to eq "ISBN 978-0-580-50101-4"
+    expect(bib.docidentifier.first.content).to eq "ISBN 978-0-306-40615-7"
   end
 
   it "get PLATEAU reference" do
     require "relaton/plateau"
-    docid = Relaton::Bib::Docidentifier.new(content: "PLATEAU Hanbook #01",
+    docid = Relaton::Bib::Docidentifier.new(content: "PLATEAU Handbook #01",
                                             type: "PLATEAU")
     item = Relaton::Plateau::ItemData.new docidentifier: [docid]
     expect(Relaton::Plateau::Bibliography).to receive(:get).with(
-      "PLATEAU Hanbook #01", nil, {}
+      "PLATEAU Handbook #01", nil, {}
     ).and_return item
-    bib = @db.fetch "PLATEAU Hanbook #01"
+    bib = @db.fetch "PLATEAU Handbook #01"
     expect(bib).to be_instance_of Relaton::Plateau::ItemData
-    expect(bib.docidentifier.first.content).to eq "PLATEAU Hanbook #01"
+    expect(bib.docidentifier.first.content).to eq "PLATEAU Handbook #01"
   end
 
   context "get combined documents" do
@@ -742,11 +742,11 @@ RSpec.describe Relaton::Db do
         expect(Relaton::Nist::Bibliography).to receive(:get).with(
           "NIST SP 800-38A", nil, {}
         ).and_return item
-        docid1 = Relaton::Nist::Docidentifier.new(content: "NIST SP 800-38A/Add",
+        docid1 = Relaton::Nist::Docidentifier.new(content: "NIST SP 800-38A Add.",
                                                   type: "NIST")
         item1 = Relaton::Nist::ItemData.new docidentifier: [docid1]
         expect(Relaton::Nist::Bibliography).to receive(:get).with(
-          "NIST SP 800-38A/Add", nil, {}
+          "NIST SP 800-38A Add", nil, {}
         ).and_return item1
         bib = @db.fetch "NIST SP 800-38A, Add"
         expect(bib.docidentifier[0].content).to eq "NIST SP 800-38A, Add"
@@ -759,7 +759,7 @@ RSpec.describe Relaton::Db do
           .to eq "amendment"
         rel1 = bib.relation[1].bibitem
         expect(rel1.docidentifier[0].content)
-          .to eq "NIST SP 800-38A/Add"
+          .to eq "NIST SP 800-38A Add."
         # end
       end
     end
@@ -767,31 +767,24 @@ RSpec.describe Relaton::Db do
 
   context "version control" do
     before(:each) do
-      @db.save_entry "iso(test_key)",
-                     "<bibitem><title>test_value</title></bibitem>"
+      @db.save_entry "ISO(ISO 123)", <<~XML
+        <bibitem><fetched>#{Date.today}</fetched><title>test_value</title></bibitem>
+      XML
     end
 
     it "shoudn't clear cache if version isn't changed" do
-      testcache = @db.instance_variable_get :@db
+      testcache = Relaton::Db::Cache.new "testcache"
       expect(testcache.all).to be_any
-      testcache = @db.instance_variable_get :@local_db
+      testcache = Relaton::Db::Cache.new "testcache2"
       expect(testcache.all).to be_any
     end
 
     it "should clear cache if version is changed" do
-      expect(File.read("testcache/iso/version",
-                       encoding: "UTF-8")).not_to eq "new_version"
-      expect(File.read("testcache2/iso/version",
-                       encoding: "UTF-8")).not_to eq "new_version"
-      processor = double "processor", short: :relaton_iso
-      expect(processor).to receive(:grammar_hash)
-        .and_return("new_version").exactly(2).times
-      expect(Relaton::Db::Registry.instance)
-        .to receive(:by_type)
-        .and_return(processor).exactly(2).times
+      processor = Relaton::Db::Registry.instance[:relaton_iso]
+      allow(processor).to receive(:grammar_hash).and_return("new_version")
       Relaton::Db.new "testcache", "testcache2"
-      expect(File.exist?("testcache/iso/version")).to eq false
-      expect(File.exist?("testcache2/iso/version")).to eq false
+      expect(Relaton::Db::Cache.new("testcache").all).to be_empty
+      expect(Relaton::Db::Cache.new("testcache2").all).to be_empty
     end
   end
 

@@ -34,6 +34,12 @@ module Relaton
         DataFetcher.fetch(source, **opts)
       end
 
+      # `IEV` is not a document identifier (`get` answers it with the IEV
+      # vocabulary), so it gets no key: it is not cached.
+      def cache_pubid(ref)
+        ref.strip.casecmp?("IEV") ? nil : super
+      end
+
       # @param xml [String]
       # @return [Relaton::Iec::ItemData]
       def from_xml(xml)
