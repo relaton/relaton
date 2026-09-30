@@ -1,173 +1,214 @@
 # frozen_string_literal: true
 
+require "liquid"
+require "yaml"
 
 module Relaton
   module Bib
     module Converter
-      # Citation strings in the three styles relaton-ts renders: ISO 690,
-      # Chicago author-date, and APA 7th. All share the same component
-      # extraction (one citation language, decomposed title composition,
-      # primary identifier, publisher roles).
+      # Citations rendered from the ISO 690 metaschema: the standard
+      # defines the component inventory of every citation (originator,
+      # date, title, edition, place, publisher, extent, series,
+      # identifier, access), and each citation style is a profile that
+      # selects, orders, and punctuates those components. Styles are
+      # liquid templates plus a name form in styles.yml — adding a style
+      # adds files, never engine code (Citation.register for
+      # out-of-gem styles).
       module Citation
-        STAGE_WORDS = {
-          "60.60" => "Published", "60.00" => "Published",
-          "50.00" => "Final draft", "50.20" => "Final draft",
-          "40.00" => "Draft", "40.20" => "Draft", "90.92" => "Withdrawn",
-          "90.93" => "Withdrawn", "95.99" => "Withdrawn",
-          "90.60" => "Under review", "60.98" => "Cancelled",
-        }.freeze
+        TEMPLATES_DIR = File.expand_path("citation/templates", __dir__)
+        STYLES_FILE = File.expand_path("citation/styles.yml", __dir__)
 
         class << self
-          def iso690(item) = render(item) { |c| c.iso690 }
+          def profiles
+            @profiles ||= YAML.load_file(STYLES_FILE)
+                              .to_h { |style, cfg| [style.to_sym, cfg.transform_keys(&:to_sym)] }
+          end
 
-          def chicago(item) = render(item) { |c| c.chicago }
+          def iso690(item) = render(item, style: :iso690)
 
-          def apa(item) = render(item) { |c| c.apa }
+          def chicago(item) = render(item, style: :chicago)
+
+          def apa(item) = render(item, style: :apa)
+
+          def render(item, style:, profile: nil)
+            cfg = profile || profiles.fetch(style) do
+              raise ArgumentError, "unknown citation style: #{style}"
+            end
+            components = Components.new(item, name_format: cfg.fetch(:name_format))
+            fields = components.fields
+            template = Liquid::Template.parse(template_for(style, fields[:type_key], cfg))
+            cleanup(template.render(fields.transform_keys(&:to_s)))
+          end
+
+          # Registers an out-of-gem style: its name form and a directory
+          # of liquid templates keyed by resource type. The engine and
+          # built-in styles are untouched.
+          def register(style, name_format:, templates_dir:)
+            profiles[style.to_sym] = { name_format:, templates_dir: }
+          end
 
           private
 
-          def render(item)
-            yield Components.new(item)
+          def template_for(style, type_key, cfg)
+            dir = cfg[:templates_dir] || File.join(TEMPLATES_DIR, style.to_s)
+            specific = File.join(dir, "#{type_key}.liquid")
+            path = File.exist?(specific) ? specific : File.join(dir, "default.liquid")
+            File.read(path)
+          end
+
+          def cleanup(text)
+            out = text.gsub(/\s+\./, ".").gsub(/\.\s*\./, ".").gsub(/\s+,/, ",")
+                      .gsub(/\(\s*\)/, "").strip
+            out.empty? || out.end_with?(".", "!", "?") ? out : "#{out}."
           end
         end
 
-        # Extracts the shared citation components once; each style
-        # composes them into its own order and punctuation.
+        # Extracts the ISO 690 component inventory from a Relaton item as
+        # display-ready values. One citation language, decomposed title
+        # composition, primary identifier; names are formatted per the
+        # style's name form so templates stay pure placement.
         class Components
-          attr_reader :docid, :title, :year, :edition, :authors, :org_authors,
-                      :publisher, :type
+          NAME_FORMATS = {
+            "surname_initials" => ->(n) { iso690_name(n) },
+            "family_given" => ->(n) { "#{n[:family]}, #{n[:given]}" },
+            "family_initials" => ->(n) { "#{n[:family]}, #{initials(n[:given])}" },
+          }.freeze
 
-          def initialize(item)
-            @type = item.type.to_s
-            @docid = primary_docid(item)
-            @title = full_title(item)
-            @year = published_year(item)
-            @edition = item.edition.to_s
-            @authors, @org_authors, @publisher = contributors(item)
+          def initialize(item, name_format:)
+            @item = item
+            @name_format = name_format
           end
 
-          def iso690
-            if standard?
-              bits = [docid, title].reject(&:empty?).join(", ")
-              segs(bits, edition.empty? ? "" : "Edition #{edition}", publisher_and_year)
-            else
-              who = org_authors.empty? ? authors.join(" ; ") : org_authors.first
-              segs(who.empty? ? docid : who, title,
-                   edition.empty? ? "" : "Edition #{edition}", publisher_and_year)
-            end
+          # Liquid truthiness: only nil and false are falsy, so empty
+          # strings and arrays are nulled here for {% if %} to work.
+          def fields
+            {
+              type_key: type_key,
+              docid: primary_docid,
+              title: self.class.title_of(@item),
+              year: published_year,
+              edition: @item.edition.to_s,
+              place: Array(@item.place).first.to_s,
+              publisher: publisher_name,
+              lead: lead_originator,
+              trailing_publisher: trailing_publisher,
+              authors: author_names,
+              org_authors: org_author_names,
+              access_url: source_uri,
+            }.transform_values { |v| v.respond_to?(:empty?) && v.empty? ? nil : v }
           end
 
-          def chicago
-            who = standard? ? (org_authors.first || publisher || docid) : (authors.first || org_authors.first || docid)
-            parts = []
-            parts << "#{who}." unless who.empty?
-            parts << "#{year}." unless year.empty?
-            parts << "#{docid}." if standard? && !docid.empty?
-            parts << "#{title}." unless title.empty?
-            parts << "#{edition} ed." unless edition.empty? || standard?
-            parts << "#{publisher}." unless publisher.empty? || publisher == who
-            parts.join(" ")
+          def self.iso690_name(name_parts)
+            return "" unless name_parts[:family]
+
+            "#{name_parts[:family]}, #{initials(name_parts[:given])}"
           end
 
-          def apa
-            who = standard? ? (org_authors.first || publisher || docid) : (authors.first || org_authors.first || docid)
-            parts = []
-            parts << "#{who}." unless who.empty?
-            parts << "(#{year})." unless year.empty?
-            if title.empty?
-              parts << "(#{docid})." unless docid.empty?
-            elsif docid.empty?
-              parts << "#{title}."
-            else
-              parts << "#{title} (#{docid})."
-            end
-            parts << "#{publisher}." unless publisher.empty? || publisher == who
-            parts.join(" ")
+          def self.initials(given)
+            given.split.map { |w| "#{w[0].upcase}." }.join(" ")
           end
 
           private
 
-          def standard? = @type == "standard" || (@type.empty? && !docid.empty?)
-
-          def publisher_and_year
-            return year if publisher.empty?
-
-            year.empty? ? publisher : "#{publisher}, #{year}"
+          def type_key
+            @item.type.to_s.empty? ? "standard" : @item.type.to_s
           end
 
-          def segs(*parts)
-            parts.map { |p| p.to_s.strip }.reject(&:empty?)
-              .map { |p| p.end_with?(".") ? p : "#{p}." }
-              .join(" ")
+          def name_parts(person_name)
+            return { family: "", given: "", complete: "" } unless person_name
+
+            given = Array(person_name.forename).map { |f| f.respond_to?(:content) ? f.content.to_s : f.to_s }.join(" ")
+            family = person_name.surname.respond_to?(:content) ? person_name.surname.content.to_s : person_name.surname.to_s
+            complete = person_name.completename.respond_to?(:content) ? person_name.completename.content.to_s : person_name.completename.to_s
+            { family: family.to_s, given: given.to_s, complete: complete.to_s }
           end
 
-          def primary_docid(item)
-            ids = Array(item.docidentifier)
-            (ids.find(&:primary) || ids.first)&.content.to_s
-          end
+          def format_name(person_name)
+            parts = name_parts(person_name)
+            return "" if parts[:family].empty? && parts[:complete].empty?
 
-          def full_title(item)
-            titles = Array(item.title).select { |t| t.content.to_s != "" }
-            langs = titles.map { |t| t.language.to_s }.uniq
-            lang = langs.include?("en") || langs.include?("eng") ? "en" : langs.first
-            ours = titles.select { |t| lang.nil? || ["en", "eng"].include?(t.language.to_s) == (lang == "en") || t.language.to_s == lang }
-            ours = titles if ours.empty?
-            intro = ours.find { |t| t.type == "title-intro" }
-            main = ours.find { |t| t.type == "title-main" }
-            part = ours.find { |t| t.type == "title-part" }
-            composite = ours.find { |t| t.type == "main" }
-            base = [intro&.content.to_s, main&.content.to_s].reject(&:empty?)
-            base = [composite&.content.to_s].compact if base.empty?
-            base.push(part&.content.to_s).reject(&:empty?).join(" — ")
-          end
+            if parts[:family].empty?
+              words = parts[:complete].split
+              return words.first if words.size < 2
 
-          def published_year(item)
-            date = Array(item.date).find { |d| %w[published issued].include?(d.type.to_s) } || item.date.first
-            value = date && (date.at || date.from || date.to)
-            value.to_s[/\d{4}/]
-          end
-
-          def contributors(item)
-            authors = []
-            org_authors = []
-            publisher = ""
-            Array(item.contributor).each do |c|
-              roles = Array(c.role).map(&:type).compact
-              authorish = (roles & %w[author performer editor]).any?
-              is_publisher = roles.include?("publisher")
-              if authorish && c.person && c.person.name
-                authors << person_name(c.person.name)
-              elsif authorish && c.organization
-                name = org_name(c.organization)
-                org_authors << name unless name.empty?
-              end
-              if is_publisher && c.organization && publisher.empty?
-                publisher = org_name(c.organization)
-              end
+              parts = { family: words.last, given: words[0...-1].join(" "), complete: parts[:complete] }
             end
-            [authors, org_authors, publisher]
+            NAME_FORMATS.fetch(@name_format.to_s).call(parts)
           end
 
-          def person_name(name)
-            fore = Array(name.forename).map { |f| f.respond_to?(:content) ? f.content.to_s : f.to_s }.join(" ")
-            sur = name.surname.respond_to?(:content) ? name.surname.content.to_s : name.surname.to_s
-            return "#{sur}, #{initials(fore)}" unless fore.empty? || sur.empty?
-            return sur unless sur.empty?
-            complete = name.completename.respond_to?(:content) ? name.completename.content.to_s : name.completename.to_s
-            return complete if complete.split.size < 2
+          def author_names
+            Array(@item.contributor).filter_map do |c|
+              roles = Array(c.role).map(&:type).compact
+              next unless (roles & %w[author performer editor]).any? && c.person
 
-            parts = complete.split
-            "#{parts[-1]}, #{initials(parts[0...-1].join(' '))}"
+              format_name(c.person.name)
+            end.reject(&:empty?)
           end
 
-          # ISO 690 names: FAMILY, I. I. — given names become initials.
-          def initials(forenames)
-            forenames.split.map { |w| "#{w[0].upcase}." }.join(" ")
+          def org_author_names
+            Array(@item.contributor).filter_map do |c|
+              roles = Array(c.role).map(&:type).compact
+              next unless (roles & %w[author performer editor]).any? && c.organization
+
+              org_name(c.organization)
+            end.reject(&:empty?)
           end
 
           def org_name(org)
             name = Array(org.name).map { |n| n.respond_to?(:content) ? n.content.to_s : n.to_s }.find(&:itself)
             name || org.abbreviation.to_s
+          end
+
+          def publisher_name
+            pub = Array(@item.contributor).find do |c|
+              Array(c.role).map(&:type).include?("publisher") && c.organization
+            end
+            pub ? org_name(pub.organization) : ""
+          end
+
+          def lead_originator
+            if standard?
+              org_author_names.first || publisher_name || primary_docid
+            else
+              author_names.first || org_author_names.first || primary_docid
+            end
+          end
+
+          def trailing_publisher
+            publisher_name.empty? || publisher_name == lead_originator ? "" : publisher_name
+          end
+
+          def standard? = type_key == "standard"
+
+          def primary_docid
+            ids = Array(@item.docidentifier)
+            (ids.find(&:primary) || ids.first)&.content.to_s
+          end
+
+          # One citation language; decomposed titles compose, a composite
+          # or plain title stands alone. Shared by every export converter.
+          def self.title_of(item)
+            titles = Array(item.title).select { |t| t.content.to_s != "" }
+            content = ->(t) { t&.content.to_s }
+            intro = titles.find { |t| t.type == "title-intro" }
+            main = titles.find { |t| t.type == "title-main" }
+            part = titles.find { |t| t.type == "title-part" }
+            composite = titles.find { |t| t.type == "main" }
+            base = [content.call(intro), content.call(main)].reject(&:empty?)
+            base = [content.call(composite)].reject(&:empty?) if base.empty?
+            base = [content.call(titles.first)].reject(&:empty?) if base.empty?
+            [*base, content.call(part)].reject(&:empty?).join(" — ")
+          end
+
+          def published_year
+            date = Array(@item.date).find { |d| %w[published issued].include?(d.type.to_s) } || Array(@item.date).first
+            value = date && (date.at || date.from || date.to)
+            value.to_s[/\d{4}/]
+          end
+
+          def source_uri
+            Array(@item.source).map { |s| s.respond_to?(:content) ? s.content.to_s : s.to_s }
+              .find { |u| u.start_with?("http") }
           end
         end
       end

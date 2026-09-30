@@ -1,0 +1,9 @@
+# Citation style profiles over the ISO 690 metaschema. Each style picks
+# its name form and a template directory; adding a style means adding a
+# directory plus an entry here — the engine never changes.
+iso690:
+  name_format: surname_initials
+chicago:
+  name_format: family_given
+apa:
+  name_format: family_initials
