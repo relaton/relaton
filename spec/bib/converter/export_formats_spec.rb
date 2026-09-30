@@ -86,7 +86,7 @@ end
 module Relaton
   module Bib
     RSpec.describe "citation style registration (OCP)" do
-      it "renders a newly registered style without any engine change" do
+      it "gives a registered style the same API surface as a built-in" do
         Converter::Citation.register(
           :vancouver,
           name_format: "family_initials",
@@ -104,8 +104,17 @@ module Relaton
           </bibitem>
         XML
         item = Relaton::Bib::Item.from_xml(xml)
-        expect(Converter::Citation.render(item, style: :vancouver))
-          .to eq("ISO. Requirements. 2026.")
+        expect(item.respond_to?(:to_vancouver)).to be(true)
+        expect(item.to_vancouver).to eq("ISO. Requirements. 2026.")
+      end
+
+      it "keeps every style name out of the engine and the model" do
+        engine = File.read(File.expand_path("../../../lib/relaton/bib/converter/citation.rb", __dir__))
+        model = File.read(File.expand_path("../../../lib/relaton/bib/item_data.rb", __dir__))
+        %w[iso690 chicago apa vancouver].each do |style|
+          expect(engine).not_to include(style), "engine names #{style}"
+          expect(model).not_to include(style), "model names #{style}"
+        end
       end
 
       it "applies the registered style's name form" do

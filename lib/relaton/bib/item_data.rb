@@ -152,6 +152,24 @@ module Relaton
         Converter::Bibtex.from_item(self).to_s
       end
 
+      # Citation styles are discovered capsules; their to_#{style} methods
+      # materialize when the style registry first loads. Until then this
+      # forwards — and triggers — that load, after which the real method
+      # takes over.
+      def method_missing(name, *args)
+        style = name.to_s[/\Ato_([a-z0-9_]+)\z/, 1]
+        if style && args.empty? && Converter::Citation.styles.include?(style.to_sym)
+          Converter::Citation.render(self, style: style.to_sym)
+        else
+          super
+        end
+      end
+
+      def respond_to_missing?(name, include_private = false)
+        style = name.to_s[/\Ato_([a-z0-9_]+)\z/, 1]
+        (style && Converter::Citation.styles.include?(style.to_sym)) || super
+      end
+
       def to_ris
         Converter::Ris.from_item(self)
       end
@@ -160,17 +178,6 @@ module Relaton
         Converter::Csl.from_item(self)
       end
 
-      def to_iso690
-        Converter::Citation.iso690(self)
-      end
-
-      def to_chicago
-        Converter::Citation.chicago(self)
-      end
-
-      def to_apa
-        Converter::Citation.apa(self)
-      end
 
       def to_asciibib
         Converter::Asciibib.from_item(self)
