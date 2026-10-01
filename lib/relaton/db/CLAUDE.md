@@ -185,6 +185,14 @@ Keys: a parsed pubid; a wrapped string (`ISO(ISO 19115-1)`), which the cache
 parses through the prefix's processor — `load_entry`/`save_entry` still take
 it; or a plain string no processor owns (bucket `_key/<string>`).
 
+Values: `Db` and `Cache` pass the document XML (`String`) or a
+`Relaton::Db::NotFound` (`Data` with `fetched`, in `cache_entry.rb`), never a
+marker string. `Db` reads with `Cache#read` and tests `is_a?(NotFound)`; keep
+`not_found` regexes out of `db.rb` (`db_spec.rb` guards it). The string API is
+kept for compatibility: `Cache#[]` and `Db#load_entry` return
+`"not_found <date>"` (`NotFound#to_s`), and `Cache#[]=`/`#store` still accept
+that string, which `Cache#coerce` turns into a `NotFound` at the entrance.
+
 ### WorkersPool (lib/relaton/db/workers_pool.rb)
 
 Thread pool for `fetch_async`. Default 10 threads per processor, overridable via `RELATON_FETCH_PARALLEL` env var.
