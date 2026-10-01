@@ -67,6 +67,25 @@ module Relaton
         pubid_class&.parse(ref)
       end
 
+      # The reference as `get` receives it and the cache keys it (relaton#205):
+      # the parse routing already made, else the flavor's own. Nil when the
+      # flavor gives no pubid: `get` then receives the String, and the query
+      # is not cached. A flavor overrides this when an option keeps a query
+      # out of the cache and away from the pubid (CCSDS format).
+      #
+      # @param ref [String]
+      # @param opts [Hash]
+      # @param parsed [Pubid::Identifier, nil] routing's parse, of this
+      #   flavor's class
+      # @return [Pubid::Identifier, nil]
+      def query_pubid(ref, _opts = {}, parsed = nil)
+        pubid = parsed || cache_pubid(ref)
+        # A flavor that reads an unparseable reference as a miss (IANA,
+        # IEEE) gives nil or the raw String: no pubid then. The nil test comes
+        # first: without a pubid class, pubid may not be loaded.
+        pubid if !pubid.nil? && pubid.is_a?(::Pubid::Identifier)
+      end
+
       # Set the year on a parsed pubid, where the flavor's `get` applies it. The
       # default sets the identifier's own year. A flavor whose `get` applies
       # the year elsewhere overrides this (see #fold_year_on_root).
@@ -98,14 +117,12 @@ module Relaton
       # @param ref [String]
       # @param year [String, Integer, nil]
       # @param opts [Hash]
-      # @param parsed [Pubid::Identifier, nil] the reference as the router
-      #   already parsed it with this flavor's class; parsed here otherwise
-      # @return [Pubid::Identifier, nil]
-      def cache_key(ref, year, opts, parsed = nil) # rubocop:disable Metrics/CyclomaticComplexity
-        pubid = parsed || cache_pubid(ref)
-        # A flavor that reads an unparseable reference as a miss (IANA, IEEE)
-        # gives nil or the raw String: no pubid key then.
-        return if pubid.nil? || !pubid.is_a?(::Pubid::Identifier)
+      # @param parsed [Pubid::Identifier, nil] the reference as already parsed
+      #   with this flavor's class (#query_pubid); parsed here otherwise
+      # @return [Pubid::Identifier, nil] never the given object itself when a
+      #   year or all-parts is folded in: those fold on copies
+      def cache_key(ref, year, opts, parsed = nil)
+        pubid = query_pubid(ref, opts, parsed) or return
 
         pubid = fold_year(pubid, year) if year
         pubid = pubid.to_all_parts if opts[:all_parts] && !pubid.all_parts?

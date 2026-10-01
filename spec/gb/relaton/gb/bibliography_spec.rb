@@ -26,6 +26,26 @@ RSpec.describe Relaton::Gb::Bibliography do
       expect(described_class).to receive(:search).with("GB/T 5606.1-2004").and_return hits
       described_class.get "GB/T 5606", "2004", all_parts: true
     end
+
+    context "with a parsed pubid (relaton#205)" do
+      it "searches with it, and leaves it as it was" do
+        pubid = Pubid::Gb::Identifier.parse "GB/T 20223"
+        expect(described_class).to receive(:search).with("GB/T 20223-2006").and_return hits
+        described_class.get pubid, 2006
+        expect(pubid.to_s).to eq "GB/T 20223"
+      end
+
+      it "searches for part 1 of an all-parts pubid" do
+        pubid = Pubid::Gb::Identifier.parse "GB/T 5606 (all parts)"
+        expect(described_class).to receive(:search).with("GB/T 5606.1-2004").and_return hits
+        described_class.get pubid, "2004"
+      end
+    end
+
+    it "searches for part 1 of an all-parts String" do
+      expect(described_class).to receive(:search).with("GB/T 5606.1-2004").and_return hits
+      described_class.get "GB/T 5606 (all parts)", "2004"
+    end
   end
 
   describe ".search_filter" do

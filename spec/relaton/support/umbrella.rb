@@ -36,3 +36,17 @@ end
 Relaton::Db.configure do |config|
   config.use_api = false
 end
+
+# `Relaton::Db` hands a flavor's `get` the parsed pubid (relaton#205), not the
+# reference String. The matcher takes the pubid's printed form, which can be a
+# normalized form of the reference (`NIST SP 800-38A Add` prints with a
+# trailing `.`). It does not compute the expectation with `Db`'s own code, so
+# it can fail. As an argument matcher:
+#   expect(Relaton::Iso::Bibliography).to receive(:get)
+#     .with(pubid_of("ISO 19115-1"), nil, {})
+RSpec::Matchers.define :pubid_of do |printed|
+  match do |actual|
+    actual.is_a?(Pubid::Identifier) && actual.to_s == printed
+  end
+  description { "a pubid that prints #{printed.inspect}" }
+end

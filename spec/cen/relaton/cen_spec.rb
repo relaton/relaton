@@ -96,12 +96,24 @@ RSpec.describe Relaton::Cen do
       end.to output(/\(CEN ISO\/TS 21003-7:2019\) Found: `CEN ISO\/TS 21003-7:2019`/).to_stderr_from_any_process
     end
 
+    it "in option, with a parsed pubid (relaton#205)", vcr: "cen_iso_ts_21003_7" do
+      pubid = Pubid::CenCenelec::Identifier.parse "CEN ISO/TS 21003-7"
+      hash = pubid.to_hash
+      expect do
+        bib = Relaton::Cen::Bibliography.get pubid, "2019"
+        expect(bib.docidentifier[0].content).to eq "CEN ISO/TS 21003-7:2019"
+      end.to output(/\(CEN ISO\/TS 21003-7:2019\) Found: `CEN ISO\/TS 21003-7:2019`/).to_stderr_from_any_process
+      expect(pubid.to_hash).to eq hash
+    end
+
     it "return nil when year is incorrect" do
       VCR.use_cassette "cen_iso_ts_21003_7" do
         bib = ""
         expect do
           bib = Relaton::Cen::Bibliography.get "CEN ISO/TS 21003-7", "2018"
-        end.to output(/There was no match for `2018`/).to_stderr_from_any_process
+        end.to output(
+          /\(CEN ISO\/TS 21003-7\) There was no match for `2018`/,
+        ).to_stderr_from_any_process
         expect(bib).to be_nil
       end
     end

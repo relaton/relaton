@@ -189,4 +189,13 @@ RSpec.describe Relaton::ThreeGpp::Bibliography do
       expect(error).not_to be_a Relaton::RequestError
     end
   end
+
+  # relaton#205: Relaton::Db passes the pubid it parsed. It is used as it is,
+  # not parsed a second time.
+  it "takes a parsed pubid without a second parse" do
+    pubid = Pubid::Tgpp::Identifier.parse "3GPP TS 23.207"
+    expect(described_class).to receive(:best_match) { |arg| expect(arg).to be pubid }.and_return nil
+    expect { expect(described_class.get(pubid)).to be_nil }
+      .to output(/\(3GPP TS 23\.207\) Not found/).to_stderr_from_any_process
+  end
 end

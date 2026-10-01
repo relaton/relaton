@@ -9,15 +9,15 @@ module Relaton
     class Bibliography
       class << self
         # rubocop:disable Metrics/MethodLength
-        # @param text [Strin] code of standard for search
+        # @param ref [Strin] code of standard for search
         # @return [RelatonGb::HitCollection]
-        def search(text)
-          case text
+        def search(ref)
+          case ref
           when /^(GB|GJ|GS)/
             # Scrape national standards.
-            Util.info "Fetching from openstd.samr.gov.cn ...", key: text
+            Util.info "Fetching from openstd.samr.gov.cn ...", key: ref
             require_relative "gb_scraper"
-            GbScraper.scrape_page text
+            GbScraper.scrape_page ref
           # when /^ZB/
             # Scrape proffesional.
           # when /^DB/
@@ -26,26 +26,34 @@ module Relaton
             # Enterprise standard
           when %r{^T/[^\s]{2,6}\s}
             # Scrape social standard.
-            Util.info "Fetching from www.ttbz.org.cn ...", key: text
+            Util.info "Fetching from www.ttbz.org.cn ...", key: ref
             require_relative "t_scraper"
-            TScraper.scrape_page text
+            TScraper.scrape_page ref
           else
             # Scrape sector standard.
             require "relaton/gb/sec_scraper"
-            SecScraper.scrape_page text
+            SecScraper.scrape_page ref
           end
         end
         # rubocop:enable Metrics/MethodLength
 
-        # @param code [String] the GB standard Code to look up (e..g "GB/T 20223")
+        # @param ref [String, Pubid::Gb::Identifier] the GB standard Code to
+        #   look up (e.g. "GB/T 20223"), or its parse from Relaton::Db
+        #   (relaton#205)
         # @param year [String] the year the standard was published (optional)
         # @param opts [Hash] options; restricted to :all_parts if all-parts reference is required
         # @return [Relaton::Gb::ItemData, nil]
-        # @raise [Pubid::Errors::ParseError] when the code is not a GB
+        # @raise [Pubid::Errors::ParseError] when the reference is not a GB
         #   identifier
-        def get(code, year = nil, opts = {})
+        def get(ref, year = nil, opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
           require "pubid"
-          pubid = ::Pubid::Gb::Identifier.parse(code)
+          # A parsed pubid comes from Relaton::Db (relaton#205); it is never
+          # mutated (`exclude` below copies).
+          pubid = ref.is_a?(String) ? ::Pubid::Gb::Identifier.parse(ref) : ref
+          if pubid.all_parts?
+            opts = opts.merge(all_parts: true)
+            pubid = pubid.identifiers.first
+          end
           year = (year || pubid.year)&.to_s
           pubid = pubid.exclude(:year)
           pubid.part = "1" if opts[:all_parts]

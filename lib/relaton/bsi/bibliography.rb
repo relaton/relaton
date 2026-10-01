@@ -7,10 +7,11 @@ module Relaton::Bsi
     Ids = ::Pubid::Bsi::Identifiers
 
     class << self
-      # @param text [String]
+      # @param ref [String] the printed reference
       # @return [Relaton::Bsi::HitCollection]
-      def search(text, year = nil)
-        code = text.sub(/^BSI\s/, "").sub(/ExComm|Expert commentary/, "Ex")
+      def search(ref, year = nil)
+        # A pubid from Relaton::Db (relaton#205) prints "Expert Commentary".
+        code = ref.sub(/^BSI\s/, "").sub(/ExComm|Expert commentary/i, "Ex")
         HitCollection.search(code, year)
       rescue SocketError, Timeout::Error, Errno::EINVAL, Errno::ECONNRESET,
              EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
@@ -19,16 +20,18 @@ module Relaton::Bsi
       end
 
       #
-      # @param code [String] the BSI standard Code to look up
+      # @param ref [String, Pubid::Bsi::Identifier] the BSI standard reference
+      #   to look up, or its parse from Relaton::Db (relaton#205)
       # @param year [String] the year the standard was published (optional)
       # @param opts [Hash] options
       # @option opts [Boolean] :all_parts if all-parts reference is required
       # @option opts [Boolean] :no_year if last published document is required
       #
       # @return [String] Relaton XML serialisation of reference
-      def get(code, year = nil, opts = {})
-        year ||= publication_year(code)
-        ret = bib_get(code, year, opts)
+      def get(ref, year = nil, opts = {})
+        query = ref.is_a?(String) ? parse(ref) : ref
+        year ||= year_of(query)
+        ret = bib_get(ref.to_s, year, opts, query)
         return nil if ret.nil?
 
         ret = ret.to_most_recent_reference unless year || opts[:keep_year]
@@ -40,18 +43,18 @@ module Relaton::Bsi
       # Pubid::Errors::Error and renders "... is not a recognized standards
       # identifier". A catalogue hit code is a different case: `Hit#pubid`
       # rescues, because one odd Algolia row must not abort the search.
-      # @param [String] code document identifier
+      # @param [String] ref the reference
       # @return [Pubid::Bsi::Identifier]
       # @raise [Pubid::Errors::ParseError]
-      def parse(code)
-        ::Pubid::Bsi::Identifier.parse(code)
+      def parse(ref)
+        ::Pubid::Bsi::Identifier.parse(ref)
       end
 
       # Publication year of a reference's base document.
-      # @param [String] code document identifier
+      # @param [String] ref the reference
       # @return [String, nil]
-      def publication_year(code)
-        year_of parse(code)
+      def publication_year(ref)
+        year_of parse(ref)
       end
 
       # Whether a query and a candidate hit denote the same BSI document, at the
@@ -154,14 +157,14 @@ module Relaton::Bsi
       #
       # Search for a BSI standard.
       #
-      # @param [String] code the BSI standard Code to look up
+      # @param [String] ref the BSI standard reference to look up
+      # @param [Pubid::Bsi::Identifier] query the parsed reference
       #
       # @return [Relaton::Bsi::HitCollection] a collection of hits
       #
-      def search_filter(code)
-        query = parse(code)
-        Util.info "Fetching from shop.bsigroup.com ...", key: code
-        search(code).filter_hits!(query)
+      def search_filter(ref, query)
+        Util.info "Fetching from shop.bsigroup.com ...", key: ref
+        search(ref).filter_hits!(query)
       end
 
       # Sort through the results, and return the first result that matches the
@@ -180,15 +183,15 @@ module Relaton::Bsi
         { years: missed_years }
       end
 
-      def bib_get(code, year, _opts)
-        result = search_filter(code) || return
+      def bib_get(ref, year, _opts, query)
+        result = search_filter(ref, query) || return
         ret = results_filter(result, year)
         if ret[:ret]
-          Util.info "Found: `#{ret[:ret].docidentifier.first&.content}`", key: code
+          Util.info "Found: `#{ret[:ret].docidentifier.first&.content}`", key: ref
           ret[:ret]
         else
-          Util.info "Not found", key: code
-          fetch_ref_err(code, year, ret[:years])
+          Util.info "Not found", key: ref
+          fetch_ref_err(ref, year, ret[:years])
         end
       end
     end

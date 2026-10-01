@@ -449,7 +449,10 @@ regex back.
 - **Adding a flavor:** drop `lib/relaton/<flavor>/…` (with a `processor.rb`; the
   flavor's `grammar_hash` should hash `Relaton::VERSION` — don't add a per-flavor
   `version.rb`), add an `autoload` line to
-  `lib/relaton.rb`, add the prefix to `Relaton::Db::Registry::SUPPORTED_GEMS`,
+  `lib/relaton.rb`, make its `Bibliography.get` accept its own pubid as well as
+  a String, without mutating it (`Relaton::Db` hands `get` the parse it routed
+  and keyed the cache with — see "One parse per fetch" in
+  `lib/relaton/db/CLAUDE.md`), add the prefix to `Relaton::Db::Registry::SUPPORTED_GEMS`,
   add its external deps to `relaton.gemspec`, put `<flavor>(-compile).rng` in
   `grammar/`, add specs under `spec/<flavor>/`, and a `lib/relaton/<flavor>/CLAUDE.md`.
   For the `Db` cache key, the processor sets `@pubid_flavor` (or

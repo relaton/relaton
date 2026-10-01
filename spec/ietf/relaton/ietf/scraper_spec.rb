@@ -85,6 +85,20 @@ RSpec.describe Relaton::Ietf::Scraper do
       described_class.scrape_page "IETF RFC 8341"
     end
 
+    it "searches the index with a given pubid, and leaves it as it was (relaton#205)" do
+      pubid = ::Pubid::Ietf::Identifier.parse "RFC 8341"
+      hash = pubid.to_hash
+      index = double("index")
+      allow(described_class).to receive(:index).and_return index
+      expect(index).to receive(:search).with(pubid, exact: true)
+        .and_return [{ id: pubid, file: "data/RFC8341.yaml" }]
+      expect(described_class).to receive(:get_page)
+        .with("#{described_class::IETF}data/RFC8341.yaml")
+
+      described_class.scrape_page pubid
+      expect(pubid.to_hash).to eq hash
+    end
+
     it "returns nil when the reference does not parse" do
       expect(described_class).not_to receive(:get_page)
       expect(described_class.scrape_page("CN 8341")).to be_nil

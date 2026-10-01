@@ -26,7 +26,7 @@ module Relaton
       end
 
       def pubid
-        @pubid ||= Pubid::Ccsds::Identifier.parse(ref)
+        @pubid ||= ref.is_a?(String) ? Pubid::Ccsds::Identifier.parse(ref) : ref
       end
 
       def rows

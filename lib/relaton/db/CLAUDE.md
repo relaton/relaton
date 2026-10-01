@@ -118,14 +118,45 @@ It returns `[stdclass, pubid]`:
    `fetch_async` logs it and yields nil; `docid_type` returns `[nil, code]`;
    relaton-cli logs it and returns no document.
 
-The routed pubid goes on to the cache key (`Core::Processor#cache_key(ref,
-year, opts, parsed)`), so the flavor does not parse the query again for it —
-unless `urn_to_code` rewrote the reference (then the routed parse is of another
-string, and the flavor parses the code). IEC's `urn_to_code` acts on a
-`urn:` only: `Relaton::Iec.urn_to_code` splits on `:`, and it used to rewrite
-`IEC 60034-1:1969+AMD1:1977+AMD2:1979+AMD3:1980 CSV` into `1979+AMD3 1980 CSV`.
-Passing it to the flavor's `get` is the next step of #205; falling through to
-a co-publisher's flavor when the first misses is the step after.
+**One parse per fetch (#205 PR 2).** `Db#query_and_key` turns the routed pubid
+into the **query pubid** once (`Core::Processor#query_pubid(ref, opts,
+parsed)`: the routed parse, else `#cache_pubid`, kept only when it is a
+`Pubid::Identifier`), keys the cache with it (`#cache_key(ref, year, opts,
+query)`, which folds year/all_parts on **copies**), and hands that same object
+to the flavor: `processor.get(query || code, year, opts)`. So
+`db.fetch("ISO 19115-1")` is one grammar parse, and `db_spec.rb` counts it.
+The year and `all_parts` still reach `get` as arguments; the pubid is unfolded.
+A nil query pubid (no pubid class, a policy miss such as `IEV`, a CCSDS
+format) sends the String and leaves the query uncached. `fetch_api` keeps the
+String for its URL. If `urn_to_code` rewrote the reference, the routed parse is
+of another string, and `query_pubid` parses the code. IEC's `urn_to_code` acts
+on a `urn:` only: `Relaton::Iec.urn_to_code` splits on `:`, and it used to
+rewrite `IEC 60034-1:1969+AMD1:1977+AMD2:1979+AMD3:1980 CSV` into
+`1979+AMD3 1980 CSV`. Falling through to a co-publisher's flavor when the first
+misses is the next step (#205 PR 3).
+
+**The flavor contract for `get`** (every flavor in this gem keeps it):
+
+- **Accept a String or the flavor's pubid.** Parse only a String; a String-only
+  rewrite (`IEV`, `upcase`, an en dash, a `BIPM ` prefix) stays in the String
+  branch. Unwrap an `AllParts` pubid the way the String `(all parts)` is read.
+- **Never mutate the pubid.** It is also the cache key, and `to_all_parts`
+  wraps the same object. Copy before a setter (`exclude`, or
+  `pubid.class.from_hash(pubid.to_hash)`); ISO `root.date=`, IEC `date=` and
+  JIS `year=` used to write into the caller's object.
+- **Use `ref.to_s` for text** — log keys (`Util.info …, key: ref.to_s`; the
+  JSON log formatter would serialize a pubid), portal search text, messages.
+  Routing's own parse prints back as the reference. A pubid from
+  `#cache_pubid` (prefix-fallback routing, a named `fetch_std`, a
+  `combine_doc` piece, a `urn_to_code` rewrite) can print a **normalized**
+  form: `NISTIR 8200` → `NIST IR 8200`, `NIST SP 800-38A Add` → `… Add.`,
+  `CIPM Meeting 43` → `CIPM 43rd Meeting`, `IEEE 528` → `IEEE Std 528`,
+  `… Expert commentary` → `… Expert Commentary`, and OGC and 3GPP print with no
+  publisher token. So a text lookup must accept the normalized print: BSI's
+  `ExComm` rewrite is case-insensitive for this reason, and 3GPP logs with
+  `to_s(with_publisher: true)`.
+- `spec/relaton/support/umbrella.rb` has the `pubid_of("ISO 19115-1")` matcher
+  for a stubbed `get`'s first argument.
 
 `Relaton::Db#fetch_all(text, edition, year)` searches cached entries, filtering by text content (via `match_xml_text?`), edition, and/or year. Returns an array of deserialized bibliographic items from both local and global caches.
 
@@ -199,9 +230,10 @@ Thread pool for `fetch_async`. Default 10 threads per processor, overridable via
 
 ### Cache key
 
-`Db#cache_key` asks the processor: `Core::Processor#cache_key(ref, year,
-opts)` parses the reference **as written** with the routed flavor's pubid
-class (`#cache_pubid` → `pubid_class.parse`), then folds `year`
+`Db#query_and_key` asks the processor: `Core::Processor#cache_key(ref, year,
+opts, query)` takes the query pubid (above; else it parses the reference **as
+written** with the routed flavor's pubid class, `#cache_pubid` →
+`pubid_class.parse`), then folds `year`
 (`#fold_year`) and `all_parts` (`to_all_parts`) into the pubid.
 `#pubid_class` reads `@pubid_identifier`, else `@pubid_flavor` —
 `@pubid_identifier` exists so a flavor can key its cache with pubid without
@@ -240,8 +272,10 @@ also sourcing `#prefixes` from pubid.
 - **No key, no cache.** A processor with a pubid class that answers `nil` is
   not cached for that query: a flavor miss by the flavor's own rule (Adobe,
   IANA, IEEE, an incorrect ISBN, `IEV`) and a query whose answer the cache
-  cannot hold (a CCSDS format, which filters the item's sources; an OGC year,
-  which is not the pubid's document-number year).
+  cannot hold (a CCSDS format, which filters the item's sources — CCSDS
+  overrides `query_pubid`, so its `get` also receives the String; an OGC year,
+  which is not the pubid's document-number year — OGC keeps that rule in
+  `cache_key`, so its `get` still receives the pubid).
 - **The publication date range is never in the key.** It selects among the
   cached editions (`Cache#candidates` + `pub_date_in_range?`); on a miss the
   flavor is asked with the range and the answer is cached under **its own**

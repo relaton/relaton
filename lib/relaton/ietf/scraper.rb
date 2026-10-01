@@ -15,17 +15,18 @@ module Relaton
       # publishing their `index-v1` for released relatons, untouched.
       IETF = "https://raw.githubusercontent.com/relaton/relaton-data-ietf/main/"
 
-      # @param text [String]
+      # @param ref [String, Pubid::Ietf::Identifier] a reference, or its parse
+      #   from Relaton::Db (relaton#205), which is used as it is
       # @return [Relaton::Ietf::ItemData, nil]
-      def scrape_page(text)
-        id = parse_id text.sub(/\AIETF\s+/, "")
+      def scrape_page(ref)
+        id = ref.is_a?(String) ? parse_id(ref.sub(/\AIETF\s+/, "")) : ref
         return unless id
 
         fetch_doc id
       rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
              Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
              Net::ProtocolError, SocketError
-        raise Relaton::RequestError, "No document found for #{text} reference"
+        raise Relaton::RequestError, "No document found for #{ref} reference"
       end
 
       private

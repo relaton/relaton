@@ -52,9 +52,9 @@ describe Relaton::Xsf::Bibliography do
 
     # An unrecognized reference RAISES -- like ISO, ETSI and 3GPP, relaton lets
     # it propagate so a caller can tell "malformed identifier" from "no such
-    # document". relaton-cli rescues Parslet::ParseFailed and renders
-    # "... is not a recognized standards identifier"; Pubid::Errors::ParseError
-    # is one, which is what makes that work.
+    # document". relaton-cli rescues the marker module Pubid::Errors::Error
+    # and renders "... is not a recognized standards identifier";
+    # Pubid::Errors::ParseError includes it, which is what makes that work.
     ["XEP banana", "XEP 00O1", "XEP", "not an identifier"].each do |ref|
       it "raises for #{ref.inspect}" do
         expect { described_class.parse_ref(ref) }
@@ -97,5 +97,12 @@ describe Relaton::Xsf::Bibliography do
       expect { described_class.search("not an identifier") }
         .to raise_error(Pubid::Errors::ParseError)
     end
+  end
+
+  # relaton#205: Relaton::Db passes the pubid it parsed. It is used as it is,
+  # not parsed a second time.
+  it "takes a parsed pubid without a second parse" do
+    pubid = Pubid::Xsf::Identifier.parse "XEP 0001"
+    expect(described_class.parse_ref(pubid)).to be pubid
   end
 end

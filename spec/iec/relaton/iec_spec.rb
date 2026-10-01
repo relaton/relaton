@@ -85,6 +85,16 @@ RSpec.describe Relaton::Iec do
       ).to_stderr_from_any_process
     end
 
+    it "a parsed pubid with a year as an arg (relaton#205)", vcr: "get_a_code" do
+      pubid = Pubid::Iec::Identifier.parse "IEC 60050-102"
+      before = pubid.to_hash
+      expect do
+        item = Relaton::Iec::Bibliography.get(pubid, "2007", {})
+        expect(item.docidentifier.first.to_s).to eq "IEC 60050-102:2007"
+      end.to output(/\(IEC 60050-102:2007\) Fetching/).to_stderr_from_any_process
+      expect(pubid.to_hash).to eq before
+    end
+
     it "a reference with an year in a code" do
       VCR.use_cassette "get_a_code_with_year" do
         item = Relaton::Iec::Bibliography.get("IEC 60050-102:2007")
@@ -114,6 +124,14 @@ RSpec.describe Relaton::Iec do
         urn = results.docidentifier.detect { |d| d.type == "URN" }
         expect(iec.to_s).to eq "IEC 80000 (all parts)"
         expect(urn.to_s).to eq "urn:iec:std:iec:80000:::ser"
+      end
+
+      it "by a parsed pubid (relaton#205)", vcr: "iec_80000_all_parts" do
+        pubid = Pubid::Iec::Identifier.parse "IEC 80000 (all parts)"
+        results = Relaton::Iec::Bibliography.get pubid
+        iec = results.docidentifier.detect { |d| d.type == "IEC" }
+        expect(iec.to_s).to eq "IEC 80000 (all parts)"
+        expect(pubid.to_s).to eq "IEC 80000 (all parts)"
       end
 
       it "by options", vcr: "iec_80000_all_parts" do

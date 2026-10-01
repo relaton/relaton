@@ -6,15 +6,17 @@ module Relaton
     module Bibliography
       SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-3gpp/v2/"
 
-      # @param text [String]
+      # @param ref [String, ::Pubid::Tgpp::Identifier] the reference, or the
+      #   parse that Relaton::Db routed with (relaton#205)
       # @return [Relaton::ThreeGpp::ItemData, nil]
-      def search(text)
+      def search(ref)
         # An unrecognized reference raises; like ISO and ETSI we let it
         # propagate — relaton-cli rescues Pubid::Errors::Error and renders
         # "… is not a recognized standards identifier", and API callers rescue
         # it themselves. The rescue below lists transport errors only, so it
         # does not swallow the parse error.
-        pubid = ::Pubid::Tgpp::Identifier.parse text.to_s.strip
+        pubid = ref
+        pubid = ::Pubid::Tgpp::Identifier.parse ref.strip if ref.is_a?(String)
         row = best_match pubid
         return unless row
 
@@ -36,18 +38,29 @@ module Relaton
       # @param opts [Hash] options
       # @return [Relaton::ThreeGpp::ItemData, nil]
       def get(ref, _year = nil, _opts = {})
-        Util.info "Fetching from Relaton repository ...", key: ref
+        Util.info "Fetching from Relaton repository ...", key: log_key(ref)
         result = search(ref)
         unless result
-          Util.info "Not found.", key: ref
+          Util.info "Not found.", key: log_key(ref)
           return
         end
 
-        Util.info "Found: `#{result.docidentifier[0].content}`", key: ref
+        Util.info "Found: `#{result.docidentifier[0].content}`",
+                  key: log_key(ref)
         result
       end
 
       private
+
+      # `Pubid::Tgpp#to_s` omits the `3GPP ` publisher token by default (it
+      # renders the index id), so a pubid from Relaton::Db (relaton#205) is
+      # logged with it, as the caller wrote the reference.
+      #
+      # @param ref [String, ::Pubid::Tgpp::Identifier]
+      # @return [String]
+      def log_key(ref)
+        ref.is_a?(String) ? ref : ref.to_s(with_publisher: true)
+      end
 
       #
       # Find the index row for a reference, newest version first.

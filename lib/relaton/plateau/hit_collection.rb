@@ -44,8 +44,9 @@ module Relaton
       # (metanorma/pubid #269) — so search accepts both forms. An unrecognized
       # reference raises; like ISO and 3GPP we let it propagate — relaton-cli
       # rescues Pubid::Errors::Error. See lib/relaton/plateau/CLAUDE.md.
+      # Relaton::Db passes the reference already parsed (relaton#205).
       def pubid_ref
-        @pubid_ref ||= ::Pubid::Plateau.parse(ref)
+        @pubid_ref ||= ref.is_a?(String) ? ::Pubid::Plateau.parse(ref) : ref
       end
 
       # A reference with no edition (`PLATEAU Handbook #00`, or any Technical

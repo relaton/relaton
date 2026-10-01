@@ -81,5 +81,38 @@ RSpec.describe Relaton::Core::Processor do
       expect { processor(pubid_flavor: :Iso).cache_key("ISO", nil, {}) }
         .to raise_error Pubid::Errors::ParseError
     end
+
+    context "#query_pubid" do
+      it "returns the routed parse itself" do
+        routed = Pubid::Iso::Identifier.parse "ISO 19115-1"
+        pr = processor(pubid_flavor: :Iso)
+        expect(pr).not_to receive(:cache_pubid)
+        expect(pr.query_pubid("ISO 19115-1", {}, routed)).to be routed
+      end
+
+      it "parses the reference when there is no routed parse" do
+        expect(processor(pubid_flavor: :Iso).query_pubid("ISO 19115-1"))
+          .to eq Pubid::Iso::Identifier.parse("ISO 19115-1")
+      end
+
+      it "is nil when the flavor gives no pubid" do
+        pr = processor(pubid_flavor: :Iso)
+        allow(pr).to receive(:cache_pubid).and_return nil
+        expect(pr.query_pubid("ISO 19115-1")).to be_nil
+      end
+
+      it "is nil for a processor with no pubid class" do
+        expect(processor.query_pubid("ISO 19115-1")).to be_nil
+      end
+    end
+
+    it "keys the cache with the given pubid without parsing again" do
+      routed = Pubid::Iso::Identifier.parse "ISO 19115-1"
+      pr = processor(pubid_flavor: :Iso)
+      expect(pr).not_to receive(:cache_pubid)
+      key = pr.cache_key("ISO 19115-1", "2014", {}, routed)
+      expect(key.to_s).to eq "ISO 19115-1:2014"
+      expect(routed.to_s).to eq "ISO 19115-1"
+    end
   end
 end

@@ -7,18 +7,18 @@ module Relaton
         #
         # Search NIST documents by reference
         #
-        # @param text [String] reference
+        # @param ref [String] reference
         #
         # @return [Relaton::Nist::HitCollection] search result
         #
-        def search(text, year = nil, opts = {})
-          ref = text.sub(/^NISTIR/, "NIST IR").sub(/\/Add/, " Add")
+        def search(ref, year = nil, opts = {})
+          query = ref.sub(/^NISTIR/, "NIST IR").sub(/\/Add/, " Add")
           # pubid 2.x only recognizes the addendum marker with a trailing
           # period, and only splits an uppercase part letter — canonicalize
           # both ("800-38a Add" -> "800-38A Add.") so @reference parses to the
           # same pubid the index/CSRC carry.
-          ref = ref.sub(/\bAdd\b\.?/i, "Add.").sub(/([0-9])([a-z])(?=\s+Add\.)/) { "#{$1}#{$2.upcase}" }
-          HitCollection.search ref, year, opts
+          query = query.sub(/\bAdd\b\.?/i, "Add.").sub(/([0-9])([a-z])(?=\s+Add\.)/) { "#{$1}#{$2.upcase}" }
+          HitCollection.search query, year, opts
         rescue OpenURI::HTTPError, SocketError, OpenSSL::SSL::SSLError => e
           raise Relaton::RequestError, e.message
         end
@@ -26,34 +26,38 @@ module Relaton
         #
         # Get NIST document by reference
         #
-        # @param code [String] the NIST standard Code to look up
+        # @param ref [String, Pubid::Nist::Identifier] the NIST standard Code
+        #   to look up, or its parse from Relaton::Db (relaton#205)
         # @param year [String] the year the standard was published (optional)
         # @param opts [Hash] options
         # @option opts [Boolean] :all_parts restricted to all parts
         #
         # @return [Relaton::Nist::ItemData, nil] bibliographic item
         #
-        def get(code, year = nil, opts = {}) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-          return fetch_ref_err(code, year, []) if code.match?(/\sEP$/)
+        def get(ref, year = nil, opts = {}) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+          # The lookup below works on text, so a pubid from Relaton::Db is
+          # read back as its printed form; the pubid itself is not changed.
+          ref = ref.to_s unless ref.is_a?(String)
+          return fetch_ref_err(ref, year, []) if ref.match?(/\sEP$/)
 
-          /^(?<code2>[^(]+)(?:\((?<date2>\w+\s(?:\d{2},\s)?\d{4})\))?\s?\(?(?:(?<=\()(?<stage>(?:I|F|\d)PD))?/ =~ code
-          stage ||= /(?<=\.)PD-\w+(?=\.)/.match(code)&.to_s
+          /^(?<code2>[^(]+)(?:\((?<date2>\w+\s(?:\d{2},\s)?\d{4})\))?\s?\(?(?:(?<=\()(?<stage>(?:I|F|\d)PD))?/ =~ ref
+          stage ||= /(?<=\.)PD-\w+(?=\.)/.match(ref)&.to_s
           if code2
-            code = code2.strip
+            ref = code2.strip
             opts[:date] = parse_date(date2, str: false) if date2
             opts[:stage] = stage if stage
           end
 
           if year.nil?
-            /^(?<code1>[^:]+):(?<year1>[^:]+)$/ =~ code
+            /^(?<code1>[^:]+):(?<year1>[^:]+)$/ =~ ref
             unless code1.nil?
-              code = code1
+              ref = code1
               year = year1
             end
           end
 
-          code += "-1" if opts[:all_parts]
-          nistbib_get(code, year, opts)
+          ref += "-1" if opts[:all_parts]
+          nistbib_get(ref, year, opts)
         end
 
         private
@@ -61,14 +65,14 @@ module Relaton
         #
         # Get NIST document by reference
         #
-        # @param [String] code reference
+        # @param [String] ref reference
         # @param [String] year year
         # @param [Hash] opts options
         #
         # @return [Relaton::Nist::ItemData, nil] bibliographic item
         #
-        def nistbib_get(code, year, opts)
-          result = nistbib_search_filter(code, year, opts) || (return nil)
+        def nistbib_get(ref, year, opts)
+          result = nistbib_search_filter(ref, year, opts) || (return nil)
           ret = nistbib_results_filter(result, year, opts)
           if ret[:ret]
             Util.info "Found: `#{ret[:ret].docidentifier.first.content}`", key: result.reference
@@ -153,14 +157,14 @@ module Relaton
         #
         # Get search results and filter them by code and year
         #
-        # @param code [String] reference
+        # @param ref [String] reference
         # @param year [String, nil] year
         # @param opts [Hash] options
         #
         # @return [Relaton::Nist::HitCollection] hits collection
         #
-        def nistbib_search_filter(code, year, opts)
-          result = search(code, year, opts)
+        def nistbib_search_filter(ref, year, opts)
+          result = search(ref, year, opts)
           result.search_filter
         end
 

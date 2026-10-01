@@ -5,6 +5,14 @@ describe Relaton::Cie::Bibliography do
   end
 
   context ".get" do
+    it "logs a parsed pubid by its printed form (relaton#205)" do
+      pubid = Pubid::Cie.parse "CIE 001-1980"
+      expect(described_class).to receive(:search).with(pubid).and_return nil
+      expect do
+        expect(described_class.get(pubid)).to be_nil
+      end.to output(/\(CIE 001-1980\) Not found/).to_stderr_from_any_process
+    end
+
     it "not found" do
       expect(described_class).to receive(:search).with("CIE 001-1980").and_return nil
       expect do

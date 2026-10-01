@@ -7,25 +7,27 @@ module Relaton
   # IETF bibliography module
     module Bibliography
       class << self
-        # @param code [String] the ISO standard Code to look up (e..g "ISO 9000")
+        # @param ref [String, Pubid::Ietf::Identifier] the IETF reference
+        #   (e.g. "RFC 8341"), or its parse from Relaton::Db (relaton#205)
         # @return [RelatonIetf::IetfBibliographicItem]
-        def search(text)
-          Scraper.scrape_page text
+        def search(ref)
+          Scraper.scrape_page ref
         end
 
-        # @param code [String] the ISO standard Code to look up (e..g "ISO 9000")
+        # @param ref [String, Pubid::Ietf::Identifier] the IETF reference
+        #   (e.g. "RFC 8341"), or its parse from Relaton::Db (relaton#205)
         # @param year [String] the year the standard was published (optional)
         # @param opts [Hash] options; restricted to :all_parts if all-parts
         #   reference is required
         # @return [RelatonIetf::IetfBibliographicItem] Relaton of reference
-        def get(code, _year = nil, _opts = {})
-          Util.info "Fetching from Relaton repository ...", key: code
-          result = search code
+        def get(ref, _year = nil, _opts = {})
+          Util.info "Fetching from Relaton repository ...", key: ref.to_s
+          result = search ref
           if result
             docid = result.docidentifier.detect(&:primary) || result.docidentifier.first
-            Util.info "Found: `#{docid.content}`", key: code
+            Util.info "Found: `#{docid.content}`", key: ref.to_s
           else
-            Util.info "Not found.", key: code
+            Util.info "Not found.", key: ref.to_s
           end
           result
         end

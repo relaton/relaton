@@ -15,10 +15,10 @@ module Relaton
     module Bibliography
       SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-iana/refs/heads/v2/"
 
-      # @param text [String, Pubid::Iana::Identifier]
+      # @param ref [String, Pubid::Iana::Identifier]
       # @return [Relaton::Iana::Item, nil]
-      def search(text)
-        pubid = parse_ref text
+      def search(ref)
+        pubid = parse_ref ref
         return unless pubid
 
         # Pass the pubid so Relaton::Index narrows candidates by number via
@@ -34,19 +34,19 @@ module Relaton
         raise Relaton::RequestError, e.message
       end
 
-      # @param ref [String] the IANA registry slug to look up
+      # @param ref [String, Pubid::Iana::Identifier] the IANA registry slug to look up
       # @param year [String, NilClass] not used
       # @param opts [Hash] options
       # @return [Relaton::Iana::Item, nil]
       def get(ref, _year = nil, _opts = {})
-        Util.info "Fetching from Relaton repository ...", key: ref
+        Util.info "Fetching from Relaton repository ...", key: ref.to_s
         result = search(ref)
         unless result
-          Util.info "Not found.", key: ref
+          Util.info "Not found.", key: ref.to_s
           return
         end
 
-        Util.info "Found: `#{result.docidentifier[0].content}`", key: ref
+        Util.info "Found: `#{result.docidentifier[0].content}`", key: ref.to_s
         result
       end
 
@@ -63,14 +63,14 @@ module Relaton
       # RuntimeError on anything else, and a citation relaton cannot parse is a
       # miss, not an error — `#get` reports it as "Not found.".
       #
-      # @param text [String, Pubid::Iana::Identifier]
+      # @param ref [String, Pubid::Iana::Identifier]
       # @return [Pubid::Iana::Identifier, nil]
-      def parse_ref(text)
-        return text unless text.is_a? String
+      def parse_ref(ref)
+        return ref unless ref.is_a? String
 
-        ::Pubid::Iana::Identifier.parse text
+        ::Pubid::Iana::Identifier.parse ref
       rescue StandardError => e
-        Util.warn "Failed to parse pubid `#{text}`: #{e.message}"
+        Util.warn "Failed to parse pubid `#{ref}`: #{e.message}"
         nil
       end
 

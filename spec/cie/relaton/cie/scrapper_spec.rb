@@ -24,6 +24,16 @@ RSpec.describe Relaton::Cie::Scrapper do
       expect(described_class.scrape_page("CIE 001-1980")).to be_nil
     end
 
+    it "takes a parsed pubid without a second parse (relaton#205)" do
+      pubid = Pubid::Cie.parse "CIE 001-1980"
+      before = pubid.to_hash
+      expect(Pubid::Cie).not_to receive(:parse)
+      resp = double "response", code: "404"
+      expect(agent).to receive(:get).and_raise Mechanize::ResponseCodeError.new(resp, "404")
+      expect(described_class.scrape_page(pubid)).to be_nil
+      expect(pubid.to_hash).to eq before
+    end
+
     it "raise HTTP Request Timeout error" do
       expect(agent).to receive(:get).and_raise Timeout::Error
       expect do

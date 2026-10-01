@@ -55,7 +55,7 @@ module Relaton::Calconnect
     # outside the transport rescue in `Bibliography.search`, so it never becomes
     # a `Relaton::RequestError`.
     #
-    # @param ref [String]
+    # @param ref [String, Pubid::Calconnect::Identifier]
     # @return [Pubid::Calconnect::Identifier, nil]
     #
     # An unrecognized reference **raises**; like ISO, ETSI and 3GPP we let it
@@ -66,6 +66,9 @@ module Relaton::Calconnect
     # Rescuing here would collapse "this identifier is malformed" into "no
     # such document", leaving a caller unable to tell them apart.
     def parse_ref(ref)
+      # A parsed pubid comes from Relaton::Db (relaton#205); it is used as it is.
+      return ref unless ref.is_a?(String)
+
       ::Pubid::Calconnect::Identifier.parse ref.to_s.strip
     end
 

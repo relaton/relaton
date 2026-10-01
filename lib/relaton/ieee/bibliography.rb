@@ -7,11 +7,12 @@ module Relaton
         #
         # Search IEEE bibliography item by reference.
         #
-        # @param code [String]
+        # @param ref [String, Pubid::Ieee::Identifier] the reference, or its
+        #   parse from Relaton::Db (relaton#205)
         #
         # @return [Relaton::Ieee::ItemData, nil]
         #
-        def search(code) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+        def search(ref) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
           index = Relaton::Index.find_or_create :ieee, url: "#{GH_URL}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
                                                        pubid_class: ::Pubid::Ieee::Identifier
           # Pass the parsed pubid (not the raw String) so index-v2 narrows
@@ -20,7 +21,7 @@ module Relaton
           # unparseable/partial ref falls back to the full-scan String search.
           # Rows are Pubid::Ieee::Identifier objects (not Comparable), so pick by
           # the string form.
-          pubid = parse_pubid code
+          pubid = parse_pubid ref
           needle = pubid.to_s
           row = index.search(pubid) { |r| r[:id].to_s.include?(needle) }.min_by { |r| r[:id].to_s }
           return unless row
@@ -36,20 +37,22 @@ module Relaton
         #
         # Get IEEE bibliography item by reference.
         #
-        # @param code [String] the IEEE standard Code to look up (e..g "528-2019")
+        # @param ref [String, Pubid::Ieee::Identifier] the IEEE standard
+        #   reference to look up (e.g. "IEEE 528-2019"), or its parse from
+        #   Relaton::Db (relaton#205)
         # @param year [String] the year the standard was published (optional)
         # @param opts [Hash] options
         #
         # @return [Relaton::Ieee::ItemData, nil]
         #
-        def get(code, _year = nil, _opts = {}) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-          Util.info "Fetching from Relaton repository ...", key: code
-          item = search(code)
+        def get(ref, _year = nil, _opts = {}) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+          Util.info "Fetching from Relaton repository ...", key: ref.to_s
+          item = search(ref)
           if item
-            Util.info "Found: `#{item.docidentifier.first.content}`", key: code
+            Util.info "Found: `#{item.docidentifier.first.content}`", key: ref.to_s
             item
           else
-            Util.info "Not found.", key: code
+            Util.info "Not found.", key: ref.to_s
             nil
           end
         end
@@ -60,12 +63,15 @@ module Relaton
         # return the raw String when pubid can't parse it (e.g. a partial ref) so
         # the search falls back to the substring scan.
         #
-        # @param code [String]
+        # @param ref [String, ::Pubid::Ieee::Identifier]
         # @return [::Pubid::Ieee::Identifier, String]
-        def parse_pubid(code)
-          ::Pubid::Ieee::Identifier.parse code
+        def parse_pubid(ref)
+          # A pubid from Relaton::Db (relaton#205) is used as it is.
+          return ref unless ref.is_a?(String)
+
+          ::Pubid::Ieee::Identifier.parse ref
         rescue StandardError
-          code
+          ref
         end
       end
     end

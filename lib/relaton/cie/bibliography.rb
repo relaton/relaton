@@ -5,23 +5,25 @@ module Relaton
   # IETF bibliography module
     module Bibliography
       class << self
-        # @param code [String] the ECMA standard Code to look up (e..g "ECMA-6")
+        # @param ref [String, Pubid::Cie::Identifier] the CIE reference (e.g.
+        #   "CIE 001-1980"), or its parse from Relaton::Db (relaton#205)
         # @return [Relaton::Cie::ItemData]
-        def search(code)
-          Scrapper.scrape_page code
+        def search(ref)
+          Scrapper.scrape_page ref
         end
 
-        # @param code [String] the ECMA standard Code to look up (e..g "ECMA-6")
+        # @param ref [String, Pubid::Cie::Identifier] the CIE reference (e.g.
+        #   "CIE 001-1980"), or its parse from Relaton::Db (relaton#205)
         # @param year [String] not used
         # @param opts [Hash] not used
         # @return [Relaton::Cie::ItemData] Relaton of reference
-        def get(code, _year = nil, _opts = {})
-          Util.info "Fetching from Relaton repository ...", key: code
-          result = search code
+        def get(ref, _year = nil, _opts = {})
+          Util.info "Fetching from Relaton repository ...", key: ref.to_s
+          result = search ref
           if result
-            Util.info "Found: `#{result.docidentifier.first.content}`", key: code
+            Util.info "Found: `#{result.docidentifier.first.content}`", key: ref.to_s
           else
-            Util.info "Not found.", key: code
+            Util.info "Not found.", key: ref.to_s
           end
           result
         end

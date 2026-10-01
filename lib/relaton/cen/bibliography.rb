@@ -5,10 +5,10 @@ module Relaton
     # Class methods for search Cenelec standards.
     class Bibliography
       class << self
-        # @param text [String]
+        # @param ref [String] the printed reference
         # @return [Relaton::Cen::HitCollection]
-        def search(text, year = nil)
-          HitCollection.new(text, year).search
+        def search(ref, year = nil)
+          HitCollection.new(ref, year).search
         rescue Mechanize::ResponseCodeError, Net::ReadTimeout => e
           raise Relaton::RequestError, e.message
         end
@@ -32,23 +32,24 @@ module Relaton
         end
 
         #
-        # @param code [String] the CEN standard Code to look up
+        # @param ref [String, Pubid::CenCenelec::Identifier] the CEN standard
+        #   reference to look up, or its parse from Relaton::Db (relaton#205)
         # @param year [String] the year the standard was published (optional)
         # @param opts [Hash] options
         # @option opts [Boolean] :keep_year don't upate reference
         #
         # @return [Relaton::Cen::ItemData, nil]
         #
-        def get(code, year = nil, opts = {})
+        def get(ref, year = nil, opts = {})
           # An empty string is no reference, not a malformed one, so it stays a
           # plain nil rather than a parse failure. Mirrors the guard
           # HitCollection#search already carries.
-          return if code.nil? || code.strip.empty?
+          return if ref.nil? || (ref.is_a?(String) && ref.strip.empty?)
 
-          query = parse code
+          query = ref.is_a?(String) ? parse(ref) : ref
           year ||= publication_year query
 
-          bib_get code, year, opts, query
+          bib_get ref.to_s, year, opts, query
         end
 
         private
@@ -77,10 +78,11 @@ module Relaton
           id.exclude(*keys) == id
         end
 
-        def fetch_ref_err(_code, year, missed_years)
+        def fetch_ref_err(ref, year, missed_years)
           unless missed_years.empty?
             Util.info "There was no match for `#{year}`, though there " \
-                      "were matches found for `#{missed_years.join('`, `')}`."
+                      "were matches found for `#{missed_years.join('`, `')}`.",
+                      key: ref
           end
           nil
         end
@@ -88,10 +90,11 @@ module Relaton
         #
         # Selects the portal hits that denote the same document as the query.
         #
-        # The search text stays the caller's raw reference — that is
-        # search-engine input, not identifier parsing — while the SELECTION is
-        # pubid's. A hit whose code the grammar cannot read is dropped rather
-        # than aborting the search.
+        # The search text is the reference as printed (the caller's String, or
+        # the print of a pubid from Relaton::Db) — that is search-engine input,
+        # not identifier parsing — while the SELECTION is pubid's. A hit whose
+        # code the grammar cannot read is dropped rather than aborting the
+        # search.
         #
         # The selection is pubid's subset match `query === hit.pubid`. A part,
         # a year or a supplement year that the query omits matches any value.
@@ -101,13 +104,13 @@ module Relaton
         # amendment's record, and a supplement reference never answers with
         # its base document.
         #
-        # @param code [String] the raw reference, as the portal form wants it
+        # @param ref [String] the printed reference, as the portal form wants it
         # @param query [Pubid::CenCenelec::Identifier]
         #
         # @return [Relaton::Cen::HitCollection]
         #
-        def search_filter(code, query)
-          search(code).select! { |hit| hit.pubid && query === hit.pubid }
+        def search_filter(ref, query)
+          search(ref).select! { |hit| hit.pubid && query === hit.pubid }
         end
 
         # Sort through the results from Isobib, fetching them three at a time,
@@ -129,18 +132,18 @@ module Relaton
           { years: missed_years }
         end
 
-        def bib_get(code, year, opts, query) # rubocop:disable Metrics/MethodLength
-          ref = year && absent?(query, :year) ? "#{code}:#{year}" : code
-          Util.info "Fetching from standards.cencenelec.eu ...", key: ref
-          result = search_filter(code, query)
+        def bib_get(ref, year, opts, query) # rubocop:disable Metrics/MethodLength
+          key = year && absent?(query, :year) ? "#{ref}:#{year}" : ref
+          Util.info "Fetching from standards.cencenelec.eu ...", key: key
+          result = search_filter(ref, query)
           ret = isobib_results_filter(result, year)
           if ret[:ret]
             bib = year || opts[:keep_year] ? ret[:ret] : ret[:ret].to_most_recent_reference
-            Util.info "Found: `#{bib.docidentifier.first&.content}`", key: ref
+            Util.info "Found: `#{bib.docidentifier.first&.content}`", key: key
             bib
           else
-            Util.info "Not found.", key: ref
-            fetch_ref_err(code, year, ret[:years])
+            Util.info "Not found.", key: key
+            fetch_ref_err(ref, year, ret[:years])
           end
         end
       end

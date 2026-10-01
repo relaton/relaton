@@ -106,6 +106,15 @@ RSpec.describe Relaton::Nist do
       end
 
       context "doc with specific revision" do
+        it "accepts a parsed pubid (relaton#205)", vcr: { cassette_name: "nist_sp_800_67r1" } do
+          require "relaton/nist/processor"
+          pubid = Relaton::Nist::Processor.new.query_pubid "NIST SP 800-67r1"
+          hash = pubid.to_hash
+          bib = Relaton::Nist::Bibliography.get pubid
+          expect(bib.docidentifier[0].content).to eq "NIST SP 800-67r1"
+          expect(pubid.to_hash).to eq hash
+        end
+
         it "1 short notation", vcr: { cassette_name: "nist_sp_800_67r1" } do
           bib = Relaton::Nist::Bibliography.get "NIST SP 800-67r1"
           expect(bib.docidentifier[0].content).to eq "NIST SP 800-67r1"

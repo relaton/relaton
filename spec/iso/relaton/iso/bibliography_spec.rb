@@ -159,6 +159,12 @@ RSpec.describe Relaton::Iso::Bibliography do
 
         it_behaves_like "all_parts"
       end
+
+      context "when using a parsed pubid (relaton#205)" do
+        subject { described_class.get Pubid::Iso::Identifier.parse(pubid_all_parts) }
+
+        it_behaves_like "all_parts"
+      end
     end
 
     context "gets the most recent reference" do
@@ -189,6 +195,14 @@ RSpec.describe Relaton::Iso::Bibliography do
       it "with a year as an arg", vcr: "iso_19115_2003" do
         bib = described_class.get("ISO 19115", "2003", {})
         expect(bib.docidentifier[0].to_s).to eq "ISO 19115:2003"
+      end
+
+      it "with a parsed pubid and a year as an arg (relaton#205)", vcr: "iso_19115_2003" do
+        pubid = Pubid::Iso::Identifier.parse "ISO 19115"
+        before = pubid.to_hash
+        bib = described_class.get(pubid, "2003", {})
+        expect(bib.docidentifier[0].to_s).to eq "ISO 19115:2003"
+        expect(pubid.to_hash).to eq before
       end
 
       it "with a year in a code", vcr: "iso_19115_1_2014" do
@@ -468,7 +482,7 @@ RSpec.describe Relaton::Iso::Bibliography do
       it "raises for an identifier pubid cannot parse" do
         VCR.use_cassette "not_found" do
           expect { described_class.get "ISO 111111" }
-            .to raise_error(Parslet::ParseFailed)
+            .to raise_error(Pubid::Errors::Error)
         end
       end
 
@@ -813,6 +827,6 @@ RSpec.describe Relaton::Iso::Bibliography do
 
   it "propagates a pubid parse error" do
     expect { described_class.get("ISO/TC 211 Good Practices") }
-      .to raise_error(Parslet::ParseFailed)
+      .to raise_error(Pubid::Errors::Error)
   end
 end
