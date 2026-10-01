@@ -255,15 +255,23 @@ RSpec.describe Relaton::Db::Cache do
     expect(cache.rows.size).to eq 50
   end
 
+  # All the rows go to one bucket (`iso/1000`, one part each), so a lost
+  # update shows as a missing row.
   it "keeps every row when two processes write" do
-    pids = Array.new(2) do |t|
-      fork do
-        c = described_class.new dir
-        25.times { |i| c[pubid("ISO 1#{t}#{i.to_s.rjust(2, '0')}:2014")] = xml }
-        exit! 0
-      end
+    scripts = Array.new(2) do |t|
+      <<~RUBY
+        require "relaton/db"
+        require "pubid"
+        cache = Relaton::Db::Cache.new #{File.expand_path(dir).inspect}
+        start_barrier!
+        25.times do |i|
+          ref = "ISO 1000-#{t}\#{i.to_s.rjust(2, '0')}:2014"
+          cache[Pubid::Iso::Identifier.parse(ref)] = #{xml.inspect}
+        end
+      RUBY
     end
-    pids.each { Process.wait _1 }
+    statuses, logs = run_children scripts
+    expect(statuses).to all(be_success), logs.join("\n")
     expect(described_class.new(dir).rows.size).to eq 50
   end
 end

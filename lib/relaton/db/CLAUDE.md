@@ -175,6 +175,23 @@ FileSystem adapter was unsafe, lutaml/lutaml-store#17): an exclusive `flock`
 on `<root>/.lock` plus a per-root Monitor for `update`/`transaction`, and temp
 file + rename per write. `Cache#store` writes the document and both rows in
 one `rows` transaction; the lock order is always `rows`, then `docs`.
+Two specs check this with the real lock, in two processes (#204):
+`db_cache_spec.rb` ("keeps every row when two processes write") and
+`db_spec.rb` ("keeps one consistent cache when two processes fetch", the whole
+`Db#fetch` path). They start the processes with `Process.spawn`
+(`run_children`, `spec/relaton/support/child_processes.rb`), not `fork`, so
+they also run on Windows, where production has two separate commands that
+share `~/.relaton/cache`. A child is a fresh Ruby: RSpec stubs do not reach
+it, so its script replaces what it needs (the `Db` spec redefines ISO's
+`Bibliography.get`). A spawned child loads its code for seconds and works
+for less than one, so each script calls `start_barrier!` after its requires,
+and the children start their work together. Both specs also put every row in
+**one bucket** on purpose: two processes that write the same rows, or
+different buckets, hide a lost update (the `Cache` spec used 50 buckets
+before, and passed with no lock). Measured with the `flock` made a no-op
+(loaded into the children through `RUBYOPT`): the `Cache` spec failed 5 of 5
+runs and the `Db` spec 4 of 5; with a sleep added inside `update` too, both
+failed 3 of 3. With the real lock they passed 20 of 20.
 
 An old file-per-key cache (anything in `<dir>` beside `v2/`) is **moved** to
 `<dir>-v1.bak` on open, never deleted — **once**: when the `.bak` exists the
