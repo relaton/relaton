@@ -14,6 +14,16 @@ RSpec.describe Relaton::Plateau::Bibliography do
         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
     end
 
+    it "fetches with a parsed pubid (relaton#205)", vcr: "handbook" do
+      pubid = Relaton::Plateau::Processor.new.query_pubid "PLATEAU Handbook #00 第1.0版"
+      hash = pubid.to_hash
+      expect do
+        bib = described_class.get pubid
+        expect(bib.docidentifier.first.content).to eq "PLATEAU Handbook #00 第1.0版"
+      end.to output(/\(PLATEAU Handbook #00 第1\.0版\) Found/).to_stderr_from_any_process
+      expect(pubid.to_hash).to eq hash
+    end
+
     it "technical-report", vcr: "technical_report" do
       file = "fixtures/technical_report.xml"
       bib = described_class.get("PLATEAU Technical Report #00")

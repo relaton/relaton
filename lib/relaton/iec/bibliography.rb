@@ -24,18 +24,29 @@ module Relaton
           raise Relaton::RequestError, e.message
         end
 
-        # @param code [String] the IEC standard code to look up (e.g. "IEC 8000")
+        # @param ref [String, Pubid::Iec::Identifier] the IEC standard code to
+        #   look up (e.g. "IEC 8000"), or the parse that Relaton::Db routed
+        #   with (relaton#205); a pubid is never mutated
         # @param year [String] the year the standard was published (optional)
         # @param opts [Hash] options; restricted to :all_parts if all-parts
         #   reference is required
         # @return [Relaton::Iec::ItemData, nil]
-        def get(code, year = nil, opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity
-          opts[:all_parts] ||= code.match?(/\s\(all parts\)/)
-          ref = code.sub(/\s\(all parts\)/, "")
-          return iev if ref.casecmp("IEV").zero?
+        def get(ref, year = nil, opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity,Metrics/MethodLength
+          if ref.is_a?(String)
+            opts[:all_parts] ||= ref.match?(/\s\(all parts\)/)
+            text = ref.sub(/\s\(all parts\)/, "")
+            return iev if text.casecmp("IEV").zero?
 
-          pubid = ::Pubid::Iec::Identifier.parse ref.upcase
+            pubid = ::Pubid::Iec::Identifier.parse text.upcase
+          elsif ref.all_parts?
+            opts[:all_parts] = true
+            pubid = ref.identifiers.first
+          else
+            pubid = ref
+          end
           if year
+            # Copy first: a caller's pubid is also its Db cache key.
+            pubid = pubid.class.from_hash(pubid.to_hash)
             pubid.date = ::Pubid::Components::Date.new(year: year.to_s)
           end
 

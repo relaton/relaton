@@ -55,6 +55,16 @@ describe Relaton::Ccsds::TestBibliography do
       end.to output(/\[relaton-ccsds\] INFO: \(CCSDS 230\.2-G-1\) Found: `CCSDS 230\.2-G-1`/).to_stderr_from_any_process
     end
 
+    it "success with a parsed pubid (relaton#205)" do
+      pubid = Pubid::Ccsds::Identifier.parse "CCSDS 230.2-G-1"
+      before = pubid.to_hash
+      expect do
+        item = described_class.get(pubid)
+        expect(item.docidentifier[0].content).to eq "CCSDS 230.2-G-1"
+      end.to output(/\(CCSDS 230\.2-G-1\) Found: `CCSDS 230\.2-G-1`/).to_stderr_from_any_process
+      expect(pubid.to_hash).to eq before
+    end
+
     it "not found" do
       expect(described_class).to receive(:search).with("CCSDS 121").and_return []
       expect do

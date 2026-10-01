@@ -38,6 +38,19 @@ describe Relaton::Ogc do
       ).to_stderr_from_any_process
     end
 
+    it "with a parsed pubid (relaton#205)", vcr: "ogc_19_025r1" do
+      pubid = Pubid::Ogc::Identifier.parse "OGC 19-025r1"
+      hash = pubid.to_hash
+      expect do
+        result = Relaton::Ogc::Bibliography.get pubid, nil, {}
+        expect(result.docidentifier.first.content).to eq "19-025r1"
+      # The log key is the pubid's printed form, which has no `OGC ` token.
+      end.to output(
+        include("[relaton-ogc] INFO: (19-025r1) Found: `19-025r1`"),
+      ).to_stderr_from_any_process
+      expect(pubid.to_hash).to eq hash
+    end
+
     it "with year", vcr: "ogc_19_025r1" do
       result = Relaton::Ogc::Bibliography.get "OGC 19-025r1", "2019", {}
       expect(result).not_to be_nil

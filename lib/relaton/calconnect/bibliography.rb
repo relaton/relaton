@@ -3,10 +3,10 @@ require "mechanize"
 module Relaton::Calconnect
   class Bibliography
     class << self
-      # @param text [String]
+      # @param ref [String]
       # @return [RelatonCalconnect::HitCollection]
-      def search(text, year = nil, _opts = {})
-        HitCollection.new text, year
+      def search(ref, year = nil, _opts = {})
+        HitCollection.new ref, year
       rescue Mechanize::ResponseCodeError, SocketError, Errno::ECONNREFUSED
         raise Relaton::RequestError, "Could not access https://standards.calconnect.org"
       end
@@ -26,14 +26,14 @@ module Relaton::Calconnect
       # afterwards, because an undated reference reaches every year of the
       # document. That split is why `bib_results_filter` stays.
       def get(ref, year = nil, opts = {})
-        Util.info "Fetching from Relaton repository ...", key: ref
+        Util.info "Fetching from Relaton repository ...", key: ref.to_s
         result = search(ref, year, opts) || (return nil)
         ret = bib_results_filter(result, year)
         if ret[:ret]
-          Util.info "Found: `#{ret[:ret].docidentifier.first.content}`", key: ref
+          Util.info "Found: `#{ret[:ret].docidentifier.first.content}`", key: ref.to_s
           ret[:ret]
         else
-          Util.info "Not found.", key: ref
+          Util.info "Not found.", key: ref.to_s
           fetch_ref_err(ref, year, ret[:years])
         end
       end

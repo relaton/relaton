@@ -19,12 +19,13 @@ module Relaton
         @part = part
       end
 
-      # @param ref [String] the OMG reference, e.g. "OMG UML 2.1.1 Superstructure"
+      # @param ref [String, Pubid::Omg::Identifier] the OMG reference, e.g.
+      #   "OMG UML 2.1.1 Superstructure", or its parse from Relaton::Db
       # @return [Relaton::Omg::ItemData, nil] nil when the page is not found
       # @raise [Pubid::Errors::ParseError] when the reference is not an OMG
       #   identifier
       def self.scrape_page(ref)
-        pubid = ::Pubid::Omg::Identifier.parse(ref)
+        pubid = ref.is_a?(String) ? ::Pubid::Omg::Identifier.parse(ref) : ref
         scraper = new(pubid.acronym, pubid.version, pubid.part)
         doc = scraper.get_doc
         return if doc.nil? || scraper.fetch_link.empty?

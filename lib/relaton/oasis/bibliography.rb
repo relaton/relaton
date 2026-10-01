@@ -16,16 +16,16 @@ module Relaton
       OPTIONAL = %i[version stage part label].freeze
 
       class << self
-        def search(text, _year = nil, _opts = {}) # rubocop:disable Metrics/MethodLength
-          Util.info "Fetching from Relaton repository ...", key: text
-          row = find_index_entry(text)
+        def search(ref, _year = nil, _opts = {}) # rubocop:disable Metrics/MethodLength
+          Util.info "Fetching from Relaton repository ...", key: ref.to_s
+          row = find_index_entry(ref)
           unless row
-            Util.info "Not found.", key: text
+            Util.info "Not found.", key: ref.to_s
             return
           end
 
           uri = URI("#{ENDPOINT}#{row[:file]}")
-          parse_item(fetch_yaml(uri), text)
+          parse_item(fetch_yaml(uri), ref)
         rescue SocketError, Errno::EINVAL, Errno::ECONNRESET, EOFError,
                Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
                Net::ProtocolError, Net::ReadTimeout,
@@ -78,11 +78,11 @@ module Relaton
         # by substring, so `OASIS amqp` resolved to some `amqp-core` record;
         # v2 matches identifiers, so a partial name no longer resolves.
         #
-        # @param text [String] the reference as the caller wrote it
+        # @param ref [String] the reference as the caller wrote it
         # @return [Hash, nil] the index row, or nil
         #
-        def find_index_entry(text)
-          pubid = parse_ref text
+        def find_index_entry(ref)
+          pubid = parse_ref ref
           return unless pubid
 
           rows = index.search(pubid)
@@ -111,12 +111,15 @@ module Relaton
         # Rescuing here would collapse "this identifier is malformed" into "no
         # such document", leaving a caller unable to tell them apart.
         #
-        # @param text [String]
+        # @param ref [String, Pubid::Oasis::Identifier]
         # @return [Pubid::Oasis::Identifier]
         # @raise [Pubid::Errors::ParseError]
         #
-        def parse_ref(text)
-          slug = text.to_s.strip.sub(/\A#{Regexp.escape PREFIX}/i, "")
+        def parse_ref(ref)
+          # A parsed pubid comes from Relaton::Db (relaton#205); it is used as it is.
+          return ref unless ref.is_a?(String)
+
+          slug = ref.to_s.strip.sub(/\A#{Regexp.escape PREFIX}/i, "")
           ::Pubid::Oasis::Identifier.parse "#{PREFIX}#{slug}"
         end
 
@@ -190,9 +193,9 @@ module Relaton
           resp.body
         end
 
-        def parse_item(yaml, text)
+        def parse_item(yaml, ref)
           item = Item.from_yaml yaml
-          Util.info "Found: `#{item.docidentifier.first.content}`", key: text
+          Util.info "Found: `#{item.docidentifier.first.content}`", key: ref.to_s
           item.tap { |i| i.fetched = Date.today.to_s }
         end
       end

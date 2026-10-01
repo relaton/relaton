@@ -29,7 +29,7 @@ RSpec.describe Relaton::Db do
         docid: [docid], fetched: Date.today.to_s,
       )
       expect(Relaton::Iso::Bibliography).to receive(:get)
-        .with("ISO 19115-1", nil, {}).and_return item
+        .with(pubid_of("ISO 19115-1"), nil, {}).and_return item
       bib = @db.fetch("ISO 19115-1", nil, {})
       expect(bib).to be_instance_of Relaton::Iso::ItemData
       bib = @db.fetch("ISO 19115-1", nil, {})
@@ -43,7 +43,7 @@ RSpec.describe Relaton::Db do
         docidentifier: [docid], fetched: Date.today.to_s, type: "standard",
       )
       expect(Relaton::Iso::Bibliography).to receive(:get)
-        .with("ISO 19133:2005", nil, {}).and_return item
+        .with(pubid_of("ISO 19133:2005"), nil, {}).and_return item
       bib = @db.fetch("ISO 19133:2005")
       expect(bib).to be_instance_of Relaton::Iso::ItemData
       xml = bib.to_xml
@@ -66,14 +66,14 @@ RSpec.describe Relaton::Db do
 
       it "implicity" do
         expect(Relaton::Iso::Bibliography).to receive(:get)
-          .with("ISO 19115", nil, { all_parts: true }).and_return all_parts_item
+          .with(pubid_of("ISO 19115"), nil, { all_parts: true }).and_return all_parts_item
         bib = @db.fetch("ISO 19115", nil, all_parts: true)
         expect(bib.docidentifier[0].content).to eq "ISO 19115 (all parts)"
       end
 
       it "explicity" do
         expect(Relaton::Iso::Bibliography).to receive(:get)
-          .with("ISO 19115 (all parts)", nil, {}).and_return all_parts_item
+          .with(pubid_of("ISO 19115 (all parts)"), nil, {}).and_return all_parts_item
         bib = @db.fetch("ISO 19115 (all parts)")
         expect(bib.docidentifier[0].content).to eq "ISO 19115 (all parts)"
       end
@@ -86,7 +86,7 @@ RSpec.describe Relaton::Db do
         docidentifier: [docid], fetched: Date.today.to_s,
       )
       expect(Relaton::Iso::Bibliography).to receive(:get)
-        .with("ISO/DIS 14460", nil, {}).and_return item
+        .with(pubid_of("ISO/DIS 14460"), nil, {}).and_return item
       bib = @db.fetch "ISO/DIS 14460"
       expect(bib.docidentifier[0].content).to eq "ISO/DIS 14460"
     end
@@ -100,7 +100,7 @@ RSpec.describe Relaton::Db do
       )
       item = Relaton::Iec::ItemData.new docidentifier: [docid]
       expect(Relaton::Iec::Bibliography).to receive(:get).with(
-        "IEC 60050-102:2007", nil, {}
+        pubid_of("IEC 60050-102:2007"), nil, {}
       ).and_return item
     end
 
@@ -122,7 +122,7 @@ RSpec.describe Relaton::Db do
                                                type: "NIST")
       item = Relaton::Nist::ItemData.new docidentifier: [docid]
       expect(Relaton::Nist::Bibliography).to receive(:get).with(
-        "NIST FIPS 140", nil, {}
+        pubid_of("NIST FIPS 140"), nil, {}
       ).and_return item
       bib = @db.fetch "NIST FIPS 140"
       expect(bib).to be_instance_of Relaton::Nist::ItemData
@@ -135,7 +135,7 @@ RSpec.describe Relaton::Db do
                                                type: "NIST")
       item = Relaton::Nist::ItemData.new docidentifier: [docid]
       expect(Relaton::Nist::Bibliography).to receive(:get).with(
-        "NIST SP 800-38B", nil, {}
+        pubid_of("NIST SP 800-38B"), nil, {}
       ).and_return item
       bib = @db.fetch "NIST SP 800-38B"
       expect(bib).to be_instance_of Relaton::Nist::ItemData
@@ -149,7 +149,7 @@ RSpec.describe Relaton::Db do
     # marker and return nil. (An *unparseable* id instead raises
     # Parslet::ParseFailed straight out of `get` — covered in the iso specs.)
     expect(Relaton::Iso::Bibliography).to receive(:get)
-      .with("ISO 19115-9999", nil, {}).and_return nil
+      .with(pubid_of("ISO 19115-9999"), nil, {}).and_return nil
     bib = @db.fetch("ISO 19115-9999", nil, {})
     expect(bib).to be_nil
     expect(File.exist?("testcache")).to be true
@@ -169,7 +169,7 @@ RSpec.describe Relaton::Db do
       item = Relaton::Iso::ItemData.new(docidentifier: [docid],
                                         fetched: Date.today.to_s)
       expect(Relaton::Iso::Bibliography).to receive(:get)
-        .with(code, nil, {}).and_return item
+        .with(pubid_of(code), nil, {}).and_return item
     end
     @db.fetch "ISO 19115-1", nil, {}
     @db.fetch "ISO 19115-2", nil, {}
@@ -248,7 +248,7 @@ RSpec.describe Relaton::Db do
       )],
     )
     expect(Relaton::Ietf::Bibliography).to receive(:get)
-      .with("RFC 8341", nil, {}).and_return(item)
+      .with(pubid_of("RFC 8341"), nil, {}).and_return(item)
 
     bib = @db.fetch "RFC 8341", nil, {}
     expect(bib).to be_instance_of Relaton::Ietf::ItemData
@@ -308,7 +308,7 @@ RSpec.describe Relaton::Db do
     # what makes the "and cache it" in the title true: a second trip to the
     # flavor would fail the example. (The ISO example above is the same shape.)
     expect(Relaton::Calconnect::Bibliography).to receive(:get)
-      .with("CC/DIR 10005:2019", nil, {}).once.and_return item
+      .with(pubid_of("CC/DIR 10005:2019"), nil, {}).once.and_return item
 
     bib = @db.fetch "CC/DIR 10005:2019", nil, {}
     expect(bib).to be_instance_of Relaton::Calconnect::ItemData
@@ -352,7 +352,7 @@ RSpec.describe Relaton::Db do
     )
     item = Relaton::W3c::ItemData.new docidentifier: [docid]
     expect(Relaton::W3c::Bibliography).to receive(:get).with(
-      "W3C REC-json-ld11-20200716", nil, {}
+      pubid_of("W3C REC-json-ld11-20200716"), nil, {}
     ).and_return item
     bib = @db.fetch "W3C REC-json-ld11-20200716", nil, {}
     expect(bib).to be_instance_of Relaton::W3c::ItemData
@@ -365,7 +365,7 @@ RSpec.describe Relaton::Db do
                                             type: "CCSDS"
     item = Relaton::Ccsds::ItemData.new docidentifier: [docid]
     expect(Relaton::Ccsds::Bibliography).to receive(:get).with(
-      "CCSDS 230.2-G-1", nil, {}
+      pubid_of("CCSDS 230.2-G-1"), nil, {}
     ).and_return item
     bib = @db.fetch "CCSDS 230.2-G-1", nil, {}
     expect(bib).to be_instance_of Relaton::Ccsds::ItemData
@@ -378,7 +378,7 @@ RSpec.describe Relaton::Db do
                                             type: "IEEE")
     item = Relaton::Ieee::ItemData.new docidentifier: [docid]
     expect(Relaton::Ieee::Bibliography).to receive(:get)
-      .with("IEEE Std 528-2019", nil, {}).and_return item
+      .with(pubid_of("IEEE Std 528-2019"), nil, {}).and_return item
     bib = @db.fetch "IEEE Std 528-2019"
     expect(bib).to be_instance_of Relaton::Ieee::ItemData
   end
@@ -387,7 +387,7 @@ RSpec.describe Relaton::Db do
     require "relaton/iho"
     docid = Relaton::Bib::Docidentifier.new(content: "IHO B-11", type: "IHO")
     item = Relaton::Iho::ItemData.new docidentifier: [docid]
-    expect(Relaton::Iho::Bibliography).to receive(:get).with("IHO B-11", nil,
+    expect(Relaton::Iho::Bibliography).to receive(:get).with(pubid_of("IHO B-11"), nil,
                                                              {}).and_return item
     bib = @db.fetch "IHO B-11"
     expect(bib).to be_instance_of Relaton::Iho::ItemData
@@ -399,7 +399,7 @@ RSpec.describe Relaton::Db do
     docid = Relaton::Bib::Docidentifier.new(content: "ECMA-6", type: "ECMA")
     item = Relaton::Ecma::ItemData.new docidentifier: [docid]
     expect(Relaton::Ecma::Bibliography).to receive(:get)
-      .with("ECMA-6", nil, {}).and_return item
+      .with(pubid_of("ECMA-6"), nil, {}).and_return item
     bib = @db.fetch "ECMA-6"
     expect(bib).to be_instance_of Relaton::Ecma::ItemData
   end
@@ -409,7 +409,7 @@ RSpec.describe Relaton::Db do
     docid = Relaton::Bib::Docidentifier.new(content: "CIE 001-1980", type: "CIE")
     item = Relaton::Cie::ItemData.new docidentifier: [docid]
     expect(Relaton::Cie::Bibliography).to receive(:get)
-      .with("CIE 001-1980", nil, {}).and_return item
+      .with(pubid_of("CIE 001-1980"), nil, {}).and_return item
     bib = @db.fetch "CIE 001-1980"
     expect(bib).to be_instance_of Relaton::Cie::ItemData
   end
@@ -420,7 +420,7 @@ RSpec.describe Relaton::Db do
                                             type: "BSI")
     item = Relaton::Bsi::ItemData.new docidentifier: [docid]
     expect(Relaton::Bsi::Bibliography).to receive(:get).with(
-      "BS EN ISO 8848", nil, {}
+      pubid_of("BS EN ISO 8848"), nil, {}
     ).and_return item
     bib = @db.fetch "BS EN ISO 8848"
     expect(bib).to be_instance_of Relaton::Bsi::ItemData
@@ -431,7 +431,7 @@ RSpec.describe Relaton::Db do
     docid = Relaton::Bib::Docidentifier.new(content: "EN 10160:1999", type: "CEN")
     item = Relaton::Cen::ItemData.new docidentifier: [docid]
     expect(Relaton::Cen::Bibliography).to receive(:get)
-      .with("EN 10160:1999", nil, {}).and_return item
+      .with(pubid_of("EN 10160:1999"), nil, {}).and_return item
     bib = @db.fetch "EN 10160:1999"
     expect(bib).to be_instance_of Relaton::Cen::ItemData
   end
@@ -443,7 +443,7 @@ RSpec.describe Relaton::Db do
     )
     item = Relaton::Iana::ItemData.new docidentifier: [docid]
     expect(Relaton::Iana::Bibliography).to receive(:get).with(
-      "IANA service-names-port-numbers", nil, {}
+      pubid_of("IANA service-names-port-numbers"), nil, {}
     ).and_return item
     bib = @db.fetch "IANA service-names-port-numbers"
     expect(bib).to be_instance_of Relaton::Iana::ItemData
@@ -456,7 +456,7 @@ RSpec.describe Relaton::Db do
     )
     item = Relaton::ThreeGpp::ItemData.new docidentifier: [docid]
     expect(Relaton::ThreeGpp::Bibliography).to receive(:get)
-      .with("3GPP TR 00.01U:UMTS/3.0.0", nil, {}).and_return item
+      .with(pubid_of("TR 00.01U:UMTS/3.0.0"), nil, {}).and_return item
     bib = @db.fetch "3GPP TR 00.01U:UMTS/3.0.0"
     expect(bib).to be_instance_of Relaton::ThreeGpp::ItemData
   end
@@ -468,7 +468,7 @@ RSpec.describe Relaton::Db do
     )
     item = Relaton::Oasis::ItemData.new docidentifier: [docid]
     expect(Relaton::Oasis::Bibliography).to receive(:get).with(
-      "OASIS amqp-core-types-v1.0-Pt1", nil, {}
+      pubid_of("OASIS amqp-core-types-v1.0-Pt1"), nil, {}
     ).and_return item
     bib = @db.fetch "OASIS amqp-core-types-v1.0-Pt1"
     expect(bib).to be_instance_of Relaton::Oasis::ItemData
@@ -481,7 +481,7 @@ RSpec.describe Relaton::Db do
     )
     item = Relaton::Bipm::ItemData.new docidentifier: [docid]
     expect(Relaton::Bipm::Bibliography).to receive(:get).with(
-      "Metrologia 29 6 373", nil, {}
+      pubid_of("Metrologia 29 6 373"), nil, {}
     ).and_return item
     bib = @db.fetch "Metrologia 29 6 373"
     expect(bib).to be_instance_of Relaton::Bipm::ItemData
@@ -495,7 +495,7 @@ RSpec.describe Relaton::Db do
     )
     item = Relaton::Bib::ItemData.new docidentifier: [docid]
     expect(Relaton::Doi::Crossref).to receive(:get)
-      .with("doi:10.6028/nist.ir.8245").and_return item
+      .with(pubid_of("doi:10.6028/nist.ir.8245")).and_return item
     bib = @db.fetch "doi:10.6028/nist.ir.8245"
     expect(bib).to be_instance_of Relaton::Bib::ItemData
   end
@@ -504,7 +504,7 @@ RSpec.describe Relaton::Db do
     require "relaton/jis"
     docid = Relaton::Bib::Docidentifier.new(content: "JIS X 0001", type: "JIS")
     item = Relaton::Jis::ItemData.new docidentifier: [docid]
-    expect(Relaton::Jis::Bibliography).to receive(:get).with("JIS X 0001", nil,
+    expect(Relaton::Jis::Bibliography).to receive(:get).with(pubid_of("JIS X 0001"), nil,
                                                              {}).and_return item
     bib = @db.fetch "JIS X 0001"
     expect(bib).to be_instance_of Relaton::Jis::ItemData
@@ -515,7 +515,7 @@ RSpec.describe Relaton::Db do
     require "relaton/xsf"
     docid = Relaton::Bib::Docidentifier.new(content: "XEP 0001", type: "XSF")
     item = Relaton::Bib::ItemData.new docidentifier: [docid]
-    expect(Relaton::Xsf::Bibliography).to receive(:get).with("XEP 0001", nil,
+    expect(Relaton::Xsf::Bibliography).to receive(:get).with(pubid_of("XEP 0001"), nil,
                                                              {}).and_return item
     bib = @db.fetch "XEP 0001"
     expect(bib).to be_instance_of Relaton::Xsf::ItemData
@@ -528,7 +528,7 @@ RSpec.describe Relaton::Db do
                                             type: "ETSI")
     item = Relaton::Etsi::ItemData.new docidentifier: [docid]
     expect(Relaton::Etsi::Bibliography).to receive(:get).with(
-      "ETSI EN 300 175-8", nil, {}
+      pubid_of("ETSI EN 300 175-8"), nil, {}
     ).and_return item
     bib = @db.fetch "ETSI EN 300 175-8"
     expect(bib).to be_instance_of Relaton::Etsi::ItemData
@@ -541,7 +541,7 @@ RSpec.describe Relaton::Db do
                                             type: "ISBN")
     item = Relaton::Bib::ItemData.new docidentifier: [docid]
     expect(Relaton::Isbn::OpenLibrary).to receive(:get).with(
-      "ISBN 978-0-306-40615-7", nil, {}
+      pubid_of("ISBN 978-0-306-40615-7"), nil, {}
     ).and_return item
     bib = @db.fetch "ISBN 978-0-306-40615-7"
     expect(bib).to be_instance_of Relaton::Bib::ItemData
@@ -554,7 +554,7 @@ RSpec.describe Relaton::Db do
                                             type: "PLATEAU")
     item = Relaton::Plateau::ItemData.new docidentifier: [docid]
     expect(Relaton::Plateau::Bibliography).to receive(:get).with(
-      "PLATEAU Handbook #01", nil, {}
+      pubid_of("PLATEAU Handbook #01"), nil, {}
     ).and_return item
     bib = @db.fetch "PLATEAU Handbook #01"
     expect(bib).to be_instance_of Relaton::Plateau::ItemData
@@ -575,10 +575,10 @@ RSpec.describe Relaton::Db do
 
       before do
         expect(Relaton::Iso::Bibliography).to receive(:get)
-          .with("ISO 19115-1:2014", nil, {})
+          .with(pubid_of("ISO 19115-1:2014"), nil, {})
           .and_return iso_item("ISO 19115-1:2014")
         expect(Relaton::Iso::Bibliography).to receive(:get)
-          .with("ISO 19115-1:2014/Amd 1", nil, {})
+          .with(pubid_of("ISO 19115-1:2014/Amd 1"), nil, {})
           .and_return iso_item("ISO 19115-1:2014/Amd 1:2018")
       end
 
@@ -624,7 +624,7 @@ RSpec.describe Relaton::Db do
           docidentifier: [docid],
         )
         expect(Relaton::Iec::Bibliography).to receive(:get)
-          .with("IEC 60027-1", nil, {}).and_return item
+          .with(pubid_of("IEC 60027-1"), nil, {}).and_return item
         docid1 = Relaton::Iec::Docidentifier.new(
           content: "IEC 60027-1/AMD1:1997", type: "IEC",
         )
@@ -632,7 +632,7 @@ RSpec.describe Relaton::Db do
           docidentifier: [docid1],
         )
         expect(Relaton::Iec::Bibliography).to receive(:get)
-          .with("IEC 60027-1/Amd 1", nil, {})
+          .with(pubid_of("IEC 60027-1/AMD1"), nil, {})
           .and_return item1
         docid2 = Relaton::Iec::Docidentifier.new(
           content: "IEC 60027-1/AMD2:2005", type: "IEC",
@@ -641,7 +641,7 @@ RSpec.describe Relaton::Db do
           docidentifier: [docid2],
         )
         expect(Relaton::Iec::Bibliography).to receive(:get)
-          .with("IEC 60027-1/Amd 2", nil, {})
+          .with(pubid_of("IEC 60027-1/AMD2"), nil, {})
           .and_return item2
         bib = @db.fetch "IEC 60027-1, Amd 1, Amd 2"
         expect(bib.docidentifier[0].content)
@@ -692,7 +692,7 @@ RSpec.describe Relaton::Db do
           docidentifier: [docid], contributor: [contrib],
         )
         expect(Relaton::Itu::Bibliography).to receive(:get).with(
-          "ITU-T G.989.2", nil, {}
+          pubid_of("ITU-T G.989.2"), nil, {}
         ).and_return item
         docid1 = Relaton::Bib::Docidentifier.new(
           content: "ITU-T G.989.2 Amd 1", type: "ITU",
@@ -701,7 +701,7 @@ RSpec.describe Relaton::Db do
           docidentifier: [docid1], contributor: [contrib],
         )
         expect(Relaton::Itu::Bibliography).to receive(:get).with(
-          "ITU-T G.989.2 Amd 1", nil, {}
+          pubid_of("ITU-T G.989.2 Amd. 1"), nil, {}
         ).and_return item1
         docid2 = Relaton::Bib::Docidentifier.new(
           content: "ITU-T G.989.2 Amd 2", type: "ITU",
@@ -710,7 +710,7 @@ RSpec.describe Relaton::Db do
           docidentifier: [docid2], contributor: [contrib],
         )
         expect(Relaton::Itu::Bibliography).to receive(:get).with(
-          "ITU-T G.989.2 Amd 2", nil, {}
+          pubid_of("ITU-T G.989.2 Amd. 2"), nil, {}
         ).and_return item2
         bib = @db.fetch "ITU-T G.989.2, Amd 1, Amd 2"
         expect(bib.docidentifier[0].content)
@@ -742,13 +742,13 @@ RSpec.describe Relaton::Db do
                                                 type: "NIST")
         item = Relaton::Nist::ItemData.new docidentifier: [doci]
         expect(Relaton::Nist::Bibliography).to receive(:get).with(
-          "NIST SP 800-38A", nil, {}
+          pubid_of("NIST SP 800-38A"), nil, {}
         ).and_return item
         docid1 = Relaton::Nist::Docidentifier.new(content: "NIST SP 800-38A Add.",
                                                   type: "NIST")
         item1 = Relaton::Nist::ItemData.new docidentifier: [docid1]
         expect(Relaton::Nist::Bibliography).to receive(:get).with(
-          "NIST SP 800-38A Add", nil, {}
+          pubid_of("NIST SP 800-38A Add."), nil, {}
         ).and_return item1
         bib = @db.fetch "NIST SP 800-38A, Add"
         expect(bib.docidentifier[0].content).to eq "NIST SP 800-38A, Add"
@@ -820,7 +820,7 @@ RSpec.describe Relaton::Db do
       # flavor's direct lookup -- stub that so the fallback path is exercised
       # without depending on the live ISO index.
       expect(Relaton::Iso::Bibliography).to receive(:get)
-        .with("ISO 19115-2", "2019", {}).and_return item
+        .with(pubid_of("ISO 19115-2"), "2019", {}).and_return item
       expect(Net::HTTP).to receive(:get_response)
         .and_wrap_original do |m, *args|
         raise Errno::ECONNREFUSED if args[0].host == "api.relaton.org"

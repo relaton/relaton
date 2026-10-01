@@ -5,18 +5,20 @@ module Relaton::Bipm
     GH_ENDPOINT = "https://raw.githubusercontent.com/relaton/relaton-data-bipm/refs/heads/v2/".freeze
 
     class << self
-      # @param text [String]
+      # @param ref [String, Pubid::Bipm::Identifier] the reference, or its
+      #   parse from Relaton::Db (relaton#205)
       # @return [RelatonBipm::BipmBibliographicItem]
-      def search(text, _year = nil, _opts = {}) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-        Util.info "Fetching from Relaton repository ...", key: text
-        ref = text.sub(/^BIPM\s/, "")
-        item = get_bipm ref
+      def search(ref, _year = nil, _opts = {}) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+        key = ref.to_s
+        Util.info "Fetching from Relaton repository ...", key: key
+        query = ref.is_a?(String) ? ref.sub(/^BIPM\s/, "") : ref
+        item = get_bipm query
         unless item
-          Util.info "Not found.", key: text
+          Util.info "Not found.", key: key
           return
         end
 
-        Util.info "Found: `#{item.docidentifier[0].content}`", key: text
+        Util.info "Found: `#{item.docidentifier[0].content}`", key: key
         item
       rescue Mechanize::ResponseCodeError => e
         raise Relaton::RequestError, e.message unless e.response_code == "404"
@@ -40,13 +42,13 @@ module Relaton::Bipm
       # end
 
       #
-      # @param reference [String]
+      # @param ref [String, Pubid::Bipm::Identifier]
       #
       # @return [RelatonBipm::BipmBibliographicItem]
       #
-      def get_bipm(reference) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-        pubid = parse_ref reference
-        rows = search_index pubid, reference
+      def get_bipm(ref) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+        pubid = ref.is_a?(String) ? parse_ref(ref) : ref
+        rows = search_index pubid, ref.to_s
         return if rows.empty?
 
         # Latest edition wins. Metrologia and SI Brochure rows carry no year,
@@ -78,9 +80,9 @@ module Relaton::Bipm
       #    a rescan cannot help — only re-reading the tail as number-plus-year.
       #
       # @param pubid [Pubid::Bipm::Identifier] the parsed reference
-      # @param reference [String, nil] the raw reference, for the retry
+      # @param ref [String, nil] the raw reference, for the retry
       # @return [Array<Hash>] the matching index rows
-      def search_index(pubid, reference)
+      def search_index(pubid, ref)
         # Reduce the query once, not once per row. `#exclude` copies the
         # identifier, so rebuilding it per candidate dominated the lookup.
         query_stem = stem pubid, pubid
@@ -88,7 +90,7 @@ module Relaton::Bipm
         rows = index.search { |r| pubid_match? r[:id], pubid, query_stem } if rows.empty?
         return rows unless rows.empty?
 
-        retry_pubid = year_number_retry reference
+        retry_pubid = year_number_retry ref
         retry_pubid ? search_index(retry_pubid, nil) : rows
       end
 
@@ -101,10 +103,10 @@ module Relaton::Bipm
       # reference, so a probe that does not parse is a miss (nil), never a
       # malformed-reference error -- the same rule as ISO's type/stage probe.
       #
-      # @param reference [String, nil]
+      # @param ref [String, nil]
       # @return [Pubid::Bipm::Identifier, nil]
-      def year_number_retry(reference)
-        match = reference&.match(/\A(?<stem>.+)\s(?<year>\d{4})-(?<number>\d+)\z/)
+      def year_number_retry(ref)
+        match = ref&.match(/\A(?<stem>.+)\s(?<year>\d{4})-(?<number>\d+)\z/)
         return unless match
 
         parse_ref "#{match[:stem]} #{match[:number].sub(/\A0+(?=\d)/, '')} (#{match[:year]})"
@@ -205,11 +207,11 @@ module Relaton::Bipm
       # Pubid::Errors::Error and renders "... is not a recognized standards
       # identifier".
       #
-      # @param reference [String]
+      # @param ref [String]
       # @return [Pubid::Bipm::Identifier]
       # @raise [Pubid::Errors::ParseError]
-      def parse_ref(reference)
-        ::Pubid::Bipm.parse reference
+      def parse_ref(ref)
+        ::Pubid::Bipm.parse ref
       end
 
       def index
@@ -219,7 +221,8 @@ module Relaton::Bipm
         )
       end
 
-      # @param ref [String] the BIPM standard Code to look up (e..g "BIPM B-11")
+      # @param ref [String, Pubid::Bipm::Identifier] the BIPM standard Code to
+      #   look up (e..g "BIPM B-11"), or its parse from Relaton::Db
       # @param year [String] not used
       # @param opts [Hash] not used
       # @return [RelatonBipm::BipmBibliographicItem]

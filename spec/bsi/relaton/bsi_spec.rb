@@ -36,6 +36,18 @@ RSpec.describe Relaton::Bsi do
     end
   end
 
+  it "gets a parsed pubid (relaton#205)" do
+    VCR.use_cassette "bs_en_iso_19011_2018" do
+      pubid = Pubid::Bsi::Identifier.parse "BS EN ISO 19011:2018"
+      hash = pubid.to_hash
+      expect do
+        bib = Relaton::Bsi::Bibliography.get pubid
+        expect(bib.docidentifier.first.content).to eq "BS EN ISO 19011:2018"
+      end.to output(/\(BS EN ISO 19011:2018\) Found/).to_stderr_from_any_process
+      expect(pubid.to_hash).to eq hash
+    end
+  end
+
   it "wipe out trailing ' - TC'" do
     VCR.use_cassette "bs_en_iso_19011_2018" do
       bib = Relaton::Bsi::Bibliography.get("BS EN ISO 19011:2018")
@@ -166,6 +178,16 @@ RSpec.describe Relaton::Bsi do
   context "fetch Expert commentary" do
     it "full type name", vcr: { cassette_name: "excomm_full" } do
       bib = Relaton::Bsi::Bibliography.get "BS 7273-4:2015+A1:2021 Expert commentary"
+      expect(bib.docidentifier[0].content).to eq "BS 7273-4:2015+A1:2021 ExComm"
+    end
+
+    it "full type name from a parsed pubid (relaton#205)", vcr: { cassette_name: "excomm_full" } do
+      # pubid prints "Expert Commentary"; the portal text must still be "Ex".
+      pubid = Pubid::Bsi::Identifier.parse "BS 7273-4:2015+A1:2021 Expert commentary"
+      # The cassette matches on the URI only, so pin the search text itself.
+      expect(Relaton::Bsi::HitCollection).to receive(:search)
+        .with("BS 7273-4:2015+A1:2021 Ex", anything).and_call_original
+      bib = Relaton::Bsi::Bibliography.get pubid
       expect(bib.docidentifier[0].content).to eq "BS 7273-4:2015+A1:2021 ExComm"
     end
 

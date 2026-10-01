@@ -43,7 +43,8 @@ module Relaton
         # `ECMA-418` does not match `ECMA-418-1`. The class must be identical,
         # which keeps `ECMA-100` and `ECMA TR/100` apart.
         #
-        # @param ref [String] the ECMA reference (e.g. "ECMA-6", "ECMA-269 ed3 vol2")
+        # @param ref [String, Pubid::Ecma::Identifier] the ECMA reference
+        #   (e.g. "ECMA-6", "ECMA-269 ed3 vol2"), or its parse
         #
         # @return [Array<Hash>] matching index rows
         #
@@ -62,7 +63,7 @@ module Relaton
         # regex accepted, so every reference shape the flavor has to handle
         # parses without normalization here.
         #
-        # @param ref [String]
+        # @param ref [String, Pubid::Ecma::Identifier]
         # @return [Pubid::Ecma::Identifier, nil]
         #
         # An unrecognized reference **raises**; like ISO, ETSI and 3GPP we let it
@@ -73,20 +74,24 @@ module Relaton
         # Rescuing here would collapse "this identifier is malformed" into "no
         # such document", leaving a caller unable to tell them apart.
         def parse_ref(ref)
+          # A pubid from Relaton::Db (relaton#205) is used as it is.
+          return ref unless ref.is_a?(String)
+
           ::Pubid::Ecma::Identifier.parse ref.to_s.strip
         end
 
-        # @param code [String] the ECMA standard Code to look up (e..g "ECMA-6")
+        # @param ref [String, Pubid::Ecma::Identifier] the ECMA reference
+        #   (e.g. "ECMA-6"), or its parse from Relaton::Db (relaton#205)
         # @param year [String] not used
         # @param opts [Hash] not used
         # @return [Relaton::Ecma::ItemData] Relaton of reference
-        def get(code, _year = nil, _opts = {})
-          Util.info "Fetching from Relaton repository ...", key: code
-          result = fetch_doc(code)
+        def get(ref, _year = nil, _opts = {})
+          Util.info "Fetching from Relaton repository ...", key: ref.to_s
+          result = fetch_doc(ref)
           if result
-            Util.info "Found: `#{result.docidentifier.first.content}`", key: code
+            Util.info "Found: `#{result.docidentifier.first.content}`", key: ref.to_s
           else
-            Util.info "Not found.", key: code
+            Util.info "Not found.", key: ref.to_s
           end
           result
         end
@@ -106,7 +111,7 @@ module Relaton
         #
         # `r[:file]` breaks the tie, because the index sort is not stable.
         #
-        # @param ref [String]
+        # @param ref [String, Pubid::Ecma::Identifier]
         # @return [Hash, nil]
         #
         def best_match(ref)
@@ -127,8 +132,8 @@ module Relaton
           edition.to_s.split(".").map(&:to_i)
         end
 
-        def fetch_doc(code)
-          row = best_match code
+        def fetch_doc(ref)
+          row = best_match ref
           return unless row
 
           url = "#{ENDPOINT}#{row[:file]}"
@@ -137,11 +142,11 @@ module Relaton
         rescue Mechanize::ResponseCodeError => e
           return if e.response_code == "404"
 
-          raise Relaton::RequestError, "No document found for #{code} reference. #{e.message}"
+          raise Relaton::RequestError, "No document found for #{ref} reference. #{e.message}"
         rescue Mechanize::RedirectLimitReachedError, Timeout::Error,
             Mechanize::UnauthorizedError, Mechanize::UnsupportedSchemeError,
             Mechanize::ResponseReadError, Mechanize::ChunkedTerminationError => e
-          raise Relaton::RequestError, "No document found for #{code} reference. #{e.message}"
+          raise Relaton::RequestError, "No document found for #{ref} reference. #{e.message}"
         end
       end
     end

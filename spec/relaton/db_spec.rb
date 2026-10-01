@@ -98,7 +98,7 @@ RSpec.describe Relaton::Db do
       before do
         expect(subject).to receive(:net_retry).with(
           "ISO 123", nil, kind_of(Hash),
-          kind_of(Relaton::Iso::Processor), 1
+          kind_of(Relaton::Iso::Processor), 1, nil
         ).and_return bib
       end
 
@@ -152,7 +152,7 @@ RSpec.describe Relaton::Db do
     it "keeps an undated query and its dated document in one file" do
       item = iso_item("ISO 19115-1:2014")
       expect(Relaton::Iso::Bibliography).to receive(:get)
-        .with("ISO 19115-1", nil, {}).once.and_return item
+        .with(pubid_of("ISO 19115-1"), nil, {}).once.and_return item
       expect(db.fetch("ISO 19115-1").docidentifier.first.content)
         .to eq "ISO 19115-1:2014"
       expect(db.fetch("ISO 19115-1:2014").docidentifier.first.content)
@@ -538,7 +538,7 @@ RSpec.describe Relaton::Db do
                                               type: "ISO"
       item = Relaton::Iso::ItemData.new docid: [docid]
       expect(Relaton::Iso::Bibliography).to receive(:get)
-        .with("ISO 19115-1", nil, {}).and_return item
+        .with(pubid_of("ISO 19115-1"), nil, {}).and_return item
       bib = subject.fetch("ISO 19115-1", nil, {})
       expect(bib).to be_instance_of Relaton::Iso::ItemData
     end
@@ -549,7 +549,7 @@ RSpec.describe Relaton::Db do
       item = Relaton::Iso::ItemData.new(docidentifier: [docid],
                                         fetched: Date.today.to_s)
       expect(Relaton::Iso::Bibliography).to receive(:get)
-        .with("ISO 19115-1", nil, {}).and_return item
+        .with(pubid_of("ISO 19115-1"), nil, {}).and_return item
       db = Relaton::Db.new "testcache", nil
       bib = db.fetch("ISO 19115-1", nil, {})
       expect(bib).to be_instance_of Relaton::Iso::ItemData
@@ -582,7 +582,7 @@ RSpec.describe Relaton::Db do
       )
       item = Relaton::Bipm::ItemData.new docidentifier: [docid]
       expect(Relaton::Bipm::Bibliography).to receive(:get)
-        .with("CIPM Meeting 43", nil, {}).and_return item
+        .with(pubid_of("CIPM 43rd Meeting"), nil, {}).and_return item
       bib = subject.fetch("CIPM Meeting 43")
       expect(bib).to be_instance_of Relaton::Bipm::ItemData
       expect(bib.docidentifier.first.content).to eq "CIPM 43rd Meeting (1950)"
@@ -597,7 +597,7 @@ RSpec.describe Relaton::Db do
       )
       item = Relaton::Iala::ItemData.new docidentifier: [docid]
       expect(Relaton::Iala::Bibliography).to receive(:get)
-        .with("IALA S1070", nil, {}).and_return item
+        .with(pubid_of("IALA S1070"), nil, {}).and_return item
       bib = subject.fetch("IALA S1070")
       expect(bib).to be_instance_of Relaton::Iala::ItemData
       expect(bib.docidentifier.first.content).to eq "IALA S1070 Ed 2.0"
@@ -609,7 +609,7 @@ RSpec.describe Relaton::Db do
     item = Relaton::Iso::ItemData.new(docidentifier: [docid],
                                       fetched: Date.today.to_s)
     expect(Relaton::Iso::Bibliography).to receive(:get)
-      .with("ISO 19115-1", nil, {}).and_return item
+      .with(pubid_of("ISO 19115-1"), nil, {}).and_return item
     db = Relaton::Db.new "testcache", nil
     bib = db.fetch_std("ISO 19115-1", nil, :relaton_iso, {})
     expect(bib).to be_instance_of Relaton::Iso::ItemData
@@ -618,7 +618,7 @@ RSpec.describe Relaton::Db do
   it "fetch std with the flavor the caller names" do
     expect(Relaton::Iso::Bibliography).not_to receive(:get)
     expect(Relaton::Iec::Bibliography).to receive(:get)
-      .with("ISO 19115-1", nil, {}).and_return nil
+      .with(pubid_of("ISO 19115-1"), nil, {}).and_return nil
     Relaton::Db.new(nil, nil).fetch_std("ISO 19115-1", nil, :relaton_iec, {})
   end
 
@@ -690,21 +690,54 @@ RSpec.describe Relaton::Db do
   end
 
   context "#fetch parse-first routing (relaton#205)" do
+    # The calls of pubid's shared grammar parse while the block runs.
+    def grammar_parses
+      count = 0
+      trace = TracePoint.new(:call) do |tp|
+        count += 1 if tp.defined_class == Pubid::Parser::Grammar &&
+          tp.method_id == :parse
+      end
+      trace.enable { yield }
+      count
+    end
+
     it "routes by the parsed pubid class and keys the cache with that parse" do
       expect(Pubid).to receive(:parse).with("ISO 8601-1:2021").once.and_call_original
       expect(Relaton::Db::Registry.instance[:relaton_iso])
         .not_to receive(:cache_pubid)
       expect(Relaton::Iso::Bibliography).to receive(:get).with(
-        "ISO 8601-1:2021", anything, anything
+        pubid_of("ISO 8601-1:2021"), anything, anything
       ).and_return(nil)
       subject.fetch("ISO 8601-1:2021")
     end
 
+    it "parses the reference once and hands that parse to the flavor's get" do
+      got = nil
+      allow(Relaton::Iso::Bibliography).to receive(:get) do |ref, *|
+        got = ref
+        nil
+      end
+      db = Relaton::Db.new "testcache", nil
+      expect(grammar_parses { db.fetch("ISO 19115-1", "2014") }).to eq 1
+      expect(got).to be_a Pubid::Iso::Identifier
+      # unfolded: the year goes to get as its own argument, not into the pubid
+      expect(got.to_s).to eq "ISO 19115-1"
+    end
+
     it "routes a co-published identifier to the flavor its printed form names first" do
       expect(Relaton::Iec::Bibliography).not_to receive(:get)
-      expect(Relaton::Iso::Bibliography).to receive(:get)
-        .with("ISO/IEC 27001:2022", anything, anything).and_return(nil)
+      expect(Relaton::Iso::Bibliography).to receive(:get) do |ref, *|
+        expect(ref).to be_a Pubid::Iso::Identifier
+        expect(ref.to_s).to eq "ISO/IEC 27001:2022"
+        nil
+      end
       subject.fetch("ISO/IEC 27001:2022")
+    end
+
+    it "hands get the String when the flavor gives no pubid" do
+      expect(Relaton::Iec::Bibliography).to receive(:get)
+        .with("IEV", anything, anything).and_return(nil)
+      subject.fetch "IEV"
     end
 
     it "raises for a DOI-shaped string no flavor claims" do
@@ -716,7 +749,7 @@ RSpec.describe Relaton::Db do
     it "hands an IEC reference with many colons to IEC unchanged" do
       ref = "IEC 60034-1:1969+AMD1:1977+AMD2:1979+AMD3:1980 CSV"
       expect(Relaton::Iec::Bibliography).to receive(:get)
-        .with(ref, anything, anything).and_return(nil)
+        .with(pubid_of(ref), anything, anything).and_return(nil)
       subject.fetch ref
     end
 

@@ -8,15 +8,15 @@ module Relaton
       class << self
         # Search for an IALA publication by its identifier.
         #
-        # @param text [String] the IALA reference to look up (e.g. "IALA S1070")
+        # @param ref [String] the IALA reference to look up (e.g. "IALA S1070")
         # @param _year [String, nil] optional edition/year filter
         # @param _opts [Hash] options (unused)
         # @return [Relaton::Iala::Item, nil]
-        def search(text, _year = nil, _opts = {})
-          Util.info "Fetching from Relaton repository ...", key: text
-          row = best_match text
+        def search(ref, _year = nil, _opts = {})
+          Util.info "Fetching from Relaton repository ...", key: ref.to_s
+          row = best_match ref
           unless row
-            Util.info "Not found.", key: text
+            Util.info "Not found.", key: ref.to_s
             return
           end
 
@@ -27,7 +27,7 @@ module Relaton
           end
 
           item = Relaton::Iala::Item.from_yaml resp.body
-          Util.info "Found: `#{item.docidentifier.first&.content}`", key: text
+          Util.info "Found: `#{item.docidentifier.first&.content}`", key: ref.to_s
           item.tap { |i| i.fetched = Date.today.to_s }
         rescue SocketError, Errno::EINVAL, Errno::ECONNRESET, EOFError,
                Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
@@ -59,7 +59,7 @@ module Relaton
         # must never match each other. An `Annex` row carries its base
         # identifier, which `===` compares with its own subset match.
         #
-        # @param text [String]
+        # @param ref [String]
         # @return [Hash, nil]
         #
         # The substring-scan fallback this used to take when parsing failed is
@@ -68,8 +68,8 @@ module Relaton
         # ids, so an ambiguous reference silently resolved to whichever row
         # sorted first, instead of telling the caller the reference is not an
         # identifier. ecma, w3c and xsf never had one.
-        def best_match(text)
-          pubid = parse_ref text
+        def best_match(ref)
+          pubid = parse_ref ref
           rows = index.search(pubid)
           rows.max_by { |r| [edition_key(r[:id].edition), language_key(r[:id]), r[:file]] }
         end
@@ -114,7 +114,7 @@ module Relaton
         # zero-pads the number to its type's canonical width, so `IALA M1`,
         # `M0001` and `R1016:ed2.0(F)` all parse without normalization here.
         #
-        # @param text [String]
+        # @param ref [String, Pubid::Iala::Identifier]
         # @return [Pubid::Iala::Identifier, nil]
         #
         # An unrecognized reference **raises**; like ISO, ETSI and 3GPP we let it
@@ -124,8 +124,11 @@ module Relaton
         # logs it through the `StandardError` arm at `lib/relaton/db.rb:122`.
         # Rescuing here would collapse "this identifier is malformed" into "no
         # such document", leaving a caller unable to tell them apart.
-        def parse_ref(text)
-          ::Pubid::Iala::Identifier.parse text.to_s.strip
+        def parse_ref(ref)
+          # A parsed pubid comes from Relaton::Db (relaton#205); it is used as it is.
+          return ref unless ref.is_a?(String)
+
+          ::Pubid::Iala::Identifier.parse ref.to_s.strip
         end
 
         # The index is pubid-backed: `pubid_class:` is what makes

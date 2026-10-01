@@ -8,7 +8,7 @@ module Relaton
 
       # @return [self]
       def find
-        return self if ref.nil? || ref.empty?
+        return self if ref.nil? || ref.to_s.empty?
 
         row = best_match ref
         return self unless row
@@ -50,7 +50,7 @@ module Relaton
       # `<nnn>` field alone, so one bucket holds every year that reused the
       # number (`05-007` and `17-007` share bucket `007`).
       #
-      # @param text [String]
+      # @param ref [String, Pubid::Ogc::Identifier]
       # @return [Hash, nil]
       #
       # The substring-scan fallback this used to take when parsing failed is
@@ -59,8 +59,8 @@ module Relaton
       # ids, so an ambiguous reference silently resolved to whichever row
       # sorted first, instead of telling the caller the reference is not an
       # identifier. ecma, w3c and xsf never had one.
-      def best_match(text)
-        pubid = parse_ref text
+      def best_match(ref)
+        pubid = parse_ref ref
         rows = index.search(pubid)
         rows.max_by { |r| [revision_key(r[:id].revision), r[:file]] }
       end
@@ -93,7 +93,7 @@ module Relaton
       # lowercases the revision, so `OGC 19-025r1`, `19-025r1`, `11-038R2` and
       # the revision-less `16-079` all parse without normalization here.
       #
-      # @param text [String]
+      # @param ref [String, Pubid::Ogc::Identifier] a pubid is returned as it is
       # @return [Pubid::Ogc::Identifier, nil]
       #
       # An unrecognized reference **raises**; like ISO, ETSI and 3GPP we let it
@@ -103,8 +103,10 @@ module Relaton
       # logs it through the `StandardError` arm at `lib/relaton/db.rb:122`.
       # Rescuing here would collapse "this identifier is malformed" into "no
       # such document", leaving a caller unable to tell them apart.
-      def parse_ref(text)
-        ::Pubid::Ogc::Identifier.parse text.to_s.strip
+      def parse_ref(ref)
+        return ref unless ref.is_a?(String)
+
+        ::Pubid::Ogc::Identifier.parse ref.strip
       end
     end
   end

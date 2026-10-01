@@ -15,6 +15,14 @@ RSpec.describe Relaton::Omg do
 end
 
 RSpec.describe Relaton::Omg::Bibliography do
+  it "fetches with a parsed pubid (relaton#205)", vcr: "omg_ami4ccm_1_0" do
+    pubid = Pubid::Omg::Identifier.parse "OMG AMI4CCM 1.0"
+    expect do
+      item = described_class.get pubid
+      expect(item.docidentifier.first.content).to eq "OMG AMI4CCM 1.0"
+    end.to output(/\(OMG AMI4CCM 1\.0\) Found/).to_stderr_from_any_process
+  end
+
   it "fetches specific version", vcr: "omg_ami4ccm_1_0" do
     expect do
       item = described_class.get "OMG AMI4CCM 1.0"

@@ -6,14 +6,15 @@ module Relaton
     module Bibliography
       SOURCE = "https://raw.githubusercontent.com/relaton/relaton-data-etsi/refs/heads/v2/"
 
-      # @param text [String]
+      # @param ref [String, ::Pubid::Etsi::Identifier]
       # @return [Relaton::Etsi::ItemData, nil]
-      def search(text) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+      def search(ref) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
         # An unrecognized reference raises Pubid::Errors::ParseError; like
         # ISO we let it propagate — the CLI turns it into a friendly message
         # and API callers rescue it themselves. Valid partial refs parse with
         # the omitted refinements (version/date/part) left blank.
-        pubid = ::Pubid::Etsi.parse text
+        # A parsed pubid comes from Relaton::Db (relaton#205); it is only read.
+        pubid = ref.is_a?(String) ? ::Pubid::Etsi.parse(ref) : ref
 
         index = Relaton::Index.find_or_create :etsi, url: "#{SOURCE}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
                                                      pubid_class: ::Pubid::Etsi::Identifier
@@ -89,19 +90,19 @@ module Relaton
         [(id.version&.version).to_s.split(".").map(&:to_i), id.date.to_s]
       end
 
-      # @param ref [String] the ETSI standard Code to look up
+      # @param ref [String, ::Pubid::Etsi::Identifier] the ETSI standard Code to look up
       # @param year [String, nil] year
       # @param opts [Hash] options
       # @return [Relaton::Etsi::ItemData, nil]
       def get(ref, _year = nil, _opts = {})
-        Util.info "Fetching from Relaton repository ...", key: ref
+        Util.info "Fetching from Relaton repository ...", key: ref.to_s
         result = search(ref)
         unless result
-          Util.info "Not found.", key: ref
+          Util.info "Not found.", key: ref.to_s
           return
         end
 
-        Util.info "Found: `#{result.docidentifier[0].content}`", key: ref
+        Util.info "Found: `#{result.docidentifier[0].content}`", key: ref.to_s
         result
       end
 

@@ -24,7 +24,9 @@ module Relaton
         raise Relaton::RequestError, e.message
       end
 
-      # @param ref [String] the ISO standard Code to look up (e..g "ISO 9000")
+      # @param ref [String, Pubid::Iso::Identifier] the ISO standard Code to
+      #   look up (e..g "ISO 9000"), or the parse that Relaton::Db routed with
+      #   (relaton#205); a pubid is never mutated
       # @param year [String, NilClass] the year the standard was published
       # @param opts [Hash] options; restricted to :all_parts if all-parts
       # @option opts [Boolean] :all_parts if all-parts reference is required
@@ -33,21 +35,21 @@ module Relaton
       #
       # @return [RelatonIsoBib::IsoBibliographicItem] Bibliographic item
       def get(ref, year = nil, opts = {}) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity,Metrics/AbcSize
-        code = ref.gsub("\u2013", "-")
-
-        # parse "all parts" request
-        # code.sub! " (all parts)", ""
-        # opts[:all_parts] ||= $~ && opts[:all_parts].nil?
-
-        query_pubid = ::Pubid::Iso::Identifier.parse(code)
+        query_pubid = if ref.is_a?(String)
+                        ::Pubid::Iso::Identifier.parse(ref.gsub("\u2013", "-"))
+                      else
+                        ref
+                      end
         if year&.respond_to?(:to_i)
+          # Copy first: a caller's pubid is also its Db cache key.
+          query_pubid = query_pubid.class.from_hash(query_pubid.to_hash)
           query_pubid.root.date = ::Pubid::Components::Date.new(year: year.to_s)
         end
         query_pubid = query_pubid.to_all_parts if opts[:all_parts]
         Util.info "Fetching from Relaton repository ...", key: query_pubid.to_s
 
         hits, missed_year_ids = isobib_search_filter(query_pubid, opts)
-        tip_ids = look_up_with_any_types_stages(hits, ref, opts)
+        tip_ids = look_up_with_any_types_stages(hits, ref.to_s, opts)
 
         date_filter = opts[:publication_date_before] || opts[:publication_date_after]
         if date_filter && !query_pubid.all_parts

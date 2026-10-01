@@ -35,16 +35,18 @@ module Relaton
         HitCollection.new(parse_ref(ref)).search
       end
 
-      def get(code, _year = nil, _opts = {})
-        Util.info "Fetching from Relaton repository ...", key: code
-        result = search(code)
+      # @param ref [String, Pubid::Xsf::Identifier] the reference, or the
+      #   parse that Relaton::Db routed with (relaton#205)
+      def get(ref, _year = nil, _opts = {})
+        Util.info "Fetching from Relaton repository ...", key: ref.to_s
+        result = search(ref)
         if result.empty?
-          Util.info "Not found.", key: code
+          Util.info "Not found.", key: ref.to_s
           return
         end
 
         bib = result.first.item
-        Util.info "Found: `#{bib.docidentifier.first.content}`", key: code
+        Util.info "Found: `#{bib.docidentifier.first.content}`", key: ref.to_s
         bib
       end
 
@@ -66,11 +68,14 @@ module Relaton
       # Anything else raises -- see `.search`. `Pubid::Errors::ParseError`
       # includes `Pubid::Errors::Error`, which is the class relaton-cli rescues.
       #
-      # @param ref [String]
+      # @param ref [String, Pubid::Xsf::Identifier]
       # @return [Pubid::Xsf::Identifier]
       # @raise [Pubid::Errors::ParseError]
       #
       def parse_ref(ref)
+        # A parsed pubid comes from Relaton::Db (relaton#205); it is used as it is.
+        return ref unless ref.is_a?(String)
+
         ::Pubid::Xsf::Identifier.parse normalize_ref(ref)
       end
 

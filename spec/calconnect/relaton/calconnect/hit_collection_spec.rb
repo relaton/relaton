@@ -95,9 +95,9 @@ RSpec.describe Relaton::Calconnect::HitCollection do
     # It RAISES -- like ISO, ETSI and 3GPP, relaton lets the parse error
     # propagate so a caller can tell a malformed identifier from an absent
     # document. It is still never relabelled as a Relaton::RequestError:
-    # Pubid::Errors::ParseError is a Parslet::ParseFailed, which is what
-    # relaton-cli rescues to render "... is not a recognized standards
-    # identifier".
+    # Pubid::Errors::ParseError includes the marker module Pubid::Errors::Error,
+    # which is what relaton-cli rescues to render "... is not a recognized
+    # standards identifier".
     it "raises" do
       expect { described_class.new("not an identifier") }
         .to raise_error Pubid::Errors::ParseError
@@ -105,7 +105,14 @@ RSpec.describe Relaton::Calconnect::HitCollection do
 
     it "raises something relaton-cli knows how to render" do
       expect { described_class.new("not an identifier") }
-        .to raise_error Parslet::ParseFailed
+        .to raise_error Pubid::Errors::Error
     end
+  end
+
+  # relaton#205: Relaton::Db passes the pubid it parsed. It is used as it is,
+  # not parsed a second time.
+  it "takes a parsed pubid without a second parse" do
+    pubid = Pubid::Calconnect::Identifier.parse "CC/DIR 10005:2019"
+    expect(described_class.allocate.send(:parse_ref, pubid)).to be pubid
   end
 end

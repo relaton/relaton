@@ -6,23 +6,23 @@ module Relaton
     module Bibliography
       extend self
 
-      # @param text [String] the OMG standard reference
+      # @param ref [String, Pubid::Omg::Identifier] the OMG standard reference
       # @return [Relaton::Omg::Item]
-      def search(text)
-        Scraper.scrape_page text
+      def search(ref)
+        Scraper.scrape_page ref
       end
 
-      # @param code [String] the OMG standard reference
+      # @param ref [String, Pubid::Omg::Identifier] the OMG standard reference
       # @param year [String] the year the standard was published (optional)
       # @param opts [Hash] options
       # @return [Relaton::Omg::Item]
-      def get(code, _year = nil, _opts = {})
-        Util.info "Fetching from www.omg.org ...", key: code
-        result = search code
+      def get(ref, _year = nil, _opts = {})
+        Util.info "Fetching from www.omg.org ...", key: ref.to_s
+        result = search ref
         if result
-          Util.info "Found: `#{result.docidentifier.first.content}`", key: code
+          Util.info "Found: `#{result.docidentifier.first.content}`", key: ref.to_s
         else
-          Util.info "Not found.", key: code
+          Util.info "Not found.", key: ref.to_s
         end
         result
       end

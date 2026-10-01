@@ -148,8 +148,9 @@ module Relaton
     #   recognizes the reference
     #
     def fetch_std(code, year = nil, stdclass = nil, opts = {})
-      std = named_class(stdclass) || @registry.route(code).first
-      check_bibliocache(code, year, opts, std)
+      std = named_class(stdclass)
+      std, pubid = @registry.route(code) unless std
+      check_bibliocache(code, year, opts, std, pubid: pubid)
     end
 
     # The document identifier class corresponding to the given code
@@ -208,19 +209,23 @@ module Relaton
       @registry.processors.detect { |_, p| p.prefix == stdclass.to_s }&.first
     end
 
-    def fetch_doc(code, year, opts, processor)
-      if Db.configuration.use_api then fetch_api(code, year, opts, processor)
-      else processor.get(code, year, opts)
+    # The flavor's `get` receives the parsed pubid when there is one
+    # (relaton#205), else the String. The API request sends the String the
+    # caller wrote.
+    def fetch_doc(code, year, opts, processor, query = nil)
+      if Db.configuration.use_api
+        fetch_api(code, year, opts, processor, query)
+      else processor.get(query || code, year, opts)
       end
     end
 
-    def fetch_api(code, year, opts, processor)
+    def fetch_api(code, year, opts, processor, query = nil)
       url = "#{Db.configuration.api_host}" \
             "/api/v1/document?#{params(code, year, opts)}"
       rsp = Net::HTTP.get_response URI(url)
       processor.from_xml rsp.body if rsp.code == "200"
     rescue Errno::ECONNREFUSED
-      processor.get(code, year, opts)
+      processor.get(query || code, year, opts)
     end
 
     def params(code, year, opts)
@@ -316,6 +321,25 @@ module Relaton
       processor.cache_key(code, year, opts, pubid)
     end
 
+    #
+    # The pubid `get` receives, and the cache key folded from it: one parse
+    # of the reference serves both (relaton#205). A processor with no pubid
+    # class gets the String and the legacy string key.
+    #
+    # @param pubid [Pubid::Identifier, nil] routing's parse
+    # @return [Array(Pubid::Identifier, Object)] the query pubid (nil: `get`
+    #   gets the String) and the key (nil: not cached)
+    #
+    def query_and_key(code, year, opts, stdclass, pubid)
+      processor = @registry[stdclass]
+      unless processor.pubid_class
+        return [nil, std_id(code, year, opts, stdclass).first]
+      end
+
+      query = processor.query_pubid(code, opts, pubid)
+      [query, query && processor.cache_key(code, year, opts, query)]
+    end
+
     # The key of a fetched document, from its primary identifier. The
     # identifier is data, so an unparseable one gives no key.
     def item_key(bib, stdclass)
@@ -347,17 +371,17 @@ module Relaton
 
     def check_bibliocache(code, year, opts, stdclass, pubid: nil) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
       _, searchcode = strip_id_wrapper(code, stdclass)
-      id = cache_key(searchcode, year, opts, stdclass, pubid)
+      query, id = query_and_key(searchcode, year, opts, stdclass, pubid)
       db = id && (@local_db || @db)
       altdb = @local_db && @db ? @db : nil
       if db.nil?
         return if opts[:fetch_db]
 
-        bibentry = new_bib_entry(searchcode, year, opts, stdclass)
+        bibentry = new_bib_entry(searchcode, year, opts, stdclass, query: query)
         return bib_retval(bibentry, stdclass)
       end
       if date_range?(opts)
-        return check_date_range(searchcode, id, year, opts, stdclass)
+        return check_date_range(searchcode, id, year, opts, stdclass, query)
       end
 
       @semaphore.synchronize { db.expire id, year }
@@ -367,14 +391,16 @@ module Relaton
         @semaphore.synchronize do
           db.clone_entry id, altdb if altdb.valid_entry? id, year
         end
-        new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
+        new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id,
+                      query: query)
         @semaphore.synchronize do
           altdb.clone_entry(id, db) if !altdb.valid_entry?(id, year)
         end
       else
         return bib_retval(db.read(id), stdclass) if opts[:fetch_db]
 
-        new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
+        new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id,
+                      query: query)
       end
       bib_retval(db.read(id), stdclass)
     end
@@ -395,7 +421,8 @@ module Relaton
 
     def fetch_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize
       processor = @registry[stdclass]
-      bib = net_retry(code, year, opts, processor, opts.fetch(:retries, 1))
+      bib = net_retry(code, year, opts, processor, opts.fetch(:retries, 1),
+                      args[:query])
       entry = bib_entry bib
       return entry if args[:db].nil?
 
@@ -426,7 +453,7 @@ module Relaton
     # with the range, and its answer is cached under its own identifier only:
     # the query row keeps pointing to the latest edition.
     #
-    def check_date_range(code, key, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+    def check_date_range(code, key, year, opts, stdclass, query = nil) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
       caches = [@local_db, @db].compact
       cached = caches.flat_map { |c| c.candidates(key) }.filter_map do |_, xml|
         date = published_date(xml)
@@ -436,7 +463,8 @@ module Relaton
       return if opts[:fetch_db]
 
       processor = @registry[stdclass]
-      bib = net_retry(code, year, opts, processor, opts.fetch(:retries, 1))
+      bib = net_retry(code, year, opts, processor, opts.fetch(:retries, 1),
+                      query)
       return unless bib.respond_to?(:to_xml)
 
       entry = bib_entry bib
@@ -449,12 +477,14 @@ module Relaton
       bib_retval entry, stdclass
     end
 
-    def net_retry(code, year, opts, processor, retries)
-      fetch_doc code, year, opts, processor
+    # @param query [Pubid::Identifier, nil] what `get` receives in place of
+    #   the String +code+ (Db#query_and_key)
+    def net_retry(code, year, opts, processor, retries, query = nil)
+      fetch_doc code, year, opts, processor, query
     rescue Relaton::RequestError => e
       raise e unless retries > 1
 
-      net_retry(code, year, opts, processor, retries - 1)
+      net_retry(code, year, opts, processor, retries - 1, query)
     end
 
     def bib_entry(bib)

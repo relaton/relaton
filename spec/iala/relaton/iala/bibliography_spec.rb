@@ -133,4 +133,11 @@ RSpec.describe Relaton::Iala::Bibliography do
       expect(described_class.search("IALA S9999")).to be_nil
     end
   end
+
+  # relaton#205: Relaton::Db passes the pubid it parsed. It is used as it is,
+  # not parsed a second time.
+  it "takes a parsed pubid without a second parse" do
+    pubid = Pubid::Iala::Identifier.parse "IALA M0001"
+    expect(described_class.send(:parse_ref, pubid)).to be pubid
+  end
 end

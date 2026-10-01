@@ -44,6 +44,9 @@ The grammar is `OMG <ACRONYM>[ <VERSION>][<sep><PART>]`, where `<sep>` is a
 space, or a slash after a version. The version can carry a beta label (`2.5 beta`,
 `2.0 beta 1`). The part is a volume or a format name (`Superstructure`, `PDF`).
 
+- **`get` takes a String or a `Pubid::Omg::Identifier`** (the parse that
+  `Relaton::Db` routed with, relaton#205). `Scraper.scrape_page` parses only a
+  String, and the log keys print `ref.to_s`.
 - **An unrecognized reference raises.** `Scraper.scrape_page` lets
   `Pubid::Errors::ParseError` propagate, so
   `OMG Model Driven Architecture Guide rev. 2.0` raises and does not show as

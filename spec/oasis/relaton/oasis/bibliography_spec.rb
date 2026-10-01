@@ -170,4 +170,11 @@ RSpec.describe Relaton::Oasis::Bibliography do
       end.to output(/Found/).to_stderr_from_any_process
     end
   end
+
+  # relaton#205: Relaton::Db passes the pubid it parsed. It is used as it is,
+  # not parsed a second time.
+  it "takes a parsed pubid without a second parse" do
+    pubid = Pubid::Oasis::Identifier.parse "OASIS amqp-core"
+    expect(described_class.send(:parse_ref, pubid)).to be pubid
+  end
 end

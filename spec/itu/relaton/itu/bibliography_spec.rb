@@ -103,6 +103,16 @@ RSpec.describe Relaton::Itu::Bibliography do
       }
     end
 
+    it "adds the year argument to a parsed pubid, and leaves it as it was (relaton#205)" do
+      ref = ::Pubid::Itu.parse "ITU-R RR"
+      hash = ref.to_hash
+      expect { described_class.get(ref, "2020") }.to output.to_stderr_from_any_process
+      expect(Relaton::Itu::HitCollection).to have_received(:new) { |refid|
+        expect(refid.to_s).to eq "ITU-R RR (2020)"
+      }
+      expect(ref.to_hash).to eq hash
+    end
+
     it "keeps the year the reference already names" do
       expect { described_class.get("ITU-T A.1 (2019)", "2024") }.to output.to_stderr_from_any_process
       expect(Relaton::Itu::HitCollection).to have_received(:new) { |ref| expect(ref.to_s).to eq "ITU-T A.1 (2019)" }

@@ -89,6 +89,14 @@ RSpec.describe Relaton::Bipm::Bibliography do
             .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
         end
 
+        it "fetches with a parsed pubid (relaton#205)", vcr: "cctf_recommendation_2009_02" do
+          pubid = Pubid::Bipm::Identifier.parse "CCTF Recommendation 2009-02"
+          hash = pubid.to_hash
+          result = Relaton::Bipm::Bibliography.get pubid
+          expect(result.docidentifier.first.content).to eq "CCTF REC 2 (2009)"
+          expect(pubid.to_hash).to eq hash
+        end
+
         it "CCTF Recommendation short notation EN", vcr: "cctf_recommendation_2009_02" do
           file = "fixtures/cctf_recommendation_2009_02.xml"
           result = Relaton::Bipm::Bibliography.get "CCTF REC 2 (2009, EN)"

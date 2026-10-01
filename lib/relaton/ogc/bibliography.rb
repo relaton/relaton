@@ -3,36 +3,37 @@ module Relaton
     module Bibliography
       extend self
 
-      # @param text [String]
+      # @param ref [String, Pubid::Ogc::Identifier]
       # @param year [String, nil]
       # @return [Relaton::Ogc::HitCollection]
-      def search(text, year = nil, _opts = {})
-        code = text.sub(/^OGC\s/, "")
+      def search(ref, year = nil, _opts = {})
+        code = ref.is_a?(String) ? ref.sub(/^OGC\s/, "") : ref
         HitCollection.new(code, year).find
       rescue Faraday::ConnectionFailed, Faraday::SSLError
         raise Relaton::RequestError, HitCollection::ENDPOINT
       end
 
-      # @param code [String]
+      # @param ref [String, Pubid::Ogc::Identifier] a reference, or its parse
+      #   from Relaton::Db (relaton#205), which is used as it is
       # @param year [String, nil]
       # @param opts [Hash]
       # @return [Relaton::Ogc::ItemData, nil]
-      def get(code, year = nil, opts = {})
-        result = bib_search_filter(code, year, opts) || (return nil)
+      def get(ref, year = nil, opts = {})
+        result = bib_search_filter(ref, year, opts) || (return nil)
         ret = bib_results_filter(result, year)
         if ret[:ret]
-          Util.info "Found: `#{ret[:ret].docidentifier.first.content}`", key: code
+          Util.info "Found: `#{ret[:ret].docidentifier.first.content}`", key: ref.to_s
           ret[:ret]
         else
-          fetch_ref_err(code, year, ret[:years])
+          fetch_ref_err(ref, year, ret[:years])
         end
       end
 
       private
 
-      def bib_search_filter(code, year, opts)
-        Util.info "Fetching from Relaton repository ...", key: code
-        search(code, year, opts)
+      def bib_search_filter(ref, year, opts)
+        Util.info "Fetching from Relaton repository ...", key: ref.to_s
+        search(ref, year, opts)
       end
 
       def bib_results_filter(result, year)
@@ -51,11 +52,11 @@ module Relaton
         { years: missed_years }
       end
 
-      def fetch_ref_err(code, year, missed_years)
-        Util.info "Not found.", key: code
+      def fetch_ref_err(ref, year, missed_years)
+        Util.info "Not found.", key: ref.to_s
         unless missed_years.empty?
           Util.info "There was no match for `#{year}`, though there " \
-                    "were matches found for `#{missed_years.join('`, `')}`.", key: code
+                    "were matches found for `#{missed_years.join('`, `')}`.", key: ref.to_s
         end
         nil
       end

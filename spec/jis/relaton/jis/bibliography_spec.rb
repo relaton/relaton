@@ -47,6 +47,16 @@ describe Relaton::Jis::Bibliography do
       expect(bib.docidentifier.first.content).to eq "JIS X 0208:1997"
     end
 
+    it "JIS as a parsed pubid with year as argument (relaton#205)", vcr: { cassette_name: "get" } do
+      pubid = Pubid::Jis::Identifier.parse "JIS X 0208"
+      before = pubid.to_hash
+      expect do
+        bib = described_class.get pubid, "1997"
+        expect(bib.docidentifier.first.content).to eq "JIS X 0208:1997"
+      end.to output(/\(JIS X 0208\) Found/).to_stderr_from_any_process
+      expect(pubid.to_hash).to eq before
+    end
+
     it "JIS with wrong year", vcr: { cassette_name: "get" } do
       expect do
         bib = described_class.get "JIS X 0208", "1998"
@@ -84,6 +94,13 @@ describe Relaton::Jis::Bibliography do
       it "JP" do
         bib = described_class.get "JIS B 0060 (規格群)"
         expect(bib.docidentifier.first.content).to eq "JIS B 0060 (all parts)"
+      end
+
+      it "parsed pubid (relaton#205)" do
+        pubid = Pubid::Jis::Identifier.parse "JIS B 0060 (all parts)"
+        bib = described_class.get pubid
+        expect(bib.docidentifier.first.content).to eq "JIS B 0060 (all parts)"
+        expect(pubid).to be_all_parts
       end
 
       it "option" do

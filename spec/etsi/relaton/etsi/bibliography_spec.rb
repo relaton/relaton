@@ -20,6 +20,16 @@ describe Relaton::Etsi::Bibliography do
     ).to_stderr_from_any_process
   end
 
+  it "takes a parsed pubid without a second parse (relaton#205)" do
+    pubid = Pubid::Etsi.parse "ETSI EN 300 175-1"
+    before = pubid.to_hash
+    stub_yaml "data/etsi-en-300-175-1-v2-9-1-2022-03.yaml"
+    expect(Pubid::Etsi).not_to receive(:parse)
+    expect { described_class.get pubid }
+      .to output(/\(ETSI EN 300 175-1\) Found/).to_stderr_from_any_process
+    expect(pubid.to_hash).to eq before
+  end
+
   it "resolves a bare reference (no version/date) to the latest edition" do
     # The index carries ETSI EN 300 175-1 V1.9.1 (2005-09) and V2.9.1 (2022-03);
     # a version/date-less ref must match both and return the most recent.
