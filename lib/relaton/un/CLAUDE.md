@@ -50,9 +50,13 @@ Bib::Item (from relaton-bib)
 optional) or a parsed `Pubid::Un::Identifier`, which renders the document
 symbol without the token (`TRADE/CEFACT/2004/32`) — the form the UN data
 itself writes. Either becomes the symbol the search matches (`document_symbol`).
-`Relaton::Db` still routes UN by the `UN ` prefix: `Pubid::Un` also parses
-many bare DOIs (`10.6028/NIST.IR.8245`, pubid/pubid#465), so UN is not on
-`Registry::PARSE_ROUTED_FLAVORS`.
+`Relaton::Db` routes UN by the `UN ` prefix (`Registry#route` falls back to
+`class_by_ref`): `Pubid::Un` renders the symbol without the token, so a
+`UN …` reference is not an exact parse. A symbol without the token
+(`TRADE/CEFACT/2004/32`) is not routed at all — no flavor claims it — and
+raises `Relaton::UnknownReferenceError`. `Pubid::Un` also parses a bare DOI
+exactly (`10.6028/NIST.IR.8245`), but UN does not claim it (`10.` is a DOI
+prefix), so it does not route to UN either.
 
 ### Key Classes (all in `lib/relaton/un/`)
 

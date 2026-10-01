@@ -111,6 +111,18 @@ to `<dir>-v1.bak`, never deleted. Pin `lutaml-store ~> 0.3.2`: 0.3.0's adapter
 had no thread/process exclusion (lutaml/lutaml-store#17). See
 `lib/relaton/db/CLAUDE.md`.
 
+**Routing is parse-first (relaton#205).** `Registry#route` is the one routing
+rule for `Db`: a pubid parse routes by class ancestry only when it is the
+parsing flavor's own **exact** parse (it renders the reference back, and the
+flavor claims the reference by a prefix) — `Pubid.parse` otherwise reads
+`ATN5014` as IEC and `ISO REF` as IEC. A co-published identifier routes to the
+co-publisher its printed form names first (`ISO/IEC …` → ISO; there is no
+canonical form, pubid#469). Everything else falls back to the prefix regex
+(`class_by_ref`), and a reference nothing recognizes raises
+`Relaton::UnknownReferenceError`. Error classes: `Relaton::Error` is the base of
+`RequestError` (retried by `Db#net_retry`) and `UnknownReferenceError`
+(relaton-cli logs it and returns no document). See `lib/relaton/db/CLAUDE.md`.
+
 **Crawl politeness lives in `core`, bindings live in the flavor.** Two shared
 components under `lib/relaton/core/` carry the "don't get banned, don't burn the
 CI job" logic that more than one crawler needs: **`Pacer`** (one shared request

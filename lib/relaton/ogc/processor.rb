@@ -21,10 +21,16 @@ module Relaton
         Bibliography.get(code, date, opts)
       end
 
+      # OGC documents print their identifier without the `OGC ` token
+      # (`19-025r1`).
+      def bare_identifiers?
+        true
+      end
+
       # The `year` argument filters by publication year, but an OGC pubid's
       # `year` is the year in the document number (`19` in `OGC 19-025r1`),
       # so it cannot be folded into the key: such a query is not cached.
-      def cache_key(ref, year, opts)
+      def cache_key(ref, year, opts, parsed = nil)
         year ? nil : super
       end
 

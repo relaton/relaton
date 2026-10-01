@@ -340,6 +340,11 @@ module Relaton
       return "No matching bibliographic entry found" unless doc
 
       serialize doc, options[:format]
+    rescue Relaton::UnknownReferenceError => e
+      # No flavor recognizes the reference: log it, return no document (the
+      # command then prints the supported types).
+      Util.warn e.message
+      nil
     rescue Pubid::Errors::Error
       %("#{code}" is not a recognized standards identifier)
     rescue Relaton::RequestError => e

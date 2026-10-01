@@ -63,25 +63,23 @@ module Relaton
     #  or "YYYY-MM-DD")
     #
     # @return [nil, RelatonBib::BibliographicItem, ...]
+    # @raise [Relaton::UnknownReferenceError] no flavor recognizes the
+    #   reference (see Registry#route)
     ##
-    def fetch(text, year = nil, opts = {})
+    def fetch(text, year = nil, opts = {}) # rubocop:disable Metrics/MethodLength
       reference = text.strip
-      require "pubid"
-      parsed = begin
-        Pubid.parse(reference)
-      rescue Pubid::Errors::Error, Parslet::ParseFailed
-        nil
-      end
-      stdclass = (parsed && @registry.class_by_pubid(parsed)) ||
-                 @registry.class_by_ref(reference) || return
+      stdclass, pubid = @registry.route(reference)
       processor = @registry[stdclass]
       ref = if processor.respond_to?(:urn_to_code)
               processor.urn_to_code(reference)&.first
             else reference
             end
       ref ||= reference
+      # The routed pubid is the parse of `reference`; a URN rewritten to a
+      # code is parsed again by the flavor.
+      pubid = nil unless ref == reference
       result = combine_doc ref, year, opts, stdclass
-      result || check_bibliocache(ref, year, opts, stdclass)
+      result || check_bibliocache(ref, year, opts, stdclass, pubid: pubid)
     end
 
     # @see Relaton::Db#fetch
@@ -119,7 +117,7 @@ module Relaton
     #   nil if document not found
     #
     def fetch_async(ref, year = nil, opts = {}, &block) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-      stdclass = @registry.class_by_ref ref
+      stdclass = async_route ref
       if stdclass
         unless @queues[stdclass]
           processor = @registry[stdclass]
@@ -141,13 +139,16 @@ module Relaton
       end
     end
 
+    #
+    # Fetch with the flavor the caller names, else the routed one.
+    #
+    # @param stdclass [Symbol, String, nil] a processor short name
+    #   (`:relaton_iso`, as relaton-cli passes it) or a prefix (`"ISO"`)
+    # @raise [Relaton::UnknownReferenceError] no flavor is named and none
+    #   recognizes the reference
+    #
     def fetch_std(code, year = nil, stdclass = nil, opts = {})
-      std = nil
-      @registry.processors.each do |name, processor|
-        std = name if processor.prefix == stdclass
-      end
-      std = @registry.class_by_ref(code) or return nil unless std
-
+      std = named_class(stdclass) || @registry.route(code).first
       check_bibliocache(code, year, opts, std)
     end
 
@@ -155,9 +156,11 @@ module Relaton
     # @param code [String]
     # @return [Array]
     def docid_type(code)
-      stdclass = @registry.class_by_ref(code) or return [nil, code]
+      stdclass, = @registry.route(code)
       _, code = strip_id_wrapper(code, stdclass)
       [@registry[stdclass].idtype, code]
+    rescue UnknownReferenceError
+      [nil, code]
     end
 
     # @param key [String]
@@ -185,6 +188,25 @@ module Relaton
     end
 
     private
+
+    # The flavor routing picks for `fetch_async`'s per-flavor queue; nil
+    # (logged) when no flavor recognizes the reference.
+    def async_route(ref)
+      @registry.route(ref).first
+    rescue UnknownReferenceError => e
+      Util.info e.message, key: ref
+      nil
+    end
+
+    # The processor a caller names by short name (`:relaton_iso`) or prefix.
+    def named_class(stdclass)
+      return unless stdclass
+
+      short = stdclass.to_sym
+      return short if @registry.processors.key?(short)
+
+      @registry.processors.detect { |_, p| p.prefix == stdclass.to_s }&.first
+    end
 
     def fetch_doc(code, year, opts, processor)
       if Db.configuration.use_api then fetch_api(code, year, opts, processor)
@@ -281,15 +303,17 @@ module Relaton
     # that query is not cached. A processor with no pubid class gets the
     # legacy string key.
     #
+    # @param pubid [Pubid::Identifier, nil] the reference as routing parsed
+    #   it, so the processor does not parse it again
     # @return [Pubid::Identifier, String, nil]
     #
-    def cache_key(code, year, opts, stdclass)
+    def cache_key(code, year, opts, stdclass, pubid = nil)
       processor = @registry[stdclass]
       unless processor.pubid_class
         return std_id(code, year, opts, stdclass).first
       end
 
-      processor.cache_key(code, year, opts)
+      processor.cache_key(code, year, opts, pubid)
     end
 
     # The key of a fetched document, from its primary identifier. The
@@ -323,9 +347,9 @@ module Relaton
       end
     end
 
-    def check_bibliocache(code, year, opts, stdclass) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
+    def check_bibliocache(code, year, opts, stdclass, pubid: nil) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
       _, searchcode = strip_id_wrapper(code, stdclass)
-      id = cache_key(searchcode, year, opts, stdclass)
+      id = cache_key(searchcode, year, opts, stdclass, pubid)
       db = id && (@local_db || @db)
       altdb = @local_db && @db ? @db : nil
       if db.nil?

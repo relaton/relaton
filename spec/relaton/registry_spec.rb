@@ -247,38 +247,131 @@ RSpec.describe Relaton::Db::Registry do
       .to be_instance_of Relaton::Etsi::Processor
   end
 
-  context "#class_by_pubid (relaton#205)" do
-    ["ISO 8601-1:2021", "RFC 3986", "3GPP TS 23.040", "CEN/TS 17267"].each do |ref|
-      it "routes \#{ref.inspect} by the parsed pubid class" do
-        expect(described_class.instance.class_by_pubid(Pubid.parse(ref))).not_to be_nil
-      end
-    end
+  context "#route (relaton#205)" do
+    let(:registry) { described_class.instance }
 
+    # One canonical reference per flavor: the form the flavor's data writes.
     {
+      "GB/T 20223-2006" => :relaton_gb,
+      "IEC 60050-102:2007" => :relaton_iec,
+      "RFC 3986" => :relaton_ietf,
+      "ISO 19115-1:2014" => :relaton_iso,
+      "ITU-T G.993.5" => :relaton_itu,
+      "NIST SP 800-38A" => :relaton_nist,
+      "OGC 19-025r1" => :relaton_ogc,
+      "CC/DIR 10005" => :relaton_calconnect,
+      "OMG AMI4CCM 1.0" => :relaton_omg,
+      "UN TRADE/CEFACT/2004/32" => :relaton_un,
+      "W3C xml-names" => :relaton_w3c,
+      "IEEE 802.11-2016" => :relaton_ieee,
+      "IHO S-4" => :relaton_iho,
+      "CGPM Resolution (1889)" => :relaton_bipm,
+      "Metrologia 29 6 373" => :relaton_bipm,
+      "ECMA-6" => :relaton_ecma,
+      "CIE 001-1980" => :relaton_cie,
+      "BS 8888:2020" => :relaton_bsi,
+      "CEN/TS 17267" => :relaton_cen,
+      "IANA auto-response-parameters" => :relaton_iana,
+      "3GPP TS 23.040" => :relaton_3gpp,
+      "OASIS amqp-core" => :relaton_oasis,
       "doi:10.6028/NIST.IR.8245" => :relaton_doi,
+      "JIS X 0208" => :relaton_jis,
+      "XEP 0001" => :relaton_xsf,
+      "CCSDS 230.2-G-1" => :relaton_ccsds,
+      "ETSI EN 300 175-1" => :relaton_etsi,
       "ISBN 978-0-306-40615-7" => :relaton_isbn,
+      "PLATEAU Handbook #00 1.0" => :relaton_plateau,
+      "OIML R 138" => :relaton_oiml,
+      "JCGM 100:2008" => :relaton_jcgm,
+      "ПМГ 03-2025" => :relaton_easc,
+      "GOST R 34.12-2015" => :relaton_gost,
+      "Adobe TN 5014" => :relaton_adobe,
+      "IALA S1070" => :relaton_iala,
+      "draft-abarth-cake-01" => :relaton_ietf,
     }.each do |ref, short|
-      it "routes the canonical #{ref.inspect} to #{short}" do
-        expect(described_class.instance.class_by_pubid(Pubid.parse(ref)))
-          .to be short
+      it "routes #{ref.inspect} to #{short}" do
+        expect(registry.route(ref).first).to be short
       end
     end
 
-    it "does not hijack DOI-shaped strings with the Un namespace" do
-      expect(described_class.instance.class_by_pubid(Pubid.parse("10.17487/RFC3986")))
-        .to be_nil
+    it "hands over the parsed pubid of an exact parse" do
+      stdclass, pubid = registry.route "ISO 19115-1:2014"
+      expect(stdclass).to be :relaton_iso
+      expect(pubid).to be_a Pubid::Iso::Identifier
+      expect(pubid.to_s).to eq "ISO 19115-1:2014"
     end
 
-    it "returns nil for a namespace outside the parse-routed allowlist" do
-      un_doc = Object.new
-      un_doc.define_singleton_method(:class) do
-        Class.new do
-          def self.name
-            "Pubid::Un::Identifiers::Document"
-          end
+    context "a co-published identifier: the printed form decides" do
+      {
+        "ISO/IEC 27001:2022" => :relaton_iso,
+        "ISO/IEC/IEEE 8802-3:2021" => :relaton_iso,
+        "IEC/ISO 27001:2022" => :relaton_iec,
+      }.each do |ref, short|
+        it "routes #{ref.inspect} to #{short}" do
+          expect(registry.route(ref).first).to be short
         end
       end
-      expect(described_class.instance.class_by_pubid(un_doc)).to be_nil
+
+      it "drops a parse by another co-publisher's flavor" do
+        expect(registry.route("ISO/IEC 27001:2022").last).to be_nil
+      end
+    end
+
+    context "a partial parse by another flavor does not route" do
+      {
+        "ATN5014" => :relaton_adobe,
+        "CCTF" => :relaton_bipm,
+        "ISO REF" => :relaton_iso,
+        "DD 240" => :relaton_bsi,
+      }.each do |ref, short|
+        it "routes #{ref.inspect} to #{short}" do
+          expect(registry.route(ref).first).to be short
+        end
+      end
+    end
+
+    [
+      "978-0-306-40615-7", # a bare ISBN: IEC reads it as `IEC 978-...`
+      "10.6028/NIST.IR.8245", # a bare DOI: Pubid::Un parses it exactly
+      "TRADE/CEFACT/2004/32", # a UN symbol without the UN token
+      "ABC 123456",
+    ].each do |ref|
+      it "raises for #{ref.inspect}, which no flavor recognizes" do
+        expect { registry.route(ref) }
+          .to raise_error Relaton::UnknownReferenceError, /#{Regexp.escape ref}/
+      end
+    end
+
+    context "a flavor whose identifiers print no publisher token" do
+      {
+        "19-025r1" => :relaton_ogc,
+        "TS 23.207:REL-18/18.0.0" => :relaton_3gpp,
+        "TR 00.01U:UMTS/3.0.0" => :relaton_3gpp,
+      }.each do |ref, short|
+        it "routes the bare #{ref.inspect} to #{short}" do
+          expect(registry.route(ref).first).to be short
+        end
+      end
+    end
+
+    it "raises for a URN no flavor owns, not ArgumentError" do
+      expect { registry.route("urn:foo:bar") }
+        .to raise_error Relaton::UnknownReferenceError
+    end
+
+    it "keeps the prefix fallback for a combined reference" do
+      expect(registry.route("ISO 19115-1, Amd 1")).to eq [:relaton_iso, nil]
+    end
+
+    it "does not depend on the registration order" do
+      refs = ["ISO/IEC 27001:2022", "IEC 60050-102:2007", "ATN5014",
+              "doi:10.6028/NIST.IR.8245", "BS 8888:2020", "OGC 19-025r1"]
+      expected = refs.map { |ref| registry.route(ref).first }
+      original = registry.processors
+      registry.instance_variable_set :@processors, original.to_a.reverse.to_h
+      expect(refs.map { |ref| registry.route(ref).first }).to eq expected
+    ensure
+      registry.instance_variable_set :@processors, original
     end
   end
 end

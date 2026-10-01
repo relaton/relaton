@@ -23,6 +23,12 @@ module Relaton
         Bibliography.get(code, date, opts)
       end
 
+      # 3GPP index ids print without the `3GPP ` token
+      # (`TS 23.207:REL-18/18.0.0`).
+      def bare_identifiers?
+        true
+      end
+
       #
       # Fetch all the documents from http://xml2rfc.tools.ietf.org/public/rfc/bibxml-3gpp-new/
       #

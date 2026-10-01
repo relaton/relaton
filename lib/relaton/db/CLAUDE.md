@@ -75,9 +75,57 @@ relaton proper, destined for a separate store/gem; don't add it to the processor
 ### Db (lib/relaton/db.rb) — Main Public API
 
 `Relaton::Db#fetch(ref, year, opts)` is the primary entry point. It:
-1. Identifies the processor via Registry prefix matching
+1. Routes the reference with `Registry#route` (see **Routing** below)
 2. Handles combined references (`+` for derivedFrom, `,` for amendments) in `combine_doc`
 3. Delegates to `check_bibliocache` which manages the dual-cache lookup and network fetch flow
+
+### Routing (`Registry#route`, relaton#205)
+
+One rule for `fetch`, `fetch_db`, `fetch_async`, `fetch_std` and `docid_type`.
+It returns `[stdclass, pubid]`:
+
+1. **Parse with pubid, and keep only the parsing flavor's own exact parse.**
+   `Pubid.parse` falls back to a partial parse by any flavor (`ATN5014` → `IEC
+   ATN5014`), and a permissive grammar reads another publisher's string exactly
+   (`ISO REF` as IEC, `ABC 123456` as GB, a bare DOI as UN). A parse counts only
+   when it renders the reference back (`to_s == reference`, pubid's own
+   round-trip test) **and** the flavor claims the reference by one of its
+   `Pubid::<Flavor>.prefixes` (`prefix_of?`: the reference ends there or goes on
+   with a separator; a prefix that ends in punctuation, `doi:`, needs none).
+   A flavor whose identifiers print without a publisher token opts out of the
+   claim with `Core::Processor#bare_identifiers?`: OGC (`19-025r1`, the form
+   its documents carry) and 3GPP (`TS 23.207:REL-18/18.0.0`, its index form).
+   Without the opt-in both raised, and `TR 00.01U:UMTS/3.0.0` went to JIS by
+   the `TR` regex. A URN no flavor owns (`urn:foo:bar`) makes `Pubid.parse`
+   raise a plain `ArgumentError`, which counts as no parse.
+2. **Route by class ancestry** (`processor_by_pubid`), so the registration order
+   does not matter (a spec routes with the processors reversed).
+3. **A co-published identifier: the printed form decides.** There is no
+   canonical form of it (pubid#469), and `Pubid.parse` tries the owners of a
+   joint prefix alphabetically, so `ISO/IEC 27001` parses as IEC. A reference
+   that starts with a prefix several flavors own (`joint_prefixes`: `ISO/IEC`,
+   `IEC/ISO`, `ISO/IEC/IEEE`) routes to the owner whose own prefix is the first `/` token:
+   `ISO/IEC …` → ISO, `IEC/ISO …` → IEC. The parsed pubid is kept only when it
+   is that flavor's. This is **relaton's routing policy, not a pubid gap**: the
+   same string `ISO/IEC 27001:2022` is in both the ISO and the IEC catalogs, and
+   pubid must not elect one reading of it nor route records (pubid#469). The
+   #205 comment puts the choice here — the printed form first, then (#205 PR 3)
+   the co-publisher's flavor when the first one has no record.
+4. **Else the prefix regex** (`class_by_ref`): combined references, the
+   `PREFIX(code)` wrapper, `IEV`, URNs, and spellings a flavor normalizes on
+   render (`OGC 19-025r1`, `UN TRADE/…`, `3GPP TS …`, `IEEE 802.11-2016`).
+5. **Else `Relaton::UnknownReferenceError`** (`< Relaton::Error`).
+   `fetch_async` logs it and yields nil; `docid_type` returns `[nil, code]`;
+   relaton-cli logs it and returns no document.
+
+The routed pubid goes on to the cache key (`Core::Processor#cache_key(ref,
+year, opts, parsed)`), so the flavor does not parse the query again for it —
+unless `urn_to_code` rewrote the reference (then the routed parse is of another
+string, and the flavor parses the code). IEC's `urn_to_code` acts on a
+`urn:` only: `Relaton::Iec.urn_to_code` splits on `:`, and it used to rewrite
+`IEC 60034-1:1969+AMD1:1977+AMD2:1979+AMD3:1980 CSV` into `1979+AMD3 1980 CSV`.
+Passing it to the flavor's `get` is the next step of #205; falling through to
+a co-publisher's flavor when the first misses is the step after.
 
 `Relaton::Db#fetch_all(text, edition, year)` searches cached entries, filtering by text content (via `match_xml_text?`), edition, and/or year. Returns an array of deserialized bibliographic items from both local and global caches.
 
@@ -159,8 +207,7 @@ also sourcing `#prefixes` from pubid.
   answers only some of them, a miss on another spelling is cached as
   `not_found` under the shared key and poisons the canonical one for 60 days.
   So `Doi::Crossref.get` strips every such prefix. Check this whenever a
-  flavor joins `Registry::PARSE_ROUTED_FLAVORS` (DOI and ISBN did so with this
-  change; UN stays out, because `Pubid::Un` also reads a bare DOI).
+  flavor's routing or its pubid grammar changes.
 - **Generated references must be canonical too.** `combine_doc` joins an ITU
   or NIST supplement with a space (`NIST SP 800-38A Add`), since pubid does not
   parse `NIST SP 800-38A/Add`.
