@@ -5,8 +5,17 @@ require_relative "../../spec_helper"
 # The gem's ISO 690 rendering delegates to relaton-render's instance-driven
 # engine; the style instance lives in the relaton-models citation module.
 # These specs pin the wiring (the rendering contract itself is pinned by
-# relaton-render's ISO 690 conformance suite).
-RSpec.describe "BibliographicItem#to_iso690" do
+# relaton-render's ISO 690 conformance suite). The specs skip when the
+# resolved relaton-render predates the v2 engine (its release is a
+# prerequisite for this gem's release — see the PR's release ordering).
+begin
+  require "relaton/render/iso690"
+  V2_ENGINE = true
+rescue LoadError
+  V2_ENGINE = false
+end
+
+RSpec.describe "BibliographicItem#to_iso690", if: defined?(V2_ENGINE) && V2_ENGINE do
   subject(:item) do
     Relaton::Bib::Bibitem.from_xml(<<~X)
       <bibitem type="book">
