@@ -175,6 +175,21 @@ RSpec.describe Relaton::Db do
       expect { db.fetch "ISO 111111" }.to raise_error Pubid::Errors::ParseError
     end
 
+    it "keeps a fresh not_found of a dated query" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).once.and_return nil
+      2.times { expect(db.fetch("ISO 9999", "2030")).to be_nil }
+    end
+
+    it "fetches a dated query again when its not_found is 60 days old" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).twice
+        .and_return nil
+      db.fetch "ISO 9999", "2030"
+      Relaton::Db::Cache.new("testcache")[
+        Pubid::Iso::Identifier.parse("ISO 9999:2030")
+      ] = "not_found #{Date.today - 61}"
+      db.fetch "ISO 9999", "2030"
+    end
+
     it "keeps the string key for a processor with no pubid class" do
       processor = Relaton::Db::Registry.instance[:relaton_iso]
       allow(processor).to receive(:pubid_class).and_return nil

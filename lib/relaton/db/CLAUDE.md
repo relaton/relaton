@@ -163,6 +163,13 @@ still applies and it never answers with another query's year-stripped copy.
 `candidates` (`EDITION_COMPONENTS`). A row with no `root.number` (DOI, ISBN)
 goes to one of 256 digest buckets (`<flavor>/~<hex>`).
 
+Expiry (`Cache#valid_row?`): an undated row, and **every** `not_found` row,
+is valid for 60 days (`UNDATED_TTL`) from its `fetched` date; only a `doc`
+row looked up with a `year` argument never expires (`fetch("ISO 9999:2030")`
+passes no `year`, so its rows expire too). A `not_found` for a dated query
+used to stay for ever (`year || age < 60`), so a document published after
+the first miss was never fetched (#204).
+
 Locking and atomic writes come from lutaml-store (≥ 0.3.2 — 0.3.0's
 FileSystem adapter was unsafe, lutaml/lutaml-store#17): an exclusive `flock`
 on `<root>/.lock` plus a per-root Monitor for `update`/`transaction`, and temp

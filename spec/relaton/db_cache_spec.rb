@@ -136,6 +136,17 @@ RSpec.describe Relaton::Db::Cache do
     expect(cache.valid_entry?(pubid("ISO 19115-1"), "2014")).to be_truthy
   end
 
+  it "expires a not_found entry after 60 days, dated or not" do
+    key = pubid("ISO 9999:2030")
+    cache[key] = "not_found #{Date.today}"
+    expect(cache.valid_entry?(key, "2030")).to be_truthy
+    cache[key] = "not_found #{Date.today - 61}"
+    expect(cache.valid_entry?(key, "2030")).to be false
+    expect(cache.valid_entry?(key, nil)).to be false
+    cache.expire key, "2030"
+    expect(cache[key]).to be_nil
+  end
+
   it "clones an entry and its document into another cache" do
     cache.store pubid("ISO 19115-1"), xml, item_key: pubid("ISO 19115-1:2014")
     other = described_class.new "testcache2"

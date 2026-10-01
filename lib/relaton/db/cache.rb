@@ -28,6 +28,7 @@ module Relaton
       STRING_FLAVOR = "_key".freeze
       PUBID_FLAVOR = "_pubid".freeze
       NOT_FOUND = /\Anot_found/
+      # Days an undated entry, or any not_found entry, stays valid.
       UNDATED_TTL = 60
       WRAPPED_KEY = /\A(?<prefix>[^(\s]+)\((?<code>.+)\)\z/m
       # What a row may add to a dated key and still answer it: `===` also
@@ -171,7 +172,9 @@ module Relaton
         lookup(key)&.last&.dig("fetched")
       end
 
-      # An undated entry expires after 60 days, a dated one never.
+      # An undated entry expires after 60 days, a dated document never. A
+      # not_found entry expires after 60 days even for a dated query: the
+      # document can be published later.
       # @param key [Pubid::Identifier, String]
       # @param year [String, nil]
       def valid_entry?(key, year)
@@ -405,7 +408,9 @@ module Relaton
       def valid_row?(row, year)
         return false unless read_entry(row)
 
-        year || Date.today - Date.parse(row["fetched"]) < UNDATED_TTL
+        return year if year && row["status"] == CacheEntry::DOC
+
+        Date.today - Date.parse(row["fetched"]) < UNDATED_TTL
       end
 
       #
