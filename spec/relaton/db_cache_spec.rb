@@ -256,6 +256,7 @@ RSpec.describe Relaton::Db::Cache do
   end
 
   it "keeps every row when two processes write" do
+    skip "fork() is unavailable on this platform" unless Process.respond_to?(:fork)
     pids = Array.new(2) do |t|
       fork do
         c = described_class.new dir
