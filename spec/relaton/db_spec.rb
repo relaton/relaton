@@ -210,6 +210,54 @@ RSpec.describe Relaton::Db do
       db.fetch "ISO 9999", "2030"
     end
 
+    # Db's Mutex is per process, so here only the store's file lock keeps
+    # the cache consistent. All the rows go to one bucket (`iso/3000`): each
+    # process adds its own parts there, and both fetch `ISO 3000`. The sleep
+    # in `get` makes both processes miss and store at the same time.
+    it "keeps one consistent cache when two processes fetch" do
+      lists = [1, 2].map do |t|
+        Array.new(8) { |i| "ISO 3000-#{(t * 10) + i}" }.unshift "ISO 3000"
+      end
+      refs = lists.flatten.uniq
+      statuses, logs = run_children(lists.map { fetch_script _1 })
+      expect(statuses).to all(be_success), logs.join("\n")
+
+      rows = Relaton::Db::Cache.new("testcache").rows
+      expect(rows.size).to eq refs.size * 2
+      expect(rows.group_by { _1["file"] }.values.map(&:size))
+        .to eq [2] * refs.size
+      expect(doc_files.size).to eq refs.size
+
+      expect(Relaton::Iso::Bibliography).not_to receive(:get)
+      refs.each do |ref|
+        expect(db.fetch(ref).docidentifier.first.content).to eq "#{ref}:2014"
+      end
+    end
+
+    # A child's script: fetch each reference through its own Db, with ISO's
+    # `get` replaced (RSpec stubs do not reach a spawned process).
+    def fetch_script(refs)
+      <<~RUBY
+        require "relaton/db"
+        require "relaton/iso"
+        Relaton::Iso::Bibliography.define_singleton_method(:get) do |code, *|
+          sleep 0.02
+          docid = Relaton::Bib::Docidentifier.new(
+            content: "\#{code}:2014", type: "ISO", primary: true,
+          )
+          Relaton::Iso::ItemData.new(docidentifier: [docid],
+                                     fetched: Date.today.to_s)
+        end
+        db = Relaton::Db.new #{File.expand_path('testcache').inspect}, nil
+        start_barrier!
+        #{refs.inspect}.each do |ref|
+          bib = db.fetch ref
+          id = bib && bib.docidentifier.first.content
+          raise "\#{ref}: \#{id.inspect}" unless id == "\#{ref}:2014"
+        end
+      RUBY
+    end
+
     it "keeps the string key for a processor with no pubid class" do
       processor = Relaton::Db::Registry.instance[:relaton_iso]
       allow(processor).to receive(:pubid_class).and_return nil
