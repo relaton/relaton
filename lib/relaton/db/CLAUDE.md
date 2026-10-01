@@ -109,8 +109,9 @@ It returns `[stdclass, pubid]`:
    is that flavor's. This is **relaton's routing policy, not a pubid gap**: the
    same string `ISO/IEC 27001:2022` is in both the ISO and the IEC catalogs, and
    pubid must not elect one reading of it nor route records (pubid#469). The
-   #205 comment puts the choice here — the printed form first, then (#205 PR 3)
-   the co-publisher's flavor when the first one has no record.
+   #205 comment puts the choice here — the printed form first, then the
+   co-publisher's flavor when the first one has no record (**Co-publisher
+   fall-through**, below).
 4. **Else the prefix regex** (`class_by_ref`): combined references, the
    `PREFIX(code)` wrapper, `IEV`, URNs, and spellings a flavor normalizes on
    render (`OGC 19-025r1`, `UN TRADE/…`, `3GPP TS …`, `IEEE 802.11-2016`).
@@ -132,8 +133,50 @@ String for its URL. If `urn_to_code` rewrote the reference, the routed parse is
 of another string, and `query_pubid` parses the code. IEC's `urn_to_code` acts
 on a `urn:` only: `Relaton::Iec.urn_to_code` splits on `:`, and it used to
 rewrite `IEC 60034-1:1969+AMD1:1977+AMD2:1979+AMD3:1980 CSV` into
-`1979+AMD3 1980 CSV`. Falling through to a co-publisher's flavor when the first
-misses is the next step (#205 PR 3).
+`1979+AMD3 1980 CSV`.
+
+**Co-publisher fall-through (#205 PR 3).** A not-found from the lead flavor is
+not the last word for a co-published document. The organizations serve the
+joint portfolio by their own policies (IEC serves ISO-led documents, ISO serves
+IEC-portfolio ones; the IEC index fixture holds ~7,450 `ISO/IEC` rows), so
+`Db#fetch` (and `fetch_db`, `fetch_async`, and a `fetch_std` that routes) then
+asks the co-publishers' flavors (`Db#copublisher_fetch`):
+
+- **Order: the parsed pubid's, lead first.** `Core::Processor#copublishers(pubid)`
+  reads the publishers after the lead from the query pubid — `copublishers` for
+  ISO and IEC, IEEE's `publishers`/`copublisher` through its override. pubid#472
+  made the order the printed one. `Registry#class_by_publisher` maps each to the
+  flavor whose own prefix it is (`ASTM`, `IDF` have none, and are skipped).
+- **Each co-publisher uses its own flavor end to end**: its own parse of the
+  String (`ISO/IEC 27001` reaches IEC as a `Pubid::Iec` pubid), its own cache
+  key and bucket, its own `not_found` row. A second fetch reads ISO's
+  `not_found` and IEC's cached document with no network call. No row crosses
+  flavors, because `bib_retval` must read XML with the flavor that wrote it.
+- **A co-publisher whose flavor gives no pubid for the lead's form is
+  skipped**, with a log line: a parse error (`IEEE/ISO 11073-10101` in ISO or
+  IEC), or a flavor that reads the form as a miss (IEEE's `cache_pubid` gives
+  nil for `ISO/IEC/IEEE 15288:2023/DAmd 1`). Without that rule IEEE would get
+  the String with no cache key, so every fetch would call it again. There is
+  no re-render into the co-publisher's arrangement: pubid#469 elects no
+  reading, and #472's "ISO face" keeps the printed publisher order. **Only the
+  probe parse is rescued** (`Db#copublisher_query`): a parse error from inside
+  the co-publisher's `get` is a flavor or data bug, and it propagates.
+- The co-publishers get the reference **as the lead read it**
+  (`strip_id_wrapper`: no `ISO(…)` wrapper, no en dash). Without that, a
+  wrapped or en-dash reference raised after the lead's miss.
+- **Not a fall-through:** a lead hit; a `Relaton::RequestError` (a transport
+  failure is not "not found", and it propagates); a flavor the caller names in
+  `fetch_std`; each part of a combined reference (`combine_doc` calls
+  `check_bibliocache` directly); a URN, which reaches the co-publisher as the
+  URN String that its flavor cannot parse, so it is skipped.
+- **Known cost of the per-flavor rows:** a repeat fetch logs the lead's
+  "not found in cache" before IEC's cached document answers, and when the lead
+  later gains the record, the co-publisher's copy answers until the lead's
+  `not_found` row expires (60 days) or the caller passes `no_cache`.
+- On the pinned pubid (`27454393`, pre-#472) an IEEE joint development lists
+  its `publishers` in a reordered form (`IEEE/ISO/IEC 8802-3` → ISO, IEC, IEEE).
+  It does not change an answer today: ISO and IEC cannot parse an IEEE-led form,
+  so both are skipped.
 
 **The flavor contract for `get`** (every flavor in this gem keeps it):
 

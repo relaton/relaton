@@ -773,13 +773,17 @@ RSpec.describe Relaton::Db do
     end
 
     it "routes a co-published identifier to the flavor its printed form names first" do
-      expect(Relaton::Iec::Bibliography).not_to receive(:get)
+      calls = []
       expect(Relaton::Iso::Bibliography).to receive(:get) do |ref, *|
+        calls << :iso
         expect(ref).to be_a Pubid::Iso::Identifier
         expect(ref.to_s).to eq "ISO/IEC 27001:2022"
         nil
       end
+      # IEC is asked only after ISO misses (the co-publisher fall-through).
+      allow(Relaton::Iec::Bibliography).to receive(:get) { calls << :iec && nil }
       subject.fetch("ISO/IEC 27001:2022")
+      expect(calls).to eq %i[iso iec]
     end
 
     it "hands get the String when the flavor gives no pubid" do
@@ -807,4 +811,139 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  # relaton#205 PR 3: a co-published document that the lead flavor's catalog
+  # does not have is asked of its co-publishers' flavors, in the order the
+  # parsed pubid holds them (pubid#469, #472).
+  context "#fetch co-publisher fall-through (relaton#205)" do
+    let(:iec_item) do
+      Relaton::Iec::ItemData.new(
+        docidentifier: [Relaton::Bib::Docidentifier.new(content: "ISO/IEC 27001:2022", type: "IEC")],
+      )
+    end
+
+    # Db hands back the item through its XML, so not the same object.
+    matcher :be_iec_item do
+      match do |actual|
+        actual.is_a?(Relaton::Iec::ItemData) &&
+          actual.docidentifier.first.content == "ISO/IEC 27001:2022"
+      end
+    end
+
+    it "asks the co-publisher's flavor when the lead has no record" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).and_return(nil)
+      expect(Relaton::Iec::Bibliography).to receive(:get)
+        .with(pubid_of("ISO/IEC 27001:2022"), nil, {}).and_return(iec_item)
+      expect do
+        expect(subject.fetch("ISO/IEC 27001:2022")).to be_iec_item
+      end.to output(/\(ISO\/IEC 27001:2022\) Not found; trying co-publisher `IEC`/)
+        .to_stderr_from_any_process
+    end
+
+    it "gives the co-publisher its own parse of the reference" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).and_return(nil)
+      expect(Relaton::Iec::Bibliography).to receive(:get) do |ref, *|
+        expect(ref).to be_a Pubid::Iec::Identifier
+        nil
+      end
+      subject.fetch("ISO/IEC 27001:2022")
+    end
+
+    it "asks the co-publishers in the order the pubid holds them" do
+      calls = []
+      { Iso: nil, Iec: nil, Ieee: :item }.each do |flavor, answer|
+        allow(Relaton.const_get(flavor)::Bibliography).to receive(:get) do
+          calls << flavor
+          answer && iec_item
+        end
+      end
+      # The IEEE flavor reads the item back with its own class.
+      expect(subject.fetch("ISO/IEC/IEEE 15288")).to be_a Relaton::Ieee::ItemData
+      expect(calls).to eq %i[Iso Iec Ieee]
+    end
+
+    it "does not ask a co-publisher when the lead has the record" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).and_return(iec_item)
+      expect(Relaton::Iec::Bibliography).not_to receive(:get)
+      subject.fetch("ISO/IEC 27001:2022")
+    end
+
+    it "asks nobody else for a reference with no co-publisher" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).and_return(nil)
+      expect(Relaton::Iec::Bibliography).not_to receive(:get)
+      expect(subject.fetch("ISO 8601")).to be_nil
+    end
+
+    it "skips a co-publisher whose flavor cannot parse the lead's form" do
+      expect(Relaton::Ieee::Bibliography).to receive(:get).and_return(nil)
+      expect(Relaton::Iso::Bibliography).not_to receive(:get)
+      expect(Relaton::Iec::Bibliography).not_to receive(:get)
+      expect do
+        expect(subject.fetch("IEEE/ISO 11073-10101")).to be_nil
+      end.to output(/co-publisher `ISO` cannot read it/).to_stderr_from_any_process
+    end
+
+    it "skips a co-publisher that has no flavor" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).and_return(nil)
+      expect(Relaton::Iec::Bibliography).not_to receive(:get)
+      expect(Relaton::Ieee::Bibliography).not_to receive(:get)
+      expect(subject.fetch("ISO/ASTM 52900")).to be_nil
+    end
+
+    it "skips a co-publisher whose flavor gives no pubid for the form" do
+      allow(Relaton::Iso::Bibliography).to receive(:get).and_return(nil)
+      allow(Relaton::Iec::Bibliography).to receive(:get).and_return(nil)
+      expect(Relaton::Ieee::Bibliography).not_to receive(:get)
+      expect(subject.fetch("ISO/IEC/IEEE 15288:2023/DAmd 1")).to be_nil
+    end
+
+    it "falls through from a PREFIX(...) wrapper with the unwrapped reference" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).and_return(nil)
+      expect(Relaton::Iec::Bibliography).to receive(:get)
+        .with(pubid_of("ISO/IEC 27001:2022"), nil, {}).and_return(iec_item)
+      expect(subject.fetch("ISO(ISO/IEC 27001:2022)")).to be_iec_item
+    end
+
+    it "falls through from a reference with an en dash" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).and_return(nil)
+      expect(Relaton::Iec::Bibliography).to receive(:get)
+        .with(pubid_of("ISO/IEC 27001-1"), nil, {}).and_return(nil)
+      expect(subject.fetch("ISO/IEC 27001–1")).to be_nil
+    end
+
+    it "lets a parse error from inside the co-publisher's get propagate" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).and_return(nil)
+      expect(Relaton::Iec::Bibliography).to receive(:get)
+        .and_raise(Pubid::Errors::ParseError, "bad data")
+      expect { subject.fetch("ISO/IEC 27001:2022") }
+        .to raise_error Pubid::Errors::ParseError, /bad data/
+    end
+
+    it "does not fall through on a transport failure" do
+      expect(Relaton::Iso::Bibliography).to receive(:get)
+        .and_raise(Relaton::RequestError, "timeout").at_least(:once)
+      expect(Relaton::Iec::Bibliography).not_to receive(:get)
+      expect { subject.fetch("ISO/IEC 27001:2022") }
+        .to raise_error Relaton::RequestError
+    end
+
+    it "answers a second fetch from the caches with no flavor call" do
+      db = Relaton::Db.new "testcache", nil
+      expect(Relaton::Iso::Bibliography).to receive(:get).once.and_return(nil)
+      expect(Relaton::Iec::Bibliography).to receive(:get).once.and_return(iec_item)
+      db.fetch("ISO/IEC 27001:2022")
+      expect(db.fetch("ISO/IEC 27001:2022")).to be_iec_item
+    end
+
+    it "does not fall through from a flavor the caller names" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).and_return(nil)
+      expect(Relaton::Iec::Bibliography).not_to receive(:get)
+      subject.fetch_std("ISO/IEC 27001:2022", nil, :relaton_iso)
+    end
+
+    it "falls through when fetch_std routes" do
+      expect(Relaton::Iso::Bibliography).to receive(:get).and_return(nil)
+      expect(Relaton::Iec::Bibliography).to receive(:get).and_return(iec_item)
+      expect(subject.fetch_std("ISO/IEC 27001:2022")).to be_iec_item
+    end
+  end
 end
