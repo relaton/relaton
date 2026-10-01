@@ -16,9 +16,7 @@ gemspec
 # parse through parsanol PG artifacts, and no published parsanol can load them
 # yet (pubid builds against an unreleased local parsanol and does not declare
 # it in its gemspec). Move to `main` once pubid depends on a released parsanol.
-gem "pubid", path: "/Users/mulgogi/src/pubid/pubid"
-gem "parsanol", path: "/Users/mulgogi/src/parsanol/parsanol-ruby"
-
+gem "pubid", git: "https://github.com/metanorma/pubid.git", ref: "27454393"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
