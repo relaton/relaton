@@ -44,6 +44,22 @@ module Relaton
         nil
       end
 
+      # An IEEE pubid keeps the other publishers in `publishers` (a joint
+      # development) or `copublisher` (a standard), not in the shared
+      # `copublishers`.
+      #
+      # @param pubid [Pubid::Ieee::Identifier]
+      # @return [Array<String>]
+      def copublishers(pubid)
+        pubid = pubid.identifiers.first if pubid.all_parts?
+        others = if pubid.respond_to?(:publishers) && pubid.publishers
+                   pubid.publishers
+                 elsif pubid.respond_to?(:copublisher)
+                   pubid.copublisher
+                 end
+        Array(others).map(&:to_s) - %w[IEEE AIEE]
+      end
+
       # @param xml [String]
       # @return [Relaton::Ieee::ItemData]
       def from_xml(xml)

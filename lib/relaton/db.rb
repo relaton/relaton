@@ -79,7 +79,7 @@ module Relaton
       # code is parsed again by the flavor.
       pubid = nil unless ref == reference
       result = combine_doc ref, year, opts, stdclass
-      result || check_bibliocache(ref, year, opts, stdclass, pubid: pubid)
+      result || fetch_routed(ref, year, opts, stdclass, pubid)
     end
 
     # @see Relaton::Db#fetch
@@ -149,8 +149,11 @@ module Relaton
     #
     def fetch_std(code, year = nil, stdclass = nil, opts = {})
       std = named_class(stdclass)
-      std, pubid = @registry.route(code) unless std
-      check_bibliocache(code, year, opts, std, pubid: pubid)
+      # A flavor the caller names is the one asked: no co-publisher.
+      return check_bibliocache(code, year, opts, std) if std
+
+      std, pubid = @registry.route(code)
+      fetch_routed(code, year, opts, std, pubid)
     end
 
     # The document identifier class corresponding to the given code
@@ -363,6 +366,65 @@ module Relaton
         else code.to_s
         end
       [prefix, code]
+    end
+
+    # The routed flavor, then its co-publishers' flavors (relaton#205).
+    def fetch_routed(code, year, opts, stdclass, pubid)
+      check_bibliocache(code, year, opts, stdclass, pubid: pubid) ||
+        copublisher_fetch(code, year, opts, stdclass, pubid)
+    end
+
+    #
+    # A co-published document the lead flavor's catalog does not have:
+    # ask the co-publishers' flavors, in the order the parsed pubid holds
+    # them (relaton#205; pubid#469, #472). Each one keys, caches and fetches
+    # with its own flavor, so a second fetch is answered from the caches.
+    # A co-publisher whose flavor gives no pubid for the lead's printed form
+    # is skipped. Only that probe parse is rescued: an error from inside the
+    # co-publisher's fetch propagates.
+    #
+    # @return [Relaton::Bib::ItemData, nil]
+    #
+    def copublisher_fetch(code, year, opts, stdclass, pubid)
+      # The reference as the lead read it: no `PREFIX(...)` wrapper, no en dash.
+      _, code = strip_id_wrapper(code, stdclass)
+      copublisher_classes(code, opts, stdclass, pubid).each do |publisher, co|
+        Util.info "Not found; trying co-publisher `#{publisher}`", key: code
+        query = copublisher_query(code, opts, co, publisher) or next
+        bib = check_bibliocache(code, year, opts, co, pubid: query)
+        return bib if bib
+      end
+      nil
+    end
+
+    # @return [Array<Array(String, Symbol)>] each co-publisher that a flavor
+    #   other than the lead serves, with that flavor
+    def copublisher_classes(code, opts, stdclass, pubid)
+      processor = @registry[stdclass]
+      query = processor.query_pubid(code, opts, pubid) or return []
+
+      processor.copublishers(query).filter_map do |publisher|
+        co = @registry.class_by_publisher(publisher)
+        [publisher, co] if co && co != stdclass
+      end.uniq(&:last)
+    end
+
+    # The co-publisher flavor's own parse of the reference, or nil when it
+    # gives none (a parse error, or a flavor that reads it as a miss: IEEE),
+    # which is logged.
+    #
+    # @return [Pubid::Identifier, nil]
+    def copublisher_query(code, opts, stdclass, publisher)
+      query = begin
+        @registry[stdclass].query_pubid(code, opts)
+      rescue ::Pubid::Errors::Error, Parslet::ParseFailed
+        nil
+      end
+      return query if query
+
+      Util.info "Not found; co-publisher `#{publisher}` cannot read it",
+                key: code
+      nil
     end
 
     def bib_retval(entry, stdclass)

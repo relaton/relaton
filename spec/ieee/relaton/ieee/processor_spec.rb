@@ -80,4 +80,28 @@ RSpec.describe Relaton::Ieee::Processor do
       processor.remove_index_file
     end
   end
+
+  # relaton#205 PR 3: IEEE keeps the other publishers in `copublisher` or
+  # `publishers`, not in the shared `copublishers`.
+  describe "#copublishers" do
+    def copublishers(ref)
+      processor.copublishers Pubid::Ieee::Identifier.parse(ref)
+    end
+
+    it "reads a standard's copublisher" do
+      expect(copublishers("IEEE/ISO 11073-10101")).to eq %w[ISO]
+    end
+
+    it "reads a joint development's publishers, without IEEE" do
+      expect(copublishers("IEEE/ISO/IEC 8802-3")).to match_array %w[ISO IEC]
+    end
+
+    it "reads them through an all-parts wrapper" do
+      expect(copublishers("IEEE/ISO 11073 (all parts)")).to eq %w[ISO]
+    end
+
+    it "is empty for an IEEE-only standard" do
+      expect(copublishers("IEEE 802.3-2018")).to eq []
+    end
+  end
 end

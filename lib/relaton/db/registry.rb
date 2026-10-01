@@ -195,6 +195,19 @@ module Relaton
         processors_by_prefix(prefix).map { |processor| flavor_module(processor) }
       end
 
+      #
+      # The flavor that serves a publisher's catalog: the processor whose own
+      # prefix is the publisher (`IEC` → `:relaton_iec`). Nil for a publisher
+      # no flavor serves (`ASTM`). Used for a co-publisher (relaton#205).
+      #
+      # @param publisher [String]
+      # @return [Symbol, nil] the standard class
+      #
+      def class_by_publisher(publisher)
+        processors_by_prefix(publisher)
+          .detect { |processor| processor.prefix.casecmp?(publisher) }&.short
+      end
+
       private
 
       # The reference parsed by pubid, when the parse renders the reference
@@ -261,9 +274,7 @@ module Relaton
         end
         return unless prefix
 
-        lead = prefix.split("/").first
-        owners = processors_by_prefix(prefix)
-        owners.detect { |p| p.prefix.casecmp?(lead) }&.short
+        class_by_publisher prefix.split("/").first
       end
 
       # Prefixes that more than one flavor owns (`ISO/IEC`, `ISO/IEC/IEEE`),

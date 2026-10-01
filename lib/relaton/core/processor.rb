@@ -86,6 +86,21 @@ module Relaton
         pubid if !pubid.nil? && pubid.is_a?(::Pubid::Identifier)
       end
 
+      # The publishers of a co-published identifier after the lead, in the
+      # order the parsed pubid holds them: the printed order (pubid#472).
+      # Relaton::Db asks their flavors when the lead's catalog has no record
+      # (relaton#205). A flavor whose pubid keeps them elsewhere overrides
+      # this (IEEE).
+      #
+      # @param pubid [Pubid::Identifier] the query pubid (#query_pubid)
+      # @return [Array<String>] publisher abbreviations, e.g. `["IEC"]`
+      def copublishers(pubid)
+        pubid = pubid.identifiers.first if pubid.all_parts?
+        return [] unless pubid.respond_to?(:copublishers)
+
+        Array(pubid.copublishers).map(&:to_s)
+      end
+
       # Set the year on a parsed pubid, where the flavor's `get` applies it. The
       # default sets the identifier's own year. A flavor whose `get` applies
       # the year elsewhere overrides this (see #fold_year_on_root).

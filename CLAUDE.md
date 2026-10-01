@@ -117,7 +117,9 @@ parsing flavor's own **exact** parse (it renders the reference back, and the
 flavor claims the reference by a prefix) — `Pubid.parse` otherwise reads
 `ATN5014` as IEC and `ISO REF` as IEC. A co-published identifier routes to the
 co-publisher its printed form names first (`ISO/IEC …` → ISO; there is no
-canonical form, pubid#469). Everything else falls back to the prefix regex
+canonical form, pubid#469); when that flavor has no record, `Db` asks the
+co-publishers' flavors in the order the parsed pubid holds them, each with its
+own parse and cache (`Db#copublisher_fetch`). Everything else falls back to the prefix regex
 (`class_by_ref`), and a reference nothing recognizes raises
 `Relaton::UnknownReferenceError`. Error classes: `Relaton::Error` is the base of
 `RequestError` (retried by `Db#net_retry`) and `UnknownReferenceError`
