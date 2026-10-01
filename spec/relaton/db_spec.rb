@@ -29,7 +29,8 @@ RSpec.describe Relaton::Db do
     context "#new_bib_entry" do
       let(:db) { double "db" }
       before do
-        expect(db).to receive(:[]).with("ISO(ISO 123)").and_return "not_found"
+        expect(db).to receive(:read).with("ISO(ISO 123)")
+          .and_return Relaton::Db::NotFound.new(fetched: Date.today.to_s)
       end
 
       it "warn if cached entry is not_found" do
@@ -58,6 +59,25 @@ RSpec.describe Relaton::Db do
       end
     end
 
+    context "not-found entry" do
+      it "is a typed value with today's date" do
+        expect(subject.send(:bib_entry, nil))
+          .to eq Relaton::Db::NotFound.new(fetched: Date.today.to_s)
+      end
+
+      it "is not parsed from a marker string" do
+        code = File.readlines(
+          File.expand_path("../../lib/relaton/db.rb", __dir__),
+        ).grep_v(/\A\s*#/).join
+        expect(code).not_to include "not_found"
+      end
+
+      it "gives nil when there is no cache" do
+        expect(Relaton::Iso::Bibliography).to receive(:get).and_return nil
+        expect(subject.fetch("ISO 9999")).to be_nil
+      end
+    end
+
     context "#combine_doc" do
       it "retrun nil for BIPM documents" do
         code = double "code"
@@ -83,7 +103,7 @@ RSpec.describe Relaton::Db do
       end
 
       it "caches the document under the query and its own key" do
-        expect(db_cache).to receive(:[]).with(:key).and_return nil
+        expect(db_cache).to receive(:read).with(:key).and_return nil
         expect(db_cache).to receive(:store) do |key, entry, item_key:|
           expect(key).to be :key
           expect(entry).to include "ISO 123:2020"
@@ -100,7 +120,7 @@ RSpec.describe Relaton::Db do
       end
 
       it "not using cache refreshes the cached entry" do
-        expect(db_cache).not_to receive(:[])
+        expect(db_cache).not_to receive(:read)
         expect(db_cache).to receive(:store)
         entry = subject.send :fetch_entry, "ISO 123", nil, { no_cache: true },
                              :relaton_iso, db: db_cache, id: :key

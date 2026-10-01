@@ -2,6 +2,15 @@ require "lutaml/model"
 
 module Relaton
   class Db
+    # The cached answer "the flavor has no such document", with the date it
+    # was fetched. Db and Cache pass it in place of the document XML.
+    NotFound = Data.define(:fetched) do
+      # @return [String] the legacy string form, `not_found <date>`
+      def to_s
+        "not_found #{fetched}"
+      end
+    end
+
     # One row of the cache index. A row is keyed either by a pubid (`id`, its
     # `to_hash`) or, for a processor with no pubid class, by a string (`key`).
     # `file` names the document in the doc store; several rows can share one

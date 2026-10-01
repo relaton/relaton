@@ -27,6 +27,7 @@ module Relaton
       VERSIONS_KEY = "_versions".freeze
       STRING_FLAVOR = "_key".freeze
       PUBID_FLAVOR = "_pubid".freeze
+      # The legacy string form of a not-found entry (`not_found <date>`).
       NOT_FOUND = /\Anot_found/
       # Days an undated entry, or any not_found entry, stays valid.
       UNDATED_TTL = 60
@@ -77,20 +78,29 @@ module Relaton
         @versions = {}
       end
 
-      # Read the document (or `not_found <date>`) for a key: the row with
-      # this key, else, for a dated pubid, a row the key is a subset of.
+      # Read the entry for a key: the row with this key, else, for a dated
+      # pubid, a row the key is a subset of.
+      #
+      # @param key [Pubid::Identifier, String]
+      # @return [String, Relaton::Db::NotFound, nil] document XML or not found
+      def read(key)
+        found = lookup(key)
+        found && read_entry(found.last)
+      end
+
+      # The entry for a key as a string, a not-found entry as
+      # `not_found <date>`.
       #
       # @param key [Pubid::Identifier, String]
       # @return [String, nil]
       def [](key)
-        found = lookup(key)
-        found && read_entry(found.last)
+        read(key)&.to_s
       end
       alias get []
 
       # @param key [Pubid::Identifier, String]
-      # @param value [String, nil] document XML or `not_found <date>`; nil
-      #   deletes the row
+      # @param value [String, Relaton::Db::NotFound, nil] document XML, a
+      #   not-found entry (also as `not_found <date>`); nil deletes the row
       def []=(key, value)
         store key, value
       end
@@ -101,18 +111,20 @@ module Relaton
       # point to one document file.
       #
       # @param key [Pubid::Identifier, String] query key
-      # @param value [String, nil] document XML or `not_found <date>`
+      # @param value [String, Relaton::Db::NotFound, nil] document XML, a
+      #   not-found entry (also as `not_found <date>`); nil deletes the row
       # @param item_key [Pubid::Identifier, String, nil] the document's key
-      # @return [String, nil] value
+      # @return [String, Relaton::Db::NotFound, nil] value
       #
       def store(key, value, item_key: nil) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
         return delete(key) if value.nil?
 
         bucket, key = resolve key
+        value = coerce value
         fetched = fetched_of value
         record_version bucket
-        if value.match? NOT_FOUND
-          upsert bucket, entry(key, CacheEntry::NOT_FOUND, nil, fetched)
+        if value.is_a? NotFound
+          upsert bucket, new_row(key, CacheEntry::NOT_FOUND, nil, fetched)
           return value
         end
 
@@ -121,9 +133,9 @@ module Relaton
         record_version item_bucket
         @rows.adapter.transaction do
           @docs.set file, value
-          upsert item_bucket, entry(item_key, CacheEntry::DOC, file, fetched)
+          upsert item_bucket, new_row(item_key, CacheEntry::DOC, file, fetched)
           unless canonical(key) == canonical(item_key)
-            upsert bucket, entry(key, CacheEntry::DOC, file, fetched)
+            upsert bucket, new_row(key, CacheEntry::DOC, file, fetched)
           end
         end
         value
@@ -246,9 +258,11 @@ module Relaton
       end
 
       # @param row [Hash]
-      # @return [String, nil] document XML or `not_found <date>`
+      # @return [String, Relaton::Db::NotFound, nil] document XML or not found
       def read_entry(row)
-        return "not_found #{row['fetched']}" if row["status"] == CacheEntry::NOT_FOUND
+        if row["status"] == CacheEntry::NOT_FOUND
+          return NotFound.new(fetched: row["fetched"])
+        end
 
         @docs.get row["file"]
       end
@@ -447,7 +461,7 @@ module Relaton
         end
       end
 
-      def entry(key, status, file, fetched)
+      def new_row(key, status, file, fetched)
         row = CacheEntry.new(status: status, file: file, fetched: fetched)
         if key.is_a?(String) then row.key = key
         else row.id = canonical(key)
@@ -522,8 +536,15 @@ module Relaton
         @docs.delete file unless used
       end
 
+      # A legacy `not_found <date>` string becomes a NotFound value.
+      def coerce(value)
+        return value unless value.is_a?(String) && value.match?(NOT_FOUND)
+
+        NotFound.new(fetched: value[/\d{4}-\d{2}-\d{2}/] || Date.today.to_s)
+      end
+
       def fetched_of(value)
-        date = if value.match? NOT_FOUND then value[/\d{4}-\d{2}-\d{2}/]
+        date = if value.is_a? NotFound then value.fetched
                else value[%r{<fetched>\s*([^<\s]+)\s*</fetched>}, 1]
                end
         date || Date.today.to_s

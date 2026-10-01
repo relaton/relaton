@@ -49,6 +49,26 @@ RSpec.describe Relaton::Db::Cache do
       expect(cache.fetched(pubid("ISO 9999"))).to eq Date.today.to_s
     end
 
+    it "reads a not-found entry as a typed value" do
+      date = (Date.today - 3).to_s
+      cache.store pubid("ISO 9999"), Relaton::Db::NotFound.new(fetched: date)
+      expect(cache.read(pubid("ISO 9999")))
+        .to eq Relaton::Db::NotFound.new(fetched: date)
+      expect(cache[pubid("ISO 9999")]).to eq "not_found #{date}"
+      expect(cache.fetched(pubid("ISO 9999"))).to eq date
+    end
+
+    it "reads a legacy not-found string as a typed value" do
+      cache[pubid("ISO 9999")] = "not_found 2026-01-02"
+      expect(cache.read(pubid("ISO 9999")))
+        .to eq Relaton::Db::NotFound.new(fetched: "2026-01-02")
+    end
+
+    it "reads a document as its XML" do
+      cache[pubid("ISO 19115-1:2014")] = xml
+      expect(cache.read(pubid("ISO 19115-1:2014"))).to eq xml
+    end
+
     it "does not match a dated query to an entry of another year" do
       cache[pubid("ISO 19115-1:2014")] = xml
       expect(cache[pubid("ISO 19115-1:2003")]).to be_nil
@@ -152,6 +172,15 @@ RSpec.describe Relaton::Db::Cache do
     other = described_class.new "testcache2"
     other.clone_entry pubid("ISO 19115-1"), cache
     expect(other[pubid("ISO 19115-1")]).to eq xml
+  end
+
+  it "clones a not-found entry with its fetched date" do
+    date = (Date.today - 3).to_s
+    cache.store pubid("ISO 9999"), Relaton::Db::NotFound.new(fetched: date)
+    other = described_class.new "testcache2"
+    other.clone_entry pubid("ISO 9999"), cache
+    expect(other.read(pubid("ISO 9999")))
+      .to eq Relaton::Db::NotFound.new(fetched: date)
   end
 
   it "lists every document once" do

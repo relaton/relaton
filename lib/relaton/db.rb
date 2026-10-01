@@ -342,9 +342,7 @@ module Relaton
     end
 
     def bib_retval(entry, stdclass)
-      if entry && !entry.match?(/^not_found/)
-        @registry[stdclass].from_xml(entry)
-      end
+      @registry[stdclass].from_xml(entry) if entry.is_a?(String)
     end
 
     def check_bibliocache(code, year, opts, stdclass, pubid: nil) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/MethodLength,Metrics/PerceivedComplexity
@@ -364,7 +362,7 @@ module Relaton
 
       @semaphore.synchronize { db.expire id, year }
       if altdb
-        return bib_retval(altdb[id], stdclass) if opts[:fetch_db]
+        return bib_retval(altdb.read(id), stdclass) if opts[:fetch_db]
 
         @semaphore.synchronize do
           db.clone_entry id, altdb if altdb.valid_entry? id, year
@@ -374,20 +372,20 @@ module Relaton
           altdb.clone_entry(id, db) if !altdb.valid_entry?(id, year)
         end
       else
-        return bib_retval(db[id], stdclass) if opts[:fetch_db]
+        return bib_retval(db.read(id), stdclass) if opts[:fetch_db]
 
         new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id)
       end
-      bib_retval(db[id], stdclass)
+      bib_retval(db.read(id), stdclass)
     end
 
     def new_bib_entry(code, year, opts, stdclass, **args)
-      entry = @semaphore.synchronize { args[:db] && args[:db][args[:id]] }
+      entry = @semaphore.synchronize { args[:db]&.read(args[:id]) }
       if !entry || opts[:no_cache]
         return fetch_entry(code, year, opts, stdclass, **args)
       end
 
-      if entry&.match?(/^not_found/)
+      if entry.is_a?(NotFound)
         Util.info "not found in cache, if you wish to " \
                   "ignore cache please use `no-cache` option.", key: code
         return
@@ -402,10 +400,10 @@ module Relaton
       return entry if args[:db].nil?
 
       # `no_cache` refreshes a cached entry, but a failed fetch does not
-      # replace a cached document with `not_found`.
+      # replace a cached document with a not-found entry.
       refresh = opts[:no_cache] && bib.respond_to?(:to_xml)
       @semaphore.synchronize do
-        if refresh || !args[:db][args[:id]]
+        if refresh || !args[:db].read(args[:id])
           save_bib args[:db], args[:id], bib, entry, stdclass
         end
       end
@@ -463,7 +461,7 @@ module Relaton
       if bib.respond_to?(:to_xml)
         bib.to_xml(bibdata: true)
       else
-        "not_found #{Date.today}"
+        NotFound.new(fetched: Date.today.to_s)
       end
     end
 
