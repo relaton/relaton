@@ -91,7 +91,7 @@ Gem::Specification.new do |spec|
   # 2.0.0.pre.alpha.11 is the first release with `Pubid::Errors`, which relaton
   # and relaton-cli rescue. `alpha.10` sorts below `pre.alpha.8`, so the old
   # `~> 2.0.0.alpha.10` pin also accepted `pre.alpha.8`/`9`, which lack it.
-  spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.13"
+  spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.21"
 
   spec.add_dependency "yeptris", ">= 0.4"
   spec.add_dependency "relaton-render", "~> 1.4.0.pre.alpha.1"

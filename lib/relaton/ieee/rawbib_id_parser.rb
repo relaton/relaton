@@ -138,8 +138,8 @@ module Relaton
           Renderer.new(publisher: "IEEE", number: "P802", part: "11aj", draft: "8.0", year: "2017")
         when "IEEE P802.11ajD9.0, November 2017" # "IEEE P802-11aj/D9.0.2017"
           Renderer.new(publisher: "IEEE", number: "P802", part: "11aj", draft: "9.0", year: "2017")
-        when "ISO/IEC/IEEE P29119-4-DISMay2013" # "ISO/IEC/IEEE DIS P29119-4.2013"
-          Renderer.new(publisher: "ISO/IEC/IEEE", stage: "DIS", number: "P29119", part: "4", year: "2013")
+        when "ISO/IEC/IEEE P29119-4-DISMay2013" # "ISO/IEC/IEEE DIS P29119-4.2013-05"
+          Renderer.new(publisher: "ISO/IEC/IEEE", stage: "DIS", number: "P29119", part: "4", year: "2013", month: "05")
         when "IEEE-P15026-3-DIS-January 2015" # "IEEE DIS P15026-3.2015"
           Renderer.new(publisher: "IEEE", stage: "DIS", number: "P15026", year: "2015")
         when "ANSI/IEEE PC63.7/D rev17, December 2014" # "ANSI/IEEE PC63-7/D/REV-17.2014"

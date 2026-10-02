@@ -4,19 +4,11 @@ source "https://rubygems.org"
 
 gemspec
 
-# TEMP PIN: the ITU flavor parses every caller reference with `Pubid::Itu`,
-# which needs pubid #460 (Radio Regulations, the Operational Bulletin sector
-# and date, ITU publication ids like `T-REC-T.4-200307-I`, and `-YYYYMM` read
-# as a date). #460 is on pubid `main` but not in the released
-# 2.0.0.pre.alpha.13 that both gemspecs require. Remove this pin, and bump
-# both gemspecs, once a pubid release carries #460.
-#
-# The pin is a fixed ref, not `branch: "main"`: `27454393` is the #460 merge,
-# the last `main` commit that still parses with parslet. The commits after it
-# parse through parsanol PG artifacts, and no published parsanol can load them
-# yet (pubid builds against an unreleased local parsanol and does not declare
-# it in its gemspec). Move to `main` once pubid depends on a released parsanol.
-gem "pubid", git: "https://github.com/metanorma/pubid.git", ref: "27454393"
+# The rawbib fixture expectations reconcile against pubid 2.0.0.pre.alpha.21
+# (the stage-word faces: "-YYYY-MM" dates, the D= designator, the glued
+# "/V<n>" iteration, pubid#203). Pin the exact tested release until pubid
+# 2.0 final; the gemspec floor follows.
+gem "pubid", "2.0.0.pre.alpha.21"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
