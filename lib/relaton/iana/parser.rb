@@ -125,8 +125,11 @@ module Relaton
       # @return [Array<Relaton::Bib::Date>] date
       #
       def parse_date
-        d = @xml.xpath("./xmlns:created|./xmlns:published|./xmlns:updated", NS).map do |dt|
-          Bib::Date.new(type: dt.name, at: dt.text)
+        # moxml 0.5.98 drops every branch after the second in an N>=3 union
+        # under the reserved `xmlns` prefix (lutaml/moxml#315), which silently
+        # stripped `updated` dates from every crawled registry.
+        d = %w[created published updated].flat_map do |type|
+          @xml.xpath("./xmlns:#{type}", NS).map { |dt| Bib::Date.new(type: dt.name, at: dt.text) }
         end
         result = d.none? && @rootdoc ? @rootdoc.date : d
         @errors[:date] &&= result.empty?
