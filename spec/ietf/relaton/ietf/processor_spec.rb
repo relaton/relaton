@@ -20,6 +20,21 @@ RSpec.describe Relaton::Ietf::Processor do
     expect(subject.datasets).to eq %w[ietf-rfcsubseries ietf-internet-drafts ietf-rfc-entries]
   end
 
+  describe "cache_pubid" do
+    it "parses the prefixed form the flavor itself advertises" do
+      pubid = subject.cache_pubid("IETF RFC 7200")
+      expect(pubid).to be_a(::Pubid::Ietf::Identifier)
+      expect(pubid.to_s).to eq "RFC 7200"
+    end
+
+    it "still parses the bare forms" do
+      expect(subject.cache_pubid("RFC 7200").to_s).to eq "RFC 7200"
+      expect(subject.cache_pubid("I-D.foo").to_s).to eq "draft-foo"
+      expect(subject.cache_pubid("I-D foo").to_s).to eq "draft-foo"
+      expect(subject.cache_pubid("draft-foo-00").to_s).to eq "draft-foo-00"
+    end
+  end
+
   describe "defaultprefix" do
     %w[RFC\ 1234 BCP\ 1 I-D.foo I-D\ foo IETF\ foo FYI\ 1 STD\ 1].each do |ref|
       it "matches #{ref.inspect}" do

@@ -21,6 +21,24 @@ module Relaton
         Bibliography.get(code, date, opts)
       end
 
+      # The reference forms this flavor routes on (`IETF RFC 7200`,
+      # `I-D.foo`) are not all ones Pubid::Ietf parses directly -
+      # Scraper#parse_id normalizes them first. Parse through the same
+      # normalization, or Db#check_bibliocache's cache_key raises
+      # Pubid::ParseError instead of routing to the scraper. Nil (the
+      # scraper's own miss answer) means no cache key: `get` still runs.
+      def cache_pubid(ref)
+        normalized = ref.is_a?(String) ? ref.sub(/\AIETF\s+/, "") : ref
+        return super unless normalized.is_a?(String)
+
+        if (draft = normalized[/\AI-D[.\s]\s*(\S.*)\z/m, 1])
+          normalized = draft.start_with?("draft-") ? draft : "draft-#{draft}"
+        end
+        pubid_class&.parse(normalized)
+      rescue StandardError
+        nil
+      end
+
       #
       # Fetch all the documents from https://www.rfc-editor.org/rfc-index.xml
       #
