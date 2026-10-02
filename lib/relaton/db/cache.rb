@@ -167,12 +167,16 @@ module Relaton
       end
 
       #
-      # Save the row of a key, and its document, from another cache.
+      # Save the row of a key, and its document, from another cache. A row
+      # the cache already holds is kept: a local cache keeps its own value
+      # for a key the global cache also holds (local over global).
       #
       # @param key [Pubid::Identifier, String]
       # @param other [Relaton::Db::Cache]
       #
       def clone_entry(key, other)
+        return if lookup(key)
+
         found = other.lookup(key) or return
         row_id, row = found
         store row_id, other.read_entry(row)
