@@ -11,7 +11,9 @@ RSpec.describe "Relaton::Core::Processor#cache_key" do
 
   # The key is the reference parsed by the flavor's pubid class as written:
   # relaton does not rewrite a non-canonical citation (pubid/pubid#463,
-  # #464 were closed for this), so such a citation raises.
+  # #464 were closed for this). A spelling the flavor's grammar cannot read
+  # gives no key (relaton#235): the flavor's `get` then receives the
+  # reference as written and normalizes it itself.
   context "canonical references only" do
     {
       relaton_w3c: ["W3C xml-names", "https://www.w3.org/TR/xml-names/"],
@@ -20,9 +22,9 @@ RSpec.describe "Relaton::Core::Processor#cache_key" do
       relaton_nist: ["NIST SP 800-80(IPD)", "NIST SP 800-80 (IPD)"],
       relaton_jis: ["JIS B 0060 (all parts)", "JIS B 0060 (規格群)"],
     }.each do |short, (canonical, other)|
-      it "#{short}: parses #{canonical.inspect}, raises for #{other.inspect}" do
+      it "#{short}: parses #{canonical.inspect}, no key for #{other.inspect}" do
         expect(key(short, canonical)).to be_a Pubid::Identifier
-        expect { key(short, other) }.to raise_error Pubid::Errors::ParseError
+        expect(key(short, other)).to be_nil
       end
     end
   end

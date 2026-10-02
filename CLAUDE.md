@@ -650,11 +650,16 @@ regex back.
     They keep `exclude`/`matches?`.
   `#exclude` stays what it is: a way to build a copy without a component, for
   rendering and for the mutators (`Docidentifier#remove_date!`, …).
-- **An unrecognized query reference raises.** A flavor parses the caller's
-  reference with pubid and lets `Pubid::Errors::ParseError` propagate:
-  relaton-cli rescues the marker module `Pubid::Errors::Error` and prints
-  `"…" is not a recognized standards identifier`. Returning nil instead makes
-  "malformed" look like "not found". Rescue a parse only on the data side —
+- **A query reference the flavor's grammar cannot read falls back to the
+  flavor as written (relaton#235).** A flavor's `cache_pubid` parse of the
+  caller's reference rescues `ArgumentError`, `Pubid::Errors::Error` and
+  `Parslet::ParseFailed` to nil, with a log line: `get` then receives the
+  String and normalizes it itself — a prefixed spelling the flavor still
+  reads (`IETF RFC 7200`) fetches, and one nothing reads (`NIST 123`)
+  answers not-found instead of crashing the caller's compile. The raise the
+  fallback replaced used to reach relaton-cli's `"…" is not a recognized
+  standards identifier` message; the log line keeps that signal. Rescue a
+  parse on the data side as before —
   a catalogue hit (`Relaton::Bsi::Hit#pubid`), a machine-derived probe
   (`Relaton::Bipm::Bibliography.year_number_retry`, ISO's type/stage probe),
   a crawl — and never on a helper that parses both the query and the data:

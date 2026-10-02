@@ -190,9 +190,10 @@ RSpec.describe Relaton::Db do
       expect(db.fetch("Adobe Glyph List")).to be_nil
     end
 
-    it "raises for a reference the flavor cannot parse" do
-      expect(Relaton::Iso::Bibliography).not_to receive(:get)
-      expect { db.fetch "ISO 111111" }.to raise_error Pubid::Errors::ParseError
+    it "passes a reference the flavor's grammar cannot read to get as written" do
+      expect(Relaton::Iso::Bibliography).to receive(:get)
+        .with("ISO 111111", nil, anything).and_return(nil)
+      expect(db.fetch("ISO 111111")).to be_nil
     end
 
     it "keeps a fresh not_found of a dated query" do
