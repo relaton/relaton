@@ -160,6 +160,20 @@ module Relaton
         Converter::Csl.from_item(self)
       end
 
+      # ISO 690 rendered reference (the style instance lives in the
+      # relaton-models citation module; the engine in relaton-render).
+      def to_iso690(lang: "en", script: "Latn")
+        require "relaton/render/iso690"
+        Render::Iso690::Renderer.render(self, lang: lang, script: script)
+      end
+
+      # ISO 690 name-and-date in-text citation.
+      def to_iso690_citation(lang: "en", script: "Latn", disambiguator: nil)
+        require "relaton/render/iso690"
+        Render::Iso690::Renderer.citation(
+          self, disambiguator: disambiguator, lang: lang, script: script
+        )
+      end
 
       def to_asciibib
         Converter::Asciibib.from_item(self)
