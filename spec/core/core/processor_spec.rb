@@ -114,5 +114,34 @@ RSpec.describe Relaton::Core::Processor do
       expect(key.to_s).to eq "ISO 19115-1:2014"
       expect(routed.to_s).to eq "ISO 19115-1"
     end
+
+    # relaton#205 PR 3: the publishers after the lead, in the order the parsed
+    # pubid holds them (pubid#472: as printed).
+    context "#copublishers" do
+      def copublishers(ref, flavor)
+        processor(pubid_flavor: flavor)
+          .copublishers(Pubid.const_get(flavor)::Identifier.parse(ref))
+      end
+
+      it "reads them from an ISO pubid" do
+        expect(copublishers("ISO/IEC/IEEE 15288", :Iso)).to eq %w[IEC IEEE]
+      end
+
+      it "reads them from an IEC pubid" do
+        expect(copublishers("IEC/ISO 31010", :Iec)).to eq %w[ISO]
+      end
+
+      it "reads them from a supplement" do
+        expect(copublishers("ISO/IEC 27001:2022/Amd 1:2024", :Iso)).to eq %w[IEC]
+      end
+
+      it "reads them through an all-parts wrapper" do
+        expect(copublishers("ISO/IEC 27001 (all parts)", :Iso)).to eq %w[IEC]
+      end
+
+      it "is empty for a single publisher" do
+        expect(copublishers("ISO 8601", :Iso)).to eq []
+      end
+    end
   end
 end

@@ -247,6 +247,20 @@ RSpec.describe Relaton::Db::Registry do
       .to be_instance_of Relaton::Etsi::Processor
   end
 
+  context "#class_by_publisher (relaton#205)" do
+    let(:registry) { Relaton::Db::Registry.instance }
+
+    it "names the flavor whose own prefix is the publisher" do
+      expect(registry.class_by_publisher("ISO")).to eq :relaton_iso
+      expect(registry.class_by_publisher("IEC")).to eq :relaton_iec
+      expect(registry.class_by_publisher("IEEE")).to eq :relaton_ieee
+    end
+
+    it "is nil for a publisher no flavor serves" do
+      expect(registry.class_by_publisher("ASTM")).to be_nil
+    end
+  end
+
   context "#route (relaton#205)" do
     let(:registry) { described_class.instance }
 
