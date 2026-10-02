@@ -174,6 +174,15 @@ RSpec.describe Relaton::Db::Cache do
     expect(other[pubid("ISO 19115-1")]).to eq xml
   end
 
+  it "keeps the cache's own row when it already has one" do
+    cache.store pubid("ISO 19115-1"), xml, item_key: pubid("ISO 19115-1:2014")
+    own = xml.sub("ISO 19115-1:2014", "ISO 19115-1:2015")
+    other = described_class.new "testcache2"
+    other.store pubid("ISO 19115-1"), own
+    other.clone_entry pubid("ISO 19115-1"), cache
+    expect(other[pubid("ISO 19115-1")]).to eq own
+  end
+
   it "clones a not-found entry with its fetched date" do
     date = (Date.today - 3).to_s
     cache.store pubid("ISO 9999"), Relaton::Db::NotFound.new(fetched: date)
