@@ -303,8 +303,8 @@ also sourcing `#prefixes` from pubid.
   citation before it parses it: `I-D.draft-…`, `IETF RFC 8341`,
   `BIPM Metrologia …`, a W3C URL, `NIST … (IPD)` / `(January 2014)` /
   `NISTIR 8200:2018`, `JIS … (規格群)`, a lowercase `iec …`, an en dash — each
-  raises `Pubid::Errors::ParseError` from `Db#fetch`, although the flavor's own
-  `get` still reads it when called directly. The canonical identifiers the data
+  gives no key and reaches the flavor's `get` as written, which normalizes it
+  itself where it can (relaton#235). The canonical identifiers the data
   repos publish all parse as written (measured over every spec index fixture);
   pubid/pubid#463 and #464, which asked pubid to accept the other spellings,
   were closed for this.
@@ -322,8 +322,11 @@ also sourcing `#prefixes` from pubid.
   Adobe, IANA, IEEE and ISBN read an unparseable reference as a miss, so their
   parse error means "no key"; IEC answers `IEV` with the vocabulary, so `IEV`
   gets no key.
-- **A parse error propagates** out of `Db#fetch` (root `CLAUDE.md`, "An
-  unrecognized query reference raises").
+- **A flavor parse error is a fallback, not a failure**: the query is not
+  keyed, and the flavor's `get` receives the reference as written
+  (`Core::Processor#cache_pubid` rescues to nil, with a log line; root
+  `CLAUDE.md`, "A query reference the flavor's grammar cannot read falls
+  back to the flavor as written").
 - **The year goes where the flavor's `get` puts it.** The default
   `#fold_year` sets the identifier's own year; ISO, CEN and BSI apply a year
   to `#root` (the base document of a supplement, the adopted document of an

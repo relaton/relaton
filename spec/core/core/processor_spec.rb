@@ -77,9 +77,8 @@ RSpec.describe Relaton::Core::Processor do
       expect(ranged).to eq pr.cache_key("ISO 19115-1", nil, {})
     end
 
-    it "raises on an unparseable reference" do
-      expect { processor(pubid_flavor: :Iso).cache_key("ISO", nil, {}) }
-        .to raise_error Pubid::Errors::ParseError
+    it "gives no key for a reference the grammar cannot read (relaton#235)" do
+      expect(processor(pubid_flavor: :Iso).cache_key("ISO", nil, {})).to be_nil
     end
 
     context "#query_pubid" do

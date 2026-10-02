@@ -58,13 +58,22 @@ module Relaton
       end
 
       # Parse a query reference into a pubid. A flavor that normalizes a
-      # reference before it parses overrides this. A parse error propagates:
-      # an unrecognized reference is not "not found".
+      # reference before it parses overrides this. A reference the flavor's
+      # grammar cannot read gives no pubid (relaton#235): `get` then
+      # receives the String and normalizes it itself, and the query is not
+      # keyed - the same reading as a flavor's own miss.
       #
       # @param ref [String]
       # @return [Pubid::Identifier, nil]
       def cache_pubid(ref)
         pubid_class&.parse(ref)
+      rescue ArgumentError, ::Pubid::Errors::Error, Parslet::ParseFailed
+        # relaton-bib carries the log facade; core specs load without it.
+        require "relaton/bib"
+        Relaton::Bib::Util.info "does not parse as this flavor's pubid; " \
+                                "passing the reference to the flavor as " \
+                                "written", "relaton-db", key: ref
+        nil
       end
 
       # The reference as `get` receives it and the cache keys it (relaton#205):
