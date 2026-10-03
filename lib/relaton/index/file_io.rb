@@ -13,7 +13,7 @@ module Relaton
 
       # Bump when the sidecar payload shape changes, so an older sidecar is
       # discarded and rebuilt instead of misread.
-      SIDECAR_VERSION = 1
+      SIDECAR_VERSION = 2 # v2: the payload carries the yaml byte-size for freshness
 
       attr_reader :url, :pubid_class
       attr_accessor :sorted
@@ -356,9 +356,9 @@ module Relaton
       end
 
       def read_raw_file
-        # The sidecar is authoritative while it is at least as new as the
-        # yaml — the yaml is not even parsed until the sidecar is stale or
-        # unreadable.
+        # The sidecar is authoritative while it describes the yaml byte-for-byte
+        # (same size) — the yaml is not even parsed until the sidecar is stale
+        # or unreadable.
         if sidecar_fresh?
           loaded = sidecar
           return loaded if loaded
@@ -367,13 +367,27 @@ module Relaton
         yaml = Index.config.storage.read(file)
         return unless yaml
 
-        raw = YAML.safe_load(yaml, permitted_classes: [Symbol])
+        begin
+          raw = YAML.safe_load(yaml, permitted_classes: [Symbol])
+        rescue Psych::SyntaxError
+          warn_local_index_error("YAML parsing error when reading")
+          delete_sidecar
+          return [[], []]
+        end
         build_raw(raw)
       end
 
+      # Size, not mtime: NTFS timestamp coarseness makes a rewritten yaml
+      # carry the sidecar's own mtime, so "yaml is newer" misses the rebuild.
       def sidecar_fresh?
         File.file?(sidecar_file) && File.file?(file) &&
-          File.mtime(sidecar_file) >= File.mtime(file)
+          File.size(file) == sidecar_yaml_size
+      end
+
+      def sidecar_yaml_size
+        Marshal.load(File.binread(sidecar_file))[4]
+      rescue TypeError, ArgumentError, EOFError
+        nil
       end
 
       def sidecar
@@ -441,7 +455,8 @@ module Relaton
 
       def write_sidecar(keys, rows)
         File.binwrite(sidecar_file,
-                      Marshal.dump([SIDECAR_VERSION, @sorted, keys, rows]))
+                      Marshal.dump([SIDECAR_VERSION, @sorted, keys, rows,
+                                    File.size(file)]))
       rescue Errno::EACCES, Errno::ENOENT, Errno::EROFS
         nil # the sidecar is an optimization; a read-only dir still works
       end

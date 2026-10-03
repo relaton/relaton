@@ -342,17 +342,22 @@ end
         expect(rows.first[:id]).to be_a(Hash)
       end
 
-      it "writes a marshal sidecar the first read can reload" do
+      it "does not rewrite the sidecar while the yaml is unchanged" do
         subject.read_raw
-        expect(File.file?(sidecar)).to be true
-        # The sidecar is authoritative until the yaml changes: a corrupted
-        # yaml does not rebuild it while the sidecar is at least as new.
-        File.write(path, "garbage: [")
-        File.utime(Time.now - 3600, Time.now - 3600, path)
-        keys, rows = Relaton::Index::FileIO.new("iso", filename: "index.yaml", pubid_class: TestIdentifier)
-          .tap { |s| s.instance_variable_set(:@file, path) }.read_raw
+        first = File.mtime(sidecar)
+        subject.read_raw
+        expect(File.mtime(sidecar)).to eq first
+        keys, rows = subject.read_raw
         expect(keys).to eq(%w[1 2])
         expect(rows.map { |r| r[:file] }).to eq(%w[f1 f2])
+      end
+
+      it "reports a corrupt yaml instead of raising" do
+        subject.read_raw
+        File.write(path, "garbage: [")
+        keys, rows = subject.read_raw
+        expect(keys).to eq([])
+        expect(rows).to eq([])
       end
 
       it "rebuilds the sidecar when the yaml is newer" do
