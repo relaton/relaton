@@ -25,6 +25,7 @@ require "equivalent-xml"
 require "jing"
 require "net/http" # used by some fetcher specs (e.g. gb)
 require "yaml"
+require "fileutils"
 
 # Per-flavor support: CWD is spec/<flavor>/, so this globs THAT flavor's support
 # dir (VCR/WebMock config, index-fixture before(:suite) hooks, umbrella setup).

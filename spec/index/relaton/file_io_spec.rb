@@ -10,7 +10,7 @@ describe Relaton::Index::FileIO do
 
   context "instace methods" do
     subject do
-      subj = described_class.new("iso", filename: "index.yaml", pubid_class: pubid_class)
+      subj = Relaton::Index::FileIO.new("iso", filename: "index.yaml", pubid_class: pubid_class)
       subj.instance_variable_set(:@file, "index.yaml")
       subj
     end
@@ -316,3 +316,67 @@ describe Relaton::Index::FileIO do
     end
   end
 end
+
+    context "#read_raw (relaton#242 stopgap: raw rows + sidecar, lazy pubids)" do
+      subject do
+        subj = Relaton::Index::FileIO.new("iso", filename: "index.yaml", pubid_class: TestIdentifier)
+        subj.instance_variable_set(:@file, path)
+        subj
+      end
+
+      let(:dir) { Dir.mktmpdir }
+      let(:path) { File.join(dir, "index.yaml") }
+      let(:sidecar) { "#{path}.ms" }
+
+      before do
+        File.write(path, [{ id: { publisher: "ISO", number: 2 }, file: "f2" },
+                          { id: { publisher: "ISO", number: 1 }, file: "f1" }].to_yaml)
+      end
+
+      after { FileUtils.remove_entry(dir) }
+
+      it "returns rows as raw hashes with precomputed root-number keys, sorted" do
+        keys, rows = subject.read_raw
+        expect(keys).to eq(%w[1 2])
+        expect(rows.map { |r| r[:file] }).to eq(%w[f1 f2])
+        expect(rows.first[:id]).to be_a(Hash)
+      end
+
+      it "writes a marshal sidecar the first read can reload" do
+        subject.read_raw
+        expect(File.file?(sidecar)).to be true
+        # The sidecar is authoritative until the yaml changes: a corrupted
+        # yaml does not rebuild it while the sidecar is at least as new.
+        File.write(path, "garbage: [")
+        File.utime(Time.now - 3600, Time.now - 3600, path)
+        keys, rows = Relaton::Index::FileIO.new("iso", filename: "index.yaml", pubid_class: TestIdentifier)
+          .tap { |s| s.instance_variable_set(:@file, path) }.read_raw
+        expect(keys).to eq(%w[1 2])
+        expect(rows.map { |r| r[:file] }).to eq(%w[f1 f2])
+      end
+
+      it "rebuilds the sidecar when the yaml is newer" do
+        subject.read_raw
+        File.write(path, [{ id: { publisher: "ISO", number: 3 }, file: "f3" }].to_yaml)
+        keys, rows = subject.read_raw
+        expect(keys).to eq(%w[3])
+        expect(rows.first[:file]).to eq "f3"
+      end
+
+      it "drops an unreadable sidecar and rebuilds from the yaml" do
+        subject.read_raw
+        File.binwrite(sidecar, "\x04\x08not-a-marshal-payload")
+        keys, rows = subject.read_raw
+        expect(keys).to eq(%w[1 2])
+      end
+
+      it "computes the sort key from the root, clustering a supplement with its base" do
+        File.write(path, [{ id: { publisher: "ISO", number: 1 }, file: "f1" },
+                          { id: { publisher: "ISO", number: 7 }, file: "amd7" }].to_yaml)
+        keys, = subject.read_raw
+        # number 7 is the supplement's own number; without pubid objects the
+        # raw hash cannot walk `.base`, so keys come from the one-time
+        # materialization at sidecar-build time.
+        expect(keys).to eq(%w[1 7])
+      end
+    end

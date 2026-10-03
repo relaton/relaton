@@ -30,7 +30,15 @@ module Relaton
       def index
         return @source.whole_index if @source
 
-        @index ||= @file_io.read
+        @index ||= @file_io.materialize(raw_index[1])
+      end
+
+      # Raw rows plus their precomputed root-number sort keys (relaton#242
+      # stopgap). The lazy search path materializes pubid objects only for
+      # the bucket it narrows to, so a process that answers one lookup holds
+      # raw hashes instead of the whole pubid graph.
+      def raw_index
+        @raw_index ||= @file_io.read_raw
       end
 
       #
@@ -59,15 +67,28 @@ module Relaton
       # @return [void]
       #
       def add_or_update(id, file)
-        key = id.to_s
-        item = id_lookup[key]
+        pc = @file_io.pubid_class
+        raw_hash = pc && id.is_a?(pc) ? id.to_hash : id
+        keys, rows = raw_index
+        pos = raw_position(raw_hash)
+        if pos
+          rows[pos] = { id: raw_hash, file: file }
+        else
+          rows << { id: raw_hash, file: file }
+          keys << narrowing_key(id)
+          @raw_lookup[raw_hash] = rows.size - 1
+          @file_io.sorted = false
+        end
+        return unless @index
+
+        # A materialized index stays in sync for the callers that walk it.
+        item = id_lookup[id.to_s]
         if item
           item[:file] = file
         else
           new_item = { id: id, file: file }
           index << new_item
-          id_lookup[key] = new_item
-          @file_io.sorted = false
+          id_lookup[id.to_s] = new_item
         end
       end
 
@@ -110,7 +131,12 @@ module Relaton
       # @return [void]
       #
       def save
-        @file_io.save(@index || [])
+        if @index
+          @file_io.save(@index)
+        else
+          keys, rows = raw_index
+          @file_io.save_raw(keys, rows)
+        end
       end
 
       #
@@ -125,6 +151,8 @@ module Relaton
         @source = new_source
         @index = nil
         @id_lookup = nil
+        @raw_index = nil
+        @raw_lookup = nil
       end
 
       #
@@ -135,6 +163,8 @@ module Relaton
       def remove_all
         @index = []
         @id_lookup = nil
+        @raw_index = [[], []]
+        @raw_lookup = {}
         @file_io.sorted = true
       end
 
@@ -146,6 +176,25 @@ module Relaton
         end
       end
 
+      # Position of a raw row by its id hash — the raw-side equivalent of
+      # `id_lookup`, built once, so a crawl's add_or_update stays O(1) per row.
+      def raw_position(raw_hash)
+        @raw_lookup ||= raw_index[1].each_with_object({}) do |row, h|
+          h[row[:id]] = h.key?(row[:id]) ? h[row[:id]] : rows_index_of(h, row)
+        end
+        @raw_lookup[raw_hash]
+      end
+
+      def rows_index_of(lookup, row)
+        raw_index[1].index { |r| r[:id].equal?(row[:id]) || r[:id] == row[:id] }
+      end
+
+      # Same key expression the FileIO sidecar computes at build time; a
+      # String id (a no-pubid_class index) has no `.root`, and never narrows.
+      def narrowing_key(id)
+        id.respond_to?(:root) && id.root.respond_to?(:number) ? id.root.number.to_s : ""
+      end
+
       def new_source
         ShardSource.new(@dir, @pages_url, @pubid_class) if @pages_url
       end
@@ -155,13 +204,15 @@ module Relaton
         # never refreshed, so the shards stay the fresher answer.
         return @source.rows(id) if @source && id && !id.is_a?(String)
 
-        # index needs to be created to check if sorted
-        idx = index
-        if @file_io.sorted && id && !id.is_a?(String)
-          candidates_by_number(id)
-        else
-          idx
+        # The lazy path narrows on the precomputed keys and materializes only
+        # the bucket; the materialized `index` stays available to callers
+        # that need the whole graph (`#index`, a String query, a block).
+        # Load first: a pubid-backed load is what settles @file_io.sorted.
+        if id && !id.is_a?(String) && @file_io.pubid_class
+          raw_index
+          return candidates_by_number(id) if @file_io.sorted
         end
+        index
       end
 
       # Narrowing key: the base *document's* number as a string. `#root` walks a
@@ -169,26 +220,24 @@ module Relaton
       # returns self for a base document), so a document and all its wrappers
       # share one key and cluster together. `.to_s` because the key is compared
       # as a string (a pubid number Component is not `<`/`>`-comparable), and
-      # FileIO sorts the index by this exact same key so bsearch stays valid.
+      # FileIO computes this exact same key once at sidecar-build time so the
+      # bsearch over the keys array stays valid.
       def candidates_by_number(id)
         target = id.root.number.to_s
+        keys, rows = raw_index
         left = bsearch_left(target)
         return [] unless left
 
         right = bsearch_right(target)
-        index[left...right]
+        @file_io.materialize(rows[left...right])
       end
 
       def bsearch_left(target)
-        index.bsearch_index do |item|
-          item[:id].root.number.to_s >= target
-        end
+        raw_index[0].bsearch_index { |k| k >= target }
       end
 
       def bsearch_right(target)
-        index.bsearch_index do |item|
-          item[:id].root.number.to_s > target
-        end || index.size
+        raw_index[0].bsearch_index { |k| k > target } || raw_index[0].size
       end
 
       # The query is the reference, so two identifiers take the subset match.
