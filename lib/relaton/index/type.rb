@@ -76,6 +76,14 @@ module Relaton
       # @return [void]
       #
       def add_or_update(id, file)
+        # A seeded or materialized @index (spec fixtures, preloaded pool
+        # entries) and pubid-less indexes run the legacy object path
+        # bit-for-bit: their consumers match rows by object identity
+        # semantics (`==`, `exclude`, to_s dedup) that raw rows cannot
+        # reproduce. Only a pubid-backed FileIO-loaded index — the
+        # relaton#242 memory case — adds through raw rows.
+        return legacy_add(id, file) if @index || !@file_io.pubid_class
+
         raw_hash = raw_row_id(id)
         keys, rows = raw_index
         pos = raw_position(raw_hash)
@@ -86,17 +94,6 @@ module Relaton
           keys << narrowing_key(id)
           @raw_lookup[raw_hash] = rows.size - 1
           @file_io.sorted = false
-        end
-        return unless @index
-
-        # A materialized index stays in sync for the callers that walk it.
-        item = id_lookup[id.to_s]
-        if item
-          item[:file] = file
-        else
-          new_item = { id: id, file: file }
-          index << new_item
-          id_lookup[id.to_s] = new_item
         end
       end
 
@@ -195,6 +192,20 @@ module Relaton
 
       def rows_index_of(lookup, row)
         raw_index[1].index { |r| r[:id].equal?(row[:id]) || r[:id] == row[:id] }
+      end
+      # The pre-#242 add path, kept verbatim for seeded/materialized and
+      # pubid-less indexes.
+      def legacy_add(id, file)
+        key = id.to_s
+        item = id_lookup[key]
+        if item
+          item[:file] = file
+        else
+          new_item = { id: id, file: file }
+          index << new_item
+          id_lookup[key] = new_item
+          @file_io.sorted = false
+        end
       end
 
       # Same key expression the FileIO sidecar computes at build time; a
