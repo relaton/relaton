@@ -389,17 +389,22 @@ module Relaton
       # and writes the db — in a forked child where the YAML parse's memory
       # dies with the process.
       def build_sqlite
-        tuples = download_tuples
-        return false unless tuples
-
+        # The whole build — download, YAML parse, db write — runs in a
+        # forked child where available: the parse's ~300 MB (per flavor,
+        # larger for IETF) dies with the child, and the serving process
+        # never allocates it.
         if Process.respond_to?(:fork) && !ENV["RELATON_NO_FORK"]
           pid = Process.fork do
-            write_sqlite(tuples)
+            tuples = download_tuples
+            write_sqlite(tuples) if tuples
             exit!(0)
           end
           Process.wait(pid)
           true
         else
+          tuples = download_tuples
+          return false unless tuples
+
           write_sqlite(tuples)
         end
       end
