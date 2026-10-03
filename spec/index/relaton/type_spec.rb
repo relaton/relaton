@@ -469,6 +469,7 @@ end
     end
 
     after do
+      subject.instance_variable_get(:@file_io).close_sqlite
       FileUtils.remove_entry(@dir)
       Relaton::Index.instance_variable_set(:@config, nil)
     end
