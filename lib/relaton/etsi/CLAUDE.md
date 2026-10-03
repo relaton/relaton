@@ -171,6 +171,40 @@ orders on `#edition_key`). Also check the crawl against the 6-hour GitHub
 Actions job cap — it roughly doubles — and confirm all three EN 319 142-1
 editions land in `data/` before merging the re-crawl.
 
+### A bad page fails the crawl; it is never skipped
+
+The relaton-data-etsi crawl of 2026-09-30 (run 36761804954) died at about page
+700 with `JSON::ParserError: unexpected character: 'Array'`: data.php answered
+once with PHP's `Array` text in place of JSON. It is transient and server side
+— the code had not changed since the good crawl of 2026-09-28, and a full
+re-crawl on 2026-10-02 gave valid JSON on all 1,353 pages (67,602 records,
+`RowNum` 1..67,602 with no gap). Note also that `curl` gets an HTTP 403 page from
+ETSI's web application firewall; Mechanize's user agent gets JSON.
+
+`DataFetcher#fetch_page` therefore parses the body **inside**
+`fetch_with_retry`: a body that is not a JSON array raises `BadPage`, which is
+retried like a network error. A page still bad after its retries is deferred
+and fetched again after the last page (`DEFERRED_DELAY`); if it is still bad,
+the crawl raises `BadPage` with the page number and the first 200 characters of
+the body, and `index.save` is never reached. Page 1 is not deferred (it gives
+`total_count`). **Do not change this to skip the page:** `crawler.rb` deletes
+`data/` before the crawl and commits what the crawl writes, so a skipped page
+unpublishes 50 documents, while a failed crawl commits nothing and the previous
+data stays live.
+
+The result set is sorted by deliverable number (`sort=1`), not by date, so a
+document that ETSI publishes during the one-hour crawl shifts the later pages
+by one. The page count from page 1's `total_count` would then miss the last
+record, so `fetch_remaining_pages` reads on past it while the pages stay full.
+A record read twice overwrites its own file. Two bounds keep the loop finite
+(data.php answers `[]` past the end today, but the loop must not depend on it):
+a deferred page extends the range by one page only when it lies inside page
+1's `total_count`, and a crawl still reading full pages `MAX_EXTRA_PAGES` past
+that count raises. A deferred page that comes back `[]` inside the range also
+fails the crawl. **Known limit:** a document *removed* during the crawl shifts
+the later pages the other way, so one record can fall onto a page already read.
+Nothing detects that; it is rare, because every status flag is on.
+
 ## Testing
 
 - **Index fixture:** `spec/fixtures/index-v2.zip` (pubid `_type:` rows) is loaded
