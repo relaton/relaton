@@ -275,6 +275,8 @@ module Relaton
           end
         end.to_yaml
         Index.config.storage.write file, yaml
+        delete_sidecar
+        delete_sqlite
       end
 
       def sort_structured_index(index)
@@ -293,14 +295,15 @@ module Relaton
       def remove
         Index.config.storage.remove file
         delete_sidecar
+        delete_sqlite
         []
       end
 
       #
       # Raw-row read for the lazy search path (relaton#242 stopgap): returns
       # precomputed root-number sort keys and the rows as plain hashes — no
-      # pubid objects. A Marshal sidecar next to the yaml holds the keys+rows
-      # so repeat loads skip the YAML parse and the one-time full
+      # pubid objects. A Marshal sidecar next to the yaml holds them so
+      # repeat loads skip the YAML parse and the one-time full
       # materialization; the sidecar is rebuilt whenever the yaml is newer.
       #
       # @return [Array<Array<String>, Array<Hash>] sort keys and raw rows
@@ -315,6 +318,142 @@ module Relaton
           read_raw_file || [[], []]
         end
       end
+
+      # ── SQLite backend (relaton#242 phase 2) ──
+      #
+      # The downloaded index is materialized once into a SQLite database
+      # keyed by the narrowing number. A search answers from a bucket query,
+      # so the process holds O(bucket) rows instead of the whole index. The
+      # build is pure hash transforms (no pubid objects), run in a forked
+      # child so even the one-time YAML parse never lands in this process.
+
+      def sqlite_ready?
+        url.is_a?(String) && Index.config.sqlite_index != false &&
+          File.file?(sqlite_db_path) && sqlite_fresh?
+      end
+
+      # Ensure the db exists and is current (24 h TTL, schema-versioned).
+      def ensure_sqlite
+        return false unless url.is_a?(String)
+        return true if sqlite_ready?
+
+        with_file_lock do
+          build_sqlite unless sqlite_ready?
+        end
+        sqlite_ready?
+      end
+
+      def sqlite_bucket(number)
+        sqlite_backend.bucket(number)
+      end
+
+      def sqlite_count
+        sqlite_backend.count
+      end
+
+      def close_sqlite
+        @sqlite_backend&.close
+        @sqlite_backend = nil
+      end
+
+      def delete_sqlite
+        close_sqlite
+        File.delete(sqlite_db_path) if File.file?(sqlite_db_path)
+      rescue Errno::EACCES
+        nil
+      end
+
+      def sqlite_db_path
+        "#{path_to_local_file}.db"
+      end
+
+      private
+
+      def sqlite_backend
+        @sqlite_backend ||= SqliteBackend.new(sqlite_db_path, pubid_class: @pubid_class)
+      end
+
+      def sqlite_fresh?
+        ctime = Index.config.storage.ctime(sqlite_db_path)
+        backend = sqlite_backend
+        ctime && ctime > Time.now - 86400 && !backend.stale_schema?
+      rescue SQLite3::SQLException
+        false
+      ensure
+        backend&.close
+        @sqlite_backend = nil
+      end
+
+      # The build downloads the published zip, converts its rows to
+      # `[number, sort_key, id_json, file]` tuples by hash transforms alone,
+      # and writes the db — in a forked child where the YAML parse's memory
+      # dies with the process.
+      def build_sqlite
+        tuples = download_tuples
+        return false unless tuples
+
+        if Process.respond_to?(:fork) && !ENV["RELATON_NO_FORK"]
+          pid = Process.fork do
+            write_sqlite(tuples)
+            exit!(0)
+          end
+          Process.wait(pid)
+          true
+        else
+          write_sqlite(tuples)
+        end
+      end
+
+      def write_sqlite(tuples)
+        File.dirname(sqlite_db_path).then { |d| require "fileutils"; FileUtils.mkdir_p(d) }
+        backend = SqliteBackend.new(sqlite_db_path, pubid_class: @pubid_class)
+        backend.build(tuples.each)
+        backend.close
+      end
+
+      # Enumerate `[number, sort_key, id_hash, file]` from the published zip.
+      # The root number — the base document's, walking `base` nesting — is
+      # computed on the raw hash; no pubid object is ever built.
+      def download_tuples
+        body = Net::HTTP.get(URI.parse(url))
+        # rubyzip may mutate the buffer it is handed; a StringIO over a copy
+        # keeps the response body intact for any later reader of it.
+        yaml = nil
+        Zip::File.open_buffer(StringIO.new(body.dup)) do |zip|
+          stream = zip.entries.first.get_input_stream
+          yaml = stream.read
+        end
+        yaml = yaml.read unless yaml.is_a?(String)
+        Util.info "Downloaded index from `#{url}` for sqlite materialization", progname
+        raw = YAML.safe_load(yaml, permitted_classes: [Symbol])
+        return nil unless check_format(raw)
+
+        Enumerator.new do |y|
+          raw.each do |r|
+            number = raw_root_number(r[:id]).to_s
+            y << [number, number, r[:id], r[:file]]
+          end
+        end
+      rescue Psych::SyntaxError, SocketError, OpenURI::HTTPError, Errno::ECONNRESET,
+             OpenSSL::SSL::SSLError => e
+        Util.info "SQLite index build failed (#{e.message}); falling back", progname
+        nil
+      end
+
+      # `#root` as a hash walk: a supplement nests its origin under `base`,
+      # and the flattened to_hash puts the supplement's own components first.
+      # Accepts string and symbol keys — a YAML round-trip with permitted
+      # Symbol may give either.
+      def raw_root_number(id_hash)
+        return nil unless id_hash.is_a?(Hash)
+
+        base = id_hash["base"] || id_hash[:base]
+        return raw_root_number(base) if base
+
+        id_hash["number"] || id_hash[:number]
+      end
+
+      public
 
       # Deserialize raw rows into pubid rows. Only the caller knows which
       # slice it needs, so materialization happens here rather than at load.

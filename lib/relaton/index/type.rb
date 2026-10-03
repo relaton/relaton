@@ -228,15 +228,26 @@ module Relaton
         # never refreshed, so the shards stay the fresher answer.
         return @source.rows(id) if @source && id && !id.is_a?(String)
 
-        # The lazy path narrows on the precomputed keys and materializes only
-        # the bucket; the materialized `index` stays available to callers
-        # that need the whole graph (`#index`, a String query, a block).
-        # Load first: a pubid-backed load is what settles @file_io.sorted.
+        # The SQLite backend answers a parsed query with a bucket query:
+        # O(bucket) rows ever resident, no sidecar load at all. Falls back
+        # to the raw-row path when the backend cannot build or is disabled.
         if id && !id.is_a?(String) && @file_io.pubid_class
+          begin
+            return sqlite_candidates(id) if @file_io.ensure_sqlite
+          rescue SQLite3::SQLException
+            nil # fall back to the sidecar path below
+          end
+
           raw_index
           return candidates_by_number(id) if @file_io.sorted
         end
         index
+      end
+
+      def sqlite_candidates(id)
+        target = id.root.number.to_s
+        rows = @file_io.sqlite_bucket(target)
+        @file_io.materialize(rows)
       end
 
       # Narrowing key: the base *document's* number as a string. `#root` walks a

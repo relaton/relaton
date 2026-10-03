@@ -49,6 +49,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "bibtex-ruby", ">= 0"
   spec.add_dependency "cnccs", "~> 0.1.1"
   spec.add_dependency "concurrent-ruby", "~> 1.0"
+  spec.add_dependency "sqlite3", "~> 1.7"
   spec.add_dependency "csv", "~> 3.3"
   spec.add_dependency "faraday", "~> 2.7.0"
   spec.add_dependency "faraday-net_http_persistent", "~> 2.0"

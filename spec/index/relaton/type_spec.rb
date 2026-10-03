@@ -448,3 +448,50 @@ end
           .to eq ["f3"]
       end
     end
+
+  context "sqlite index backend (relaton#242 phase 2)" do
+    let(:url) { "https://example.com/index-v2.zip" }
+    let(:zip_body) do
+      require "stringio"
+      rows = [{ id: { publisher: "ISO", number: 1 }, file: "f1" },
+              { id: { publisher: "ISO", number: 2 }, file: "f2" },
+              { id: { publisher: "ISO", number: 2, edition: 2 }, file: "f2e2" }].to_yaml
+      buffer = Zip::OutputStream.write_buffer { |z| z.put_next_entry("index.yaml"); z.write(rows) }
+      buffer.string
+    end
+
+    before do
+      stub_request(:get, url).to_return(body: zip_body)
+      dir = Dir.mktmpdir
+      Relaton::Index.instance_variable_set(:@config, nil)
+      Relaton::Index.configure { |c| c.storage_dir = dir }
+      @dir = dir
+    end
+
+    after do
+      FileUtils.remove_entry(@dir)
+      Relaton::Index.instance_variable_set(:@config, nil)
+    end
+
+    subject do
+      Relaton::Index::Type.new(:ISO, url: url, file: "index-v2.yaml", pubid_class: TestIdentifier)
+    end
+
+    it "answers a parsed search from a bucket query without loading the index" do
+      id2 = TestIdentifier.create(publisher: "ISO", number: 2)
+      expect(subject.search(id2).map { |r| r[:file] }).to contain_exactly("f2", "f2e2")
+      expect(subject.instance_variable_get(:@index)).to be_nil
+      expect(subject.instance_variable_get(:@raw_index)).to be_nil
+    end
+
+    it "answers a fully stated reference from its own bucket" do
+      stated = TestIdentifier.create(publisher: "ISO", number: 2, edition: 2)
+      expect(subject.search(stated)).to eq [{ id: stated, file: "f2e2" }]
+    end
+
+    it "falls back to the sidecar path when sqlite is disabled" do
+      Relaton::Index.configure { |c| c.sqlite_index = false }
+      id1 = TestIdentifier.create(publisher: "ISO", number: 1)
+      expect(subject.search(id1)).to eq [{ id: id1, file: "f1" }]
+    end
+  end
