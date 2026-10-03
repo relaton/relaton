@@ -15,7 +15,7 @@ RSpec.describe Relaton::Iec::Processor do
     end
 
     it "sets defaultprefix" do
-      expect(processor.defaultprefix).to eq %r{^(IEC\s|CISPR\s|IEV($|\s))}
+      expect(processor.defaultprefix).to eq %r{^(IEC\s|CISPR\s|IEV($|\s)|CEI\s)}
     end
 
     it "sets idtype" do

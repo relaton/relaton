@@ -795,6 +795,15 @@ RSpec.describe Relaton::Db do
       subject.fetch "IEV"
     end
 
+    # CEI is IEC's French spelling: pubid-iec normalizes it to IEC on parse,
+    # so it is never the flavor's own exact parse — the prefix routes it and
+    # the String reaches the flavor's own pubid (relaton#243).
+    it "routes the French CEI spelling to the IEC flavor" do
+      expect(Relaton::Iec::Bibliography).to receive(:get)
+        .with("CEI 62303:2008", anything, anything).and_return(nil)
+      subject.fetch "CEI 62303:2008"
+    end
+
     it "raises for a DOI-shaped string no flavor claims" do
       expect(Relaton::Un::Bibliography).not_to receive(:get)
       expect { subject.fetch("10.17487/RFC3986") }
