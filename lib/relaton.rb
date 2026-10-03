@@ -7,16 +7,16 @@
 require "relaton/version"
 require "moxml"
 
-# YAML through yeptris (Psych-compatible drop-in; stdlib Psych is kept
-# as Yeptris::Psych::ORIGINAL). Must load before any YAML/Psych use.
-# yeptris 0.5 moved the exclusive drop-in rebind to yeptris/psych/drop_in
-# — plain yeptris/psych only defines the namespace and leaves stdlib
-# Psych in place (yeptris-ruby#95, bug 3).
-# Load stdlib Psych first: the drop-in keeps it as Yeptris::Psych::ORIGINAL,
-# and a later plain require "psych" against the rebound constant is a
-# superclass mismatch (yeptris-ruby#95, bug 3 follow-on).
-require "psych"
-require "yeptris/psych/drop_in"
+# YAML through stdlib Psych. The former yeptris drop-in rebind
+# (require "yeptris/psych/drop_in") replaced ::Psych for the WHOLE
+# host process: every gem that later loaded YAML — glossarist/iev's
+# ISO 639 table, metanorma-cli's collections, anything psych-lenient
+# — silently changed engine, and yeptris 0.6.28.4 diverges from psych
+# (block-scalar headers at column 1, permitted_classes ignored; see
+# yeptris-ruby#258). A library must never rebind global constants;
+# the namespaced Yeptris::Psych API remains the opt-in path for hosts
+# that want it.
+require "yaml"
 
 module Relaton
   autoload :Logger, "relaton/logger"
