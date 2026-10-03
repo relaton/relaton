@@ -36,9 +36,18 @@ module Relaton
       # Raw rows plus their precomputed root-number sort keys (relaton#242
       # stopgap). The lazy search path materializes pubid objects only for
       # the bucket it narrows to, so a process that answers one lookup holds
-      # raw hashes instead of the whole pubid graph.
+      # raw hashes instead of the whole pubid graph. A caller-seeded `@index`
+      # (a spec fixture, a preloaded pool entry) is the source of truth: the
+      # raw side derives from it, in its order, so a seeder that sorts by the
+      # narrowing key keeps the bsearch valid.
       def raw_index
-        @raw_index ||= @file_io.read_raw
+        @raw_index ||= if @index
+                          keys = @index.map { |r| narrowing_key(r[:id]) }
+                          rows = @index.map { |r| { id: raw_row_id(r[:id]), file: r[:file] } }
+                          [keys, rows]
+                        else
+                          @file_io.read_raw
+                        end
       end
 
       #
@@ -67,8 +76,7 @@ module Relaton
       # @return [void]
       #
       def add_or_update(id, file)
-        pc = @file_io.pubid_class
-        raw_hash = pc && id.is_a?(pc) ? id.to_hash : id
+        raw_hash = raw_row_id(id)
         keys, rows = raw_index
         pos = raw_position(raw_hash)
         if pos
@@ -193,6 +201,11 @@ module Relaton
       # String id (a no-pubid_class index) has no `.root`, and never narrows.
       def narrowing_key(id)
         id.respond_to?(:root) && id.root.respond_to?(:number) ? id.root.number.to_s : ""
+      end
+
+      def raw_row_id(id)
+        pc = @file_io.pubid_class
+        pc && id.is_a?(pc) ? id.to_hash : id
       end
 
       def new_source
