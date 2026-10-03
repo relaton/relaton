@@ -88,30 +88,48 @@ with `exact: true` it is compared with `==`. A block is a custom predicate for
 any other rule, and `search` raises `ArgumentError` if it gets both a block and
 `exact: true`.
 
-### The narrowing key — one expression, six call sites
+### The narrowing key — one expression, its call sites
 
 Search is two-stage: narrow, then match. Narrowing binary-searches the index for
 the run of entries whose **base document number** equals the query's, using the key
 `id.root.number.to_s` (`#root` walks a supplement/amendment `.base` chain, so a
 document and its wrappers share one key and cluster together).
 
-**Narrowing only happens for non-String queries** — `search_candidates` requires
-`@file_io.sorted && id && !id.is_a?(String)`. A String query scans the whole index
+**Narrowing only happens for non-String queries on a `pubid_class:` index** —
+`search_candidates` loads the raw side first (that load is what settles
+`@file_io.sorted`), then narrows. A String query scans the whole index
 *and* matches via `item[:id].to_s.include?(id)`, which renders every pubid in it.
 So a flavor on a `pubid_class:` index must query with parsed identifiers; querying
 it with strings is slower than the plain-string index it replaced.
 
-That expression is written out in **six** places, and they must all agree or
+That expression is written out in these places, and they must all agree or
 bsearch silently returns the wrong slice:
 
 | file | method | role |
 |---|---|---|
-| `type.rb:132` | `candidates_by_number` | the query's key |
-| `type.rb:142` | `bsearch_left` | lower bound |
-| `type.rb:148` | `bsearch_right` | upper bound |
-| `file_io.rb:167` | `deserialize_pubid` | load-time sort |
-| `file_io.rb:193` | `warn_unless_sorted` | sortedness check |
-| `file_io.rb:278` | `sort_structured_index` | save-time sort |
+| `type.rb` | `candidates_by_number` | the query's key |
+| `type.rb` | `bsearch_left` / `bsearch_right` | bounds, over the **precomputed keys array** |
+| `type.rb` | `narrowing_key` | add-time key (root-guarded for String ids) |
+| `file_io.rb` | `deserialize_pubid` | build-time sort of the materialized rows |
+| `file_io.rb` | `warn_unless_sorted` | sortedness check |
+| `file_io.rb` | `sort_structured_index` / `save_raw` | save-time sort |
+
+### Raw rows and the sidecar (relaton#242 stopgap)
+
+`FileIO#read_raw` returns `[keys, rows]`: the rows as plain `to_hash` hashes —
+no pubid objects — with a parallel array of precomputed root-number keys, sorted.
+A **Marshal sidecar** (`<index>.yaml.ms`, `SIDECAR_VERSION`-stamped) holds them,
+so a repeat load skips the YAML parse and the one-time full materialization that
+computes the keys (objects exist only during that build; the raw hash cannot
+walk `.base` itself). The sidecar is authoritative while it is at least as new
+as the yaml — the yaml is not parsed until the sidecar is stale or unreadable —
+and `save`/`remove` delete it. A parsed search materializes pubid objects only
+for its bucket (`FileIO#materialize`); the whole graph materializes only through
+`Type#index`, a String query, or a block. `add_or_update` stores raw rows
+(`to_hash` when the id is a `pubid_class` instance, verbatim otherwise) with an
+O(1) raw-side dedup by id-hash equality. Numbers: the 79,993-row ISO index is
+~311 MB of raw rows instead of a ~675 MB object graph; only the searched bucket
+is materialized at search time.
 
 **Consequence for pubid flavors:** once a flavor does query with parsed ids, an
 identifier family whose `number` is nil keys every row to `""`, so they collapse

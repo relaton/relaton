@@ -1,6 +1,14 @@
 describe Relaton::Index::Type do
   before { Relaton::Index.instance_variable_set(:@config, nil) }
 
+  # Seed the raw side the lazy narrowing reads: precomputed root-number keys
+  # plus to_hash rows, consistent with a loaded FileIO sidecar.
+  def seed_raw_index(rows)
+    keys = rows.map { |r| r[:id].root.number.to_s }
+    raw = rows.map { |r| { id: r[:id].to_hash, file: r[:file] } }
+    subject.instance_variable_set(:@raw_index, [keys, raw])
+  end
+
   context "instace methods" do
     subject { described_class.new(:ISO, url: :url, file: "index.yaml") }
 
@@ -168,6 +176,7 @@ describe Relaton::Index::Type do
             { id: id3, file: "file3" },
           ]
           subject.instance_variable_set(:@index, sorted_data)
+          seed_raw_index(sorted_data)
           subject.instance_variable_get(:@file_io).sorted = true
         end
 
@@ -209,11 +218,13 @@ describe Relaton::Index::Type do
 
         before do
           # Sorted by root.number.to_s: doc/supp -> "9001", other -> "9002".
-          subject.instance_variable_set(:@index, [
-                                          { id: doc, file: "doc" },
-                                          { id: supp, file: "supp" },
-                                          { id: other, file: "other" },
-                                        ])
+          seeded = [
+            { id: doc, file: "doc" },
+            { id: supp, file: "supp" },
+            { id: other, file: "other" },
+          ]
+          subject.instance_variable_set(:@index, seeded)
+          seed_raw_index(seeded)
           subject.instance_variable_get(:@file_io).sorted = true
         end
 
@@ -382,3 +393,58 @@ describe Relaton::Index::Type do
     end
   end
 end
+
+    context "lazy raw-row search (relaton#242 stopgap)" do
+      subject do
+        type = Relaton::Index::Type.new(:ISO, file: nil)
+        fio = Relaton::Index::FileIO.new("iso", filename: "index.yaml", pubid_class: TestIdentifier)
+        fio.instance_variable_set(:@file, path)
+        type.instance_variable_set(:@file_io, fio)
+        type
+      end
+
+      let(:dir) { Dir.mktmpdir }
+      let(:path) { File.join(dir, "index.yaml") }
+      let(:id1) { TestIdentifier.create(publisher: "ISO", number: 1) }
+      let(:id2) { TestIdentifier.create(publisher: "ISO", number: 2) }
+
+      before do
+        File.write(path, [{ id: { publisher: "ISO", number: 2 }, file: "f2" },
+                          { id: { publisher: "ISO", number: 1 }, file: "f1" }].to_yaml)
+      end
+
+      after { FileUtils.remove_entry(dir) }
+
+      it "answers a parsed search without materializing the whole index" do
+        expect(subject.search(id1)).to eq [{ id: id1, file: "f1" }]
+        expect(subject.instance_variable_get(:@index)).to be_nil
+      end
+
+      it "answers a wildcard-number reference through the same subset match" do
+        # A reference with every component stated behaves like an exact row.
+        full = TestIdentifier.create(publisher: "ISO", number: 2)
+        expect(subject.search(full).map { |r| r[:file] }).to eq ["f2"]
+      end
+
+      it "materializes the whole index only when #index is asked for" do
+        expect(subject.index.map { |r| r[:file] }).to eq(%w[f1 f2])
+        expect(subject.index.first[:id]).to eq id1
+      end
+
+      it "sees a row added to a raw index" do
+        subject.add_or_update TestIdentifier.create(publisher: "ISO", number: 3), "f3"
+        expect(subject.search(TestIdentifier.create(publisher: "ISO", number: 3)))
+          .to eq [{ id: TestIdentifier.create(publisher: "ISO", number: 3), file: "f3" }]
+      end
+
+      it "saves the raw rows to yaml and a fresh type reads them back" do
+        subject.add_or_update TestIdentifier.create(publisher: "ISO", number: 3), "f3"
+        subject.save
+        fresh = Relaton::Index::Type.new(:ISO, file: nil)
+        fio = Relaton::Index::FileIO.new("iso", filename: "index.yaml", pubid_class: TestIdentifier)
+        fio.instance_variable_set(:@file, path)
+        fresh.instance_variable_set(:@file_io, fio)
+        expect(fresh.search(TestIdentifier.create(publisher: "ISO", number: 3)).map { |r| r[:file] })
+          .to eq ["f3"]
+      end
+    end

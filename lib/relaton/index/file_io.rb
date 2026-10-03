@@ -11,6 +11,10 @@ module Relaton
       # wrong-structure handling (re-download, or stop and log).
       class InvalidIndexError < StandardError; end
 
+      # Bump when the sidecar payload shape changes, so an older sidecar is
+      # discarded and rebuilt instead of misread.
+      SIDECAR_VERSION = 2 # v2: the payload carries the yaml byte-size for freshness
+
       attr_reader :url, :pubid_class
       attr_accessor :sorted
 
@@ -288,10 +292,196 @@ module Relaton
       #
       def remove
         Index.config.storage.remove file
+        delete_sidecar
         []
       end
 
+      #
+      # Raw-row read for the lazy search path (relaton#242 stopgap): returns
+      # precomputed root-number sort keys and the rows as plain hashes — no
+      # pubid objects. A Marshal sidecar next to the yaml holds the keys+rows
+      # so repeat loads skip the YAML parse and the one-time full
+      # materialization; the sidecar is rebuilt whenever the yaml is newer.
+      #
+      # @return [Array<Array<String>, Array<Hash>] sort keys and raw rows
+      #
+      def read_raw
+        case url
+        when String
+          with_file_lock do
+            check_file ? read_raw_file : fetch_raw_and_save
+          end
+        else
+          read_raw_file || [[], []]
+        end
+      end
+
+      # Deserialize raw rows into pubid rows. Only the caller knows which
+      # slice it needs, so materialization happens here rather than at load.
+      #
+      # @param [Array<Hash>] rows raw rows
+      # @return [Array<Hash>] rows with deserialized ids
+      def materialize(rows)
+        return rows unless @pubid_class
+
+        rows.map { |r| { id: deserialize_id(r[:id]), file: r[:file] } }
+      end
+
+      # Save raw rows (possibly alongside the keys they were loaded with);
+      # sorts by the same root-number key the object path sorts by.
+      #
+      # @param [Array<String>] keys sort keys, parallel to rows
+      # @param [Array<Hash>] rows raw rows
+      # @return [void]
+      def save_raw(keys, rows)
+        ordered = @pubid_class ? keys.zip(rows).sort_by { |k, _| k.to_s }
+                                     .map { |_, r| r } : rows
+        yaml = ordered.map do |item|
+          { id: item[:id], file: item[:file] }
+        end.to_yaml
+        Index.config.storage.write file, yaml
+        delete_sidecar
+      end
+
       private
+
+      def sidecar_file
+        "#{file}.ms"
+      end
+
+      def delete_sidecar
+        File.delete(sidecar_file) if File.file?(sidecar_file)
+      rescue Errno::EACCES
+        nil
+      end
+
+      def read_raw_file
+        # The sidecar is authoritative while it describes the yaml byte-for-byte
+        # (same size) — the yaml is not even parsed until the sidecar is stale
+        # or unreadable.
+        if sidecar_fresh?
+          loaded = sidecar
+          return loaded if loaded
+        end
+
+        yaml = Index.config.storage.read(file)
+        return unless yaml
+
+        begin
+          raw = YAML.safe_load(yaml, permitted_classes: [Symbol])
+        rescue Psych::SyntaxError
+          warn_local_index_error("YAML parsing error when reading")
+          delete_sidecar
+          return [[], []]
+        end
+        build_raw(raw)
+      end
+
+      # Size, not mtime: NTFS timestamp coarseness makes a rewritten yaml
+      # carry the sidecar's own mtime, so "yaml is newer" misses the rebuild.
+      def sidecar_fresh?
+        File.file?(sidecar_file) && File.file?(file) &&
+          File.size(file) == sidecar_yaml_size
+      end
+
+      def sidecar_yaml_size
+        Marshal.load(File.binread(sidecar_file))[4]
+      rescue TypeError, ArgumentError, EOFError
+        nil
+      end
+
+      def sidecar
+        version, sorted, keys, rows = Marshal.load(File.binread(sidecar_file))
+        return unless version == SIDECAR_VERSION
+
+        @sorted = sorted
+        [keys, rows]
+      rescue TypeError, ArgumentError, EOFError
+        nil
+      end
+
+      def build_raw(raw)
+        unless check_format(raw)
+          warn_local_index_error("Wrong structure of")
+          return [[], []]
+        end
+
+        return build_raw_in_child(raw) if build_sidecar_in_child?
+
+        build_raw_in_process(raw)
+      rescue InvalidIndexError
+        warn_local_index_error("Wrong structure of")
+        [[], []]
+      end
+
+      # The one-time key build materializes every row (~675 MB on the
+      # 79,993-row ISO index). Freed pages are often not returned to the OS,
+      # so an in-process build leaves the parent's RSS high — and containers
+      # OOM on RSS (relaton#242). Where fork exists, build the sidecar in a
+      # child: the graph dies with it and the parent never spikes.
+      def build_sidecar_in_child?
+        Process.respond_to?(:fork) && Index.config.build_sidecar_in_child != false
+      end
+
+      def build_raw_in_child(raw)
+        pid = Process.fork do
+          build_raw_in_process(raw)
+          exit!(0)
+        end
+        Process.wait(pid)
+        loaded = sidecar
+        return build_raw_in_process(raw) unless loaded # child failed
+
+        loaded
+      rescue Errno::ENOMEM, SystemCallError
+        build_raw_in_process(raw)
+      end
+
+      def build_raw_in_process(raw)
+        objects = deserialize_pubid(raw)
+        keys = objects.map { |r| r[:id].root.number.to_s }
+        rows = objects.map { |r| { id: raw_id(r), file: r[:file] } }
+        write_sidecar(keys, rows)
+        [keys, rows]
+      rescue InvalidIndexError
+        warn_local_index_error("Wrong structure of")
+        [[], []]
+      end
+
+      def raw_id(row)
+        id = row[:id]
+        id.respond_to?(:to_hash) ? id.to_hash : id
+      end
+
+      def write_sidecar(keys, rows)
+        File.binwrite(sidecar_file,
+                      Marshal.dump([SIDECAR_VERSION, @sorted, keys, rows,
+                                    File.size(file)]))
+      rescue Errno::EACCES, Errno::ENOENT, Errno::EROFS
+        nil # the sidecar is an optimization; a read-only dir still works
+      end
+
+      def fetch_raw_and_save
+        uri = URI.parse(url)
+        body = Net::HTTP.get(uri)
+        yaml = nil
+        Zip::File.open_buffer(body) do |zip|
+          yaml = zip.entries.first.get_input_stream.read
+        end
+        Util.info "Downloaded index from `#{url}`", progname
+        raw = YAML.safe_load(yaml, permitted_classes: [Symbol])
+        if check_format(raw)
+          save raw
+          raw = nil # release the parsed copy; read_raw_file loads the sidecar's
+          read_raw_file
+        else
+          warn_remote_index_error "Wrong structure of"
+          [[], []]
+        end
+      rescue Psych::SyntaxError
+        warn_remote_index_error "YAML parsing error when reading"
+        [[], []]
+      end
 
       def with_file_lock(&)
         @@file_locks_mutex.synchronize do
