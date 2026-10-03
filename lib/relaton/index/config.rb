@@ -4,7 +4,7 @@ module Relaton
     # Configuration class for Relaton::Index
     #
     class Config
-      attr_reader :storage, :storage_dir, :filename
+      attr_reader :storage, :storage_dir, :filename, :build_sidecar_in_child
 
       #
       # Set default values
@@ -13,6 +13,14 @@ module Relaton
         @storage = FileStorage
         @storage_dir = Dir.home
         @filename = "index.yaml"
+        @build_sidecar_in_child = true
+      end
+
+      # Build the sidecar in a forked child when available, so the one-time
+      # full materialization's memory dies with the child (relaton#242).
+      # Set to false to force an in-process build.
+      def build_sidecar_in_child=(flag)
+        @build_sidecar_in_child = flag
       end
 
       #

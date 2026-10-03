@@ -392,6 +392,38 @@ module Relaton
           return [[], []]
         end
 
+        return build_raw_in_child(raw) if build_sidecar_in_child?
+
+        build_raw_in_process(raw)
+      rescue InvalidIndexError
+        warn_local_index_error("Wrong structure of")
+        [[], []]
+      end
+
+      # The one-time key build materializes every row (~675 MB on the
+      # 79,993-row ISO index). Freed pages are often not returned to the OS,
+      # so an in-process build leaves the parent's RSS high — and containers
+      # OOM on RSS (relaton#242). Where fork exists, build the sidecar in a
+      # child: the graph dies with it and the parent never spikes.
+      def build_sidecar_in_child?
+        Process.respond_to?(:fork) && Index.config.build_sidecar_in_child != false
+      end
+
+      def build_raw_in_child(raw)
+        pid = Process.fork do
+          build_raw_in_process(raw)
+          exit!(0)
+        end
+        Process.wait(pid)
+        loaded = sidecar
+        return build_raw_in_process(raw) unless loaded # child failed
+
+        loaded
+      rescue Errno::ENOMEM, SystemCallError
+        build_raw_in_process(raw)
+      end
+
+      def build_raw_in_process(raw)
         objects = deserialize_pubid(raw)
         keys = objects.map { |r| r[:id].root.number.to_s }
         rows = objects.map { |r| { id: raw_id(r), file: r[:file] } }
@@ -425,6 +457,7 @@ module Relaton
         raw = YAML.safe_load(yaml, permitted_classes: [Symbol])
         if check_format(raw)
           save raw
+          raw = nil # release the parsed copy; read_raw_file loads the sidecar's
           read_raw_file
         else
           warn_remote_index_error "Wrong structure of"
