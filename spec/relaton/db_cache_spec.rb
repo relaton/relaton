@@ -224,6 +224,28 @@ RSpec.describe Relaton::Db::Cache do
     expect(Dir["#{dir}-v1.bak*"]).to eq ["#{dir}-v1.bak"]
   end
 
+  it "imports old-layout entries into the v2 stores (relaton#240)" do
+    FileUtils.mkdir_p "#{dir}/iso"
+    File.write "#{dir}/iso/iso_123.xml", xml.sub("ISO 19115-1:2014", "ISO 123")
+    imported = described_class.new dir
+    expect(imported[pubid("ISO 123")]).to include "ISO 123"
+    expect(File.exist?("#{dir}/v2/.v1-imported")).to be true
+
+    reopened = described_class.new dir
+    expect(reopened[pubid("ISO 123")]).to include "ISO 123"
+  end
+
+  it "keeps a v2 entry over a re-run import of the same old-layout key" do
+    FileUtils.mkdir_p "#{dir}/iso"
+    File.write "#{dir}/iso/iso_123.xml", xml.sub("ISO 19115-1:2014", "ISO 123")
+    described_class.new dir
+    fresh = described_class.new dir
+    fresh[pubid("ISO 123")] = xml.sub("ISO 19115-1:2014", "ISO 123 fresh")
+    File.delete "#{dir}/v2/.v1-imported" # force the import to run again
+    reread = described_class.new dir
+    expect(reread[pubid("ISO 123")]).to include "fresh"
+  end
+
   it "drops a flavor's entries when its grammar changes" do
     cache[pubid("ISO 19115-1:2014")] = xml
     cache[pubid("ISO 9999:2020")] = "not_found #{Date.today}"
