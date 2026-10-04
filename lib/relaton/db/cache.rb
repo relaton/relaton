@@ -3,6 +3,7 @@ require "digest"
 require "json"
 require "date"
 require "lutaml/store"
+require "nokogiri"
 require_relative "cache_entry"
 
 module Relaton
@@ -52,6 +53,7 @@ module Relaton
         archive_old_layout
         open_stores
         check_versions
+        import_old_layout
       end
 
       # Move the cache to another directory.
@@ -306,6 +308,41 @@ module Relaton
           next # another process moved it first
         end
         Util.info "cache #{dir}: the old cache is moved to #{bak}"
+      end
+
+      # Entries the file-per-key layout cached are imported into the v2
+      # stores once, so upgrading does not silently refetch them (relaton#240).
+      # A key the v2 cache already holds keeps its fresher entry; not-found
+      # and redirection entries are not imported (a negative lookup costs one
+      # fetch, and redirects were dropped from the v2 model).
+      def import_old_layout
+        bak = "#{dir}-v1.bak"
+        marker = File.join(dir, LAYOUT, ".v1-imported")
+        return if File.exist?(marker) || !Dir.exist?(bak)
+
+        imported = 0
+        Dir.glob("#{bak}/**/*.xml").each do |f|
+          value = File.read(f, encoding: "utf-8")
+          key = old_layout_key(f.delete_prefix("#{bak}/"), value) or next
+          next if lookup(key)
+
+          self[key] = value
+          imported += 1
+        end
+        FileUtils.touch marker
+        Util.info "cache #{dir}: imported #{imported} entries from #{bak}"
+      end
+
+      # The wrapped string key of an old-layout document: its own primary
+      # docidentifier under its flavor prefix, resolved through the same
+      # `wrapped_key` path a string cache read takes.
+      def old_layout_key(path, value)
+        flavor = path.split("/").first or return
+        doc = Nokogiri::XML(value)
+        id = doc.root&.at("./docidentifier[@primary = 'true']") ||
+          doc.root&.at("./docidentifier") or return
+
+        "#{flavor.upcase}(#{id.text.strip})"
       end
 
       # Drop the rows and documents of a flavor whose grammar changed since
