@@ -58,8 +58,8 @@ module Relaton
         io.puts(fetch_document(code, options) || supported_type_message)
       end
 
-      desc "extract Metanorma-XML-File / Directory Relaton-XML-Directory",
-           "Extract Relaton XML from Metanorma XML file / directory"
+      desc "Metanorma-XML-File / Directory Relaton-XML-Directory",
+           "Export Relaton XML from a Metanorma XML file / directory"
       option :extension, aliases: :x, default: "rxl", desc: "File extension of Relaton XML files, " \
                                                             "defaults to 'rxl'"
 

@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = "Relaton Command-line Interface"
   spec.description   = "Relaton Command-line Interface"
-  spec.homepage      = "https://github.com/metanorma/relaton-cli"
+  spec.homepage      = "https://github.com/relaton/relaton"
   spec.license       = "BSD-2-Clause"
 
   # Ship lib/, exe/, templates/ and the COMPILED frontend, but not the frontend

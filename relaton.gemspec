@@ -95,7 +95,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.21"
 
   spec.add_dependency "yeptris", ">= 0.4"
-  spec.add_dependency "relaton-render", "~> 1.4.0.pre.alpha.1"
+  spec.add_dependency "relaton-render", ">= 3.0.0.pre.alpha.1", "< 4"
   spec.add_dependency "rfcxml", "~> 0.4.3"
   spec.add_dependency "rubyzip", "~> 3.7"
   # 0.3.3 is the floor, not a preference: it sets an identifying User-Agent
