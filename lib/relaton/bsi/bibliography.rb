@@ -3,8 +3,15 @@
 module Relaton::Bsi
   # Class methods for search ISO standards.
   class Bibliography
-    # pubid identifier types referenced when navigating the parsed object graph.
-    Ids = ::Pubid::Bsi::Identifiers
+    # pubid identifier types referenced when navigating the parsed
+    # object graph. The unified pubid namespaces them under the plural
+    # Identifiers; released pubid-bsi 1.15 renamed that to the module
+    # Pubid::Bsi::Identifier — resolve whichever the bundle carries
+    Ids = if Pubid::Bsi.const_defined?(:Identifiers)
+            ::Pubid::Bsi::Identifiers
+          else
+            ::Pubid::Bsi::Identifier
+          end
 
     class << self
       # @param ref [String] the printed reference
