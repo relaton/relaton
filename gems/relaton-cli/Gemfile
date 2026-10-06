@@ -28,3 +28,7 @@ gem "rspec-html", "~> 0.3.0"
 gem "simplecov"
 gem "vcr"
 gem "webmock"
+
+# TEMP moxml pin (lutaml/moxml#335; matches the root Gemfile's pin):
+# this bundle resolves independently and must carry the pin itself
+gem "moxml", "0.5.109"
