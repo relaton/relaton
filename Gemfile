@@ -42,6 +42,7 @@ end
 # TEMP leptris pin (lutaml/moxml#335): leptris 1.9.311.x crashes
 # moxml add_child (-1) on CI regardless of the moxml line (0.5.109
 # through 0.5.112 all fail) — lutaml-model's add_xml_fragment through
-# ItemData#to_xml. leptris 1.9.309 is the last green prebuilt; drop the
-# pin once leptris/moxml ships the fix.
-gem "leptris", "1.9.309.0"
+# ItemData#to_xml. leptris 1.9.312 carries the fix on every
+# platform (the crash window is 1.9.311.x and the 1.9.309-era append
+# of a created text node); drop the pin once moxml absorbs it.
+gem "leptris", "1.9.312.0"
