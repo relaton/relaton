@@ -29,6 +29,6 @@ gem "simplecov"
 gem "vcr"
 gem "webmock"
 
-# TEMP moxml pin (lutaml/moxml#335; matches the root Gemfile's pin):
+# TEMP leptris pin (lutaml/moxml#335; matches the root Gemfile's pin):
 # this bundle resolves independently and must carry the pin itself
-gem "moxml", "0.5.109"
+gem "leptris", "1.9.309.0"
