@@ -25,10 +25,10 @@ gem "rspec", "~> 3.0"
 gem "rspec-command", "~> 1.0.3"
 gem "rspec-core", "~> 3.4"
 gem "rspec-html", "~> 0.3.0"
+gem "moxml", ">= 0.5.113" # lutaml/moxml#336: the formattedref add_child TypeError fixed in 0.5.113 (relaton#254)
 gem "simplecov"
 gem "vcr"
 gem "webmock"
-
-# TEMP leptris pin (lutaml/moxml#335; matches the root Gemfile's pin):
-# this bundle resolves independently and must carry the pin itself
+# TEMP: the add_notes element-append family still fails on leptris 1.9.319
+# (moxml#335 follow-up); 1.9.312 is the last good native line
 gem "leptris", "1.9.312.0"
