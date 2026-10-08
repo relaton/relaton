@@ -30,19 +30,13 @@ group :development, :test do
   gem "rspec-command"  # relaton-cli acceptance specs
   gem "rspec-html"     # relaton-cli
   gem "ruby-jing"      # RelaxNG schema validation
-  gem "simplecov"
+  gem "moxml", ">= 0.5.113" # lutaml/moxml#336: the formattedref add_child TypeError fixed in 0.5.113 (relaton#254)
+gem "simplecov"
   gem "timecop"
   gem "vcr"
   gem "webmock"
   gem "webrick"
 end
-
-
-
-# TEMP leptris pin (lutaml/moxml#335): leptris 1.9.311.x crashes
-# moxml add_child (-1) on CI regardless of the moxml line (0.5.109
-# through 0.5.112 all fail) — lutaml-model's add_xml_fragment through
-# ItemData#to_xml. leptris 1.9.312 carries the fix on every
-# platform (the crash window is 1.9.311.x and the 1.9.309-era append
-# of a created text node); drop the pin once moxml absorbs it.
+# TEMP: the add_notes element-append family still fails on leptris 1.9.319
+# (moxml#335 follow-up); 1.9.312 is the last good native line
 gem "leptris", "1.9.312.0"
