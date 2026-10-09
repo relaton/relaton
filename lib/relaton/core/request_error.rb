@@ -9,8 +9,13 @@ module Relaton
   #
   # The class is named `Relaton::RequestError`, not `Relaton::Core::...`: an
   # error raised without a message uses the class name as its message, and
-  # relaton-cli prints that message.
-  class RequestError < Error; end
+  # relaton-cli prints that message. relaton-bib also declares this name
+  # (< StandardError) and may load first: reopen instead of redefining,
+  # or the coexisting require of both gems dies on a superclass mismatch.
+  # relaton-bib also declares this name (< StandardError) and may load
+  # first; redefining it (< Error) dies on a superclass mismatch, so
+  # declare only when absent — both forms rescue as StandardError
+  class RequestError < Error; end unless defined?(Relaton::RequestError)
 
   # `Relaton::Db` found no flavor for a reference: no flavor's pubid grammar
   # reads it exactly, and no flavor's prefix matches it. relaton-cli rescues
