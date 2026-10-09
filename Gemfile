@@ -37,6 +37,9 @@ gem "simplecov"
   gem "webmock"
   gem "webrick"
 end
-# TEMP: the add_notes element-append family still fails on leptris 1.9.319
-# (moxml#335 follow-up); 1.9.312 is the last good native line
-gem "leptris", "1.9.312.0"
+# VERIFIED 2026-10-09: leptris 1.9.323.0 + moxml 0.5.120 +
+# lutaml-model 0.8.97 pass the full relaton-cli suite (262/0, the
+# relaton_file_spec add_child TypeError site) and match the 1.9.312
+# line across the relaton/bsi/jis/plateau suites; floor at the
+# verified line so fixes flow
+gem "leptris", ">= 1.9.323.0"
