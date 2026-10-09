@@ -46,7 +46,7 @@ end
 # platform (the crash window is 1.9.311.x and the 1.9.309-era append
 # of a created text node); drop the pin once moxml absorbs it.
 gem "leptris", "1.9.312.0"
-# moxml 0.5.112's add_child still rejects foreign Leptris text nodes
-# from lutaml-model's add_xml_fragment; 0.5.113 rebuilds them via the
-# binding's create faces (moxml#336) — relaton#254
-gem "moxml", ">= 0.5.113"
+# 0.5.120 gates every foreign child kind through the #335 rebuild
+# machinery before the C add (moxml#347, verified on the published
+# 0.5.120 gem) — relaton#254
+gem "moxml", ">= 0.5.120"

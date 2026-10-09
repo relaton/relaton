@@ -33,6 +33,6 @@ gem "webmock"
 # this bundle resolves independently and must carry the pin itself
 gem "leptris", "1.9.312.0"
 # this bundle resolves independently and must carry the moxml floor
-# too (relaton#254): 0.5.113 rebuilds foreign leptris text nodes in
-# add_child (moxml#336)
-gem "moxml", ">= 0.5.113"
+# too (relaton#254): 0.5.120 gates every foreign child kind through
+# the #335 rebuild machinery (moxml#347)
+gem "moxml", ">= 0.5.120"
