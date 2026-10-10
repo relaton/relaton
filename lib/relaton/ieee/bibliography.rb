@@ -23,7 +23,15 @@ module Relaton
           # the string form.
           pubid = parse_pubid ref
           needle = pubid.to_s
-          row = index.search(pubid) { |r| r[:id].to_s.include?(needle) }.min_by { |r| r[:id].to_s }
+          # pubid's normalization moves a legacy base year into its own
+          # comma segment ("IEEE P802.16/D5, 2004/Cor. 1-2005"); the
+          # index rows carry the canonical form without it, so the
+          # block also matches with the moved year stripped
+          row = index.search(pubid) do |r|
+            id = r[:id].to_s
+            id.include?(needle) ||
+              id.include?(needle.gsub(/, (19|20)\d{2}\//, "/"))
+          end.min_by { |r| r[:id].to_s }
           return unless row
 
           resp = Faraday.get "#{GH_URL}#{row[:file]}"
