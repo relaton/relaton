@@ -4,11 +4,11 @@ source "https://rubygems.org"
 
 gemspec
 
-# The rawbib fixture expectations reconcile against pubid 2.0.0.pre.alpha.21
+# The rawbib fixture expectations reconcile against pubid 2.0.0.pre.alpha.28
 # (the stage-word faces: "-YYYY-MM" dates, the D= designator, the glued
-# "/V<n>" iteration, pubid#203). Pin the exact tested release until pubid
-# 2.0 final; the gemspec floor follows.
-gem "pubid", "2.0.0.pre.alpha.21"
+# "/V<n>" iteration, pubid#203 — plus the draft-preservation and render
+# fixes the ieee IdamsParser fixtures require). The gemspec floor follows.
+gem "pubid", "2.0.0.pre.alpha.28"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
