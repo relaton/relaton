@@ -800,7 +800,7 @@ RSpec.describe Relaton::Db do
     # the String reaches the flavor's own pubid (relaton#243).
     it "routes the French CEI spelling to the IEC flavor" do
       expect(Relaton::Iec::Bibliography).to receive(:get)
-        .with("CEI 62303:2008", anything, anything).and_return(nil)
+        .with(kind_of(Pubid::Iec::Identifier), anything, anything).and_return(nil)
       subject.fetch "CEI 62303:2008"
     end
 
