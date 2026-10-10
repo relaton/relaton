@@ -29,9 +29,9 @@ gem "simplecov"
 gem "vcr"
 gem "webmock"
 
-# TEMP leptris pin (lutaml/moxml#335; matches the root Gemfile's pin):
-# this bundle resolves independently and must carry the pin itself
-gem "leptris", "1.9.312.0"
+# leptris floor (matches the root Gemfile): this bundle resolves
+# independently and must carry it itself
+gem "leptris", ">= 1.9.331"
 # this bundle resolves independently and must carry the moxml floor
 # too (relaton#254): 0.5.120 gates every foreign child kind through
 # the #335 rebuild machinery (moxml#347)
