@@ -1,0 +1,19 @@
+# frozen_string_literal: true
+
+describe Relaton::Evs::Bibdata do
+  let(:file) { "fixtures/bibdata.xml" }
+  let(:input_xml) { File.read file, encoding: "UTF-8" }
+  let(:item) { described_class.from_xml input_xml }
+
+  it "round trip" do
+    expect(described_class.to_xml(item)).to be_equivalent_to input_xml
+    schema = Jing.new "../../grammar/relaton-evs-compile.rng"
+    errors = schema.validate file
+    expect(errors).to eq []
+  end
+
+  it "keeps the adoptedFrom relation through the round trip" do
+    expect(item.relation.first.type).to eq "adoptedFrom"
+    expect(item.relation.first.bibitem.formattedref.content).to eq "EN 18216:2026"
+  end
+end
