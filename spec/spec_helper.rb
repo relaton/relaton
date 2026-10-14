@@ -22,7 +22,7 @@ Lutaml::Model::Config.configure do |config|
 end
 require "rspec/matchers"
 require "equivalent-xml"
-require "jing"
+require_relative "relaxng_validator" # RelaxNG on leptris (was the Java Jing gem)
 require "net/http" # used by some fetcher specs (e.g. gb)
 require "yaml"
 require "fileutils"

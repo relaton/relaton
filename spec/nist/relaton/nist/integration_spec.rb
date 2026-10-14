@@ -1,4 +1,3 @@
-require "jing"
 
 RSpec.describe Relaton::Nist do
   it "has a version number" do
@@ -29,7 +28,7 @@ RSpec.describe Relaton::Nist do
         File.write file_path, xml, encoding: "UTF-8" unless File.exist? file_path
         expect(xml).to be_equivalent_to File.open(file_path, "r:UTF-8", &:read)
           .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, ::Date.today.to_s)
-        schema = Jing.new "../../grammar/relaton-nist-compile.rng"
+        schema = Relaxng.new "../../grammar/relaton-nist-compile.rng"
         errors = schema.validate file_path
         expect(errors).to eq []
       end
@@ -77,7 +76,7 @@ RSpec.describe Relaton::Nist do
           File.write file_path, xml, encoding: "UTF-8" unless File.exist? file_path
           expect(xml).to be_equivalent_to File.open(file_path, "r:UTF-8", &:read)
             .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, ::Date.today.to_s)
-          schema = Jing.new "../../grammar/relaton-nist-compile.rng"
+          schema = Relaxng.new "../../grammar/relaton-nist-compile.rng"
           errors = schema.validate file_path
           expect(errors).to eq []
         end
@@ -266,7 +265,7 @@ RSpec.describe Relaton::Nist do
       expect(result).to be_equivalent_to File.open(
         file_path, "r:UTF-8", &:read
       ).gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, ::Date.today.to_s)
-      schema = Jing.new "../../grammar/relaton-nist-compile.rng"
+      schema = Relaxng.new "../../grammar/relaton-nist-compile.rng"
       errors = schema.validate file_path
       expect(errors).to eq []
     end
@@ -278,7 +277,7 @@ RSpec.describe Relaton::Nist do
       expect(result).to be_equivalent_to File.open(
         file_path, "r:UTF-8", &:read
       ).gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, ::Date.today.to_s)
-      schema = Jing.new "../../grammar/relaton-nist-compile.rng"
+      schema = Relaxng.new "../../grammar/relaton-nist-compile.rng"
       errors = schema.validate file_path
       expect(errors).to eq []
     end
@@ -290,7 +289,7 @@ RSpec.describe Relaton::Nist do
       File.write file_path, result, encoding: "UTF-8" unless File.exist? file_path
       expect(result).to be_equivalent_to File.open(file_path, "r:UTF-8", &:read)
         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, ::Date.today.to_s)
-      schema = Jing.new "../../grammar/relaton-nist-compile.rng"
+      schema = Relaxng.new "../../grammar/relaton-nist-compile.rng"
       errors = schema.validate file_path
       expect(errors).to eq []
     end
@@ -304,7 +303,7 @@ RSpec.describe Relaton::Nist do
         File.open(file_path, "r:UTF-8", &:read)
           .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, ::Date.today.to_s),
       )
-      schema = Jing.new "../../grammar/relaton-nist-compile.rng"
+      schema = Relaxng.new "../../grammar/relaton-nist-compile.rng"
       errors = schema.validate file_path
       expect(errors).to eq []
     end
@@ -316,7 +315,7 @@ RSpec.describe Relaton::Nist do
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
       expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, ::Date.today.to_s)
-      schema = Jing.new "../../grammar/relaton-nist-compile.rng"
+      schema = Relaxng.new "../../grammar/relaton-nist-compile.rng"
       errors = schema.validate file
       expect(errors).to eq []
     end

@@ -34,5 +34,6 @@ jobs:
       gem_directory: gems
       include_root: true
       root_gem_name: relaton
+      skip-java-setup: true # RelaxNG validation is leptris; no Java in the test env
     secrets:
       pat_token: ${{ secrets.RELATON_CI_PAT_TOKEN }}

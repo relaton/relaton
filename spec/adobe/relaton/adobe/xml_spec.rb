@@ -6,7 +6,7 @@ require "tempfile"
 RSpec.describe "Relaton::Adobe XML schema" do
   # CWD is spec/adobe/, so ../../grammar resolves to the repo-root grammar/ dir
   # (same convention as spec/bib/relaton/bib/model/bibdata_spec.rb).
-  let(:schema) { Jing.new "../../grammar/relaton-adobe-compile.rng" }
+  let(:schema) { Relaxng.new "../../grammar/relaton-adobe-compile.rng" }
 
   def validate(item)
     Tempfile.create(["adobe", ".xml"]) do |f|

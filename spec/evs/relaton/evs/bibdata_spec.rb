@@ -7,7 +7,7 @@ describe Relaton::Evs::Bibdata do
 
   it "round trip" do
     expect(described_class.to_xml(item)).to be_equivalent_to input_xml
-    schema = Jing.new "../../grammar/relaton-evs-compile.rng"
+    schema = Relaxng.new "../../grammar/relaton-evs-compile.rng"
     errors = schema.validate file
     expect(errors).to eq []
   end
