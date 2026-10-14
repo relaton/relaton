@@ -3,7 +3,6 @@ require "digest"
 require "json"
 require "date"
 require "lutaml/store"
-require "nokogiri"
 require_relative "cache_entry"
 
 module Relaton
@@ -335,12 +334,18 @@ module Relaton
 
       # The wrapped string key of an old-layout document: its own primary
       # docidentifier under its flavor prefix, resolved through the same
-      # `wrapped_key` path a string cache read takes.
+      # `wrapped_key` path a string cache read takes. A value no parser reads
+      # is no document — the legacy cache predates this gem's own writes —
+      # not a crash.
       def old_layout_key(path, value)
         flavor = path.split("/").first or return
-        doc = Nokogiri::XML(value)
-        id = doc.root&.at("./docidentifier[@primary = 'true']") ||
-          doc.root&.at("./docidentifier") or return
+        root = begin
+          Moxml.new.parse(value, readonly: true).root
+        rescue Moxml::ParseError
+          nil
+        end or return
+        id = root.at_xpath("./docidentifier[@primary = 'true']") ||
+          root.at_xpath("./docidentifier") or return
 
         "#{flavor.upcase}(#{id.text.strip})"
       end
