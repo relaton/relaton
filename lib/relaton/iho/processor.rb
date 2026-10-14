@@ -3,6 +3,9 @@ require "relaton/core/processor"
 module Relaton
   module Iho
     class Processor < Core::Processor
+      def cache_key(ref, year, opts, parsed = nil)
+        super
+      end
       attr_reader :idtype
 
       def initialize
