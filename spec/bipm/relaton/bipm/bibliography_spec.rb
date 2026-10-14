@@ -1,4 +1,3 @@
-require "jing"
 
 RSpec.describe Relaton::Bipm::Bibliography do
   context "raise RequestError" do
@@ -37,7 +36,7 @@ RSpec.describe Relaton::Bipm::Bibliography do
       xml = subject.to_xml bibdata: true
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
       expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
-      schema = Jing.new "../../grammar/relaton-bipm-compile.rng"
+      schema = Relaxng.new "../../grammar/relaton-bipm-compile.rng"
       errors = schema.validate file
       expect(errors).to eq []
     end

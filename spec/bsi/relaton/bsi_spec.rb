@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "jing"
 
 RSpec.describe Relaton::Bsi do
   it "has a version number" do
@@ -20,7 +19,7 @@ RSpec.describe Relaton::Bsi do
       xml = bib.to_xml bibdata: true
       write_file file, xml
       expect(xml).to be_equivalent_to read_xml(file)
-      schema = Jing.new "../../grammar/relaton-bsi-compile.rng"
+      schema = Relaxng.new "../../grammar/relaton-bsi-compile.rng"
       errors = schema.validate file
       expect(errors).to eq []
     end

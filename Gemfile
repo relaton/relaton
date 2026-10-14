@@ -32,7 +32,6 @@ group :development, :test do
   gem "rspec"
   gem "rspec-command"  # relaton-cli acceptance specs
   gem "rspec-html"     # relaton-cli
-  gem "ruby-jing"      # RelaxNG schema validation
   gem "moxml", ">= 0.5.113" # lutaml/moxml#336: the formattedref add_child TypeError fixed in 0.5.113 (relaton#254)
 gem "simplecov"
   gem "timecop"

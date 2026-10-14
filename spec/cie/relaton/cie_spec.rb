@@ -1,4 +1,3 @@
-require "jing"
 
 RSpec.describe Relaton::Cie do
   before do
@@ -31,7 +30,7 @@ RSpec.describe Relaton::Cie do
         bibdata_file = "fixtures/bibdata.xml"
         write_file bibdata_file, bibdata
         # expect(bibdata).to be_equivalent_to read_file bibdata_file
-        schema = Jing.new "../../grammar/relaton-cie-compile.rng"
+        schema = Relaxng.new "../../grammar/relaton-cie-compile.rng"
         errors = schema.validate bibdata_file
         expect(errors).to eq []
       end

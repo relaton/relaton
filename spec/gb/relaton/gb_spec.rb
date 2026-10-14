@@ -1,7 +1,6 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
-require "jing"
 require "relaton/gb/gb_scraper"
 require "relaton/gb/t_scraper"
 
@@ -40,7 +39,7 @@ RSpec.describe Relaton::Gb do
       File.write file_path, xml unless File.exist? file_path
       expect(xml).to be_equivalent_to File.open(file_path, "r:UTF-8", &:read)
         .sub(%r{<fetched>[^<]+</fetched>}, "<fetched>#{Date.today}</fetched>")
-      schema = Jing.new "../../grammar/relaton-gb-compile.rng"
+      schema = Relaxng.new "../../grammar/relaton-gb-compile.rng"
       errors = schema.validate file_path
       expect(errors).to eq []
     end
@@ -57,7 +56,7 @@ RSpec.describe Relaton::Gb do
       File.write file_path, xml unless File.exist? file_path
       expect(xml).to be_equivalent_to File.open(file_path, "r:UTF-8", &:read)
         .sub(%r{<fetched>[^<]+</fetched>}, "<fetched>#{Date.today}</fetched>")
-      schema = Jing.new "../../grammar/relaton-gb-compile.rng"
+      schema = Relaxng.new "../../grammar/relaton-gb-compile.rng"
       errors = schema.validate file_path
       expect(errors).to eq []
     end
@@ -74,7 +73,7 @@ RSpec.describe Relaton::Gb do
       File.write file_path, xml unless File.exist? file_path
       expect(xml).to be_equivalent_to File.open(file_path, "r:UTF-8", &:read)
         .sub(%r{<fetched>[^<]+</fetched>}, "<fetched>#{Date.today}</fetched>")
-      schema = Jing.new "../../grammar/relaton-gb-compile.rng"
+      schema = Relaxng.new "../../grammar/relaton-gb-compile.rng"
       errors = schema.validate file_path
       expect(errors).to eq []
     end
