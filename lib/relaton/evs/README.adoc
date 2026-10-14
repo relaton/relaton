@@ -1,0 +1,27 @@
+= relaton-evs
+
+EVS is the Estonian national corpus of the https://github.com/relaton/relaton[Relaton] bibliographic model.
+
+Retrieves Estonian standardisation records (EVS, Eesti Standardimis- ja Akrediteerimiskeskus) from the https://www.evs.ee[EVS e-shop].
+
+- Plain Estonian standards: `EVS 945:2023`, the `EVS-TS`/`EVS-TR` faces
+- National adoptions: `EVS-EN 18216:2026`, `EVS-EN ISO 9001:2015/A1:2024`, `EVS-EN ISO/IEC 27017:2026`
+- Direct international adoptions: `EVS-ISO 9001:2015`, `EVS-IEC 62368-1:2020`
+- Language codes: `EVS 811:2018 et`, `et-en`
+
+Reference parsing is entirely https://github.com/pubid/pubid[`Pubid::Evs`]; adoptions are expressed as `adoptedFrom` relations to the base documents.
+
+== Usage
+
+[source,ruby]
+----
+require "relaton/evs"
+
+item = Relaton::Evs::Bibliography.get "EVS-EN ISO 14001:2026"
+#=> #<Relaton::Evs::ItemData …> with adoptedFrom relations to
+#   "ISO 14001:2026" and "EN ISO 14001:2026"
+----
+
+== Development
+
+Run the suite from the repository root: `bundle exec rake spec:evs`.

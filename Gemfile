@@ -7,8 +7,11 @@ gemspec
 # The rawbib fixture expectations reconcile against pubid 2.0.0.pre.alpha.28
 # (the stage-word faces: "-YYYY-MM" dates, the D= designator, the glued
 # "/V<n>" iteration, pubid#203 — plus the draft-preservation and render
-# fixes the ieee IdamsParser fixtures require). The gemspec floor follows.
-gem "pubid", "2.0.0.pre.alpha.29"
+# fixes the ieee IdamsParser fixtures require). alpha.30 additionally
+# carries the Pubid::Evs identifiers the relaton/evs flavor parses, the
+# evs/cen ETSI and TS faces, and the IEEE REV/draft-date identity. The
+# gemspec floor follows.
+gem "pubid", "2.0.0.pre.alpha.30"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake

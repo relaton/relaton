@@ -1,0 +1,75 @@
+---
+id: EVSEN182162026
+schema_version: v1.5.6
+fetched: '2026-10-14'
+type: standard
+title:
+- language: en
+  script: Latn
+  content: Digital product passport
+  type: title-intro
+- language: en
+  script: Latn
+  content: Data exchange protocols
+  type: title-main
+- language: en
+  script: Latn
+  content: Digital product passport - Data exchange protocols
+  type: main
+source:
+- type: src
+  content: https://www.evs.ee/en/evs-en-18216-2026
+docidentifier:
+- content: EVS-EN 18216:2026
+  type: EVS
+  primary: true
+date:
+- type: published
+  at: '2026-06-15'
+contributor:
+- role:
+  - type: publisher
+  organization:
+    uri:
+    - content: https://www.evs.ee
+    name:
+    - content: Eesti Standardimis- ja Akrediteerimiskeskus
+    abbreviation:
+      content: EVS
+language:
+- en
+script:
+- Latn
+abstract:
+- language: en
+  script: Latn
+  content: This document defines a standard for secure and efficient data exchange protocols and data formats to be used for the digital product passport. Data exchange protocols establish the rules and procedures that systems follow when communicating and exchanging information. Data formats define the structure and presentation of that information so it can be understood and processed correctly by the involved systems. Together, protocols and formats ensure that data can be exchanged in a manner that is secure, interoperable, reliable, and compatible across various platforms and sectors.This will guarantee that data are human and machine-readable, structured, searchable, and transferable through an open, interoperable network without vendor lock-in.a)  Secure communication:This document defines protocols that ensure secure and authenticated data exchange between systems, ensuring that data are protected against unauthorised access and, when necessary, only authorized entities can access the information.b)  Interoperability for data exchange:The protocols and data formats defined in this document support easy integration with existing data exchange systems, ensure compatibility of protocols and formats across various sectors and supporting a wide range of applications and use cases.c)  Ease of use and integration:Ensure that the identified protocols and formats can be implemented easily, especially for mobile devices, and are user-friendly in order to facilitate widespread adoption.d)  Data integrity:The protocols and data formats defined in this document ensure the integrity of information linked to physical objects and electronic data throughout the entire value chain, extending to the product's or asset's end-of-life.e)  Documentation and discoverability:The protocols and formats are available to individuals without specialized knowledge, enabling broader adoption across sectors.In order to promote interoperability, reduce costs for businesses, and align with existing European regulations and initiatives, this document considers the data exchange protocols and data formats already in use in other legislations. Relevant existing standards are integrated into the development process to ensure consistency and coherence with industry practices and regulatory frameworks.
+copyright:
+- from: '2026'
+  owner:
+  - organization:
+      uri:
+      - content: https://www.evs.ee
+      name:
+      - content: Eesti Standardimis- ja Akrediteerimiskeskus
+      abbreviation:
+        content: EVS
+relation:
+- type: adoptedFrom
+  bibitem:
+    type: standard
+    formattedref:
+      content: EN 18216:2026
+place:
+- city: Tallinn
+ext:
+  doctype:
+    content: standard
+  flavor: evs
+  ics:
+  - code: 35.240.63
+    text: IT applications in trade
+  structuredidentifier:
+  - agency:
+    - EVS
+    docnumber: '18216'
