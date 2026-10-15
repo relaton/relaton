@@ -31,7 +31,11 @@ RSpec.configure do |config|
     type = Relaton::Index::Type.new(:IETF, file: "index-v2.yaml", pubid_class: ::Pubid::Ietf::Identifier)
     type.instance_variable_set(:@index, rows)
     type.instance_variable_get(:@file_io).sorted = true
-    type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
+    # The runtime call passes pages_url: (relaton#206); the legacy cache
+    # removal still passes url: — both resolve to this preloaded type.
+    type.define_singleton_method(:actual?) do |**args|
+      args.key?(:url) || args.key?(:pages_url)
+    end
 
     Relaton::Index.pool.instance_variable_get(:@pool)[:IETF] = type
   end

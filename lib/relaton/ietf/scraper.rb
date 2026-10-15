@@ -47,10 +47,15 @@ module Relaton
         get_page "#{IETF}#{row[:file]}" if row
       end
 
+      #
+      # The machine index on the Pages site (relaton#206, the W3C pilot's
+      # contract): a parsed query reads only its own shard. A Pages failure
+      # raises `Relaton::RequestError`; the whole-index zip on the same site
+      # serves only the case-insensitive retry on a miss.
+      #
       def index
         Relaton::Index.find_or_create(
-          :IETF, url: "#{IETF}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
-                 pubid_class: ::Pubid::Ietf::Identifier
+          :IETF, pages_url: PAGES_URL, pubid_class: ::Pubid::Ietf::Identifier
         )
       end
 
