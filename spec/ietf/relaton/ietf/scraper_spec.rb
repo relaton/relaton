@@ -15,14 +15,14 @@ RSpec.describe Relaton::Ietf::Scraper do
     end
   end
 
-  # One index for every stream, from the combined relaton-data-ietf repo — not
-  # the three per-type indexes this flavor used to read.
+  # One machine index for every stream, read from the data repo's Pages site
+  # (relaton#206, the W3C pilot's contract) — not the three per-type indexes
+  # this flavor used to read, and not the zip download.
   describe "#index" do
-    it "opens the combined pubid index" do
+    it "opens the machine index on the Pages site" do
       expect(Relaton::Index).to receive(:find_or_create).with(
         :IETF,
-        url: "#{described_class::IETF}index-v2.zip",
-        file: "index-v2.yaml",
+        pages_url: Relaton::Ietf::PAGES_URL,
         pubid_class: ::Pubid::Ietf::Identifier
       )
       described_class.send :index
