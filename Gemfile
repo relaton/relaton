@@ -41,9 +41,10 @@ gem "simplecov"
   gem "webmock"
   gem "webrick"
 end
-# VERIFIED 2026-10-09: leptris 1.9.323.0 + moxml 0.5.120 +
-# lutaml-model 0.8.97 pass the full relaton-cli suite (262/0, the
-# relaton_file_spec add_child TypeError site) and match the 1.9.312
-# line across the relaton/bsi/jis/plateau suites; floor at the
-# verified line so fixes flow
-gem "leptris", ">= 1.9.323.0"
+# VERIFIED 2026-10-15: leptris 1.9.361.0 + moxml 0.5.138 pass the full
+# monorepo suite (42/42) — 361 carries the #1709 combine merge and the
+# #1732 declaration contract. 1.9.362 regresses the Bib::Sanitizer's
+# undeclared-namespace-prefix handling on the CI images (the jats:/ns:
+# prefixes stop stripping; filed as leptris#1733), so pin the exact
+# verified line until the fix ships.
+gem "leptris", "1.9.361.0"
