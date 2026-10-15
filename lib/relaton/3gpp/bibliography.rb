@@ -123,10 +123,15 @@ module Relaton
       # deserialize the rows into identifiers, sort them by `id.root.number`,
       # and let `Type#search` bsearch. Without it the rows stay raw hashes,
       # `FileIO#sorted` stays false, and every lookup scans all 88,464 of them.
+      #
+      # The machine index on the Pages site (relaton#206, the W3C pilot's
+      # contract): a parsed query reads only its own shard. A Pages failure
+      # raises `Relaton::RequestError`; the whole-index zip on the same site
+      # serves only the retry on a miss.
+      #
       def index
         Relaton::Index.find_or_create(
-          "3GPP", url: "#{SOURCE}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
-          pubid_class: ::Pubid::Tgpp::Identifier
+          "3GPP", pages_url: PAGES_URL, pubid_class: ::Pubid::Tgpp::Identifier
         )
       end
 
