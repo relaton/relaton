@@ -169,28 +169,15 @@ none and `bundle install` regenerates a correct one. A leftover local lock with
 **JCGM flavor & the pubid pin.** `Relaton::Jcgm` (`lib/relaton/jcgm/`) is a
 pubid-backed flavor split out of BIPM (JCGM records moved to their own
 `relaton-data-jcgm` repo, stored as `_type: pubid:jcgm:{guide,gum-guide,amendment,
-corrigendum,meeting}`). Both gemspecs pin the released `pubid ~> 2.0.0.pre.alpha.13`,
-the first release carrying everything the flavors need (JCGM meetings and the
-flattened compact `to_hash`, BIPM/ETSI/CIE/ITU/IEEE/IANA/IETF/GOST index shapes,
+corrigendum,meeting}`). Both gemspecs floor `pubid` at the released line (the Gemfile pins the exact
+prerelease the rawbib fixtures reconcile against — `2.0.0.pre.alpha.31` today),
+first floored at `~> 2.0.0.pre.alpha.13` (JCGM meetings and the flattened
+compact `to_hash`, BIPM/ETSI/CIE/ITU/IEEE/IANA/IETF/GOST index shapes,
 `subset_strict`). Its `lib/` is identical to the pubid `main` that built the
 published `relaton-data-*` indexes.
 A pubid whose `to_hash` differs from the one that built an index makes
 `Relaton::Index` reject the whole index, so bump the pin in step with the data
 repos. See `lib/relaton/jcgm/CLAUDE.md`.
-
-**Temporary git pin: pubid `ref: "27454393"` (root `Gemfile`).** The ITU flavor
-parses every caller reference with `Pubid::Itu`, which needs pubid #460 (Radio
-Regulations, the Operational Bulletin sector and date, ITU publication ids,
-`-YYYYMM` as a date). #460 is merged but not released. The pin is a **fixed
-ref**, not `branch: "main"`: `27454393` is the last pubid `main` commit that
-parses with parslet. The commits after it parse through parsanol "PG" grammar
-artifacts, and no published parsanol can load them yet — pubid builds against
-an unreleased local parsanol and does not declare it in its gemspec, so a git
-install of pubid `main` fails in 22 of the 41 suites
-(`uninitialized constant Pubid::Pg::Backend::Parsanol`). A `parsanol` git pin
-does not help: parsanol `main` rejects pubid's grammars, and the PR branch that
-reads them renames the module to `Parsanol::PARG`. Move to the next pubid
-release (and bump both gemspecs) once pubid depends on a released parsanol.
 
 **`json` is pinned below 3 (`relaton.gemspec`).** json 3.0.0 made the
 `JSON.parse` options keyword-only, and Faraday's JSON response middleware still
@@ -268,17 +255,22 @@ suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
   `INDEXFILE` → `index-v2`) broke `db_spec.rb`'s "BIPM Meeting" example — its
   cassette still held the dead `index-v1.zip`, so VCR raised
   `UnhandledHTTPRequestError` even though nothing about routing had changed.
-- **Cassettes are refreshed on purpose — never revert them.** Every
-  `spec/<flavor>/support/vcr.rb` sets `re_record_interval: 7 * 24 * 3600` with
-  `clean_outdated_http_interactions: true`, so a full run re-records anything
-  older than a week against the live services. That is **deliberate**: periodic
-  re-recording is how the suite notices that a data source changed its format.
-  A `rake spec` that leaves hundreds of modified cassettes in the working tree is
-  therefore normal and expected — **don't `git checkout` them, and don't pin
-  cassettes to `record: :none`**, which would blind the suite to exactly the
-  drift the interval exists to catch. When a refresh turns a spec red, the
-  default assumption is that upstream moved and **this repo must be reconciled
-  to it**, not that the cassette is wrong.
+- **Cassettes never auto-rerecord — re-recording is a deliberate act.** Every
+  `spec/<flavor>/support/vcr.rb` sets `re_record_interval: nil`: CI replays the
+  committed cassettes hermetically, and a suite failure is a real regression or
+  a real upstream move to reconcile — never ambient re-recording noise. (The
+  former 7-day `re_record_interval` was removed fleet-wide in 2026-10: the
+  auto-rerecord fired inside CI against unreachable or drifted live hosts and
+  wrote dead recordings.) When upstream moves, re-record **deliberately** —
+  delete the cassette and re-run that suite alone (never under parallel
+  `rake spec`, which trips rate limits and writes 429/5xx bodies), then
+  reconcile the fixtures in the same commit. **Don't `git checkout` a cassette
+  diff you haven't diagnosed, and don't pin cassettes to `record: :none`** —
+  the recorded interactions are the only executable record of each upstream
+  contract. Note VCR gates any rerecord on `InternetConnection.available?`
+  (a TCP ping to example.com, not the cassette's host), so a green-looking
+  re-record behind a restricted network may have silently replayed — confirm
+  `recorded_at` moved.
 - **A 404 on a data-repo document usually means a stale cached index fixture.**
   The common way a refresh turns a suite red: `relaton-data-<flavor>` renamed its
   documents and republished its index, but the suite's **cached** index —
