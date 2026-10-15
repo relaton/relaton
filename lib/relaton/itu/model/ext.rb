@@ -8,6 +8,14 @@ require_relative "structured_identifier"
 module Relaton
   module Itu
     class Ext < Bib::Ext
+      # The `<flavor>` element is required by the shared ext grammar, and an
+      # ITU record is always flavor "itu" — including a legacy record
+      # deserialized before the producers stamped the attribute, which
+      # carries nil. The derived attribute keeps the element in the
+      # round-tripped XML (a `default:` would be suppressed by the
+      # serializer, omitting the element for every record).
+      attribute :flavor, :string, method: :itu_flavor
+
       attribute :doctype, Doctype
       attribute :structuredidentifier, StructuredIdentifier
       attribute :question, Question, collection: true
@@ -42,6 +50,8 @@ module Relaton
       end
 
       def get_schema_version = Relaton.schema_versions["relaton-model-itu"]
+
+      def itu_flavor = "itu"
     end
   end
 end
