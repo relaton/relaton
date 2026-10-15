@@ -29,9 +29,9 @@ gem "moxml", ">= 0.5.113" # lutaml/moxml#336: the formattedref add_child TypeErr
 gem "simplecov"
 gem "vcr"
 gem "webmock"
-# VERIFIED 2026-10-09: leptris 1.9.323.0 + moxml 0.5.120 +
-# lutaml-model 0.8.97 pass the full relaton-cli suite (262/0, the
-# relaton_file_spec add_child TypeError site) and match the 1.9.312
-# line across the relaton/bsi/jis/plateau suites; floor at the
-# verified line so fixes flow
-gem "leptris", ">= 1.9.323.0"
+# VERIFIED 2026-10-16: leptris 1.9.366.0 + moxml 0.5.138 pass the full
+# relaton-cli suite and match the relaton root bundle. 1.9.367 regresses
+# the docidentifier serialization on CI linux (the "ik-l" separator
+# divergence — leptris#1738 follow-up), so pin the exact verified line
+# until the fix ships.
+gem "leptris", "1.9.366.0"
