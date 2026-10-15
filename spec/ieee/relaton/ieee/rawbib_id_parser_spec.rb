@@ -164,7 +164,7 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
   it_behaves_like "parse normtitle", "ANSI/ IEEE C37.23-1969", "ANSI/IEEE C37.23-1969"
   it_behaves_like "parse normtitle", "ISO /IEC/IEEE P24774_D3, January 2021", "ISO/IEC/IEEE P24774/D3, Jan 2021"
   it_behaves_like "parse normtitle", "Nuclear EQ Sourcebook and Supplement", "IEEE Std 7438946"
-  it_behaves_like "parse normtitle", "IEEE Unapproved Draft Std P802.3-2008 (P802.3bb)/Cor 1/D2.0, Jul 2009", "IEEE Unapproved P802.3-2008/D2.0, Jul 2009 (IEEE P802.3bb)/Cor. 1"
+  it_behaves_like "parse normtitle", "IEEE Unapproved Draft Std P802.3-2008 (P802.3bb)/Cor 1/D2.0, Jul 2009", "IEEE Unapproved P802.3-2008/D2.0-2009-07 (IEEE P802.3bb)/Cor. 1"
 
   # Defect 1: mn() must normalize non-canonical month names (case, 4-letter
   # "Sept", OCR typos, day-suffix garble) to a numeric month, and omit a
