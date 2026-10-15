@@ -9,9 +9,11 @@ gemspec
 # "/V<n>" iteration, pubid#203 — plus the draft-preservation and render
 # fixes the ieee IdamsParser fixtures require). alpha.30 additionally
 # carries the Pubid::Evs identifiers the relaton/evs flavor parses, the
-# evs/cen ETSI and TS faces, and the IEEE REV/draft-date identity. The
-# gemspec floor follows.
-gem "pubid", "2.0.0.pre.alpha.30"
+# evs/cen ETSI and TS faces, the IEEE REV/draft-date identity, and since
+# alpha.31 the corrigendum-draft reorder with glued -yyyy-mm dates
+# (pubid#529-#532) and the joint IEEE/CSA draft-date glue (#533/#534).
+# The gemspec floor follows.
+gem "pubid", "2.0.0.pre.alpha.31"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
