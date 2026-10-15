@@ -148,11 +148,16 @@ module Relaton
         pubid.typed_stage.stage_code.to_s == "published"
       end
 
+      #
+      # The machine index on the Pages site (relaton#206, the W3C pilot's
+      # contract): a parsed query reads only its own shard. A Pages failure
+      # raises `Relaton::RequestError`; the whole-index zip on the same site
+      # serves only the retry on a miss.
+      #
       def index
         @index ||= Relaton::Index.find_or_create(
           :iso,
-          url: "#{ENDPOINT}#{INDEXFILE}.zip",
-          file: "#{INDEXFILE}.yaml",
+          pages_url: PAGES_URL,
           pubid_class: ::Pubid::Iso::Identifier,
         )
       end
