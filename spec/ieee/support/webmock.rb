@@ -18,9 +18,12 @@ RSpec.configure do |config|
 
     type = Relaton::Index::Type.new(:ieee, file: index_file, pubid_class: ::Pubid::Ieee::Identifier)
     type.index # force the offline read + deserialize + sort now, before net is blocked
-    # actual? only matches the remote (url:) lookup so a producer-side
+    # actual? matches the remote lookups (the legacy url: cache removal and
+    # the pages_url: machine index, relaton#206) so the producer-side
     # find_or_create(:ieee, file:, pubid_class:) still gets a fresh instance.
-    type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
+    type.define_singleton_method(:actual?) do |**args|
+      args.key?(:url) || args.key?(:pages_url)
+    end
 
     # Inject into the pool so Bibliography.search's find_or_create(:ieee, url: ...)
     # returns this pre-loaded instance instead of downloading.
