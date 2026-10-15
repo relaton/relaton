@@ -41,10 +41,8 @@ gem "simplecov"
   gem "webmock"
   gem "webrick"
 end
-# VERIFIED 2026-10-15: leptris 1.9.361.0 + moxml 0.5.138 pass the full
-# monorepo suite (42/42) — 361 carries the #1709 combine merge and the
-# #1732 declaration contract. 1.9.362 regresses the Bib::Sanitizer's
-# undeclared-namespace-prefix handling on the CI images (the jats:/ns:
-# prefixes stop stripping; filed as leptris#1733), so pin the exact
-# verified line until the fix ships.
-gem "leptris", "1.9.361.0"
+# VERIFIED 2026-10-16: leptris 1.9.366.0 + moxml 0.5.138 pass the full
+# monorepo suite — 366 ships per-minor native bundles (the ruby-4.0
+# native-load failure, leptris#1738) and supersedes 362's prefix
+# predeclaration with the Sanitizer behavior intact (leptris#1733).
+gem "leptris", "1.9.366.0"

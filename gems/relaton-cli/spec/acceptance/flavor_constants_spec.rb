@@ -11,7 +11,14 @@ require "open3"
 # release candidate unnoticed.
 RSpec.describe "flavor constants after requiring relaton-cli" do
   def in_clean_process(code)
-    Open3.capture3(RbConfig.ruby, "-Ilib", "-e", code)
+    out, err, status = Open3.capture3(RbConfig.ruby, "-Ilib", "-e", code)
+    # The leptris FFI-fallback notice (leptris#1738: the compiled native
+    # layer is unavailable on some runners/rubies and the library engages
+    # the FFI surface) is a dependency's loading notice, not this
+    # command's output — strip it so the assertions see what the command
+    # itself did. Any other stderr still fails.
+    err = err.gsub(/^\s*leptris: native acceleration unavailable.*\n/, "")
+    [out, err, status]
   end
 
   it "resolves a flavor's INDEXFILE without spec_helper's eager load" do
