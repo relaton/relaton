@@ -13,7 +13,11 @@ module Relaton
         # @return [Relaton::Ieee::ItemData, nil]
         #
         def search(ref) # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-          index = Relaton::Index.find_or_create :ieee, url: "#{GH_URL}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
+          # The machine index on the Pages site (relaton#206, the W3C
+          # pilot's contract): a parsed query reads only its own shard. A
+          # Pages failure raises `Relaton::RequestError`; the whole-index
+          # zip on the same site serves only the retry on a miss.
+          index = Relaton::Index.find_or_create :ieee, pages_url: PAGES_URL,
                                                        pubid_class: ::Pubid::Ieee::Identifier
           # Pass the parsed pubid (not the raw String) so index-v2 narrows
           # candidates by number via binary search before the block runs; the
