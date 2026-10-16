@@ -132,3 +132,27 @@ RSpec.describe Relaton::Omg::Bibliography do
     )
   end
 end
+
+RSpec.describe "Relaton::Omg::Bibliography machine index (relaton#206)" do
+  let(:doc_url) do
+    "https://raw.githubusercontent.com/relaton/relaton-data-omg/main/data/neg-1.0.yaml"
+  end
+
+  it "returns the item from the published index and data repo" do
+    stub_request(:get, doc_url).to_return(body: File.read(OmgIndexFixture::DOC_FIXTURE))
+    item = Relaton::Omg::Bibliography.search "OMG NEG 1.0"
+    expect(item).to be_instance_of Relaton::Omg::ItemData
+    expect(item.docidentifier.first.content).to eq "OMG NEG 1.0"
+  end
+
+  it "raises when the indexed document is missing from the data repo" do
+    stub_request(:get, doc_url).to_return(status: 404)
+    expect { Relaton::Omg::Bibliography.search "OMG NEG 1.0" }
+      .to raise_error Relaton::RequestError
+  end
+
+  it "falls back to the live scrape on an index miss", vcr: "omg_ami4ccm_1_0" do
+    item = Relaton::Omg::Bibliography.search "OMG AMI4CCM 1.0"
+    expect(item.docidentifier.first.content).to eq "OMG AMI4CCM 1.0"
+  end
+end

@@ -19,6 +19,10 @@ module Relaton
     # supersedes the flavor's earlier "no index, no data repository" shape —
     # the crawler and the Pages site are live.
     INDEXFILE = "index-v2"
+    # The machine index on the data repo's Pages site (relaton#206) — the
+    # manifest + whole-index zip the consumer reads; the crawl does not cover
+    # every spec, so Bibliography falls back to the live scrape on a miss.
+    PAGES_URL = "https://relaton.github.io/relaton-data-omg/"
 
     # Returns hash of XML reammar
     # @return [String]
