@@ -155,7 +155,10 @@ module Relaton
             acronym = row.at_xpath("td[3]/a")[:href].split("/")[4]
             id = render_id(acronym, ver)
             docid = Docidentifier.new(content: id, type: "OMG")
-            bibitem = Bib::ItemBase.new(formattedref: Bib::Formattedref.new(content: id), docidentifier: [docid])
+            # Bib::Relation's bibitem is typed ItemData on this model path —
+            # a plain ItemBase fails lutaml's type validation at serialization
+            # (the crawl's "attribute 'bibitem' value is a 'ItemBase'" skips).
+            bibitem = Bib::ItemData.new(formattedref: Bib::Formattedref.new(content: id), docidentifier: [docid])
             mem << Bib::Relation.new(type: "obsoletes", bibitem: bibitem)
           end
           mem
