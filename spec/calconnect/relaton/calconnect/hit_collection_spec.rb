@@ -10,8 +10,7 @@ RSpec.describe Relaton::Calconnect::HitCollection do
   it "reads the pubid index-v2" do
     expect(Relaton::Index).to receive(:find_or_create).with(
       :CC,
-      url: "#{described_class::GHURL}index-v2.zip",
-      file: "index-v2.yaml",
+      pages_url: Relaton::Calconnect::PAGES_URL,
       pubid_class: ::Pubid::Calconnect::Identifier,
     ).and_return(double("index", search: []))
     described_class.new "CC/DIR 10005"

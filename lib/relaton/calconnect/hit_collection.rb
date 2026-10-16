@@ -12,9 +12,14 @@ module Relaton::Calconnect
     private
 
     # @return [Relaton::Index::Type]
+    #
+    # The machine index on the Pages site (relaton#206, the W3C pilot's
+    # contract): a parsed query reads only its own shard. A Pages failure
+    # raises `Relaton::RequestError`; the whole-index zip on the same site
+    # serves only the retry on a miss.
+    #
     def index
-      Relaton::Index.find_or_create :CC, url: "#{GHURL}#{INDEXFILE}.zip",
-                                         file: "#{INDEXFILE}.yaml",
+      Relaton::Index.find_or_create :CC, pages_url: PAGES_URL,
                                          pubid_class: ::Pubid::Calconnect::Identifier
     end
 
