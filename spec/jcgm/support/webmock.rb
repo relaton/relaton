@@ -21,7 +21,11 @@ RSpec.configure do |config|
 
     type = Relaton::Index::Type.new(:jcgm, file: index_file, pubid_class: ::Pubid::Jcgm::Identifier)
     type.index
-    type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
+    # The runtime call passes pages_url: (relaton#206); the legacy cache
+    # removal still passes url: — both resolve to this pre-seeded type.
+    type.define_singleton_method(:actual?) do |**args|
+      args.key?(:url) || args.key?(:pages_url)
+    end
 
     Relaton::Index.pool.instance_variable_get(:@pool)[:JCGM] = type
   end
