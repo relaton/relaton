@@ -33,7 +33,11 @@ module EcmaIndexFixture
 
     type = Relaton::Index::Type.new(:ECMA, file: file, pubid_class: ::Pubid::Ecma::Identifier)
     type.index # force the deserialize + sort once, offline
-    type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
+    # The runtime call passes pages_url: (relaton#206); the legacy cache
+    # removal still passes url: — both resolve to this pre-seeded type.
+    type.define_singleton_method(:actual?) do |**args|
+      args.key?(:url) || args.key?(:pages_url)
+    end
     type
   end
 end

@@ -20,6 +20,10 @@ module Relaton
     # `relaton-data-ecma`'s crawler derives the legacy `index-v1` from these
     # rows for released consumers, so it is not produced or read here.
     INDEXFILE = "index-v2".freeze
+    # The machine index on the data repo's Pages site (relaton#206) —
+    # manifest + per-shard rows read by the consumer's index; the zip stays
+    # on the Pages site for the whole-index retry on a miss.
+    PAGES_URL = "https://relaton.github.io/relaton-data-ecma/"
 
     # Returns hash of XML reammar
     # @return [String]
