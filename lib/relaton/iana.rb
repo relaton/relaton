@@ -27,6 +27,10 @@ module Relaton
     # emitted by `relaton-data-iana`'s own `crawler.rb`, derived from `index-v2`,
     # so released gem lines keep resolving. See lib/relaton/iana/CLAUDE.md.
     INDEXFILE = "index-v2".freeze
+    # The machine index on the data repo's Pages site (relaton#206) —
+    # manifest + per-shard rows read by the consumer's index; the zip stays
+    # on the Pages site for the whole-index retry on a miss.
+    PAGES_URL = "https://relaton.github.io/relaton-data-iana/"
 
     # Returns hash of XML reammar
     # @return [String]

@@ -29,9 +29,12 @@ module IanaIndexFixture
     # offline read + deserialize + sort now, before the net is blocked.
     type = Relaton::Index::Type.new(:iana, file: index_file, pubid_class: ::Pubid::Iana::Identifier)
     type.index
-    # Claim only the consumer (`url:`) lookup, so DataFetcher's producer-side
-    # `find_or_create(file:, pubid_class:)` still gets a fresh, empty Type.
-    type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
+    # Claim only the consumer lookups (`url:`, `pages_url:`), so DataFetcher's
+    # producer-side `find_or_create(file:, pubid_class:)` still gets a fresh,
+    # empty Type.
+    type.define_singleton_method(:actual?) do |**args|
+      args.key?(:url) || args.key?(:pages_url)
+    end
     type
   end
 end
