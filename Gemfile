@@ -13,7 +13,10 @@ gemspec
 # alpha.31 the corrigendum-draft reorder with glued -yyyy-mm dates
 # (pubid#529-#532) and the joint IEEE/CSA draft-date glue (#533/#534).
 # The gemspec floor follows.
-gem "pubid", "2.0.0.pre.alpha.31"
+# alpha.32 casts the NIST from_hash number through the number component
+# deterministically (pubid#540) — the order-dependent raw-Hash dump of
+# relaton#272 is gone; the nist suite passes standalone.
+gem "pubid", "2.0.0.pre.alpha.32"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
