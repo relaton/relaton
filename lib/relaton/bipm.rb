@@ -23,6 +23,10 @@ module Relaton
     # by `relaton-data-bipm`'s crawler (using the retained `Relaton::Bipm::Id`),
     # but this flavor no longer reads or writes it.
     INDEXFILE = "index-v2".freeze
+    # The machine index on the data repo's Pages site (relaton#206) —
+    # manifest + per-shard rows read by the consumer's index; the zip stays
+    # on the Pages site for the whole-index retry on a miss.
+    PAGES_URL = "https://relaton.github.io/relaton-data-bipm/"
 
     # Returns hash of gems versions used to generate the data model.
     # @return [String]
