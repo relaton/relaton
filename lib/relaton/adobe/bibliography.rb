@@ -70,10 +70,13 @@ module Relaton
         end
 
         def index
+          # The machine index on the Pages site (relaton#206): a parsed query
+          # reads only its own shard; a Pages failure raises
+          # `Relaton::RequestError`; the whole-index zip on the same site
+          # serves only the retry on a miss.
           Relaton::Index.find_or_create(
             :adobe,
-            url: "#{ENDPOINT}#{INDEXFILE}.zip",
-            file: "#{INDEXFILE}.yaml",
+            pages_url: PAGES_URL,
             pubid_class: ::Pubid::Adobe::Identifier,
           )
         end
