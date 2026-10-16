@@ -38,7 +38,16 @@ module Relaton
         @url += @version.gsub(" ", "/") if @version
         agent = Mechanize.new
         agent.open_timeout = 10
-        @doc = agent.get(@url)
+        begin
+          @doc = agent.get(@url)
+        rescue Mechanize::ResponseCodeError => e
+          raise if e.response_code != "404" || !@part
+
+          # A glued beta label parses as the part ("1.5 Beta1" → version
+          # 1.5, part Beta1) but on omg.org it lives in the version URL
+          # segment — retry with the part appended.
+          @doc = agent.get("#{@url}/#{@part}")
+        end
       rescue Mechanize::ResponseCodeError => e
         return if e.response_code == "404"
 
