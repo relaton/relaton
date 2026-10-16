@@ -12,6 +12,10 @@ require_relative "iho/bibliography"
 module Relaton
   module Iho
     INDEXFILE = "index-v3".freeze
+    # The machine index on the data repo's Pages site (relaton#206) —
+    # manifest + per-shard rows read by the consumer's index; the zip stays
+    # on the Pages site for the whole-index retry on a miss.
+    PAGES_URL = "https://relaton.github.io/relaton-data-iho/"
 
     class Error < StandardError; end
 

@@ -19,7 +19,11 @@ RSpec.configure do |config|
     # via from_hash; force the offline read + deserialize now, before net is blocked.
     type = Relaton::Index::Type.new(:iho, file: index_file, pubid_class: ::Pubid::Iho::Identifier)
     type.index
-    type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
+    # The runtime call passes pages_url: (relaton#206); the legacy cache
+    # removal still passes url: — both resolve to this pre-seeded type.
+    type.define_singleton_method(:actual?) do |**args|
+      args.key?(:url) || args.key?(:pages_url)
+    end
 
     Relaton::Index.pool.instance_variable_get(:@pool)[:IHO] = type
   end
