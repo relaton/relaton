@@ -45,7 +45,12 @@ module CalconnectIndexFixture
     # whenever `actual?` says no, so `DataFetcher#index` really does evict this
     # fixture for the rest of that example. That is what the `before(:each)`
     # below repairs, and why `before(:suite)` alone is not enough.
-    type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
+    # The runtime call passes pages_url: (relaton#206); the legacy cache
+    # removal and the producer's file: lookup still resolve to this
+    # pre-seeded type.
+    type.define_singleton_method(:actual?) do |**args|
+      args.key?(:url) || args.key?(:pages_url)
+    end
     type
   end
 end
