@@ -170,7 +170,8 @@ none and `bundle install` regenerates a correct one. A leftover local lock with
 pubid-backed flavor split out of BIPM (JCGM records moved to their own
 `relaton-data-jcgm` repo, stored as `_type: pubid:jcgm:{guide,gum-guide,amendment,
 corrigendum,meeting}`). Both gemspecs floor `pubid` at the released line (the Gemfile pins the exact
-prerelease the rawbib fixtures reconcile against — `2.0.0.pre.alpha.31` today),
+prerelease the rawbib fixtures reconcile against — `2.0.0.pre.alpha.32` today,
+which also casts the NIST `from_hash` number deterministically, relaton#272),
 first floored at `~> 2.0.0.pre.alpha.13` (JCGM meetings and the flattened
 compact `to_hash`, BIPM/ETSI/CIE/ITU/IEEE/IANA/IETF/GOST index shapes,
 `subset_strict`). Its `lib/` is identical to the pubid `main` that built the
