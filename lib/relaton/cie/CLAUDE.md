@@ -22,8 +22,11 @@ as a `_type: pubid:cie:…` map (mirrors the NIST/ETSI flavors).
   binary search before the block runs (a String arg would force a full O(n) scan — see
   `Index::Type#search_candidates`); the block keeps the broad substring match, and
   `min_by { |r| r[:id].to_s }` picks the winner (rows are pubid objects, not
-  `Comparable`, so compare by string form). The scrapper's `ENDPOINT` targets the data
-  repo's **`v2`** branch, so it fetches `…/v2/index-v2.zip`.
+  `Comparable`, so compare by string form). The scrapper's index comes from the
+  data repo's Pages machine index (`PAGES_URL`, relaton#206) — manifest + the
+  shard for the parsed query, the whole-index zip on the same site serving only
+  the retry on a miss; `ENDPOINT` (the `v2` branch) still serves the document
+  files.
 
 ### pubid dependency
 
