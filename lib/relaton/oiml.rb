@@ -12,6 +12,10 @@ require_relative "oiml/bibliography"
 module Relaton
   module Oiml
     INDEXFILE = "index-v2".freeze
+    # The machine index on the data repo's Pages site (relaton#206) —
+    # manifest + per-shard rows read by the consumer's index; the zip stays
+    # on the Pages site for the whole-index retry on a miss.
+    PAGES_URL = "https://relaton.github.io/relaton-data-oiml/"
 
     class Error < StandardError; end
 
