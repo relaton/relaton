@@ -26,10 +26,15 @@ module Relaton
       end
 
       # @return [Relaton::Index::Type]
+      #
+      # The machine index on the Pages site (relaton#206, the W3C pilot's
+      # contract): a parsed query reads only its own shard. A Pages failure
+      # raises `Relaton::RequestError`; the whole-index zip on the same site
+      # serves only the retry on a miss.
+      #
       def index
         @index ||= Relaton::Index.find_or_create(
-          :ogc, url: "#{ENDPOINT}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
-          pubid_class: ::Pubid::Ogc::Identifier
+          :ogc, pages_url: PAGES_URL, pubid_class: ::Pubid::Ogc::Identifier
         )
       end
 
