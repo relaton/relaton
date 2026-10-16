@@ -41,8 +41,6 @@ gem "simplecov"
   gem "webmock"
   gem "webrick"
 end
-# VERIFIED 2026-10-16: leptris 1.9.366.0 + moxml 0.5.138 pass the full
-# monorepo suite — 366 ships per-minor native bundles (the ruby-4.0
-# native-load failure, leptris#1738) and supersedes 362's prefix
-# predeclaration with the Sanitizer behavior intact (leptris#1733).
-gem "leptris", "1.9.366.0"
+# leptris 1.9.362.1 rebuilds the 362 line with the namespace-cache fix
+# (leptris#1742) — the battery re-run accompanies this bump.
+gem "leptris", "1.9.362.1"
