@@ -11,8 +11,10 @@ VCR.configure do |config|
   config.hook_into :webmock
   config.configure_rspec_metadata!
 
-  # Index downloads are handled by pre-loaded fixtures in webmock.rb
+  # Index downloads are handled by pre-loaded fixtures in webmock.rb; the
+  # machine-index traffic (manifest + shards, relaton#206) is pre-seeded too.
   config.ignore_request do |request|
-    URI(request.uri).path.end_with?("index-v2.zip")
+    URI(request.uri).path.end_with?("index-v2.zip") ||
+      URI(request.uri).path.include?("/index/")
   end
 end
