@@ -13,6 +13,13 @@ require_relative "omg/bibliography"
 
 module Relaton
   module Omg
+    # The flavor's published index on relaton-data-omg (relaton#206): the
+    # machine index the Pages site serves, built from the crawled
+    # data/*.yaml with pubid_class ::Pubid::Omg::Identifier. relaton-data-omg
+    # supersedes the flavor's earlier "no index, no data repository" shape —
+    # the crawler and the Pages site are live.
+    INDEXFILE = "index-v2"
+
     # Returns hash of XML reammar
     # @return [String]
     def self.grammar_hash

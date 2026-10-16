@@ -35,10 +35,13 @@ The gem extends `relaton-bib` (~> 2.0.0-alpha.1), the core Relaton bibliographic
 
 ### References are parsed with pubid
 
-OMG uses `Pubid::Omg` and no hand regex. OMG publishes no index and has no data
-repository, so this is the BSI and CEN shape: parse the reference, and back the
-document id with pubid. There is no `INDEXFILE` and no `pubid_class:`. Do not
-add an index.
+OMG uses `Pubid::Omg` and no hand regex. The flavor historically had no index
+and no data repository (the BSI and CEN shape: parse the reference, and back
+the document id with pubid). That changed: **relaton-data-omg** now crawls
+www.omg.org/spec and serves the machine index on Pages (the relaton#206
+contract), and `Relaton::Omg::INDEXFILE = "index-v2"` names it — the gem-side
+consumer flip (reading the machine index in `Bibliography` the way the other
+flavors do) is the follow-up; retrieval still scrapes live.
 
 The grammar is `OMG <ACRONYM>[ <VERSION>][<sep><PART>]`, where `<sep>` is a
 space, or a slash after a version. The version can carry a beta label (`2.5 beta`,
