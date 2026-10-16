@@ -136,10 +136,13 @@ module Relaton
         # `id.root.number`, and let `Type#search` bsearch. Without it the rows
         # stay raw hashes and every lookup scans all 701 of them.
         def index
+          # The machine index on the Pages site (relaton#206): a parsed query
+          # reads only its own shard; a Pages failure raises
+          # `Relaton::RequestError`; the whole-index zip on the same site
+          # serves only the retry on a miss.
           Relaton::Index.find_or_create(
             :iala,
-            url: "#{ENDPOINT}#{INDEXFILE}.zip",
-            file: "#{INDEXFILE}.yaml",
+            pages_url: PAGES_URL,
             pubid_class: ::Pubid::Iala::Identifier,
           )
         end
