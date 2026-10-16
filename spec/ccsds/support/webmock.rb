@@ -16,7 +16,11 @@ RSpec.configure do |config|
 
     type = Relaton::Index::Type.new(:ccsds, file: "index-v2.yaml")
     type.instance_variable_set(:@index, index_data)
-    type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
+    # The runtime call passes pages_url: (relaton#206); the legacy cache
+    # removal still passes url: — both resolve to this pre-seeded type.
+    type.define_singleton_method(:actual?) do |**args|
+      args.key?(:url) || args.key?(:pages_url)
+    end
 
     Relaton::Index.pool.instance_variable_get(:@pool)[:CCSDS] = type
   end

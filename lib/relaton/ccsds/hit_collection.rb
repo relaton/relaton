@@ -20,8 +20,12 @@ module Relaton
       # Pubid index (index-v2): `:id` deserializes to a Pubid::Ccsds::Identifier
       # via pubid_class, so search narrows by number with binary search.
       def index
+        # The machine index on the Pages site (relaton#206): a parsed query
+        # reads only its own shard; a Pages failure raises
+        # `Relaton::RequestError`; the whole-index zip on the same site
+        # serves only the retry on a miss.
         @index ||= Relaton::Index.find_or_create(
-          :ccsds, url: "#{GHURL}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml", pubid_class: Pubid::Ccsds::Identifier
+          :ccsds, pages_url: PAGES_URL, pubid_class: Pubid::Ccsds::Identifier
         )
       end
 
