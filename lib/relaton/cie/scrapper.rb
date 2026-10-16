@@ -15,7 +15,11 @@ module Relaton
           # "... is not a recognized standards identifier". Partial refs
           # (`CIE 001`, `CIE 15`) parse, so nothing valid is lost.
           pubid = to_pubid ref
-          index = Index.find_or_create :cie, url: "#{ENDPOINT}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
+          # The machine index on the Pages site (relaton#206): a parsed query
+          # reads only its own shard; a Pages failure raises
+          # `Relaton::RequestError`; the whole-index zip on the same site
+          # serves only the retry on a miss.
+          index = Index.find_or_create :cie, pages_url: PAGES_URL,
                                               pubid_class: ::Pubid::Cie::Identifier
           # Pass the parsed pubid (not the raw String) so index-v2 narrows
           # candidates by number via binary search before the block runs; the

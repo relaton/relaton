@@ -18,9 +18,12 @@ RSpec.configure do |config|
 
     type = Relaton::Index::Type.new(:cie, file: index_file, pubid_class: ::Pubid::Cie::Identifier)
     type.index # force the offline read + deserialize now, before net is blocked
-    # actual? only matches the remote (url:) lookup so the producer-side
-    # find_or_create(:cie, file:, pubid_class:) still gets a fresh instance.
-    type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
+    # actual? matches the remote lookups (url:, pages_url:) so the
+    # producer-side find_or_create(:cie, file:, pubid_class:) still gets a
+    # fresh instance.
+    type.define_singleton_method(:actual?) do |**args|
+      args.key?(:url) || args.key?(:pages_url)
+    end
 
     Relaton::Index.pool.instance_variable_get(:@pool)[:CIE] = type
   end
