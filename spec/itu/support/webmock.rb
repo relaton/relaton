@@ -20,9 +20,12 @@ RSpec.configure do |config|
 
     itu_index_type = Relaton::Index::Type.new(:itu, file: index_file, pubid_class: ::Pubid::Itu::Identifier)
     itu_index_type.index # force the offline read + deserialize now, before net is blocked
-    # actual? only matches the remote (url:) lookup so the producer-side
+    # actual? matches the remote lookups (the legacy url: cache removal and
+    # the pages_url: machine index, relaton#206) so the producer-side
     # find_or_create(:itu, file:, pubid_class:) still gets a fresh instance.
-    itu_index_type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
+    itu_index_type.define_singleton_method(:actual?) do |**args|
+      args.key?(:url) || args.key?(:pages_url)
+    end
   end
 
   config.before(:each) do
