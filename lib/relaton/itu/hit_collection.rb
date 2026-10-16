@@ -144,9 +144,14 @@ module Relaton
         [year.to_i, month.to_i]
       end
 
+      #
+      # The machine index on the Pages site (relaton#206, the W3C pilot's
+      # contract): a parsed query reads only its own shard. A Pages failure
+      # raises `Relaton::RequestError`; the whole-index zip on the same site
+      # serves only the retry on a miss.
+      #
       def index
-        Relaton::Index.find_or_create :itu, url: "#{GH_ITU}#{INDEXFILE}.zip",
-                                            file: "#{INDEXFILE}.yaml",
+        Relaton::Index.find_or_create :itu, pages_url: PAGES_URL,
                                             pubid_class: ::Pubid::Itu::Identifier
       end
 
