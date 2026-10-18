@@ -16,7 +16,7 @@ module Relaton
         hasReview commentaryOf hasCommentary related hasComplement complementOf
         obsoletes obsoletedBy cites isCitedIn
       ]
-      attribute :description, LocalizedMarkedUpString
+      attribute :description, LocalizedMarkedUpString, singular_tolerance: :first
       attribute :bibitem, ItemBase
       choice(min: 1, max: 1) do
         attribute :locality, Locality, collection: true, initialize_empty: true
