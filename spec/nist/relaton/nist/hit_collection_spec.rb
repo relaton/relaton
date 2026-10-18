@@ -136,3 +136,20 @@ RSpec.describe Relaton::Nist::HitCollection do
     end
   end
 end
+
+RSpec.describe "Relaton::Nist::HitCollection stage-carrying references (relaton#146)" do
+  it "retries the stage-excluded reference when the stage-narrowed search misses" do
+    hc = Relaton::Nist::HitCollection.new "NIST FIPS 197 fpd"
+    hits = hc.send(:from_ga)
+    codes = hits.map { |h| h.hit[:code] }
+    # The published index has no stage-typed row for the fpd; the base
+    # document of the family answers instead.
+    expect(codes).to include("NIST FIPS 197")
+  end
+
+  it "search_filter equalizes the stage on both sides of the equality" do
+    filtered = Relaton::Nist::HitCollection.search("NIST FIPS 197 fpd").search_filter
+    expect(filtered).not_to be_empty
+    expect(filtered.map { |h| h.hit[:code] }).to include("NIST FIPS 197")
+  end
+end
