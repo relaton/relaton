@@ -77,7 +77,9 @@ Gem::Specification.new do |spec|
   # rate-limit signal) only exists from 0.2.5 — w3c_api's own `~> 0.2.1` would
   # happily resolve to an older one and NameError at rescue time.
   spec.add_dependency "lutaml-hal", "~> 0.2", ">= 0.2.5"
-  spec.add_dependency "lutaml-model", "~> 0.8.76"
+  # singular_tolerance (relaton#301) requires 0.8.113 (lutaml-model#971);
+  # 0.8.107-112 raise on the stricter collection validation instead.
+  spec.add_dependency "lutaml-model", "~> 0.8.113"
   # 0.3.2 fixes the FileSystem adapter defects the Db cache depends on:
   # lossless keys, thread and process exclusion, DatabaseStore serialization,
   # CacheStore#each_key (lutaml/lutaml-store#17).
