@@ -32,6 +32,16 @@ module Relaton
         end
       end
 
+      # Cast at the assignment layer (lutaml-model#972): a bare scalar
+      # assigned to a singular custom-typed attribute (e.g. a relation's
+      # description) is wrapped here, so the serializer's type validation
+      # sees an instance instead of raising IncorrectModelError.
+      def self.cast(value)
+        return value if value.is_a?(self)
+
+        new(content: value.to_s)
+      end
+
       attribute :content, :string
       prepend ContentSanitization
 
