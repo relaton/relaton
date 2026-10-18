@@ -12,7 +12,11 @@ module Relaton
           graphic_work music patent inbook incollection inproceedings journal website
           webresource dataset archival social_media alert message convesation misc
         ]
-        attribute :formattedref, Formattedref
+        # Lenient ingest: some upstream corpus documents carry more than one
+        # <formattedref> in a bibitem; keep the first instead of failing the
+        # whole ingest (lutaml-model#971, the singular_tolerance option in
+        # 0.8.112).
+        attribute :formattedref, Formattedref, singular_tolerance: :first
         attribute :title, Title, collection: true, initialize_empty: true
         attribute :source, Uri, collection: true, initialize_empty: true
         attribute :docidentifier, Docidentifier, collection: true, initialize_empty: true
