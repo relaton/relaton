@@ -60,9 +60,16 @@ module Relaton
       def search_filter # rubocop:disable Metrics/MethodLength
         refid = ::Pubid::Nist::Identifier.parse(@reference)
         parts = exclude_parts refid
+        # A stage-carrying reference matches stage-less rows: the published
+        # index has no stage-typed rows for these documents, and the
+        # from_ga search already fell back to the base document on the
+        # stage-narrowed miss (relaton#146) — so exclude the stage from
+        # both sides of the equality, not only from the hits.
+        parts << :stage if refid.stage
+        compare_refid = refid.stage ? refid.exclude(:stage) : refid
         arr = @array.select do |item|
           pubid = ::Pubid::Nist::Identifier.parse(item.hit[:code])
-          pubid.exclude(*parts) == refid
+          pubid.exclude(*parts) == compare_refid
         rescue StandardError
           item.hit[:code] == ref
         end
@@ -249,6 +256,18 @@ module Relaton
         needle = r.to_s
         rows = index.search(r) { |row| row[:id].to_s.include?(needle) }
           .sort_by { |row| row[:id].to_s }
+
+        if rows.empty? && r.is_a?(::Pubid::Nist::Identifier) && r.stage
+          # A stage-carrying reference (the "fpd" of NIST FIPS 197) has no
+          # stage-typed row of its own in the published index — the data repo
+          # indexes the document family by number. Retry with the stage
+          # excluded so the base document answers, as the released
+          # 3.0.0.pre.alpha.1 line did (relaton#146).
+          base = r.exclude(:stage)
+          needle = base.to_s
+          rows = index.search(base) { |row| row[:id].to_s.include?(needle) }
+            .sort_by { |row| row[:id].to_s }
+        end
 
         rows.map do |row|
           # index-v2 stores Pubid objects; the rest of the pipeline (search_filter,
