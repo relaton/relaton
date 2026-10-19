@@ -23,8 +23,12 @@ module Relaton
       end
 
       def fetch_tech_pubs(source = nil)
-        xml_data = Mechanize.new.get(source_url(source)).body
-        docs = LocMods::Collection.from_xml xml_data
+        page = Mechanize.new.get(source_url(source))
+        # The resolved URI names the concrete release the redirect landed on
+        # (latest/download moves as NIST-Tech-Pubs publishes) — log it so every
+        # crawl proves which release it read.
+        Util.info "NIST-Tech-Pubs release: #{page.uri}", key: "nist"
+        docs = LocMods::Collection.from_xml page.body
         docs.mods.each { |doc| write_file ModsParser.new(doc, series, @errors).parse }
       end
 
