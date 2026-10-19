@@ -16,8 +16,11 @@ gemspec
 # alpha.32 casts the NIST from_hash number through the number component
 # deterministically (pubid#540), and alpha.34 classifies the OMG glued
 # catalogue beta label into the version (pubid#548). The raw-Hash dump of
-# relaton#272 is gone; the nist suite passes standalone.
-gem "pubid", "2.0.0.pre.alpha.34"
+# relaton#272 is gone; the nist suite passes standalone. alpha.35 sheds
+# the dotted draft designator's zero padding (pubid#552, the
+# 2026-10-19 ruling: "D013.0" -> "D13.0") and rides the stage iteration
+# onto the D= face.
+gem "pubid", "2.0.0.pre.alpha.35"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake

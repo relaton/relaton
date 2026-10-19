@@ -112,7 +112,7 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
   it_behaves_like "parse normtitle", "IEEE P1073.2.1.1/D08", "IEEE P1073.2.1.1/D08"
   it_behaves_like "parse normtitle", "IEEE P802.1Qbu/03.0, July 2015", "IEEE P802.1Qbu/D3.0, 2015"
   it_behaves_like "parse normtitle", "IEEE P11073-10422/04, November 2015", "IEEE P11073-10422/D04, November 2015"
-  it_behaves_like "parse normtitle", "IEEE P802.11aqTM/013.0 October 2017", "IEEE P802.11aqTM/D013.0 Oct 2017"
+  it_behaves_like "parse normtitle", "IEEE P802.11aqTM/013.0 October 2017", "IEEE P802.11aqTM/D13.0 Oct 2017"
   it_behaves_like "parse normtitle", "IEEE P844.3/C22.2 293.3/D0, August 2018", "IEEE P844.3-2018"
   it_behaves_like "parse normtitle", "IEEE P844.3/C22.2 293.3/D1, November 2018", "IEEE P844.3/D1, 2018"
   it_behaves_like "parse normtitle", "AIEE No 431 (105) -1958", "AIEE No 431 (105)-1958"
