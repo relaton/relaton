@@ -36,7 +36,7 @@ RSpec.describe Relaton::Nist::DataFetcher do
     end
 
     it "#fetch_tech_pubs" do
-      page = double("page", body: xml)
+      page = double("page", body: xml, uri: URI("https://github.com/usnistgov/NIST-Tech-Pubs/releases/download/June2026/allrecords-MODS.xml"))
       agent = double("agent")
       expect(Mechanize).to receive(:new).and_return agent
       expect(agent).to receive(:get).with(subject.source_url).and_return page
