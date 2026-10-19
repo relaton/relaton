@@ -14,9 +14,10 @@ gemspec
 # (pubid#529-#532) and the joint IEEE/CSA draft-date glue (#533/#534).
 # The gemspec floor follows.
 # alpha.32 casts the NIST from_hash number through the number component
-# deterministically (pubid#540) — the order-dependent raw-Hash dump of
+# deterministically (pubid#540), and alpha.34 classifies the OMG glued
+# catalogue beta label into the version (pubid#548). The raw-Hash dump of
 # relaton#272 is gone; the nist suite passes standalone.
-gem "pubid", "2.0.0.pre.alpha.32"
+gem "pubid", "2.0.0.pre.alpha.34"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
