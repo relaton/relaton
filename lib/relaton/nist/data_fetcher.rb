@@ -5,6 +5,7 @@ require "mechanize"
 require "loc_mods"
 require_relative "../nist"
 require_relative "mods_parser"
+require_relative "pubs_export"
 
 module Relaton
   module Nist
@@ -15,6 +16,7 @@ module Relaton
       def fetch(source = nil)
         FileUtils.rm Dir[File.join(@output, "*.#{@ext}")]
         fetch_tech_pubs source
+        fetch_csrc
         # add_static_files
         index.save
         report_errors
@@ -24,6 +26,48 @@ module Relaton
         xml_data = Mechanize.new.get(source_url(source)).body
         docs = LocMods::Collection.from_xml xml_data
         docs.mods.each { |doc| write_file ModsParser.new(doc, series, @errors).parse }
+      end
+
+      # Supplements the MODS collection with the CSRC pubs-export feed
+      # (csrc.nist.gov feeds/metanorma/pubs-export.zip, the same zip
+      # PubsExport caches for the runtime): the MODS carries no draft-stage
+      # records at all, while the CSRC feed lists them (e.g. FIPS 197 as the
+      # 2001 final, upd1, and upd1.ipd). Only draft rows are supplemented —
+      # the finals already come from the MODS pass, and a draft row never
+      # shadows its base document (relaton#313, the root of relaton#146).
+      def fetch_csrc(rows = PubsExport.instance.data)
+        rows.each do |doc|
+          stage = doc["uri"].to_s[%r{/([a-z]+)\)?\z}, 1]
+          next unless stage && stage != "final"
+
+          bib = csrc_bib doc, stage
+          write_file bib if bib
+        end
+      end
+
+      # Builds the draft-stage record from a CSRC feed row. The stage comes
+      # from the uri tail (/pubs/fips/197/ipd → "ipd"): the row's
+      # docidentifier alone ("FIPS 197") is shared by every stage of the
+      # document, and pubid resolves the stage-suffixed form
+      # ("NIST FIPS 197 ipd") into a stage-carrying identifier.
+      def csrc_bib(doc, stage)
+        abbr = doc["series"].to_s.sub(/\Anist-/, "").upcase
+        id_content = "NIST #{abbr} #{doc['docnumber']} #{stage}".squeeze(" ")
+        args = {
+          title: [Bib::Title.new(content: doc["title-main"], type: "title-main",
+                                 language: "en", script: "Latn")],
+          docidentifier: [Docidentifier.new(content: id_content, type: "NIST",
+                                            primary: true)],
+          source: [Bib::Uri.new(content: doc["uri"].to_s, type: "src")],
+          ext: Ext.new(doctype: Doctype.new(content: "standard"), flavor: "nist"),
+        }
+        if (issued = doc["issued-date"])
+          args[:date] = [Date.new(type: "issued", at: issued)]
+        end
+        ItemData.new(**args)
+      rescue StandardError => e
+        failures << "CSRC record skipped: #{e.message} (#{doc['docidentifier']})"
+        nil
       end
 
       # Build the MODS download URL for a NIST-Tech-Pubs release. With no tag
