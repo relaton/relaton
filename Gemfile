@@ -44,6 +44,7 @@ gem "simplecov"
   gem "webmock"
   gem "webrick"
 end
-# leptris 1.9.362.1 rebuilds the 362 line with the namespace-cache fix
+# leptris 1.9.370.1: current line, carries the Ruby 4.0
+# memory-allocation fix (leptris#1755) — battery accompanies this bump.
 # (leptris#1742) — the battery re-run accompanies this bump.
-gem "leptris", "1.9.362.1"
+gem "leptris", "1.9.370.1"
