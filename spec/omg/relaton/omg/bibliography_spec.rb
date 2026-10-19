@@ -158,8 +158,8 @@ RSpec.describe "Relaton::Omg::Bibliography machine index (relaton#206)" do
 end
 
 RSpec.describe "Relaton::Omg::Bibliography beta-version pages" do
-  it "scrapes a glued-beta reference (the part retries into the URL)", vcr: "omg_almas_1_5_beta1" do
+  it "scrapes a glued-beta reference (the label rides the version, pubid#548)", vcr: "omg_almas_1_5_beta1" do
     item = Relaton::Omg::Bibliography.search "OMG ALMAS 1.5 Beta1"
-    expect(item.docidentifier.first.content).to eq "OMG ALMAS 1.5 beta Beta1"
+    expect(item.docidentifier.first.content).to eq "OMG ALMAS 1.5 beta"
   end
 end
