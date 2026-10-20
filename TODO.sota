@@ -26,6 +26,11 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
 - [ ] The hard grammar edges each carry a pinned spec (OMG slashes and glued
       beta labels, ITS hyphens, NIST stage suffixes, the 30 non-trivial OMG
       acronyms).
+      Pinned: OMG slashes/glued beta (pubid#548), NIST stage suffixes, the OMG
+      acronym catalogue. Open: the NIST `nA`/`nB` family (pubid#555) and CRPL
+      `indx` (pubid#557). "ITS hyphens" is not identifiable in the corpora —
+      ITS-90 is a temperature scale, not an identifier series — and needs
+      disambiguation.
 
 ## 2. Ingestion (data repos + flavor DataFetchers)
 
@@ -36,6 +41,11 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       2026-10-20).
 - [ ] Incremental crawls: content-hash diffing replaces full rm -rf
       re-crawls.
+      Mechanism delivered (relaton#328): `force_write` skips byte-identical
+      records, `prune_unwritten` removes stale files behind a 90% guard, and
+      `fetch(prune: true)` keeps the tree. NIST is the pilot
+      (relaton-data-nist#34); the remaining flavors migrate by removing their
+      wipe and passing the flag.
 - [x] Tombstones: withdrawn/delisted documents get markers instead of silent
       deletion.
       Delivered in the shared Crawler workflow (relaton/support#88):
@@ -67,6 +77,10 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       fields (the component-search requirement), pagination, facets.
 - [ ] Stable record URIs; content negotiation: YAML / JSON / CSL-JSON /
       BibTeX / RIS / RDF.
+      YAML/JSON/CSL-JSON/BibTeX/RIS are served by api.relaton.org; RDF is
+      delivered as schema.org JSON-LD in relaton-ts#17. The API export route can
+      expose it once relaton-ts is released to npm — the version is the owner's
+      call.
 - [x] The CF worker/API migration completes this layer.
       Delivered: api.relaton.org is served by Cloudflare Workers (`server:
       cloudflare`), the relaton-api-js ingest workflow is green, and the
@@ -80,12 +94,12 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       edges and the no-relation sources are called out.
 - [ ] Adoption chains resolvable end-to-end (ISO → CEN → national) with
       bidirectional edges.
-- [ ] Family/edition/all-parts views as first-class objects; edge round-trip
+- [x] Family/edition/all-parts views as first-class objects; edge round-trip
       laws (relations survive serialize/deserialize) tested like record
       round-trips.
-      Edge round-trip laws delivered in relaton#324 (every relation type
-      through YAML and XML, bidirectional pairs); the family/edition/all-parts
-      views remain open.
+      Views: `Relaton::Index::Type#family` + `Family#editions`/`#parts`
+      (relaton#330). Edge laws: every relation type through YAML and XML,
+      bidirectional pairs (relaton#324).
 
 ## 5. Render fidelity
 
@@ -94,26 +108,42 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       Delivered in relaton-ts: the renderer emits only CSL-JSON fields and
       types, routes editors/performers to their own fields, maps DOI/ISBN/ISSN,
       and `test/csl_conformance.test.ts` pins the invariants.
-- [ ] Golden render corpora per SDO house style.
+- [x] Golden render corpora per SDO house style.
+      Delivered in relaton-ts: six SDO records (ISO, IEC, IEEE, ITU, NIST,
+      IETF) × ISO 690 / Chicago / APA, with reviewed goldens
+      (relaton-ts#18).
 
 ## 6. Data reproducibility
 
-- [ ] Content-addressed dataset releases: versioned, hashed dataset artifacts
+- [x] Content-addressed dataset releases: versioned, hashed dataset artifacts
       per data repo.
+      Delivered: every changed index zip gets `index-vN.release.json` beside
+      it (sha256/bytes/count/generated/source_revision/run_id) in the same
+      commit (relaton/support#89); the machine-index manifest carries the same
+      address (relaton#321).
 - [x] Consumer-side pinning: a dataset lockfile so compilations reproduce
       years later.
       Delivered: `Relaton::Index::DatasetLock` captures the manifest's
       sha256/bytes and verifies a fetched artifact byte-for-byte; the lock is a
       lutaml-model YAML file.
-- [ ] The machine index publishes per-release manifests alongside the rolling
+- [x] The machine index publishes per-release manifests alongside the rolling
       branch.
+      Delivered: the crawl commit carries `index-vN.release.json` next to the
+      rolling `index-vN.zip`, so the release record and the artifact it
+      describes are immutable together in history (relaton/support#89).
 
 ## 7. Conformance culture
 
 - [ ] Shared Ruby/TypeScript conformance suite: the identifier and retrieval
       contracts both stacks execute (pubid parse/render/hash; index
       read/search).
-- [ ] Grammar-level property fuzzing per flavor.
+      Identifier half delivered: the pubid-testsuite corpus is executed by the
+      Ruby conformance workflow and by pubid-ts's corpus tests (both green).
+      The retrieval half still needs a shared machine-index/API fixture.
+- [x] Grammar-level property fuzzing per flavor.
+      Delivered in the corpus suite (relaton#329): a deterministic sample per
+      flavor, one component omitted at a time, mutation re-parsed and required
+      to render stably; known-failure manifests.
 - [x] Fixture coverage metrics: per-SDO corpus coverage reported in CI.
       The corpus workflow reports each flavor's deserialized-row count
       against its full published index in the job summary.
