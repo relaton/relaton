@@ -45,9 +45,13 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       Delivered: `bin/check-data-pages --freshness` (relaton/support#87) and
       the scheduled data-health workflow, which reports every data repo's
       machine-index age in the job summary and fails past a 48 h SLA.
-- [ ] ITU-R: headless-browser path (the CIE Ferrum machinery is the
+- [x] ITU-R: headless-browser path (the CIE Ferrum machinery is the
       in-repo precedent) or the engagement outcome; the crawler's daily red
       ends.
+      Decision: the server-rendered /pub + /rec crawl is the path; no headless
+      browser is needed. The daily red was the data repo's stale rubyzip pin
+      (relaton-data-itu-r#9). Verification run 39413400304 crawled, committed
+      and pushed 5,427 files (commit 41d264f8) and refreshed index-v2.
 
 ## 3. Discovery (api + store)
 
