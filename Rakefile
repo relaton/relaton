@@ -8,9 +8,16 @@ require_relative "tasks/spec_reporter"
 # single gem (CWD = spec/<flavor> so their relative fixture/cassette/grammar
 # paths resolve). `rake spec` runs them all; `rake spec:iso` runs one. Only dirs
 # that actually hold a *_spec.rb are suites (skips e.g. spec/vcr_cassettes/).
+#
+# spec/corpus is the identifier-model property suite: it downloads every
+# flavor's full published index and takes minutes per flavor, so it is a
+# scheduled conformance job (`rake spec:corpus`), not part of the per-PR matrix.
+CORPUS_SPECS = %w[corpus].freeze
 FLAVOR_SPECS = Dir["spec/*/"]
   .select { |d| !Dir.glob("#{d}**/*_spec.rb").empty? }
-  .map { |d| File.basename(d) }.sort.freeze
+  .map { |d| File.basename(d) }
+  .reject { |name| CORPUS_SPECS.include?(name) }
+  .sort.freeze
 
 # Single-flavor runs stream live output (already scannable when debugging one).
 def run_flavor_spec(name)
@@ -132,6 +139,15 @@ namespace :spec do
     path = "spec/oasis/fixtures/#{Relaton::Oasis::INDEXFILE}.zip"
     count = IndexFixtureOasis.build(path)
     puts "Wrote #{count} rows to #{path}"
+  end
+
+  # The identifier-model conformance job (docs/identifier-model.adoc). Runs
+  # against each flavor's FULL published corpus, which means network access and
+  # minutes of parsing; keep it out of the per-PR matrix. CORPUS=nist,oasis
+  # narrows the run.
+  desc "Run the corpus property suite (full published corpora; network)"
+  task :corpus do
+    abort "spec:corpus failed" unless run_flavor_spec("corpus")
   end
 
   # relaton-cli is the one separate gem (own Gemfile/lock, gem "relaton",
