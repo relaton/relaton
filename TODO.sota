@@ -69,7 +69,10 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
 ## 5. Render fidelity
 
 - [ ] Close the CitationStyle model-vs-code gaps (the known set).
-- [ ] CSL-JSON conformance as a tested contract.
+- [x] CSL-JSON conformance as a tested contract.
+      Delivered in relaton-ts: the renderer emits only CSL-JSON fields and
+      types, routes editors/performers to their own fields, maps DOI/ISBN/ISSN,
+      and `test/csl_conformance.test.ts` pins the invariants.
 - [ ] Golden render corpora per SDO house style.
 
 ## 6. Data reproducibility
