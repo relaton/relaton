@@ -1,0 +1,89 @@
+# Relaton SOTA roadmap
+
+The goal state: **any standards reference, in any dialect, resolves to an
+authoritative, versioned, provenance-carrying record — online or offline, in
+any implementation — and renders faithfully in any house style.**
+
+Seven layers. Each names its owner repo, the work, and the acceptance test.
+
+## 1. Identifier semantics (pubid + flavors)
+
+- [ ] Formal identifier model: components, equivalence, and canonicalization
+      written down as a spec (docs/identifier-model.adoc), one section per SDO
+      family — identifier behavior is currently code with laws, not a
+      specification with proofs.
+- [ ] Property-based tests as enforcement: parse(render(x)) == x,
+      render(parse(x)) == render(x), exclude/parse idempotence, === antisymmetry
+      — executed over every flavor's **full published corpus**, not fixtures.
+- [ ] Cross-SDO equivalence as DATA: joint publications, adoption chains
+      (ISO → EN → BS EN), and variant spellings move from per-flavor logic into
+      equivalence tables the resolver consults.
+- [ ] The hard grammar edges each carry a pinned spec (OMG slashes and glued
+      beta labels, ITS hyphens, NIST stage suffixes, the 30 non-trivial OMG
+      acronyms).
+
+## 2. Ingestion (data repos + flavor DataFetchers)
+
+- [ ] Source-capability matrix per SDO: what each source can
+      enumerate / enrich / fetch, including stage coverage (CSRC carries
+      drafts; the NIST-Tech-Pubs MODS does not — probed 2026-10-19).
+- [ ] Incremental crawls: content-hash diffing replaces full rm -rf
+      re-crawls.
+- [ ] Tombstones: withdrawn/delisted documents get markers instead of silent
+      deletion.
+- [ ] Per-record provenance: source, release tag, crawl timestamp on each
+      record or sidecar.
+- [ ] Source-health dashboard + freshness SLAs — staleness is observed, not
+      discovered (ITU-R sat dead for months before anyone measured it).
+- [ ] ITU-R: headless-browser path (the CIE Ferrum machinery is the
+      in-repo precedent) or the engagement outcome; the crawler's daily red
+      ends.
+
+## 3. Discovery (api + store)
+
+- [ ] Cross-flavor query layer: filter/search by pubid components and relaton
+      fields (the component-search requirement), pagination, facets.
+- [ ] Stable record URIs; content negotiation: YAML / JSON / CSL-JSON /
+      BibTeX / RIS / RDF.
+- [ ] The CF worker/API migration completes this layer.
+
+## 4. Graph integrity
+
+- [ ] Relation-coverage audit per SDO: what sources volunteer vs what exists.
+- [ ] Adoption chains resolvable end-to-end (ISO → CEN → national) with
+      bidirectional edges.
+- [ ] Family/edition/all-parts views as first-class objects; edge round-trip
+      laws (relations survive serialize/deserialize) tested like record
+      round-trips.
+
+## 5. Render fidelity
+
+- [ ] Close the CitationStyle model-vs-code gaps (the known set).
+- [ ] CSL-JSON conformance as a tested contract.
+- [ ] Golden render corpora per SDO house style.
+
+## 6. Data reproducibility
+
+- [ ] Content-addressed dataset releases: versioned, hashed dataset artifacts
+      per data repo.
+- [ ] Consumer-side pinning: a dataset lockfile so compilations reproduce
+      years later.
+- [ ] The machine index publishes per-release manifests alongside the rolling
+      branch.
+
+## 7. Conformance culture
+
+- [ ] Shared Ruby/TypeScript conformance suite: the identifier and retrieval
+      contracts both stacks execute (pubid parse/render/hash; index
+      read/search).
+- [ ] Grammar-level property fuzzing per flavor.
+- [ ] Fixture coverage metrics: per-SDO corpus coverage reported in CI.
+
+## Open workstreams (already in flight)
+
+- [ ] relaton#313/#314: the NIST CSRC supplement is merged — verify the data
+      repo's next crawl brings stage-typed rows (NIST FIPS 197 ipd resolves to
+      its own record); deliver the NIST engagement letter for historical
+      drafts (write-up on relaton#313).
+- [ ] relaton#75: the ITU-R source decision (see layer 2).
+- [ ] isodoc#842 waits on pubid 2.0.0 final.
