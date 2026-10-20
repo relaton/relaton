@@ -204,6 +204,30 @@ flavor's ids are named rather than numbered, `number` has to be given the naming
 component deliberately. When adding a pubid flavor, check that
 `parse(id).root.number` is non-empty for every family.
 
+== Crawl provenance and tombstones
+
+The shared Crawler workflow writes two files in the repository root whenever a
+crawl changes the data. They live outside `data/`, so `relaton index` never
+reads them.
+
+`provenance.json`::
+  One object per crawl: `repository`, `workflow`, `run_id`, `run_attempt`,
+  `source_revision` (the commit the crawl read), `crawler` (the fetch command)
+  and `crawled_at` (UTC, ISO 8601).
+
+`tombstones.yaml`::
+  An array of documents that disappeared from the source, each with `id`,
+  `file` (its last path), `tombstoned_at` and `run_id`. The list is derived
+  from `git diff --diff-filter=D HEAD -- data/`, so it works for every
+  flavor's crawler. An entry is removed when the same path is published again;
+  a document that returns under a new filename keeps its marker (the
+  conservative direction).
+
+Both are committed with the data change. A flavor's *source* URLs are in
+`docs/source-capability-matrix.adoc`; these files answer "which revision
+produced this corpus, when, and by which run" and "when did this document
+disappear" without a per-flavor mechanism.
+
 == Consuming the index
 
 A flavor's `Bibliography`/`HitCollection` fetches the published zip and searches

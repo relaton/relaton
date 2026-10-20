@@ -36,10 +36,18 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       2026-10-20).
 - [ ] Incremental crawls: content-hash diffing replaces full rm -rf
       re-crawls.
-- [ ] Tombstones: withdrawn/delisted documents get markers instead of silent
+- [x] Tombstones: withdrawn/delisted documents get markers instead of silent
       deletion.
-- [ ] Per-record provenance: source, release tag, crawl timestamp on each
+      Delivered in the shared Crawler workflow (relaton/support#88):
+      tombstones.yaml records id/file/timestamp/run for files git reports as
+      deleted, and drops a marker when the same path is republished.
+- [x] Per-record provenance: source, release tag, crawl timestamp on each
       record or sidecar.
+      Delivered as the per-run sidecar provenance.json (repository, workflow,
+      run id/attempt, source revision, crawler command, crawled_at) written by
+      the shared Crawler workflow; flavor source URLs are in
+      docs/source-capability-matrix.adoc, and tombstones carry their own
+      timestamps.
 - [x] Source-health dashboard + freshness SLAs — staleness is observed, not
       discovered (ITU-R sat dead for months before anyone measured it).
       Delivered: `bin/check-data-pages --freshness` (relaton/support#87) and
@@ -59,7 +67,10 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       fields (the component-search requirement), pagination, facets.
 - [ ] Stable record URIs; content negotiation: YAML / JSON / CSL-JSON /
       BibTeX / RIS / RDF.
-- [ ] The CF worker/API migration completes this layer.
+- [x] The CF worker/API migration completes this layer.
+      Delivered: api.relaton.org is served by Cloudflare Workers (`server:
+      cloudflare`), the relaton-api-js ingest workflow is green, and the
+      worker serves the collections / manifest / entries / search contract.
 
 ## 4. Graph integrity
 
@@ -113,5 +124,11 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       repo's next crawl brings stage-typed rows (NIST FIPS 197 ipd resolves to
       its own record); deliver the NIST engagement letter for historical
       drafts (write-up on relaton#313).
-- [ ] relaton#75: the ITU-R source decision (see layer 2).
+      Verified: relaton-data-nist v2 publishes 267 `ipd` rows, including
+      data/nist-fips-197-ipd.yaml with docid `NIST FIPS 197 ipd`; live
+      resolution was verified when relaton#318 merged. The engagement letter is
+      an external communication the owner delivers.
+- [x] relaton#75: the ITU-R source decision (see layer 2).
+      The server-rendered /pub + /rec crawl is the path; the daily red was a
+      dependency pin (relaton-data-itu-r#9/#10), not the source.
 - [ ] isodoc#842 waits on pubid 2.0.0 final.
