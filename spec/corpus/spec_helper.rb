@@ -49,7 +49,9 @@ module Corpus
         end
         raise "corpus fetch failed: HTTP #{res.code}" unless res.code == "200"
 
-        File.binwrite(zip, res.body)
+        tmp = "#{zip}.#{Process.pid}.tmp"
+        File.binwrite(tmp, res.body)
+        File.rename(tmp, zip)
         return
       rescue StandardError
         raise if i == ATTEMPTS - 1
