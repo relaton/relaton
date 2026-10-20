@@ -76,8 +76,11 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
 
 - [ ] Content-addressed dataset releases: versioned, hashed dataset artifacts
       per data repo.
-- [ ] Consumer-side pinning: a dataset lockfile so compilations reproduce
+- [x] Consumer-side pinning: a dataset lockfile so compilations reproduce
       years later.
+      Delivered: `Relaton::Index::DatasetLock` captures the manifest's
+      sha256/bytes and verifies a fetched artifact byte-for-byte; the lock is a
+      lutaml-model YAML file.
 - [ ] The machine index publishes per-release manifests alongside the rolling
       branch.
 
