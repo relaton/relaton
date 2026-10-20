@@ -51,6 +51,13 @@ describe Relaton::Index::DatasetLock do
       .to raise_error(Relaton::Index::Error, /no sha256/)
   end
 
+  it "refuses a manifest that names no index artifact" do
+    manifest.delete("index")
+
+    expect { described_class.from_manifest(pages_url, manifest) }
+      .to raise_error(Relaton::Index::Error, /names no index/)
+  end
+
   it "verifies the pinned bytes" do
     expect(lock.verify(data)).to be true
   end
