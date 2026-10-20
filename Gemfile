@@ -28,8 +28,11 @@ gemspec
 # part with a bare comma year, the glued WD tail, the glued language
 # marker, the two-digit draft ordinal and the revision word after the
 # draft. The rawbib fixtures for the WD tail and the 11073 draft move
-# to the faces this release renders.
-gem "pubid", "2.0.0.pre.alpha.39"
+# to the faces this release renders. alpha.40 resolves the draft-stage
+# ladder on project-draft aliases (pubid#561): a date-only "Draft Std"
+# takes the fabricated D1 stage, and a stage-token draft version
+# ("/DCD1") takes that stage. No rawbib expectation moves.
+gem "pubid", "2.0.0.pre.alpha.40"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
