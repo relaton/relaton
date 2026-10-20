@@ -1,0 +1,219 @@
+= Source capability matrix
+v1.0 (2026-10-20)
+
+What each SDO source can do for Relaton: **enumerate** the corpus, **enrich**
+per-document fields, **fetch** the document, and carry **publication stages**
+(drafts, iterations, withdrawn editions). The matrix drives ingestion
+decisions: a source that cannot enumerate cannot seed a dataset, and a source
+that does not carry stages cannot be the authority for them (NIST's two-source
+split is the worked example).
+
+Method: a static audit of each flavor's `DataFetcher` and its parser, on the
+date above. It records what the code establishes, not what a live probe
+observed; entries marked *unverified* are code-silent. Re-probe before
+trusting a source for a new dataset.
+
+== Summary
+
+[cols="1,3,3,3,1,3",options="header"]
+|===
+| Flavor | Source(s) | Enumerate | Enrich | Fetch | Stage / draft
+
+| 3GPP
+| Bibliography CSV
+| Full CSV, one row per document; `Last-Modified` skips unchanged
+| None (one row holds all fields)
+| No; link recorded
+| No stage; release/version fields only
+
+| BIPM
+| Local `bipm-data-outcomes` YAML trees; SI brochure RXL; Metrologia JATS
+| Local directory/glob walk
+| Deep-merge with existing output (SI brochure)
+| No; source PDF links
+| No
+
+| CalConnect
+| `standards.calconnect.org/cc/index.json` + per-document release zips
+| One JSON array, no pagination; ETag/304
+| One release zip + RXL per document
+| No; RXL record only
+| Release tag qualifiers (`ed1-wd`); no status field
+
+| CIE
+| Techstreet catalogue (paged search)
+| Paged search results (~12 pages at 100/page)
+| One detail page per hit
+| No; source URL only
+| Addendum detected; history relations; no status field
+
+| ECMA
+| ecma-international.org listing pages
+| Crawls listing links; no pagination code
+| One detail page per standard (3 retries)
+| No; PDF links
+| Editions/volumes/mementos; no status
+
+| ETSI
+| `etsi.org/custom/standardssearch/data.php` JSON
+| JSON pages of 50, count-driven; bad pages deferred
+| None needed (row supplies scope/status/links)
+| No; PDF links
+| Yes: `version=1` history, status On Approval / Published / Withdrawn / Historical
+
+| IANA
+| Local `iana-registries` XML
+| All local files, nested registries included
+| None
+| No
+| No
+
+| IEC
+| `api.iec.ch/harmonized/publications` + OAuth token
+| API pages driven by the `Link` header
+| One `AjaxRequestXML` per record for relations
+| No; webstore links
+| Status/edition fields; incremental `lastChangeTimestamp`; no draft handling
+
+| IEEE
+| Local `ieee-rawbib` XML/zip dump (IDAMS)
+| Local glob, duplicate prefilter
+| IDAMS fields in-record; in-memory crossrefs
+| No
+| Draft id forms (`/D08`, `P802...`), amendment/corrigendum relations, `docstatus`
+
+| IETF (RFC + subseries)
+| `rfc-editor.org/rfc-index.xml` + Datatracker groups API
+| Full index XML (subseries 367 entries)
+| WG names via paginated API; subseries inherit newest constituent
+| No; links only
+| RFC current status; obsoletes/updates; no drafts in this path
+
+| IETF (internet drafts)
+| Local `bibxml-ids` files
+| All local files; versioned drafts grouped
+| None network; adjacent versions linked
+| No; BibXML record
+| One record per `-NN` version plus unversioned aggregator
+
+| ISO
+| ISO open-data JSONL (deliverables + technical committees)
+| Full JSONL; `Last-Modified` short-circuit
+| Offline relations from replaces/replacedBy; ICS via external service
+| No; iso.org/OBP links
+| Stage/substage codes from `currentStage`; deleted/withdrawn stubs skipped; draft presence *unverified*
+
+| ITU-T
+| `itu.int/mws/api/recommendations/searchRecs` + detail endpoints
+| One call returns the whole corpus (`main_edition_flag=0`)
+| ~4 requests/record (abstract, ISO co-id, status, contributors, relations)
+| No; PDF/Word links
+| One row per edition incl. Suppl/Amd/Cor/Annex; status Published/Withdrawn
+
+| ITU-R
+| Server-rendered `/pub` and `/rec` pages
+| Three-level crawl (~7k requests, ~2 h full); `top_up` skips held editions
+| Per-edition page adds day-precision date and PDF href
+| No; PDF URI
+| Editions and approval/posted dates; `status` scraped but not modelled; no draft stage
+
+| JCGM
+| Local `jcgm` meeting YAML
+| Local glob (meetings only)
+| None
+| No; PDF link
+| No
+
+| JIS
+| `webdesk.jsa.or.jp` search + listing + detail
+| Paged listing until count reached
+| One detail page per document (5 attempts)
+| No; PDF preview links
+| Status valid/withdrawn; amendments; no drafts
+
+| NIST
+| NIST-Tech-Pubs MODS (GitHub releases) + CSRC `pubs-export.zip`
+| Full MODS collection plus CSRC rows
+| None per-document (MODS carries abstract/relations/contributors)
+| No; DOI/location links
+| MODS has no draft rows; CSRC supplies non-final stages (`ipd`, `upd1`, ...)
+
+| OASIS
+| `oasis-open.org/standards/` + per-document HTML
+| Single standards page (`details` nodes)
+| Optional HTML page for chairs/editors
+| No; document links
+| No status parsed; stage tokens only in slug/identifier
+
+| OGC
+| OGC Naming Authority `docs.json`
+| Whole JSON in one request; ETag/304
+| None (row supplies description/creator/date)
+| No; src/pdf links
+| Draft types (`CAN`, `DP-Draft`, `RFC`) map to stage `draft`
+
+| Plateau
+| `mlit.go.jp/plateau` Next.js JSON
+| One request per source
+| None (JSON supplies description/links)
+| No; pdf/html links
+| Every handbook version as its own edition; no status
+
+| W3C
+| W3C HAL API (`api.w3.org`)
+| Paginated specifications index; aborts on incomplete pagination
+| Version history per spec (tens of thousands of requests per run)
+| No; spec URI
+| Full maturity stages (WD, CRD, CR, PR, PER, REC) and dated versions
+
+| XSF
+| `xmpp.org/extensions/refs/` + per-XEP BibXML
+| All XEP links on one listing page
+| None; BibXML converted directly
+| BibXML record
+| No status; number only
+|===
+
+== Fragility notes
+
+The `core` flavor is the abstract `Core::DataFetcher` base class and has no
+source of its own.
+
+* **CIE** — Cloudflare challenge; stealth headless Chrome (Ferrum), per-worker
+  pacing, 4 retries. The browser path is the in-repo precedent for a
+  JS-rendered source.
+* **ETSI** — PHP `Array` text can replace JSON; deferred page retries; WAF
+  rejects non-browser clients (Mechanize UA required).
+* **IEC** — OAuth credentials (`IEC_HAPI_PROJ_PUBS_KEY`/`SECRET`); a non-200
+  page warns and stops.
+* **ITU** — F5 WAF needs a browser UA; ITU-R `/rec` 503 / `/pub` 302 when
+  paced too fast (0.4 s tripped it, 1 s is safe); shared Pacer + Governor.
+* **NIST** — the GitHub `latest/download` redirect is resolved and logged so a
+  crawl proves which release it read; the CSRC zip is cached up to a day.
+* **OASIS** — Cloudflare; the challenge wait returns after 30 s without
+  raising, so a blocked run can look thin.
+* **Plateau** — the Next.js build id (`1.3.0`) is hardcoded; a rebuild upstream
+  silently returns `{}`.
+* **W3C** — Cloudflare 429/403; pool-wide Governor (60 s growing to 900 s).
+* **3GPP** — HEAD must succeed and the CSV must exceed 20 MB; 5 retries.
+* **CalConnect, ECMA, JIS, XSF, OGC** — completeness is trusted from the
+  listing/JSON; there is no total-count guard.
+
+== Completeness guards
+
+Flavors that can prove they enumerated everything: CIE (next-page link and
+per-page count), ETSI (`total_count`), IEC (`Link` rel=last), W3C (abort on
+incomplete pagination), IETF (index XML). The rest trust the source listing;
+an ingestion health check should compare published row counts against the
+previous run for these.
+
+== Uncertainties
+
+* ISO: whether draft-stage deliverables appear in the JSONL is not evident in
+  the fetcher (stage codes are).
+* 3GPP: whether the CSV carries draft versions is not evident.
+* IEC: the pagination stop condition is code-established but not live-verified.
+* IEEE IDAMS `docstatus` vocabulary and rawbib draft coverage are not
+  enumerated.
+* BIPM, JCGM, IANA, IEEE, IETF-internet-drafts read local checkouts, so their
+  completeness is bounded by the checkout, not by a remote authority.

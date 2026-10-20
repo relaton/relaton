@@ -24,9 +24,11 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
 
 ## 2. Ingestion (data repos + flavor DataFetchers)
 
-- [ ] Source-capability matrix per SDO: what each source can
+- [x] Source-capability matrix per SDO: what each source can
       enumerate / enrich / fetch, including stage coverage (CSRC carries
       drafts; the NIST-Tech-Pubs MODS does not — probed 2026-10-19).
+      Delivered as docs/source-capability-matrix.adoc (static audit,
+      2026-10-20).
 - [ ] Incremental crawls: content-hash diffing replaces full rm -rf
       re-crawls.
 - [ ] Tombstones: withdrawn/delisted documents get markers instead of silent
