@@ -1,0 +1,68 @@
+name: corpus
+
+# The identifier-model conformance suite (docs/identifier-model.adoc): Laws 0,
+# 1, 2 and 4 over each flavor's FULL published corpus, fetched from the
+# relaton-data-* branches. Nightly, not per-PR: each flavor downloads and
+# re-parses an entire corpus, and a corpus row appears here exactly as the
+# consumer's index loader would see it. A new failure is written into
+# spec/corpus/known_failures/ and fails the run, so the job is the place the
+# gap becomes visible.
+#
+# Big corpora are split into deterministic row slices (CORPUS_SLICE=i/n), so a
+# 200k-row corpus is checked by several short jobs instead of one that risks
+# the job timeout. The union of a flavor's slices is the whole corpus.
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - id: matrix
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json
+
+          # Slice counts per flavor. 1 means the whole corpus in one job.
+          # Keep this list in step with FLAVORS in
+          # spec/corpus/identifier_property_spec.rb.
+          slices = {
+              "3gpp": 4, "adobe": 1, "bipm": 1, "calconnect": 1, "ccsds": 1,
+              "cie": 1, "easc": 1, "ecma": 1, "etsi": 4, "gost": 4,
+              "iala": 1, "iana": 1, "iec": 4, "ieee": 2, "ietf": 4,
+              "iho": 1, "iso": 8, "itu": 2, "itu_r": 1, "jcgm": 1,
+              "jis": 2, "nist": 2, "oasis": 1, "ogc": 1, "oiml": 1,
+              "omg": 1, "plateau": 1, "w3c": 2, "xsf": 1,
+          }
+          include = [
+              {"flavor": flavor, "slice": f"{index}/{total}"}
+              for flavor, total in slices.items()
+              for index in range(total)
+          ]
+          print("matrix=" + json.dumps({"include": include}))
+          PY
+
+  corpus:
+    needs: prepare
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+      - name: Corpus properties (${{ matrix.flavor }} ${{ matrix.slice }})
+        env:
+          CORPUS: ${{ matrix.flavor }}
+          CORPUS_SLICE: ${{ matrix.slice }}
+        run: bundle exec rake spec:corpus

@@ -1,0 +1,9 @@
+# NIST identifiers whose printed form re-parses, but to a different structure
+# than the published index row (Law 1b): the "indx" suffix parses as the
+# literal abbreviation where the corpus states the normalized "index"
+# component — pubid#557. Drop entries as the grammar fixes them.
+# Unparseable printed forms are tracked in nist-fidelity.txt (pubid#555).
+NBS CRPL-F-B 1960indx
+NBS CRPL-F-B 1962indx
+NBS CRPL-F-B 1963indx
+NBS CRPL-F-B 1964indx

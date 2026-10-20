@@ -1,0 +1,150 @@
+= The Relaton identifier model
+v1.0 (2026-10-20)
+
+This document specifies Relaton's identifier semantics formally: the component
+model, canonicalization, equivalence, and matching. It is the normative
+reference for pubid grammars and every flavor's consumer logic; code that
+deviates is a bug, and behavior not specified here is not yet a contract.
+
+The acceptance tests for this model are the corpus property suite
+(spec/corpus/): the invariants below run over every flavor's **full published
+corpus**, not fixtures.
+
+== 1. The component model
+
+Every identifier in the standards domain decomposes into named components:
+
+|===
+| Component | Kinds | Notes
+
+| publisher / copublisher | one or many | The SDO(s) that issued the document. Joint identifiers (`ISO/IEC`, `IEEE/ASTM`) hold a publisher list whose **printed order is identity**.
+
+| series / type | one | The SDO's series label (`ISO`, `FIPS`, `TS`, `TR`, `REC`, `P`).
+
+| number / code | one | The document's number within its series. Free-form tokens keep leading zeros (`0001`) and sub-numbers (`0812-1`) **verbatim**; they are never numerically normalized.
+
+| part / subpart | zero or more | Hierarchical subdivision. A nil part and an absent part are different values only where the SDO prints them differently (space vs hyphen is identity in EVS; a name-part is not a numbered part in OMG).
+
+| edition / version / revision | zero or one | The document's own version discriminator. For named-version SDOs (OMG) the version plays the role edition plays elsewhere; for stage-based SDOs the stage does.
+
+| stage / iteration | zero or one | The publication stage (`fpd`, `ipd`, `DIS`, `WD`, `PRD`...). A stage-bearing identifier and its stage-less base name **different records of one family**.
+
+| year / date | zero or one | Publication year or date. Carrier of the "other years" resolution message in the year-strict flavors.
+
+| language / script | zero or one | Where the SDO publishes per-language editions.
+
+| update / corrigendum / amendment | zero or more | In-place updates that are records of their own.
+|===
+
+Two representations exist for every identifier: the **structured form** (the
+component object) and the **printed form** (the citation string). The model's
+laws:
+
+[quote]
+Law 0 (structured fidelity). Every row of a published index deserializes
+through its own pubid class, and the structure round-trips:
+`from_hash(to_hash(x)) == x`. A published row the grammar cannot read is a
+corpus defect, never a silently skipped row.
+
+Law 1 (fidelity). The two representations are the same identifier:
+`render(parse(printed)) == printed` (1a) and `parse(render(x)) == x`
+structurally (1b).
+
+== 2. Canonicalization
+
+A printed form may have several **spellings** (separators, case, publisher
+prefixes, glued labels). Canonicalization maps every spelling to one printed
+form, per SDO rules:
+
+* One separator rendering per component boundary (pubid renders one separator;
+  both spellings of an OMG part name the same document).
+* Publisher tokens print in the corpus order; a bare series+number spelling
+  resolves to the SDO's default publisher.
+* Case normalization applies only where the SDO prints one case (acronyms are
+  verbatim: `EDMC-FIBO/BE`, `smartant`, `VSIPL++` are valid publishers' forms).
+
+[quote]
+Law 2 (canonical idempotence). Canonicalization is a function:
+`canonical(parse(canonical(printed))) == canonical(printed)`. Excluding an
+absent component changes nothing: `x.exclude(*absent(x)) == x`.
+
+== 3. Equivalence classes
+
+Three equivalence relations over identifiers, all declared as **data**, not
+per-flavor code:
+
+=== 3.1 Joint publication
+
+Two identifiers are joint-equivalent when they carry the same document through
+different publisher orderings (`ISO/IEC 14515-1` ~ `IEC/ISO ...` where an SDO
+prints it). Equivalence tables hold the direction each corpus prints; the
+resolver consults the table, and co-publisher fallback (relaton#205) walks it.
+
+=== 3.2 Adoption
+
+An adoption chain links a document to its national/regional adoptions
+(`ISO 1234` -> `EN ISO 1234` -> `BS EN ISO 1234` -> national-language
+editions). Chains are directed edges in the citation graph, resolvable
+end-to-end (`#root` recurses the chain). The adopted identifier's components
+are the **adopting** SDO's series/number with the base's carried through.
+
+=== 3.3 Variant
+
+Variant spellings (separator/case/glue differences, prefixed forms such as
+`IETF RFC 7200` for `RFC 7200`) map to one canonical identifier. Variants are
+declared per family in the tables; unlisted spellings are parse errors.
+
+[quote]
+Law 3 (equivalence is data). Every joint, adoption, or variant relation used
+in resolution appears in an equivalence table under docs/identifier-model/ or
+the flavor's data; a resolution that consults undeclared equivalence is a bug.
+
+== 4. Matching (the reference-vs-record relation)
+
+Resolution matches a **reference** (what a caller wrote) against **records**
+(what the corpus holds). The relation is pubid's SubsetMatch (`===`):
+
+* The reference is the receiver; a component the reference leaves nil or empty
+  matches any record value (wildcard).
+* A component the reference states must match the record's value exactly —
+  **except** where the flavor declares `subset_strict` for that component,
+  when a nil on either side is a mismatch instead of a wildcard (ECMA `part`,
+  3GPP `suffix`, CCSDS `language`...).
+* Classes must be identical: an amendment never matches its base.
+
+[quote]
+Law 4 (matching symmetry modulo omission). Within a corpus bucket (same root
+number), for any pair a, b: if `a === b` and `b === a` then `a` and `b` render
+identically. Asymmetric `===` is legal and meaningful only when one side omits
+components the other states. The corpus suite tests the contrapositive over a
+deterministic sample of same-root pairs: two identifiers that render
+differently never match both ways.
+
+== 5. Per-family conformance
+
+Each SDO family declares, in docs/identifier-model/<family>.adoc (seeded from
+the flavor CLAUDE.mds): its component inventory, subset_strict components,
+canonicalization rules, known grammar edges with pinned specs, and its corpus
+property-suite membership. A family is conformant when the corpus suite runs
+green over its full published corpus.
+
+== 6. The corpus property suite
+
+spec/corpus/ runs Laws 0, 1, 2 and 4 over each flavor's published index:
+
+[quote]
+.Laws under test
+----
+from_hash(to_hash(id)) == id                     # Law 0
+render(parse(printed)) == printed                # Law 1a
+parse(render(id)) == id (structurally)           # Law 1b
+id.exclude(*absent(id)) == id                    # Law 2
+(a === b && b === a) -> renders equal            # Law 4
+----
+
+Failures are filed per family (pubid for grammar, the flavor for consumer
+logic) and the family drops out of "conformant" until fixed. A failure is
+tracked in `spec/corpus/known_failures/<family>-<law>.txt`; the prose entry is
+the tracking record, and an unlisted failure is copied in and fails the run.
+Run it locally with `rake spec:corpus` (`CORPUS=nist,oasis` narrows the set);
+the scheduled `corpus` workflow runs the same task per flavor.
