@@ -8,13 +8,18 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
 
 ## 1. Identifier semantics (pubid + flavors)
 
-- [ ] Formal identifier model: components, equivalence, and canonicalization
+- [x] Formal identifier model: components, equivalence, and canonicalization
       written down as a spec (docs/identifier-model.adoc), one section per SDO
       family — identifier behavior is currently code with laws, not a
       specification with proofs.
-- [ ] Property-based tests as enforcement: parse(render(x)) == x,
+      Delivered: docs/identifier-model.adoc (component model, Laws 0–4,
+      equivalence-as-data requirement, a section per family).
+- [x] Property-based tests as enforcement: parse(render(x)) == x,
       render(parse(x)) == render(x), exclude/parse idempotence, === antisymmetry
       — executed over every flavor's **full published corpus**, not fixtures.
+      Delivered: spec/corpus/ (Laws 0, 1a, 1b, 2, 4 over every flavor with a
+      published index), `rake spec:corpus`, and the nightly corpus workflow
+      with deterministic slices and per-law known-failure manifests.
 - [ ] Cross-SDO equivalence as DATA: joint publications, adoption chains
       (ISO → EN → BS EN), and variant spellings move from per-flavor logic into
       equivalence tables the resolver consults.
@@ -35,8 +40,11 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       deletion.
 - [ ] Per-record provenance: source, release tag, crawl timestamp on each
       record or sidecar.
-- [ ] Source-health dashboard + freshness SLAs — staleness is observed, not
+- [x] Source-health dashboard + freshness SLAs — staleness is observed, not
       discovered (ITU-R sat dead for months before anyone measured it).
+      Delivered: `bin/check-data-pages --freshness` (relaton/support#87) and
+      the scheduled data-health workflow, which reports every data repo's
+      machine-index age in the job summary and fails past a 48 h SLA.
 - [ ] ITU-R: headless-browser path (the CIE Ferrum machinery is the
       in-repo precedent) or the engagement outcome; the crawler's daily red
       ends.
@@ -79,7 +87,9 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       contracts both stacks execute (pubid parse/render/hash; index
       read/search).
 - [ ] Grammar-level property fuzzing per flavor.
-- [ ] Fixture coverage metrics: per-SDO corpus coverage reported in CI.
+- [x] Fixture coverage metrics: per-SDO corpus coverage reported in CI.
+      The corpus workflow reports each flavor's deserialized-row count
+      against its full published index in the job summary.
 
 ## Open workstreams (already in flight)
 
