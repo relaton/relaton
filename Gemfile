@@ -31,8 +31,11 @@ gemspec
 # to the faces this release renders. alpha.40 resolves the draft-stage
 # ladder on project-draft aliases (pubid#561): a date-only "Draft Std"
 # takes the fabricated D1 stage, and a stage-token draft version
-# ("/DCD1") takes that stage. No rawbib expectation moves.
-gem "pubid", "2.0.0.pre.alpha.40"
+# ("/DCD1") takes that stage. No rawbib expectation moves. alpha.41
+# rebuilds the NIST URN payload's part letter, edition additional text
+# and addendum markers (pubid#562) — URN ingestion only; no rawbib
+# expectation moves.
+gem "pubid", "2.0.0.pre.alpha.41"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
