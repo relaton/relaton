@@ -74,11 +74,12 @@ selected.each do |flavor|
   RSpec.describe "identifier corpus: #{flavor}", order: :defined do
     klass = Object.const_get(cfg[:pubid])
 
-    let(:rows) do
-      @rows ||= slice_rows.call(
-        Corpus.fetch_index(flavor, cfg[:branch], cfg[:indexfile], cfg[:repo] || flavor.to_s).compact,
-      )
+    let(:all_rows) do
+      @all_rows ||= Corpus.fetch_index(flavor, cfg[:branch], cfg[:indexfile],
+                                       cfg[:repo] || flavor.to_s).compact
     end
+
+    let(:rows) { @rows ||= slice_rows.call(all_rows) }
 
     # Every row paired with its deserialized identifier (nil when the grammar
     # rejects the row). Law 0 asserts the nil count is a known_failures entry,
@@ -174,7 +175,9 @@ selected.each do |flavor|
     it "reports corpus coverage" do
       covered = decoded.count { |_, id| id }
       scope = SLICE.empty? ? "" : " [#{SLICE}]"
-      line = "CORPUS #{flavor}#{scope}: #{covered}/#{rows.size} published rows deserialize"
+      of_total = SLICE.empty? ? "" : " of #{all_rows.size} in the corpus"
+      line = "CORPUS #{flavor}#{scope}: #{covered}/#{rows.size} published rows " \
+             "deserialize#{of_total}"
       puts line
       summary = ENV["GITHUB_STEP_SUMMARY"]
       File.open(summary, "a") { |file| file.puts line } if summary
