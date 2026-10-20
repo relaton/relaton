@@ -147,6 +147,24 @@ and verifies the artifact later; see `docs/data-repository-format.adoc`.
 
 There is no fallback to the `url:` zip.
 
+=== Family, edition and part views
+
+`Type#family(reference)` returns the rows that share the reference's root
+number — the base document, its editions, its parts, and any supplement
+layer — as a `Relaton::Index::Family`:
+
+[source,ruby]
+----
+family = index.family("ISO 1")
+family.members  # every row in the family
+family.editions # {"2015" => [...], "2020" => [...]}
+family.parts    # {"1" => [...]}
+----
+
+A String reference is parsed by the index's `pubid_class`; a parsed identifier
+is used as given. Narrowing uses the same number bucket as `search`, so a large
+index is not scanned in full.
+
 === Remove all index records
 
 This method removes all records from the index object. The index file is not removed.

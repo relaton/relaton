@@ -131,6 +131,27 @@ module Relaton
       end
 
       #
+      # The reference's family: rows sharing its root number — the base
+      # document, its editions and parts, and any supplement layer (root walks
+      # a wrapper's base chain). Narrowing uses the same number bucket as
+      # #search, so a large index is not scanned in full.
+      #
+      # @param [String, Pubid::Identifier] reference
+      # @return [Relaton::Index::Family]
+      #
+      def family(reference)
+        ref = coerce_reference(reference)
+        root = ref.root
+        members = search_candidates(ref).select do |row|
+          id = row[:id]
+          id.is_a?(::Pubid::Identifier) &&
+            id.root.class == root.class &&
+            id.root.number.to_s == root.number.to_s
+        end
+        Family.new(ref, members)
+      end
+
+      #
       # Save index to storage
       #
       # @return [void]
@@ -221,6 +242,17 @@ module Relaton
 
       def new_source
         ShardSource.new(@dir, @pages_url, @pubid_class) if @pages_url
+      end
+
+      # A String query is parsed by this index's flavor; a parsed identifier is
+      # used as given. A pubid-less index cannot answer a family query.
+      def coerce_reference(reference)
+        return reference unless reference.is_a?(String)
+
+        klass = @file_io.pubid_class
+        raise ArgumentError, "a String reference needs a pubid-backed index" unless klass
+
+        klass.parse(reference)
       end
 
       def search_candidates(id)
