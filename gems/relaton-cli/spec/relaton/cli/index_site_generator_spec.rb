@@ -77,6 +77,15 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     end
   end
 
+  it "content-addresses the published whole-index artifact" do
+    with_pubid_corpus(3, flavor: "iso") do
+      zip = File.join(@out, "index-v2.zip")
+      expect(manifest["sha256"]).to match(/\A\h{64}\z/)
+      expect(manifest["sha256"]).to eq(Digest::SHA256.file(zip).hexdigest)
+      expect(manifest["bytes"]).to eq(File.size(zip))
+    end
+  end
+
   it "does not shard a corpus below MIN_ROWS" do
     with_pubid_corpus(3, flavor: "iso") do
       expect(manifest["shards"]).to eq(0)
