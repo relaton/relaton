@@ -59,12 +59,18 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
 
 ## 4. Graph integrity
 
-- [ ] Relation-coverage audit per SDO: what sources volunteer vs what exists.
+- [x] Relation-coverage audit per SDO: what sources volunteer vs what exists.
+      Delivered as docs/relation-coverage.adoc: 552,484 published records,
+      42% with relations, 39% with status, bimodal per source; the adoption
+      edges and the no-relation sources are called out.
 - [ ] Adoption chains resolvable end-to-end (ISO → CEN → national) with
       bidirectional edges.
 - [ ] Family/edition/all-parts views as first-class objects; edge round-trip
       laws (relations survive serialize/deserialize) tested like record
       round-trips.
+      Edge round-trip laws delivered in relaton#324 (every relation type
+      through YAML and XML, bidirectional pairs); the family/edition/all-parts
+      views remain open.
 
 ## 5. Render fidelity
 

@@ -1,0 +1,84 @@
+= Relation coverage in the published corpora
+v1.0 (2026-10-20)
+
+What the published data actually carries, per SDO: how many records state a
+relation, which relation types dominate, and how many carry a publication
+status. It is the "what exists" half of the ingestion picture; the sources'
+capability to volunteer this data is in `docs/source-capability-matrix.adoc`.
+
+Method: a line scan of every `relaton-data-*` checkout in the workspace on the
+date above, counting top-level `relation:` entries by `type` and
+`status.stage` values. Counts are relation *entries*, not distinct targets. The
+three repos not checked out or empty locally (Adobe, IANA, OMG) are not
+measured; their published indexes exist (31, 3,405 and 256 rows respectively).
+
+== Coverage
+
+[cols="1,1,1,3,1,3",options="header"]
+|===
+| Flavor | Records | With relations | Relation types (top) | With status | Stages (top)
+
+| 3GPP | 92,289 | 28 | adoptedAs 29 | 0 |
+| BIPM | 7,939 | 6,219 | hasManifestation 8,441; partOf 6,238 | 0 |
+| CalConnect | 188 | 7 | updatedBy 34; derivedFrom 1 | 188 |
+| CCSDS | 817 | 673 | updatedBy 362; adoptedAs 310; successorOf 289; hasSuccessor 286 | 817 |
+| CIE | 1,142 | 76 | updates 133 | 0 |
+| EASC | 167 | 0 | | 167 |
+| ECMA | 804 | 569 | updates 2,377 | 0 |
+| ETSI | 28,663 | 0 | | 28,663 | Published 27,928; Historical 439; Withdrawn 264
+| GOST | 42,112 | 0 | | 42,112 |
+| IALA | 863 | 863 | instanceOf 449; hasInstance 449 | 863 |
+| IEC | 32,835 | 0 | | 32,835 |
+| IEEE | 11,787 | 5,261 | updates 6,352; obsoletedBy 1,568; adoptedFrom 115 | 0 |
+| IETF | 177,559 | 141,647 | includes 123,745; updates 81,954; updatedBy 79,800; obsoletedBy 1,543 | 9,828 |
+| IHO | 185 | 0 | | 185 |
+| ISO | 61,635 | 41,505 | obsoletes 32,487; updates 29,575; partOf 19 | 61,616 |
+| ITU | 21,703 | 15,078 | complementOf 371,817; hasEdition 72,848 | 16,278 |
+| ITU-R | 5,421 | 0 | | 0 |
+| JCGM | 16 | 0 | | 0 |
+| JIS | 21,482 | 0 | | 21,482 |
+| NIST | 19,942 | 159 | updates 126; editionOf 34; updatedBy 3 | 0 |
+| OASIS | 605 | 204 | partOf 163; hasPart 163 | 0 |
+| OGC | 1,254 | 0 | | 10 |
+| OIML | 5,646 | 5,633 | hasPart 4,275; includedIn 3,833; instanceOf 865; hasInstance 688 | 1,512 |
+| Plateau | 177 | 0 | | 0 |
+| W3C | 16,734 | 16,734 | hasEdition 15,202; editionOf 15,063; obsoletes 13,366; updatedBy 13,358 | 0 |
+| XSF | 519 | 0 | | 0 |
+|===
+
+Totals: **552,484 records; 234,656 (42%) state at least one relation;
+216,556 (39%) carry a status.**
+
+== What the numbers say
+
+* **Relation coverage is bimodal.** Fifteen flavors volunteer relations at
+  meaningful density; eleven carry none at all. There is very little middle
+  ground, so an adoption-chain or graph feature either has data in a flavor or
+  has nothing to work with — it cannot assume a relation exists because the
+  SDO publishes related documents.
+* **The largest graph is not the largest corpus.** IETF (177,559 records,
+  141,647 with relations) and ISO (61,635 / 41,505) are dense; ITU has the
+  highest entries-per-record (~17 relation entries per record, dominated by
+  `complementOf` and `hasEdition`), while ETSI (28,663), IEC (32,835), GOST
+  (42,112) and JIS (21,482) carry **no relations at all**.
+* **Status and relations are independent.** ETSI, IEC, GOST, JIS and EASC
+  publish status without relations; ITU, NIST, W3C and IEEE publish relations
+  without a top-level status. A consumer that needs both must combine sources.
+* **Adoption edges are scarce.** `adoptedAs` appears only in 3GPP (29) and
+  CCSDS (310); `adoptedFrom` only in IEEE (115). Cross-SDO adoption chains
+  (ISO → EN → BS EN) are not recoverable from the published corpora alone —
+  they need either source enrichment or an equivalence table.
+* **ITU-R volunteers neither.** Its crawler scrapes a status but does not model
+  it, and the server-rendered pages expose no relation links; the 0/0 row is a
+  source-capability fact, not a modeling bug.
+
+== Caveats
+
+* A relation entry is not a verified edge: targets are not resolved, and a
+  dangling or wrong target counts the same as a valid one. Graph integrity
+  (adoption chains, bidirectional edges, family views) is a separate audit.
+* Counts are per published file, not per index row; a consolidated edition and
+  its records can differ, which is why ETSI's file count and index-row count
+  differ.
+* Adobe, IANA and OMG are absent because their local checkouts were empty or
+  missing at audit time.
