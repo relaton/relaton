@@ -58,9 +58,9 @@ Totals: **552,484 records; 234,656 (42%) state at least one relation;
   SDO publishes related documents.
 * **The largest graph is not the largest corpus.** IETF (177,559 records,
   141,647 with relations) and ISO (61,635 / 41,505) are dense; ITU has the
-  highest entries-per-record (~17 relation entries per record, dominated by
-  `complementOf` and `hasEdition`), while ETSI (28,663), IEC (32,835), GOST
-  (42,112) and JIS (21,482) carry **no relations at all**.
+  highest entries-per-record (~20 relation entries per record, 17 of them
+  `complementOf`), while ETSI (28,663), IEC (32,835), GOST (42,112) and JIS
+  (21,482) carry **no relations at all**.
 * **Status and relations are independent.** ETSI, IEC, GOST, JIS and EASC
   publish status without relations; ITU, NIST, W3C and IEEE publish relations
   without a top-level status. A consumer that needs both must combine sources.
