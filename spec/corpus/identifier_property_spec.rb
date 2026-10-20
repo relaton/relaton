@@ -19,6 +19,13 @@ DEFAULT_INDEX = { branch: "v2", indexfile: "index-v2" }.freeze
 MATCH_PAIR_LIMIT = 20_000
 MATCH_BUCKET_SAMPLE = 16
 
+# Fuzzing (stream 7): components whose omission still leaves a valid
+# identifier. Each flavor is fuzzed over a deterministic sample; an exclusion
+# that does not change the printed form is not a mutation and is skipped.
+FUZZ_COMPONENTS = %i[year date edition part stage stage_iteration supplement
+                     version].freeze
+FUZZ_SAMPLE = 120
+
 # A deterministic corpus slice "i/n" (row index i mod n), so a big corpus can
 # be checked across parallel CI jobs without redownloading a different index.
 # The union of the slices is the whole corpus. Empty or "0/1" = everything.
@@ -150,11 +157,11 @@ selected.each do |flavor|
       File.open(lock, File::RDWR | File::CREAT, 0o644) do |lock_file|
         lock_file.flock(File::LOCK_EX)
         known = if File.exist?(file)
-                  File.read(file).lines.map(&:strip).reject(&:empty?).to_set
+                  File.read(file).lines.map(&:chomp).reject { |line| line.strip.empty? }.to_set
                 else
                   Set.new
                 end
-        new_failures = failures.reject { |printed| known.include?(printed) }
+        new_failures = failures.reject { |printed| known.include?(printed) }.uniq
         next if new_failures.empty?
 
         File.write(file, (known + new_failures).uniq.sort.join("\n") + "\n")
@@ -242,6 +249,35 @@ selected.each do |flavor|
         nil
       end
       expect(failures).to be_empty
+    end
+
+    # Grammar fuzzing (stream 7): omit one optional component at a time and
+    # require the resulting identifier to remain grammar-readable and
+    # render-stable. The sample is deterministic (every Nth row), so a failure
+    # is reproducible; an exclusion that leaves the printed form unchanged is
+    # not a mutation and is skipped.
+    it "fuzzes component omissions" do
+      step = [ids.size / FUZZ_SAMPLE, 1].max
+      sample = ids.each_slice(step).map(&:first).first(FUZZ_SAMPLE)
+
+      failures = sample.flat_map do |id|
+        FUZZ_COMPONENTS.filter_map do |component|
+          mutated = begin
+            id.exclude(component)
+          rescue StandardError
+            next nil
+          end
+          printed = mutated.to_s
+          next nil if printed == id.to_s
+
+          begin
+            printed unless klass.parse(printed).to_s == printed
+          rescue StandardError
+            printed
+          end
+        end
+      end
+      enforce(flavor, "fuzz", failures, "fuzz")
     end
   end
 end
