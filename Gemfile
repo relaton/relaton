@@ -23,8 +23,13 @@ gemspec
 # wave: the NIST "Suppl" spelling and the supplement revision fold
 # (pubid#553), the IEEE D= designator re-parses in every rendered form
 # (pubid#556), and the IEEE-led joint dash/underscore stage aliases
-# re-spell as their D= face (pubid#559).
-gem "pubid", "2.0.0.pre.alpha.38"
+# re-spell as their D= face (pubid#559). alpha.39 re-spells the
+# remaining catalogue aliases (pubid#560): the stage-first joint dash
+# part with a bare comma year, the glued WD tail, the glued language
+# marker, the two-digit draft ordinal and the revision word after the
+# draft. The rawbib fixtures for the WD tail and the 11073 draft move
+# to the faces this release renders.
+gem "pubid", "2.0.0.pre.alpha.39"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
