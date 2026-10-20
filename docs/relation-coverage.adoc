@@ -68,9 +68,11 @@ Totals: **552,484 records; 234,656 (42%) state at least one relation;
   CCSDS (310); `adoptedFrom` only in IEEE (115). Cross-SDO adoption chains
   (ISO → EN → BS EN) are not recoverable from the published corpora alone —
   they need either source enrichment or an equivalence table.
-* **ITU-R volunteers neither.** Its crawler scrapes a status but does not model
-  it, and the server-rendered pages expose no relation links; the 0/0 row is a
-  source-capability fact, not a modeling bug.
+* **ITU-R volunteers neither.** Its crawler scrapes a status but deliberately
+  does not model it (the preserved dataset carried none; see the parser spec),
+  and the server-rendered pages expose no relation links. The 0/0 row is a
+  modelling decision on the status side and a source limit on the relation
+  side.
 
 == Caveats
 
