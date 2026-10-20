@@ -105,16 +105,16 @@ module Relaton
         # Fetch dates
         # @param doc [Hash]
         # @param release_date [Date]
-        # @return [Array<Bib::Date>]
+        # @return [Array<Date>]
         def fetch_dates(doc, release_date) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-          dates = [Bib::Date.new(type: "published", at: release_date.to_s)]
+          dates = [Date.new(type: "published", at: release_date.to_s)]
 
           issued = safe_parse_date doc["issued-date"]
           updated = safe_parse_date doc["updated-date"]
-          dates << Bib::Date.new(type: "updated", at: updated.to_s) if updated
+          dates << Date.new(type: "updated", at: updated.to_s) if updated
           obsoleted = safe_parse_date doc["obsoleted-date"]
-          dates << Bib::Date.new(type: "obsoleted", at: obsoleted.to_s) if obsoleted
-          dates << Bib::Date.new(type: "issued", at: issued.to_s) if issued
+          dates << Date.new(type: "obsoleted", at: obsoleted.to_s) if obsoleted
+          dates << Date.new(type: "issued", at: issued.to_s) if issued
           dates
         end
 
