@@ -41,8 +41,10 @@ gemspec
 # drops the last two require_relative calls in library code (pubid#565,
 # autoload only); no rawbib expectation moves. alpha.44 gates every
 # shipped PARG artifact on its freshness envelope (pubid#566, spec only);
-# no rawbib expectation moves.
-gem "pubid", "2.0.0.pre.alpha.44"
+# no rawbib expectation moves. alpha.45 adds the full-corpus throughput
+# benchmark and its release wiring (pubid#567, dev tooling only); no
+# rawbib expectation moves.
+gem "pubid", "2.0.0.pre.alpha.45"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
