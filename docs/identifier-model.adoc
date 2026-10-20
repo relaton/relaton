@@ -148,3 +148,132 @@ tracked in `spec/corpus/known_failures/<family>-<law>.txt`; the prose entry is
 the tracking record, and an unlisted failure is copied in and fails the run.
 Run it locally with `rake spec:corpus` (`CORPUS=nist,oasis` narrows the set);
 the scheduled `corpus` workflow runs the same task per flavor.
+
+== 7. Per-family inventory
+
+Every family shares the base component set:
+
+`number`, `part`, `subpart`, `stage_iteration`, `date`, `edition`, `languages`,
+`publisher`, `copublishers`, `type`, `stage`, `locality`, `typed_stage`.
+
+Each section below adds the family's own components, names its `subset_strict`
+components (a nil there is "this document has none", not a wildcard), and notes
+the grammar edges that have a pinned spec. Families with no published
+`relaton-data-*` index yet (BSI, CEN/CENELEC, EVS, GB, UN, ...) join this
+inventory when a corpus lands; their identifier behavior is still governed by
+sections 1–4.
+
+=== 3GPP
+`Pubid::Tgpp::Identifier` adds `suffix`, `parts`, `release`, `version`;
+`suffix` and `parts` are strict. Hyphenated parts are a pinned edge.
+
+=== Adobe
+`Pubid::Adobe::Identifier` adds no components beyond the base set.
+
+=== BIPM
+Adds `group`, `type_code`, `year`, `language`, `form`, `issue`, `article`,
+`version`, `years`, `variant`, `mep_code`, `report_code`, `guide_kind`,
+`appendix`, `annex`.
+
+=== CalConnect
+Adds `series`, which is strict.
+
+=== CCSDS
+Adds `suffix` and `language`; both are strict.
+
+=== CIE
+Adds `style` (the bundle/consolidated style).
+
+=== EASC
+Adds `series`, `variant`, `year`.
+
+=== ECMA
+Adds `volume`; `part` is strict.
+
+=== ETSI
+Adds `version` and its edition/version list.
+
+=== GOST
+Adds `copublisher`, `subtype`, `year`; `copublisher` is strict.
+
+=== IALA
+Adds `language`.
+
+=== IANA
+Adds `sub_registry` (the nested registry path).
+
+=== IEC
+No components beyond the base set; consolidated identifiers carry the
+supplement layer through the base `stage`/`date` components.
+
+=== IEEE
+Adds the draft/revision machinery: `copublisher`, `year`, `draft_status`,
+`draft`, `revision`, `rev_sep`, `rev_bare`, `month`, `month_glued`, `day`,
+`redline`, `amendments`, `corrigenda`, `revision_of`, `incorporates`,
+`supersedes`, `supplement_to`, `iso_identifier`, `parenthetical_content`,
+`note`, `adoption`, `amendment_to`, `edition_month`, `space_before_draft`,
+`relationships`, `nickname`, `interpretation`, `ashrae_number`, `ashrae_year`,
+`crossref`, `reaffirmed`. The `D=` designator, `Rev<n>`, redline and adoption
+forms each have their own pinned spec.
+
+=== IETF
+No components beyond the base set; drafts are distinguished by
+`stage_iteration`.
+
+=== IHO
+Adds `appendix`, `annex`, `supplement`, `version`. The leading type letter
+(S/P/M/B/C) selects the concrete identifier class; the published index is
+`index-v3` because v2 predates the polymorphic `_type` rows.
+
+=== ISO
+No components beyond the base set. Deleted/substage-98 rows are not published.
+
+=== ITU
+Adds `sector`, `series`, `code`, `language`, `version`, `series_word`,
+`series_dash`, `attachment`, `range_end`, `common_text_twin`; subclasses add
+`base`, `number_glued`, `slash_joined`, `technical`, `material`. Slash-joined
+corrigenda/amendments and common-text twins are pinned edges.
+
+=== JCGM
+No components beyond the base set.
+
+=== JIS
+Adds `series`, `parts`, `year`, `language`, `reaffirmed`, `symbol`.
+
+=== NIST
+Adds the widest set: `series`, `subseries`, `volume`, `version_component`,
+`update_component`, `translation_component`, `issue_number`, `parsed_format`,
+`publisher_was_parsed`, `parts`, `revision_year`, `revision_month`,
+`edition_year`, `version`, `update`, `year`, `month`, `first_number`,
+`second_number`, `update_number`, `update_year`, `addendum`,
+`addendum_number`, `supplement`, `errata`, `index`, `insert`, `section`,
+`appendix`, `translation`, `draft`, `draft_number`, plus the date/range
+helpers. Stage suffixes (`ipd`, `2pd`, ...) resolve to their own records; the
+`nA`/`nB` annex suffixes (pubid#555) and the `indx` normalization (pubid#557)
+are the open edges.
+
+=== OASIS
+Adds `original`, `version`, `label`.
+
+=== OGC
+Adds `year`, `revision`. Draft types (`CAN`, `DP-Draft`, `RFC`) carry stage
+`draft`.
+
+=== OIML
+No base-class components beyond the base set; subclasses add the annex letter
+and supplement language, with `language`, `letter`, `part`, `subpart` and
+`suffix` strict.
+
+=== OMG
+Adds `acronym`, `version`. Slash-bearing part names and the glued beta label
+are pinned edges (pubid#548); the acronym catalogue has a spec of its own.
+
+=== Plateau
+Adds `annex`, which is strict.
+
+=== W3C
+No components beyond the base set; maturity stage lives in `stage`.
+
+=== XSF
+No components beyond the base set.
+
