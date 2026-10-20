@@ -142,6 +142,8 @@ disk: the manifest, the shards and the whole index stay in memory for 24 hours.
 
 The manifest also carries `sha256` and `bytes` for the whole-index zip it
 names, so a dataset can be pinned and the fetched artifact verified.
+`Relaton::Index::DatasetLock.capture(pages_url)` writes that pin as a lockfile
+and verifies the artifact later; see `docs/data-repository-format.adoc`.
 
 There is no fallback to the `url:` zip.
 
