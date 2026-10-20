@@ -94,6 +94,22 @@ module Relaton
         def nistbib_results_filter(result, year, opts)
           missed_years = []
           iteration = parse_iteration(opts[:stage])
+          # A pubid-stage reference ("NIST FIPS 197 ipd") carries its stage
+          # in the identifier, not the parenthetical form parse_iteration
+          # reads. The stage-matched hit is already sorted first
+          # (HitCollection#sort_hits!), so the per-item iteration filter
+          # is not applied to it.
+          unless iteration
+            st = begin
+              ::Pubid::Nist::Identifier.parse(result.reference)&.stage
+            rescue StandardError
+              nil
+            end
+            if st
+              iteration = "#{st.id}#{st.type}"
+              pubid_stage = true
+            end
+          end
 
           # A stageless query means "the published document". Multiple
           # editions can match once stage is excluded (e.g. a final "r2"
@@ -109,7 +125,7 @@ module Relaton
           ordered.each do |h|
             r = h.item
             next if opts[:date] && !match_date?(r, opts[:date])
-            next if iteration && r.status&.iteration != iteration
+            next if iteration && !pubid_stage && r.status&.iteration != iteration
             return { ret: r } unless year
             next unless match_year?(r, year) { |y| missed_years << y }
 

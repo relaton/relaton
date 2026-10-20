@@ -67,6 +67,22 @@ module Relaton
         # both sides of the equality, not only from the hits.
         parts << :stage if refid.stage
         compare_refid = refid.stage ? refid.exclude(:stage) : refid
+        # A stage-typed row exists now (the CSRC supplement): when the
+        # reference names a stage and a hit carries it, the exact-stage
+        # match wins outright — the stage-excluded comparison below stays
+        # as the family fallback for stages the dataset still lacks.
+        if refid.stage
+          exact = @array.select do |item|
+            ::Pubid::Nist::Identifier.parse(item.hit[:code]) == refid
+          rescue StandardError
+            false
+          end
+          unless exact.empty?
+            dup = self.dup
+            dup.array = exact
+            return dup
+          end
+        end
         arr = @array.select do |item|
           pubid = ::Pubid::Nist::Identifier.parse(item.hit[:code])
           pubid.exclude(*parts) == compare_refid
@@ -196,20 +212,43 @@ module Relaton
       # @return [self] sorted hits collection
       #
       def sort_hits!
+        ref_stage = begin
+          st = ::Pubid::Nist::Identifier.parse(@reference)&.stage
+          st && st.id.to_s + st.type.to_s # the feed iteration form ("ipd")
+        rescue StandardError
+          nil
+        end
         @array.sort! do |a, b|
+          # A stage-carrying reference prefers the hit whose stage matches
+          # (the ipd draft sorts before the final it drafts for); a
+          # stage-less reference keeps the stage-less hits first (relaton#146).
+          cmp = hit_stage_rank(a, ref_stage) <=> hit_stage_rank(b, ref_stage)
+          next cmp unless cmp.zero?
+
           base_a, upd_a = base_and_update(a.hit[:code])
           base_b, upd_b = base_and_update(b.hit[:code])
 
-          cmp = base_a <=> base_b
+          cmp = base_a.to_s <=> base_b.to_s
           next cmp unless cmp.zero?
 
           # Same base code: prefer higher /UpdN (latest update wins).
           cmp = upd_b <=> upd_a
           next cmp unless cmp.zero?
 
-          b.hit[:release_date] <=> a.hit[:release_date]
+          cmp = b.hit[:release_date] <=> a.hit[:release_date]
+          next cmp unless cmp
+          cmp
         end
         self
+      end
+
+      # The hit's stage id ("i" of an ipd, "f" of an fpd), or nil for a
+      # stage-less code. A parse failure reads as stage-less.
+      def hit_stage_rank(hit, ref_stage)
+        # The stage the hit carries: the CSRC feed's iteration field ("ipd",
+        # "fpd", "2pd") — the code itself strips stage suffixes.
+        hit_stage = hit.hit[:json].is_a?(Hash) ? hit.hit[:json]["iteration"] : nil
+        hit_stage == ref_stage ? 0 : 1 # rank 0 = the stage the reference names
       end
 
       # Split a code like "NIST FIPS 140-2/Upd2" into ["NIST FIPS 140-2", 2].
