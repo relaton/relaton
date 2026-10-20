@@ -19,8 +19,12 @@ gemspec
 # relaton#272 is gone; the nist suite passes standalone. alpha.35 sheds
 # the dotted draft designator's zero padding (pubid#552, the
 # 2026-10-19 ruling: "D013.0" -> "D13.0") and rides the stage iteration
-# onto the D= face.
-gem "pubid", "2.0.0.pre.alpha.35"
+# onto the D= face. alpha.36-38 close the track-01 reference-lossiness
+# wave: the NIST "Suppl" spelling and the supplement revision fold
+# (pubid#553), the IEEE D= designator re-parses in every rendered form
+# (pubid#556), and the IEEE-led joint dash/underscore stage aliases
+# re-spell as their D= face (pubid#559).
+gem "pubid", "2.0.0.pre.alpha.38"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
