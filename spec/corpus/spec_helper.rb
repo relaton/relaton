@@ -6,6 +6,7 @@ require "relaton"
 require "zip"
 require "net/http"
 require "tmpdir"
+require "fileutils"
 
 # The published index of a flavor, fetched once per run and cached in a
 # tempdir. Rows deserialize through the flavor's own pubid_class — the same
@@ -15,7 +16,7 @@ module Corpus
   # A stable cache, not a per-process tempdir: a broken DNS window must not
   # turn a green run red. CORPUS_REFRESH=1 forces a re-download.
   CACHE = File.join(Dir.tmpdir, "relaton-corpus-cache")
-  Dir.mkdir(CACHE) unless Dir.exist?(CACHE)
+  FileUtils.mkdir_p(CACHE)
 
   OPEN_TIMEOUT = 15
   READ_TIMEOUT = 120
