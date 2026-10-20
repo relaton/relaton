@@ -52,6 +52,10 @@ jobs:
   corpus:
     needs: prepare
     runs-on: ubuntu-latest
+    # A sliced job parses a bounded row count; 90 minutes is ample. A hang
+    # (pathological grammar backtracking) fails the job instead of occupying
+    # a runner for the 6-hour default.
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
@@ -66,3 +70,13 @@ jobs:
           CORPUS: ${{ matrix.flavor }}
           CORPUS_SLICE: ${{ matrix.slice }}
         run: bundle exec rake spec:corpus
+
+      # A scheduled run cannot commit. When a slice discovers a new failure it
+      # records it into the manifest and fails; upload the recorded manifests
+      # so the entries can be reviewed and committed instead of rediscovered.
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: known-failures-${{ strategy.job-index }}
+          path: spec/corpus/known_failures/
+          if-no-files-found: ignore
