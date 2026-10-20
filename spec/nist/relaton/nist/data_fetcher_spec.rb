@@ -29,7 +29,8 @@ RSpec.describe Relaton::Nist::DataFetcher do
     context "#fetch" do
       it "success" do
         expect(subject.index).to receive(:save)
-        expect(subject).to receive(:fetch_tech_pubs)
+        expect(subject).to receive(:fetch_tech_pubs).ordered
+        expect(subject).to receive(:fetch_csrc).ordered
         # expect(subject).to receive(:add_static_files)
         subject.fetch
       end
@@ -110,6 +111,17 @@ RSpec.describe Relaton::Nist::DataFetcher do
         titleless = Relaton::Bib::ItemData.new(docidentifier: [], title: [blank])
         expect { subject.write_file titleless }.not_to raise_error
         expect(subject.failures).to include(/no identifier.*unknown title/)
+      end
+    end
+
+    context "#write_file with a record that fails to serialize" do
+      let(:docid) { Relaton::Nist::Docidentifier.new(type: "NIST", content: "NIST IR 8200") }
+      let(:bib) { Relaton::Bib::ItemData.new(docidentifier: [docid]) }
+
+      it "raises before it indexes the record" do
+        allow(subject).to receive(:serialize).with(bib).and_raise "boom"
+        expect(subject.index).not_to receive(:add_or_update)
+        expect { subject.write_file bib }.to raise_error "boom"
       end
     end
 

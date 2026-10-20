@@ -72,6 +72,12 @@ RSpec.describe Relaton::Nist::HitCollection do
       hc.send(:pubs_export_id, json)
     end
 
+    it "leaves the feed row unchanged (the crawler and the runtime share it)" do
+      json = { "docidentifier" => +"SP 800-999-draft", "uri" => "https://csrc.nist.gov/pubs/sp/800/999/ipd" }
+      expect(call(json)).to eq "NIST SP 800-999 ipd"
+      expect(json["docidentifier"]).to eq "SP 800-999-draft"
+    end
+
     it "final iteration => no stage" do
       expect(call(
         "doi" => "10.6028/NIST.FIPS.140-2",

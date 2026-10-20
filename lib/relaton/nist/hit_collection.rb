@@ -124,6 +124,23 @@ module Relaton
         parts
       end
 
+      #
+      # Build hit data from a CSRC pubs-export row. Shared with
+      # DataFetcher#fetch_csrc, so a crawled row and a runtime hit carry the
+      # same code.
+      #
+      # @param json [Hash] pubs-export row
+      #
+      # @return [Hash] hit data
+      #
+      def hit_data(json) # rubocop:disable Metrics/AbcSize
+        /(?<series>(?<=-)\w+$)/ =~ json["series"]
+        title = [json["title-main"], json["title-sub"]].compact.join " - "
+        release_date = parse_date(json["published-date"], str: false)
+        { code: pubs_export_id(json), series: series.upcase, title: title, url: json["uri"],
+          status: json["status"], release_date: release_date, json: json }
+      end
+
       private
 
       def code_parts(code) # rubocop:disable Metrics/MethodLength
@@ -324,15 +341,9 @@ module Relaton
       #
       # @return [Array<Relaton::Nist::Hit>] hits
       #
-      def from_json # rubocop:disable Metrics/AbcSize
+      def from_json
         Util.info "Fetching from csrc.nist.gov ...", key: @reference
-        select_data.map do |h|
-          /(?<series>(?<=-)\w+$)/ =~ h["series"]
-          title = [h["title-main"], h["title-sub"]].compact.join " - "
-          release_date = parse_date(h["published-date"], str: false)
-          Hit.new({ code: pubs_export_id(h), series: series.upcase, title: title, url: h["uri"],
-                    status: h["status"], release_date: release_date, json: h }, self)
-        end
+        select_data.map { |h| Hit.new(hit_data(h), self) }
       end
 
       def pubs_export_id(json) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/MethodLength
@@ -342,7 +353,8 @@ module Relaton
           json["docidentifier"]
         end => id
 
-        id.sub!(/(?:-draft\d*|\.\wpd)$/, "")
+        # Not sub!: the row belongs to the shared PubsExport data.
+        id = id.sub(/(?:-draft\d*|\.\wpd)$/, "")
         id = id.gsub(".", " ").sub(/-Add(\d*)$/, ' Add.\1') if id.match?(/-Add\d*$/)
         # Normalize to space-separated form so pubid 2.x parses as
         # parsed_format=:short and renders without dots; also force the

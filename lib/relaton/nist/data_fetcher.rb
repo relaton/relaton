@@ -42,38 +42,40 @@ module Relaton
       # 2001 final, upd1, and upd1.ipd). Only draft rows are supplemented —
       # the finals already come from the MODS pass, and a draft row never
       # shadows its base document (relaton#313, the root of relaton#146).
+      #
+      # A row is built exactly as the runtime builds a CSRC hit
+      # (HitCollection#hit_data → Scraper.parse_page), so the crawled record
+      # and the live one share one id: the stage, revision and update all come
+      # from the row's uri and DOI ("NIST FIPS 197/Upd1 ipd",
+      # "NIST SP 800-108r1 ipd", "NIST SP 1800-12 2pd"). A row whose id
+      # carries no stage is a final, and is skipped.
+      #
+      # CSRC lists a republished draft twice, at …/ipd and …/ipd-(1), with one
+      # DOI and so one id: the plain uri goes first, and each id is written once.
       def fetch_csrc(rows = PubsExport.instance.data)
-        rows.each do |doc|
-          stage = doc["uri"].to_s[%r{/([a-z]+)\)?\z}, 1]
-          next unless stage && stage != "final"
-
-          bib = csrc_bib doc, stage
-          write_file bib if bib
+        hits = HitCollection.new ""
+        codes = Set.new
+        plain, republished = rows.partition { |doc| doc["uri"].to_s !~ /-\(\d+\)\z/ }
+        (plain + republished).each do |doc|
+          bib = csrc_bib hits, doc
+          write_file bib if bib && codes.add?(bib.docidentifier.first.content)
         end
       end
 
-      # Builds the draft-stage record from a CSRC feed row. The stage comes
-      # from the uri tail (/pubs/fips/197/ipd → "ipd"): the row's
-      # docidentifier alone ("FIPS 197") is shared by every stage of the
-      # document, and pubid resolves the stage-suffixed form
-      # ("NIST FIPS 197 ipd") into a stage-carrying identifier.
-      def csrc_bib(doc, stage)
-        abbr = doc["series"].to_s.sub(/\Anist-/, "").upcase
-        id_content = "NIST #{abbr} #{doc['docnumber']} #{stage}".squeeze(" ")
-        args = {
-          title: [Bib::Title.new(content: doc["title-main"], type: "title-main",
-                                 language: "en", script: "Latn")],
-          docidentifier: [Docidentifier.new(content: id_content, type: "NIST",
-                                            primary: true)],
-          source: [Bib::Uri.new(content: doc["uri"].to_s, type: "src")],
-          ext: Ext.new(doctype: Doctype.new(content: "standard"), flavor: "nist"),
-        }
-        if (issued = doc["issued-date"])
-          args[:date] = [Date.new(type: "issued", at: issued)]
-        end
-        ItemData.new(**args)
+      # Builds the record of a draft-stage CSRC row, or nil for a final row or
+      # a row that fails to build (recorded in #failures). Write errors are not
+      # rescued here: they stop the crawl, as they do in the MODS pass.
+      def csrc_bib(hits, doc)
+        data = hits.hit_data doc
+        return unless pubid(data[:code])&.stage
+
+        bib = Scraper.parse_page data
+        # The runtime stamps the fetch date; a crawled record must not, or it
+        # changes every day and Core#force_write rewrites it on each crawl.
+        bib.fetched = nil
+        bib
       rescue StandardError => e
-        failures << "CSRC record skipped: #{e.message} (#{doc['docidentifier']})"
+        failures << "CSRC record skipped: #{e.message} (#{doc['docidentifier']}, #{doc['uri']})"
         nil
       end
 
@@ -104,6 +106,9 @@ module Relaton
         elsif file != output_file(docid)
           Util.warn "File #{output_file docid} exists. Docid: #{id.content}. Writing #{file} instead."
         end
+        # Serialize before indexing: a record that fails to serialize must not
+        # leave an index row that names a file never written.
+        content = serialize(bib)
         @files << file
         pid = pubid id.content
         if pid
@@ -111,7 +116,7 @@ module Relaton
         else
           failures << "Unparseable id `#{id.content}` was not indexed (#{file})"
         end
-        force_write file, serialize(bib)
+        force_write file, content
       end
 
       # A human-readable label for a bib with no usable docidentifier, so the
