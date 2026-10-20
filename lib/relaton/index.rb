@@ -18,6 +18,8 @@ require_relative "index/type"
 
 module Relaton
   module Index
+    autoload :DatasetLock, "relaton/index/dataset_lock"
+
     class Error < StandardError; end
 
     class << self

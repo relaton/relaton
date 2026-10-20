@@ -335,6 +335,27 @@ nothing about a crawl may rename a published file.
   (`"#{index}.zip"`), so a consumer can pin a dataset and verify the bytes it
   fetched. The hash covers the artifact, not the shard files.
 
+==== Pinning a dataset
+
+`Relaton::Index::DatasetLock.capture(pages_url)` reads the manifest and records
+its content address. The lock is a small YAML file; checking the bytes later is
+one call:
+
+[source,ruby]
+----
+lock = Relaton::Index::DatasetLock.capture(
+  "https://relaton.github.io/relaton-data-iso/",
+)
+File.write(".relaton-lock.yaml", lock.to_yaml)
+
+# years later, against a fetched artifact:
+lock = Relaton::Index::DatasetLock.from_yaml(File.read(".relaton-lock.yaml"))
+lock.verify(File.binread("index-v2.zip")) # raises on any byte difference
+----
+
+A manifest published before content addressing carries no `sha256`; `capture`
+refuses it rather than write a lock that pins nothing.
+
 ==== Resolving a reference from the shards
 
 ....
