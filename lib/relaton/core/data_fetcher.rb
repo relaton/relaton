@@ -48,7 +48,9 @@ module Relaton
         puts "Started at: #{t1}"
         FileUtils.mkdir_p output
         fetcher = new(output, format)
-        fetcher.prune = prune
+        # Only touched in prune mode: the default path stays exactly what it
+        # was, and existing ::fetch callers (and their specs) see no new call.
+        fetcher.prune = true if prune
         result = fetcher.fetch(source)
         fetcher.prune_unwritten if prune
         t2 = Time.now
