@@ -153,3 +153,11 @@ RSpec.describe "Relaton::Nist::HitCollection stage-carrying references (relaton#
     expect(filtered.map { |h| h.hit[:code] }).to include("NIST FIPS 197")
   end
 end
+
+RSpec.describe "Relaton::Nist stage-carrying resolution (relaton#313/#146)" do
+  it "sorts the stage-matching hit first for a stage-carrying reference" do
+    hc = Relaton::Nist::HitCollection.new "NIST FIPS 197 ipd"
+    hits = hc.search
+    expect(hits.first.hit[:code]).to match(/ipd\z/)
+  end
+end
