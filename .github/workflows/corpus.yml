@@ -15,6 +15,10 @@ on:
   schedule:
     - cron: '0 3 * * *'
   workflow_dispatch:
+    inputs:
+      flavor:
+        description: Run one flavor only (blank = every flavor)
+        required: false
 
 permissions:
   contents: read
@@ -26,9 +30,12 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - id: matrix
+        env:
+          ONLY_FLAVOR: ${{ github.event.inputs.flavor }}
         run: |
           python3 - <<'PY' >> "$GITHUB_OUTPUT"
           import json
+          import os
 
           # Slice counts per flavor. 1 means the whole corpus in one job.
           # Keep this list in step with FLAVORS in
@@ -41,6 +48,9 @@ jobs:
               "jis": 2, "nist": 2, "oasis": 1, "ogc": 1, "oiml": 1,
               "omg": 1, "plateau": 1, "w3c": 2, "xsf": 1,
           }
+          only = (os.environ.get("ONLY_FLAVOR") or "").strip()
+          if only:
+              slices = {only: slices.get(only, 1)}
           include = [
               {"flavor": flavor, "slice": f"{index}/{total}"}
               for flavor, total in slices.items()
