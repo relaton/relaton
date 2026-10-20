@@ -140,6 +140,9 @@ disk: the manifest, the shards and the whole index stay in memory for 24 hours.
 * A missing or unsupported manifest, or a row that the pubid class cannot read,
   raises `Relaton::Index::Error`.
 
+The manifest also carries `sha256` and `bytes` for the whole-index zip it
+names, so a dataset can be pinned and the fetched artifact verified.
+
 There is no fallback to the `url:` zip.
 
 === Remove all index records

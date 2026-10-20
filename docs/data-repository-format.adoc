@@ -320,7 +320,9 @@ nothing about a crawl may rename a published file.
   "shards": 8192,
   "key": "root-number",
   "algorithm": "crc32",
-  "generated": "2026-01-01"
+  "generated": "2026-01-01",
+  "sha256": "9c1f...",
+  "bytes": 4827311
 }
 ----
 
@@ -329,6 +331,9 @@ nothing about a crawl may rename a published file.
 `shards`:: how many buckets, always a power of two. *`0` means the corpus is
   below the sharding threshold* — there are no shard files, only the monolith.
 `key` + `algorithm`:: the lookup rule.
+`sha256` + `bytes`:: content address of the published whole-index zip
+  (`"#{index}.zip"`), so a consumer can pin a dataset and verify the bytes it
+  fetched. The hash covers the artifact, not the shard files.
 
 ==== Resolving a reference from the shards
 

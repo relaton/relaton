@@ -1,6 +1,7 @@
 require "json"
 require "yaml"
 require "zlib"
+require "digest"
 require "pathname"
 require "fileutils"
 require "liquid"
@@ -579,11 +580,21 @@ module Relaton
 
         monolith = File.join(output, machine.monolith_filename)
         machine.write_monolith(monolith)
-        zip_file(monolith)
+        zip_path = zip_file(monolith)
+
+        # Content address of the published whole-index artifact: a consumer
+        # pins `sha256` from this manifest and can verify the zip it fetched.
+        # `bytes` is the same artifact's size (progress and cache accounting).
+        artifact = {
+          "sha256" => Digest::SHA256.file(zip_path).hexdigest,
+          "bytes" => File.size(zip_path),
+        }
 
         write_file(
           File.join(output, "index", "manifest.json"),
-          JSON.pretty_generate(machine.manifest(generated: @generated)),
+          JSON.pretty_generate(
+            machine.manifest(generated: @generated).merge(artifact),
+          ),
         )
         if machine.skipped_count.positive?
           Util.warn "Machine index: skipped #{machine.skipped_count} of " \
@@ -595,13 +606,14 @@ module Relaton
 
       # Zip sibling of a monolith — the form `Relaton::Index url:`
       # fetches today. The zip stores the yaml at its bare basename,
-      # matching the layout data repos publish in git.
+      # matching the layout data repos publish in git. Returns the zip path.
       def zip_file(yaml_path)
         zip_path = yaml_path.sub(/\.yaml\z/, ".zip")
         File.delete(zip_path) if File.exist?(zip_path)
         Zip::File.open(zip_path, create: true) do |archive|
           archive.add(File.basename(yaml_path), yaml_path)
         end
+        zip_path
       end
 
       # Copy the scanned corpus onto the site so clients can fetch
