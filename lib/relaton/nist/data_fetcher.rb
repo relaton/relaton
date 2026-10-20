@@ -14,7 +14,10 @@ module Relaton
       MODS_ASSET = "allrecords-MODS.xml"
 
       def fetch(source = nil)
-        FileUtils.rm Dir[File.join(@output, "*.#{@ext}")]
+        # An incremental run keeps the tree: unchanged records are not
+        # rewritten (Core#force_write) and files this crawl no longer produces
+        # are pruned after it completes (Core::DataFetcher.fetch(prune: true)).
+        FileUtils.rm Dir[File.join(@output, "*.#{@ext}")] unless prune
         fetch_tech_pubs source
         fetch_csrc
         # add_static_files
@@ -108,7 +111,7 @@ module Relaton
         else
           failures << "Unparseable id `#{id.content}` was not indexed (#{file})"
         end
-        File.write file, serialize(bib), encoding: "UTF-8"
+        force_write file, serialize(bib)
       end
 
       # A human-readable label for a bib with no usable docidentifier, so the

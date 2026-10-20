@@ -300,6 +300,28 @@ describe Relaton::Core::DataFetcher do
       expect(file_count).to eq 1
     end
 
+    it "leaves byte-identical content untouched" do
+      # An incremental crawl keeps the data tree; a record that did not change
+      # must not be rewritten (mtime churn, needless I/O).
+      file = subject.write_unique("ISO 123", "same")
+      File.utime(Time.at(1000), Time.at(1000), file)
+
+      described_class.new(@dir, "yaml").write_unique("ISO 123", "same")
+
+      expect(File.mtime(file).to_i).to eq 1000
+      expect(File.read(file)).to eq "same"
+    end
+
+    it "rewrites content that changed" do
+      file = subject.write_unique("ISO 123", "old")
+      File.utime(Time.at(1000), Time.at(1000), file)
+
+      described_class.new(@dir, "yaml").write_unique("ISO 123", "new")
+
+      expect(File.read(file)).to eq "new"
+      expect(File.mtime(file).to_i).to be > 1000
+    end
+
     context "when @cross_process is set (forked workers)" do
       # The IETF drafts crawl sets it before forking. An existing file is then
       # indistinguishable from a peer's, so it must never be clobbered.
@@ -327,6 +349,53 @@ describe Relaton::Core::DataFetcher do
         file = subject.write_unique("ISO 123", "mine")
         expect(described_class.new(@dir, "yaml").send(:digest_output_file, "ISO 123")).to eq file
       end
+    end
+  end
+
+  describe "#prune_unwritten" do
+    # The replacement for a crawler's `rm -rf data` when the tree is kept
+    # between runs. Guarded, because a partial crawl must never wipe the
+    # dataset.
+    around { |example| Dir.mktmpdir { |dir| @dir = dir; example.run } }
+
+    subject { described_class.new(@dir, "yaml") }
+
+    def write_ids(fetcher, count)
+      count.times.map { |i| fetcher.write_unique("ISO #{i}", "content #{i}") }
+    end
+
+    it "deletes files the run did not write" do
+      write_ids(described_class.new(@dir, "yaml"), 10)
+      second = described_class.new(@dir, "yaml")
+      write_ids(second, 9)
+
+      stale = second.prune_unwritten
+
+      expect(stale.size).to eq 1
+      expect(File.exist?(stale.first)).to be false
+      expect(Dir.children(@dir).size).to eq 9
+    end
+
+    it "counts byte-identical rewrites as written" do
+      write_ids(subject, 10)
+      second = described_class.new(@dir, "yaml")
+      write_ids(second, 10)
+
+      expect(second.prune_unwritten).to be_empty
+      expect(Dir.children(@dir).size).to eq 10
+    end
+
+    it "refuses to prune a partial crawl" do
+      write_ids(described_class.new(@dir, "yaml"), 10)
+      second = described_class.new(@dir, "yaml")
+      write_ids(second, 5)
+
+      expect(second.prune_unwritten).to be_empty
+      expect(Dir.children(@dir).size).to eq 10
+    end
+
+    it "does nothing for an empty output directory" do
+      expect(subject.prune_unwritten).to be_empty
     end
   end
 

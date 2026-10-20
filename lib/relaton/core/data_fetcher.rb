@@ -25,19 +25,32 @@ module Relaton
         # Set true by a fetcher that writes from forked worker processes,
         # where @file_docids cannot see a peer's claim. See #write_unique.
         @cross_process = false
+        # True when the caller asked this run to keep the existing output tree
+        # and prune it afterwards (see ::fetch's prune:). A flavor that wipes
+        # its output at the start of #fetch must skip the wipe in this mode.
+        @prune = false
         # @docs = []
         @errors = Hash.new(true)
       end
 
+      # @return [Boolean] whether this run prunes the existing output tree
+      attr_accessor :prune
+
       # API method for external service
       #
+      # @param prune [Boolean] delete output files this run did not write. The
+      #   flavor must write its whole corpus on every run; #prune_unwritten's
+      #   ratio guard stops a partial crawl from wiping the dataset.
       # @return the value returned by the instance `#fetch`, so callers can act
       #   on the outcome (e.g. relaton-iso returns whether it rebuilt).
-      def self.fetch(source = nil, output: "data", format: "yaml")
+      def self.fetch(source = nil, output: "data", format: "yaml", prune: false)
         t1 = Time.now
         puts "Started at: #{t1}"
         FileUtils.mkdir_p output
-        result = new(output, format).fetch(source)
+        fetcher = new(output, format)
+        fetcher.prune = prune
+        result = fetcher.fetch(source)
+        fetcher.prune_unwritten if prune
         t2 = Time.now
         puts "Stopped at: #{t2}"
         puts "Done in: #{(t2 - t1).round} sec."
@@ -187,6 +200,30 @@ module Relaton
         force_write reserve(digest_output_file(docid), docid), content
       end
 
+      # Delete output files this run did not write — the replacement for a
+      # crawler's `rm -rf data` when the data tree is kept between runs. A
+      # partial crawl must never wipe the dataset, so when the run wrote less
+      # than +min_ratio+ of the existing corpus nothing is deleted.
+      #
+      # @param min_ratio [Float]
+      # @return [Array<String>] deleted paths
+      def prune_unwritten(min_ratio: 0.9)
+        existing = Dir.glob(File.join(@output, "**", "*.#{@ext}"))
+        return [] if existing.empty?
+
+        written = existing.count { |file| @written.include?(file) }
+        if written < existing.size * min_ratio
+          warn "prune skipped: #{written}/#{existing.size} written " \
+               "(threshold #{(existing.size * min_ratio).ceil})"
+          return []
+        end
+
+        stale = existing - @written.to_a
+        stale.each { |file| File.delete(file) }
+        warn "pruned #{stale.size} stale file(s)" unless stale.empty?
+        stale
+      end
+
       #
       # Serialize bibliographic item
       #
@@ -213,8 +250,16 @@ module Relaton
       private
 
       # Write, clobbering whatever is there. The caller has already established
-      # that the path is ours to take.
+      # that the path is ours to take. Identical content is left untouched:
+      # an incremental crawl (one that keeps the data tree) must not churn
+      # mtimes or rewrite bytes for a record that did not change. The file is
+      # still recorded as written, so #prune_unwritten keeps it.
       def force_write(file, content)
+        if File.exist?(file) && File.read(file, encoding: "UTF-8") == content
+          @written << file
+          return file
+        end
+
         File.write file, content, encoding: "UTF-8"
         @written << file
         file
