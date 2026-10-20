@@ -39,8 +39,10 @@ gemspec
 # instead of matches?, so they stop raising on NIST's wildcard matches?
 # (pubid#563). API addition only; no rawbib expectation moves. alpha.43
 # drops the last two require_relative calls in library code (pubid#565,
-# autoload only); no rawbib expectation moves.
-gem "pubid", "2.0.0.pre.alpha.43"
+# autoload only); no rawbib expectation moves. alpha.44 gates every
+# shipped PARG artifact on its freshness envelope (pubid#566, spec only);
+# no rawbib expectation moves.
+gem "pubid", "2.0.0.pre.alpha.44"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
