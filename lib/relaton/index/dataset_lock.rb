@@ -52,10 +52,15 @@ module Relaton
                 "republish the index with a generator that emits one"
         end
 
+        index = manifest["index"]
+        unless index.is_a?(String) && !index.empty?
+          raise Error, "manifest for #{pages_url} names no index artifact"
+        end
+
         new(
           version: 1,
           pages_url: pages_url,
-          index: manifest["index"],
+          index: index,
           count: manifest["count"],
           shards: manifest["shards"],
           generated: manifest["generated"],
