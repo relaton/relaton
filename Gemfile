@@ -34,8 +34,11 @@ gemspec
 # ("/DCD1") takes that stage. No rawbib expectation moves. alpha.41
 # rebuilds the NIST URN payload's part letter, edition additional text
 # and addendum markers (pubid#562) — URN ingestion only; no rawbib
-# expectation moves.
-gem "pubid", "2.0.0.pre.alpha.41"
+# expectation moves. alpha.42 adds the missing revision_of? relational
+# predicate and makes dated_version_of?/draft_of? compare exclude lists
+# instead of matches?, so they stop raising on NIST's wildcard matches?
+# (pubid#563). API addition only; no rawbib expectation moves.
+gem "pubid", "2.0.0.pre.alpha.42"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
