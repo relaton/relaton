@@ -43,8 +43,10 @@ gemspec
 # shipped PARG artifact on its freshness envelope (pubid#566, spec only);
 # no rawbib expectation moves. alpha.45 adds the full-corpus throughput
 # benchmark and its release wiring (pubid#567, dev tooling only); no
-# rawbib expectation moves.
-gem "pubid", "2.0.0.pre.alpha.45"
+# rawbib expectation moves. alpha.46 repairs the ISO URN rebuild's
+# supplement-family stages and bare languages (pubid#569) — parse_urn
+# only; no rawbib expectation moves.
+gem "pubid", "2.0.0.pre.alpha.46"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
