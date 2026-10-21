@@ -71,27 +71,28 @@ module Relaton
         # reference names a stage and a hit carries it, the exact-stage
         # match wins outright — the stage-excluded comparison below stays
         # as the family fallback for stages the dataset still lacks.
+        exact = []
         if refid.stage
           exact = @array.select do |item|
             ::Pubid::Nist::Identifier.parse(item.hit[:code]) == refid
           rescue StandardError
             false
           end
-          unless exact.empty?
-            dup = self.dup
-            dup.array = exact
-            return dup
-          end
         end
-        arr = @array.select do |item|
-          pubid = ::Pubid::Nist::Identifier.parse(item.hit[:code])
-          pubid.exclude(*parts) == compare_refid
-        rescue StandardError
-          item.hit[:code] == ref
+        arr = exact
+        if exact.empty?
+          arr = @array.select do |item|
+            pubid = ::Pubid::Nist::Identifier.parse(item.hit[:code])
+            pubid.exclude(*parts) == compare_refid
+          rescue StandardError
+            item.hit[:code] == ref
+          end
         end
       rescue StandardError
         arr = @array.select { |item| item.hit[:code] == ref }
       ensure
+        # The ensure is the one exit, so every branch sets arr: a `return`
+        # before it is overridden here (relaton#314).
         dup = self.dup
         dup.array = arr
         return dup
@@ -122,6 +123,59 @@ module Relaton
           parts += EDITION_FAMILY
         end
         parts
+      end
+
+      # The id of a pubs-export row: from its DOI (or its docidentifier),
+      # with the stage and the update its uri carries. A class method, so the
+      # scraper derives a related row's id the same way.
+      #
+      # @param json [Hash] pubs-export row
+      # @return [String]
+      def self.pubs_export_id(json) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/MethodLength
+        if json && json["doi"]
+          json["doi"].sub(/^10.6028\//, "")
+        else
+          json["docidentifier"]
+        end => id
+
+        # Not sub!: the row belongs to the shared PubsExport data.
+        id = id.sub(/(?:-draft\d*|\.\wpd)$/, "")
+        id = id.gsub(".", " ").sub(/-Add(\d*)$/, ' Add.\1') if id.match?(/-Add\d*$/)
+        # Normalize to space-separated form so pubid 2.x parses as
+        # parsed_format=:short and renders without dots; also force the
+        # "NIST " prefix so publisher_was_parsed is set.
+        parse_input = id.gsub(/\bNIST\./, "NIST ")
+        parse_input = "NIST #{parse_input}" unless parse_input.start_with?("NIST ")
+        pid = ::Pubid::Nist::Identifier.parse(parse_input)
+
+        # Canonicalize edition spelling: DOI-derived codes are already short
+        # ("…r2"), but no-DOI drafts come from the verbose docidentifier
+        # ("… Rev. 2") and pubid preserves that spelling via original_prefix.
+        # Drop it so every code renders the canonical short form.
+        pid.edition.original_prefix = nil if pid.respond_to?(:edition) && pid.edition
+
+        # Stage: URI is authoritative, fall back to iteration. "final" => no stage.
+        uri_stage = json["uri"] && json["uri"][%r{/(final|ipd|fpd|\dpd)(?:-\(\d+\))?(?:/|$)}, 1]
+        stage_src = uri_stage || json["iteration"]
+        case stage_src
+        when nil, "final"
+          # no stage — "final" means published
+        when "fpd"
+          pid.stage = ::Pubid::Nist::Components::Stage.new id: "f", type: "pd"
+        when /\A(\w)pd\z/
+          pid.stage = ::Pubid::Nist::Components::Stage.new id: Regexp.last_match(1), type: "pd"
+        end
+
+        /\/upd(?<upd>\d+)\// =~ json["uri"]
+        # In pubid 2.x render paths the Update is read from
+        # update_component (Components::Update), not the legacy :update
+        # slot — assigning to :update would render as "-upd/Upd2" via the
+        # elsif fallback path in Base#to_short_style.
+        pid.update_component = ::Pubid::Nist::Components::Update.new(number: upd) if upd
+        pid.to_s
+      rescue StandardError
+        id += " #{json["iteration"]}" if json["iteration"] && json["iteration"] != "final"
+        id
       end
 
       #
@@ -346,51 +400,8 @@ module Relaton
         select_data.map { |h| Hit.new(hit_data(h), self) }
       end
 
-      def pubs_export_id(json) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/MethodLength
-        if json && json["doi"]
-          json["doi"].sub(/^10.6028\//, "")
-        else
-          json["docidentifier"]
-        end => id
-
-        # Not sub!: the row belongs to the shared PubsExport data.
-        id = id.sub(/(?:-draft\d*|\.\wpd)$/, "")
-        id = id.gsub(".", " ").sub(/-Add(\d*)$/, ' Add.\1') if id.match?(/-Add\d*$/)
-        # Normalize to space-separated form so pubid 2.x parses as
-        # parsed_format=:short and renders without dots; also force the
-        # "NIST " prefix so publisher_was_parsed is set.
-        parse_input = id.gsub(/\bNIST\./, "NIST ")
-        parse_input = "NIST #{parse_input}" unless parse_input.start_with?("NIST ")
-        pid = ::Pubid::Nist::Identifier.parse(parse_input)
-
-        # Canonicalize edition spelling: DOI-derived codes are already short
-        # ("…r2"), but no-DOI drafts come from the verbose docidentifier
-        # ("… Rev. 2") and pubid preserves that spelling via original_prefix.
-        # Drop it so every code renders the canonical short form.
-        pid.edition.original_prefix = nil if pid.respond_to?(:edition) && pid.edition
-
-        # Stage: URI is authoritative, fall back to iteration. "final" => no stage.
-        uri_stage = json["uri"] && json["uri"][%r{/(final|ipd|fpd|\dpd)(?:-\(\d+\))?(?:/|$)}, 1]
-        stage_src = uri_stage || json["iteration"]
-        case stage_src
-        when nil, "final"
-          # no stage — "final" means published
-        when "fpd"
-          pid.stage = ::Pubid::Nist::Components::Stage.new id: "f", type: "pd"
-        when /\A(\w)pd\z/
-          pid.stage = ::Pubid::Nist::Components::Stage.new id: Regexp.last_match(1), type: "pd"
-        end
-
-        /\/upd(?<upd>\d+)\// =~ json["uri"]
-        # In pubid 2.x render paths the Update is read from
-        # update_component (Components::Update), not the legacy :update
-        # slot — assigning to :update would render as "-upd/Upd2" via the
-        # elsif fallback path in Base#to_short_style.
-        pid.update_component = ::Pubid::Nist::Components::Update.new(number: upd) if upd
-        pid.to_s
-      rescue StandardError
-        id += " #{json["iteration"]}" if json["iteration"] && json["iteration"] != "final"
-        id
+      def pubs_export_id(json)
+        self.class.pubs_export_id json
       end
 
       #

@@ -168,7 +168,7 @@ describe Relaton::Nist::Docidentifier do
       item = Relaton::Nist::Bibitem.from_xml xml
       rel_docid = item.relation.first.bibitem.docidentifier.first
       expect(rel_docid).to be_a(described_class)
-      expect(rel_docid.content).to eq "NIST SP 800-80 ipd"
+      expect(rel_docid.content).to eq "NIST SP 800-55r1"
       expect(rel_docid.pubid).to be_a(::Pubid::Nist::Identifier)
     end
   end

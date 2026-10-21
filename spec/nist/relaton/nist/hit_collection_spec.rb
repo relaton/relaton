@@ -167,3 +167,19 @@ RSpec.describe "Relaton::Nist stage-carrying resolution (relaton#313/#146)" do
     expect(hits.first.hit[:code]).to match(/ipd\z/)
   end
 end
+
+RSpec.describe "Relaton::Nist exact stage match (relaton#314)" do
+  # The exact-stage branch of search_filter returned early, and the method's
+  # ensure then replaced the result with the unset fallback (array = nil), so
+  # every reference that named its own stage-typed row crashed.
+  it "keeps the exact stage-typed hit for a reference that names it" do
+    hits = Relaton::Nist::HitCollection.search("NIST FIPS 197/Upd1 ipd")
+    codes = hits.search_filter.array.map { |h| h.hit[:code] }
+    expect(codes).to eq ["NIST FIPS 197/Upd1 ipd"]
+  end
+
+  it "resolves the reference through Bibliography.get" do
+    item = Relaton::Nist::Bibliography.get "NIST FIPS 197/Upd1 ipd"
+    expect(item.docidentifier.first.content).to eq "NIST FIPS 197/Upd1 ipd"
+  end
+end
