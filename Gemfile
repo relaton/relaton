@@ -45,8 +45,10 @@ gemspec
 # benchmark and its release wiring (pubid#567, dev tooling only); no
 # rawbib expectation moves. alpha.46 repairs the ISO URN rebuild's
 # supplement-family stages and bare languages (pubid#569) — parse_urn
+# only; no rawbib expectation moves. alpha.47 makes the ISO
+# harmonized-code stage lookup deterministic (pubid#570) — parse_urn
 # only; no rawbib expectation moves.
-gem "pubid", "2.0.0.pre.alpha.46"
+gem "pubid", "2.0.0.pre.alpha.47"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
