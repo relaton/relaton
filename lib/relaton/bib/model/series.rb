@@ -3,7 +3,7 @@ require_relative "type/string_date"
 module Relaton
   module Bib
     class Series < Lutaml::Model::Serializable
-      attribute :type, :string, values: %w[main alt]
+      attribute :type, :string, values: %w[main alt stream]
       attribute :formattedref, Formattedref
       attribute :title, Title, collection: (1..)
       attribute :place, Place
