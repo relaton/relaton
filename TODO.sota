@@ -43,9 +43,14 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       re-crawls.
       Mechanism delivered (relaton#328): `force_write` skips byte-identical
       records, `prune_unwritten` removes stale files behind a 90% guard, and
-      `fetch(prune: true)` keeps the tree. NIST is the pilot
-      (relaton-data-nist#34); the remaining flavors migrate by removing their
-      wipe and passing the flag.
+      `fetch(prune: true)` keeps the tree. Migrated: nist (the pilot,
+      relaton-data-nist#34), itu, itu-r, cie, ecma,
+      etsi, jis, oasis, ogc, xsf, jcgm (index-zip clearing restored for the
+      shared zip step), ccsds (opts threading) and plateau (two sources
+      share one fetcher, pruned once at the end) — verified live by the
+      ecma/xsf/jcgm canary crawls. Remaining: bipm and w3c (their standalone
+      gems don't inherit the monorepo fetcher yet), iho (legacy-process
+      split) and iec (mode-based partial wipes).
 - [x] Tombstones: withdrawn/delisted documents get markers instead of silent
       deletion.
       Delivered in the shared Crawler workflow (relaton/support#88):
@@ -73,14 +78,31 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
 
 ## 3. Discovery (api + store)
 
-- [ ] Cross-flavor query layer: filter/search by pubid components and relaton
+- [ ] Ingest reconcile/prune: the flavors doc_count counts stale rows left by
+      earlier ingest generations (ietf holds ~322k rows against a ~180k
+      corpus — churned internet-drafts), and those ghost rows still serve
+      searches. Shards cannot prune mid-wave, so reconciliation needs a
+      post-wave pass (delete rows whose file_path was not touched by the
+      current generation) keyed off a generation marker per flavor.
+
+- [x] Cross-flavor query layer: filter/search by pubid components and relaton
       fields (the component-search requirement), pagination, facets.
-- [ ] Stable record URIs; content negotiation: YAML / JSON / CSL-JSON /
+      Delivered: the D1 documents table carries parsed pubid components
+      (publisher/number/part/edition, indexed; migration 0005), the search
+      engine filters on them case-insensitively alongside the relaton fields,
+      with pagination and facets (relaton-api-js#68, deployed). The columns
+      were silently NULL fleet-wide until relaton-api-js#78 — the published
+      pubid 1.15 line cannot parse NIST/IEEE/ITU identifiers and answers no
+      to_hash — so the fleet was re-ingested from the pubid 2.0 line to
+      populate them.
+- [x] Stable record URIs; content negotiation: YAML / JSON / CSL-JSON /
       BibTeX / RIS / RDF.
-      YAML/JSON/CSL-JSON/BibTeX/RIS are served by api.relaton.org; RDF is
-      delivered as schema.org JSON-LD in relaton-ts#17. The API export route can
-      expose it once relaton-ts is released to npm — the version is the owner's
-      call.
+      Delivered: `/collections/{c}/entries/{key}` is the stable record URI and
+      `export.{bib,ris,csl.json,jsonld}` the negotiation surface
+      (relaton-api-js#71/#72); RDF is schema.org JSON-LD from relaton-ts#17,
+      live since relaton-ts 0.1.5 regenerated the schema with the IETF
+      `stream` series type (relaton#342) that previously failed 9,828 IETF
+      exports.
 - [x] The CF worker/API migration completes this layer.
       Delivered: api.relaton.org is served by Cloudflare Workers (`server:
       cloudflare`), the relaton-api-js ingest workflow is green, and the
