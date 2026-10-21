@@ -20,6 +20,11 @@ require_relative "iec/model/bibdata"
 
 module Relaton
   module Iec
+    autoload :DataFetcher, "relaton/iec/data_fetcher"
+    autoload :DataParser, "relaton/iec/data_parser"
+    autoload :ProjectFetcher, "relaton/iec/project_fetcher"
+    autoload :ProjectParser, "relaton/iec/project_parser"
+
     INDEXFILE = "index-v2".freeze
     # The machine index on the data repo's Pages site (relaton#206) —
     # manifest + per-shard rows read by HitCollection's index; the zip stays
