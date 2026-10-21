@@ -35,7 +35,22 @@ module Relaton
       def last_change
         return @last_change if defined? @last_change
 
-        @last_change = File.read(LAST_CHANGE_FILE, encoding: "UTF-8") if File.exist? LAST_CHANGE_FILE
+        @last_change = File.read(last_change_file, encoding: "UTF-8") if File.exist? last_change_file
+      end
+
+      # Overridable source knobs: the projects API shares the OAuth app,
+      # pagination and change cursor with publications but has its own
+      # endpoint, list key and cursor file.
+      def entrypoint
+        ENTRYPOINT
+      end
+
+      def last_change_file
+        LAST_CHANGE_FILE
+      end
+
+      def list_key
+        "publication"
       end
 
       def last_change_max
@@ -49,7 +64,7 @@ module Relaton
       def save_last_change
         return if last_change_max.empty?
 
-        File.write LAST_CHANGE_FILE, last_change_max, encoding: "UTF-8"
+        File.write last_change_file, last_change_max, encoding: "UTF-8"
       end
 
       def index
@@ -120,7 +135,7 @@ module Relaton
             break
           end
           json = JSON.parse res.body
-          json["publication"].each { |pub| fetch_pub pub }
+          json[list_key].each { |pub| fetch_pub pub }
           page += 1
           next_page = res["link"]&.include? "rel=\"last\""
         end
@@ -150,7 +165,7 @@ module Relaton
       # @return [Net::HTTP::Response] response
       #
       def fetch_page(page)
-        url = "#{ENTRYPOINT}#{page}"
+        url = "#{entrypoint}#{page}"
         if !@all && last_change
           url += "&lastChangeTimestampFrom=#{last_change}"
         end
