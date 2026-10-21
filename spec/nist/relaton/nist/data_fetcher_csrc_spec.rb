@@ -98,4 +98,26 @@ RSpec.describe "Relaton::Nist::DataFetcher#fetch_csrc (relaton#313)" do
     expect(files.size).to eq 1
     expect(fetcher.failures).to include(/CSRC record skipped.*FIPS 1, /)
   end
+
+  it "names the related document in a relation, not the record itself" do
+    ipd = fips197.find { |h| h["uri"].end_with?("/ipd") }
+    ipd["superseded-by"] = [{ "uri" => "https://csrc.nist.gov/pubs/fips/197/final",
+                              "docidentifier" => "FIPS 197" }]
+    fetcher.fetch_csrc [ipd]
+    rel = Relaton::Nist::Item.from_yaml(File.read(File.join(output, files.first), encoding: "UTF-8"))
+      .relation.first
+    expect(rel.type).to eq "updates"
+    # The /fips/197/final row is the 2023 update (DOI NIST.FIPS.197-upd1).
+    expect(rel.bibitem.docidentifier.map(&:content)).to eq ["NIST FIPS 197/Upd1"]
+  end
+
+  it "derives a related id from the entry when the feed lacks the related row" do
+    ipd = fips197.find { |h| h["uri"].end_with?("/ipd") }
+    ipd["supersedes"] = [{ "uri" => "https://csrc.nist.gov/pubs/sp/800/999/ipd",
+                           "docidentifier" => "SP 800-999" }]
+    fetcher.fetch_csrc [ipd]
+    rel = Relaton::Nist::Item.from_yaml(File.read(File.join(output, files.first), encoding: "UTF-8"))
+      .relation.first
+    expect(rel.bibitem.docidentifier.map(&:content)).to eq ["NIST SP 800-999 ipd"]
+  end
 end

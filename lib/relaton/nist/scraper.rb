@@ -247,12 +247,26 @@ module Relaton
         def fetch_relations_json(hit) # rubocop:disable Metrics/AbcSize
           doc = hit[:json]
           relations = doc["supersedes"].map do |r|
-            doc_relation "supersedes", hit[:code], r["uri"]
+            doc_relation "supersedes", related_id(r, hit), r["uri"]
           end
 
           relations + doc["superseded-by"].map do |r|
-            doc_relation "updates", hit[:code], r["uri"]
+            doc_relation "updates", related_id(r, hit), r["uri"]
           end
+        end
+
+        # The related document's own id. The hit's code is the record's own
+        # id, and a relation that names it points the record at itself. The
+        # entry's docidentifier drops the update and the part ("SP 800-162"
+        # for each of 800-162, /Upd1 and /Upd2), so derive the id the way the
+        # record's own is derived: from the related feed row (its DOI), or
+        # from the entry's uri when the feed lacks that row.
+        def related_id(rel, hit)
+          row = PubsExport.instance.data.find { |d| d["uri"] == rel["uri"] }
+          return HitCollection.pubs_export_id(row) if row
+          return hit[:code] if rel["docidentifier"].to_s.strip.empty?
+
+          HitCollection.pubs_export_id(rel)
         end
 
         # @param type [String]
