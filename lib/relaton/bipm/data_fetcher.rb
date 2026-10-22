@@ -63,13 +63,14 @@ module Relaton::Bipm
     # @param [Boolean, nil] warn_duplicate Warn if document already exists
     #
     def write_file(path, item, warn_duplicate: true)
-      content = serialize item
       if @files.include?(path)
         Util.warn "File #{path} already exists" if warn_duplicate
       else
         @files << path
       end
-      File.write path, content, encoding: "UTF-8"
+      # Byte-identical writes are skipped and the run records the file, so
+      # the core prune lifecycle can keep the tree between crawls.
+      force_write path, serialize(item)
     end
 
     def to_xml(item) = item.to_xml bibdata: true

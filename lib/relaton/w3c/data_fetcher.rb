@@ -327,7 +327,7 @@ module Relaton
             index_primary bib.docidentifier&.detect(&:primary), file
             @files << file
           end
-          File.write file, serialize(bib), encoding: "UTF-8"
+          force_write file, serialize(bib)
         end
       end
 
