@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   # sit in lib/relaton/<flavor>/ as dev docs and are excluded from the gem (the
   # root README.adoc still ships, added explicitly below).
   lib_docs = %w[CLAUDE.md README.adoc]
-  spec.files = Dir.glob("lib/**/*")
+  spec.files = Dir.glob("lib/**/*") + Dir.glob("data/**/*.yaml")
                   .select { |f| File.file?(f) && !lib_docs.include?(File.basename(f)) } +
                Dir.glob("bin/**/*").select { |f| File.file?(f) } +
                %w[LICENSE README.adoc].select { |f| File.file?(f) }

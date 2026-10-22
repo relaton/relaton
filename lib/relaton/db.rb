@@ -153,7 +153,25 @@ module Relaton
       return check_bibliocache(code, year, opts, std) if std
 
       std, pubid = @registry.route(code)
-      fetch_routed(code, year, opts, std, pubid)
+      fetch_routed(code, year, opts, std, pubid) ||
+        fetch_equivalent(code, year, opts)
+    end
+
+    # Cross-SDO equivalence as data: on a total miss, walk the equivalence
+    # tables from relaton/equivalence.rb — a national adoption falls back to
+    # the EN, the EN to the ISO. Each candidate goes through the full routed
+    # fetch (cache, co-publishers); an unrouteable candidate is skipped.
+    #
+    # @return [Relaton::Bib::ItemData, nil]
+    def fetch_equivalent(code, year, opts)
+      Equivalence.equivalents_for(code).each do |candidate|
+        Util.info "Not found; trying equivalent `#{candidate}`", key: code
+        std, pubid = @registry.route(candidate)
+        bib = fetch_routed(candidate, year, opts, std, pubid) and return bib
+      rescue UnknownReferenceError
+        next
+      end
+      nil
     end
 
     # The document identifier class corresponding to the given code

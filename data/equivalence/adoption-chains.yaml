@@ -1,0 +1,38 @@
+# Cross-SDO equivalence as data: adoption-chain patterns and explicit
+# equivalences the resolver consults on a miss (TODO.sota layer 4).
+#
+# chain patterns: ordered most-specific-first rewrites. A code matching the
+# first group resolves to each rewrite in turn (the canonical form last).
+# The CEN/BSI/DIN/NF adoption ladder: a national adoption cites the EN, the
+# EN cites the ISO — so a miss on "BS EN ISO 1388" falls back through
+# "EN ISO 1388" to "ISO 1388".
+chains:
+- match: '^(?:BS |DIN |NF )?EN (ISO[ /].+)$'
+  resolve:
+  - 'EN \1'
+  - '\1'
+- match: '^(?:BS |DIN |NF )(ISO[ /].+)$'
+  resolve:
+  - '\1'
+- match: '^BS EN (.+)$'
+  resolve:
+  - 'EN \1'
+  - '\1'
+- match: '^DIN EN (.+)$'
+  resolve:
+  - 'EN \1'
+  - '\1'
+- match: '^NF EN (.+)$'
+  resolve:
+  - 'EN \1'
+  - '\1'
+
+# Explicit equivalences: every form in `equivalents` resolves to
+# `canonical` (and the canonical resolves to itself). Used where no pattern
+# expresses the relationship (joint publications, historical adoptions).
+equivalences:
+- canonical: ISO/IEC 17025
+  equivalents:
+  - EN ISO/IEC 17025
+  - BS EN ISO/IEC 17025
+  - DIN EN ISO/IEC 17025
