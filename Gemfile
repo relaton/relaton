@@ -47,8 +47,13 @@ gemspec
 # supplement-family stages and bare languages (pubid#569) — parse_urn
 # only; no rawbib expectation moves. alpha.47 makes the ISO
 # harmonized-code stage lookup deterministic (pubid#570) — parse_urn
-# only; no rawbib expectation moves.
-gem "pubid", "2.0.0.pre.alpha.47"
+# only; no rawbib expectation moves. alpha.48 is input-side only: the
+# IEC stage-alias registrations (ADIS/AWI/DIS/CDISH/CDPAS) with the
+# stage-code SSOT extract (pubid#571) and the JCGM dotted supplement
+# tolerance (pubid#574, "Amd.1:2026" in, "Amd 1" rendered unchanged) —
+# locate_stage lookups and an alternate input form; no rawbib
+# expectation moves.
+gem "pubid", "2.0.0.pre.alpha.48"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
