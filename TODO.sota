@@ -39,8 +39,8 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       drafts; the NIST-Tech-Pubs MODS does not — probed 2026-10-19).
       Delivered as docs/source-capability-matrix.adoc (static audit,
       2026-10-20).
-- [ ] Incremental crawls: content-hash diffing replaces full rm -rf
-      re-crawls.
+- [x] Incremental crawls: the whole fleet keeps its data tree between
+      runs.
       Mechanism delivered (relaton#328): `force_write` skips byte-identical
       records, `prune_unwritten` removes stale files behind a 90% guard, and
       `fetch(prune: true)` keeps the tree. Migrated: nist (the pilot,
@@ -48,9 +48,14 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       etsi, jis, oasis, ogc, xsf, jcgm (index-zip clearing restored for the
       shared zip step), ccsds (opts threading) and plateau (two sources
       share one fetcher, pruned once at the end) — verified live by the
-      ecma/xsf/jcgm canary crawls. Remaining: bipm and w3c (their standalone
-      gems don't inherit the monorepo fetcher yet), iho (legacy-process
-      split) and iec (mode-based partial wipes).
+      ecma/xsf/jcgm canary crawls. Also migrated: w3c and bipm (relaton#353;
+      the bipm multi-source crawl uses the plateau instance pattern,
+      relaton-data-bipm#40) and iec — publications and projects
+      (relaton#356). iho needs no migration: its crawler is index-only
+      (documents arrive by PR; there is no fetch to wipe). Ghost-row
+      reconciliation on the API side: relaton-api-js#81, piloted on ietf
+      (-145,705 rows) and 3gpp (-101,516 rows), automated on the weekly
+      sweep. Content-hash diffing remains the future refinement direction.
 - [x] Tombstones: withdrawn/delisted documents get markers instead of silent
       deletion.
       Delivered in the shared Crawler workflow (relaton/support#88):
