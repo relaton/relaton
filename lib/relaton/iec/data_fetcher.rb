@@ -19,9 +19,10 @@ module Relaton
       def fetch(source = "iec-harmonised-latest") # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         @all = source == "iec-harmonised-all"
 
-        if @all
-          FileUtils.rm_rf @output
-        end
+        # A prune run keeps the tree and lets prune_unwritten remove stale
+        # files behind the 90% guard; the wipe is only the no-prune legacy
+        # path (a partial prune run must never wipe the dataset).
+        FileUtils.rm_rf @output if @all && !@prune
         FileUtils.mkdir_p @output
         rebuild_index
         fetch_all
@@ -217,7 +218,7 @@ module Relaton
         end
         ts = pub["lastChangeTimestamp"]
         @last_change_max = ts if ts && last_change_max < ts
-        File.write file, serialize(bib), encoding: "UTF-8"
+        force_write file, serialize(bib)
       end
 
       def parse_pubid(content)

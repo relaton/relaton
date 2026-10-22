@@ -12,7 +12,8 @@ module Relaton
 
       def fetch(source = "iec-projects-latest")
         @all = source.end_with?("-all")
-        FileUtils.rm_rf @output if @all
+        # The wipe is the no-prune legacy path (see DataFetcher#fetch).
+        FileUtils.rm_rf @output if @all && !@prune
         FileUtils.mkdir_p @output
         fetch_all
         save_last_change
