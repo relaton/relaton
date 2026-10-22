@@ -1,0 +1,46 @@
+# Each case: a query reference (parsed by the executing stack) and the index
+# files expected to match (sorted). Match semantics are Pubid::Identifier#===
+# as of pubid 2.0.0.pre.alpha.48; a case whose expectation pins a debatable
+# behavior carries a `pinned:` note and points at the tracking issue.
+cases:
+- name: dated query hits its edition only (amendments are separate documents)
+  query: "ISO 9001:2015"
+  expect:
+  - data/iso-9001-2015.yaml
+- name: undated query spans the editions, not the amendment layer
+  query: "ISO 9001"
+  expect:
+  - data/iso-9001-2015.yaml
+  - data/iso-9001-2026.yaml
+  - data/iso-9001-1-2025.yaml
+- name: part disambiguates within the family
+  query: "ISO 9001-1"
+  expect:
+  - data/iso-9001-1-2025.yaml
+- name: cross-publisher number collision stays disjoint
+  query: "IEC 1111:2021"
+  expect:
+  - data/iec-1111-2021.yaml
+- name: undated query does not reach the supplement wrapper
+  query: "IEC CA 01"
+  expect:
+  - data/iec-ca-01-2016.yaml
+  - data/iec-ca-01-2017.yaml
+- name: delivery-qualified query matches the wrapper exactly
+  query: "IEC CA 01:2020 CSV"
+  expect:
+  - data/iec-ca-01-2020-csv.yaml
+- name: base query misses the wrapper of the same edition
+  pinned: wrappers are reachable only by delivery-qualified query or the
+    family() view — a base query for the wrapped edition resolves to nothing
+    when no bare base row exists. Relaton::Db consults family() for this;
+    consumers of the raw index must too (pubid === semantics, alpha.48).
+  query: "IEC CA 01:2020"
+  expect: []
+- name: family groups the edition ladder and the wrapper
+  query: "IEC CA 01"
+  family: true
+  expect:
+  - data/iec-ca-01-2016.yaml
+  - data/iec-ca-01-2017.yaml
+  - data/iec-ca-01-2020-csv.yaml

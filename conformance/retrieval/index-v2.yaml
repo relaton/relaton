@@ -1,0 +1,66 @@
+---
+- :id:
+    _type: pubid:iec:vap-identifier
+    base:
+      _type: pubid:iec:international-standard
+      publisher: IEC CA
+      number: '01'
+      year: 2020
+    vap:
+    - CSV
+  :file: data/iec-ca-01-2020-csv.yaml
+- :id:
+    _type: pubid:iso:amendment
+    base:
+      _type: pubid:iso:international-standard
+      publisher: ISO
+      number: '9001'
+      year: 2015
+    amendment:
+      stage: Amd
+      number: '1'
+      year: 2022
+  :file: data/iso-9001-2015-amd1-2022.yaml
+- :id:
+    _type: pubid:iec:international-standard
+    publisher: IEC CA
+    number: '01'
+    year: 2017
+  :file: data/iec-ca-01-2017.yaml
+- :id:
+    _type: pubid:iec:international-standard
+    publisher: IEC CA
+    number: '01'
+    year: 2016
+  :file: data/iec-ca-01-2016.yaml
+- :id:
+    _type: pubid:iso:international-standard
+    publisher: ISO
+    number: '1111'
+    year: 2020
+  :file: data/iso-1111-2020.yaml
+- :id:
+    _type: pubid:iec:international-standard
+    publisher: IEC
+    number: '1111'
+    year: 2021
+  :file: data/iec-1111-2021.yaml
+- :id:
+    _type: pubid:iso:international-standard
+    publisher: ISO
+    number: '9001'
+    year: 2015
+  :file: data/iso-9001-2015.yaml
+- :id:
+    _type: pubid:iso:international-standard
+    publisher: ISO
+    number: '9001'
+    part: '1'
+    year: 2025
+  :file: data/iso-9001-1-2025.yaml
+- :id:
+    _type: pubid:iso:international-standard
+    publisher: ISO
+    number: '9001'
+    year: 2026
+  :file: data/iso-9001-2026.yaml
