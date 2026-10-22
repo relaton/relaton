@@ -139,7 +139,14 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
 
 ## 5. Render fidelity
 
-- [ ] Close the CitationStyle model-vs-code gaps (the known set).
+- [x] Close the CitationStyle model-vs-code gaps (the known set).
+      Delivered by relaton-render: the engine consumes relaton-models
+      CitationStyle instances (Style < Lutaml::Model::Serializable), the
+      family packs ship (author-date, chicago, apa, ieee-sa, lncs, jis-en/ja,
+      with delta extends and requires capabilities), citation/reference
+      TemplateMap, disambiguation rules, the bibliographic index renderer
+      and i18n as data. Suite green. Sole residue: the CSL importer (gap 8,
+      styles-as-data downgrade direction) — its own session.
 - [x] CSL-JSON conformance as a tested contract.
       Delivered in relaton-ts: the renderer emits only CSL-JSON fields and
       types, routes editors/performers to their own fields, maps DOI/ISBN/ISSN,
