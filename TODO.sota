@@ -186,7 +186,7 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
 
 ## Open workstreams (already in flight)
 
-- [ ] relaton#313/#314: the NIST CSRC supplement is merged — verify the data
+- [x] relaton#313/#314: the NIST CSRC supplement is merged — verify the data
       repo's next crawl brings stage-typed rows (NIST FIPS 197 ipd resolves to
       its own record); deliver the NIST engagement letter for historical
       drafts (write-up on relaton#313).
@@ -195,6 +195,9 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       resolution was verified when relaton#318 merged. The engagement letter is
       an external communication the owner delivers.
 - [x] relaton#75: the ITU-R source decision (see layer 2).
-      The server-rendered /pub + /rec crawl is the path; the daily red was a
-      dependency pin (relaton-data-itu-r#9/#10), not the source.
+      ITU decommissioned the RunSearch enumeration API the ITU-R crawler
+      used — no anonymous replacement exposes the corpus (researched live,
+      relaton#75). Runtime lookups are unaffected (rec.aspx//pub paths);
+      the daily failing cron is paused (relaton-data-itu-r#12) pending a
+      replacement source or an owner-scoped harvester decision.
 - [ ] isodoc#842 waits on pubid 2.0.0 final.
