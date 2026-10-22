@@ -78,12 +78,16 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
 
 ## 3. Discovery (api + store)
 
-- [ ] Ingest reconcile/prune: the flavors doc_count counts stale rows left by
-      earlier ingest generations (ietf holds ~322k rows against a ~180k
-      corpus — churned internet-drafts), and those ghost rows still serve
-      searches. Shards cannot prune mid-wave, so reconciliation needs a
-      post-wave pass (delete rows whose file_path was not touched by the
-      current generation) keyed off a generation marker per flavor.
+- [x] Ingest reconcile/prune: the flavors doc_count counted stale rows left by
+      earlier ingest generations (ietf held ~322k rows against a ~180k
+      corpus — churned internet-drafts), and those ghost rows served
+      searches (including stale component data). Delivered
+      (relaton-api-js#81): every ingest chunk stamps documents.ingested_at;
+      POST /admin/reconcile/:flavor {before} deletes the rows the current
+      generation never re-stamped (docids included, FTS delete-trigger
+      keeps search in step, doc_count recounted); the weekly sweep
+      reconciles every flavor automatically when all its legs succeed.
+      Pilot: ietf re-stamp + reconcile (2026-10-22).
 
 - [x] Cross-flavor query layer: filter/search by pubid components and relaton
       fields (the component-search requirement), pagination, facets.
@@ -103,6 +107,16 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       live since relaton-ts 0.1.5 regenerated the schema with the IETF
       `stream` series type (relaton#342) that previously failed 9,828 IETF
       exports.
+- [x] Pre-publication (draft) records for IEC.
+      Delivered: the Harmonized API's /harmonized/projects endpoint answers
+      the same OAuth key as publications (relaton/relaton#345), and
+      Relaton::Iec::ProjectFetcher (relaton#347) crawls it as a second
+      source in relaton-data-iec — 32,719 in-development records with the
+      stage lifecycle (CURRENT/CLOSED/PLANNED, stageCode + harmonized
+      stage) and typed relations (amends/corrects/replaced-by/revised-by/
+      merged-into/split-from/interprets, publications as successors).
+      Drafts resolve in api.relaton.org search next to their published
+      siblings.
 - [x] The CF worker/API migration completes this layer.
       Delivered: api.relaton.org is served by Cloudflare Workers (`server:
       cloudflare`), the relaton-api-js ingest workflow is green, and the
