@@ -20,6 +20,7 @@ require "yaml"
 
 module Relaton
   autoload :Logger, "relaton/logger"
+  autoload :Equivalence, "relaton/equivalence"
   autoload :Core, "relaton/core"
   autoload :Index, "relaton/index"
   autoload :Bib, "relaton/bib"
