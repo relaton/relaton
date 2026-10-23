@@ -248,12 +248,27 @@ module Relaton
         docid = doc.docidentifier.detect(&:primary)
         return unless docid
 
-        file = output_file(docid.content.to_s)
+        file = docid_file(docid.content.to_s)
         if File.exist?(file)
           rewrite_with_same_or_newer(doc, docid, file)
         else
           write_file(file, doc, docid)
         end
+      end
+
+      # Distinct docids can sanitize to one filename (`ISO/DIS 15869.3` and
+      # `ISO/DIS 15869-3`); take a path of our own rather than treating the
+      # other document as an older edition. A reserved path only ever belongs
+      # to one docid, and `reset_output` wiped `@output`, so an existing file
+      # is this same document again.
+      def docid_file(id)
+        file = unique_output_file(id)
+        plain = output_file(id)
+        if file != plain && !@files.include?(file)
+          Util.warn "File #{plain} exists. Docid: #{id}. " \
+                    "Writing #{file} instead."
+        end
+        file
       end
 
       def rewrite_with_same_or_newer(doc, docid, file)
