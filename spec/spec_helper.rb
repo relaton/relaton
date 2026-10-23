@@ -33,9 +33,12 @@ Dir["./support/**/*.rb"].sort.each { |f| require f }
 
 # Load the flavor under test, inferred from the suite directory name. Every
 # flavor maps spec/<flavor> -> relaton/<flavor>; the umbrella (spec/relaton)
-# drives Relaton::Db instead.
+# drives Relaton::Db instead. The conformance suite is cross-flavor — it names
+# its own requires (pubid, relaton/index) and loads no single flavor entry.
 flavor = File.basename(Dir.pwd)
-require flavor == "relaton" ? "relaton/db" : "relaton/#{flavor}"
+unless flavor == "conformance"
+  require flavor == "relaton" ? "relaton/db" : "relaton/#{flavor}"
+end
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
