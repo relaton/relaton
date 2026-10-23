@@ -52,8 +52,17 @@ gemspec
 # stage-code SSOT extract (pubid#571) and the JCGM dotted supplement
 # tolerance (pubid#574, "Amd.1:2026" in, "Amd 1" rendered unchanged) —
 # locate_stage lookups and an alternate input form; no rawbib
-# expectation moves.
-gem "pubid", "2.0.0.pre.alpha.48"
+# expectation moves. alpha.49 completes the IEC stage-code SSOT round
+# (pubid#578, registry lookups only). alpha.50 carries YARD docs
+# (pubid#579), the NIST index-suffix normalization to its long form
+# (pubid#584), the NIST n+UPPER annex-suffix parse (pubid#585) and the
+# bare ISO TC reference parse (pubid#583); alpha.51 stops the NIST
+# number suffix from consuming the annex token (pubid#586); alpha.52
+# wires the ISO RFC 5141-bis additive extension through from_urn onto
+# the one URN render path (pubid#587). The NIST suffix pair and the
+# ISO URN path are parse/render-side: no rawbib expectation moves, but
+# the corpus known_failures reconciliation rides this bump.
+gem "pubid", "2.0.0.pre.alpha.52"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
