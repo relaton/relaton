@@ -56,6 +56,21 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       reconciliation on the API side: relaton-api-js#81, piloted on ietf
       (-145,705 rows) and 3gpp (-101,516 rows), automated on the weekly
       sweep. Content-hash diffing remains the future refinement direction.
+      Scope of that refinement (per-fetcher update-semantics audit,
+      2026-10-23): a digest ledger keyed per enumeration entry is sound
+      only where the entry determines the record. Flat-list flavors
+      (3gpp, iso, itu, ieee, ecma, etsi, jis, ogc, oasis, calconnect, cie,
+      iana, jcgm, bipm, nist) qualify where the entry carries a change
+      token; a per-item detail fetch whose content the entry does not
+      bound must keep fetching (or the entry must gain a token) — the
+      existing `force_write` byte-skip already covers their write cost.
+      Relation output must stay OUTSIDE the skip: ietf links
+      updates/updatedBy neighbors across the whole sorted set and ccsds
+      discovers translations by cross-record index queries, so a new
+      neighbor changes records whose own source never moved — the global
+      relation pass runs after the skip, every run. plateau/w3c walk
+      versions contained in their own entries, so the digest covers them;
+      iec's HAPI/Projects feeds are API-side deltas and need no ledger.
 - [x] Tombstones: withdrawn/delisted documents get markers instead of silent
       deletion.
       Delivered in the shared Crawler workflow (relaton/support#88):
