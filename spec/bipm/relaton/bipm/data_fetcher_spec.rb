@@ -7,6 +7,7 @@ describe Relaton::Bipm::DataFetcher do
     fetcher = double("fetcher")
     expect(fetcher).to receive(:fetch).with "bipm-data-outcomes"
     expect(described_class).to receive(:new).with("data", "yaml").and_return fetcher
+    allow(fetcher).to receive(:digest_ledger=)
     described_class.fetch "bipm-data-outcomes"
   end
 

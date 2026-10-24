@@ -5,7 +5,10 @@ require "relaton/nist/data_fetcher"
 RSpec.describe Relaton::Nist::DataFetcher do
   context "create instance and call fetch" do
     let(:df) { double "fetcher" }
-    before { expect(df).to receive(:fetch).with(nil) }
+    before do
+      expect(df).to receive(:fetch).with(nil)
+      allow(df).to receive(:digest_ledger=)
+    end
 
     it "default output & format" do
       expect(described_class).to receive(:new).with("data", "yaml").and_return df

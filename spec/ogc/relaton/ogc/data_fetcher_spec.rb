@@ -18,6 +18,7 @@ RSpec.describe Relaton::Ogc::DataFetcher do
     expect(FileUtils).to receive(:mkdir_p).with("data")
     df = double "DataFetcher instance"
     expect(df).to receive(:fetch).with(nil)
+    allow(df).to receive(:digest_ledger=)
     expect(described_class).to receive(:new).with("data", "yaml").and_return df
     described_class.fetch
   end

@@ -5,6 +5,7 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
     expect(FileUtils).to receive(:mkdir_p).with("dir")
     fetcher = double("fetcher")
     expect(fetcher).to receive(:fetch)
+    allow(fetcher).to receive(:digest_ledger=)
     expect(Relaton::ThreeGpp::DataFetcher)
       .to receive(:new).with("dir", "xml").and_return(fetcher)
     Relaton::ThreeGpp::DataFetcher.fetch "status-smg-3GPP", output: "dir", format: "xml"

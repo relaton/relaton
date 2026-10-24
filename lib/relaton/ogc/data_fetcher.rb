@@ -46,9 +46,13 @@ module Relaton
 
       def fetch_doc(hit)
         return if hit["type"] == "CC"
+        # The list entry carries the whole record payload, so an unchanged
+        # entry skips the parse and the write (the digest ledger).
+        return if unchanged?(hit["identifier"], hit)
 
         bib = Scraper.parse_page hit, @errors
-        write_document bib
+        file = write_document bib
+        note_digest(hit["identifier"], hit, file: file) if file
         true
       rescue StandardError => e
         Util.error "Fetching document: #{hit['identifier']}\n" \
@@ -56,17 +60,19 @@ module Relaton
         false
       end
 
+      # @return [String, nil] the file written, or nil for a duplicate
       def write_document(bib) # rubocop:disable Metrics/AbcSize
         docid = bib.docidentifier[0].content
         if @docids.include?(docid)
           @dupids << docid
-          return
+          return nil
         end
 
         @docids << docid
         file = file_name bib
         index.add_or_update index_id(docid), file
-        File.write file, serialize(bib), encoding: "UTF-8"
+        force_write file, serialize(bib)
+        file
       end
 
       #

@@ -17,6 +17,7 @@ describe Relaton::Etsi::DataFetcher do
       data_fetcher = double "data_fetcher"
       expect(data_fetcher).to receive(:fetch)
       expect(described_class).to receive(:new).with("data", "yaml").and_return data_fetcher
+      allow(data_fetcher).to receive(:digest_ledger=)
       described_class.fetch
     end
   end

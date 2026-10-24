@@ -48,6 +48,7 @@ RSpec.describe Relaton::Ietf::DataFetcher do
     expect(FileUtils).to receive(:mkdir_p).with("dir")
     fetcher = double("fetcher")
     expect(fetcher).to receive(:fetch).with("source")
+    allow(fetcher).to receive(:digest_ledger=)
     expect(described_class).to receive(:new).with("dir", "xml").and_return(fetcher)
     described_class.fetch "source", output: "dir", format: "xml"
   end

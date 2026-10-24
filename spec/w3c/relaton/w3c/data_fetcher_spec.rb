@@ -8,6 +8,7 @@ RSpec.describe Relaton::W3c::DataFetcher do
     fetcher = double("fetcher")
     expect(fetcher).to receive(:fetch).with(nil)
     expect(described_class).to receive(:new).with("dir", "xml").and_return(fetcher)
+    allow(fetcher).to receive(:digest_ledger=)
     described_class.fetch output: "dir", format: "xml"
   end
 

@@ -68,9 +68,20 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       updates/updatedBy neighbors across the whole sorted set and ccsds
       discovers translations by cross-record index queries, so a new
       neighbor changes records whose own source never moved — the global
-      relation pass runs after the skip, every run. plateau/w3c walk
-      versions contained in their own entries, so the digest covers them;
-      iec's HAPI/Projects feeds are API-side deltas and need no ledger.
+      relation pass runs after the skip, every run. plateau walks versions
+      contained in its own entries, so the digest covers it; w3c walks
+      versions through realized links — separate fetches the entry does
+      not bound — and is not qualified as coded; iec's HAPI/Projects
+      feeds are API-side deltas and need no ledger.
+      Mechanism delivered (2026-10-24): `Core::DataFetcher` carries the
+      ledger — a tracked `.digests.yaml` sidecar (key → entry digest +
+      file), the `digest_ledger:` opt on ::fetch, `#unchanged?`/`#note_
+      digest` for the fetch loops, and a prune-aware save that keeps only
+      entries whose file the run owned, so fresh CI clones still skip and
+      deleted records drop out. ogc is wired as the first qualified
+      flavor (its list entries carry the whole record payload; its writes
+      moved to `force_write`). The remaining flat flavors' enablement
+      rides the same audit per fetcher.
 - [x] Tombstones: withdrawn/delisted documents get markers instead of silent
       deletion.
       Delivered in the shared Crawler workflow (relaton/support#88):
