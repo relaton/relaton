@@ -11,15 +11,13 @@
   :file: data/iec-ca-01-2020-csv.yaml
 - :id:
     _type: pubid:iso:amendment
+    number: '1'
+    year: 2022
     base:
       _type: pubid:iso:international-standard
       publisher: ISO
       number: '9001'
       year: 2015
-    amendment:
-      stage: Amd
-      number: '1'
-      year: 2022
   :file: data/iso-9001-2015-amd1-2022.yaml
 - :id:
     _type: pubid:iec:international-standard
@@ -64,3 +62,32 @@
     number: '9001'
     year: 2026
   :file: data/iso-9001-2026.yaml
+- :id:
+    _type: pubid:ecma:standard
+    number: '418'
+  :file: data/ecma-418.yaml
+- :id:
+    _type: pubid:ecma:standard
+    number: '418'
+    part: '1'
+  :file: data/ecma-418-1.yaml
+- :id:
+    _type: pubid:iso:international-standard
+    number: '15289'
+    copublishers:
+    - IEC
+    - IEEE
+    year: 2019
+  :file: data/iso-iec-ieee-15289-2019.yaml
+- :id:
+    _type: pubid:iso:international-standard
+    number: '9004'
+    stage: dis
+    year: 2024
+  :file: data/iso-dis-9004-2024.yaml
+- :id:
+    _type: pubid:iso:technical-specification
+    number: '8000'
+    part: '1'
+    year: 2022
+  :file: data/iso-ts-8000-1-2022.yaml

@@ -44,3 +44,46 @@ cases:
   - data/iec-ca-01-2016.yaml
   - data/iec-ca-01-2017.yaml
   - data/iec-ca-01-2020-csv.yaml
+- name: amendment query hits the amendment layer, not its base
+  query: "ISO 9001:2015/AMD 1:2022"
+  expect:
+  - data/iso-9001-2015-amd1-2022.yaml
+- name: undated amendment query still names the amendment number
+  query: "ISO 9001/AMD 1"
+  expect:
+  - data/iso-9001-2015-amd1-2022.yaml
+- name: a part-less ECMA query does not reach the part row (strict part)
+  flavor: ecma
+  pinned: ECMA declares part subset_strict — a nil part means the document
+    has none, so ECMA-418 must not answer with ECMA-418-1 (pubid#408).
+  query: "ECMA-418"
+  expect:
+  - data/ecma-418.yaml
+- name: the ECMA part query names its row exactly
+  flavor: ecma
+  query: "ECMA-418-1"
+  expect:
+  - data/ecma-418-1.yaml
+- name: a joint query matches the fuller co-publication prefix
+  pinned: collections match by position and the reference may be shorter —
+    ISO/IEC states two of the row's three publishers.
+  query: "ISO/IEC 15289"
+  expect:
+  - data/iso-iec-ieee-15289-2019.yaml
+- name: the wrong co-publisher at a stated position does not match
+  query: "ISO/IEEE 15289"
+  expect: []
+- name: the published default is stated — it does not match a draft row
+  query: "ISO 9004"
+  expect: []
+- name: the stage-qualified query reaches the draft row
+  query: "ISO/DIS 9004"
+  expect:
+  - data/iso-dis-9004-2024.yaml
+- name: a typed query matches its own type only
+  query: "ISO/TS 8000-1:2022"
+  expect:
+  - data/iso-ts-8000-1-2022.yaml
+- name: the untyped query does not cross the type boundary
+  query: "ISO 8000-1:2022"
+  expect: []
