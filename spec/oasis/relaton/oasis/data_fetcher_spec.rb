@@ -13,6 +13,7 @@ describe Relaton::Oasis::DataFetcher do
     expect(fetcher).to receive(:fetch)
     expect(Relaton::Oasis::DataFetcher)
       .to receive(:new).with("dir", "xml").and_return(fetcher)
+    allow(fetcher).to receive(:digest_ledger=)
     Relaton::Oasis::DataFetcher.fetch output: "dir", format: "xml"
   end
 

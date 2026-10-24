@@ -20,6 +20,7 @@ describe Relaton::Bipm::Processor do
 
   it "#fetch_data" do
     df = instance_double Relaton::Bipm::DataFetcher
+    allow(df).to receive(:digest_ledger=)
     expect(df).to receive(:fetch).with("bipm-data-outcomes")
     expect(Relaton::Bipm::DataFetcher).to receive(:new).with("output", "xml").and_return df
     subject.fetch_data "bipm-data-outcomes", output: "output", format: "xml"

@@ -36,6 +36,73 @@ module Relaton
       # @return [Boolean] whether this run prunes the existing output tree
       attr_accessor :prune
 
+      # @return [Boolean] whether this run consults and maintains the
+      #   content-digest ledger (see #unchanged?). Off by default: a flavor
+      #   turns it on only where its enumeration entry determines the record
+      #   (the TODO.sota crawl-audit rule).
+      attr_accessor :digest_ledger
+
+      # -- Content-digest ledger -----------------------------------------
+      #
+      # A per-output sidecar (`.digests.yaml`: key -> digest + file) lets a
+      # run skip the fetch+parse+write of a record whose enumeration entry is
+      # unchanged, where the entry determines the record. The sidecar is
+      # tracked in the data repo so a fresh CI clone still skips. Skipped
+      # files are recorded as written, so #prune_unwritten keeps them; the
+      # saved ledger keeps only files this run owned, so deleted records
+      # drop out with their file.
+      #
+      # Sound only where the entry bounds the record: a per-item detail
+      # fetch whose content the entry does not determine, or relation output
+      # discovered across records, must stay outside the skip (TODO.sota,
+      # crawl audit 2026-10-23).
+
+      LEDGER_FILE = ".digests.yaml"
+
+      # True when the ledger holds `key` with the entry's digest - the
+      # record is unchanged and the caller may skip it. Records the
+      # ledger's file as written, so prune keeps a skipped record.
+      #
+      # @param key [String] the record's stable identity (its docid)
+      # @param entry [Object] the enumeration entry; digested as JSON
+      # @return [Boolean]
+      def unchanged?(key, entry)
+        return false unless @digest_ledger
+
+        row = ledger[key]
+        return false unless row.is_a?(Hash) && row["digest"] == entry_digest(entry)
+
+        @written << row["file"] if row["file"]
+        warn "Skipping unchanged `#{key}`"
+        true
+      end
+
+      # Record the entry's digest for `key`, with the file the record was
+      # written to (nil when this run wrote no file for it - the entry
+      # drops out of the ledger at save time).
+      #
+      # @param key [String]
+      # @param entry [Object]
+      # @param file [String, nil]
+      # @return [void]
+      def note_digest(key, entry, file: nil)
+        return unless @digest_ledger
+
+        ledger_new[key] = { "digest" => entry_digest(entry), "file" => file }
+      end
+
+      # Persist the ledger: this run's noted entries over the loaded ones,
+      # keeping only entries whose file this run recorded as written.
+      #
+      # @return [void]
+      def save_ledger
+        kept = ledger.merge(ledger_new).select do |_, row|
+          row.is_a?(Hash) && row["file"] && @written.include?(row["file"])
+        end
+        File.write ledger_path, YAML.dump(kept), encoding: "UTF-8"
+        @ledger = kept
+      end
+
       # API method for external service
       #
       # @param prune [Boolean] delete output files this run did not write. The
@@ -43,7 +110,8 @@ module Relaton
       #   ratio guard stops a partial crawl from wiping the dataset.
       # @return the value returned by the instance `#fetch`, so callers can act
       #   on the outcome (e.g. relaton-iso returns whether it rebuilt).
-      def self.fetch(source = nil, output: "data", format: "yaml", prune: false)
+      def self.fetch(source = nil, output: "data", format: "yaml", prune: false,
+                     digest_ledger: false)
         t1 = Time.now
         puts "Started at: #{t1}"
         FileUtils.mkdir_p output
@@ -51,8 +119,10 @@ module Relaton
         # Only touched in prune mode: the default path stays exactly what it
         # was, and existing ::fetch callers (and their specs) see no new call.
         fetcher.prune = true if prune
+        fetcher.digest_ledger = digest_ledger
         result = fetcher.fetch(source)
         fetcher.prune_unwritten if prune
+        fetcher.save_ledger if digest_ledger
         t2 = Time.now
         puts "Stopped at: #{t2}"
         puts "Done in: #{(t2 - t1).round} sec."
@@ -250,6 +320,28 @@ module Relaton
       end
 
       private
+
+      def ledger_path
+        File.join @output, LEDGER_FILE
+      end
+
+      def ledger
+        @ledger ||= if File.exist?(ledger_path)
+                      YAML.safe_load_file(ledger_path) || {}
+                    else
+                      {}
+                    end
+      end
+
+      def ledger_new
+        @ledger_new ||= {}
+      end
+
+      def entry_digest(entry)
+        require "digest"
+        require "json"
+        Digest::SHA256.hexdigest JSON.generate(entry)
+      end
 
       # Write, clobbering whatever is there. The caller has already established
       # that the path is ours to take. Identical content is left untouched:

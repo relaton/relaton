@@ -1,4 +1,6 @@
 require "tmpdir"
+require "digest"
+require "json"
 
 describe Relaton::Core::DataFetcher do
   subject { described_class.new("data", "bibxml") }
@@ -17,6 +19,91 @@ describe Relaton::Core::DataFetcher do
       expect(described_class).to receive(:new).with("dir", "xml").and_return subject
       expect(subject).to receive(:fetch).with(:source)
       described_class.fetch :source, output: "dir", format: "xml"
+    end
+
+    it "maintains the ledger only when enabled" do
+      expect(FileUtils).to receive(:mkdir_p).with("dir")
+      expect(described_class).to receive(:new).with("dir", "xml").and_return subject
+      expect(subject).to receive(:fetch).with(:source)
+      expect(subject).to receive(:save_ledger)
+      described_class.fetch :source, output: "dir", format: "xml", digest_ledger: true
+    end
+
+    it "does not touch the ledger by default" do
+      expect(FileUtils).to receive(:mkdir_p).with("dir")
+      expect(described_class).to receive(:new).with("dir", "xml").and_return subject
+      expect(subject).to receive(:fetch).with(:source)
+      expect(subject).not_to receive(:save_ledger)
+      described_class.fetch :source, output: "dir", format: "xml"
+    end
+  end
+
+  describe "content-digest ledger" do
+    # The write path is private (flavor loops call it from inside); this
+    # minimal concrete fetcher exposes it so the ledger lifecycle is
+    # driven through the real writes.
+    let(:harness_class) do
+      Class.new(described_class) do
+        def write(file, content)
+          force_write file, content
+        end
+      end
+    end
+
+    subject { harness_class.new(dir, "yaml") }
+
+    let(:dir) { Dir.mktmpdir }
+    let(:entry) { { "identifier" => "OGC 1", "date" => "2026-01-01" } }
+    # The digest the run computes for the entry, derived independently of
+    # the fetcher's private helper.
+    let(:digest) { Digest::SHA256.hexdigest(JSON.generate(entry)) }
+    let(:ledger_path) { File.join(dir, described_class::LEDGER_FILE) }
+
+    after { FileUtils.remove_entry dir if File.exist?(dir) }
+
+    it "is off by default" do
+      expect(subject.digest_ledger).to be_falsey
+    end
+
+    it "answers false for an unmapped key" do
+      subject.digest_ledger = true
+      expect(subject.unchanged?("OGC 1", entry)).to be false
+    end
+
+    it "skips an unchanged entry and keeps its file through prune" do
+      subject.digest_ledger = true
+      file = File.join(dir, "ogc-1.yaml")
+      File.write file, "content"
+      File.write ledger_path, YAML.dump(
+        "OGC 1" => { "digest" => digest, "file" => file }
+      )
+      expect(subject.unchanged?("OGC 1", entry)).to be true
+      subject.prune_unwritten
+      expect(File.exist?(file)).to be true
+    end
+
+    it "answers false when the entry changed" do
+      subject.digest_ledger = true
+      File.write ledger_path, YAML.dump(
+        "OGC 1" => { "digest" => digest, "file" => File.join(dir, "ogc-1.yaml") }
+      )
+      expect(subject.unchanged?("OGC 1", { "identifier" => "OGC 1", "date" => "2026-02-02" })).to be false
+    end
+
+    it "persists noted entries and drops entries whose file is unwritten" do
+      subject.digest_ledger = true
+      kept = File.join(dir, "ogc-1.yaml")
+      File.write kept, "content"
+      subject.note_digest "OGC 1", entry, file: kept
+      subject.note_digest "OGC 2", entry, file: File.join(dir, "ogc-2.yaml")
+      subject.write kept, "content"
+      subject.save_ledger
+
+      saved = YAML.safe_load_file(ledger_path)
+      expect(saved.keys).to eq ["OGC 1"]
+      expect(saved["OGC 1"]["digest"]).to eq digest
+      # The persisted row makes the next run skip.
+      expect(subject.unchanged?("OGC 1", entry)).to be true
     end
   end
 
