@@ -28,14 +28,25 @@ describe "retrieval conformance fixture" do
     end
   end
 
-  def parse(query)
-    (query.start_with?("IEC") ? Pubid::Iec : Pubid::Iso).parse(query)
+  # Cases name their flavor explicitly once the fixture spans more than the
+  # ISO/IEC heuristic; untagged cases keep the IEC-prefix default.
+  PARSE_FLAVORS = {
+    "iso" => Pubid::Iso::Identifier,
+    "iec" => Pubid::Iec::Identifier,
+    "ecma" => Pubid::Ecma::Identifier,
+  }.freeze
+
+  def parse(case_)
+    klass = case_["flavor"] ? PARSE_FLAVORS.fetch(case_["flavor"]) : (
+      case_["query"].start_with?("IEC") ? Pubid::Iec : Pubid::Iso
+    )
+    klass.parse(case_["query"])
   end
 
   cases.each do |case_|
     describe case_["name"] do
       it "resolves the expected records" do
-        ref = parse(case_["query"])
+        ref = parse(case_)
         matched = if case_["family"]
                     index.family(ref).members.map { |m| m[:file] }.sort
                   else
