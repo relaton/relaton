@@ -35,9 +35,12 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       structural placement (parse structure ≠ deserialized row shape; the
       grammar itself parses and renders) — see
       spec/corpus/known_failures/nist-*.txt — and CRPL `indx` (pubid#557),
-      which no longer appears in the current corpus rows. "ITS hyphens" is
-      not identifiable in the corpora — ITS-90 is a temperature scale, not
-      an identifier series — and needs disambiguation.
+      which no longer appears in the current corpus rows. "ITS hyphens" has
+      an identity: ITS-90 is the BIPM document that defines the
+      International Temperature Scale of 1990, so the hyphen edge is the
+      BIPM document-reference form (the BIPM flavor's grammar reads it as
+      a document name, not a scale spelling) — the current BIPM v2 index
+      carries no ITS rows, so the edge is latent until BIPM data adds them.
 
 ## 2. Ingestion (data repos + flavor DataFetchers)
 
