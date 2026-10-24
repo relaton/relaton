@@ -158,13 +158,15 @@ module Relaton
     end
 
     # Cross-SDO equivalence as data: on a total miss, walk the equivalence
-    # tables from relaton/equivalence.rb — a national adoption falls back to
-    # the EN, the EN to the ISO. Each candidate goes through the full routed
-    # fetch (cache, co-publishers); an unrouteable candidate is skipped.
+    # tables from relaton/equivalence.rb in both directions — a national
+    # adoption falls back to the EN, the EN to the ISO, and a base document
+    # falls forward to its declared adoptions (.related_for). Each candidate
+    # goes through the full routed fetch (cache, co-publishers); an
+    # unrouteable candidate is skipped.
     #
     # @return [Relaton::Bib::ItemData, nil]
     def fetch_equivalent(code, year, opts)
-      Equivalence.equivalents_for(code).each do |candidate|
+      Equivalence.related_for(code).each do |candidate|
         Util.info "Not found; trying equivalent `#{candidate}`", key: code
         std, pubid = @registry.route(candidate)
         bib = fetch_routed(candidate, year, opts, std, pubid) and return bib

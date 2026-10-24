@@ -20,9 +20,19 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       Delivered: spec/corpus/ (Laws 0, 1a, 1b, 2, 4 over every flavor with a
       published index), `rake spec:corpus`, and the nightly corpus workflow
       with deterministic slices and per-law known-failure manifests.
-- [ ] Cross-SDO equivalence as DATA: joint publications, adoption chains
+- [x] Cross-SDO equivalence as DATA: joint publications, adoption chains
       (ISO → EN → BS EN), and variant spellings move from per-flavor logic into
       equivalence tables the resolver consults.
+      Delivered: data/equivalence/adoption-chains.yaml carries the chain
+      patterns, the explicit equivalences (the ISO/IEC 17025 ladder, the
+      ISO/IEC ~ IEC/ISO ordering, the IETF-prefixed RFC variant) and the
+      adoption ladders; lib/relaton/equivalence.rb loads them (callers
+      register more), and Db#fetch_equivalent walks .related_for on a total
+      miss — the canonical walk downward plus the generated ladder upward.
+      Declaring a relation used in resolution is the rule (Law 3,
+      docs/identifier-model.adoc §3); the per-flavor prefixed-spelling
+      normalizations that still parse directly are dual-served, with the
+      table as the declared record.
 - [ ] The hard grammar edges each carry a pinned spec (OMG slashes and glued
       beta labels, ITS hyphens, NIST stage suffixes, the 30 non-trivial OMG
       acronyms).
@@ -148,8 +158,13 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       Delivered as docs/relation-coverage.adoc: 552,484 published records,
       42% with relations, 39% with status, bimodal per source; the adoption
       edges and the no-relation sources are called out.
-- [ ] Adoption chains resolvable end-to-end (ISO → CEN → national) with
+- [x] Adoption chains resolvable end-to-end (ISO → CEN → national) with
       bidirectional edges.
+      Delivered: downward, pubid's adopted identifiers recurse `#root` to the
+      base document (EN ISO 1388 and BS EN ISO 1388 both root to
+      InternationalStandard ISO 1388); upward, the tables' adoption ladders
+      generate the national forms of a base and the resolver walks them on a
+      miss (Equivalence.related_for, spec/relaton/equivalence_spec.rb).
 - [x] Family/edition/all-parts views as first-class objects; edge round-trip
       laws (relations survive serialize/deserialize) tested like record
       round-trips.

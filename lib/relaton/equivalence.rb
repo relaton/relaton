@@ -84,6 +84,34 @@ module Relaton
         end
         out
       end
+
+      # Every edge of `code`'s equivalence set: the canonical walk
+      # (.equivalents_for — a national adoption falls back to the EN, the EN
+      # to the ISO) PLUS the reverse edges, generated from the tables'
+      # `adoptions` ladders (the ISO resolves to its EN, BS EN, DIN EN and
+      # NF EN adoptions). The code itself is excluded; the walk order is
+      # canonical-first, ladder outermost-last.
+      #
+      # @param [String] code
+      # @return [Array<String>]
+      def related_for(code)
+        out = equivalents_for(code)
+        load_seed
+        ([code] + out.uniq).each do |candidate|
+          tables.each do |table|
+            (table["adoptions"] || []).each do |ladder|
+              m = Regexp.new(ladder["pattern"]).match(candidate)
+              next unless m
+
+              Array(ladder["forms"]).each do |template|
+                form = template.gsub(/\\(\d+)/) { m[Regexp.last_match(1).to_i] }
+                out << form unless form == code || out.include?(form)
+              end
+            end
+          end
+        end
+        out
+      end
     end
   end
 end
