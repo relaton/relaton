@@ -62,7 +62,14 @@ gemspec
 # the one URN render path (pubid#587). The NIST suffix pair and the
 # ISO URN path are parse/render-side: no rawbib expectation moves, but
 # the corpus known_failures reconciliation rides this bump.
-gem "pubid", "2.0.0.pre.alpha.52"
+# alpha.53-57 close the two-party draft-face wave: the ISO guide-chain
+# URN supplement resolution and the docnumber guard (pubid#591), the #582
+# D= draft-stage lookup plus the two-party joint routing (pubid#593), the
+# printed-joint strip, and the draft-face round-trip convergence
+# (pubid#595): the draft reader stores the compact wire form and
+# from_hash materializes the runtime components, so rebuilt IEEE rows
+# compare equal to their parses.
+gem "pubid", "2.0.0.pre.alpha.57"
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
