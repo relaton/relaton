@@ -27,6 +27,18 @@ chains:
   - 'EN \1'
   - '\1'
 
+# Adoption ladders: the reverse edges. A code matching `pattern` is a base
+# document; `forms` are its national/regional adoptions, ordered
+# outermost-last, so the resolver can walk a chain from either end
+# (TODO.sota: adoption chains resolvable end-to-end, bidirectional).
+adoptions:
+- pattern: '^(ISO[ /].+)$'
+  forms:
+  - 'EN \1'
+  - 'BS EN \1'
+  - 'DIN EN \1'
+  - 'NF EN \1'
+
 # Explicit equivalences: every form in `equivalents` resolves to
 # `canonical` (and the canonical resolves to itself). Used where no pattern
 # expresses the relationship (joint publications, historical adoptions).
@@ -36,3 +48,12 @@ equivalences:
   - EN ISO/IEC 17025
   - BS EN ISO/IEC 17025
   - DIN EN ISO/IEC 17025
+# Joint publication: the same document under a different publisher
+# ordering (Law 3.1) — the direction each corpus prints is the data.
+- canonical: ISO/IEC 14515-1
+  equivalents:
+  - IEC/ISO 14515-1
+# Variant spelling: the prefixed form of a bare reference (Law 3.3).
+- canonical: RFC 7200
+  equivalents:
+  - IETF RFC 7200
