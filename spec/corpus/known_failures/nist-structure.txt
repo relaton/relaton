@@ -1,8 +1,8 @@
 # NIST identifiers whose printed form re-parses, but to a different structure
-# than the published index row (Law 1b) — pubid#555: the trailing n+UPPER
-# part/annex suffix parses loose of its number, and pubid#557: the "indx"
-# suffix parses as the literal abbreviation where the corpus states the
-# normalized "index" component. Drop entries as the grammar fixes them.
+# than the published index row (Law 1b): the n+UPPER token's structural
+# placement differs between the parsed and deserialized forms. The grammar
+# itself parses and renders these (pubid#555 closed that wave, alpha.51);
+# this is the from_hash shape residual. Drop entries as the shapes converge.
 # Unparseable printed forms are tracked in nist-fidelity.txt.
 NBS BH 3nA
 NBS BH 5nA

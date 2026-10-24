@@ -27,10 +27,17 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
       beta labels, ITS hyphens, NIST stage suffixes, the 30 non-trivial OMG
       acronyms).
       Pinned: OMG slashes/glued beta (pubid#548), NIST stage suffixes, the OMG
-      acronym catalogue. Open: the NIST `nA`/`nB` family (pubid#555) and CRPL
-      `indx` (pubid#557). "ITS hyphens" is not identifiable in the corpora —
-      ITS-90 is a temperature scale, not an identifier series — and needs
-      disambiguation.
+      acronym catalogue, and the NIST bare-number `nA`/`nB` family
+      (pubid#555 — fixed by the #585/#586 wave, α.51; corpus fidelity
+      dropped 181 → 3). Still open: the residual nA classes the corpus
+      tracks — the fused word-suffix forms (`NCNnR`/`PERMInS`/`BFRnL`)
+      fail render(parse(x))==x, and 194 rows fail Law 1b on the nA token's
+      structural placement (parse structure ≠ deserialized row shape; the
+      grammar itself parses and renders) — see
+      spec/corpus/known_failures/nist-*.txt — and CRPL `indx` (pubid#557),
+      which no longer appears in the current corpus rows. "ITS hyphens" is
+      not identifiable in the corpora — ITS-90 is a temperature scale, not
+      an identifier series — and needs disambiguation.
 
 ## 2. Ingestion (data repos + flavor DataFetchers)
 
