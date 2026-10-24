@@ -233,12 +233,18 @@ Seven layers. Each names its owner repo, the work, and the acceptance test.
 
 ## 7. Conformance culture
 
-- [ ] Shared Ruby/TypeScript conformance suite: the identifier and retrieval
+- [x] Shared Ruby/TypeScript conformance suite: the identifier and retrieval
       contracts both stacks execute (pubid parse/render/hash; index
       read/search).
-      Identifier half delivered: the pubid-testsuite corpus is executed by the
-      Ruby conformance workflow and by pubid-ts's corpus tests (both green).
-      The retrieval half still needs a shared machine-index/API fixture.
+      Delivered: the identifier half is the pubid-testsuite corpus, executed
+      by the Ruby conformance workflow and pubid-ts's corpus tests (both
+      green); the retrieval half is conformance/retrieval/ — one fixture
+      pack (14 rows, 18 cases pinning the amendment layer, the strict-part
+      trap, the co-publisher prefix rule, stated defaults and
+      type-in-identity) executed by the Ruby executor
+      (spec/conformance/retrieval_spec.rb) and pubid-ts's
+      retrieval-conformance test (CI clones relaton/relaton for it), both
+      green on identical expectations.
 - [x] Grammar-level property fuzzing per flavor.
       Delivered in the corpus suite (relaton#329): a deterministic sample per
       flavor, one component omitted at a time, mutation re-parsed and required
