@@ -24,6 +24,8 @@ relaton-iso retrieves ISO standard bibliographic data. The core retrieval flow:
 6. **DataFetcher** (`lib/relaton/iso/data_fetcher.rb`) — streams the ISO Open Data programme JSONL feeds (`iso_deliverables_metadata.jsonl` for documents, `iso_technical_committees.jsonl` for committee titles) and writes one YAML per primary docid into `@output`. Short-circuits on upstream `Last-Modified`; falls back to a full pass when `data/` or `index-v1.yaml` is missing. Two source modes:
    - `iso-open-data` (default) — incremental, skip when upstream is unchanged.
    - `iso-open-data-all` — wipe `@output` and re-emit every record.
+
+   File names come from `Core::DataFetcher#unique_output_file`, not the plain `output_file`: `output_file` is not injective (`ISO/DIS 15869.3` and `ISO/DIS 15869-3` both sanitize to `iso-dis-15869-3.yaml`), so a second distinct docid gets a digest-suffixed path. `rewrite_with_same_or_newer` (edition / substage-98) therefore only ever compares two records of the **same** docid.
 7. **DataParser** (`lib/relaton/iso/data_parser.rb`) — converts one Open Data record (`Hash`) into a `Relaton::Iso::ItemData`. Takes a `ref_index` (id → reference) for resolving `replaces`/`replacedBy` and a `tc_index` (reference → `{ "en"/"fr" => title }`) for resolving committee labels.
 
 Key dependency: `pubid-iso` gem handles ISO publication identifier parsing and comparison.

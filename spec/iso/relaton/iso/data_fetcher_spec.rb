@@ -219,6 +219,44 @@ describe Relaton::Iso::DataFetcher do
     end
   end
 
+  context "distinct docids that sanitize to one file name" do
+    let(:fetcher) { described_class.new(output_dir, "yaml") }
+    let(:index_double) { double("index") }
+    let(:indexed) { [] }
+    let(:records) do
+      ["ISO/DIS 15869.3", "ISO/DIS 15869-3"].each_with_index.map do |ref, i|
+        {
+          "id" => 100 + i, "deliverableType" => "IS", "reference" => ref,
+          "title" => { "en" => "Title #{ref}" }, "icsCode" => nil,
+          "ownerCommittee" => "ISO/TC 1", "currentStage" => 4020,
+          "languages" => ["en"], "scope" => { "en" => nil }
+        }
+      end
+    end
+
+    before do
+      FileUtils.mkdir_p(output_dir)
+      allow(fetcher).to receive(:index).and_return(index_double)
+      allow(index_double).to receive(:add_or_update) do |pubid, file|
+        indexed << [pubid.to_s, file]
+      end
+    end
+
+    it "writes each document to its own file and index row" do
+      records.each { |rec| fetcher.send(:fetch_pub, rec, {}) }
+
+      files = Dir["#{output_dir}/*.yaml"]
+      expect(files.size).to eq(2)
+      ids = files.map do |f|
+        item = Relaton::Iso::Item.from_yaml(File.read(f))
+        item.docidentifier.find(&:primary).content.to_s
+      end
+      expect(ids).to contain_exactly("ISO/DIS 15869.3", "ISO/DIS 15869-3")
+      expect(indexed.size).to eq(2)
+      expect(indexed.map(&:last).uniq.size).to eq(2)
+    end
+  end
+
   describe "#download_jsonl" do
     let(:fetcher) { described_class.new(output_dir, "yaml") }
     let(:url) { "https://example.com/iso/data.jsonl" }
