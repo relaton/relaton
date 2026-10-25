@@ -23,10 +23,15 @@ module Relaton
         attribute :docnumber, :string
         attribute :date, Date, collection: true, initialize_empty: true
         attribute :contributor, Contributor, collection: true, initialize_empty: true
-        # Lenient ingest: some upstream corpus documents carry more than one
-        # <edition> in a bibitem (multi-edition bibdata, relaton-db#149); keep
-        # the first instead of failing the whole round-trip with
-        # CollectionTrueMissingError (lutaml-model#971, singular_tolerance).
+        # THE LAW: a bibitem has exactly one edition. A second <edition>
+        # element is always wrong output — in the one known case, the
+        # iso-10303 collection render fused the SMRL library bibdata (a
+        # different document that contains the parts) into part bibitems
+        # (relaton-db#149). The tolerance is a crash guard against that
+        # wrong output: it keeps the bibitem's own (leading) edition instead
+        # of aborting the round-trip with CollectionTrueMissingError
+        # (lutaml-model#971). The emitter fix is the real fix; this must
+        # never fire on correct data.
         attribute :edition, Edition, singular_tolerance: :first
         attribute :version, Version, collection: true, initialize_empty: true
         attribute :note, Note, collection: true, initialize_empty: true
