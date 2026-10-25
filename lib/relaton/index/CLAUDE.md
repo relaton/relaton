@@ -54,7 +54,8 @@ bin/console
 4. Search matches against `:id` field (string comparison via `include?` or custom block)
 5. `save` writes index as YAML to local file
 
-With `pages_url:` (W3C, the #189 pilot) steps 2–3 change: a non-String query
+With `pages_url:` (#189; W3C piloted it, and every indexed flavor's consumer
+now uses it except JIS, NIST and Plateau, which still read the zip) steps 2–3 change: a non-String query
 goes to `ShardSource#rows` and reads one shard, and `Type#index` (a String query,
 a block-only search) is `ShardSource#whole_index`, the `<index>.zip` that the
 manifest names, read from the Pages site. No `FileIO#read`, no disk cache.
@@ -172,8 +173,8 @@ the same arguments:
 | call site | `url:` | `pubid_class:` |
 |---|---|---|
 | producer — `DataFetcher#index` | none (`file:` is CWD-relative) | **yes** — `FileIO#save` calls `to_hash` only for instances of it |
-| consumer — `Bibliography`/`HitCollection#index` | the published `.zip` | **yes** — without it the rows stay raw hashes and `Type#search` stops narrowing |
-| consumer on the Pages shards (W3C) | none; **`pages_url:`** | **yes** — a shard row is deserialized with it |
+| consumer on the zip (JIS, NIST, Plateau) — `Bibliography`/`HitCollection#index` | the published `.zip` | **yes** — without it the rows stay raw hashes and `Type#search` stops narrowing |
+| consumer on the Pages shards (all other indexed flavors) | none; **`pages_url:`** | **yes** — a shard row is deserialized with it |
 | delete — `Processor#remove_index_file` | **`true`** | **no** |
 
 The delete path is `Type#remove_file` → `FileIO#remove` →

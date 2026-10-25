@@ -193,7 +193,7 @@ The `:supplement_year` exclude key is a different thing and stays.
 
 ## Testing
 
-RSpec with WebMock + VCR (cassettes in `spec/vcr_cassettes/`, record `:once`, 7-day re-record). Network is blocked via WebMock. No index fixture — CEN is scraped, not indexed; `spec/fixtures/` holds XML/YAML round-trip data. The scraper is inherently brittle to portal HTML changes.
+RSpec with WebMock + VCR (cassettes in `spec/vcr_cassettes/`, record `:once`, never auto-rerecorded). Network is blocked via WebMock. No index fixture — CEN is scraped, not indexed; `spec/fixtures/` holds XML/YAML round-trip data. The scraper is inherently brittle to portal HTML changes.
 
 - `spec/cen/relaton/cen/docidentifier_spec.rb` unit-tests the three mutators over
   every identifier form the portal serves, including the two rows above that the

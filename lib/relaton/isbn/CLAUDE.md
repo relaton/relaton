@@ -36,7 +36,7 @@ Uses `Relaton::Bib::` namespace (not the old `RelatonBib::`). Key classes: `Item
 
 ## Testing
 
-- **VCR** records HTTP interactions in `spec/vcr_cassettes/` (re-records every 7 days)
+- **VCR** records HTTP interactions in `spec/vcr_cassettes/` (never auto-rerecorded; re-record deliberately)
 - **WebMock** disables real HTTP by default
 - **SimpleCov** tracks coverage
 - Fixtures in `spec/fixtures/`

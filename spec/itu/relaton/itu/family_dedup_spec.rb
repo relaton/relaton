@@ -13,7 +13,7 @@ require "relaton/itu/family_cache"
 #
 # Stubbed rather than cassette-backed on purpose: this file's convention is one
 # cassette per example (a shared cassette gets truncated to the first example's
-# requests when the 7-day re-record fires), and what is under test here is the
+# requests when it is re-recorded), and what is under test here is the
 # de-duplication mechanism, not ITU's bytes.
 RSpec.describe "ITU-T family de-duplication" do
   # Two sibling editions of one recommendation, exactly as getRecEditions

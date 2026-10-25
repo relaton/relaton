@@ -36,7 +36,7 @@ Key classes in `lib/relaton/doi/`:
 ## Test Setup
 
 - **RSpec** with `expect` syntax only (monkey patching disabled)
-- **VCR** cassettes in `spec/vcr_cassettes/` record Crossref HTTP responses, re-recorded every 7 days on purpose (see root `CLAUDE.md`). Because Crossref rate-limits, **re-record this suite alone** — under parallel `rake spec` it answers 429 and the empty body gets recorded as if it were data.
+- **VCR** cassettes in `spec/vcr_cassettes/` record Crossref HTTP responses and are never auto-rerecorded (see root `CLAUDE.md`). Because Crossref rate-limits, **re-record this suite alone** — under parallel `rake spec` it answers 429 and the empty body gets recorded as if it were data.
 - **XML fixtures** in `spec/fixtures/` — expected output XML files. The `read_fixture` helper auto-substitutes today's date into `<fetched>` tags.
 - **equivalent-xml** gem for XML comparison in integration tests
 - Integration tests in `spec/relaton/doi_spec.rb` cover 40+ document types via VCR cassettes

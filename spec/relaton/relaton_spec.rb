@@ -319,11 +319,19 @@ RSpec.describe Relaton::Db do
     expect(cached.docidentifier.first.content.to_s).to eq "CC/DIR 10005:2019"
   end
 
+  # Routing, not retrieval. This used to replay `omg_ami4ccm_1_0.yml`, a live
+  # www.omg.org scrape, and the 7-day re-record hid that the flavor had moved
+  # to the Pages machine index: once the cassette replayed as committed
+  # (relaton#360), VCR raised UnhandledHTTPRequestError for the manifest.
   it "get OMG reference" do
-    VCR.use_cassette "omg_ami4ccm_1_0" do
-      bib = @db.fetch "OMG AMI4CCM 1.0", nil, {}
-      expect(bib).to be_instance_of Relaton::Omg::ItemData
-    end
+    docid = Relaton::Bib::Docidentifier.new(content: "OMG AMI4CCM 1.0",
+                                            type: "OMG", primary: true)
+    item = Relaton::Omg::ItemData.new docidentifier: [docid]
+    expect(Relaton::Omg::Bibliography).to receive(:get)
+      .with(pubid_of("OMG AMI4CCM 1.0"), nil, {}).and_return item
+
+    bib = @db.fetch "OMG AMI4CCM 1.0", nil, {}
+    expect(bib).to be_instance_of Relaton::Omg::ItemData
   end
 
   # it "get UN reference" do
