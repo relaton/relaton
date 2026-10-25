@@ -320,7 +320,9 @@ module Relaton
         elsif id.is_a?(String)
           item[:id].to_s.include?(id)
         else
-          id === item[:id] || item[:id].wrapped_edition_of?(id)
+          id === item[:id] ||
+            (item[:id].is_a?(::Pubid::Identifier) &&
+             item[:id].wrapped_edition_of?(id))
         end
       end
     end
