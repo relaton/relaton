@@ -93,9 +93,11 @@ takes `pages_url:` in place of `url:`; the `Type` then reads the data repo's Pag
 machine index (`index/manifest.json` + one `index/shard-NNNNN.json`) through
 `Relaton::Index::ShardSource`, in memory for 24 h, with no disk cache and **no
 fallback** to the `index-vN.zip` — a transport failure raises
-`Relaton::RequestError`, a shard 404 is "not found". Only `Relaton::W3c` uses it
-so far (`Bibliography::PAGES_URL`); the other flavors still read the zip until
-their Pages sites publish a manifest. See `lib/relaton/index/CLAUDE.md`.
+`Relaton::RequestError`, a shard 404 is "not found". W3C piloted it; every
+indexed flavor's consumer now passes its `PAGES_URL` constant, except JIS, NIST
+and Plateau, which still read the zip until their Pages sites publish a
+manifest. (A flavor may still scrape when the index has no record, as OMG does,
+but never falls back to the zip.) See `lib/relaton/index/CLAUDE.md`.
 
 **The `Db` cache is keyed by pubid (relaton#189 item 2, #204).** `Db::Cache`
 is an index on two lutaml-store `FileSystem` stores (`<dir>/v2/{rows,docs}`),
