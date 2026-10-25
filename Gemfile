@@ -73,7 +73,11 @@ gemspec
 # ruling (pubid#598/#602): a joint row carrying a numeric /D designator
 # is a draft, and its face carries the word Draft alongside the P
 # (pubid#597). The two P24774 rawbib pins move onto the Draft faces.
-gem "pubid", "2.0.0.pre.alpha.59"
+# alpha.60-62 converge the Draft component and add wrapped_edition_of?
+# to the relational vocabulary (pubid#601/#606, pubid#580's ruling): a
+# dated base query resolves the wrapped record of that edition. No
+# rawbib expectation moves; the retrieval fixture's wrapper case flips.
+gem "pubid", "2.0.0.pre.alpha.62"
 
 
 # Default group (installed even when the release strips dev/test): the release

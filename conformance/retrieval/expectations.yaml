@@ -30,13 +30,14 @@ cases:
   query: "IEC CA 01:2020 CSV"
   expect:
   - data/iec-ca-01-2020-csv.yaml
-- name: base query misses the wrapper of the same edition
-  pinned: wrappers are reachable only by delivery-qualified query or the
-    family() view — a base query for the wrapped edition resolves to nothing
-    when no bare base row exists. Relaton::Db consults family() for this;
-    consumers of the raw index must too (pubid === semantics, alpha.48).
+- name: dated base query resolves the wrapped record of that edition
+  pinned: pubid#580's ruling — the undated query is the family wildcard, so
+    a dated base query names exactly one edition, and the record that IS
+    that edition answers through pubid's wrapped_edition_of? even when its
+    printed identity is one level down inside the wrapper.
   query: "IEC CA 01:2020"
-  expect: []
+  expect:
+  - data/iec-ca-01-2020-csv.yaml
 - name: family groups the edition ladder and the wrapper
   query: "IEC CA 01"
   family: true

@@ -308,14 +308,19 @@ module Relaton
       end
 
       # The query is the reference, so two identifiers take the subset match.
-      # See #search for the exact-equality escape hatch.
+      # See #search for the exact-equality escape hatch. A dated base query
+      # also resolves a wrapped record of exactly that edition (pubid#580's
+      # ruling): the undated query is the family wildcard, so the dated one
+      # names one edition, and the record embodying it answers through
+      # pubid's wrapped_edition_of? even when its printed identity is one
+      # level down ("IEC CA 01:2020" → the CSV wrapper).
       def match_item(item, id)
         if item[:id].is_a?(String)
           item[:id].include?(id.is_a?(String) ? id : id.to_s)
         elsif id.is_a?(String)
           item[:id].to_s.include?(id)
         else
-          id === item[:id]
+          id === item[:id] || item[:id].wrapped_edition_of?(id)
         end
       end
     end
