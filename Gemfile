@@ -69,7 +69,12 @@ gemspec
 # (pubid#595): the draft reader stores the compact wire form and
 # from_hash materializes the runtime components, so rebuilt IEEE rows
 # compare equal to their parses.
-gem "pubid", "2.0.0.pre.alpha.57"
+# alpha.58-59 carry the draft wire-form convergence and the joint /D
+# ruling (pubid#598/#602): a joint row carrying a numeric /D designator
+# is a draft, and its face carries the word Draft alongside the P
+# (pubid#597). The two P24774 rawbib pins move onto the Draft faces.
+gem "pubid", "2.0.0.pre.alpha.59"
+
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake
