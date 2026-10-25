@@ -142,7 +142,8 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
   it_behaves_like "parse normtitle", "ISO/IEC/IEEE CD2 P12207-2: 201x(E), February 2019", "ISO/IEC/IEEE CD2 P12207.2-2019-02"
   it_behaves_like "parse normtitle", "ISO/IEC/IEEE P42010.WD4:2019(E)", "ISO/IEC/IEEE P42010/D4, 2019"
   it_behaves_like "parse normtitle", "IEC/IEEE P63195_CDV/V3, February 2020", "IEC/IEEE CDV3 P63195, February 2020"
-  it_behaves_like "parse normtitle", "ISO /IEC/IEEE P24774_D1, February 2020", "ISO/IEC/IEEE P24774/D1, Feb 2020"
+  # pubid#597: the joint /D rows take the Draft word alongside the P.
+  it_behaves_like "parse normtitle", "ISO /IEC/IEEE P24774_D1, February 2020", "ISO/IEC/IEEE Draft P24774/D1, Feb 2020"
   it_behaves_like "parse normtitle", "IEEE/ISO/IEC P42010.CD1-V1.0, April 2020", "IEEE/ISO/IEC CD1 P42010-2020-04"
   it_behaves_like "parse normtitle", "ISO/IEC/IEEE/P16085_DIS, March 2020", "ISO/IEC/IEEE DIS P16085-2020-03"
   it_behaves_like "parse normtitle", "ISO/IEC/IEEE P24774/DIS, July 2020", "ISO/IEC/IEEE P24774/D=DIS-202007"
@@ -162,7 +163,7 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
   it_behaves_like "parse normtitle", "Amendment to IEEE Std 802.11-2007 as amended by IEEE Std 802.11k-2008...", "IEEE Std 802.11u-2007"
   it_behaves_like "parse normtitle", "Std 11073-10417-2009", "IEEE Std 11073-10417-2009"
   it_behaves_like "parse normtitle", "ANSI/ IEEE C37.23-1969", "ANSI/IEEE C37.23-1969"
-  it_behaves_like "parse normtitle", "ISO /IEC/IEEE P24774_D3, January 2021", "ISO/IEC/IEEE P24774/D3, Jan 2021"
+  it_behaves_like "parse normtitle", "ISO /IEC/IEEE P24774_D3, January 2021", "ISO/IEC/IEEE Draft P24774/D3, Jan 2021"
   it_behaves_like "parse normtitle", "Nuclear EQ Sourcebook and Supplement", "IEEE Std 7438946"
   it_behaves_like "parse normtitle", "IEEE Unapproved Draft Std P802.3-2008 (P802.3bb)/Cor 1/D2.0, Jul 2009", "IEEE Unapproved P802.3-2008/D2.0-2009-07 (IEEE P802.3bb)/Cor. 1"
 
