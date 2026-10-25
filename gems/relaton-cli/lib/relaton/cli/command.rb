@@ -212,7 +212,14 @@ module Relaton
       end
 
       desc "convert XML", "Convert Relaton XML document"
-      option :format, aliases: :f, required: true, desc: "Output format (yaml, bibtex, asciibib)"
+      option :format, aliases: :f, required: true,
+             desc: "Output format (yaml, bibtex, asciibib, citation)"
+      # Plain-text citation rendering via relaton-render's CitationStyle
+      # instances (relaton-cli#94): the style names a Style YAML, the engine
+      # stays style-free.
+      option :style, desc: "Citation style for --format citation " \
+             "(author-date, apa, chicago, ieee-sa, lncs; a Style YAML path " \
+             "also works). Default: author-date"
       option :output, aliases: :o, desc: "Output to the specified file"
 
       def convert(file) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
@@ -220,11 +227,20 @@ module Relaton
         item = Relaton::Cli.parse_xml xml
         result = if /yaml|yml/.match?(options[:format])
                    item.to_yaml
+                 elsif options[:format] == "citation"
+                   # The paths that exist in every published relaton-render;
+                   # the gem's conventional "relaton/render" entry is newer.
+                   require "relaton/render/general"
+                   require "relaton/render/iso690"
+                   Relaton::Render::General
+                     .new(style: options[:style] || "author-date")
+                     .render(item, embedded: true)
                  else item.send "to_#{options[:format]}"
                  end
         ext = case options[:format]
               when "bibtex" then "bib"
               when "asciibib" then "adoc"
+              when "citation" then "txt"
               else options[:format]
               end
         output = options[:output] || file.sub(/(?<=\.)[^.]+$/, ext)

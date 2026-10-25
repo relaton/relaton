@@ -42,6 +42,9 @@ Gem::Specification.new do |spec|
   # relaton bundles every flavor plus Relaton::Bib, so depending on `relaton`
   # alone is sufficient — relaton-bib is no longer published standalone.
   spec.add_dependency "relaton", "= #{relaton_version}"
+  # Plain-text citation rendering (relaton-cli#94); the constraint mirrors
+  # the parent relaton gemspec's.
+  spec.add_dependency "relaton-render", ">= 3.0.0.pre.alpha.1", "< 4"
   spec.add_dependency "thor"
   spec.add_dependency "thor-hollaback"
 end
