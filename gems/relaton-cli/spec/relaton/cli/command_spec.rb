@@ -62,6 +62,23 @@ RSpec.describe Relaton::Cli::Command do
       File.delete output
     end
 
+    it "to Citation (plain text, default style)" do
+      file = "spec/fixtures/bib_item.xml"
+      output = "spec/fixtures/bib_item.txt"
+      Relaton::Cli::Command.start ["convert", file, "-f", "citation"]
+      expect(File.read(output)).to include("ISO 55000")
+      File.delete output
+    end
+
+    it "to Citation (apa style)" do
+      file = "spec/fixtures/bib_item.xml"
+      output = "spec/fixtures/bib_item.txt"
+      Relaton::Cli::Command.start ["convert", file, "-f", "citation",
+                                   "--style", "apa"]
+      expect(File.read(output)).to include("ISO 55000")
+      File.delete output
+    end
+
     it "output to specifed file" do
       file = "spec/fixtures/bib_item.xml"
       output = "spec/fixtures/example.yaml"
