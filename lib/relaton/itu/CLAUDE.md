@@ -646,8 +646,8 @@ is gone (see **Runtime lookup**).
   `spec/itu/vcr_cassettes/itu_r_re*` cassettes back `data_crawler_r_spec.rb`, and
   each is owned by **exactly one example**. That is not stylistic: VCR re-records
   per cassette *insertion*, so a cassette shared across several examples is
-  truncated to the first example's requests the moment the 7-day
-  `re_record_interval` fires (verified — `itu_r_rec_bo` went 10 interactions → 1
+  truncated to the first example's requests the moment it is re-recorded
+  (verified — `itu_r_rec_bo` went 10 interactions → 1
   and took 15 examples down with it). If you add a crawler example, give it its
   own cassette rather than reusing one.
 
@@ -667,7 +667,7 @@ is gone (see **Runtime lookup**).
   responses. VCR ignores only `index-v2.zip` (the index comes from the fixture
   above), so the per-record `raw.githubusercontent.com/…/data/*.yaml` GETs **are**
   recorded. Re-record by deleting the file and running the suite with network
-  access; `re_record_interval` is 7 days, so a stale-cassette run refreshes them.
+  access. `re_record_interval` is nil, so a cassette never refreshes by itself.
 - **Coverage:** SimpleCov, target near 100%
 
 Round-trip tests (serialize → deserialize → compare) are the primary pattern for model classes.

@@ -5,7 +5,7 @@ require "relaton/itu/data_fetcher"
 #
 # **One cassette per example, deliberately.** VCR re-records per cassette
 # *insertion*, so a cassette shared across several examples is truncated to the
-# first example's requests when the suite's 7-day `re_record_interval` fires —
+# first example's requests when the suite is re-recorded —
 # verified: `itu_r_rec_bo` went from 10 interactions to 1 and took 15 examples
 # down with it. Each cassette below is therefore owned by exactly one example,
 # which is what lets the refresh work as intended (see the cassette conventions

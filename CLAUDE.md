@@ -257,21 +257,28 @@ suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
   cassette still held the dead `index-v1.zip`, so VCR raised
   `UnhandledHTTPRequestError` even though nothing about routing had changed.
 - **Cassettes never auto-rerecord — re-recording is a deliberate act.** Every
-  `spec/<flavor>/support/vcr.rb` sets `re_record_interval: nil`: CI replays the
-  committed cassettes hermetically, and a suite failure is a real regression or
-  a real upstream move to reconcile — never ambient re-recording noise. (The
-  former 7-day `re_record_interval` was removed fleet-wide in 2026-10: the
-  auto-rerecord fired inside CI against unreachable or drifted live hosts and
-  wrote dead recordings.) When upstream moves, re-record **deliberately** —
+  VCR config — each `spec/<flavor>/support/vcr.rb`, the umbrella suite's
+  `spec/relaton/support/umbrella.rb` and `gems/relaton-cli/spec/support/vcr.rb`
+  — sets `re_record_interval: nil`, and `spec/relaton/vcr_policy_spec.rb`
+  fails on any other value anywhere under `spec/` or `gems/relaton-cli/spec/`
+  (so a copied config for a new flavor cannot bring the interval back). CI
+  replays the committed cassettes hermetically, and a suite failure is a real
+  regression or a real upstream move to reconcile — never ambient re-recording
+  noise. (The former 7-day `re_record_interval` was removed fleet-wide in
+  2026-10: the auto-rerecord fired inside CI against unreachable or drifted
+  live hosts and wrote dead recordings. The umbrella and relaton-cli configs
+  kept it until relaton#360: most umbrella cassettes read `relaton-data-*`
+  records from GitHub, which are already stable Relaton, so a re-record had no
+  publisher format change to detect — and it hid a stale OMG cassette, now a
+  stub.) When upstream moves, re-record **deliberately** —
   delete the cassette and re-run that suite alone (never under parallel
   `rake spec`, which trips rate limits and writes 429/5xx bodies), then
   reconcile the fixtures in the same commit. **Don't `git checkout` a cassette
   diff you haven't diagnosed, and don't pin cassettes to `record: :none`** —
   the recorded interactions are the only executable record of each upstream
-  contract. Note VCR gates any rerecord on `InternetConnection.available?`
-  (a TCP ping to example.com, not the cassette's host), so a green-looking
-  re-record behind a restricted network may have silently replayed — confirm
-  `recorded_at` moved.
+  contract. With no interval, `clean_outdated_http_interactions` does nothing
+  either, and the one way to refresh is to delete the cassette: with no
+  network the example then fails loudly instead of replaying.
 - **A 404 on a data-repo document usually means a stale cached index fixture.**
   The common way a refresh turns a suite red: `relaton-data-<flavor>` renamed its
   documents and republished its index, but the suite's **cached** index —
@@ -287,17 +294,13 @@ suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
   `data/ieee-p802-16-d5-cor-1-2005.yaml` *and* its base id went from
   `_type: pubid:ieee:standard` (with `year`, `prefix: P`) to
   `_type: pubid:ieee:project-draft-identifier` (with `type: P`, no year).
-- **A refresh that silently does nothing looks exactly like a passing suite.**
-  VCR gates `re_record_interval` on `InternetConnection.available?`, which is a
-  TCP ping to **`example.com:80`** — not to the host the cassette actually names.
-  Where that host is unreachable (a restricted network, a filtering proxy), VCR
-  skips every re-record and replays the stale cassette, and the suite goes green
-  without refreshing a thing. Two follow-on traps in the same setting: the
+- **A re-record behind a proxy can fail on a host `curl` reaches.** The
   flavors that crawl with **Mechanize** (doi, itu, ecma, …) do **not** read
   `http_proxy`/`https_proxy` the way `Net::HTTP` does, so a re-record behind a
-  proxy dies with `Socket::ResolutionError` on a host `curl` reaches fine. Before
-  trusting a refresh, confirm the cassettes' `recorded_at` actually moved —
-  `git status` naming no cassette after a full run is the tell.
+  proxy dies with `Socket::ResolutionError`. After a deliberate re-record,
+  confirm the cassettes' `recorded_at` moved. (Before relaton#360 a 7-day
+  interval re-recorded silently, gated on a TCP ping to `example.com:80`; with
+  the interval nil that path is gone.)
 - **A cassette refresh is only half the reconciliation — the expected-XML fixtures
   go with it.** Many specs compare `to_xml` against a committed
   `spec/<flavor>/fixtures/*.xml`. Re-recording the cassette changes what the code

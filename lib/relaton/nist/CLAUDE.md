@@ -135,19 +135,16 @@ errors = schema.validate(file)
 ### HTTP Recording
 
 Tests use VCR with WebMock. Cassettes are stored in `spec/vcr_cassettes/` and
-`spec/support/vcr.rb` sets `record: :once` **with `re_record_interval: 7 days`**.
+`spec/support/vcr.rb` sets `record: :once` with `re_record_interval: nil`, so a
+cassette replays as committed and never re-records by itself (relaton#360).
 
-**Gotcha (this bites periodically):** once a cassette is older than 7 days, the
-next run **re-records it from the live network** — so the suite is not truly
-deterministic. Two known failure modes when that fires: the NIST GitHub source
-data can drift (an author renamed, a `loc.gov` `identifier` dropped) so the
-round-tripped XML no longer matches the on-disk `spec/fixtures/*.xml` fixtures;
-and any flavor whose upstream throttles the recorder records a bad response.
-When cassettes show up mass-modified in `git status` for no code reason, that's
-the 7-day re-record firing, not a manual change. To recover: re-record cleanly
-(delete the stale cassette, run the spec) and, for the integration fixtures that
-compare full XML (`get.xml`, `hit.xml`, `hit_bibitem.xml`), regenerate them
-(delete → the spec rewrites them via `File.write … unless File.exist?`).
+**When you re-record deliberately:** the NIST GitHub source data can drift (an
+author renamed, a `loc.gov` `identifier` dropped), so the round-tripped XML no
+longer matches the on-disk `spec/fixtures/*.xml` fixtures; and an upstream that
+throttles the recorder records a bad response. Delete the stale cassette, run
+the spec, and, for the integration fixtures that compare full XML (`get.xml`,
+`hit.xml`, `hit_bibitem.xml`), regenerate them (delete → the spec rewrites them
+via `File.write … unless File.exist?`) and read the diff.
 
 ### Test Data Stubbing
 

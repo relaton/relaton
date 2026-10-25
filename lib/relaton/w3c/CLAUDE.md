@@ -323,7 +323,7 @@ Tests use [Jing](https://github.com/jing-trang/jing-trang) for RelaxNG validatio
 Tests use RSpec with:
 - **Round-trip tests** — YAML/XML → object → YAML/XML, verifying lossless serialization
 - **Schema validation** — XML output validated against `grammars/relaton-w3c-compile.rng`
-- **VCR** — recorded HTTP cassettes in `spec/vcr_cassettes/` (7-day re-record interval)
+- **VCR** — recorded HTTP cassettes in `spec/vcr_cassettes/` (never auto-rerecorded; re-record deliberately)
 - **WebMock** — disables external HTTP in tests
 
 Test fixtures live in `spec/fixtures/` (YAML and XML files).

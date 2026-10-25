@@ -32,4 +32,4 @@ Namespace: `Relaton::Bsi`. Retrieval flow:
 
 ## Testing
 
-RSpec with WebMock + VCR (cassettes in `spec/vcr_cassettes/`, record `:once`, 7-day re-record). Network is blocked via WebMock. No index fixture — BSI has no curated index; `spec/fixtures/` holds XML/YAML round-trip data.
+RSpec with WebMock + VCR (cassettes in `spec/vcr_cassettes/`, record `:once`, never auto-rerecorded). Network is blocked via WebMock. No index fixture — BSI has no curated index; `spec/fixtures/` holds XML/YAML round-trip data.
