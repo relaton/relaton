@@ -218,7 +218,7 @@ module Relaton
       # instances (relaton-cli#94): the style names a Style YAML, the engine
       # stays style-free.
       option :style, desc: "Citation style for --format citation " \
-             "(author-date, apa, chicago, ieee-sa, lncs; a Style YAML path " \
+             "(author-date, apa, chicago, mla, ieee-sa, lncs; a Style YAML path " \
              "also works). Default: author-date"
       option :output, aliases: :o, desc: "Output to the specified file"
 
