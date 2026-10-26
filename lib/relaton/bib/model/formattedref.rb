@@ -1,15 +1,10 @@
 module Relaton
   module Bib
     class Formattedref < LocalizedMarkedUpString
-      attribute :format, :string
-
+      # No `format` attribute: the bibdata grammar dropped it (relaton-bib
+      # #94) — an ingested format= is silently dropped, never re-emitted.
       xml do
         root "formattedref"
-        map_attribute "format", to: :format
-      end
-
-      key_value do
-        map "format", to: :format
       end
 
       # Handle plain string input from YAML/JSON deserialization
@@ -35,7 +30,7 @@ module Relaton
       def self.simple_content?(instance, format)
         return false if format == :xml
 
-        instance.format.nil? && instance.language.nil? &&
+        instance.language.nil? &&
           instance.script.nil? && instance.locale.nil?
       end
     end
