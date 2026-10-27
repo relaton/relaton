@@ -11,3 +11,29 @@ RSpec.describe Relaton::Ieee::Bibliography do
     expect(described_class.send(:parse_pubid, pubid)).to be pubid
   end
 end
+
+RSpec.describe Relaton::Ieee::Bibliography, "row selection" do
+  # The preloaded fixture index (spec/ieee/support/webmock.rb) holds every
+  # 528 and 754 row of the published index: editions, redlines and drafts.
+  def row(ref, year = nil)
+    described_class.send(:find_row, Pubid::Ieee::Identifier.parse(ref), year)&.dig(:file)
+  end
+
+  it "takes the latest edition of an undated reference" do
+    expect(row("IEEE 528")).to eq "data/ieee-std-528-2019.yaml"
+    expect(row("IEEE 754")).to eq "data/ieee-std-754-2019.yaml"
+  end
+
+  it "takes the stated year" do
+    expect(row("IEEE 528-2001")).to eq "data/ieee-std-528-2001.yaml"
+    expect(row("IEEE 528", "1994")).to eq "data/ieee-std-528-1994.yaml"
+  end
+
+  it "takes a redline only when the reference names it" do
+    expect(row("IEEE Std 754-2019 - Redline")).to eq "data/ieee-std-754-2019-redline.yaml"
+  end
+
+  it "takes the publisher the reference names" do
+    expect(row("ANSI/IEEE 528")).to eq "data/ansi-ieee-528-1984.yaml"
+  end
+end

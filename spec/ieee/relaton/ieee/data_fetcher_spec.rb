@@ -40,7 +40,7 @@ RSpec.describe Relaton::Ieee::DataFetcher do
 
     context "when ouput file exists" do
       let(:bib) do
-        docid = Relaton::Bib::Docidentifier.new content: "IEEE 5678", primary: true
+        docid = Relaton::Ieee::Docidentifier.new content: "IEEE 5678", primary: true
         title = Relaton::Bib::Title.new(content: "Title")
         Relaton::Ieee::ItemData.new docnumber: "5678", title: [title], docidentifier: [docid]
       end
@@ -101,7 +101,7 @@ RSpec.describe Relaton::Ieee::DataFetcher do
 
       it "udate unresolved relations" do
         df.backrefs["3412"] = "7809"
-        docid = Relaton::Bib::Docidentifier.new content: "5678"
+        docid = Relaton::Ieee::Docidentifier.new content: "5678"
         title = Relaton::Bib::Title.new(content: "Title")
         bib = Relaton::Ieee::ItemData.new title: [title], docidentifier: [docid]
         expect(df).to receive(:read_bib).with("5678").and_return bib

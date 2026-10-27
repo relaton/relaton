@@ -24,10 +24,36 @@ serialized to the `_type: pubid:ieee:*` (lutaml) form, keyed on the index via
   loss is never silent. `DataFetcher.fetch` (doc generation) is unchanged — the
   data repo (`relaton-data-ieee`) calls `build_index` after obtaining `data/`.
 - **Read side.** `bibliography.rb#search` passes `pubid_class:` to `find_or_create`,
-  parses the query with `parse_pubid` (falling back to the raw String on failure),
-  passes the pubid to `index.search` for number-narrowing, and picks the row by
-  `row[:id].to_s`. `processor.rb#remove_index_file` passes `url: true` and `file:`
-  only: the delete never reads the index (see `lib/relaton/index/CLAUDE.md`).
+  parses the query with `parse_pubid` (falling back to the raw String on failure)
+  and passes the pubid to `index.search` for number-narrowing. A parsed query
+  selects its rows by **pubid equality with the year aside**
+  (`id.exclude(:year) == pubid.exclude(:year)`), so a redline, a draft, a
+  corrigendum and another number (`1003.10` for `1003.1`) never match. A dated
+  query (its own year, or the `year` argument) takes that year; an **undated**
+  query takes the **latest** edition, and `get` returns it as
+  `to_most_recent_reference` (undated IEEE docids, no date, an `instanceOf`
+  relation to the edition; `opts[:keep_year]` keeps it dated) — relaton-ieee#29.
+  Before this, a substring match + `min_by(to_s)` answered `IEEE 528` with the
+  oldest edition, `528-1994`. When equality finds nothing (an unparseable query,
+  or one of the ~4% of forms whose year pubid keeps elsewhere, e.g.
+  `IEEE Std 1003.1-1988/INT-1992`, the corrigendum's legacy base year), the old
+  substring match is the fallback. `processor.rb#remove_index_file` passes
+  `url: true` and `file:` only: the delete never reads the index (see
+  `lib/relaton/index/CLAUDE.md`).
+- **Why not `pubid === row`.** pubid declares no `subset_strict` attribute for
+  IEEE, so a nil `parts`, `prefix`, `draft` or `draft_status` in the query is a
+  wildcard: over the published index (12,616 rows) `===` let `IEEE 802.3` match
+  `802.3.1-2011` and `IEEE 754` match `IEEE Unapproved P754/D9.0`. Switch to
+  `index.search(pubid)` once pubid makes those strict, and re-measure `===`
+  against the equality over the full index first.
+- **`Relaton::Ieee::Docidentifier`.** `Item` holds this class (the producer
+  creates it too: `IdamsParser#docidentifier`, `DataFetcher`), because
+  `Bib::Docidentifier#remove_date!` is a no-op. Its `remove_date!` re-renders an
+  `IEEE` docid through pubid without the year (`to_s(trademark: true)` for the
+  `scope: trademark` one) and leaves an id **with no year** untouched: a
+  re-render would change a draft's spelling (`P802.5t™/D-2.5` →
+  `P802.5t®/D2.5`). `ItemData#to_most_recent_reference` drops the ISBN and
+  DOI, which name one edition.
 
 ## Identifier resolution (`RawbibIdParser`, pubid-first)
 

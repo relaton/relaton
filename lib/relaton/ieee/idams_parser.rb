@@ -92,7 +92,7 @@ module Relaton
       #
       # Parse identifiers
       #
-      # @return [Array<Relaton::Bib::Docidentifier>]
+      # @return [Array<Relaton::Ieee::Docidentifier>]
       #
       def parse_docidentifier # rubocop:disable Metrics/MethodLength
         ids = @doc.isbn_doi.map { |id| id[:content] = id.delete(:id); id }
@@ -102,7 +102,7 @@ module Relaton
           ids.unshift(content: pubid.to_s, type: "IEEE", primary: true)
         end
 
-        result = ids.map { |dcid| Bib::Docidentifier.new(**dcid) }
+        result = ids.map { |dcid| Docidentifier.new(**dcid) }
         @errors[:docidentifier] &&= result.empty?
         result
       end

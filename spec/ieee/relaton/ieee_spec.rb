@@ -51,21 +51,44 @@ RSpec.describe Relaton::Ieee do
       end
     end
 
-    # context "by reference without year" do
-    #   it do
-    #     VCR.use_cassette "ieee_528_no_year" do
-    #       result = RelatonIeee::IeeeBibliography.get "IEEE 528"
-    #       expect(result.docidentifier.first.id).to eq "IEEE 528-2019"
-    #     end
-    #   end
+    # relaton-ieee#29: an undated reference answers with the latest edition,
+    # as an undated item with an `instanceOf` relation to it.
+    context "by reference without year" do
+      it "returns the latest edition as an undated item" do
+        VCR.use_cassette "ieee_528" do
+          result = Relaton::Ieee::Bibliography.get "IEEE 528"
+          expect(result.docidentifier.map(&:content)).to eq ["IEEE Std 528", "IEEE Std 528™"]
+          expect(result.date).to be_empty
+          expect(result.relation.size).to eq 1
+          rel = result.relation.first
+          expect(rel.type).to eq "instanceOf"
+          expect(rel.bibitem.docidentifier[0].content).to eq "IEEE Std 528-2019"
+        end
+      end
 
-    #   it do
-    #     VCR.use_cassette "ieee_754" do
-    #       bib = RelatonIeee::IeeeBibliography.get "IEEE 754"
-    #       expect(bib.docidentifier[0].id).to eq "IEEE 754-2019"
-    #     end
-    #   end
-    # end
+      it "skips redlines and drafts" do
+        VCR.use_cassette "ieee_754" do
+          result = Relaton::Ieee::Bibliography.get "IEEE 754"
+          expect(result.docidentifier[0].content).to eq "IEEE Std 754"
+          rel = result.relation.find { |r| r.type == "instanceOf" }
+          expect(rel.bibitem.docidentifier[0].content).to eq "IEEE Std 754-2019"
+        end
+      end
+
+      it "takes the year argument" do
+        VCR.use_cassette "ieee_528_2001" do
+          result = Relaton::Ieee::Bibliography.get "IEEE 528", "2001"
+          expect(result.docidentifier[0].content).to eq "IEEE Std 528-2001"
+        end
+      end
+
+      it "keeps the year with keep_year" do
+        VCR.use_cassette "ieee_528_2019" do
+          result = Relaton::Ieee::Bibliography.get "IEEE 528", nil, keep_year: true
+          expect(result.docidentifier[0].content).to eq "IEEE Std 528-2019"
+        end
+      end
+    end
 
     it "by reference and wrong year" do
       expect do
