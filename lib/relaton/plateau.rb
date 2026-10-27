@@ -19,6 +19,7 @@ require_relative "plateau/processor"
 module Relaton
   module Plateau
     INDEXFILE = "index-v2"
+    PAGES_URL = "https://relaton.github.io/relaton-data-plateau/"
 
     class Error < StandardError; end
 
