@@ -13,12 +13,14 @@ module Relaton
       end
 
       def fetch(_source = nil)
+        docs = []
         Dir["iana-registries/**/*.xml"].each do |file|
           content = File.read file, encoding: "UTF-8"
-          parse(content) if content.include? "<registry"
+          collect content, docs if content.include? "<registry"
         rescue StandardError => e
           Util.error "Error: #{e.message}. File: #{file}"
         end
+        write_docs docs
         index.save
         report_errors
       end
@@ -50,12 +52,47 @@ module Relaton
         Util.warn "Skipping index entry for `#{docnumber}` (#{file}): #{e.message}"
       end
 
-      def parse(content)
+      # A registry element with no <record> children carries no registry data
+      # of its own: IANA wraps some registries in a same-titled <hide/> page
+      # (the language-tag-extensions wrapper around its "-1" child), and
+      # republishes child registries as standalone pages whose XML is empty
+      # (rpki-signed-objects). The saved record for such an element is a
+      # slug-titled, dateless duplicate of the registry that holds the
+      # records (relaton-iana#8, #9), so it never becomes a document: when a
+      # record-bearing document of the same registry id exists, it becomes an
+      # index alias to that document's file; otherwise it is dropped.
+      RegistryDoc = Struct.new(:bib, :empty)
+
+      def collect(content, docs)
         xml = Moxml.parse(content)
         registry = xml.at_xpath("/xmlns:registry", NS)
         doc = Parser.parse registry, nil, @errors
-        save_doc doc
-        registry.xpath("./xmlns:registry", NS).each { |r| save_doc Parser.parse(r, doc, @errors) }
+        docs << RegistryDoc.new(doc, recordless?(registry)) if doc
+        registry.xpath("./xmlns:registry", NS).each do |r|
+          child = Parser.parse r, doc, @errors
+          docs << RegistryDoc.new(child, recordless?(r)) if child
+        end
+      end
+
+      def recordless?(registry_el)
+        registry_el.xpath("./xmlns:record", NS).empty?
+      end
+
+      def write_docs(docs)
+        saved = {}
+        docs.each do |d|
+          if d.empty
+            Util.warn "Registry #{d.bib.docnumber} has no records; skipping"
+          elsif (file = save_doc d.bib)
+            saved[d.bib.id] = file
+          end
+        end
+        docs.select(&:empty).each do |d|
+          next unless (file = saved[d.bib.id])
+
+          Util.warn "Registry #{d.bib.docnumber} has no records; aliasing #{file}"
+          add_to_index d.bib.docnumber, file
+        end
       end
 
       #
@@ -83,6 +120,7 @@ module Relaton
         @files << file
         add_to_index bib.docnumber, file
         File.write file, serialize(bib), encoding: "UTF-8"
+        file
       end
 
       def to_xml(bib)
