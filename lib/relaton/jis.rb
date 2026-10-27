@@ -17,6 +17,7 @@ module Relaton
   module Jis
     # The pubid index. relaton-data-jis rebuilds the legacy index-v1 from data/.
     INDEXFILE = "index-v2"
+    PAGES_URL = "https://relaton.github.io/relaton-data-jis/"
 
     class Error < StandardError; end
 

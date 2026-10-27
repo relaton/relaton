@@ -14,7 +14,9 @@ RSpec.configure do |config|
 
     type = Relaton::Index::Type.new(:jis, file: index_file, pubid_class: ::Pubid::Jis::Identifier)
     type.index # force the offline read + deserialize now, before net is blocked
-    type.define_singleton_method(:actual?) { |**args| args.key?(:url) }
+    type.define_singleton_method(:actual?) do |**args|
+      args.key?(:url) || args.key?(:pages_url)
+    end
 
     Relaton::Index.pool.instance_variable_get(:@pool)[:JIS] = type
   end
