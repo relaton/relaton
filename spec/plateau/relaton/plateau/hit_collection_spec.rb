@@ -4,7 +4,7 @@ RSpec.describe Relaton::Plateau::HitCollection do
   before do
     expect(Relaton::Index).to receive(:find_or_create).with(
       :plateau,
-      pages_url: described_class::PAGES_URL,
+      pages_url: Relaton::Plateau::PAGES_URL,
       pubid_class: ::Pubid::Plateau::Identifier
     ).and_return(index)
   end
