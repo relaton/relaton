@@ -94,12 +94,25 @@ module Relaton
         # the canonical form without it, so the block also matches with the
         # moved year stripped. Rows are Pubid::Ieee::Identifier objects (not
         # Comparable), so pick by the string form.
+        #
+        # The project prefix moves too: "IEEE P802.21/D14" parses as a
+        # ProjectDraft, but the pre-publication crawl records spell the same
+        # document "IEEE Unapproved 802.21/D14, Sept 2008" — the Unapproved
+        # draft status occupies the slot the publisher and P would render in,
+        # so the row string contains neither (relaton-ieee#25). The draft
+        # number "/D14" still has to match, so the bare form cannot reach the
+        # published standard or a different draft — the variant exists only
+        # for a reference that names its draft.
         def substring_row(index, pubid)
           needle = pubid.to_s
+          # The publisher-and-prefix-stripped form; nil when there is no
+          # project-prefixed draft number.
+          stripped = needle.sub("IEEE P", "") if needle.match?(/\AIEEE P\S*\/D\d/i)
           index.search(pubid) do |r|
             id = r[:id].to_s
             id.include?(needle) ||
-              id.include?(needle.gsub(/, (19|20)\d{2}\//, "/"))
+              id.include?(needle.gsub(/, (19|20)\d{2}\//, "/")) ||
+              (stripped && id.include?(stripped))
           end.min_by { |r| r[:id].to_s }
         end
 
