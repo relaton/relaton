@@ -30,7 +30,7 @@ module Relaton
 
       def index
         @index ||= Relaton::Index.find_or_create(
-          :plateau, url: "#{ENDPOINT}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
+          :plateau, pages_url: PAGES_URL,
           pubid_class: ::Pubid::Plateau::Identifier
         )
       end

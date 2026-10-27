@@ -356,7 +356,7 @@ module Relaton
         end
 
         index = Relaton::Index.find_or_create(
-          :nist, url: "#{GHNISTDATA}#{INDEXFILE}.zip", file: "#{INDEXFILE}.yaml",
+          :nist, pages_url: PAGES_URL,
           pubid_class: ::Pubid::Nist::Identifier
         )
         # search(r) narrows candidates by number via binary search; the block
