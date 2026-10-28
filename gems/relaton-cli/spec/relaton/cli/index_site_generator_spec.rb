@@ -158,6 +158,40 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       end
     end
 
+    # relaton-iana#8, #9: the fetcher aliases a record-less id onto the
+    # record-bearing document's file. The machine index carries the alias
+    # as a row of its own, so either spelling resolves to the one document.
+    it "carries a committed alias id to the aliased file" do
+      Dir.mktmpdir("pubid-corpus-") do |repo|
+        FileUtils.mkdir_p(File.join(repo, "data"))
+        File.write(File.join(repo, "data", "iso-1000.yaml"), <<~YAML)
+          ---
+          docidentifier:
+          - content: ISO 1000-1:2014
+            primary: true
+          title:
+          - content: Standard 1
+            type: main
+        YAML
+        write_committed_index(repo, [
+          { id: { _type: "pubid:iso:international-standard", number: "1000",
+                  part: "1", year: "2014" }, file: "data/iso-1000.yaml" },
+          { id: { _type: "pubid:iso:international-standard", number: "1000" },
+            file: "data/iso-1000.yaml" },
+        ])
+        stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 10)
+        described_class.generate(File.join(repo, "data"),
+                                 { output: @out, generated: "2026-01-01", flavor: "iso" })
+
+        rows = YAML.safe_load_file(File.join(@out, "index-v2.yaml"), permitted_classes: [Symbol])
+        shapes = rows.map { |r| [(r[:id] || {})["number"], (r[:id] || {})["part"]] }
+        expect(shapes).to contain_exactly(
+          ["1000", "1"],
+          ["1000", nil],
+        )
+      end
+    end
+
     it "raises for a flavor no relaton namespace carries" do
       expect { described_class.generate(data_dir, output: @out, flavor: "nosuchflavor") }
         .to raise_error(ArgumentError, /nosuchflavor/)
