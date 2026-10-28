@@ -59,10 +59,21 @@ module Relaton
       def self.prune_attribute(base, attr_name, xml_name)
         return unless base.attributes.key?(attr_name)
 
+        # lutaml-model 0.8.142 shares a subclass's mappings/attributes with
+        # its superclass until the class's own DSL forks them (copy-on-write).
+        # These deletes must stay private to `base`: without the fork, pruning
+        # Bibdata's :id erased it from Bibitem (and Bibitem's :ext from
+        # Bibdata), and every from_xml raised "Attribute ... not found".
+        # 0.8.141 and older give each class private copies and have no
+        # lutaml_cow_fork!, where mutating in place was already safe.
+        if base.respond_to?(:lutaml_cow_fork!)
+          base.lutaml_cow_fork!(:mappings)
+          base.lutaml_cow_fork!(:attributes)
+        end
         xml_mapping = base.mappings[:xml]
         xml_mapping.instance_variable_get(:@elements).delete(xml_name)
         xml_mapping.instance_variable_get(:@attributes).delete(xml_name)
-        base.attributes.delete(attr_name)
+        base.class_attributes.delete(attr_name)
       end
 
       XML_BODY = lambda do # rubocop:disable Metrics/BlockLength
