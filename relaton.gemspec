@@ -90,6 +90,14 @@ Gem::Specification.new do |spec|
   spec.add_dependency "moxml", ">= 0.5"
   spec.add_dependency "leptris", ">= 1.9.80"
   spec.add_dependency "parallel", "~> 1.26"
+  # TEMP PIN: parsanol 1.3.110 made the v2 named-tree dialect its default, and
+  # pubid then parses a digit run as a per-atom list (`"number" =>
+  # "[{digit: \"2\"}, …]"`; 1.3.111 too). The Gemfile pin covers only this
+  # repo's bundle: the relaton-data-* crawlers bundle relaton from git with no
+  # lock, so on 2026-10-27 they resolved 1.3.111 and published parse-tree
+  # indexes (relaton-itu#64). Drop the cap once pubid parses the v2 dialect.
+  # `spec/relaton/parsanol_dialect_spec.rb` guards this constraint.
+  spec.add_dependency "parsanol", ">= 1.3.62", "< 1.3.110"
   spec.add_dependency "parslet", "~> 2.0.0"
   # 2.0.0.pre.alpha.11 is the first release with `Pubid::Errors`, which relaton
   # and relaton-cli rescue. `alpha.10` sorts below `pre.alpha.8`, so the old
