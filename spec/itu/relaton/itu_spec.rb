@@ -199,6 +199,16 @@ RSpec.describe Relaton::Itu do
       end
     end
 
+    # relaton-itu#64: both the bare and the edition-0 reference resolve to the
+    # dataset's only edition of the recommendation.
+    ["ITU-R TF.2018", "ITU-R TF.2018-0"].each do |ref|
+      it "recommendation #{ref}", vcr: { cassette_name: "itu_r_tf_2018_0" } do
+        bib = Relaton::Itu::Bibliography.get ref
+        expect(bib.docidentifier[0].content).to eq "ITU-R TF.2018-0"
+        expect(bib.title[0].content).to start_with "Relativistic time transfer"
+      end
+    end
+
     it "radio regulation" do
       VCR.use_cassette "itu_r_rr_2020" do
         bib = Relaton::Itu::Bibliography.get "ITU-R RR (2020)"

@@ -192,6 +192,20 @@ as `Lutaml::Hal::ParsingError`, and the whole `spec/w3c` suite fails. Nothing el
 in the bundle asks for json 3. Drop the pin once Faraday parses with keyword
 options; `spec/w3c/relaton/w3c/faraday_json_spec.rb` is the guard that says when.
 
+**`parsanol` is capped below 1.3.110 in `relaton.gemspec`, not only in the
+`Gemfile`.** parsanol 1.3.110 (and 1.3.111) made the v2 named-tree dialect the
+default, and pubid then parses a digit run as a per-atom list
+(`"number" => "[{digit: \"2\"}, …]"`). The first fix pinned `1.3.109` in the
+`Gemfile` only — and a Gemfile pin does not reach a dependent bundle. The
+`relaton-data-*` crawlers bundle relaton and pubid from git with no lock, so on
+2026-10-27 they resolved 1.3.111 and published Pages indexes whose rows were
+parse trees (3gpp, iana, ieee, itu, itu-r, oiml at least): the crc32 shard key
+was wrong and no lookup matched (relaton-itu#64). **A constraint the data repos
+must obey belongs in the gemspec.** `spec/relaton/parsanol_dialect_spec.rb`
+guards it. Once pubid parses the v2 dialect, remove together: the gemspec cap,
+the `parsanol "1.3.109"` pins in `Gemfile` and `gems/relaton-cli/Gemfile`, and
+the guard's `1.3.110` example.
+
 **Stale-pubid-lock trap.** `Gemfile.lock` is gitignored, so the installed pubid
 is whatever a past `bundle install` froze. A lock left behind by an earlier
 session (for example one still locked to the old `git: …/pubid.git` source)
