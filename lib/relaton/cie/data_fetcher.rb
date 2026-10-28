@@ -329,34 +329,39 @@ module Relaton
       def fetch_contributor(doc) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity
         authors = doc.xpath('//hgroup/p[not(@class="pub_date")]').text.gsub "\"", ""
         contribs = []
-        until authors.empty?
-          /^(?<sname1>\S+(?:\sder?\s)?[^\s,]+)
-          (?:,?\s(?<sname2>[\w-]{2,})(?=,\s+\w\.))?
-          (?:,?\s(?<fname>W-T\.[\w-]{2,})(?!,\s+\w\.))?
-          (?:(?:\s?,\s?|\s)(?<init>(?:\w(?:\s?\.|\s|,|$)[\s-]?)+))?
-          (?:(?:[,;]\s*|\s+|\.|(?<=\s))(?:and\s)?)?/x =~ authors
-          raise StandardError, "Author name not found in \"#{authors}\"" unless $LAST_MATCH_INFO
-
-          authors.sub! $LAST_MATCH_INFO.to_s, ""
-          sname = [sname1, sname2].compact.join " "
-          surname = Bib::LocalizedString.new content: sname, language: "en", script: "Latn"
-          forename = []
-          forename << Bib::FullNameType::Forename.new(content: fname, language: "en", script: "Latn") if fname
-          (init&.strip || "").split(/(?:,|\.)(?:-|\s)?/).each do |int|
-            forename << Bib::FullNameType::Forename.new(content: "", initial: int.strip, language: "en", script: "Latn")
-          end
-          fullname = Bib::FullName.new surname: surname, forename: forename
+        AuthorsParser.parse(authors).each do |author|
+          fullname =
+            if author.completename
+              Bib::FullName.new completename: name_string(author.completename)
+            else
+              Bib::FullName.new(
+                surname: name_string(author.surname),
+                forename: author.forenames.map { |f| forename(f) },
+              )
+            end
           person = Bib::Person.new name: fullname
           role = Bib::Contributor::Role.new type: "author"
           contribs << Bib::Contributor.new(person: person, role: [role])
-          @errors[:contributor_author] &&= contribs.empty?
         end
+        @errors[:contributor_author] &&= contribs.empty?
         org_name = Bib::TypedLocalizedString.new(content: "Commission Internationale de L'Eclairage")
         abbrev = Bib::LocalizedString.new content: "CIE"
         org_uri = Bib::Uri.new content: "cie.co.at"
         org = Bib::Organization.new(name: [org_name], abbreviation: abbrev, uri: [org_uri])
         org_role = Bib::Contributor::Role.new type: "publisher"
         contribs << Bib::Contributor.new(organization: org, role: [org_role])
+      end
+
+      def name_string(str)
+        Bib::LocalizedString.new content: str, language: "en", script: "Latn"
+      end
+
+      def forename(str)
+        if AuthorsParser.initials?(str)
+          Bib::FullNameType::Forename.new(initial: str.sub(/\.\z/, ""))
+        else
+          Bib::FullNameType::Forename.new(content: str)
+        end
       end
 
       def fetch_ext
