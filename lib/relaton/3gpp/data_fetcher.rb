@@ -42,7 +42,14 @@ module Relaton
           index.remove_all # if renewal
         end
         CSV.open(file, "r:bom|utf-8", headers: true, col_sep: ";").each do |row|
-          save_doc Parser.parse(row, @errors)
+          # The row carries the whole record payload, so an unchanged row
+          # skips the parse and the write (the digest ledger). The row is
+          # only read when the ledger is on.
+          key = @digest_ledger ? "#{row[0]}/#{row['Version']}" : nil
+          next if key && unchanged?(key, row.to_h)
+
+          file = save_doc Parser.parse(row, @errors)
+          note_digest key, row.to_h, file: file if key
         end
         File.write CURRENT, @current.to_yaml, encoding: "UTF-8"
         index.save
@@ -132,7 +139,11 @@ module Relaton
           @files << file
           index_primary bib1.docidentifier&.detect(&:primary), file
         end
-        File.write file, serialize(bib1), encoding: "UTF-8" unless bib1.nil?
+        return nil if bib1.nil?
+
+        File.write file, serialize(bib1), encoding: "UTF-8"
+        record_written file
+        file
       end
 
       #

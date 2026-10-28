@@ -61,16 +61,16 @@ module Relaton
       # records (relaton-iana#8, #9), so it never becomes a document: when a
       # record-bearing document of the same registry id exists, it becomes an
       # index alias to that document's file; otherwise it is dropped.
-      RegistryDoc = Struct.new(:bib, :empty)
+      RegistryDoc = Struct.new(:bib, :empty, :source)
 
       def collect(content, docs)
         xml = Moxml.parse(content)
         registry = xml.at_xpath("/xmlns:registry", NS)
         doc = Parser.parse registry, nil, @errors
-        docs << RegistryDoc.new(doc, recordless?(registry)) if doc
+        docs << RegistryDoc.new(doc, recordless?(registry), content) if doc
         registry.xpath("./xmlns:registry", NS).each do |r|
           child = Parser.parse r, doc, @errors
-          docs << RegistryDoc.new(child, recordless?(r)) if child
+          docs << RegistryDoc.new(child, recordless?(r), content) if child
         end
       end
 
@@ -83,9 +83,19 @@ module Relaton
         docs.each do |d|
           if d.empty
             Util.warn "Registry #{d.bib.docnumber} has no records; skipping"
-          elsif (file = save_doc d.bib)
-            saved[d.bib.id] = file
+            next
           end
+          # The fetched XML content bounds the registry's record, so an
+          # unchanged source skips the parse and the write (the digest
+          # ledger); the aliased file still has to resolve for the alias
+          # phase. The content is only digested when the ledger is on.
+          if @digest_ledger && d.source && unchanged?(d.bib.docnumber, d.source)
+            saved[d.bib.id] = ledger_file(d.bib.docnumber)
+            next
+          end
+          file = save_doc d.bib
+          note_digest d.bib.docnumber, d.source, file: file if @digest_ledger && d.source
+          saved[d.bib.id] = file if file
         end
         docs.select(&:empty).each do |d|
           next unless (file = saved[d.bib.id])
@@ -120,6 +130,7 @@ module Relaton
         @files << file
         add_to_index bib.docnumber, file
         File.write file, serialize(bib), encoding: "UTF-8"
+        record_written file
         file
       end
 

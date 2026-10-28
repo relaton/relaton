@@ -490,3 +490,33 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
     end
   end
 end
+
+RSpec.describe Relaton::ThreeGpp::DataFetcher, "digest ledger" do
+  # The ledger is incremental-crawl machinery: a row whose payload did not
+  # change since the previous run skips the parse and the write, so the
+  # second run rewrites nothing. The class-level ::fetch wraps the instance
+  # run and saves the ledger around it.
+  it "skips unchanged rows on the second run" do
+    Dir.mktmpdir do |tmp|
+      Dir.chdir(tmp) do
+        csv = File.join(tmp, "3gpp.csv")
+        File.write csv, <<~CSV
+          Is TS;Title;Link;Version;Publication Date;Release;Release Title;Release Abbrev;3G Release;WPM Code 2G;WPG Code 2G;WPM Code 3G;WPG Code 3G;prime spec;Remark
+          1;Test specification;https://www.3gpp.org/ftp/x.zip;4.2.0;Dec 18 2002 12:00AM;Release 4;GSM_Release_4;3G_Rel-4;4; ; ;SA-#11;SA-#11;;
+        CSV
+        allow(File).to receive(:size).and_return(21_000_001)
+        stub = ->(*) { csv }
+        allow_any_instance_of(described_class).to receive(:get_file, &stub)
+        allow_any_instance_of(described_class).to receive(:head_last_modified).and_return(nil)
+
+        described_class.fetch "status-smg-3GPP", output: "data", format: "yaml", digest_ledger: true
+        expect(Dir["data/*.yaml"]).not_to be_empty
+        expect(YAML.load_file("data/.digests.yaml").keys).to eq(["1/4.2.0"])
+        first_mtime = File.mtime("data/ts-1-release-4-4-2-0.yaml")
+
+        described_class.fetch "status-smg-3GPP", output: "data", format: "yaml", digest_ledger: true
+        expect(File.mtime("data/ts-1-release-4-4-2-0.yaml")).to eq(first_mtime)
+      end
+    end
+  end
+end
