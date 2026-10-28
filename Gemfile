@@ -116,7 +116,3 @@ end
 # (leptris#1742) — the battery re-run accompanies this bump.
 gem "leptris", "1.9.370.1"
 
-# TEMPORARY: CI rides lutaml-model main until the release carrying the
-# public lutaml_cow_fork! (lutaml-model#1048) ships; revert to released
-# right after.
-gem "lutaml-model", github: "lutaml/lutaml-model", branch: "fix/public-cow-fork"
