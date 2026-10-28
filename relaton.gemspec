@@ -97,7 +97,7 @@ Gem::Specification.new do |spec|
   # lock, so on 2026-10-27 they resolved 1.3.111 and published parse-tree
   # indexes (relaton-itu#64). Drop the cap once pubid parses the v2 dialect.
   # `spec/relaton/parsanol_dialect_spec.rb` guards this constraint.
-  spec.add_dependency "parsanol", ">= 1.3.62", "< 1.3.110"
+  spec.add_dependency "parsanol", ">= 1.3.111", "< 1.4"
   spec.add_dependency "parslet", "~> 2.0.0"
   # 2.0.0.pre.alpha.11 is the first release with `Pubid::Errors`, which relaton
   # and relaton-cli rescue. `alpha.10` sorts below `pre.alpha.8`, so the old
