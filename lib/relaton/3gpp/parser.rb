@@ -143,17 +143,20 @@ module Relaton
       # end
 
       #
-      # Parse date
+      # Parse date. The published date comes first, then the start of the
+      # document's Release and its end as the release date (relaton-3gpp#13).
       #
-      # @return [Array<RelatonBib::BibliographicDate>] date
+      # @return [Array<Relaton::ThreeGpp::Date>] date
       #
       def parse_date
         dates = []
         if @row["Date"]
-          on = Date.parse(@row["Date"]).to_s
-          dates << Bib::Date.new(type: "published", at: on)
+          on = ::Date.parse(@row["Date"]).to_s
+          dates << Date.new(type: "published", at: on)
         end
         @errors[:date] &&= dates.empty?
+        dates << Date.new(type: "project-start", at: project_start.to_s) if project_start
+        dates << Date.new(type: "released", at: project_end.to_s) if project_end
         dates
       end
 
@@ -388,12 +391,12 @@ module Relaton
 
       def project_start
         @errors[:project_start] &&= @row["Project Start"].nil? || @row["Project Start"].empty?
-        Date.parse(@row["Project Start"]) if @row["Project Start"]
+        ::Date.parse(@row["Project Start"]) if @row["Project Start"]
       end
 
       def project_end
         @errors[:project_end] &&= @row["Project End"].nil? || @row["Project End"].empty?
-        Date.parse(@row["Project End"]) if @row["Project End"]
+        ::Date.parse(@row["Project End"]) if @row["Project End"]
       end
     end
   end

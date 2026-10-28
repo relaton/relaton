@@ -210,11 +210,9 @@ module Relaton
       # @return [Array<Relaton3gpp::BibliographicItem, Boolean>] main bibliographic item,
       #   related bibliographic item, true if relation has been added
       #
-      def transposed_relation(bib, existed) # rubocop:disable Metrics/CyclomaticComplexity
-        if (bib.date.none? && existed.date.none?) || (bib.date.any? && existed.date.none?)
-          return [bib, existed, false]
-        end
-        return [existed, bib, true] if bib.date.none? && existed.date.any?
+      def transposed_relation(bib, existed)
+        return [bib, existed, false] unless published_date(existed)
+        return [existed, bib, true] unless published_date(bib)
 
         check_transposed_date bib, existed
       end
@@ -229,14 +227,28 @@ module Relaton
       #   related bibliographic item, true if relation has been added
       #
       def check_transposed_date(bib, existed)
-        if bib.date[0].at < existed.date[0].at
+        bib_date = published_date(bib).at
+        existed_date = published_date(existed).at
+        if bib_date < existed_date
           add_transposed_relation bib, existed
           [bib, existed, true]
-        elsif bib.date[0].at > existed.date[0].at
+        elsif bib_date > existed_date
           add_transposed_relation existed, bib
           [existed, bib, true]
         else [bib, existed, false]
         end
+      end
+
+      #
+      # The publication date. The date array also holds the Release start and
+      # end, which say nothing about which version came first.
+      #
+      # @param [Relaton::ThreeGpp::ItemData] bib bibliographic item
+      #
+      # @return [Relaton::ThreeGpp::Date, nil]
+      #
+      def published_date(bib)
+        bib.date.detect { |d| d.type == "published" }
       end
 
       #

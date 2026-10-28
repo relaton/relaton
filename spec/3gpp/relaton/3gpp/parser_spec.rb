@@ -58,7 +58,10 @@ describe Relaton::ThreeGpp::Parser do
     expect(item.source[0].content).to eq("https://www.3gpp.org/ftp/Specs/archive/02_series/02.09/0209-800.zip")
     expect(item.docidentifier[0].content).to eq("3GPP TS 02.09:REL-99/8.0.0")
     expect(item.docnumber).to eq("TS 02.09:REL-99/8.0.0")
-    expect(item.date[0].at.to_s).to eq("2000-06-30")
+    expect(item.date.map { |d| [d.type, d.at.to_s] }).to eq [
+      %w[published 2000-06-30], %w[project-start 1996-11-01], %w[released 1999-12-17]
+    ]
+    expect(item.date).to all(be_a(Relaton::ThreeGpp::Date))
     expect(item.version[0].content).to eq("8.0.0")
     expect(item.contributor[0].role[0].type).to eq("author")
     expect(item.contributor[0].role[1].type).to eq("publisher")
@@ -92,6 +95,24 @@ describe Relaton::ThreeGpp::Parser do
     expect(item.ext.release.close_meeting).to eq("SA#40")
     expect(item.ext.release.project_start.to_s).to eq("1996-11-01")
     expect(item.ext.release.project_end.to_s).to eq("1999-12-17")
+  end
+
+  context "#parse_date" do
+    let(:headers) { ["Date", "Project Start", "Project End"] }
+
+    it "omits an empty Project End" do
+      row = CSV::Row.new(headers, ["Jun 30 2000 12:00AM", "Mar 25 1993 12:00AM", nil])
+      dates = described_class.new(row, {}).parse_date
+      expect(dates.map(&:type)).to eq %w[published project-start]
+    end
+
+    it "keeps the date error when only release dates are present" do
+      errors = Hash.new(true)
+      row = CSV::Row.new(headers, [nil, "Nov  1 1996 12:00AM", "Dec 17 1999 12:00AM"])
+      dates = described_class.new(row, errors).parse_date
+      expect(dates.map(&:type)).to eq %w[project-start released]
+      expect(errors[:date]).to be true
+    end
   end
 
   context "#release" do
