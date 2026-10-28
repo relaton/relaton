@@ -499,12 +499,17 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher, "digest ledger" do
   it "skips unchanged rows on the second run" do
     Dir.mktmpdir do |tmp|
       Dir.chdir(tmp) do
-        csv = File.join(tmp, "3gpp.csv")
+        FileUtils.mkdir_p "src"
+        csv = "src/3gpp.csv"
         File.write csv, <<~CSV
           Is TS;Title;Link;Version;Publication Date;Release;Release Title;Release Abbrev;3G Release;WPM Code 2G;WPG Code 2G;WPM Code 3G;WPG Code 3G;prime spec;Remark
           1;Test specification;https://www.3gpp.org/ftp/x.zip;4.2.0;Dec 18 2002 12:00AM;Release 4;GSM_Release_4;3G_Rel-4;4; ; ;SA-#11;SA-#11;;
         CSV
-        allow(File).to receive(:size).and_return(21_000_001)
+        # fetch() gates on a real corpus being present; the one-row fixture
+        # is not one. Scoped to the fixture path: other File.size calls keep
+        # their real behavior (a blanket stub breaks Windows tempdir flows).
+        allow(File).to receive(:size).and_call_original
+        allow(File).to receive(:size).with(csv).and_return(21_000_001)
         stub = ->(*) { csv }
         allow_any_instance_of(described_class).to receive(:get_file, &stub)
         allow_any_instance_of(described_class).to receive(:head_last_modified).and_return(nil)
