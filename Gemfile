@@ -78,6 +78,12 @@ gemspec
 # dated base query resolves the wrapped record of that edition. No
 # rawbib expectation moves; the retrieval fixture's wrapper case flips.
 gem "pubid", "2.0.0.pre.alpha.62"
+# parsanol 1.3.110 shipped the v2 named-tree dialect as the default: every
+# uncaptured rule reference surfaces as a capture, so pubid parses plain
+# references as per-atom lists ("ISO 8888" -> {number: "[{digit:..."}},
+# "Unknown parameter type: space"). The v2 migration is pubid-side work in
+# flight; pin the last classic-dialect release until it lands.
+gem "parsanol", "1.3.109"
 
 
 # Default group (installed even when the release strips dev/test): the release

@@ -22,6 +22,7 @@ module Relaton
     # (for older gem versions) is rebuilt separately by the relaton-data-nist
     # crawler, not by this gem's DataFetcher.
     INDEXFILE = "index-v2"
+    PAGES_URL = "https://relaton.github.io/relaton-data-nist/"
 
     class Error < StandardError; end
 

@@ -23,7 +23,7 @@ RSpec.describe Relaton::Iana::DataFetcher do
 
       it "successfully" do
         expect(File).to receive(:read).with("file.xml", encoding: "UTF-8").and_return("<registry></registry>")
-        expect(subject).to receive(:parse).with("<registry></registry>")
+        expect(subject).to receive(:collect).with("<registry></registry>", kind_of(Array))
         subject.fetch
       end
 
@@ -33,13 +33,106 @@ RSpec.describe Relaton::Iana::DataFetcher do
       end
     end
 
-    it "parse" do
-      content = File.read "fixtures/rpki.xml", encoding: "UTF-8"
-      expect(Relaton::Iana::Parser).to receive(:parse).with(Moxml::Element, nil, kind_of(Hash)).and_return :doc
-      expect(subject).to receive(:save_doc).with(:doc)
-      expect(Relaton::Iana::Parser).to receive(:parse).with(Moxml::Element, :doc, kind_of(Hash)).and_return(:doc2).exactly(7).times
-      expect(subject).to receive(:save_doc).with(:doc2).exactly(7).times
-      subject.send :parse, content
+    # A <hide/> page wrapper with no <record> children of its own (IANA nests
+    # the real registry inside it as a same-titled "-1" child), and a
+    # standalone page republished empty beside the umbrella that holds the
+    # records: both used to become slug-titled, dateless duplicate documents
+    # (relaton-iana#8, #9). Neither becomes a document now; the empty
+    # standalone aliases the record-bearing document of its own registry id.
+    context "record-less registries" do
+      let(:wrapper_xml) do
+        <<~XML
+          <registry xmlns="http://www.iana.org/assignments" id="language-tag-extensions-registry">
+            <hide/>
+            <title>Language Tag Extensions Registry</title>
+            <registry id="language-tag-extensions-registry-1">
+              <title>Language Tag Extensions Registry</title>
+              <record>
+                <value>inf</value>
+                <description>Obsolete</description>
+              </record>
+            </registry>
+          </registry>
+        XML
+      end
+
+      let(:umbrella_xml) do
+        <<~XML
+          <registry xmlns="http://www.iana.org/assignments" id="rpki">
+            <title>Resource Public Key Infrastructure (RPKI)</title>
+            <record>
+              <value>rpki</value>
+              <description>RPKI umbrella</description>
+            </record>
+            <registry id="signed-objects">
+              <title>RPKI Signed Objects</title>
+              <record>
+                <value>1</value>
+                <description>Signed object</description>
+              </record>
+            </registry>
+          </registry>
+        XML
+      end
+
+      let(:standalone_xml) do
+        <<~XML
+          <registry xmlns="http://www.iana.org/assignments" id="rpki-signed-objects">
+            <title>rpki-signed-objects</title>
+          </registry>
+        XML
+      end
+
+      def fetched_rows
+        Relaton::Index.find_or_create(:iana, file: "index-v2.yaml",
+                                            pubid_class: ::Pubid::Iana::Identifier)
+                      .index.map { |r| [r[:id].to_s, r[:file]] }
+      end
+
+      it "keeps only the record-bearing document of a wrapped registry" do
+        Dir.mktmpdir do |tmp|
+          Dir.chdir(tmp) do
+            FileUtils.mkdir_p "iana-registries"
+            File.write "iana-registries/wrapper.xml", wrapper_xml
+            described_class.fetch output: "out", format: "yaml"
+
+            expect(Dir["out/*.yaml"].map { |f| File.basename(f) })
+              .to eq ["language-tag-extensions-registry-language-tag-extensions-registry-1.yaml"]
+          end
+        end
+      end
+
+      it "aliases an empty standalone to the record-bearing document of its id" do
+        Dir.mktmpdir do |tmp|
+          Dir.chdir(tmp) do
+            FileUtils.mkdir_p "iana-registries"
+            File.write "iana-registries/rpki.xml", umbrella_xml
+            File.write "iana-registries/rpki-signed-objects.xml", standalone_xml
+            described_class.fetch output: "out", format: "yaml"
+
+            expect(Dir["out/*.yaml"].size).to eq 2
+            expect(fetched_rows).to contain_exactly(
+              ["IANA rpki", "out/rpki.yaml"],
+              ["IANA rpki/signed-objects", "out/rpki-signed-objects.yaml"],
+              ["IANA rpki-signed-objects", "out/rpki-signed-objects.yaml"],
+            )
+          end
+        end
+      end
+
+      it "drops an empty standalone with no record-bearing twin" do
+        Dir.mktmpdir do |tmp|
+          Dir.chdir(tmp) do
+            FileUtils.mkdir_p "iana-registries"
+            File.write "iana-registries/empty.xml", standalone_xml
+            expect { described_class.fetch output: "out", format: "yaml" }
+              .to output(/rpki-signed-objects has no records; skipping/).to_stderr_from_any_process
+
+            expect(Dir["out/*.yaml"]).to be_empty
+            expect(fetched_rows).to be_empty
+          end
+        end
+      end
     end
 
     context "save doc" do
