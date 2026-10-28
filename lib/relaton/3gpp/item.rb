@@ -1,6 +1,7 @@
 require_relative "item_data"
 require_relative "ext"
 require_relative "docidentifier"
+require_relative "date"
 
 module Relaton
   module ThreeGpp
@@ -13,6 +14,8 @@ module Relaton
       # Item, so this one declaration covers all three.
       attribute :docidentifier, Docidentifier, collection: true,
                                                initialize_empty: true
+      # Same shadow for the dates, which carry the Release start and end.
+      attribute :date, Date, collection: true, initialize_empty: true
     end
   end
 end

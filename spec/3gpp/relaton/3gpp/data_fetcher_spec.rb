@@ -288,41 +288,54 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher do
 
       it "new doc has no date" do
         bib = double("bib", date: [])
-        bib2 = double("bib2", date: [double("date", on: Date.today)])
+        bib2 = double("bib2", date: [double("date", type: "published", on: Date.today)])
         expect(subject.send(:transposed_relation, bib, bib2)).to eq [bib2, bib, true]
       end
 
       it "existing doc has no date" do
-        bib = double("bib", date: [double("date", on: Date.today)])
+        bib = double("bib", date: [double("date", type: "published", on: Date.today)])
         bib2 = double("bib2", date: [])
         expect(subject.send(:transposed_relation, bib, bib2)).to eq [bib, bib2, false]
       end
 
+      it "ignores release dates" do
+        release_date = double("date", type: "released", on: Date.today)
+        bib = double("bib", date: [release_date])
+        bib2 = double("bib2", date: [double("date", type: "published", on: Date.today)])
+        expect(subject.send(:transposed_relation, bib, bib2)).to eq [bib2, bib, true]
+      end
+
       it "both have dates" do
-        bib = double("bib", date: [double("date", on: Date.today)])
-        bib2 = double("bib2", date: [double("date", on: Date.today)])
+        bib = double("bib", date: [double("date", type: "published", on: Date.today)])
+        bib2 = double("bib2", date: [double("date", type: "published", on: Date.today)])
         expect(subject).to receive(:check_transposed_date).with(bib, bib2).and_return [bib, bib2, false]
         expect(subject.transposed_relation(bib, bib2)).to eq [bib, bib2, false]
       end
     end
 
     context "check transposed date" do
-      let(:bib) { Relaton::Bib::ItemData.new(date: [Relaton::Bib::Date.new(at: Date.today.to_s)]) }
-      let(:bib2) { Relaton::Bib::ItemData.new(date: [Relaton::Bib::Date.new(at: Date.today.to_s)]) }
+      let(:bib) { Relaton::Bib::ItemData.new(date: [Relaton::Bib::Date.new(type: "published", at: Date.today.to_s)]) }
+      let(:bib2) { Relaton::Bib::ItemData.new(date: [Relaton::Bib::Date.new(type: "published", at: Date.today.to_s)]) }
 
       it "new doc is older" do
-        bib = Relaton::Bib::ItemData.new(date: [Relaton::Bib::Date.new(at: (Date.today - 1).to_s)])
+        bib = Relaton::Bib::ItemData.new(date: [Relaton::Bib::Date.new(type: "published", at: (Date.today - 1).to_s)])
         expect(subject).to receive(:add_transposed_relation).with(bib, bib2)
         expect(subject.check_transposed_date(bib, bib2)).to eq [bib, bib2, true]
       end
 
       it "new doc is newer" do
-        bib2 = Relaton::Bib::ItemData.new(date: [Relaton::Bib::Date.new(at: (Date.today - 1).to_s)])
+        bib2 = Relaton::Bib::ItemData.new(date: [Relaton::Bib::Date.new(type: "published", at: (Date.today - 1).to_s)])
         expect(subject).to receive(:add_transposed_relation).with(bib2, bib)
         expect(subject.check_transposed_date(bib, bib2)).to eq [bib2, bib, true]
       end
 
       it "dates are equal" do
+        expect(subject.check_transposed_date(bib, bib2)).to eq [bib, bib2, false]
+      end
+
+      it "compares the published dates, not the release dates" do
+        start = Relaton::ThreeGpp::Date.new(type: "project-start", at: (Date.today - 9).to_s)
+        bib.date.unshift start
         expect(subject.check_transposed_date(bib, bib2)).to eq [bib, bib2, false]
       end
     end

@@ -25,7 +25,7 @@ module Relaton
         return unless resp.code == "200"
 
         item = Item.from_yaml(resp.body)
-        item.fetched = Date.today.to_s
+        item.fetched = ::Date.today.to_s
         item
       rescue  SocketError, Timeout::Error, Errno::EINVAL, Errno::ECONNRESET,
               EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,

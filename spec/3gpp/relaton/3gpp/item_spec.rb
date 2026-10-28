@@ -8,4 +8,9 @@ describe Relaton::ThreeGpp::Item do
     output_hash = YAML.safe_load(output_yaml)
     expect(output_hash).to eq input_hash
   end
+
+  it "reads the release dates as 3GPP dates" do
+    expect(item.date.map(&:type)).to eq %w[published project-start released]
+    expect(item.date).to all(be_a(Relaton::ThreeGpp::Date))
+  end
 end

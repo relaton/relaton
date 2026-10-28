@@ -154,6 +154,37 @@ guards does not depend on it. `Processor` also sets
 `@pubid_flavor = :Tgpp`, so `Core::Processor#prefixes` reads
 `Pubid::Tgpp.prefixes` (`["3GPP"]`).
 
+### Dates: published, then the Release start and end
+
+`Parser#parse_date` emits the `published` date (CSV `Date`) first, then
+`project-start` from the CSV `Project Start` column and `released` from
+`Project End` (relaton-3gpp#13). #15 defines the Release end date as the date
+the Release is released, and the issue thread asks for it as the release date
+of the specification — hence `released`, not `project-end`. Both are the dates
+of the document's **Release**, not of the document: every version in one
+Release carries the same pair, so neither fits a standard type (`issued` would
+date a 2004 `REL-98` version to 1999). They also stay in `ext/release`
+(`project_start` / `project_end`). An empty column gives no date;
+`@errors[:date]` tracks the published date only.
+
+- **`Relaton::ThreeGpp::Date`** (`date.rb`) extends `Bib::Date`'s `type`
+  value list with the two types, and `Item` shadows `date` with it (as it does
+  `docidentifier`). Without it `validate!` rejects the types; the RelaxNG
+  grammar already accepts any text. The shadow covers the top-level item
+  only: an item nested in a `relation` (the transposition) reloads as
+  `Bib::ItemBase` with plain `Bib::Date`s. Nothing validates those today.
+- **The constant hides Ruby's `::Date`** inside `Relaton::ThreeGpp`. Write
+  `::Date.parse` / `::Date.today` in this flavor; a bare `Date.today` now
+  raises `NoMethodError`.
+- **Select the publication date by type, never by `date[0]`.**
+  `DataFetcher#published_date` does this for the transposition check: a row
+  with no `Date` still has the two Release dates, so `date.any?` no longer
+  means "has a publication date".
+- `spec/3gpp/fixtures/bib.xml`, `bibdata.xml` and `bib.yaml` are rendered from
+  the `3gpp_get_document` cassette, i.e. from the published
+  `relaton-data-3gpp` record. They get the two dates only after that repo
+  re-crawls and the cassette is re-recorded — do not hand-add them.
+
 ## Testing
 
 - `bundle exec rake spec:3gpp` — run the 3GPP suite.
