@@ -70,6 +70,17 @@ describe Relaton::Ietf::BibXMLParser do
       expect(id.primary).to be true
     end
 
+    # relaton-ietf#87: the bibxml anchor is not a document identifier. It is
+    # kept as docnumber, and no docidentifier carries it.
+    it "keeps the anchor as docnumber, not as a docidentifier" do
+      source = "fixtures/reference.I-D.draft--pale-email-00.xml"
+      bib = described_class.parse File.read(source, encoding: "UTF-8")
+      expect(bib.docnumber).to eq "I-D.-pale-email"
+      expect(bib.docidentifier.map(&:content)).not_to include(start_with("I-D."))
+      expect(bib.docidentifier.map(&:scope)).not_to include "anchor"
+      expect(bib.docidentifier.map(&:type)).not_to include "anchor"
+    end
+
     it "adds versioned Internet-Draft from front seriesInfo" do
       xml = <<~XML
         <reference anchor="I-D.foo-bar">
