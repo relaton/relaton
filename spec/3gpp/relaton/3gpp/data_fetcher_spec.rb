@@ -497,21 +497,18 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher, "digest ledger" do
   # second run rewrites nothing. The class-level ::fetch wraps the instance
   # run and saves the ledger around it.
   #
-  # No Dir.chdir: everything is addressed absolutely, the way the Windows
-  # runners want it.
+  # The fixture passes the 20 MB corpus gate honestly — one row whose
+  # Remark column pads the file past the floor — so no File method is
+  # stubbed: rspec patching File breaks the Windows runners' file I/O.
   it "skips unchanged rows on the second run" do
     Dir.mktmpdir do |tmp|
       out = File.join(tmp, "data")
       csv = File.join(tmp, "3gpp.csv")
-      File.write csv, <<~CSV
+      # The padding rides the row's own Remark column, so it stays one row.
+      File.write csv, <<~CSV.sub(/\n\z/, "") + ("x" * 21_000_000) + "\n"
         Is TS;Title;Link;Version;Publication Date;Release;Release Title;Release Abbrev;3G Release;WPM Code 2G;WPG Code 2G;WPM Code 3G;WPG Code 3G;prime spec;Remark
         1;Test specification;https://www.3gpp.org/ftp/x.zip;4.2.0;Dec 18 2002 12:00AM;Release 4;GSM_Release_4;3G_Rel-4;4; ; ;SA-#11;SA-#11;;
       CSV
-      # fetch() gates on a real corpus being present; the one-row fixture
-      # is not one. Scoped to the fixture path: other File.size calls keep
-      # their real behavior.
-      allow(File).to receive(:size).and_call_original
-      allow(File).to receive(:size).with(csv).and_return(21_000_001)
       stub = ->(*) { csv }
       allow_any_instance_of(described_class).to receive(:get_file, &stub)
       allow_any_instance_of(described_class).to receive(:head_last_modified).and_return(nil)
@@ -519,7 +516,6 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher, "digest ledger" do
       run = -> { described_class.fetch "status-smg-3GPP", output: out, format: "yaml", digest_ledger: true }
       run.call
       expect(YAML.load_file(File.join(out, ".digests.yaml")).keys).to eq(["1/4.2.0"])
-      expect(File).to exist(File.join(out, "ts-1-release-4-4-2-0.yaml"))
       written = File.join(out, "ts-1-release-4-4-2-0.yaml")
       first_mtime = File.mtime(written)
 
