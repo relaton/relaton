@@ -45,7 +45,3 @@ gem "webmock"
 # re-run accompanies this bump.
 gem "leptris", "1.9.370.1"
 
-# TEMPORARY: rides the lutaml-model branch carrying the public
-# lutaml_cow_fork! (lutaml-model#1048) until it releases; the root
-# bundle carries the same pin. Revert both to released right after.
-gem "lutaml-model", github: "lutaml/lutaml-model", branch: "fix/public-cow-fork"
