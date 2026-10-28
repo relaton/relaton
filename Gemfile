@@ -78,11 +78,11 @@ gemspec
 # dated base query resolves the wrapped record of that edition. No
 # rawbib expectation moves; the retrieval fixture's wrapper case flips.
 gem "pubid", "2.0.0.pre.alpha.64"
-# parsanol 1.3.110 shipped the v2 named-tree dialect as the default and
-# 1.3.111 the trivia exemption (parsanol#355); the artifacts are re-baked
-# at it (pubid#614), so the pin rides 1.3.111 and the gemspec floor
-# carries the same story for dependent bundles.
-gem "parsanol", "1.3.111"
+# parsanol 1.3.112 consolidated the dialect to ONE axis (ruby#357): the
+# artifact envelope records edition ("v1"/"v2") in place of the mode +
+# emission pair, and pubid rides it (pubid#617 re-bakes every artifact
+# at 1.3.112 and floors the gemspec there), so the pin moves with it.
+gem "parsanol", "1.3.112"
 
 
 # Default group (installed even when the release strips dev/test): the release
