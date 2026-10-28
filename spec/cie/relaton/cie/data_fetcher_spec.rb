@@ -387,7 +387,11 @@ RSpec.describe Relaton::Cie::DataFetcher do
         HTML
         contribs = subject.fetch_contributor doc
         expect(contribs).to be_instance_of Array
-        expect(contribs.size).to eq 6
+        # Four authors plus the CIE publisher. (The old regex mis-split the
+        # hyphenated "W-T. M." initials into a fifth author;
+        # relaton-cie#5's parser keeps them as one forename.)
+        expect(contribs.size).to eq 5
+        expect(contribs.last.role.first.type).to eq "publisher"
       end
     end
 
