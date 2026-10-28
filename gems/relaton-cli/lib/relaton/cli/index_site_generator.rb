@@ -127,7 +127,14 @@ module Relaton
         # per row against 0.44 KB for the derived values alone — 543 MB vs 76 MB
         # on a 177k-row corpus. Anything else derived from pubid must therefore
         # be computed in `add` too; by write time the object is gone.
-        Row = Struct.new(:rendered, :file, :key, :id_hash)
+        #
+        # `derived` marks an alias row (this document's other spellings, or a
+        # committed fetcher alias) as opposed to the document's own primary
+        # id — `indexed_rows` prunes a derived row whose render a document
+        # owns as its primary, so an alias can never repoint a spelling at
+        # the wrong file (`Type#add_or_update` keys on the rendered string
+        # and overwrites).
+        Row = Struct.new(:rendered, :file, :key, :id_hash, :derived)
 
         attr_reader :rows
 
@@ -156,11 +163,12 @@ module Relaton
             row = Row.new(pubid.to_s, file)
             row.id_hash = id_hash
             row.key = key_string(pubid)
+            row.derived = true
             @rows << row
           end
         end
 
-        def add(rendered, file)
+        def add(rendered, file, alias_ids = nil)
           row = Row.new(rendered, file)
           # Precompute the expensive derived values (root.number walk,
           # lutaml to_hash) once during the streaming pass — computing
@@ -178,6 +186,43 @@ module Relaton
             row.id_hash = hash
             row.key = key_string(pubid)
           end
+          @rows << row
+          add_rendered_alias_rows(pubid, hash, rendered, file, alias_ids)
+        end
+
+        # The document's other spellings as rows of their own, so every id
+        # the dataset prints resolves: the parse's canonical render of the
+        # primary ("ISO/IEC DIR 1" from the file's own
+        # "ISO/IEC Directives Part 1") and each further docidentifier's
+        # render. All point at the same file. A docid that does not parse
+        # is skipped, and one that renders as an already-added spelling of
+        # this document adds no second row. Cross-document collisions are
+        # not decided here — `indexed_rows` prunes a derived row whose
+        # spelling a document owns as its primary.
+        def add_rendered_alias_rows(pubid, primary_hash, rendered, file, alias_ids)
+          seen = { rendered => true }
+          canon = pubid&.to_s
+          if canon && !canon.empty? && !seen.key?(canon)
+            seen[canon] = true
+            push_derived_row(canon, file, primary_hash, key_string(pubid))
+          end
+          Array(alias_ids).each do |content|
+            alias_pubid = parse(content.to_s)
+            next unless alias_pubid
+
+            render = alias_pubid.to_s
+            next if render.empty? || seen.key?(render)
+
+            seen[render] = true
+            push_derived_row(render, file, alias_pubid.to_hash, key_string(alias_pubid))
+          end
+        end
+
+        def push_derived_row(rendered, file, id_hash, key)
+          row = Row.new(rendered, file)
+          row.id_hash = id_hash
+          row.key = key
+          row.derived = true
           @rows << row
         end
 
@@ -239,12 +284,36 @@ module Relaton
         # `Relaton::Ieee::DataFetcher#build_index` already skips the same rows
         # for the same reason and logs the loss; this matches it.
         #
+        # A derived (alias) row is dropped when a document owns the spelling
+        # as its own primary id, or when an earlier alias row claimed it:
+        # `Type#add_or_update` keys id_lookup on the rendered string, so
+        # letting both publish would silently repoint the spelling at
+        # whichever file sorted last. The document's primary id — and, when
+        # two derived rows survive, the earlier document — wins.
+        #
         # Memoized, and the single place the sort happens — `each_shard` and
         # `write_monolith` previously sorted the corpus independently, so both
         # ran on every build.
         def indexed_rows
-          @indexed_rows ||= @rows.reject { |row| row.id_hash.nil? }
-                                 .sort_by { |row| [row.key, row.rendered] }
+          @indexed_rows ||= begin
+            owned = {}
+            @rows.each { |row| owned[row.rendered] = true unless row.derived }
+            claimed = {}
+            @rows.reject { |row| row.id_hash.nil? }
+                 .reject do |row|
+                   next false unless row.derived
+
+                   next true if owned.key?(row.rendered)
+
+                   if claimed.key?(row.rendered)
+                     true
+                   else
+                     claimed[row.rendered] = true
+                     false
+                   end
+                 end
+                 .sort_by { |row| [row.key, row.rendered] }
+          end
         end
 
         # Rows dropped by `indexed_rows` — reported so the loss is never silent.
@@ -605,7 +674,8 @@ module Relaton
       # The machine-index input: rendered primary docid + repo-relative
       # path (clients prefix their own baseurl onto file).
       def machine_record(item)
-        [item["id"], item["yaml_path"]]
+        [item["id"], item["yaml_path"],
+         Array(item["docids"]).filter_map { |d| d["id"] if d.is_a?(Hash) }]
       end
 
       def write_machine_index_manifest(total)
