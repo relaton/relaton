@@ -120,6 +120,21 @@ RSpec.describe Relaton::Iana::DataFetcher do
         end
       end
 
+      it "skips a registry whose source is unchanged since the last run" do
+        Dir.mktmpdir do |tmp|
+          Dir.chdir(tmp) do
+            FileUtils.mkdir_p "iana-registries"
+            File.write "iana-registries/rpki.xml", umbrella_xml
+            described_class.fetch output: "out", format: "yaml", digest_ledger: true
+            first_mtime = File.mtime("out/rpki.yaml")
+            expect(YAML.load_file("out/.digests.yaml").keys).to include("rpki")
+
+            described_class.fetch output: "out", format: "yaml", digest_ledger: true
+            expect(File.mtime("out/rpki.yaml")).to eq(first_mtime)
+          end
+        end
+      end
+
       it "drops an empty standalone with no record-bearing twin" do
         Dir.mktmpdir do |tmp|
           Dir.chdir(tmp) do

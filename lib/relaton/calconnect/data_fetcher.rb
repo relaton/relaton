@@ -70,8 +70,14 @@ module Relaton::Calconnect
     # @param [Hash] doc
     #
     def parse_page(doc)
+      # The document payload carries the whole record, so an unchanged
+      # payload skips the scrape and the write (the digest ledger). The
+      # payload is only read when the ledger is on.
+      return true if @digest_ledger && unchanged?(doc["id"], doc)
+
       bib = Scraper.new(@errors).parse_page doc
-      write_doc doc["id"], bib
+      file = write_doc doc["id"], bib
+      note_digest doc["id"], doc, file: file if @digest_ledger
       true
     rescue StandardError => e
       Util.warn "Document: #{doc['id']}"
@@ -95,7 +101,9 @@ module Relaton::Calconnect
       # Write first, index second: an id pubid rejects is skipped from the
       # index, and the document still has to reach disk.
       File.write file, serialize(bib), encoding: "UTF-8"
+      record_written file
       add_to_index bib, file
+      file
     end
 
     #

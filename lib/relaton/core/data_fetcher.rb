@@ -36,6 +36,17 @@ module Relaton
       # @return [Boolean] whether this run prunes the existing output tree
       attr_accessor :prune
 
+      # Record a file this run wrote through a flavor's own writer, so the
+      # ledger's save (which keeps only files this run owned) and
+      # #prune_unwritten account for it. Core's write_unique records its
+      # own writes; a flavor writing directly calls this after File.write.
+      #
+      # @param file [String]
+      # @return [void]
+      def record_written(file)
+        @written << file
+      end
+
       # @return [Boolean] whether this run consults and maintains the
       #   content-digest ledger (see #unchanged?). Off by default: a flavor
       #   turns it on only where its enumeration entry determines the record
@@ -89,6 +100,16 @@ module Relaton
         return unless @digest_ledger
 
         ledger_new[key] = { "digest" => entry_digest(entry), "file" => file }
+      end
+
+      # The file a previous run recorded for `key`, for a caller that
+      # skipped the record via #unchanged? and still needs to know where it
+      # lives (an alias pointing at another record's file).
+      #
+      # @param key [String]
+      # @return [String, nil]
+      def ledger_file(key)
+        ledger.dig(key, "file")
       end
 
       # Persist the ledger: this run's noted entries over the loaded ones,
