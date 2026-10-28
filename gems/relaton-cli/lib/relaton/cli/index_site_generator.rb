@@ -144,6 +144,22 @@ module Relaton
           @rows = []
         end
 
+        # Committed rows an id-sharing file already covers: the fetcher's
+        # aliases (a record-less registry's id pointing at the record-bearing
+        # document's file -- relaton-iana#8, #9). Carried as rows of their
+        # own so either spelling resolves to the one document.
+        def add_alias_rows(rows)
+          rows.each do |id_hash, file|
+            pubid = from_hash(id_hash)
+            next unless pubid
+
+            row = Row.new(pubid.to_s, file)
+            row.id_hash = id_hash
+            row.key = key_string(pubid)
+            @rows << row
+          end
+        end
+
         def add(rendered, file)
           row = Row.new(rendered, file)
           # Precompute the expensive derived values (root.number walk,
@@ -504,12 +520,34 @@ module Relaton
       # the same name carries plain strings, and one of those written into a
       # row would break both the monolith (`yaml_nested` walks a Hash) and the
       # consumer (`FileIO#deserialize_id` calls `from_hash`).
+      #
+      # The first id per file becomes the map; ids beyond the first are the
+      # fetcher's aliases onto that file (see .committed_alias_rows).
       def read_committed_index(path)
         rows = YAML.safe_load(File.read(path), permitted_classes: [Symbol])
-        Array(rows).each_with_object({}) do |row, acc|
-          next unless row.is_a?(Hash) && row[:id].is_a?(Hash)
+        @committed_rows = Array(rows).select do |row|
+          row.is_a?(Hash) && row[:id].is_a?(Hash) && row[:file]
+        end
+        @committed_rows.each_with_object({}) do |row, acc|
+          acc[row[:file]] ||= row[:id]
+        end
+      end
 
-          acc[row[:file]] = row[:id]
+      # `{ id hash => file }` for committed rows beyond each file's first --
+      # the fetcher's alias ids, which no data file of their own carries.
+      # Without this pass the machine index drops them (the file-keyed
+      # fallback resolves one id per file), and a spelling the corpus
+      # aliased stops resolving.
+      def committed_alias_rows
+        committed_index # force the load and @committed_rows
+        seen = {}
+        (@committed_rows || []).filter_map do |row|
+          if seen[row[:file]]
+            [row[:id], row[:file]]
+          else
+            seen[row[:file]] = true
+            nil
+          end
         end
       end
 
@@ -659,6 +697,7 @@ module Relaton
           detail << detail_record(doc) if emit_detail?
           machine&.add(*machine_record(doc))
         end
+        machine&.add_alias_rows(committed_alias_rows)
         summary.flush
         detail.flush
         @machine_index = machine
