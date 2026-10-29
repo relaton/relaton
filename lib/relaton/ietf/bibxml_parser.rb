@@ -13,6 +13,44 @@ module Relaton
         FromRfc.new(rfc).transform
       end
 
+      #
+      # Decode bibxml bytes as UTF-8, recovering Windows-1252 bytes.
+      #
+      # These files declare `encoding='UTF-8'` but some carry CP1252 — smart
+      # quotes and accented Latin letters. `File.read(encoding: "UTF-8")` only
+      # *tags* the string, so those reach lutaml as invalid UTF-8 and it raises.
+      #
+      # `scrub` with a block transcodes each invalid *run* as CP1252 while
+      # leaving valid UTF-8 untouched. Both halves matter:
+      #
+      # * Not plain `scrub`, which substitutes U+FFFD: `client’s` would become
+      #   `client�s` and `Muñoz` `Mu�oz` — author surnames included.
+      #   The damage is length-preserving, so a length check will not catch it.
+      # * Not a whole-file CP1252 re-decode, which mangles a file that is
+      #   genuinely UTF-8 apart from one stray byte: `Muñoz café ’` would come
+      #   back as `MuÃ±oz cafÃ© ’`, silently, since the result is valid UTF-8 and
+      #   nothing raises. No such file exists in today's corpus (0 of the 125
+      #   affected contain valid multi-byte UTF-8) but it grows daily, and
+      #   "decodes losslessly as CP1252" is weak evidence of correctness —
+      #   CP1252 maps 251 of 256 byte values.
+      #
+      # `undef: :replace` covers the five bytes CP1252 leaves undefined
+      # (0x81 0x8D 0x8F 0x90 0x9D), so this returns valid UTF-8 rather than
+      # raising and costing the whole file.
+      #
+      # @param bytes [String] raw bytes, any encoding tag
+      # @return [String] UTF-8, valid encoding
+      #
+      def to_utf8(bytes)
+        utf8 = bytes.dup.force_encoding(Encoding::UTF_8)
+        return utf8 if utf8.valid_encoding?
+
+        utf8.scrub do |bad|
+          bad.force_encoding(Encoding::WINDOWS_1252)
+             .encode(Encoding::UTF_8, undef: :replace)
+        end
+      end
+
       def pubid_type(id)
         pref = id.match(/^(\S+)/)[1]
         case pref

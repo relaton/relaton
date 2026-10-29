@@ -62,6 +62,21 @@ RSpec.describe Relaton::Ietf do
     expect(item.docidentifier.detect(&:primary).content).to eq("draft-ietf-calext-eventpub-extensions-15")
   end
 
+  # relaton-ietf#125: versions the data repo does not hold come from bib.ietf.org.
+  context "get a draft version the index lacks" do
+    {
+      "IETF I-D draft-ietf-vcarddav-vcardrev-06" => ["draft-ietf-vcarddav-vcardrev-06", "vCard Format Specification"],
+      "IETF I-D draft-desruisseaux-caldav-sched-01" => ["draft-desruisseaux-caldav-sched-01", "Scheduling Extensions to CalDAV"],
+    }.each do |ref, (docid, title)|
+      it ref, vcr: "i_d_#{docid.tr('-', '_')}" do
+        item = Relaton::Ietf::Bibliography.get ref
+        expect(item.docidentifier.detect(&:primary).content).to eq docid
+        expect(item.title.first.content).to eq title
+        expect(item.version.map(&:content)).to eq [docid[/\d+\z/]]
+      end
+    end
+  end
+
   it "get best current practise", vcr: "bcp_47" do
     item = Relaton::Ietf::Bibliography.get "BCP 47"
     expect(item).to be_instance_of Relaton::Ietf::ItemData

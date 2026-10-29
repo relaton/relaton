@@ -2,6 +2,7 @@
 
 require "pubid"
 require "pubid/ietf"
+require_relative "bibxml_parser"
 
 module Relaton
   module Ietf
@@ -15,6 +16,13 @@ module Relaton
       # publishing their `index-v1` for released relatons, untouched.
       IETF = "https://raw.githubusercontent.com/relaton/relaton-data-ietf/main/"
 
+      # The IETF bibxml service, read when the index has no row for a versioned
+      # Internet-Draft (relaton-ietf#125). The data repo crawls the rsync
+      # `bibxml-ids` snapshot, which keeps only some versions of each draft
+      # (`draft-ietf-vcarddav-vcardrev`: only -22); this service resolves any
+      # version the datatracker knows, and answers 404 for one it does not.
+      BIBXML_IDS = "https://bib.ietf.org/public/rfc/bibxml-ids/"
+
       # @param ref [String, Pubid::Ietf::Identifier] a reference, or its parse
       #   from Relaton::Db (relaton#205), which is used as it is
       # @return [Relaton::Ietf::ItemData, nil]
@@ -24,8 +32,9 @@ module Relaton
 
         fetch_doc id
       rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
-             Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError,
-             Net::ProtocolError, SocketError
+             Errno::ECONNREFUSED, Errno::EHOSTUNREACH, Errno::ENETUNREACH,
+             OpenSSL::SSL::SSLError, Net::HTTPBadResponse,
+             Net::HTTPHeaderSyntaxError, Net::ProtocolError, SocketError
         raise Relaton::RequestError, "No document found for #{ref} reference"
       end
 
@@ -44,7 +53,55 @@ module Relaton
       # such pairs in the first 40k rows of the index fixture).
       def fetch_doc(id)
         row = index.search(id, exact: true).first
-        get_page "#{IETF}#{row[:file]}" if row
+        return get_page "#{IETF}#{row[:file]}" if row
+
+        fetch_bibxml id if versioned_draft? id
+      end
+
+      # Only a versioned draft falls back. The index holds every RFC, sub-series
+      # and unversioned draft aggregator the data repo has, so a miss on one of
+      # those is a real "not found", and bib.ietf.org has no aggregator to offer.
+      def versioned_draft?(id)
+        id.is_a?(::Pubid::Ietf::Identifiers::InternetDraft) && !id.version.to_s.empty?
+      end
+
+      #
+      # Read one draft version from bib.ietf.org and parse it the way
+      # `DataFetcher#process_singleton` parses a crawled file: the same
+      # CP1252 repair, the same parser, and the version from the identifier.
+      #
+      # A 404 is the service's "no such version". Any other non-200 (a 429, a
+      # 5xx) is push-back or an outage, so it raises `Relaton::RequestError`:
+      # `Db#net_retry` then retries it, and the Db cache does not store it as a
+      # not-found.
+      #
+      # @param id [Pubid::Ietf::Identifiers::InternetDraft]
+      # @return [Relaton::Ietf::ItemData, nil] nil on a 404 or an unreadable body
+      #
+      def fetch_bibxml(id)
+        res = Net::HTTP.get_response URI("#{BIBXML_IDS}reference.I-D.#{id}.xml")
+        return if res.code == "404"
+        raise Relaton::RequestError, "#{BIBXML_IDS} answered #{res.code} for #{id}" unless res.code == "200"
+
+        bib = parse_bibxml(res.body, id)
+        return unless bib
+
+        bib.version = [Bib::Version.new(draft: id.version.to_s)]
+        bib.fetched = Date.today.to_s
+        bib
+      end
+
+      # A 200 that is not bibxml (an HTML error page, a truncated body) costs
+      # this one document, not the caller's compile. These are the errors the
+      # parse raises on such a body: lutaml's `InvalidFormatError`, and the
+      # converter's `NoMethodError` on a document with no `<front>` and
+      # `ArgumentError` from its regexes. They are named, not `StandardError`,
+      # so a transport error still reaches `scrape_page`'s rescue.
+      def parse_bibxml(body, id)
+        BibXMLParser.parse BibXMLParser.to_utf8(body)
+      rescue Lutaml::Model::InvalidFormatError, NoMethodError, ArgumentError => e
+        Util.warn "Unreadable bibxml for `#{id}`: #{e.message.to_s.lines.first.to_s.strip}"
+        nil
       end
 
       #

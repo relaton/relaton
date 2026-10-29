@@ -1,0 +1,87 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://bib.ietf.org/public/rfc/bibxml-ids/reference.I-D.draft-desruisseaux-caldav-sched-01.xml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - bib.ietf.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 29 Oct 2026 01:44:08 GMT
+      Content-Type:
+      - application/xml
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - public, max-age=3600
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Expires:
+      - Thu, 29 Oct 2026 02:44:08 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - cloudflare
+      Vary:
+      - Cookie, origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-Resolution-Methods:
+      - manual;auto;fallback
+      X-Resolution-Outcomes:
+      - ';InternetDraftsAdapter: using query (@.type == "Internet-Draft") && (@.id
+        == "draft-desruisseaux-caldav-sched-01"),not found (Item not found);,'
+      Set-Cookie:
+      - __cf_bm=wtsZZ0yrLTRkGYV4E0EauetWnFJAkwcfFrwmovt7gf0-1793238248.0778677-1.0.1.1-.Wbqh5nXCUMmxTWwNyVUlz2CPBFfCGMReTsufY.wZZ9zGgBcyZr7gcBeE6dypyWEvg3bTBM0AB4eMWOX6du0i4Kqwbk9EOLHevvMUxM9gbsHMh9zXJ7ErTuHVq5A4ffS;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=ietf.org; Expires=Thu, 29
+        Oct 2026 02:14:08 GMT
+      Last-Modified:
+      - Thu, 29 Oct 2026 01:44:08 GMT
+      Cf-Cache-Status:
+      - HIT
+      Cf-Ray:
+      - a51e7e4a7879de9c-EWR
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnPz4KCjxyZWZl
+        cmVuY2UgYW5jaG9yPSdJLUQuZGVzcnVpc3NlYXV4LWNhbGRhdi1zY2hlZCc+
+        Cjxmcm9udD4KPHRpdGxlPlNjaGVkdWxpbmcgRXh0ZW5zaW9ucyB0byBDYWxE
+        QVY8L3RpdGxlPgoKPGF1dGhvciBpbml0aWFscz0nQicgc3VybmFtZT0nRGVz
+        cnVpc3NlYXV4JyBmdWxsbmFtZT0nQmVybmFyZCBEZXNydWlzc2VhdXgnPgog
+        ICAgPG9yZ2FuaXphdGlvbiAvPgo8L2F1dGhvcj4KCjxkYXRlIG1vbnRoPSdN
+        YXknIGRheT0nMjMnIHllYXI9JzIwMDYnIC8+Cgo8YWJzdHJhY3Q+PHQ+VGhp
+        cyBkb2N1bWVudCBzcGVjaWZpZXMgYSBzZXQgb2YgbWV0aG9kcywgaGVhZGVy
+        cyBhbmQgcmVzb3VyY2UgdHlwZXMgdGhhdCBkZWZpbmUgdGhlIHNjaGVkdWxp
+        bmcgZXh0ZW5zaW9uIHRvIHRoZSBDYWxEQVYgcHJvdG9jb2wuIENhbERBViBp
+        dHNlbGYgZXh0ZW5kcyBXZWJEQVYsIHdoaWNoIGV4dGVuZHMgSFRUUC4gVGhl
+        IG5ldyBwcm90b2NvbCBlbGVtZW50cyBkZWZpbmVkIGhlcmUgYWxsb3cgaW50
+        ZXJvcGVyYWJsZSBzY2hlZHVsaW5nIG9wZXJhdGlvbnMgb24gYSBDYWxEQVYg
+        cmVwb3NpdG9yeS48L3Q+PC9hYnN0cmFjdD4KCjwvZnJvbnQ+Cgo8c2VyaWVz
+        SW5mbyBuYW1lPSdJbnRlcm5ldC1EcmFmdCcgdmFsdWU9J2RyYWZ0LWRlc3J1
+        aXNzZWF1eC1jYWxkYXYtc2NoZWQtMDEnIC8+Cjxmb3JtYXQgdHlwZT0nVFhU
+        JwogICAgICAgIHRhcmdldD0naHR0cDovL3d3dy5pZXRmLm9yZy9pbnRlcm5l
+        dC1kcmFmdHMvZHJhZnQtZGVzcnVpc3NlYXV4LWNhbGRhdi1zY2hlZC0wMS50
+        eHQnIC8+CjwvcmVmZXJlbmNlPgo=
+  recorded_at: Thu, 29 Oct 2026 01:44:08 GMT
+recorded_with: VCR 6.4.0
