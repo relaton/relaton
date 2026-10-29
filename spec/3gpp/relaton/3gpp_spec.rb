@@ -30,6 +30,14 @@ RSpec.describe Relaton::ThreeGpp do
       expect(bib).to be_instance_of Relaton::ThreeGpp::ItemData
     end
 
+    # relaton-data-3gpp publishes the Release start and release dates after
+    # the publication date (relaton-3gpp#13).
+    it "returns the publication, project start and release dates" do
+      expect(bib.date.map { |d| [d.type, d.at.to_s] }).to eq [
+        %w[published 1994-11-18], %w[project-start 1994-08-18], %w[released 1999-02-12]
+      ]
+    end
+
     it "render XML" do
       file = "fixtures/bib.xml"
       expect { bib }.to output(

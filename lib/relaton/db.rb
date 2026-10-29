@@ -309,6 +309,9 @@ module Relaton
           )
         end
       end
+      # Nothing resolved: answer not-found, not a stub that holds only the
+      # reference (relaton-un#14, metanorma-ietf#205).
+      doc.relation.empty? ? nil : doc
     end
 
     # The legacy string cache key, for a processor with no pubid class. The
