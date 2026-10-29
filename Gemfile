@@ -77,12 +77,15 @@ gemspec
 # to the relational vocabulary (pubid#601/#606, pubid#580's ruling): a
 # dated base query resolves the wrapped record of that edition. No
 # rawbib expectation moves; the retrieval fixture's wrapper case flips.
-gem "pubid", "2.0.0.pre.alpha.64"
+# TEMP: ride pubid main for the one `to_s(with_publisher:)` render contract
+# (pubid#620, relaton#49), which no release carries yet. Return to a
+# released pin once pubid 2.0.1 is on rubygems.org.
+gem "pubid", git: "https://github.com/metanorma/pubid.git",
+             ref: "fee1f7894bbae32022235d8de7e5ae7e67c972ec"
 # parsanol 1.3.110 shipped the v2 named-tree dialect as the default and
-# 1.3.111 the trivia exemption (parsanol#355); the artifacts are re-baked
-# at it (pubid#614), so the pin rides 1.3.111 and the gemspec floor
-# carries the same story for dependent bundles.
-gem "parsanol", "1.3.111"
+# 1.3.111 the trivia exemption (parsanol#355). pubid main re-bakes its
+# artifacts at 1.3.114 and floors its gemspec there, so the pin rides it.
+gem "parsanol", "1.3.114"
 
 
 # Default group (installed even when the release strips dev/test): the release

@@ -118,6 +118,11 @@ NIST-specific gotchas (why this isn't a straight copy of IEC/CCSDS):
   `@raw_content` before wrapping `@pubid` in pubid's `AllParts` — matching
   IEC/CCSDS. `#pubid` itself, read directly, now answers `all_parts? ==
   true` and renders WITH pubid's generic "(all parts)" marker.
+- **The internal form drops `NIST `/`NBS `** (relaton#49), so
+  `docid.to_s(form: :internal)` is `SP 800-113` for `NIST SP 800-113`. The rule
+  is the `"NIST"` row of `Bib::Docidentifier::FORM_PUBID`: `@pubid`
+  renders with `to_s(with_publisher: false)`. A DOI docid has type `DOI` and is
+  unchanged. `to_s` itself is inherited from `Bib::Docidentifier`.
 
 ### Serialization Round-Trip Pattern
 

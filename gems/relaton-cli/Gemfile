@@ -15,7 +15,12 @@ gem "relaton", path: "../.."
 # emission-2 set ships from 2.0.0.pre.alpha.64, so the pin names it;
 # without it the resolver picks the final and every structured-corpus
 # docid with a part+date fails ("Unknown parameter type: colon").
-gem "pubid", "2.0.0.pre.alpha.64"
+#
+# TEMP: ride pubid main like the root bundle (pubid#620, relaton#49); it
+# needs parsanol 1.3.114. Return to a released pin with the root Gemfile.
+gem "pubid", git: "https://github.com/metanorma/pubid.git",
+             ref: "fee1f7894bbae32022235d8de7e5ae7e67c972ec"
+gem "parsanol", "1.3.114"
 
 # https://github.com/rails/rails/issues/55886
 # add openssl as an explicit gem to fix SSL verification issues in GHA.

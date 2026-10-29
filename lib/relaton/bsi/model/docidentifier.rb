@@ -44,10 +44,6 @@ module Relaton
         c if c.is_a?(::Pubid::Bsi::Identifier) || c.is_a?(::Pubid::AllParts)
       end
 
-      def to_s
-        content.to_s
-      end
-
       # Strip the publication date to build a most-recent (undated) reference.
       # pubid's `exclude` propagates into nested identifiers (so a consolidated
       # base date is dropped while the amendment is kept); `:month` is excluded
