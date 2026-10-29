@@ -90,14 +90,14 @@ Gem::Specification.new do |spec|
   spec.add_dependency "moxml", ">= 0.5"
   spec.add_dependency "leptris", ">= 1.9.80"
   spec.add_dependency "parallel", "~> 1.26"
-  # The dialect axis (ruby#357): 1.3.112 records `edition` ("v1"/"v2") in
-  # the artifact envelope in place of the mode + emission pair, and pubid
-  # ships artifacts re-baked at it (pubid#617). A runtime older than the
-  # release cannot read those artifacts — it re-parses the embedded
-  # grammar source, where `edition` is an unknown keyword — so the floor
-  # names 1.3.112 for bundles that depend on relaton.
+  # Numeric capture editions (ruby#361): 1.3.114 records the artifact
+  # edition as the integer 2 and carries the edition-2 whitespace-class
+  # glue fix, and pubid 2.0.0.pre.alpha.65 re-bakes every artifact at it
+  # and requires >= 1.3.114. A runtime older than the release rejects the
+  # numeric edition it does not implement, so the floor names 1.3.114
+  # for bundles that depend on relaton.
   # `spec/relaton/parsanol_dialect_spec.rb` guards this constraint.
-  spec.add_dependency "parsanol", ">= 1.3.112", "< 1.4"
+  spec.add_dependency "parsanol", ">= 1.3.114", "< 1.4"
   spec.add_dependency "parslet", "~> 2.0.0"
   # 2.0.1 is the first final release a dependent bundle can use: 2.0.0 ships
   # the old emission-1 parse artifacts, which break under parsanol >= 1.3.110
