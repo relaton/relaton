@@ -85,6 +85,25 @@ RSpec.describe Relaton::Db do
         expect(subject.send(:combine_doc, code, nil, {},
                             :relaton_bipm)).to be_nil
       end
+
+      it "returns nil when no part of the reference resolves" do
+        expect(subject).to receive(:check_bibliocache).twice.and_return(nil)
+        expect(subject.send(:combine_doc, "UN/EDIFACT, D14.A", nil, {},
+                            :relaton_un)).to be_nil
+      end
+
+      it "returns the combined document when a part resolves" do
+        base = Relaton::Un::ItemData.new
+        allow(subject).to receive(:check_bibliocache)
+          .with("UN/EDIFACT", nil, {}, :relaton_un).and_return(base)
+        allow(subject).to receive(:check_bibliocache)
+          .with("UN/EDIFACT/D14.A", nil, {}, :relaton_un).and_return(nil)
+        doc = subject.send(:combine_doc, "UN/EDIFACT, D14.A", nil, {},
+                           :relaton_un)
+        expect(doc.docidentifier.first.content).to eq "UN/EDIFACT, D14.A"
+        expect(doc.relation.map(&:type)).to eq ["updates"]
+        expect(doc.relation.first.bibitem).to be base
+      end
     end
 
     context "#fetch_entry" do
