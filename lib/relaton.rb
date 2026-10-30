@@ -22,6 +22,7 @@ module Relaton
   autoload :Logger, "relaton/logger"
   autoload :Equivalence, "relaton/equivalence"
   autoload :Core, "relaton/core"
+  autoload :Json, "relaton/json"
   autoload :Index, "relaton/index"
   autoload :Bib, "relaton/bib"
   autoload :ThreeGpp, "relaton/3gpp"

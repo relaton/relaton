@@ -38,7 +38,7 @@ module Relaton
         response = Net::HTTP.get_response uri
         return unless response.is_a? Net::HTTPSuccess
 
-        data = Yeptris::JSON.load response.body
+        data = Relaton::Json.parse_external response.body
         return unless data["records"]&.any?
 
         data["records"].first.last

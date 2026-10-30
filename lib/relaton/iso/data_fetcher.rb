@@ -168,7 +168,7 @@ module Relaton
         amend_map = Hash.new { |h, k| h[k] = [] }
         date_map = {}
         File.foreach(path, encoding: "UTF-8") do |line|
-          rec = Yeptris::JSON.load(line)
+          rec = Relaton::Json.parse_external(line)
           id = rec["id"]
           ref = normalize_reference(rec["reference"])
           next unless ref
@@ -179,7 +179,7 @@ module Relaton
           if rec["supplementType"] && (base = amend_base(ref))
             amend_map[base] << ref
           end
-        rescue Yeptris::JSON::ParseError
+        rescue ::JSON::ParserError
           next
         end
         Util.info "Indexed #{ref_map.size} references; " \
@@ -216,11 +216,11 @@ module Relaton
         path = download_tc_dataset
         map = {}
         File.foreach(path, encoding: "UTF-8") do |line|
-          rec = Yeptris::JSON.load(line)
+          rec = Relaton::Json.parse_external(line)
           ref = rec["reference"]
           title = rec["title"]
           map[ref] = title if ref && title.is_a?(Hash)
-        rescue Yeptris::JSON::ParseError
+        rescue ::JSON::ParserError
           next
         end
         Util.info "Indexed #{map.size} committees."
@@ -231,7 +231,7 @@ module Relaton
         Util.info "Parsing records..."
         count = 0
         File.foreach(path, encoding: "UTF-8") do |line|
-          rec = Yeptris::JSON.load(line)
+          rec = Relaton::Json.parse_external(line)
           next unless ingestable?(rec["reference"])
 
           fetch_pub(rec, ref_index, tc_index, amend_index, date_index)

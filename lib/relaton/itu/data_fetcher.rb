@@ -542,7 +542,7 @@ module Relaton
         request["User-Agent"] = USER_AGENT
 
         response = http.request(request)
-        json = Yeptris::JSON.load(response.body)
+        json = Relaton::Json.parse_external(response.body)
         json["Data"] || []
       end
     end

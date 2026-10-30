@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "yeptris"
 
 require "net/http"
 
@@ -21,7 +20,7 @@ module Relaton
           response = Net::HTTP.get_response(uri)
           break unless response.is_a?(Net::HTTPSuccess)
 
-          data = Yeptris::JSON.load(response.body)
+          data = Relaton::Json.parse_external(response.body)
           objects = data["objects"] || []
           break if objects.empty?
 

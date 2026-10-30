@@ -1,4 +1,11 @@
 require "relaton/logger"
+
+module Relaton
+  # Registered here as well as in the root entry: flavor files and their
+  # specs load directly via require "relaton/<flavor>", never through
+  # relaton.rb, and the boundary parsers need this constant either way.
+  autoload :Json, "relaton/json"
+end
 require_relative "version"
 require_relative "core/request_error"
 require_relative "core/array_wrapper"

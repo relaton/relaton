@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "yeptris"
 
 require "fileutils"
 require "faraday"
@@ -127,7 +126,7 @@ module Relaton
         resp = Faraday.new(ENDPOINT, headers: h).get
         case resp.status
         when 200
-          json = Yeptris::JSON.load(resp.body)
+          json = Relaton::Json.parse_external(resp.body)
           block_given? ? yield(resp[:etag], json) : json
         when 304 then []
         else raise Relaton::RequestError, "Could not access #{ENDPOINT}"

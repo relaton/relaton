@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "yeptris"
 
 require "mechanize"
 require "pubid"
@@ -119,10 +118,10 @@ module Relaton
         script = @doc.at_xpath('//script[@type="application/ld+json"]')
         return unless script
 
-        node = Yeptris::JSON.load(script.text).find { |e| e.is_a?(Hash) && e[LD_DATE] }
+        node = Relaton::Json.parse_external(script.text).find { |e| e.is_a?(Hash) && e[LD_DATE] }
         value = node && node[LD_DATE].first["@value"]
         value && ::Date.parse(value)
-      rescue Yeptris::JSON::ParseError, ::Date::Error
+      rescue ::JSON::ParserError, ::Date::Error
         nil
       end
 

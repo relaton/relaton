@@ -54,7 +54,7 @@ module Relaton::Calconnect
       # 304 Not Modified — nothing changed since the last fetch
       return if resp.code == "304"
 
-      data = Yeptris::JSON.load resp.body
+      data = Relaton::Json.parse_external resp.body
       all_success = true
       Array(data["documents"]).each { |doc| all_success &&= parse_page doc }
       self.etag = resp.response["etag"] if all_success

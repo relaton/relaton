@@ -59,7 +59,7 @@ module Relaton
         url = "https://api.crossref.org/works/#{CGI.escape(id)}"
         loop do
           resp = agent.get url
-          work = Yeptris::JSON.load resp.body
+          work = Relaton::Json.parse_external resp.body
           return work["message"] if work["status"] == "ok"
 
           if n > 1
