@@ -64,7 +64,7 @@ describe Relaton::Xsf::Bibliography do
 
     it "raises an error relaton-cli knows how to render" do
       expect { described_class.parse_ref("XEP banana") }
-        .to raise_error(Parslet::ParseFailed)
+        .to raise_error(Pubid::Errors::ParseError)
     end
   end
 

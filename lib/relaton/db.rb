@@ -226,7 +226,7 @@ module Relaton
     # reference they cannot read is not-found, not a failure (relaton#412).
     def unreadable_reference?(error)
       (defined?(Pubid::Errors::Error) && error.is_a?(Pubid::Errors::Error)) ||
-        (defined?(Parslet::ParseFailed) && error.is_a?(Parslet::ParseFailed))
+        false
     end
 
     # The flavor routing picks for `fetch_async`'s per-flavor queue; nil
@@ -389,7 +389,7 @@ module Relaton
       return unless docid&.content
 
       cache_key docid.content, nil, {}, stdclass
-    rescue ::Pubid::Errors::Error, Parslet::ParseFailed
+    rescue ::Pubid::Errors::Error
       nil
     end
 
@@ -456,7 +456,7 @@ module Relaton
     def copublisher_query(code, opts, stdclass, publisher)
       query = begin
         @registry[stdclass].query_pubid(code, opts)
-      rescue ::Pubid::Errors::Error, Parslet::ParseFailed
+      rescue ::Pubid::Errors::Error
         nil
       end
       return query if query

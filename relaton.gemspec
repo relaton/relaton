@@ -88,7 +88,6 @@ Gem::Specification.new do |spec|
   # for bundles that depend on relaton.
   # `spec/relaton/parsanol_dialect_spec.rb` guards this constraint.
   spec.add_dependency "parsanol", ">= 1.3.114", "< 1.4"
-  spec.add_dependency "parslet", "~> 2.0.0"
   # 2.0.1 is the first final release a dependent bundle can use: 2.0.0 ships
   # the old emission-1 parse artifacts, which break under parsanol >= 1.3.110
   # (parsanol#352). 2.0.1 carries everything the 2.0.0.pre.alpha.64 pin had.

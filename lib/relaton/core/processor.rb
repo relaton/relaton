@@ -67,7 +67,7 @@ module Relaton
       # @return [Pubid::Identifier, nil]
       def cache_pubid(ref)
         pubid_class&.parse(ref)
-      rescue ArgumentError, ::Pubid::Errors::Error, Parslet::ParseFailed
+      rescue ArgumentError, ::Pubid::Errors::Error
         # relaton-bib carries the log facade; core specs load without it.
         require "relaton/bib"
         Relaton::Bib::Util.info "does not parse as this flavor's pubid; " \

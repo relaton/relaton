@@ -144,7 +144,7 @@ describe Relaton::Ecma::Bibliography do
 
     # An unrecognized reference RAISES -- like ISO, ETSI and 3GPP, relaton lets
     # it propagate so a caller can tell "malformed identifier" from "no such
-    # document". relaton-cli rescues Parslet::ParseFailed, which
+    # document". relaton-cli rescues Pubid::Errors::ParseError, which
     # Pubid::Errors::ParseError is.
     it "raises when pubid cannot parse the reference" do
       expect { match("not an identifier") }
