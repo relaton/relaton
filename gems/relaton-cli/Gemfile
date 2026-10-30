@@ -43,8 +43,8 @@ gem "moxml", ">= 0.5.113" # lutaml/moxml#336: the formattedref add_child TypeErr
 gem "simplecov"
 gem "vcr"
 gem "webmock"
-# leptris 1.9.362.1 rebuilds the 362 line with the namespace-cache fix
-# (leptris#1742), pinned to match the relaton root bundle — the battery
-# re-run accompanies this bump.
-gem "leptris", "1.9.370.1"
+# leptris 1.9.386.0: the floor moxml's adapter names (older bindings load
+# unusable and every XML path silently falls back to nokogiri), pinned to
+# match the relaton root bundle — the battery re-run accompanies this bump.
+gem "leptris", "1.9.386.0"
 
