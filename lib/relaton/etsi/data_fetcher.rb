@@ -150,7 +150,7 @@ module Relaton
         return records if records.is_a?(Array)
 
         raise BadPage, bad_page_message(page, body)
-      rescue ::JSON::ParserError
+      rescue ::Yeptris::JSON::ParseError
         raise BadPage, bad_page_message(page, body)
       end
 
