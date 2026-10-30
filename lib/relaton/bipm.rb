@@ -1,6 +1,5 @@
 require "zip"
 require "fileutils"
-require "parslet"
 require "relaton/bib"
 require "relaton/index"
 require "relaton/core"
