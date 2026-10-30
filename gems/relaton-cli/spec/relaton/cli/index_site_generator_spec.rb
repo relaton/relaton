@@ -417,6 +417,53 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       end
     end
 
+    # An IHO record prints `B-12` and keeps its edition in `edition:`, so the
+    # parse of the docid has no version. The committed row names it
+    # (relaton-data-iho#20); without it `IHO B-12 3.0.0` finds nothing.
+    describe "a committed row more specific than the parse" do
+      def with_iho(committed_rows)
+        stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 1)
+        Dir.mktmpdir("iho-") do |repo|
+          FileUtils.mkdir_p(File.join(repo, "data"))
+          File.write(File.join(repo, "data", "b-12_3-0-0.yaml"),
+            "---\ndocidentifier:\n- content: B-12\n  type: IHO\n  primary: true\n" \
+            "edition:\n  content: 3.0.0\n")
+          write_committed_index(repo, committed_rows, name: "index-v3")
+          described_class.generate(File.join(repo, "data"),
+            output: @out, generated: "2026-01-01", flavor: "iho")
+          yield
+        end
+      end
+
+      def iho_hash(ref)
+        Pubid::Iho::Identifier.parse(ref).to_hash
+      end
+
+      it "takes the committed id, so the row keeps its version" do
+        committed = iho_hash("IHO B-12 3.0.0")
+        with_iho([{ id: committed, file: "data/b-12_3-0-0.yaml" }]) do
+          expect(all_machine_records).not_to be_empty
+          expect(all_machine_records.map { |r| r["id"] }).to all(eq(committed))
+          rows = YAML.safe_load(File.read(File.join(@out, "index-v3.yaml")),
+                                permitted_classes: [Symbol])
+          expect(rows.map { |r| r[:id]["version"] }).to all(eq("3.0.0"))
+        end
+      end
+
+      it "ignores a committed row that contradicts the parse" do
+        with_iho([{ id: iho_hash("IHO B-13 3.0.0"), file: "data/b-12_3-0-0.yaml" }]) do
+          expect(all_machine_records.map { |r| r["id"] }).to all(eq(iho_hash("IHO B-12")))
+        end
+      end
+
+      # A part the parse omits names another document, not an edition.
+      it "ignores a committed row that adds more than an edition" do
+        with_iho([{ id: iho_hash("IHO B-12 Part A 3.0.0"), file: "data/b-12_3-0-0.yaml" }]) do
+          expect(all_machine_records.map { |r| r["id"] }).to all(eq(iho_hash("IHO B-12")))
+        end
+      end
+    end
+
     it "writes a monolith that round-trips through the pubid class" do
       with_pubid_corpus(5, flavor: "iso") do
         rows = YAML.safe_load(File.read(File.join(@out, "index-v2.yaml")),

@@ -119,6 +119,9 @@ module Relaton
         TARGET_ROWS = 15
         MIN_ROWS = 2000
         MIN_SHARDS = 16
+        # Id components a record's printed docid omits by design, so only the
+        # committed row carries them (see #refine).
+        REFINABLE_KEYS = %w[version edition volume].freeze
         MAX_SHARDS = 65_536
 
         # Deliberately does NOT retain the pubid object: `add` extracts the only
@@ -182,6 +185,7 @@ module Relaton
           # `indexed_rows` drops and `skipped_count` reports.
           hash = pubid ? pubid.to_hash : @committed[file]
           pubid ||= from_hash(hash)
+          hash = refine(hash, file)
           if pubid
             row.id_hash = hash
             row.key = key_string(pubid)
@@ -216,6 +220,25 @@ module Relaton
             seen[render] = true
             push_derived_row(render, file, alias_pubid.to_hash, key_string(alias_pubid))
           end
+        end
+
+        # The committed id hash for `file`, when it adds only components in
+        # REFINABLE_KEYS to the parse; else `hash`. Those are the components a
+        # record's printed docid omits by design: an IHO record prints `B-12`
+        # and keeps its edition in `edition:` (relaton-data-iho#20), and an
+        # ECMA one prints `ECMA-262` with no ` ed<N>`. Every other key must be
+        # equal, so the root number (the shard key) cannot change, and a part,
+        # a co-publisher or a sub-registry the parse omits is never taken.
+        # The parse still gives the rendered spellings, so a docid alias
+        # `B-12` stays deduplicated against the canonical `IHO B-12`.
+        def refine(hash, file)
+          committed = @committed[file]
+          return hash unless hash && committed.is_a?(Hash)
+
+          extra = committed.keys - hash.keys
+          return hash if extra.empty? || !(extra - REFINABLE_KEYS).empty?
+
+          committed.slice(*hash.keys) == hash ? committed : hash
         end
 
         def push_derived_row(rendered, file, id_hash, key)

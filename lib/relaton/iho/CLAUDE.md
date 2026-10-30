@@ -55,6 +55,10 @@ In `item.rb`, `require_relative "relation"` is placed **after** the `Item` class
 
 `Bibliography.search`/`.get` fetches YAML from the relaton-data-iho GitHub repo via `Relaton::Index`, then deserializes into model objects.
 
+**Editions.** The pubid `version` is the edition (`IHO B-12 3.0.0`; the grammar takes `a.b.c` only). A reference with no version answers with the **latest** edition: `version_key` compares the segments as integers (`2.10.0` after `2.9.0`). It used to be `min_by` on the string, which returned the oldest.
+
+**The edition reaches the index only through the committed row.** A record prints `B-12` and keeps its edition in `edition:`, so `relaton index` cannot read a version from the docid. `MachineIndex#refine` (relaton-cli) takes the committed `index-v3.yaml` row when it adds only a `version` to the parse. Before that, the Pages index (generated 2026-10-29) had no `version` in any of its 325 rows, so every versioned reference answered not-found (relaton-data-iho#20). The suite did not see it: `spec/fixtures/index-v3.zip` is the committed index, which has versions.
+
 ### Test Infrastructure
 
 - **VCR cassettes** (`spec/vcr_cassettes/`): recorded HTTP responses for offline testing
