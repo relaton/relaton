@@ -51,7 +51,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "concurrent-ruby", "~> 1.0"
   spec.add_dependency "sqlite3", ">= 1.7"
   spec.add_dependency "csv", "~> 3.3"
-  spec.add_dependency "faraday", "~> 2.7.0"
+  spec.add_dependency "faraday", "~> 2.7"
   spec.add_dependency "faraday-net_http_persistent", "~> 2.0"
   spec.add_dependency "ferrum", "~> 0.17"
   spec.add_dependency "gb-agencies", "~> 0.0.1"
