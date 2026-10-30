@@ -747,6 +747,22 @@ RSpec.describe Relaton::Db do
       expect(result).to be_nil
     end
 
+    # relaton#412: a prose-ish docid no grammar can read ("ISO Standards
+    # Tag Set" in a vocabulary corpus) is a not-found input, not a failure.
+    it "degrades an unreadable reference to not-found (relaton#412)" do
+      unreadable = Class.new(StandardError) { include Pubid::Errors::Error }
+      expect(subject).to receive(:fetch)
+        .and_raise unreadable, "Failed to match: expected one of ['ISO']"
+      log_io = Relaton.logger_pool[:default].instance_variable_get(:@logdev)
+      expect(log_io).to receive(:write).with(
+        "[relaton-db] INFO: `ISO Standards Tag Set` -- " \
+        "Failed to match: expected one of ['ISO']\n",
+      )
+      subject.fetch_async("ISO Standards Tag Set") { |r| queue << r }
+      result = Timeout.timeout(5) { queue.pop }
+      expect(result).to be_nil
+    end
+
     it "use threads number from RELATON_FETCH_PARALLEL" do
       expect(ENV).to receive(:[]).with("RELATON_FETCH_PARALLEL").and_return(1)
       allow(ENV).to receive(:[]).and_call_original

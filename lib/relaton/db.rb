@@ -127,7 +127,15 @@ module Relaton
           rescue Relaton::RequestError => e
             args[3].call e
           rescue StandardError => e
-            Util.error "`#{args[0]}` -- #{e.message}"
+            # An unparseable reference ("ISO Standards Tag Set" in a
+            # vocabulary corpus) is a not-found input, not a failure: the
+            # citation keeps its literal text and the build continues
+            # (relaton#412). Real errors keep the ERROR level.
+            if unreadable_reference?(e)
+              Util.info "`#{args[0]}` -- #{e.message}"
+            else
+              Util.error "`#{args[0]}` -- #{e.message}"
+            end
             args[3].call nil
           end
           @queues[stdclass] =
@@ -212,6 +220,14 @@ module Relaton
     end
 
     private
+
+    # True when the error is a flavor's grammar refusing to read the
+    # reference. Both are raised by the flavors' pubid/parslet parses; a
+    # reference they cannot read is not-found, not a failure (relaton#412).
+    def unreadable_reference?(error)
+      (defined?(Pubid::Errors::Error) && error.is_a?(Pubid::Errors::Error)) ||
+        (defined?(Parslet::ParseFailed) && error.is_a?(Parslet::ParseFailed))
+    end
 
     # The flavor routing picks for `fetch_async`'s per-flavor queue; nil
     # (logged) when no flavor recognizes the reference.
