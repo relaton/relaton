@@ -167,7 +167,8 @@ on `type`, not on a flavor class:** a relation's nested item is a plain
 the BIPM parsers build `Bib::Docidentifier`, and lutaml's YAML serializer
 rejects a parent-class value in a subclass-typed collection
 (`IncorrectModelError`). `with_publisher:` is on pubid `main` only, so the
-`Gemfile`s ride it by git ref; return to a released pin when pubid 2.0.1 ships.
+`Gemfile`s ride it by git ref (pubid#620 merged after the `v2.0.1` tag); return
+to a released pin with the next pubid release.
 
 **Single `VERSION`.** `lib/relaton/version.rb` defines `Relaton::VERSION` — the
 one version constant. There are **no** per-flavor `version.rb` files or
@@ -201,10 +202,11 @@ none and `bundle install` regenerates a correct one. A leftover local lock with
 **JCGM flavor & the pubid pin.** `Relaton::Jcgm` (`lib/relaton/jcgm/`) is a
 pubid-backed flavor split out of BIPM (JCGM records moved to their own
 `relaton-data-jcgm` repo, stored as `_type: pubid:jcgm:{guide,gum-guide,amendment,
-corrigendum,meeting}`). Both gemspecs floor `pubid` at the released line (the Gemfile pins the exact
-prerelease the rawbib fixtures reconcile against — `2.0.0.pre.alpha.32` today,
-which also casts the NIST `from_hash` number deterministically, relaton#272),
-first floored at `~> 2.0.0.pre.alpha.13` (JCGM meetings and the flattened
+corrigendum,meeting}`). Both gemspecs floor `pubid` at `>= 2.0.1, < 2.1`:
+2.0.0 final ships the old emission-1 parse artifacts, which break under
+parsanol >= 1.3.110, and 2.0.1 is the first final release without that
+defect (the Gemfiles pin the exact version the rawbib fixtures reconcile
+against). The floor was first `~> 2.0.0.pre.alpha.13` (JCGM meetings and the flattened
 compact `to_hash`, BIPM/ETSI/CIE/ITU/IEEE/IANA/IETF/GOST index shapes,
 `subset_strict`). Its `lib/` is identical to the pubid `main` that built the
 published `relaton-data-*` indexes.
