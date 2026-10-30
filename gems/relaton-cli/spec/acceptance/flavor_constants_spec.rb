@@ -18,6 +18,12 @@ RSpec.describe "flavor constants after requiring relaton-cli" do
     # command's output — strip it so the assertions see what the command
     # itself did. Any other stderr still fails.
     err = err.gsub(/^\s*leptris: native acceleration unavailable.*\n/, "")
+    # moxml's adapter-fallback notice, same category: leptris's vendored
+    # native bridge and the yeptris gem's native ext both register
+    # Yeptris::Native on x86_64-linux, and moxml reports the fallback at
+    # load time (leptris/yeptris-ruby co-initialization issue). It is a
+    # dependency notice, not this command's output.
+    err = err.gsub(/^.*moxml: the leptris adapter is installed but unusable.*\n/, "")
     [out, err, status]
   end
 
