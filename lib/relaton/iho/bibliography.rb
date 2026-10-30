@@ -21,7 +21,7 @@ module Relaton
           # Pubid::Iho::Identifiers::* (Relaton::Index deserialized it via the
           # `pubid_class` passed in `#index`), so `pubid_match?` compares pubids.
           row = index.search(pubid) { |r| pubid_match?(r[:id], pubid) }
-                     .min_by { |r| r[:id].version.to_s }
+                     .max_by { |r| version_key(r[:id]) }
           unless row
             Util.info "Not found.", key: pubid.to_s
             return
@@ -94,6 +94,12 @@ module Relaton
             pages_url: PAGES_URL,
             pubid_class: ::Pubid::Iho::Identifier,
           )
+        end
+
+        # The sort key for the latest edition: segments compare as integers,
+        # so 2.10.0 is later than 2.9.0. A row with no version is the oldest.
+        def version_key(id)
+          id.version.to_s.split(".").map(&:to_i)
         end
 
         # Both `row_id` and `query` are Pubid::Iho::Identifiers::* instances.

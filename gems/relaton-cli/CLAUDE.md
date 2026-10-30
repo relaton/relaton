@@ -204,6 +204,20 @@ way. Four decisions, all settled deliberately — don't re-derive them:
   `add` uses its hash **verbatim**, so the site's row is byte-identical to the
   repo's. Only a row neither path resolves is dropped, counted in
   `skipped_count`, and warned about.
+  **A committed row also wins when it only adds an edition**
+  (`MachineIndex#refine`): when its hash equals the parse's plus keys in
+  `REFINABLE_KEYS` (`version`, `edition`, `volume`) — the components a printed
+  docid omits by design. An IHO record prints `B-12` and keeps its edition in
+  `edition:`; an ECMA one prints `ECMA-262` with no ` ed<N>`. Without this the
+  published Pages indexes (2026-10-29) carried no IHO `version` (0 of 325 rows)
+  and no ECMA `edition` (0 of 804; the committed index has 740), so every
+  edition-qualified reference answered not-found (relaton-data-iho#20). Only
+  the hash is taken; the parse still gives the rendered spellings, so a docid
+  alias `B-12` stays deduplicated against the canonical `IHO B-12`. **Don't
+  widen this to pubid `===`**: it reads an omitted part, co-publisher or
+  sub-registry as a wildcard (`ISO 1000 === ISO/IEC 1000`, `IANA foo ===
+  IANA foo/bar`), `committed_index` keeps only a file's *first* row, and the
+  extra `from_hash` per row doubled the build time.
 
 **The monolith's hand-rolled YAML writer must preserve type, not just text.**
 `write_monolith` avoids Psych (40 min on 177k rows), so `yaml_nested`/`yaml_scalar`

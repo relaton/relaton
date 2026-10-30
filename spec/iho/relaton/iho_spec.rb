@@ -47,6 +47,38 @@ RSpec.describe Relaton::Iho do
       expect(result.edition.content).to eq "4.2.0"
     end
 
+    # An unqualified reference answers with the latest edition. Only the
+    # selected file is stubbed, so a wrong pick hits WebMock's net block.
+    context "without an edition" do
+      def stub_doc(file, edition)
+        stub_request(:get, "#{Relaton::Iho::Bibliography::ENDPOINT}data/#{file}")
+          .to_return(body: "---\ndocidentifier:\n- content: B-12\n  type: IHO\n  " \
+                           "primary: true\nedition:\n  content: #{edition}\n")
+      end
+
+      def stub_rows(*versions)
+        rows = versions.map do |v|
+          { id: Pubid::Iho::Identifier.parse("IHO B-12 #{v}"), file: "data/b-12_#{v.tr('.', '-')}.yaml" }
+        end
+        index = double("index", search: rows)
+        allow(Relaton::Iho::Bibliography).to receive(:index).and_return(index)
+      end
+
+      it "takes the latest edition" do
+        stub_doc "b-12_3-0-0.yaml", "3.0.0"
+        result = Relaton::Iho::Bibliography.get "IHO B-12"
+        expect(result.edition.content).to eq "3.0.0"
+      end
+
+      # The string min (1.0.0) and the string max (2.9.0) are both wrong.
+      it "orders edition segments as numbers" do
+        stub_rows "1.0.0", "2.9.0", "2.10.0"
+        stub_doc "b-12_2-10-0.yaml", "2.10.0"
+        result = Relaton::Iho::Bibliography.get "IHO B-12"
+        expect(result.edition.content).to eq "2.10.0"
+      end
+    end
+
     it "take doc with shorter code", vcr: "s_4" do
       result = Relaton::Iho::Bibliography.get "IHO S-4"
       expect(result.docidentifier.first.content).to eq "S-4"
