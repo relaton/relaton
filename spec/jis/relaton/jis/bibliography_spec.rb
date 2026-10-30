@@ -4,7 +4,7 @@ describe Relaton::Jis::Bibliography do
   context "class methods" do
     context ".get" do
       # A malformed reference raises, so the caller can tell it from an absent
-      # document. relaton-cli rescues Parslet::ParseFailed, which
+      # document. relaton-cli rescues Pubid::Errors::ParseError, which
       # Pubid::Errors::ParseError is.
       it "raises on an unrecognized reference" do
         expect { described_class.get "not an identifier" }

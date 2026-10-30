@@ -165,14 +165,14 @@ RSpec.describe Relaton::ThreeGpp::Bibliography do
     # render "… is not a recognized standards identifier"
     # (gems/relaton-cli/lib/relaton/cli/command.rb:324 and
     # subcommand_collection.rb:134 both rescue this exact class).
-    it "raises Parslet::ParseFailed" do
+    it "raises Pubid::Errors::ParseError" do
       expect { described_class.search("3GPP 1234") }
-        .to raise_error Parslet::ParseFailed
+        .to raise_error Pubid::Errors::ParseError
     end
 
     it "raises for a type token with no number" do
       expect { described_class.search("3GPP TS") }
-        .to raise_error Parslet::ParseFailed
+        .to raise_error Pubid::Errors::ParseError
     end
 
     # The parse happens outside the transport rescue, so it must never be
@@ -185,7 +185,7 @@ RSpec.describe Relaton::ThreeGpp::Bibliography do
         e
       end
 
-      expect(error).to be_a Parslet::ParseFailed
+      expect(error).to be_a Pubid::Errors::ParseError
       expect(error).not_to be_a Relaton::RequestError
     end
   end

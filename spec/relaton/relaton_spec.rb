@@ -147,7 +147,7 @@ RSpec.describe Relaton::Db do
     # A reference that resolves to nothing: Bibliography.get returns nil (a
     # genuinely absent-but-parseable id). The Db must cache a `not_found`
     # marker and return nil. (An *unparseable* id instead raises
-    # Parslet::ParseFailed straight out of `get` — covered in the iso specs.)
+    # Pubid::Errors::ParseError straight out of `get` — covered in the iso specs.)
     expect(Relaton::Iso::Bibliography).to receive(:get)
       .with(pubid_of("ISO 19115-9999"), nil, {}).and_return nil
     bib = @db.fetch("ISO 19115-9999", nil, {})

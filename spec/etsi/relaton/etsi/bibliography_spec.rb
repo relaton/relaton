@@ -108,9 +108,9 @@ describe Relaton::Etsi::Bibliography do
     end.to output(/\[relaton-etsi\] INFO: \(ETSI GS ZSM 011\) Not found\./).to_stderr_from_any_process
   end
 
-  it "raises Parslet::ParseFailed for an unrecognized reference" do
+  it "raises Pubid::Errors::ParseError for an unrecognized reference" do
     # Mirrors ISO: the parse error propagates so the CLI can render a friendly
     # "not a recognized standards identifier" message.
-    expect { described_class.search("@@ not a ref @@") }.to raise_error Parslet::ParseFailed
+    expect { described_class.search("@@ not a ref @@") }.to raise_error Pubid::Errors::ParseError
   end
 end

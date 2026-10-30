@@ -221,7 +221,7 @@ module Relaton
         require "pubid"
         parsed = ::Pubid.parse reference
         parsed if parsed.to_s == reference
-      rescue ArgumentError, ::Pubid::Errors::Error, Parslet::ParseFailed
+      rescue ArgumentError, ::Pubid::Errors::Error
         nil
       end
 

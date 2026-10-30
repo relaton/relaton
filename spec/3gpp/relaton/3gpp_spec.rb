@@ -86,9 +86,9 @@ RSpec.describe Relaton::ThreeGpp do
 
   # Mirrors ISO and ETSI: an unrecognized reference raises rather than
   # returning nil, so relaton-cli can render "… is not a recognized standards
-  # identifier". `Parslet::ParseFailed` is the class the CLI rescues.
+  # identifier". `Pubid::Errors::ParseError` is the class the CLI rescues.
   it "raises on an unrecognized reference" do
     expect { Relaton::ThreeGpp::Bibliography.get("3GPP 1234") }
-      .to raise_error Parslet::ParseFailed
+      .to raise_error Pubid::Errors::ParseError
   end
 end
