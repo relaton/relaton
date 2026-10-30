@@ -882,7 +882,7 @@ module Relaton
           retries += 1
           retry if retries <= MAX_RETRIES
           raise Relaton::RequestError, "Crossref network error after #{MAX_RETRIES} retries: #{e.message}"
-        rescue ::JSON::ParserError => e
+        rescue ::Yeptris::JSON::ParseError => e
           raise Relaton::RequestError, "Crossref JSON parsing error: #{e.message}"
         end
       end
