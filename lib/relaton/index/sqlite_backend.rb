@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "yeptris"
+
 require "sqlite3"
 
 module Relaton
@@ -34,7 +36,7 @@ module Relaton
         @db.transaction do
           @db.execute("DELETE FROM index_rows")
           @db.prepare("INSERT INTO index_rows (number, sort_key, id_json, file) VALUES (?, ?, ?, ?)") do |stmt|
-            rows_enum.each { |(number, sort_key, id_hash, file)| stmt.execute(number, sort_key, JSON.generate(id_hash), file) }
+            rows_enum.each { |(number, sort_key, id_hash, file)| stmt.execute(number, sort_key, Yeptris::JSON.dump(id_hash), file) }
           end
           meta_set("schema_version", SCHEMA_VERSION)
         end
@@ -44,14 +46,14 @@ module Relaton
       def bucket(number)
         rows = []
         @db.execute("SELECT id_json, file FROM index_rows WHERE number = ? ORDER BY rowid", [number]) do |row|
-          rows << { id: JSON.parse(row[0]), file: row[1] }
+          rows << { id: Yeptris::JSON.load(row[0]), file: row[1] }
         end
         rows
       end
 
       def each_row
         @db.execute("SELECT id_json, file FROM index_rows ORDER BY rowid") do |row|
-          yield({ id: JSON.parse(row[0]), file: row[1] })
+          yield({ id: Yeptris::JSON.load(row[0]), file: row[1] })
         end
       end
 

@@ -61,7 +61,7 @@ module Relaton
       #
       def unzip
         Zip::File.open(DATAFILE) do |zf|
-          JSON.parse zf.first.get_input_stream.read
+          Yeptris::JSON.load zf.first.get_input_stream.read
         end
       end
     end

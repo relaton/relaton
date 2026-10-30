@@ -1,6 +1,5 @@
 # frozen_string_literal:true
 
-require "json"
 require "mechanize"
 require "relaton/core"
 require "relaton/index"
@@ -54,7 +53,7 @@ module Relaton::Calconnect
       # 304 Not Modified — nothing changed since the last fetch
       return if resp.code == "304"
 
-      data = JSON.parse resp.body
+      data = Yeptris::JSON.load resp.body
       all_success = true
       Array(data["documents"]).each { |doc| all_success &&= parse_page doc }
       self.etag = resp.response["etag"] if all_success

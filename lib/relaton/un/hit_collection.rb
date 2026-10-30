@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
+require "yeptris"
+
 require "faraday"
-require "json"
 require "securerandom"
 
 module Relaton
@@ -28,11 +29,11 @@ module Relaton
       def search_api(text) # rubocop:disable Metrics/MethodLength
         resp = connection.post("search?l=en&rid=#{SecureRandom.uuid}") do |req|
           req.headers["Content-Type"] = "application/json"
-          req.body = JSON.generate(search_body(text))
+          req.body = Yeptris::JSON.dump(search_body(text))
         end
         return unless resp.success?
 
-        body = JSON.parse(resp.body)
+        body = Yeptris::JSON.load(resp.body)
         return unless body["status"] == 1
 
         body.dig("body", "data")

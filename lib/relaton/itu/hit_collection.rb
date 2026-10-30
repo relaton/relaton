@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
+require "yeptris"
+
 require "cgi"
-require "json"
 require_relative "hit"
 
 module Relaton
@@ -239,8 +240,8 @@ module Relaton
       # @return [Array<Hash>] editions of the recommendation
       def editions(idrec)
         # a `null` body parses to nil, so `|| []` is not redundant
-        JSON.parse(agent.get(format(RECEDITIONS_URL, idrec: idrec)).body) || []
-      rescue JSON::ParserError
+        Yeptris::JSON.load(agent.get(format(RECEDITIONS_URL, idrec: idrec)).body) || []
+      rescue Yeptris::JSON::ParseError
         []
       end
 

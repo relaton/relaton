@@ -856,7 +856,7 @@ module Relaton
         throttled = 0
         begin
           resp = Crossref.agent.get url
-          JSON.parse(resp.body).dig("message", "items")
+          Yeptris::JSON.load(resp.body).dig("message", "items")
         rescue Mechanize::ResponseCodeError => e
           # 429 must be handled before the 4xx nil return: a throttle is not
           # "no such record". Returning nil here made a rate-limited lookup look
@@ -881,7 +881,7 @@ module Relaton
           retries += 1
           retry if retries <= MAX_RETRIES
           raise Relaton::RequestError, "Crossref network error after #{MAX_RETRIES} retries: #{e.message}"
-        rescue JSON::ParserError => e
+        rescue Yeptris::JSON::ParseError => e
           raise Relaton::RequestError, "Crossref JSON parsing error: #{e.message}"
         end
       end

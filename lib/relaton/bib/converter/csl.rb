@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require "json"
+require "yeptris"
+
 
 module Relaton
   module Bib
@@ -43,7 +44,7 @@ module Relaton
             keywords = Array(@item.keyword).map { |k| k.content.to_s }.reject(&:empty?)
             out[:keyword] = keywords unless keywords.empty?
             out[:URL] = source_uri if source_uri
-            [out].to_json + "\n"
+            Yeptris::JSON.dump([out]) + "\n"
           end
 
           private

@@ -1,5 +1,4 @@
 require "net/http"
-require "json"
 
 module Relaton
   module Logger
@@ -70,7 +69,7 @@ module Relaton
           responce = get(uri)
           return nil unless responce.code.to_i == 200
 
-          items = JSON.parse(responce.body)["items"] || []
+          items = Yeptris::JSON.load(responce.body)["items"] || []
           items.find { |i| i["title"] == @title }&.fetch("number", nil)
         rescue StandardError => e
           puts "Failed to search for an open `#{@title}` issue: #{e.message}"
@@ -88,7 +87,7 @@ module Relaton
           http.use_ssl = true
 
           request = Net::HTTP::Post.new(uri.request_uri, headers)
-          request.body = body.to_json
+          request.body = Yeptris::JSON.dump(body)
 
           http.request(request)
         end

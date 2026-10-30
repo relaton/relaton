@@ -135,7 +135,7 @@ module Relaton
             Util.warn "#{res.body}"
             break
           end
-          json = JSON.parse res.body
+          json = Yeptris::JSON.load res.body
           json[list_key].each { |pub| fetch_pub pub }
           page += 1
           next_page = res["link"]&.include? "rel=\"last\""
@@ -191,7 +191,7 @@ module Relaton
           res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
             http.request req
           end
-          JSON.parse(res.body)["access_token"]
+          Yeptris::JSON.load(res.body)["access_token"]
         end
       end
 
