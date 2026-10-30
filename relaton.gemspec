@@ -99,10 +99,10 @@ Gem::Specification.new do |spec|
   # `spec/relaton/parsanol_dialect_spec.rb` guards this constraint.
   spec.add_dependency "parsanol", ">= 1.3.112", "< 1.4"
   spec.add_dependency "parslet", "~> 2.0.0"
-  # 2.0.0.pre.alpha.11 is the first release with `Pubid::Errors`, which relaton
-  # and relaton-cli rescue. `alpha.10` sorts below `pre.alpha.8`, so the old
-  # `~> 2.0.0.alpha.10` pin also accepted `pre.alpha.8`/`9`, which lack it.
-  spec.add_dependency "pubid", "~> 2.0.0.pre.alpha.62"
+  # 2.0.1 is the first final release a dependent bundle can use: 2.0.0 ships
+  # the old emission-1 parse artifacts, which break under parsanol >= 1.3.110
+  # (parsanol#352). 2.0.1 carries everything the 2.0.0.pre.alpha.64 pin had.
+  spec.add_dependency "pubid", ">= 2.0.1", "< 2.1"
 
   spec.add_dependency "yeptris", ">= 0.4"
   spec.add_dependency "relaton-render", ">= 3.0.0.pre.alpha.1", "< 4"

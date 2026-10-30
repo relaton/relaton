@@ -3,6 +3,30 @@ describe Relaton::Nist::Docidentifier do
     described_class.new(content: content, type: type, primary: primary)
   end
 
+  describe "#to_s(form:)" do
+    it "drops the NIST prefix in the internal form" do
+      expect(build_docid("NIST SP 800-113").to_s(form: :internal)).to eq "SP 800-113"
+    end
+
+    it "drops the NBS prefix in the internal form" do
+      expect(build_docid("NBS CIRC 25sup").to_s(form: :internal)).to eq "CIRC 25sup"
+    end
+
+    it "drops the prefix of a staged supplement in the internal form" do
+      expect(build_docid("NIST FIPS 197/Upd1 ipd").to_s(form: :internal)).to eq "FIPS 197/Upd1 ipd"
+    end
+
+    it "keeps the prefix in the default and the external form" do
+      docid = build_docid("NIST SP 800-113")
+      expect([docid.to_s, docid.to_s(form: :external)]).to eq ["NIST SP 800-113"] * 2
+    end
+
+    it "keeps a DOI unchanged" do
+      expect(build_docid("NIST.SP.800-162", type: "DOI").to_s(form: :internal))
+        .to eq "NIST.SP.800-162"
+    end
+  end
+
   context "with a parseable NIST identifier" do
     subject(:docid) { build_docid("NIST SP 800-53r5") }
 

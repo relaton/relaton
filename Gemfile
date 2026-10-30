@@ -77,7 +77,11 @@ gemspec
 # to the relational vocabulary (pubid#601/#606, pubid#580's ruling): a
 # dated base query resolves the wrapped record of that edition. No
 # rawbib expectation moves; the retrieval fixture's wrapper case flips.
-gem "pubid", "2.0.0.pre.alpha.64"
+# TEMP: ride pubid main for the one `to_s(with_publisher:)` render contract
+# (pubid#620, relaton#49). pubid 2.0.1 does not carry it: #620 merged after
+# the v2.0.1 tag. Return to a released pin with the next pubid release.
+# The branch moves: run `bundle update pubid` to pick up a newer main.
+gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"
 # parsanol 1.3.114 (ruby#361) carries the numeric capture editions —
 # the canonical edition 2 header and the integer envelope field — and
 # the edition-2 whitespace-class glue fix; pubid rides it

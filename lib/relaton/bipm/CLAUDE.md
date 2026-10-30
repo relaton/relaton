@@ -144,6 +144,20 @@ demonstrated rather than argued.
 builds `index-v1` with them, and `id_parser_spec.rb` still covers them. Only
 `bibliography.rb` stopped requiring the file.
 
+### Internal identifier
+
+`docid.to_s(form: :internal)` drops the
+`BIPM` publisher (relaton#49): `BIPM SI Brochure Part 1` →
+`SI Brochure Part 1`. Committee ids (`CGPM RES (1889)`, `CCTF REC 2 (2009)`)
+have no publisher token and are the same in both forms. The rule is the `"BIPM"` row of
+`Bib::Docidentifier::FORM_PUBID`: BIPM docidentifiers carry no pubid,
+so the content is parsed with `Pubid::Bipm` at call time and rendered with
+`to_s(with_publisher: false)`; unparseable content is returned unchanged. It
+also holds for a relation's nested item. Do not move it into a `Bipm::Docidentifier`
+subclass: typing the item's `docidentifier` collection with a subclass makes
+YAML serialization reject the `Bib::Docidentifier` objects the parsers build
+(`IncorrectModelError`).
+
 ### Data Sources
 
 The gem fetches from three external datasets:

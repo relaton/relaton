@@ -60,10 +60,6 @@ module Relaton
         original_content
       end
 
-      def to_s
-        content.to_s
-      end
-
       def to_all_parts!
         return if !@pubid || @pubid.all_parts?
 

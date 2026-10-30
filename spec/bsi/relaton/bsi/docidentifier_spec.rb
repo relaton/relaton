@@ -137,4 +137,32 @@ describe Relaton::Bsi::Docidentifier do
       expect(did.content).to eq "not a standard at all"
     end
   end
+
+  describe "#to_s(form:)" do
+    def forms(code)
+      did = described_class.new(type: "BSI", content: code)
+      [did.to_s, did.to_s(form: :external), did.to_s(form: :internal)]
+    end
+
+    it "adds BSI to a PAS or a PD in the external form only" do
+      expect(forms("PAS 2031:2019")).to eq ["PAS 2031:2019", "BSI PAS 2031:2019", "PAS 2031:2019"]
+      expect(forms("PD 6688-1:2010")).to eq ["PD 6688-1:2010", "BSI PD 6688-1:2010", "PD 6688-1:2010"]
+    end
+
+    it "keeps a BS identifier the same in both forms" do
+      expect(forms("BS EN ISO 8848:2021")).to eq ["BS EN ISO 8848:2021"] * 3
+    end
+
+    it "renders the forms of an all-parts identifier" do
+      did = described_class.new(type: "BSI", content: "PD 6688-1:2010")
+      did.to_all_parts!
+      expect(did.to_s(form: :external)).to eq "BSI PD 6688 (all parts)"
+      expect(did.to_s(form: :internal)).to eq "PD 6688 (all parts)"
+    end
+
+    it "keeps an ISBN unchanged" do
+      did = described_class.new(type: "ISBN", content: "978 0 539 02257 5")
+      expect(did.to_s(form: :external)).to eq "978 0 539 02257 5"
+    end
+  end
 end

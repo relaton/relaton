@@ -74,10 +74,6 @@ module Relaton
         original_content
       end
 
-      def to_s
-        content.to_s
-      end
-
       # `#exclude` (no args) clones the whole graph (incl. a supplement's
       # base), since `walk_chain` mutates it in place. `@raw_content` freezes
       # the stripped rendering — `content` is live from `@pubid`, and the

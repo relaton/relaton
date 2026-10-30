@@ -64,10 +64,6 @@ module Relaton
         original_content
       end
 
-      def to_s
-        content.to_s
-      end
-
       # `remove_part!`/`remove_date!` are unnecessary here: `to_all_parts`'s
       # own identity computation already excludes part/date (down the whole
       # base chain, so a supplement's own year is dropped too — a disclosed

@@ -139,6 +139,38 @@ and supplies only `THROTTLE_ERRORS`/`.throttle?` and `ENV_PREFIX`; see
 with `Core::WorkersPool` (runtime search only, no per-worker resources) or with
 `Relaton::Cie::DataFetcher::Pacing`, whose gap is deliberately *per worker*.
 
+**External and internal identifier forms (relaton#49).**
+`Bib::Docidentifier#to_s(form: nil)` is the one `to_s` for every docidentifier
+(ISO, IEC, CCSDS, BSI and NIST each had an identical `content.to_s` copy; a
+plain `Bib::Docidentifier` had none and printed the object). With no `form` it
+answers the stored content, and it must stay that way: the NIST and CCSDS
+`content=` setters store `to_s`. `form: :external` gives the identifier with
+its publisher (`IETF RFC 8341`, `BSI PAS 2031:2019`), and `form: :internal`
+gives the form an SDO uses to cite its own documents (`SP 800-113` for
+`NIST SP 800-113`, `Internet-Draft draft-…`). There is no item-level method:
+the issue's proposed `item.identifier(:internal)` was dropped, and a caller
+picks the docidentifier. **pubid does the render, relaton keeps the policy.**
+The policy is `Bib::Docidentifier::FORM_PUBID`, docidentifier `type` → pubid
+flavor (`NIST`, `BIPM`, `IETF`, `Internet-Draft`, `BSI`); for those types the
+docidentifier's `#pubid` (or, on a plain `Bib::Docidentifier`, a parse of its
+content) renders with `to_s(with_publisher: form == :external)` (pubid#620),
+and pubid decides per identifier (`BS EN ISO 8848:2021` and `CGPM RES (1889)`
+are the same in both forms). Every other type, and content pubid cannot parse,
+answers the stored content for both forms — a type is in the table only when
+its SDO drops the publisher, since pubid would also drop `ISO` from an ISO id.
+The stored data is unchanged: IETF and BSI still store no prefix, and the
+external form adds it at render time. Not done: the issue wants BIPM
+committee ids other than CGPM/CIPM (`CCQM …`) prefixed with `BIPM`, and
+`Pubid::Bipm` renders them unchanged. **Keep the policy keyed
+on `type`, not on a flavor class:** a relation's nested item is a plain
+`Bib::ItemData`, and a BIPM `Docidentifier` subclass was tried and dropped —
+the BIPM parsers build `Bib::Docidentifier`, and lutaml's YAML serializer
+rejects a parent-class value in a subclass-typed collection
+(`IncorrectModelError`). `with_publisher:` is on pubid `main` only, so the
+`Gemfile`s ride pubid's `main` branch from git (pubid#620 merged after the
+`v2.0.1` tag; a local lock keeps its revision until `bundle update pubid`); return
+to a released pin with the next pubid release.
+
 **Single `VERSION`.** `lib/relaton/version.rb` defines `Relaton::VERSION` — the
 one version constant. There are **no** per-flavor `version.rb` files or
 `Relaton::<Flavor>::VERSION` constants anymore: since this is one gem they'd all
@@ -171,10 +203,11 @@ none and `bundle install` regenerates a correct one. A leftover local lock with
 **JCGM flavor & the pubid pin.** `Relaton::Jcgm` (`lib/relaton/jcgm/`) is a
 pubid-backed flavor split out of BIPM (JCGM records moved to their own
 `relaton-data-jcgm` repo, stored as `_type: pubid:jcgm:{guide,gum-guide,amendment,
-corrigendum,meeting}`). Both gemspecs floor `pubid` at the released line (the Gemfile pins the exact
-prerelease the rawbib fixtures reconcile against — `2.0.0.pre.alpha.32` today,
-which also casts the NIST `from_hash` number deterministically, relaton#272),
-first floored at `~> 2.0.0.pre.alpha.13` (JCGM meetings and the flattened
+corrigendum,meeting}`). Both gemspecs floor `pubid` at `>= 2.0.1, < 2.1`:
+2.0.0 final ships the old emission-1 parse artifacts, which break under
+parsanol >= 1.3.110, and 2.0.1 is the first final release without that
+defect (the Gemfiles pin the exact version the rawbib fixtures reconcile
+against). The floor was first `~> 2.0.0.pre.alpha.13` (JCGM meetings and the flattened
 compact `to_hash`, BIPM/ETSI/CIE/ITU/IEEE/IANA/IETF/GOST index shapes,
 `subset_strict`). Its `lib/` is identical to the pubid `main` that built the
 published `relaton-data-*` indexes.
