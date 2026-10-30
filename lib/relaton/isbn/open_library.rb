@@ -1,3 +1,4 @@
+require "yeptris"
 module Relaton
   module Isbn
     #

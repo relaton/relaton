@@ -1,3 +1,4 @@
+require "yeptris"
 require "mechanize"
 
 module Relaton

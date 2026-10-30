@@ -1,3 +1,4 @@
+require "yeptris"
 module Relaton
   module Doi
     class Parser
