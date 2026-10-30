@@ -36,7 +36,7 @@ Converter classes use `Bib::NamespaceHelper` which resolves `namespace` by takin
 
 ### Key Flows
 
-1. **Single document lookup**: `Processor#get` → `Bibliography.get(code)` → `Scraper.scrape_page` → parses the reference with `Pubid::Ietf` → searches the one combined `index-v2` from `relaton-data-ietf` → fetches that row's YAML
+1. **Single document lookup**: `Processor#get` → `Bibliography.get(code)` → `Scraper.scrape_page` → parses the reference with `Pubid::Ietf` → searches the one combined `index-v2` from `relaton-data-ietf` → fetches that row's YAML; a versioned draft the index lacks is read from bib.ietf.org (see below)
 
 2. **Bulk data fetching**: `DataFetcher` extends `Relaton::Core::DataFetcher` with three datasets:
    - `ietf-rfcsubseries` / `ietf-rfc-entries`: parse `rfc-index.xml` via `Rfc::Index` / `Rfc::Entry#to_item`
@@ -118,6 +118,30 @@ rows would then be raw hashes.
 The old plain-string index matched that by substring; matching is exact now.
 A reference pubid cannot parse returns nil, so `Bibliography.get "CN 8341"` logs
 "Not found." rather than raising.
+
+### An index miss on a versioned draft reads bib.ietf.org (relaton-ietf#125)
+
+The data repo crawls the rsync `bibxml-ids` snapshot, and that snapshot keeps
+only some versions of each draft: `draft-ietf-vcarddav-vcardrev` has only `-22`,
+so `-06` was "Not found." When `fetch_doc` misses and the query is a
+`Pubid::Ietf::Identifiers::InternetDraft` **with a version**, `fetch_bibxml` reads
+`https://bib.ietf.org/public/rfc/bibxml-ids/reference.I-D.<draft>-NN.xml`
+(`BIBXML_IDS`). That service resolves any version the datatracker knows and
+answers 404 otherwise; the datatracker's own `doc/bibxml3/...` URL answers 404
+for these old versions. The parse is the crawler's: `BibXMLParser.to_utf8`
+(the CP1252 repair, shared with `DataFetcher#read_bibxml`), `BibXMLParser.parse`,
+and the version from the identifier, as `process_singleton` sets it.
+
+Only a 404 is "not found". Any other non-200 (429, 5xx) raises
+`Relaton::RequestError`, so `Db#net_retry` retries it and `Db::Cache` does not
+store an outage as a not-found row. A 200 whose body does not parse logs a
+warning and returns nil; that rescue names the parse errors and is not
+`StandardError`, so a transport error still becomes `RequestError`.
+
+RFCs, sub-series and unversioned drafts do **not** fall back: the index holds
+all of them, so a miss is a real "not found". A record read this way has no
+`updates`/`updatedBy` neighbours — the crawl links those, and one fetch cannot.
+Old bibxml carries no `target`, so such a record has a `TXT` URI and no `src`.
 
 ### The producer: `DataFetcher` writes `index-v2`
 
@@ -294,7 +318,8 @@ smart quotes and accented Latin letters. `File.read(encoding: "UTF-8")` only
 *tags* a string; it validates nothing, so those reached lutaml as invalid UTF-8
 and `Rfcxml::V3::Reference.from_xml` raised `Lutaml::Model::InvalidFormatError`.
 
-`read_bibxml` transcodes them (`data_fetcher.rb`). Three things make that the
+`read_bibxml` transcodes them through `BibXMLParser.to_utf8`
+(`bibxml_parser.rb`, shared with the scraper's bib.ietf.org fallback). Three things make that the
 right call rather than `scrub`:
 
 - **All of them decode losslessly as CP1252** — 125 of the ~122k published files

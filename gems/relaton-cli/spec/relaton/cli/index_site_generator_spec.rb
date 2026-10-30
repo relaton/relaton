@@ -192,6 +192,103 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       end
     end
 
+    # The machine index carries the document's other spellings as rows of
+    # their own, all pointing at the same file, so any docidentifier the
+    # dataset prints resolves without consumer-side derivation. The printed
+    # "ISO/IEC Directives Part 1" publishes under its canonical render, and
+    # the technical-core docidentifier that renders to the same string adds
+    # no second row.
+    it "indexes the canonical render of the printed docid" do
+      Dir.mktmpdir("pubid-corpus-") do |repo|
+        FileUtils.mkdir_p(File.join(repo, "data"))
+        File.write(File.join(repo, "data", "iso-dir-1.yaml"), <<~YAML)
+          ---
+          docidentifier:
+          - content: ISO/IEC Directives Part 1
+            primary: true
+          - content: ISO/IEC DIR 1
+            type: technical-core
+          title:
+          - content: Directives, Part 1
+            type: main
+        YAML
+        stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 10)
+        described_class.generate(File.join(repo, "data"),
+                                 { output: @out, generated: "2026-01-01", flavor: "iso" })
+
+        rows = YAML.safe_load_file(File.join(@out, "index-v2.yaml"), permitted_classes: [Symbol])
+        # The printed primary keeps its own row, and the canonical render
+        # ("ISO/IEC DIR 1") is carried as a derived row of its own; the
+        # technical-core docidentifier renders to that same string and adds
+        # no third row.
+        expect(rows.length).to eq(2)
+        expect(rows.map { |r| r[:file] }).to all(eq("data/iso-dir-1.yaml"))
+        expect(rows.map { |r| r[:id]["number"] }).to all(eq("1"))
+      end
+    end
+
+    it "does not let an alias row repoint a spelling another document owns" do
+      Dir.mktmpdir("pubid-corpus-") do |repo|
+        FileUtils.mkdir_p(File.join(repo, "data"))
+        File.write(File.join(repo, "data", "iso-1000.yaml"), <<~YAML)
+          ---
+          docidentifier:
+          - content: ISO 1000:2014
+            primary: true
+          title:
+          - content: Base
+            type: main
+        YAML
+        # An amendment record lists the base id as one of its own
+        # docidentifiers; the base document owns the spelling, so the
+        # derived row pointing at the amendment file is pruned.
+        File.write(File.join(repo, "data", "iso-1000-amd.yaml"), <<~YAML)
+          ---
+          docidentifier:
+          - content: ISO 1000:2014/Amd 1:2016
+            primary: true
+          - content: ISO 1000:2014
+          title:
+          - content: Amendment 1
+            type: main
+        YAML
+        stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 10)
+        described_class.generate(File.join(repo, "data"),
+                                 { output: @out, generated: "2026-01-01", flavor: "iso" })
+
+        rows = YAML.safe_load_file(File.join(@out, "index-v2.yaml"), permitted_classes: [Symbol])
+        expect(rows.map { |r| r[:file] }).to contain_exactly(
+          "data/iso-1000.yaml", "data/iso-1000-amd.yaml",
+        )
+      end
+    end
+
+    it "keeps a derived row the corpus's primaries do not claim" do
+      Dir.mktmpdir("pubid-corpus-") do |repo|
+        FileUtils.mkdir_p(File.join(repo, "data"))
+        File.write(File.join(repo, "data", "iso-1000.yaml"), <<~YAML)
+          ---
+          docidentifier:
+          - content: ISO 1000-1:2014
+            primary: true
+          - content: ISO 1000:2014
+          title:
+          - content: Part 1
+            type: main
+        YAML
+        stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 10)
+        described_class.generate(File.join(repo, "data"),
+                                 { output: @out, generated: "2026-01-01", flavor: "iso" })
+
+        rows = YAML.safe_load_file(File.join(@out, "index-v2.yaml"), permitted_classes: [Symbol])
+        shapes = rows.map { |r| [(r[:id] || {})["number"], (r[:id] || {})["part"]] }
+        expect(shapes).to contain_exactly(
+          ["1000", "1"],
+          ["1000", nil],
+        )
+      end
+    end
+
     it "raises for a flavor no relaton namespace carries" do
       expect { described_class.generate(data_dir, output: @out, flavor: "nosuchflavor") }
         .to raise_error(ArgumentError, /nosuchflavor/)
@@ -852,6 +949,9 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     FakeId = Struct.new(:num, :rendered) do
       def root = FakeRoot.new(num)
       def to_hash = { "_type" => "fake", "number" => num.to_s }
+      # Renders back as parsed, so the canonical-render alias path has
+      # nothing to add.
+      def to_s = rendered
     end
 
     # Parses everything; ids starting with "name-" carry no root number.
@@ -972,8 +1072,9 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     describe "Row" do
       it "does not retain the identifier object" do
         # Holding it costs 3.14 KB/row against 0.44 KB for the derived values
-        # alone — 543 MB vs 76 MB on a 177k-row corpus.
-        expect(described_class::Row.members).to eq(%i[rendered file key id_hash])
+        # alone — 543 MB vs 76 MB on a 177k-row corpus. `derived` is one
+        # boolean: the alias-prune flag, never an identifier.
+        expect(described_class::Row.members).to eq(%i[rendered file key id_hash derived])
       end
     end
 

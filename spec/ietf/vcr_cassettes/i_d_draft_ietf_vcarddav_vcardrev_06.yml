@@ -1,0 +1,88 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://bib.ietf.org/public/rfc/bibxml-ids/reference.I-D.draft-ietf-vcarddav-vcardrev-06.xml
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - bib.ietf.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 29 Oct 2026 01:44:07 GMT
+      Content-Type:
+      - application/xml
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - public, max-age=3600
+      Cross-Origin-Opener-Policy:
+      - same-origin
+      Expires:
+      - Thu, 29 Oct 2026 02:44:07 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - cloudflare
+      Vary:
+      - Cookie, origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-Resolution-Methods:
+      - manual;auto;fallback
+      X-Resolution-Outcomes:
+      - ';InternetDraftsAdapter: using query (@.type == "Internet-Draft") && (@.id
+        == "draft-ietf-vcarddav-vcardrev-06"),not found (Item not found);,'
+      Set-Cookie:
+      - __cf_bm=.gPrP0QvP0Kv5NxoYy4iBxe1QqSyfH2sROdRRTW6iGY-1793238247.8725796-1.0.1.1-UFAXW8Ph8XE.unUY57Z1jh.fOjGqo14QVLIfkeZQiRGTyXHOqSlsh9A_XbjdHWro9p_jqtod8XWPkYR8MCpmfhnnh5xw6dRgHipy0qzwA6tQN57ncQvVLl8EpP2Un7yA;
+        HttpOnly; SameSite=None; Secure; Path=/; Domain=ietf.org; Expires=Thu, 29
+        Oct 2026 02:14:07 GMT
+      Last-Modified:
+      - Thu, 29 Oct 2026 01:44:07 GMT
+      Cf-Cache-Status:
+      - HIT
+      Cf-Ray:
+      - a51e7e493ebf97ef-EWR
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      base64_string: |
+        PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnPz4KCjxyZWZl
+        cmVuY2UgYW5jaG9yPSdJLUQuaWV0Zi12Y2FyZGRhdi12Y2FyZHJldic+Cjxm
+        cm9udD4KPHRpdGxlPnZDYXJkIEZvcm1hdCBTcGVjaWZpY2F0aW9uPC90aXRs
+        ZT4KCjxhdXRob3IgaW5pdGlhbHM9J1MnIHN1cm5hbWU9J1BlcnJlYXVsdCcg
+        ZnVsbG5hbWU9J1NpbW9uIFBlcnJlYXVsdCc+CiAgICA8b3JnYW5pemF0aW9u
+        IC8+CjwvYXV0aG9yPgoKPGF1dGhvciBpbml0aWFscz0nUCcgc3VybmFtZT0n
+        UmVzbmljaycgZnVsbG5hbWU9J1BldGUgUmVzbmljayc+CiAgICA8b3JnYW5p
+        emF0aW9uIC8+CjwvYXV0aG9yPgoKPGRhdGUgbW9udGg9J01hcmNoJyBkYXk9
+        JzUnIHllYXI9JzIwMDknIC8+Cgo8YWJzdHJhY3Q+PHQ+VGhpcyBkb2N1bWVu
+        dCBkZWZpbmVzIHRoZSB2Q2FyZCBkYXRhIGZvcm1hdCBmb3IgcmVwcmVzZW50
+        aW5nIGFuZCBleGNoYW5naW5nIGEgdmFyaWV0eSBvZiBpbmZvcm1hdGlvbiBh
+        Ym91dCBhbiBpbmRpdmlkdWFsIChlLmcuLCBmb3JtYXR0ZWQgYW5kIHN0cnVj
+        dHVyZWQgbmFtZSBhbmQgZGVsaXZlcnkgYWRkcmVzc2VzLCBlbWFpbCBhZGRy
+        ZXNzLCBtdWx0aXBsZSB0ZWxlcGhvbmUgbnVtYmVycywgcGhvdG9ncmFwaCwg
+        bG9nbywgYXVkaW8gY2xpcHMsIGV0Yy4pLjwvdD48L2Fic3RyYWN0PgoKPC9m
+        cm9udD4KCjxzZXJpZXNJbmZvIG5hbWU9J0ludGVybmV0LURyYWZ0JyB2YWx1
+        ZT0nZHJhZnQtaWV0Zi12Y2FyZGRhdi12Y2FyZHJldi0wNicgLz4KPGZvcm1h
+        dCB0eXBlPSdUWFQnCiAgICAgICAgdGFyZ2V0PSdodHRwOi8vd3d3LmlldGYu
+        b3JnL2ludGVybmV0LWRyYWZ0cy9kcmFmdC1pZXRmLXZjYXJkZGF2LXZjYXJk
+        cmV2LTA2LnR4dCcgLz4KPC9yZWZlcmVuY2U+Cg==
+  recorded_at: Thu, 29 Oct 2026 01:44:07 GMT
+recorded_with: VCR 6.4.0

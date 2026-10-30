@@ -56,13 +56,19 @@ identifiers may be given *one row per identifier*, all pointing at the same
 record — the intended mechanism for alternate and cross-referenced forms, since it
 resolves them without any derivation on the consumer side.
 
-*No published index uses this, and the consumer side is untested.* Every current
-index is one row per record (`relaton-data-ids` is 166,916 rows over 166,915 files,
-and its single duplicate is a data glitch — a malformed
-`draft-ietf-6man-hbh-processing-` id alongside the correct one; Internet-Draft
-aggregators each have their own record file). Before shipping such an index, note
-that `search` would return several rows for one document while callers such as
-`Bibliography.get` take `.first`.
+Two producers publish alias rows today: a fetcher may commit them (a record-less
+registry's id pointing at the record-bearing document's file —
+`relaton-data-iana`), and the Pages generator derives them at build time, carrying
+each document's own canonical render (the parse's rendering, when it differs from
+the printed docid) and every further docidentifier as a row of its own. A derived
+row never claims a spelling a document owns as its primary, and when two derived
+rows claim one spelling the earlier document wins — `Type#add_or_update` keys
+`id_lookup` on the rendered string, so letting both publish would silently repoint
+it at whichever file sorted last.
+
+`search` still returns several rows for one document, and callers such as
+`Bibliography.get` take `.first`; a consumer that must distinguish the document's
+own row from an alias spells out the selection.
 
 There is also a trap in the *reverse* direction — one id pointing at two files is
 **not** expressible: `Type#add_or_update` keys `id_lookup` on `id.to_s`, so a
@@ -403,6 +409,12 @@ Three properties a client may rely on:
 * *Every row is structured.* A row whose id could not be resolved at all is
   dropped, not written as a plain string — `FileIO#deserialize_id` rejects the
   *whole* index on the first row it cannot deserialize.
+* *A spelling a document owns as its primary id never resolves to another
+  file.* Rows may alias (a document's canonical render, its further
+  docidentifiers, a fetcher's committed alias), but a derived row is pruned
+  when any document carries the spelling as its own primary id, so an alias
+  can never repoint it. Two documents claiming one spelling as their
+  primaries is a data glitch, and resolves by sort order.
 
 ==== What the shards cannot serve
 
