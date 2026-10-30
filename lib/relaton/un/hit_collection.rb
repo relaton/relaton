@@ -33,7 +33,7 @@ module Relaton
         end
         return unless resp.success?
 
-        body = Yeptris::JSON.load(resp.body)
+        body = Relaton::Json.parse_external(resp.body)
         return unless body["status"] == 1
 
         body.dig("body", "data")

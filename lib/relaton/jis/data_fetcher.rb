@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "yeptris"
 
 require_relative "../jis"
 require_relative "scraper"
@@ -94,7 +93,7 @@ module Relaton
         body = { record: 0, dantai: "JIS", searchtype2: 1,
                  status_1: 1, status_2: 2 } # rubocop:disable Naming/VariableNumber
         resp = agent.post "#{URL}W11M0270/index", body
-        disp = Yeptris::JSON.load resp.body
+        disp = Relaton::Json.parse_external resp.body
         @initial_time = Time.now
         disp["status"] || Util.warn("No results found for JIS")
       end

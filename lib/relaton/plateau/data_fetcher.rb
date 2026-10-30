@@ -79,7 +79,7 @@ module Relaton
         body = hadle_response(response)
 
         # Parse the JSON response
-        Yeptris::JSON.load(body)
+        Relaton::Json.parse_external(body)
       rescue StandardError => e
         # Handle any errors during the fetching process
         Util.error "Error fetching JSON data from #{url}: #{e.message}"

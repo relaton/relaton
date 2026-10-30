@@ -146,11 +146,11 @@ module Relaton
       # @raise [BadPage] when the body is not a JSON array
       #
       def parse_page(page, body)
-        records = Yeptris::JSON.load(body)
+        records = Relaton::Json.parse_external(body)
         return records if records.is_a?(Array)
 
         raise BadPage, bad_page_message(page, body)
-      rescue Yeptris::JSON::ParseError
+      rescue ::JSON::ParserError
         raise BadPage, bad_page_message(page, body)
       end
 

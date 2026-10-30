@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require "yeptris"
 
 require_relative "family_cache"
 
@@ -252,7 +251,7 @@ module Relaton
       end
 
       def get_data(url)
-        Yeptris::JSON.load request_document(url).body
+        Relaton::Json.parse_external request_document(url).body
       end
 
       def request_document(url)
