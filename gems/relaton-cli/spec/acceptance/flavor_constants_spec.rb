@@ -24,6 +24,7 @@ RSpec.describe "flavor constants after requiring relaton-cli" do
     # load time (leptris/yeptris-ruby co-initialization issue). It is a
     # dependency notice, not this command's output.
     err = err.gsub(/^.*moxml: the leptris adapter is installed but unusable.*\n/, "")
+    err = err.gsub(/^.*already initialized constant Yeptris::Native::AVAILABLE.*\n/, "")
     [out, err, status]
   end
 
