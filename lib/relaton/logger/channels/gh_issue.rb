@@ -1,3 +1,4 @@
+require "yeptris"
 require "net/http"
 
 module Relaton

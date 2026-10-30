@@ -1,3 +1,4 @@
+require "yeptris"
 # frozen_string_literal:true
 
 require "mechanize"

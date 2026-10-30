@@ -1,3 +1,4 @@
+require "yeptris"
 require "fileutils"
 
 module Relaton

@@ -1,3 +1,4 @@
+require "yeptris"
 require "json"
 require "mechanize"
 require "relaton/index"

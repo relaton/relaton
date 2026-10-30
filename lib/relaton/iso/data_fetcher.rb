@@ -1,3 +1,4 @@
+require "yeptris"
 require "fileutils"
 require "net/http"
 require "tmpdir"

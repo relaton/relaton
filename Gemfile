@@ -119,5 +119,11 @@ end
 # leptris 1.9.370.1: current line, carries the Ruby 4.0
 # memory-allocation fix (leptris#1755) — battery accompanies this bump.
 # (leptris#1742) — the battery re-run accompanies this bump.
-gem "leptris", "1.9.370.1"
+# moxml 0.5.174 deletes the accommodation paths for older leptris
+# bindings and raises unless the binding is >= 1.9.386.0 - with the old
+# 1.9.370.1 pin the leptris adapter loads unusable and every XML path
+# silently falls back to nokogiri (spec/bib namespace mapping goes red).
+# Keeps the preceding release's notes: 1.9.386.0 is the current line and
+# carries the Ruby 4.0 memory-allocation fix (leptris#1755).
+gem "leptris", "1.9.386.0"
 

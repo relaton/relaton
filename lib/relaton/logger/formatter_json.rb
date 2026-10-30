@@ -1,3 +1,4 @@
+require "yeptris"
 module Relaton::Logger
   class FormatterJSON < ::Logger::Formatter
     def call(severity, _datetime, progname, msg, **args)
