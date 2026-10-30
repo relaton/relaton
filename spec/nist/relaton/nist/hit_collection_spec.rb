@@ -183,3 +183,24 @@ RSpec.describe "Relaton::Nist exact stage match (relaton#314)" do
     expect(item.docidentifier.first.content).to eq "NIST FIPS 197/Upd1 ipd"
   end
 end
+
+RSpec.describe "Relaton::Nist CSWP comes from CSRC (relaton-nist#104)" do
+  # The NIST Library's MODS feed has no CSWP record, so the index holds only
+  # the CSRC draft rows. A final CSWP must answer from the CSRC feed, which
+  # the search asks before the index.
+  it "answers a final CSWP from the CSRC feed without the index" do
+    hc = Relaton::Nist::HitCollection.new "NIST CSWP 29"
+    expect(hc).not_to receive(:from_ga)
+    hits = hc.search.search_filter.array
+    final = hits.find { |h| h.hit[:json]["iteration"] == "final" }
+    expect(final.hit[:code]).to eq "NIST CSWP 29"
+  end
+
+  it "resolves the reference through Bibliography.get" do
+    item = Relaton::Nist::Bibliography.get "NIST CSWP 29"
+    expect(item.docidentifier.first.content).to eq "NIST CSWP 29"
+    expect(item.source.map { |s| s.content.to_s }).to include(
+      "https://csrc.nist.gov/pubs/cswp/29/the-nist-cybersecurity-framework-csf-20/final",
+    )
+  end
+end
