@@ -125,5 +125,5 @@ end
 # silently falls back to nokogiri (spec/bib namespace mapping goes red).
 # Keeps the preceding release's notes: 1.9.386.0 is the current line and
 # carries the Ruby 4.0 memory-allocation fix (leptris#1755).
-gem "leptris", "1.9.386.0"
+gem "leptris", "1.9.391.0"
 
