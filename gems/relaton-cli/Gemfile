@@ -18,8 +18,7 @@ gem "relaton", path: "../.."
 # TEMP: ride pubid main like the root bundle (pubid#620, relaton#49):
 # #620 merged after the v2.0.1 tag. Return to a released pin with the
 # root Gemfile.
-gem "pubid", git: "https://github.com/metanorma/pubid.git",
-             ref: "fee1f7894bbae32022235d8de7e5ae7e67c972ec"
+gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"
 
 # https://github.com/rails/rails/issues/55886
 # add openssl as an explicit gem to fix SSL verification issues in GHA.

@@ -167,7 +167,8 @@ on `type`, not on a flavor class:** a relation's nested item is a plain
 the BIPM parsers build `Bib::Docidentifier`, and lutaml's YAML serializer
 rejects a parent-class value in a subclass-typed collection
 (`IncorrectModelError`). `with_publisher:` is on pubid `main` only, so the
-`Gemfile`s ride it by git ref (pubid#620 merged after the `v2.0.1` tag); return
+`Gemfile`s ride pubid's `main` branch from git (pubid#620 merged after the
+`v2.0.1` tag; a local lock keeps its revision until `bundle update pubid`); return
 to a released pin with the next pubid release.
 
 **Single `VERSION`.** `lib/relaton/version.rb` defines `Relaton::VERSION` — the
