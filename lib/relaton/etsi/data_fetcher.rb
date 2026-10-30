@@ -1,5 +1,4 @@
 require "date"
-require "json"
 require "mechanize"
 require "relaton/core"
 require "relaton/index"
@@ -146,11 +145,11 @@ module Relaton
       # @raise [BadPage] when the body is not a JSON array
       #
       def parse_page(page, body)
-        records = JSON.parse(body)
+        records = Yeptris::JSON.load(body)
         return records if records.is_a?(Array)
 
         raise BadPage, bad_page_message(page, body)
-      rescue JSON::ParserError
+      rescue Yeptris::JSON::ParseError
         raise BadPage, bad_page_message(page, body)
       end
 

@@ -1,5 +1,4 @@
 require "net/http"
-require "json"
 require "uri"
 require "mechanize"
 require_relative "../itu"
@@ -542,7 +541,7 @@ module Relaton
         request["User-Agent"] = USER_AGENT
 
         response = http.request(request)
-        json = JSON.parse(response.body)
+        json = Yeptris::JSON.load(response.body)
         json["Data"] || []
       end
     end

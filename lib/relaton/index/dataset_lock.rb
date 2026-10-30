@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
+require "yeptris"
+
 require "digest"
-require "json"
 require "net/http"
 require "time"
 require "uri"
@@ -91,8 +92,8 @@ module Relaton
         end
         raise Error, "cannot fetch #{uri}: HTTP #{res.code}" unless res.code == "200"
 
-        JSON.parse(res.body)
-      rescue JSON::ParserError => e
+        Yeptris::JSON.load(res.body)
+      rescue Yeptris::JSON::ParseError => e
         raise Error, "malformed manifest at #{uri}: #{e.message}"
       end
 

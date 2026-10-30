@@ -174,8 +174,8 @@ module Relaton
       end
 
       def parse_json(body, path)
-        JSON.parse(body)
-      rescue JSON::ParserError => e
+        Yeptris::JSON.load(body)
+      rescue Yeptris::JSON::ParseError => e
         raise Error, "cannot parse `#{url(path)}`: #{e.message}"
       end
 

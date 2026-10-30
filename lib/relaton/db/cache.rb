@@ -1,6 +1,5 @@
 require "fileutils"
 require "digest"
-require "json"
 require "date"
 require "lutaml/store"
 require_relative "cache_entry"
@@ -520,7 +519,7 @@ module Relaton
       def canonical(key)
         return key if key.is_a? String
 
-        JSON.parse JSON.generate(key.to_hash)
+        Yeptris::JSON.load Yeptris::JSON.dump(key.to_hash)
       end
 
       def row_key(row)
@@ -556,7 +555,7 @@ module Relaton
 
       # A digest of the canonical key, independent of the hash order.
       def digest(key)
-        Digest::SHA256.hexdigest JSON.generate(canonical_sorted(key))
+        Digest::SHA256.hexdigest Yeptris::JSON.dump(canonical_sorted(key))
       end
 
       def canonical_sorted(key)

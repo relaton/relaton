@@ -1,8 +1,9 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
+require "yeptris"
+
 require "net/http"
-require "json"
 require "moxml"
 require_relative "scraper"
 require_relative "item"
@@ -24,8 +25,8 @@ module Relaton
           uri = URI "https://hbba.sacinfo.org.cn/stdQueryList"
           resp = Net::HTTP.post uri, URI.encode_www_form({ key: text }),
                                 "Content-Type" => "application/x-www-form-urlencoded"
-          # res = JSON.parse Net::HTTP.get(uri)
-          json = JSON.parse resp.body
+          # res = Yeptris::JSON.load Net::HTTP.get(uri)
+          json = Yeptris::JSON.load resp.body
           hits = json["records"].map do |h|
             Hit.new pid: h["pk"], docref: h["code"], status: h["status"], scraper: self
           end

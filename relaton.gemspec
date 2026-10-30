@@ -79,6 +79,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency "niso-jats", "~> 0.3.4"
   spec.add_dependency "moxml", ">= 0.5"
   spec.add_dependency "leptris", ">= 1.9.80"
+  # JSON parse/generate across the flavor fetchers and the index: yeptris's
+  # strict RFC 8259 surface replaces the stdlib json gem's calls. The floor
+  # is the owner's call to set.
+  spec.add_dependency "yeptris"
   spec.add_dependency "parallel", "~> 1.26"
   # Numeric capture editions (ruby#361): 1.3.114 records the artifact
   # edition as the integer 2 and carries the edition-2 whitespace-class

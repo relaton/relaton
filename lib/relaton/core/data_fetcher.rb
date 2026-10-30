@@ -361,7 +361,7 @@ module Relaton
       def entry_digest(entry)
         require "digest"
         require "json"
-        Digest::SHA256.hexdigest JSON.generate(entry)
+        Digest::SHA256.hexdigest Yeptris::JSON.dump(entry)
       end
 
       # Write, clobbering whatever is there. The caller has already established

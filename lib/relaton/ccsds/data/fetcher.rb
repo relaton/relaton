@@ -43,7 +43,7 @@ module Relaton
       #
       def fetch_docs(url)
         resp = agent.get(url)
-        json = JSON.parse resp.body.match(/const config = (.*);/)[1]
+        json = Yeptris::JSON.load resp.body.match(/const config = (.*);/)[1]
         @array = json["data"].map { |doc| parse_and_save doc, json["data"] }
       end
 
