@@ -89,6 +89,14 @@ gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"
 # there), so the pin moves with it.
 gem "parsanol", "1.3.114"
 
+# TEMP: ride lutaml-hal and w3c_api main — lutaml-hal#25/#26 (yeptris JSON
+# parse in lutaml-hal) and w3c-api#26 (its injected stack drops the Faraday
+# json middleware) are merged but unreleased, and the gemspec's json < 3 pin
+# is GONE on that strength. Return both to released pins with their next
+# releases.
+gem "lutaml-hal", git: "https://github.com/lutaml/lutaml-hal.git", branch: "main"
+gem "w3c_api", git: "https://github.com/relaton/w3c-api.git", branch: "main"
+
 
 # Default group (installed even when the release strips dev/test): the release
 # job runs `bundle config without 'development test'` before `bundle exec rake

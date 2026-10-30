@@ -215,15 +215,18 @@ A pubid whose `to_hash` differs from the one that built an index makes
 `Relaton::Index` reject the whole index, so bump the pin in step with the data
 repos. See `lib/relaton/jcgm/CLAUDE.md`.
 
-**`json` is pinned below 3 (`relaton.gemspec`).** json 3.0.0 made the
-`JSON.parse` options keyword-only, and Faraday's JSON response middleware still
-passes them positionally (`::JSON.parse(body, @parser_options || {})`), up to and
-including the current faraday 2.14.3. `Relaton::W3c` reads every record through
-that middleware (w3c_api -> lutaml-hal), so with json 3 each api.w3.org response
-raises `ArgumentError: wrong number of arguments (given 2, expected 1)`, surfaced
-as `Lutaml::Hal::ParsingError`, and the whole `spec/w3c` suite fails. Nothing else
-in the bundle asks for json 3. Drop the pin once Faraday parses with keyword
-options; `spec/w3c/relaton/w3c/faraday_json_spec.rb` is the guard that says when.
+**No `json` pin — the W3C stack parses with yeptris.** json 3.0.0 made the
+`JSON.parse` options keyword-only, and Faraday's JSON response middleware parses
+positionally (`::JSON.parse(body, @parser_options || {})`) — that middleware used
+to force this gemspec to hold `json < 3`. It is gone from both stacks we own:
+lutaml-hal parses JSON bodies itself in `Client#parse_json_body` (yeptris's
+strict RFC 8259 surface, same bare-type content-type matcher, lutaml-hal#25/#26),
+and w3c_api's injected connection carries only retry + redirects (w3c-api#26).
+Relaton's own JSON call sites keep the stdlib-agnostic `json` usage unchanged.
+`spec/w3c/relaton/w3c/faraday_json_spec.rb` guards the removal: if either stack
+installs the JSON middleware again, or the parameterized content-type split
+drifts, that spec fails under json 3 with one legible message. The Gemfile rides
+lutaml-hal and w3c_api from git until their next releases carry the change.
 
 **`parsanol` is capped below 1.3.110 in `relaton.gemspec`, not only in the
 `Gemfile`.** parsanol 1.3.110 (and 1.3.111) made the v2 named-tree dialect the
