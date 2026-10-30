@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { applyFilters, compareDocuments, distinctValues, matchesQuery } from "./filter";
+import type { SortDir } from "./filter";
 import type { IndexDocument } from "./types";
 
 const doc = (over: Partial<IndexDocument>): IndexDocument => ({
@@ -76,7 +77,7 @@ describe("date sort with missing dates", () => {
       doc({ id: "dated-1999", title: "x", date: "1999-01-01" }),
     ];
     const opts = (sortDir: SortDir) => ({
-      query: "", doctypes: new Set(), stages: new Set(),
+      query: "", doctypes: new Set<string>(), stages: new Set<string>(),
       sortKey: "date" as const, sortDir,
     });
     expect(applyFilters(docs, opts("asc")).map((d) => d.id))
