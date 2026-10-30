@@ -96,7 +96,9 @@ Gem::Specification.new do |spec|
 
   # JSON parse/generate across the flavor fetchers, the index and the db:
   # yeptris's strict RFC 8259 surface replaces the stdlib json gem's calls.
-  spec.add_dependency "yeptris", ">= 0.4"
+  # The boundary parser needs the allow_duplicate_key: opt-out, which
+  # 0.6.51.0 carries (yeptris-ruby#339, published 2026-10-30).
+  spec.add_dependency "yeptris", ">= 0.6.51"
   spec.add_dependency "relaton-render", ">= 3.0.0.pre.alpha.1", "< 4"
   spec.add_dependency "rfcxml", "~> 0.4.3"
   spec.add_dependency "rubyzip", "~> 3.7"
