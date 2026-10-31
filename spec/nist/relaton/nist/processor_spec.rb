@@ -45,6 +45,33 @@ RSpec.describe Relaton::Nist::Processor do
     end
   end
 
+  # pubid reads some dated CSWP translation ids lossily ("04162018ar" ->
+  # "04162018a"), so Db must hand get the reference as written (relaton#406).
+  describe "#cache_pubid" do
+    it "gives no pubid for a CSWP table id that pubid does not render back" do
+      expect(processor.cache_pubid("NIST CSWP 04162018ar")).to be_nil
+      expect(processor.cache_pubid("NIST CSWP 02122014pl")).to be_nil
+    end
+
+    it "gives no pubid for a translation that pubid renders in another spelling" do
+      expect(processor.cache_pubid("NIST CSWP 6 spa")).to be_nil
+    end
+
+    # The answer is the numbered record with the dated id added; cached, it
+    # would land on the numbered id's row.
+    it "gives no pubid for a legacy dated id, so Db does not cache it" do
+      expect(processor.cache_pubid("NIST CSWP 01142020")).to be_nil
+    end
+
+    it "keeps the parse of a translation that renders back" do
+      expect(processor.cache_pubid("NIST.CSWP.6.spa").to_s).to eq "NIST.CSWP.6.spa"
+    end
+
+    it "keeps the parse of any other reference" do
+      expect(processor.cache_pubid("NIST SP 800-53r5").to_s).to eq "NIST SP 800-53r5"
+    end
+  end
+
   describe "#fetch_data" do
     it "delegates to DataFetcher.fetch" do
       expect(Relaton::Nist::DataFetcher).to receive(:fetch)

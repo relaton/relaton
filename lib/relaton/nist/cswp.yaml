@@ -1,0 +1,155 @@
+# CSWP ids the CSRC pubs-export feed does not list (relaton#406).
+#
+# Source: the RIS files `bib/NIST.CSWP.*.ris` on the `nist-pages` branch of
+# usnistgov/NIST-Tech-Pubs (the NIST Library MODS/MARC releases hold no CSWP).
+#
+# legacy: a dated id from before the series was numbered -> the numbered id,
+#   matched by the exact RIS title (TI). A dated translation maps to the
+#   numbered translation. `06222021-draft` has no numbered RIS; its title is
+#   the CSRC `CSWP 19` initial public draft.
+#   Not mapped: `02042022-1`..`-5` have no SN and share the title
+#   "Cybersecurity White Paper: EO Response", so no numbered id matches.
+#
+# translations: numbered id + ISO 639-2 language code -> the RIS fields (TI,
+#   PY, DO, AU). The original is the numbered id without the language code.
+legacy:
+  "01142020": "9"
+  "01162020es": "10 spa"
+  "01162020id": "10 ind"
+  "01162020pt": "10 por"
+  "01262018": "5"
+  "02042020-1": "11"
+  "02042020-2": "11A"
+  "02042020-3": "11B"
+  "02042020-4": "11C"
+  "02042020-5": "11D"
+  "02042020-6": "11E"
+  "02042020-7": "11F"
+  "02122014": "1"
+  "02122014pl": "1 pol"
+  "02192014": "2"
+  "04162018": "6"
+  "04162018ar": "6 ara"
+  "04162018bg": "6 bul"
+  "04162018es": "6 spa"
+  "04162018fr": "6 fre"
+  "04162018id": "6 ind"
+  "04162018pt": "6 por"
+  "04212016": "4"
+  "04222019": "8"
+  "04232020": "13"
+  "04282021": "15"
+  "06032014": "3"
+  "06222021-draft": "19 ipd"
+  "09102018": "7"
+  "09292021": "21"
+translations:
+  "1 pol":
+    title: Framework for Improving Critical Infrastructure Cybersecurity, Version 1.0 (Polish translation)
+    year: "2014"
+    doi: 10.6028/NIST.CSWP.1.pol
+    authors:
+    - Stine, Kevin
+  "6 ara":
+    title: Framework for Improving Critical Infrastructure Cybersecurity, Version 1.1 (Arabic translation)
+    year: "2018"
+    doi: 10.6028/NIST.CSWP.6.ara
+    authors:
+    - Stine, Kevin
+  "6 bul":
+    title: Framework for Improving Critical Infrastructure Cybersecurity, Version 1.1 (Bulgarian translation)
+    year: "2018"
+    doi: 10.6028/NIST.CSWP.6.bul
+    authors:
+    - Stine, Kevin
+  "6 fre":
+    title: Framework for Improving Critical Infrastructure Cybersecurity, Version 1.1 (French Translation)
+    year: "2018"
+    doi: 10.6028/NIST.CSWP.6.fre
+    authors:
+    - Stine, Kevin
+  "6 gre":
+    title: Greek Translation of the Framework for Improving Critical Infrastructure Cybersecurity
+    year: "2018"
+    doi: 10.6028/NIST.CSWP.6.gre
+    authors:
+    - Stine, Kevin
+  "6 ind":
+    title: Framework for Improving Critical Infrastructure Cybersecurity, Version 1.1 (Indonesian Translation)
+    year: "2018"
+    doi: 10.6028/NIST.CSWP.6.ind
+    authors:
+    - Stine, Kevin
+  "6 jpn":
+    title: Japanese Translation of Framework for Improving Critical Infrastructure Cybersecurity Version 1.1 (Cybersecurity Framework)
+    year: "2018"
+    doi: 10.6028/NIST.CSWP.6.jpn
+    authors:
+    - Stine, Kevin
+  "6 kor":
+    title: Korean Translation of the Framework for Improving Critical Infrastructure Cybersecurity Version 1.1
+    year: "2024"
+    doi: 10.6028/NIST.CSWP.6.kor
+    authors:
+    - Stine, Kevin
+  "6 may":
+    title: Malay Translation of the Framework for Improving Critical Infrastructure Cybersecurity V1.1
+    year: "2018"
+    doi: 10.6028/NIST.CSWP.6.may
+    authors:
+    - Stine, Kevin
+  "6 nor":
+    title: Norwegian Translation of the Framework for Improving Critical Infrastructure Cybersecurity Version 1.1
+    year: "2018"
+    doi: 10.6028/NIST.CSWP.6.nor
+    authors:
+    - Stine, Kevin
+  "6 por":
+    title: Portuguese Translation of the Framework for Improving Critical Infrastructure Cybersecurity Version 1.1 (Cybersecurity Framework)
+    year: "2018"
+    doi: 10.6028/NIST.CSWP.6.por
+    authors:
+    - Stine, Kevin
+  "6 spa":
+    title: Framework for Improving Critical Infrastructure Cybersecurity, Version 1.1 (Spanish translation)
+    year: "2018"
+    doi: 10.6028/NIST.CSWP.6.spa
+    authors:
+    - Stine, Kevin
+  "6 ukr":
+    title: Ukranian Translation of the Framework for Improving Critical Infrastructure Cybersecurity Version 1.1 (Cybersecurity Framework)
+    year: "2018"
+    doi: 10.6028/NIST.CSWP.6.ukr
+    authors:
+    - Stine, Kevin
+  "10 ara":
+    title: "NIST Privacy Framework: A Tool for Improving Privacy Through Enterprise Risk Management, Version 1.0 (Arabic translation)"
+    year: "2022"
+    doi: 10.6028/NIST.CSWP.10.ara
+    authors:
+    - Lefkovitz, Naomi
+    - Boeckl, Katie
+  "10 ind":
+    title: Indonesian Translation of the NIST Privacy Framework Version 1.0
+    year: "2020"
+    doi: 10.6028/NIST.CSWP.10.ind
+    authors:
+    - Lefkovitz, Naomi
+  "10 may":
+    title: "NIST Privacy Framework: A Tool for Improving Privacy Through Enterprise Risk Management, Version 1.0 (Malay translation)"
+    year: "2024"
+    doi: 10.6028/NIST.CSWP.10.may
+    authors:
+    - Lefkovitz, Naomi
+  "10 por":
+    title: Portuguese Translation of the NIST Privacy Framework Version 1.0
+    year: "2021"
+    doi: 10.6028/NIST.CSWP.10.por
+    authors:
+    - Lefkovitz, Naomi
+  "10 spa":
+    title: Spanish Translation of the NIST Privacy Framework Version 1.0
+    year: "2021"
+    doi: 10.6028/NIST.CSWP.10.spa
+    authors:
+    - Lefkovitz, Naomi

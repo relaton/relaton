@@ -39,6 +39,9 @@ module Relaton
           # read back as its printed form; the pubid itself is not changed.
           ref = ref.to_s unless ref.is_a?(String)
           return fetch_ref_err(ref, year, []) if ref.match?(/\sEP$/)
+          # Before the parsing below, which reads "(spa)" as a date.
+          cswp = Cswp.lookup(ref)
+          return cswp_get(ref, cswp, year, opts) if cswp
 
           /^(?<code2>[^(]+)(?:\((?<date2>\w+\s(?:\d{2},\s)?\d{4})\))?\s?\(?(?:(?<=\()(?<stage>(?:I|F|\d)PD))?/ =~ ref
           stage ||= /(?<=\.)PD-\w+(?=\.)/.match(ref)&.to_s
@@ -61,6 +64,34 @@ module Relaton
         end
 
         private
+
+        #
+        # Get a CSWP that CSRC does not list (relaton#406). A legacy dated id
+        # answers the numbered CSRC record, with the dated id as an extra
+        # docidentifier; a translation answers its record from the RIS table.
+        #
+        # @param ref [String] reference
+        # @param cswp [Array] the Cswp.lookup result
+        # @param year [String, nil] year
+        # @param opts [Hash] options
+        #
+        # @return [Relaton::Nist::ItemData, nil] bibliographic item
+        #
+        def cswp_get(ref, cswp, year, opts)
+          type, id, dated = cswp
+          if type == :translation
+            return fetch_ref_err(ref, year, [id[:year]]) if year && year.to_s != id[:year]
+
+            item = Cswp.translation_item(id)
+            Util.info "Found: `#{item.docidentifier.first.content}`", key: ref
+            return item
+          end
+
+          Util.info "Legacy dated CSWP id, fetching `#{id}`", key: ref
+          item = nistbib_get(id, year, opts)
+          item&.docidentifier&.<< Docidentifier.new(content: dated, type: "NIST")
+          item
+        end
 
         #
         # Get NIST document by reference

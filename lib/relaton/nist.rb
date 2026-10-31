@@ -12,6 +12,7 @@ require_relative "nist/pubs_export"
 require_relative "nist/hit"
 require_relative "nist/hit_collection"
 require_relative "nist/scraper"
+require_relative "nist/cswp"
 require_relative "nist/bibliography"
 # require_relative "nist/tech_pubs_parser"
 
