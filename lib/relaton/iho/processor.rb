@@ -25,6 +25,12 @@ module Relaton
         Bibliography.get(code, date, opts)
       end
 
+      # An IHO record prints `B-12` and keeps its edition in `edition`, so
+      # the edition goes on the key as the version (relaton#408).
+      def item_cache_key(pubid, item)
+        with_components pubid, version: item.edition&.content
+      end
+
       # @param xml [String]
       # @return [Relaton::Iho::ItemData]
       def from_xml(xml)

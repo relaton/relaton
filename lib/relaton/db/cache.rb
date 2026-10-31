@@ -36,8 +36,11 @@ module Relaton
       # reads an omitted `part` as "any part" (`ISO 19115:2003 ===
       # ISO 19115-1:2003`), which names another document.
       LANGUAGE_COMPONENTS = %w[language languages].freeze
-      # What a row may add to a key and still be one of its editions.
-      EDITION_COMPONENTS = (%w[year date month] + LANGUAGE_COMPONENTS).freeze
+      # What a row may add to a key and still be one of its editions. An
+      # `edition` or a `version` comes from Core::Processor#item_cache_key
+      # (IHO, ECMA; relaton#408). A `volume` names another document.
+      EDITION_COMPONENTS =
+        (%w[year date month edition version] + LANGUAGE_COMPONENTS).freeze
 
       # @return [String]
       attr_reader :dir

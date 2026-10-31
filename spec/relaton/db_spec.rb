@@ -148,6 +148,83 @@ RSpec.describe Relaton::Db do
     end
   end
 
+  # A flavor whose printed docid omits the edition keys each edition
+  # apart, so one edition's fetch does not overwrite another's (relaton#408).
+  context "editions the printed docid omits" do
+    let(:db) { Relaton::Db.new "testcache", nil }
+
+    def edition(item)
+      item.edition.content
+    end
+
+    after { FileUtils.rm_rf "testcache" }
+
+    context "IHO" do
+      def iho_item(edition)
+        docid = Relaton::Iho::Docidentifier.new(content: "IHO B-12",
+                                                type: "IHO", primary: true)
+        year = edition == "3.0.0" ? "2024" : "2018"
+        published = Relaton::Bib::Date.new(type: "published", at: year)
+        Relaton::Iho::ItemData.new(
+          docidentifier: [docid], fetched: Date.today.to_s, date: [published],
+          edition: Relaton::Bib::Edition.new(content: edition)
+        )
+      end
+
+      it "answers a repeated date range from the cached edition" do
+        2.times do
+          bib = db.fetch "IHO B-12", nil, publication_date_after: "2020"
+          expect(edition(bib)).to eq "3.0.0"
+        end
+        expect(Relaton::Iho::Bibliography).to have_received(:get).once
+      end
+
+      before do
+        allow(Relaton::Iho::Bibliography).to receive(:get) do |ref, *|
+          iho_item(ref.version&.to_s || "3.0.0")
+        end
+      end
+
+      it "keeps each edition apart" do
+        expect(edition(db.fetch("IHO B-12 3.0.0"))).to eq "3.0.0"
+        expect(edition(db.fetch("IHO B-12 2.0.3"))).to eq "2.0.3"
+        expect(edition(db.fetch("IHO B-12 3.0.0"))).to eq "3.0.0"
+        expect(edition(db.fetch("IHO B-12"))).to eq "3.0.0"
+        expect(Relaton::Iho::Bibliography).to have_received(:get).exactly(3).times
+      end
+
+      it "answers an edition from the unqualified fetch's document" do
+        expect(edition(db.fetch("IHO B-12"))).to eq "3.0.0"
+        expect(edition(db.fetch("IHO B-12 3.0.0"))).to eq "3.0.0"
+        expect(Relaton::Iho::Bibliography).to have_received(:get).once
+      end
+    end
+
+    context "ECMA" do
+      def ecma_item(edition)
+        docid = Relaton::Ecma::Docidentifier.new(content: "ECMA-262",
+                                                 type: "ECMA", primary: true)
+        Relaton::Ecma::ItemData.new(
+          docidentifier: [docid], fetched: Date.today.to_s,
+          edition: Relaton::Bib::Edition.new(content: edition)
+        )
+      end
+
+      before do
+        allow(Relaton::Ecma::Bibliography).to receive(:get) do |ref, *|
+          ecma_item(ref.edition&.to_s || "16")
+        end
+      end
+
+      it "keeps each edition apart" do
+        expect(edition(db.fetch("ECMA-262 ed16"))).to eq "16"
+        expect(edition(db.fetch("ECMA-262 ed5"))).to eq "5"
+        expect(edition(db.fetch("ECMA-262 ed16"))).to eq "16"
+        expect(edition(db.fetch("ECMA-262"))).to eq "16"
+      end
+    end
+  end
+
   context "pubid cache keys" do
     let(:db) { Relaton::Db.new "testcache", nil }
 

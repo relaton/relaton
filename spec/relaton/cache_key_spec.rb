@@ -51,6 +51,60 @@ RSpec.describe "Relaton::Core::Processor#cache_key" do
     end
   end
 
+  # The key of a fetched document adds what its printed docid omits by
+  # design (relaton#408).
+  context "item_cache_key" do
+    def parse(short, ref)
+      processor(short).pubid_class.parse ref
+    end
+
+    def item(edition: nil, volume: nil)
+      extent = if volume
+                 locality = Relaton::Bib::Locality.new(type: "volume",
+                                                       reference_from: volume)
+                 [Relaton::Bib::Extent.new(locality: [locality])]
+               end
+      Relaton::Bib::ItemData.new(
+        edition: edition && Relaton::Bib::Edition.new(content: edition),
+        extent: extent || [],
+      )
+    end
+
+    it "adds an IHO edition as the version" do
+      pubid = parse(:relaton_iho, "IHO B-12")
+      key = processor(:relaton_iho).item_cache_key(pubid, item(edition: "3.0.0"))
+      expect(key.to_hash).to eq parse(:relaton_iho, "IHO B-12 3.0.0").to_hash
+      expect(pubid.to_s).to eq "IHO B-12"
+    end
+
+    it "keeps an IHO key with no edition" do
+      pubid = parse(:relaton_iho, "IHO B-12")
+      expect(processor(:relaton_iho).item_cache_key(pubid, item).to_s)
+        .to eq "IHO B-12"
+    end
+
+    it "adds an ECMA edition and volume" do
+      pubid = parse(:relaton_ecma, "ECMA-262")
+      key = processor(:relaton_ecma)
+        .item_cache_key(pubid, item(edition: "5", volume: "2"))
+      expect(key.to_hash)
+        .to eq parse(:relaton_ecma, "ECMA-262 ed5 vol2").to_hash
+      expect(pubid.to_s).to eq "ECMA-262"
+    end
+
+    it "keeps the docid's own edition" do
+      pubid = parse(:relaton_ecma, "ECMA-262 ed16")
+      expect(processor(:relaton_ecma)
+        .item_cache_key(pubid, item(edition: "5")).edition.to_s).to eq "16"
+    end
+
+    it "is the docid's key for any other flavor" do
+      pubid = parse(:relaton_iso, "ISO 19115-1:2014")
+      expect(processor(:relaton_iso)
+        .item_cache_key(pubid, item(edition: "2"))).to equal pubid
+    end
+  end
+
   context "the year" do
     it "goes on the adopted document of a CEN adoption" do
       expect(key(:relaton_cen, "CEN ISO/TS 21003-7", "2019").to_hash)

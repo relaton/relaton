@@ -508,6 +508,9 @@ regex back.
   For the `Db` cache key, the processor sets `@pubid_flavor` (or
   `@pubid_identifier`, which leaves `#prefixes` alone); it overrides
   `cache_pubid` only when `get` reads an unparseable reference as a miss.
+  If the flavor's printed docid omits an edition the item keeps elsewhere
+  (IHO, ECMA), it overrides `item_cache_key` to add it, or the `Db` cache
+  stores all editions in one file (relaton#408; `lib/relaton/db/CLAUDE.md`).
 - **Index-file constant.** A flavor that publishes an index names it with a single
   `INDEXFILE = "index-vN"` constant (one word, **no extension**) in its top-level
   `lib/relaton/<flavor>.rb`; call sites append `.yaml`/`.zip` (`"#{INDEXFILE}.yaml"`,
