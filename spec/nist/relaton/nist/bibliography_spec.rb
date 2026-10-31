@@ -110,4 +110,54 @@ RSpec.describe Relaton::Nist::Bibliography do
       expect(result).to be_nil
     end
   end
+
+  # CSRC lists neither the legacy dated CSWP ids nor the translations; both
+  # come from the NIST Library RIS files through Cswp (relaton#406).
+  describe "CSWP ids that CSRC does not list" do
+    def docids(item)
+      item.docidentifier.map { |d| [d.content, d.primary] }
+    end
+
+    it "answers a legacy dated id with the numbered CSRC record" do
+      item = described_class.get "NIST CSWP 01142020"
+      expect(docids(item)).to include(["NIST CSWP 9", true], ["NIST CSWP 01142020", nil])
+      expect(item.source.map { |s| s.content.to_s }).to include(
+        "https://csrc.nist.gov/pubs/cswp/9/a-taxonomic-approach-to-understanding-emerging-blo/final",
+      )
+    end
+
+    it "answers a dated case study with its lettered number" do
+      item = described_class.get "NIST CSWP 02042020-2"
+      expect(docids(item)).to include(["NIST CSWP 11A", true], ["NIST CSWP 02042020-2", nil])
+    end
+
+    it "answers the dated draft with the CSRC draft" do
+      item = described_class.get "NIST CSWP 06222021-draft"
+      expect(item.docidentifier.first.content).to eq "NIST CSWP 19 ipd"
+      expect(docids(item)).to include(["NIST CSWP 06222021-draft", nil])
+    end
+
+    it "accepts the DOI form of a dated id" do
+      item = described_class.get "NIST.CSWP.04162018"
+      expect(item.docidentifier.first.content).to eq "NIST CSWP 6"
+    end
+
+    ["NIST.CSWP.6.spa", "NIST CSWP 6(spa)", "NIST CSWP 04162018es"].each do |ref|
+      it "answers #{ref} with the Spanish translation record" do
+        item = described_class.get ref
+        expect(item.docidentifier.first.content).to eq "NIST CSWP 6(spa)"
+        expect(item.language).to eq ["es"]
+        expect(item.relation.first.type).to eq "translatedFrom"
+      end
+    end
+
+    it "answers a translation for its own year only" do
+      expect(described_class.get("NIST CSWP 6 spa", "2018").language).to eq ["es"]
+      expect(described_class.get("NIST CSWP 6 spa", "2020")).to be_nil
+    end
+
+    it "answers not-found for an EO Response id" do
+      expect(described_class.get("NIST CSWP 02042022-1")).to be_nil
+    end
+  end
 end

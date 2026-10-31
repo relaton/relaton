@@ -21,6 +21,26 @@ module Relaton
         Bibliography.get(code, date, opts)
       end
 
+      # Two kinds of Cswp table reference reach `get` as written and are not
+      # cached (relaton#406). A legacy dated id answers the numbered record
+      # with the dated id added, and Db would store that record under the
+      # numbered id's row, so a later "NIST CSWP 9" would carry the dated id.
+      # A translation that pubid reads in another form ("NIST CSWP
+      # 04162018ar" as "...04162018a", "NIST CSWP 6 spa" as "...6(spa)").
+      #
+      # @param ref [String]
+      # @return [Pubid::Nist::Identifier, nil]
+      def cache_pubid(ref)
+        pubid = super
+        return if pubid.nil?
+
+        require_relative "cswp"
+        type, = Cswp.lookup(ref)
+        return pubid if type.nil? || (type == :translation && pubid.to_s == ref)
+
+        nil
+      end
+
       #
       # Fetch all the documents from a source
       #
