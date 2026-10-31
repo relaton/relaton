@@ -88,13 +88,30 @@ module Relaton
       end
 
       def pubid_match?(pubid)
-        match_excludings = translate_excludings(excludings) + [:all_parts]
-        match_excludings << :edition unless pubid.typed_stage&.abbr&.include?("DIR")
+        match_excludings = base_match_excludings
+        unless pubid.typed_stage&.abbr&.include?("DIR")
+          match_excludings = match_excludings + [:edition]
+        end
         # Only the candidate is built via .create (from the index) and so may
         # carry a compound part; `ref_pubid_no_year` is always a parsed pubid,
         # already split, so it needs no normalization.
         cand = normalize_compound_part(exclude_id_attrs(pubid, *match_excludings))
-        cand == exclude_id_attrs(ref_pubid_no_year, *match_excludings)
+        cand == ref_excluded(match_excludings)
+      end
+
+      # The candidate's excludings set varies only by the DIR exception; the
+      # reference side is invariant per distinct set. Exclude the ref's
+      # (possibly deep) base chain once per set, not once per candidate —
+      # on a large vocabulary compile this chain ran per candidate per
+      # lookup and dominated the bibitem-resolution phase (relaton#423).
+      def base_match_excludings
+        @base_match_excludings ||= translate_excludings(excludings) + [:all_parts]
+      end
+
+      def ref_excluded(match_excludings)
+        @ref_excluded ||= {}
+        @ref_excluded[match_excludings] ||=
+          exclude_id_attrs(ref_pubid_no_year, *match_excludings)
       end
 
       # @TODO TEMP WORKAROUND (pubid 2.x migration): the v1-generated index
