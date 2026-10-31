@@ -272,6 +272,21 @@ describe Relaton::Ietf::BibXMLParser do
     end
   end
 
+  it "does not turn a <stream> element into a series" do
+    xml = <<~XML
+      <reference anchor="I-D.ietf-quic-transport">
+        <stream>IETF</stream>
+        <front>
+          <title>Test</title>
+          <author initials="J." surname="Doe" fullname="John Doe"/>
+          <date year="2024"/>
+        </front>
+      </reference>
+    XML
+    bib = described_class.parse(xml)
+    expect(bib.series.map(&:type)).not_to include "stream"
+  end
+
   context "pubid_type" do
     context "returns RFC" do
       it { expect(described_class.pubid_type("RFC 1234")).to eq "RFC" }

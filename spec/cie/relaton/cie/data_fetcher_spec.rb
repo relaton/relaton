@@ -187,8 +187,8 @@ RSpec.describe Relaton::Cie::DataFetcher do
         expect(item.edition).to be_instance_of Relaton::Bib::Edition
         expect(item.contributor.first).to be_instance_of Relaton::Bib::Contributor
         expect(item.relation.first).to be_instance_of Relaton::Bib::Relation
-        expect(item.language).to eq "en"
-        expect(item.script).to eq "Latn"
+        expect(item.language).to eq ["en"]
+        expect(item.script).to eq ["Latn"]
         expect(item.ext).to be_instance_of Relaton::Cie::Ext
         expect(item.ext.doctype).to be_instance_of Relaton::Bib::Doctype
         expect(item.ext.flavor).to eq "cie"
