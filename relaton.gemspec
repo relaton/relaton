@@ -45,11 +45,11 @@ Gem::Specification.new do |spec|
   # are now internal). Conflicting pins reconciled to the tightest constraint.
   spec.add_dependency "addressable", "~> 2.8"
   spec.add_dependency "algolia", "~> 2.3.0"
-  spec.add_dependency "base64", ">= 0"
-  spec.add_dependency "bibtex-ruby", ">= 0"
+  spec.add_dependency "base64", "~> 0.3"
+  spec.add_dependency "bibtex-ruby", "~> 6.2"
   spec.add_dependency "cnccs", "~> 0.1.1"
   spec.add_dependency "concurrent-ruby", "~> 1.0"
-  spec.add_dependency "sqlite3", ">= 1.7"
+  spec.add_dependency "sqlite3", "~> 2.10"
   spec.add_dependency "csv", "~> 3.3"
   spec.add_dependency "faraday", "~> 2.7"
   spec.add_dependency "faraday-net_http_persistent", "~> 2.0"
@@ -58,7 +58,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "graphql", "~> 2.3"
   spec.add_dependency "graphql-client", "~> 0.23"
   spec.add_dependency "ieee-idams", "~> 0.3.0"
-  spec.add_dependency "iso639", ">= 0"
+  spec.add_dependency "iso639", "~> 1.4"
   spec.add_dependency "isoics", "~> 0.1.6"
   spec.add_dependency "loc_mods", "~> 0.3.0"
   spec.add_dependency "logger", "~> 1.6"
@@ -66,7 +66,9 @@ Gem::Specification.new do |spec|
   # Lutaml::Hal error classes by name, and ForbiddenError (403, the W3C
   # rate-limit signal) only exists from 0.2.5 — w3c_api's own `~> 0.2.1` would
   # happily resolve to an older one and NameError at rescue time.
-  spec.add_dependency "lutaml-hal", "~> 0.2", ">= 0.2.5"
+  # 0.2.8 parses JSON bodies itself (yeptris) — the pin that dropped
+  # json < 3 depends on it.
+  spec.add_dependency "lutaml-hal", "~> 0.2.8"
   # singular_tolerance (relaton#301) requires 0.8.113 (lutaml-model#971);
   # 0.8.107-112 raise on the stricter collection validation instead.
   spec.add_dependency "lutaml-model", "~> 0.8.113"
@@ -77,8 +79,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "mini_portile2", "~> 2.8.0"
   spec.add_dependency "niso-jats", "~> 0.3.4"
-  spec.add_dependency "moxml", ">= 0.5"
-  spec.add_dependency "leptris", ">= 1.9.80"
+  spec.add_dependency "moxml", "~> 0.5.174"
+  spec.add_dependency "leptris", "~> 1.9.391"
   spec.add_dependency "parallel", "~> 1.26"
   # Numeric capture editions (ruby#361): 1.3.114 records the artifact
   # edition as the integer 2 and carries the edition-2 whitespace-class
@@ -87,18 +89,18 @@ Gem::Specification.new do |spec|
   # numeric edition it does not implement, so the floor names 1.3.114
   # for bundles that depend on relaton.
   # `spec/relaton/parsanol_dialect_spec.rb` guards this constraint.
-  spec.add_dependency "parsanol", ">= 1.3.114", "< 1.4"
+  spec.add_dependency "parsanol", "~> 1.3.114"
   # 2.0.1 is the first final release a dependent bundle can use: 2.0.0 ships
   # the old emission-1 parse artifacts, which break under parsanol >= 1.3.110
   # (parsanol#352). 2.0.1 carries everything the 2.0.0.pre.alpha.64 pin had.
-  spec.add_dependency "pubid", ">= 2.0.1", "< 2.1"
+  spec.add_dependency "pubid", "~> 2.0.1"
 
   # JSON parse/generate across the flavor fetchers, the index and the db:
   # yeptris's strict RFC 8259 surface replaces the stdlib json gem's calls.
   # The boundary parser needs the allow_duplicate_key: opt-out, which
   # 0.6.51.0 carries (yeptris-ruby#339, published 2026-10-30).
-  spec.add_dependency "yeptris", ">= 0.6.51"
-  spec.add_dependency "relaton-render", ">= 3.0.0.pre.alpha.1", "< 4"
+  spec.add_dependency "yeptris", "~> 0.6.51"
+  spec.add_dependency "relaton-render", "~> 3.0"
   spec.add_dependency "rfcxml", "~> 0.4.3"
   spec.add_dependency "rubyzip", "~> 3.7"
   # 0.3.3 is the floor, not a preference: it sets an identifying User-Agent
