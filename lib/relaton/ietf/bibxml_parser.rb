@@ -131,6 +131,12 @@ module Relaton
           BibXMLParser.pubid_type(id)
         end
 
+        # The base parser keeps <stream> as a `type="stream"` series, for items
+        # with no other slot. This flavor carries the stream in `ext.stream`.
+        def stream_series
+          []
+        end
+
         def contributor # rubocop:disable Metrics/MethodLength
           contribs = []
           unless @reference.anchor&.match?(/^I-D/)
