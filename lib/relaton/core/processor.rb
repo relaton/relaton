@@ -134,6 +134,21 @@ module Relaton
         copy
       end
 
+      # A copy of `pubid` with each given component the parse leaves nil, for
+      # #item_cache_key. `pubid` itself when there is nothing to add.
+      #
+      # @param pubid [Pubid::Identifier]
+      # @param values [Hash{Symbol => String, nil}]
+      # @return [Pubid::Identifier]
+      def with_components(pubid, **values)
+        values = values.select { |attr, value| value && pubid.public_send(attr).nil? }
+        return pubid if values.empty?
+
+        copy = pubid.class.from_hash pubid.to_hash
+        values.each { |attr, value| copy.public_send "#{attr}=", value }
+        copy
+      end
+
       # The cache key for a query: the parsed pubid with the `year` and
       # `all_parts` options folded in. The publication date range is not part
       # of the identity, so it never enters the key.
@@ -150,6 +165,20 @@ module Relaton
 
         pubid = fold_year(pubid, year) if year
         pubid = pubid.to_all_parts if opts[:all_parts] && !pubid.all_parts?
+        pubid
+      end
+
+      # The cache key of a fetched document: its primary docidentifier as
+      # parsed (`pubid`), plus the components that docid omits by design and
+      # the item keeps elsewhere. A flavor whose printed docid drops the
+      # edition (IHO `B-12`, ECMA `ECMA-262`) overrides this, or every
+      # edition gets one key and one cache file (relaton#408). The same set
+      # as relaton-cli's `MachineIndex::REFINABLE_KEYS`.
+      #
+      # @param pubid [Pubid::Identifier] the docid's parse; not mutated
+      # @param _item [Relaton::Bib::ItemData] the fetched document
+      # @return [Pubid::Identifier]
+      def item_cache_key(pubid, _item)
         pubid
       end
 

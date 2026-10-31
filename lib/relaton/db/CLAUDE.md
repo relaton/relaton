@@ -223,6 +223,17 @@ relaton#189 item 2 / relaton#204. Two lutaml-store `FileSystem` stores under
   both naming the same file. There are no redirect entries. A document is
   deleted with the last row that points to it; a row whose document is gone is
   a miss.
+- **The item row's key must tell editions apart (relaton#408).** `Db#item_key`
+  parses the primary docidentifier and passes it through
+  `Core::Processor#item_cache_key(pubid, item)`. A flavor whose printed docid
+  omits the edition by design overrides the hook to add it from the item:
+  IHO adds `version` from `edition` (`IHO B-12` → `IHO B-12 3.0.0`), ECMA adds
+  `edition` and the `volume` extent (`ECMA-262` → `ECMA-262 ed16`), through
+  `#with_components`, which fills only components the parse leaves nil, on a
+  copy. Without it every edition got one item key and one file, and a fetch of
+  `IHO B-12 2.0.3` overwrote the file the `IHO B-12 3.0.0` query row named. A
+  cache with such a file is dropped by the next `Relaton::VERSION` bump
+  (`grammar_hash`), so no separate cache-version bump was made.
 
 Matching: the **exact** row first (canonical `to_hash`, not pubid `==`, which
 is false after a `from_hash` round trip for some flavors, e.g. UN). Only a
@@ -233,8 +244,9 @@ still applies and it never answers with another query's year-stripped copy.
 `ISO 19115:2003 === ISO 19115-1:2003` (and the same for IEC, BSI, JIS, GB).
 `Cache#subset_of?` therefore also requires that every component the row adds
 (at any depth) is allowed: only a language for the dated fallback
-(`LANGUAGE_COMPONENTS`), a year/date/month or a language for the date-range
-`candidates` (`EDITION_COMPONENTS`). A row with no `root.number` (DOI, ISBN)
+(`LANGUAGE_COMPONENTS`), a year/date/month, an edition/version (the
+`item_cache_key` components; not a volume, which names another document) or a
+language for the date-range `candidates` (`EDITION_COMPONENTS`). A row with no `root.number` (DOI, ISBN)
 goes to one of 256 digest buckets (`<flavor>/~<hex>`).
 
 Expiry (`Cache#valid_row?`): an undated row, and **every** `not_found` row,

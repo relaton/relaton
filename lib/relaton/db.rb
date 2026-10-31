@@ -382,13 +382,17 @@ module Relaton
       [query, query && processor.cache_key(code, year, opts, query)]
     end
 
-    # The key of a fetched document, from its primary identifier. The
-    # identifier is data, so an unparseable one gives no key.
+    # The key of a fetched document, from its primary identifier and what
+    # that identifier omits (Core::Processor#item_cache_key, relaton#408).
+    # The identifier is data, so an unparseable one gives no key.
     def item_key(bib, stdclass)
       docid = bib.docidentifier.detect(&:primary) || bib.docidentifier.first
       return unless docid&.content
 
-      cache_key docid.content, nil, {}, stdclass
+      key = cache_key docid.content, nil, {}, stdclass
+      return key unless key.is_a? ::Pubid::Identifier
+
+      @registry[stdclass].item_cache_key key, bib
     rescue ::Pubid::Errors::Error
       nil
     end

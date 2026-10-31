@@ -21,6 +21,14 @@ module Relaton
         Bibliography.get(code, date, opts)
       end
 
+      # An ECMA record prints `ECMA-262` with no ` ed<N>`/` vol<N>`, and keeps
+      # them in `edition` and in a `volume` extent (relaton#408).
+      def item_cache_key(pubid, item)
+        volume = item.extent.flat_map(&:locality)
+          .detect { |l| l.type == "volume" }&.reference_from
+        with_components pubid, edition: item.edition&.content, volume: volume
+      end
+
       #
       # Fetch all the documents from a source
       #
