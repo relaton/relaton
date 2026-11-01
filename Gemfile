@@ -77,11 +77,14 @@ gemspec
 # to the relational vocabulary (pubid#601/#606, pubid#580's ruling): a
 # dated base query resolves the wrapped record of that edition. No
 # rawbib expectation moves; the retrieval fixture's wrapper case flips.
-# TEMP: ride pubid main for the one `to_s(with_publisher:)` render contract
-# (pubid#620, relaton#49). pubid 2.0.1 does not carry it: #620 merged after
-# the v2.0.1 tag. Return to a released pin with the next pubid release.
-# The branch moves: run `bundle update pubid` to pick up a newer main.
-gem "pubid", git: "https://github.com/metanorma/pubid.git", branch: "main"
+# TEMP: ride pubid's IHO series branch (pubid#635, relaton#407) — it carries
+# pubid main's `to_s(with_publisher:)` render contract (pubid#620, relaton#49)
+# plus the IHO year/volume/issue identity components (an `IHO P-5 2024` /
+# `IHO P-1 Vol. 30 (2)` parse with plain-scalar `year`/`volume`/`issue`, and
+# `exclude(:volume)` nils the issue with it). CI rides pubid main until #635
+# merges: merge order is pubid#635 first, then this. Return to a released pin
+# with the next pubid release. The branch moves: run `bundle update pubid`.
+gem "pubid", git: "https://github.com/pubid/pubid.git", branch: "fix/iho-series-year-volume"
 # parsanol 1.3.114 (ruby#361) carries the numeric capture editions —
 # the canonical edition 2 header and the integer envelope field — and
 # the edition-2 whitespace-class glue fix; pubid rides it
