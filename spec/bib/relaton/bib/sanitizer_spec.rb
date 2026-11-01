@@ -48,6 +48,93 @@ describe Relaton::Bib::Sanitizer do
       expect(described_class.sanitize("a<br/>b")).to eq "a<br/>b"
     end
 
+    # relaton#421: basicdoc block markup used to unwrap in place, so a list
+    # or a note in an abstract came back as bare paragraphs.
+    context "with basicdoc block elements" do
+      def sanitize_blocks(input)
+        described_class.sanitize(input, allowed: described_class::ALLOWED_WITH_BLOCKS)
+      end
+
+      described_class::BLOCK.each do |tag|
+        it "preserves the <#{tag}> tag when blocks are allowed" do
+          input = "<#{tag}>x</#{tag}>"
+          expect(sanitize_blocks(input)).to eq input
+        end
+      end
+
+      it "preserves a list" do
+        input = "<p>Intro</p><ul><li><p>one</p></li><li><p>two</p></li></ul>"
+        expect(sanitize_blocks(input)).to eq input
+      end
+
+      it "preserves an ordered list with its type" do
+        input = '<ol type="roman"><li><p>one</p></li></ol>'
+        expect(sanitize_blocks(input)).to eq input
+      end
+
+      it "preserves a definition list" do
+        input = "<dl><dt>term</dt><dd><p>definition</p></dd></dl>"
+        expect(sanitize_blocks(input)).to eq input
+      end
+
+      it "preserves a note" do
+        input = "<p>Text</p><note><p>N</p></note>"
+        expect(sanitize_blocks(input)).to eq input
+      end
+
+      it "preserves a table with its caption, head, body and foot" do
+        input = "<table><name>Caption</name>" \
+                "<thead><tr><th>H</th></tr></thead>" \
+                "<tbody><tr><td>D</td></tr></tbody>" \
+                "<tfoot><tr><td>F</td></tr></tfoot></table>"
+        expect(sanitize_blocks(input)).to eq input
+      end
+
+      it "preserves a figure with its caption and image" do
+        input = '<figure><name>Fig</name><image src="a.png" mimetype="image/png"/></figure>'
+        expect(sanitize_blocks(input)).to eq input
+      end
+
+      it "preserves an admonition with its type" do
+        input = '<admonition type="warning"><name>W</name><p>Careful</p></admonition>'
+        expect(sanitize_blocks(input)).to eq input
+      end
+
+      it "still unwraps a disallowed element inside a block" do
+        expect(sanitize_blocks("<ul><li><p><div>x</div></p></li></ul>"))
+          .to eq "<ul><li><p>x</p></li></ul>"
+      end
+
+      it "unwraps block elements by default, as a title needs" do
+        expect(described_class.sanitize("<ul><li><p>one</p></li></ul><note><p>N</p></note>"))
+          .to eq "<p>one</p><p>N</p>"
+      end
+
+      it "keeps the block structure of an abstract on a round trip" do
+        xml = <<~XML
+          <bibitem>
+            <title>T</title>
+            <abstract><p>Intro</p><ul><li><p>one</p></li><li><p>two</p></li></ul><note><p>N</p></note></abstract>
+          </bibitem>
+        XML
+        item = Relaton::Bib::Item.from_xml xml
+        out = Relaton::Bib::Item.to_xml item
+        doc = Nokogiri::XML(out)
+        expect(doc.xpath("//abstract/ul/li/p").map(&:text)).to eq %w[one two]
+        expect(doc.xpath("//abstract/note/p").map(&:text)).to eq %w[N]
+      end
+
+      it "keeps flattening block markup in a title" do
+        title = Relaton::Bib::Title.new(content: "Foo<table><tr><td>x</td></tr></table>")
+        expect(title.content).to eq "Foox"
+      end
+
+      it "keeps flattening block markup in a docidentifier" do
+        docid = Relaton::Bib::Docidentifier.new(content: "<ul><li>ISO 1</li></ul>")
+        expect(docid.content).to eq "ISO 1"
+      end
+    end
+
     it "strips a disallowed tag, keeping inner text" do
       expect(described_class.sanitize("<script>bad</script>"))
         .to eq "bad"

@@ -61,7 +61,15 @@ Each bibliographic attribute has its own class in `lib/relaton/bib/model/`:
 **`Relaton::Bib::Sanitizer`** ([lib/relaton/bib/sanitizer.rb](lib/relaton/bib/sanitizer.rb))
 strips markup outside the basicdoc set. `LocalizedMarkedUpString#content=` calls it on
 assignment, so every `Title`, `Abstract`, `Note`, `Formattedref` and `Docidentifier` in
-every flavor passes through it. Two properties are load-bearing:
+every flavor passes through it. The set it keeps depends on the field, through
+`#sanitizer_allowed`: every field keeps `ALLOWED` (basicdoc inline markup), and `Abstract`
+keeps `ALLOWED_WITH_BLOCKS`, which adds `BLOCK` — the basicdoc lists, notes, tables, figures
+and admonitions, with the children their grammar requires (`name`, `thead`/`tbody`/`tfoot`,
+`image`). That split follows `biblio.rng`: `<abstract>` takes `BasicBlockNoId`, and a title,
+note, docidentifier or formattedref takes only `PureTextElement`, so do not widen the
+default. Before relaton#421 an abstract's list or note unwrapped to bare `<p>`s with no
+error. A consumer must therefore not assume that an abstract holds only `<p>` and inline
+markup. Two properties are load-bearing:
 
 - **It does not give up on an undeclared namespace prefix.** Third-party markup prefixes
   its elements — Crossref returns JATS as `<jats:p><jats:italic>x</jats:italic></jats:p>`,

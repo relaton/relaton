@@ -11,6 +11,11 @@ module Relaton
       key_value do
         map "format", to: :format
       end
+
+      # biblio.rng admits basicdoc blocks in <abstract> only.
+      def sanitizer_allowed
+        Relaton::Bib::Sanitizer::ALLOWED_WITH_BLOCKS
+      end
     end
   end
 end

@@ -28,8 +28,13 @@ module Relaton
     class LocalizedMarkedUpString < LocalizedStringAttrs
       module ContentSanitization
         def content=(value)
-          super(Relaton::Bib::Sanitizer.sanitize(value))
+          super(Sanitizer.sanitize(value, allowed: sanitizer_allowed))
         end
+      end
+
+      # The elements that content keeps; Abstract widens it to blocks.
+      def sanitizer_allowed
+        Relaton::Bib::Sanitizer::ALLOWED
       end
 
       # Cast at the assignment layer (lutaml-model#972): a bare scalar
