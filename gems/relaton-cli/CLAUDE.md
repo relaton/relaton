@@ -206,7 +206,8 @@ way. Four decisions, all settled deliberately — don't re-derive them:
   `skipped_count`, and warned about.
   **A committed row also wins when it only adds an edition**
   (`MachineIndex#refine`): when its hash equals the parse's plus keys in
-  `REFINABLE_KEYS` (`version`, `edition`, `volume`) — the components a printed
+  `REFINABLE_KEYS` (`version`, `edition`, `volume`, `year`, `issue`) — the
+  components a printed
   docid omits by design. An IHO record prints `B-12` and keeps its edition in
   `edition:`; an ECMA one prints `ECMA-262` with no ` ed<N>`. Without this the
   published Pages indexes (2026-10-29) carried no IHO `version` (0 of 325 rows)
