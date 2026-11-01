@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require "yaml"
+require "yeptris/psych"
+
 require "mechanize"
 require "loc_mods"
 require_relative "../nist"
@@ -183,7 +184,7 @@ module Relaton
       end
 
       def series
-        @series ||= YAML.load_file File.expand_path("series.yaml", __dir__)
+        @series ||= Yeptris::Psych.load_file File.expand_path("series.yaml", __dir__)
       end
     end
   end

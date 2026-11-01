@@ -1,3 +1,4 @@
+require "yeptris/psych"
 module Relaton::Bipm
   class DataOutcomesParser
     SHORTTYPE = {
@@ -130,7 +131,7 @@ module Relaton::Bipm
       fr_file = en_file.sub "en", "fr"
       [en_file, fr_file].map do |file|
         if File.exist? file
-          data = YAML.safe_load(File.read(file, encoding: "UTF-8"))
+          data = Yeptris::Psych.safe_load(File.read(file, encoding: "UTF-8"))
           path = file
         end
         [path, data]

@@ -1,3 +1,4 @@
+require "yeptris/psych"
 require "etc"
 require "zip"
 require_relative "../ieee"
@@ -77,7 +78,7 @@ module Relaton
         # @param file [String]
         # @return [String, nil]
         def primary_docid(file)
-          yaml = YAML.safe_load(File.read(file, encoding: "UTF-8"),
+          yaml = Yeptris::Psych.safe_load(File.read(file, encoding: "UTF-8"),
                                 permitted_classes: [Symbol, Date, Time])
           id = yaml && yaml["docidentifier"]&.find do |i|
             i["type"] == "IEEE" && i["primary"] == true && i["trademark"].nil?

@@ -1,3 +1,4 @@
+require "yeptris/psych"
 require "moxml"
 
 module Relaton::Bipm
@@ -60,8 +61,8 @@ module Relaton::Bipm
             warn_duplicate = false
             item2 = Item.from_yaml File.read(outfile, encoding: "UTF-8")
             fix_si_brochure_id item2
-            hash1 = YAML.safe_load item1.to_yaml
-            hash2 = YAML.safe_load item2.to_yaml
+            hash1 = Yeptris::Psych.safe_load item1.to_yaml
+            hash2 = Yeptris::Psych.safe_load item2.to_yaml
             Item.from_yaml deep_merge(hash1, hash2).to_yaml
           else
             warn_duplicate = true

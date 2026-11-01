@@ -184,7 +184,8 @@ describe Relaton::Index::FileIO do
       end
 
       it "fails to parse yaml" do
-        expect(YAML).to receive(:safe_load).and_raise Psych::SyntaxError.new("", 1, 1, 0, nil, nil)
+        expect(Yeptris::Psych).to receive(:safe_load)
+          .and_raise Yeptris::Psych::SyntaxError.new("", 1, 1, 0, nil, nil)
         expect do
           expect(subject.fetch_and_save).to be_nil
         end.to output(/YAML parsing error when reading newly downloaded file/).to_stderr_from_any_process

@@ -1,4 +1,4 @@
-require "yaml"
+require "yeptris/psych"
 
 module Relaton
   # Cross-SDO equivalence as data: chain patterns and explicit equivalences
@@ -23,7 +23,7 @@ module Relaton
                 else
                   [path]
                 end
-        files.each { |f| tables << YAML.safe_load_file(f, aliases: true) }
+        files.each { |f| tables << Yeptris::Psych.safe_load_file(f, aliases: true) }
         tables
       end
 

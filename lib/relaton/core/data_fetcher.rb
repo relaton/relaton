@@ -1,3 +1,4 @@
+require "yeptris/psych"
 require "yeptris"
 require "fileutils"
 
@@ -121,7 +122,7 @@ module Relaton
         kept = ledger.merge(ledger_new).select do |_, row|
           row.is_a?(Hash) && row["file"] && @written.include?(row["file"])
         end
-        File.write ledger_path, YAML.dump(kept), encoding: "UTF-8"
+        File.write ledger_path, Yeptris::Psych.dump(kept), encoding: "UTF-8"
         @ledger = kept
       end
 
@@ -349,7 +350,7 @@ module Relaton
 
       def ledger
         @ledger ||= if File.exist?(ledger_path)
-                      YAML.safe_load_file(ledger_path) || {}
+                      Yeptris::Psych.safe_load_file(ledger_path) || {}
                     else
                       {}
                     end

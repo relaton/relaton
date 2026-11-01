@@ -1,0 +1,165 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://relaton.github.io/relaton-data-jis/index/manifest.json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - relaton.github.io
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '253'
+      Server:
+      - GitHub.com
+      Content-Type:
+      - application/json; charset=utf-8
+      Last-Modified:
+      - Mon, 26 Oct 2026 22:27:45 GMT
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31556952
+      Etag:
+      - '"6adfd3e1-fd"'
+      Expires:
+      - Tue, 27 Oct 2026 12:14:54 GMT
+      Cache-Control:
+      - max-age=600
+      X-Proxy-Cache:
+      - MISS
+      X-Github-Request-Id:
+      - 41D0:5B108:1400C9:14E4E6:6AE09365
+      X-Github-Edge-Region:
+      - japaneast
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Date:
+      - Tue, 27 Oct 2026 12:04:54 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-nrt-rjtf7700050-NRT
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1793102694.230033,VS0,VE208
+      Vary:
+      - Accept-Encoding
+      X-Fastly-Request-Id:
+      - 3a85f36e51b3dd7b485d25074db84795d7f28334
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "version": 2,
+          "index": "index-v2",
+          "count": 21507,
+          "shards": 2048,
+          "key": "root-number",
+          "algorithm": "crc32",
+          "generated": "2026-10-26",
+          "sha256": "8cf61403e5f316bee10b92f6a3b9c26f7a8e7636280e5d8f0ce07354e701fb42",
+          "bytes": 220737
+        }
+  recorded_at: Tue, 27 Oct 2026 12:04:49 GMT
+- request:
+    method: get
+    uri: https://relaton.github.io/relaton-data-jis/index/shard-01138.json
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - relaton.github.io
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '2101'
+      Server:
+      - GitHub.com
+      Content-Type:
+      - application/json; charset=utf-8
+      Last-Modified:
+      - Mon, 26 Oct 2026 22:27:45 GMT
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31556952
+      Etag:
+      - W/"6adfd3e1-835"
+      Expires:
+      - Tue, 27 Oct 2026 12:14:54 GMT
+      Cache-Control:
+      - max-age=600
+      X-Proxy-Cache:
+      - MISS
+      X-Github-Request-Id:
+      - AD04:D3D34:145279:15362E:6AE09366
+      X-Github-Edge-Region:
+      - japaneast
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Date:
+      - Tue, 27 Oct 2026 12:04:54 GMT
+      Via:
+      - 1.1 varnish
+      X-Served-By:
+      - cache-nrt-rjtf7700083-NRT
+      X-Cache:
+      - MISS
+      X-Cache-Hits:
+      - '0'
+      X-Timer:
+      - S1793102695.630678,VS0,VE185
+      Vary:
+      - Accept-Encoding
+      X-Fastly-Request-Id:
+      - 07a868614eb11f71e4677fd4648f5bb6a1b74783
+    body:
+      encoding: ASCII-8BIT
+      string: '[{"r":"JIS A 5008:1995","file":"data/jis-a-5008-1995.yaml","id":{"_type":"pubid:jis:japanese-industrial-standard","series":"A","number":"5008","year":1995}},{"r":"JIS
+        A 5008:1995/AMENDMENT 1:2008","file":"data/jis-a-5008-1995-amendment-1-2008.yaml","id":{"_type":"pubid:jis:amendment","number":1,"year":2008,"base":{"_type":"pubid:jis:japanese-industrial-standard","series":"A","number":"5008","year":1995}}},{"r":"JIS
+        B 5008:1955","file":"data/jis-b-5008-1955.yaml","id":{"_type":"pubid:jis:japanese-industrial-standard","series":"B","number":"5008","year":1955}},{"r":"JIS
+        E 5008:2017","file":"data/jis-e-5008-2017.yaml","id":{"_type":"pubid:jis:japanese-industrial-standard","series":"E","number":"5008","year":2017}},{"r":"JIS
+        S 5008:1953","file":"data/jis-s-5008-1953.yaml","id":{"_type":"pubid:jis:japanese-industrial-standard","series":"S","number":"5008","year":1953}},{"r":"JIS
+        C 6283:1975","file":"data/jis-c-6283-1975.yaml","id":{"_type":"pubid:jis:japanese-industrial-standard","series":"C","number":"6283","year":1975}},{"r":"JIS
+        X 6283:2009","file":"data/jis-x-6283-2009.yaml","id":{"_type":"pubid:jis:japanese-industrial-standard","series":"X","number":"6283","year":2009}},{"r":"JIS
+        X 6283:2009/AMENDMENT 1:2012","file":"data/jis-x-6283-2009-amendment-1-2012.yaml","id":{"_type":"pubid:jis:amendment","number":1,"year":2012,"base":{"_type":"pubid:jis:japanese-industrial-standard","series":"X","number":"6283","year":2009}}},{"r":"JIS
+        B 7763-1:2009","file":"data/jis-b-7763-1-2009.yaml","id":{"_type":"pubid:jis:japanese-industrial-standard","series":"B","number":"7763","parts":["1"],"year":2009}},{"r":"JIS
+        B 7763-2:2009","file":"data/jis-b-7763-2-2009.yaml","id":{"_type":"pubid:jis:japanese-industrial-standard","series":"B","number":"7763","parts":["2"],"year":2009}},{"r":"JIS
+        B 9623:2002","file":"data/jis-b-9623-2002.yaml","id":{"_type":"pubid:jis:japanese-industrial-standard","series":"B","number":"9623","year":2002}},{"r":"JIS
+        S 9623:2015","file":"data/jis-s-9623-2015.yaml","id":{"_type":"pubid:jis:japanese-industrial-standard","series":"S","number":"9623","year":2015}}]'
+  recorded_at: Tue, 27 Oct 2026 12:04:49 GMT
+recorded_with: VCR 6.4.0

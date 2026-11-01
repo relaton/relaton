@@ -1,3 +1,4 @@
+require "yeptris/psych"
 require "yeptris"
 require "json"
 require "net/http"
@@ -152,11 +153,11 @@ module Relaton
           yaml = unzip(body)
           raise Error, "empty archive at `#{url(path)}`" unless yaml
 
-          index = YAML.safe_load(yaml, permitted_classes: [Symbol])
+          index = Yeptris::Psych.safe_load(yaml, permitted_classes: [Symbol])
           raise Error, "wrong structure of `#{url(path)}`" unless @file_io.check_basic_format(index)
 
           @file_io.deserialize_pubid(index)
-        rescue FileIO::InvalidIndexError, Psych::SyntaxError, Zip::Error, Zlib::Error => e
+        rescue FileIO::InvalidIndexError, Yeptris::Psych::SyntaxError, Zip::Error, Zlib::Error => e
           raise Error, "cannot read `#{url(path)}`: #{e.message}"
         end
       end
