@@ -852,13 +852,14 @@ RSpec.describe Relaton::Db do
 
   context "#fetch parse-first routing (relaton#205)" do
     # The calls of pubid's grammar parse while the block runs. The flavors
-    # parse through the baked PARG artifact (the parslet Grammar remains the
-    # authoring source), so count the artifact's engine entry.
+    # parse through the baked PARG artifact, so count the artifact's engine
+    # entry: flavors on the bound-map path (typed model bindings) enter
+    # through #parse_and_bind, the tree-path flavors through #parse.
     def grammar_parses
       count = 0
       trace = TracePoint.new(:call) do |tp|
         count += 1 if tp.defined_class == Pubid::Parg::Artifact &&
-          tp.method_id == :parse
+          %i[parse parse_and_bind].include?(tp.method_id)
       end
       trace.enable { yield }
       count
