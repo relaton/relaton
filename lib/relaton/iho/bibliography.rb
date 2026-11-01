@@ -21,7 +21,7 @@ module Relaton
           # Pubid::Iho::Identifiers::* (Relaton::Index deserialized it via the
           # `pubid_class` passed in `#index`), so `pubid_match?` compares pubids.
           row = index.search(pubid) { |r| pubid_match?(r[:id], pubid) }
-                     .max_by { |r| version_key(r[:id]) }
+                     .max_by { |r| recency_key(r[:id]) }
           unless row
             Util.info "Not found.", key: pubid.to_s
             return
@@ -96,26 +96,57 @@ module Relaton
           )
         end
 
-        # The sort key for the latest edition: segments compare as integers,
-        # so 2.10.0 is later than 2.9.0. A row with no version is the oldest.
-        def version_key(id)
-          id.version.to_s.split(".").map(&:to_i)
+        # The sort key for the latest record in a bucket (relaton#407). Each
+        # IHO identity carries exactly one trailing discriminator — a dotted
+        # `version` (an edition, `B-12 3.0.0`), a series `year` (`P-5 2024`)
+        # or a series `volume` with its `issue` (`P-1 Vol. 30 (2)`) — and the
+        # key orders by that component, numerically: version segments compare
+        # as integers (2.10.0 is later than 2.9.0), as do year, volume and
+        # issue. A row with no discriminator at all is the oldest. Rows in
+        # one bucket share the discriminator kind once the data is keyed;
+        # while kinds coexist the array compare is deterministic, and a
+        # year's bare [2024] beats a placeholder edition's [1, 0, 0].
+        def recency_key(id)
+          if id.year
+            [id.year.to_i]
+          elsif id.volume
+            [id.volume.to_i, id.issue.to_i]
+          else
+            id.version.to_s.split(".").map(&:to_i)
+          end
         end
+
+        # The components that make an IHO document the one it is beyond the
+        # series and subdivisions: the edition (`version`), or — for the
+        # series identified by year or volume instead (B-7, P-1, P-5, P-6;
+        # relaton#407) — the `year` or the `volume`/`issue` pair.
+        DISCRIMINATOR_KEYS = %i[version year volume issue].freeze
 
         # Both `row_id` and `query` are Pubid::Iho::Identifiers::* instances.
         # Class identity pins the series (S/P/M/B/C). Subdivision keys
         # (part/appendix/annex/supplement) use strict equality — a nil query
         # must match a nil row (the umbrella), not an arbitrary subdivision
-        # under the same (number, version). Only :version stays nil-tolerant: an
-        # unqualified `IHO B-11` query is expected to find the latest edition.
+        # under the same number. That is why this flavor does not use the
+        # `===` subset match: pubid reads a nil `part` there as "any part"
+        # (pubid's `subset_strict` is not declared for the IHO subdivisions),
+        # so `IHO S-100` would answer with a part row.
+        #
+        # The discriminator keys stay nil-tolerant: an unqualified `IHO B-11`
+        # finds the latest edition, an unqualified `IHO P-5` the latest year,
+        # and `IHO P-1 Vol. 30` any issue of that volume — while a stated
+        # component must match exactly. The comparison runs through pubid's
+        # `#exclude` (the primitive `matches?` is built on), so the rules the
+        # flavor declares there ride along: excluding `:volume` nils the
+        # `issue` with it. `stem_keys` in the BIPM flavor is the same shape.
         def pubid_match?(row_id, query)
           row_id.class == query.class &&
-            row_id.number == query.number &&
-            row_id.part.to_s == query.part.to_s &&
-            row_id.appendix.to_s == query.appendix.to_s &&
-            row_id.annex.to_s == query.annex.to_s &&
-            row_id.supplement.to_s == query.supplement.to_s &&
-            (query.version.nil? || row_id.version.to_s == query.version.to_s)
+            row_id.exclude(*wildcards(query)) == query.exclude(*wildcards(query))
+        end
+
+        # The discriminators the query leaves unset: wildcards for the
+        # search, significant whenever the query states one.
+        def wildcards(query)
+          DISCRIMINATOR_KEYS.select { |key| query.public_send(key).nil? }
         end
       end
     end
