@@ -24,11 +24,26 @@ module Relaton
     # markup, and must be preserved verbatim. Without the opaque-skip,
     # the recursive walk would unwrap MathML / AsciiMath elements down to
     # bare text nodes — see #116 for the round-trip-loss symptom.
+    #
+    # ALLOWED_WITH_BLOCKS adds the basicdoc block elements: lists, notes,
+    # tables, figures and admonitions, with the children that their grammar
+    # requires (a caption <name>, <thead>/<tbody>/<tfoot>, a figure's
+    # <image>). Only Abstract asks for it, because <abstract> is the one
+    # field whose grammar admits blocks; a title or a note admits only
+    # PureTextElement. Before relaton#421 an abstract's list or note
+    # unwrapped in place and came back as bare paragraphs, with no error.
     module Sanitizer
       ALLOWED = %w[
         em strong sub sup tt underline strike smallcap br stem
         p eref xref fn link
       ].freeze
+
+      BLOCK = %w[
+        ul ol li dl dt dd note admonition
+        table thead tbody tfoot tr td th figure name image
+      ].freeze
+
+      ALLOWED_WITH_BLOCKS = (ALLOWED + BLOCK).freeze
 
       # Elements whose children are non-basicdoc inline notation
       # (MathML, AsciiMath, LaTeX, …) and must be preserved verbatim
@@ -63,13 +78,13 @@ module Relaton
       # Reserved prefixes. XML declares both, so the content must not.
       NS_RESERVED = %w[xml xmlns].freeze
 
-      def self.sanitize(content)
+      def self.sanitize(content, allowed: ALLOWED)
         return content unless sanitizable?(content)
 
         node = parse(content)
         return content if node.nil?
 
-        sanitize_children(node)
+        sanitize_children(node, allowed)
         node.children.map { |c| c.to_xml(encoding: "UTF-8", indent: 0, expand_empty: false) }.join
       end
 
@@ -273,15 +288,15 @@ module Relaton
       end
       private_class_method :sanitizable?
 
-      def self.sanitize_children(node)
+      def self.sanitize_children(node, allowed)
         node.children.to_a.each do |child|
           next unless child.element?
 
           child.name = RENAME[child.name] if RENAME.key?(child.name)
           next if OPAQUE.include?(child.name)
 
-          sanitize_children(child)
-          unwrap(child) unless ALLOWED.include?(child.name)
+          sanitize_children(child, allowed)
+          unwrap(child) unless allowed.include?(child.name)
         end
       end
       private_class_method :sanitize_children
