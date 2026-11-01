@@ -421,13 +421,16 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     # parse of the docid has no version. The committed row names it
     # (relaton-data-iho#20); without it `IHO B-12 3.0.0` finds nothing.
     describe "a committed row more specific than the parse" do
-      def with_iho(committed_rows)
+      def with_iho(committed_rows, docid: "B-12", file: "data/b-12_3-0-0.yaml",
+                   edition: "3.0.0")
         stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 1)
         Dir.mktmpdir("iho-") do |repo|
           FileUtils.mkdir_p(File.join(repo, "data"))
-          File.write(File.join(repo, "data", "b-12_3-0-0.yaml"),
-            "---\ndocidentifier:\n- content: B-12\n  type: IHO\n  primary: true\n" \
-            "edition:\n  content: 3.0.0\n")
+          # A series record carries no edition (relaton#407); `edition: nil`
+          # spells a record without one.
+          body = "---\ndocidentifier:\n- content: #{docid}\n  type: IHO\n  primary: true\n"
+          body << "edition:\n  content: #{edition}\n" unless edition.nil?
+          File.write(File.join(repo, file), body)
           write_committed_index(repo, committed_rows, name: "index-v3")
           described_class.generate(File.join(repo, "data"),
             output: @out, generated: "2026-01-01", flavor: "iho")
@@ -460,6 +463,22 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       it "ignores a committed row that adds more than an edition" do
         with_iho([{ id: iho_hash("IHO B-12 Part A 3.0.0"), file: "data/b-12_3-0-0.yaml" }]) do
           expect(all_machine_records.map { |r| r["id"] }).to all(eq(iho_hash("IHO B-12")))
+        end
+      end
+
+      # relaton#407: a series record (P-5, the Yearbook) is identified by its
+      # year, not an edition. Where the printed docid a crawler reads spells
+      # only `P-5`, the committed row is what carries the year, so `year` is
+      # a refinable key like `version` — the row keeps it and a consumer
+      # query resolves the year-bearing record.
+      it "takes the committed year of a series record" do
+        committed = iho_hash("IHO P-5 2024")
+        with_iho([{ id: committed, file: "data/p-5_2024.yaml" }],
+                 docid: "P-5", file: "data/p-5_2024.yaml", edition: nil) do
+          expect(all_machine_records.map { |r| r["id"] }).to all(eq(committed))
+          rows = YAML.safe_load(File.read(File.join(@out, "index-v3.yaml")),
+                                permitted_classes: [Symbol])
+          expect(rows.map { |r| r[:id]["year"] }).to all(eq("2024"))
         end
       end
     end
