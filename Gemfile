@@ -81,10 +81,9 @@ gemspec
 # pubid main's `to_s(with_publisher:)` render contract (pubid#620, relaton#49)
 # plus the IHO year/volume/issue identity components (an `IHO P-5 2024` /
 # `IHO P-1 Vol. 30 (2)` parse with plain-scalar `year`/`volume`/`issue`, and
-# `exclude(:volume)` nils the issue with it). CI rides pubid main until #635
-# merges: merge order is pubid#635 first, then this. Return to a released pin
-# with the next pubid release. The branch moves: run `bundle update pubid`.
-gem "pubid", git: "https://github.com/pubid/pubid.git", branch: "fix/iho-series-year-volume"
+# pubid 2.0.2 (2026-11-01) carries the IHO year/volume/issue components —
+# the released pin this PR was gated on.
+gem "pubid", "~> 2.0.2"
 # parsanol 1.3.114 (ruby#361) carries the numeric capture editions —
 # the canonical edition 2 header and the integer envelope field — and
 # the edition-2 whitespace-class glue fix; pubid rides it
