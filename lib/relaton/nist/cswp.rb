@@ -1,4 +1,4 @@
-require "yaml"
+require "yeptris/psych"
 
 module Relaton
   module Nist
@@ -24,7 +24,7 @@ module Relaton
       class << self
         # @return [Hash] the table as written in cswp.yaml
         def table
-          @table ||= YAML.load_file File.expand_path("cswp.yaml", __dir__)
+          @table ||= Yeptris::Psych.load_file File.expand_path("cswp.yaml", __dir__)
         end
 
         #

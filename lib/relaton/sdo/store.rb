@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "yeptris/psych"
+
 module Relaton
   module Sdo
     # Singleton registry of organizations, built lazily from the index manifest
@@ -35,7 +37,7 @@ module Relaton
 
       def build_index
         yaml = Fetcher.fetch_index
-        data = yaml.nil? || yaml.empty? ? {} : YAML.safe_load(yaml)
+        data = yaml.nil? || yaml.empty? ? {} : Yeptris::Psych.safe_load(yaml)
         # A corrupt/unexpected index (non-mapping YAML) degrades to "no orgs"
         # rather than crashing every lookup with a TypeError.
         organizations = data.is_a?(Hash) ? (data["organizations"] || {}) : {}

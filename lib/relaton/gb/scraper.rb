@@ -1,7 +1,7 @@
+require "yeptris/psych"
 # encoding: UTF-8
 # frozen_string_literal: true
 
-require "yaml"
 require "gb_agencies"
 
 module Relaton
@@ -132,7 +132,7 @@ module Relaton
       # @param pref [String]
       # @return [Hash{String=>String}]
       def prefix(pref)
-        @prefixes ||= YAML.load_file File.join(__dir__, "yaml/prefixes.yaml")
+        @prefixes ||= Yeptris::Psych.load_file File.join(__dir__, "yaml/prefixes.yaml")
         @prefixes[pref]
       end
 

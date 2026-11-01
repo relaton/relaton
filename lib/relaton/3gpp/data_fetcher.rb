@@ -1,3 +1,4 @@
+require "yeptris/psych"
 require "fileutils"
 require "net/http"
 require "uri"
@@ -64,7 +65,7 @@ module Relaton
       # @return [String, nil] file name
       #
       def get_file(renewal) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-        @current = YAML.load_file CURRENT if File.exist? CURRENT
+        @current = Yeptris::Psych.load_file CURRENT if File.exist? CURRENT
         @current ||= {}
         uri = URI(CSV_URL)
         n = 0
@@ -183,7 +184,7 @@ module Relaton
       # @return [Relaton3gpp::BibliographicItem, nil] merged bibliographic item or nil if no merge has been done
       #
       def merge_duplication(bib, file)
-        hash = YAML.load_file file
+        hash = Yeptris::Psych.load_file file
         existed = Item.from_hash hash
         changed = update_source? bib, existed
         bib1, bib2, chng = transposed_relation bib, existed

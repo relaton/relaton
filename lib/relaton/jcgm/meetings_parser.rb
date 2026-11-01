@@ -1,5 +1,5 @@
+require "yeptris/psych"
 require "fileutils"
-require "yaml"
 require "date"
 
 module Relaton::Jcgm
@@ -65,7 +65,7 @@ module Relaton::Jcgm
     end
 
     def load_yaml(file)
-      YAML.safe_load File.read(file, encoding: "UTF-8"), permitted_classes: [Date, Time]
+      Yeptris::Psych.safe_load File.read(file, encoding: "UTF-8"), permitted_classes: [Date, Time]
     end
 
     # "JCGM 17th Meeting (2012)" — ordinal via pubid's Meeting.ordinal.

@@ -1,3 +1,4 @@
+require "yeptris/psych"
 module Relaton
   module Index
     #
@@ -219,12 +220,12 @@ module Relaton
       end
 
       def load_index(yaml, save = false)
-        index = YAML.safe_load(yaml, permitted_classes: [Symbol])
+        index = Yeptris::Psych.safe_load(yaml, permitted_classes: [Symbol])
         save index if save
         return deserialize_pubid(index) if check_format(index)
 
         report_invalid_index(save, "Wrong structure of")
-      rescue Psych::SyntaxError
+      rescue Yeptris::Psych::SyntaxError
         report_invalid_index(save, "YAML parsing error when reading")
       rescue InvalidIndexError
         report_invalid_index(save, "Wrong structure of")
@@ -430,7 +431,7 @@ module Relaton
         end
         yaml = yaml.read unless yaml.is_a?(String)
         Util.info "Downloaded index from `#{url}` for sqlite materialization", progname
-        raw = YAML.safe_load(yaml, permitted_classes: [Symbol])
+        raw = Yeptris::Psych.safe_load(yaml, permitted_classes: [Symbol])
         return nil unless check_format(raw)
 
         Enumerator.new do |y|
@@ -439,7 +440,7 @@ module Relaton
             y << [number, number, r[:id], r[:file]]
           end
         end
-      rescue Psych::SyntaxError, SocketError, OpenURI::HTTPError, Errno::ECONNRESET,
+      rescue Yeptris::Psych::SyntaxError, SocketError, OpenURI::HTTPError, Errno::ECONNRESET,
              OpenSSL::SSL::SSLError => e
         Util.info "SQLite index build failed (#{e.message}); falling back", progname
         nil
@@ -512,8 +513,8 @@ module Relaton
         return unless yaml
 
         begin
-          raw = YAML.safe_load(yaml, permitted_classes: [Symbol])
-        rescue Psych::SyntaxError
+          raw = Yeptris::Psych.safe_load(yaml, permitted_classes: [Symbol])
+        rescue Yeptris::Psych::SyntaxError
           warn_local_index_error("YAML parsing error when reading")
           delete_sidecar
           return [[], []]
@@ -613,7 +614,7 @@ module Relaton
           yaml = zip.entries.first.get_input_stream.read
         end
         Util.info "Downloaded index from `#{url}`", progname
-        raw = YAML.safe_load(yaml, permitted_classes: [Symbol])
+        raw = Yeptris::Psych.safe_load(yaml, permitted_classes: [Symbol])
         if check_format(raw)
           save raw
           raw = nil # release the parsed copy; read_raw_file loads the sidecar's
@@ -622,7 +623,7 @@ module Relaton
           warn_remote_index_error "Wrong structure of"
           [[], []]
         end
-      rescue Psych::SyntaxError
+      rescue Yeptris::Psych::SyntaxError
         warn_remote_index_error "YAML parsing error when reading"
         [[], []]
       end
