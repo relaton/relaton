@@ -6,10 +6,10 @@ gemspec
 # The single combined `relaton` gem lives at the repo root.
 gem "relaton", path: "../.."
 
-# parsanol/pubid ride the gemspec floors (parsanol ~> 1.3.121 with pubid
-# ~> 2.0.3): pubid 2.0.3 re-bakes the iso artifact at edition 2 for the
-# parsanol >= 1.3.120 line. No local pin — the joint-identifier regression
-# on that line is parsanol-ruby#409.
+# parsanol/pubid ride the gemspec floors (parsanol ~> 1.3.124 with pubid
+# ~> 2.0.4): pubid 2.0.4 re-bakes its artifacts on the 1.3.124 line. No
+# local pin — the joint-identifier regression on that line is
+# parsanol-ruby#409.
 # pubid 2.0.3 (2026-11-02) re-bakes the iso artifact at edition 2 for the
 # parsanol >= 1.3.120 line — the released floor this PR is gated on.
 gem "pubid", "~> 2.0.3"

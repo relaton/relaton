@@ -89,7 +89,7 @@ Gem::Specification.new do |spec|
   # numeric edition it does not implement, so the floor names 1.3.114
   # for bundles that depend on relaton.
   # `spec/relaton/parsanol_dialect_spec.rb` guards this constraint.
-  spec.add_dependency "parsanol", "~> 1.3.121" # the mode-alias removal; pubid 2.0.3 artifacts require it
+  spec.add_dependency "parsanol", "~> 1.3.124" # the mode-alias removal; pubid 2.0.4 artifacts require it
   # 2.0.4 carries the IHO series identity components (year/volume/issue,
   # pubid#635/#637) that the relaton-data-iho re-key (relaton#407) keys on;
   # a runtime older than the release rejects the components it does not
