@@ -89,7 +89,6 @@ gem "pubid", "~> 2.0.2"
 # the edition-2 whitespace-class glue fix; pubid rides it
 # (pubid#617 re-bakes every artifact at 1.3.114 and floors the gemspec
 # there), so the pin moves with it.
-gem "parsanol", "1.3.114"
 
 
 # Default group (installed even when the release strips dev/test): the release
