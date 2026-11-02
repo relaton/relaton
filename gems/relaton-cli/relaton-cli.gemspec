@@ -35,9 +35,9 @@ Gem::Specification.new do |spec|
   # reference is unparseable (see command.rb / subcommand_collection.rb). It is
   # already a runtime dep of `relaton`, but declare it here too so the require
   # is self-supporting rather than dependent on relaton's transitive graph.
-  # Match the relaton gemspec floor: pubid 2.0.0 ships the old emission-1
-  # parse artifacts, and 2.0.1 is the first final release that works.
-  spec.add_dependency "pubid", ">= 2.0.1", "< 2.1"
+  # Match the relaton gemspec floor (pessimistic, per house style): 2.0.4
+  # carries the IHO series identity components the data re-key keys on.
+  spec.add_dependency "pubid", "~> 2.0.4"
   # relaton bundles every flavor plus Relaton::Bib, so depending on `relaton`
   # alone is sufficient — relaton-bib is no longer published standalone.
   spec.add_dependency "relaton", "= #{relaton_version}"

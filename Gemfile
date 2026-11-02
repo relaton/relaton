@@ -77,13 +77,10 @@ gemspec
 # to the relational vocabulary (pubid#601/#606, pubid#580's ruling): a
 # dated base query resolves the wrapped record of that edition. No
 # rawbib expectation moves; the retrieval fixture's wrapper case flips.
-# TEMP: ride pubid's IHO series branch (pubid#635, relaton#407) — it carries
-# pubid main's `to_s(with_publisher:)` render contract (pubid#620, relaton#49)
-# plus the IHO year/volume/issue identity components (an `IHO P-5 2024` /
-# `IHO P-1 Vol. 30 (2)` parse with plain-scalar `year`/`volume`/`issue`, and
-# pubid 2.0.2 (2026-11-01) carries the IHO year/volume/issue components —
-# the released pin this PR was gated on.
-gem "pubid", "~> 2.0.2"
+# pubid 2.0.4 floors the IHO series identity components (year/volume/issue,
+# pubid#635/#637) the relaton-data-iho re-key (relaton#407) keys records on;
+# a runtime older than the release rejects the components it does not\# implement.
+gem "pubid", "~> 2.0.4"
 # parsanol 1.3.114 (ruby#361) carries the numeric capture editions —
 # the canonical edition 2 header and the integer envelope field — and
 # the edition-2 whitespace-class glue fix; pubid rides it
