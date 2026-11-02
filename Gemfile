@@ -79,7 +79,7 @@ gemspec
 # rawbib expectation moves; the retrieval fixture's wrapper case flips.
 # pubid 2.0.4 floors the IHO series identity components (year/volume/issue,
 # pubid#635/#637) the relaton-data-iho re-key (relaton#407) keys records on;
-# a runtime older than the release rejects the components it does not\# implement.
+# a runtime older than the release rejects the components it does not implement.
 gem "pubid", "~> 2.0.4"
 # parsanol 1.3.114 (ruby#361) carries the numeric capture editions —
 # the canonical edition 2 header and the integer envelope field — and
