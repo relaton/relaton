@@ -88,4 +88,4 @@ Tests are round-trip serialization tests: load a fixture, serialize to XML/YAML,
 - **relaton-bib** (~> 2.0.0-alpha.1) — base bibliographic model with LutaML-Model integration
 - **faraday** — HTTP client
 - **ruby-jing** (dev) — RelaxNG schema validation in tests
-- **equivalent-xml** (dev) — XML comparison in tests
+- **canon** (dev) — XML comparison in tests

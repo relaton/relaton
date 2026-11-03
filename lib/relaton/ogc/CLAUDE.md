@@ -203,7 +203,7 @@ Models declare attributes and XML mappings in the same class. `Item` is the seri
 - **RSpec** with `--format documentation`
 - **VCR** + **WebMock** for HTTP interaction recording (`spec/vcr_cassettes/`)
 - **Jing** for RelaxNG schema validation against `grammars/relaton-ogc-compile.rng`
-- **equivalent-xml** for XML comparison in tests
+- **canon** for XML comparison in tests
 - Fixtures live in `spec/fixtures/` (YAML, XML)
 - Integration tests in `spec/relaton/ogc/integration_spec.rb` exercise the full search → fetch → serialize pipeline
 

@@ -124,7 +124,7 @@ Items can be serialized to/from YAML and XML. Tests verify round-trip fidelity f
 ### Test patterns
 
 - RSpec with `expect` syntax (monkey patching disabled)
-- `equivalent-xml` for XML comparison
+- `canon` for XML comparison
 - `ruby-jing` for RELAX NG schema validation against `grammars/relaton-omg-compile.rng`
 - VCR cassettes in `spec/vcr_cassettes/` for HTTP interaction recording
 - Fixtures in `spec/fixtures/` (YAML and XML reference files)
