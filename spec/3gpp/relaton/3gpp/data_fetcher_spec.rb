@@ -508,26 +508,45 @@ RSpec.describe Relaton::ThreeGpp::DataFetcher, "digest ledger" do
     # there; chasing the runner ACL oddity needs runner access.
     skip "the Windows runners deny the fixture writes" if Gem.win_platform?
 
-    Dir.mktmpdir do |tmp|
-      out = File.join(tmp, "data")
-      csv = File.join(tmp, "3gpp.csv")
-      # The padding rides the row's own Remark column, so it stays one row.
-      File.write csv, <<~CSV.sub(/\n\z/, "") + ("x" * 21_000_000) + "\n"
-        Is TS;Title;Link;Version;Publication Date;Release;Release Title;Release Abbrev;3G Release;WPM Code 2G;WPG Code 2G;WPM Code 3G;WPG Code 3G;prime spec;Remark
-        1;Test specification;https://www.3gpp.org/ftp/x.zip;4.2.0;Dec 18 2002 12:00AM;Release 4;GSM_Release_4;3G_Rel-4;4; ; ;SA-#11;SA-#11;;
-      CSV
-      stub = ->(*) { csv }
-      allow_any_instance_of(described_class).to receive(:get_file, &stub)
-      allow_any_instance_of(described_class).to receive(:head_last_modified).and_return(nil)
-
-      run = -> { described_class.fetch "status-smg-3GPP", output: out, format: "yaml", digest_ledger: true }
-      run.call
-      expect(YAML.load_file(File.join(out, ".digests.yaml")).keys).to eq(["1/4.2.0"])
-      written = File.join(out, "ts-1-release-4-4-2-0.yaml")
-      first_mtime = File.mtime(written)
-
-      run.call
-      expect(File.mtime(written)).to eq(first_mtime)
+    # `fetch` writes CURRENT and the index relative to the CWD, as the
+    # crawler does inside its data repo. Run from the temp dir, or the
+    # example drops current.yaml and index-v2.yaml into spec/3gpp/.
+    suite_dir = Dir.pwd
+    leaks = [Relaton::ThreeGpp::DataFetcher::CURRENT, "#{Relaton::ThreeGpp::INDEXFILE}.yaml"]
+    # Snapshot by mtime, so a leftover from an older run cannot hide a leak.
+    snapshot = lambda do
+      leaks.to_h { |f| [f, File.exist?(File.join(suite_dir, f)) && File.mtime(File.join(suite_dir, f))] }
     end
+    before = snapshot.call
+    Dir.mktmpdir do |tmp|
+      Dir.chdir(tmp) { run_ledger_twice(tmp) }
+    ensure
+      Relaton::Index.pool.remove "3gpp"
+    end
+    expect(snapshot.call).to eq before
+  end
+
+  def run_ledger_twice(tmp)
+    out = File.join(tmp, "data")
+    csv = File.join(tmp, "3gpp.csv")
+    # The padding rides the row's own Remark column, so it stays one row.
+    File.write csv, <<~CSV.sub(/\n\z/, "") + ("x" * 21_000_000) + "\n"
+      Is TS;Title;Link;Version;Publication Date;Release;Release Title;Release Abbrev;3G Release;WPM Code 2G;WPG Code 2G;WPM Code 3G;WPG Code 3G;prime spec;Remark
+      1;Test specification;https://www.3gpp.org/ftp/x.zip;4.2.0;Dec 18 2002 12:00AM;Release 4;GSM_Release_4;3G_Rel-4;4; ; ;SA-#11;SA-#11;;
+    CSV
+    stub = ->(*) { csv }
+    allow_any_instance_of(described_class).to receive(:get_file, &stub)
+    allow_any_instance_of(described_class).to receive(:head_last_modified).and_return(nil)
+
+    run = -> { described_class.fetch "status-smg-3GPP", output: out, format: "yaml", digest_ledger: true }
+    run.call
+    expect(YAML.load_file(File.join(out, ".digests.yaml")).keys).to eq(["1/4.2.0"])
+    written = File.join(out, "ts-1-release-4-4-2-0.yaml")
+    first_mtime = File.mtime(written)
+
+    run.call
+    expect(File.mtime(written)).to eq(first_mtime)
+    # The fetcher wrote its CWD files here, not into the suite dir.
+    expect(File).to exist(File.join(tmp, Relaton::ThreeGpp::DataFetcher::CURRENT))
   end
 end
