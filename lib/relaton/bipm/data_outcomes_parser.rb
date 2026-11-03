@@ -94,9 +94,14 @@ module Relaton::Bipm
         @data_fetcher.write_file path, has_part_item, warn_duplicate: false
         path = File.join dir, "#{num}-#{part}.#{@data_fetcher.ext}"
       elsif part
-        hash[:title].each { |t| t.content.sub!(/\s\(.+\)$/, "") }
+        # The part item keeps the full titles ("… (Session I)"); the base
+        # item's titles drop the parenthetical. Assign the stripped form -
+        # `Title#content` exposes the source metadata string, and a
+        # mutating `sub!` would strip the part item's title too (the two
+        # share the string object).
         h = meeting_bibitem body: body, type: type, en: en_md, fr: fr_md, num: num, src: src, pdf: en["pdf"]
         add_part h, body, type, num, part
+        hash[:title].each { |t| t.content = t.content.sub(/\s\(.+\)$/, "") }
         part_item = ItemData.new(**h)
         part_item_path = File.join dir, "#{num}-#{part}.#{@data_fetcher.ext}"
         @data_fetcher.write_file part_item_path, part_item
