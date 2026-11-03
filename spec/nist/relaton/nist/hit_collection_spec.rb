@@ -31,6 +31,23 @@ RSpec.describe Relaton::Nist::HitCollection do
     end
   end
 
+  it "searches the index when CSRC data cannot be cached (relaton-nist#57)" do
+    expect(Relaton::Nist::PubsExport.instance)
+      .to receive(:data).and_raise Errno::EROFS
+    hits = nil
+    expect { hits = subject.search }.to output(
+      /WARN: \(NIST IR 8200\) CSRC pubs-export data is not available/,
+    ).to_stderr_from_any_process
+    expect(hits.map { |h| h.hit[:code] }).to include "NIST IR 8200"
+  end
+
+  it "does not hide a CSRC network error behind the index" do
+    expect(Relaton::Nist::PubsExport.instance)
+      .to receive(:data).and_raise Errno::ECONNREFUSED
+    expect(subject).not_to receive(:from_ga)
+    expect { subject.search }.to raise_error Errno::ECONNREFUSED
+  end
+
   it "sort hits" do
     expect(subject).to receive(:from_json).and_return [
       Relaton::Nist::Hit.new({ status: "withdrawn", code: "B", release_date: Date.today }, subject),

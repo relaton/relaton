@@ -69,7 +69,8 @@ All data models inherit from `Lutaml::Model::Serializable` and use declarative a
   - **`#write_file` serializes before it indexes**, so a record that fails to serialize leaves no index row naming a file that was never written. That is how a `Bib::Date` in `Scraper.fetch_dates` hid: `Nist::ItemData` takes `Nist::Date`, and YAML serialization rejects the parent class (the same strictness as the docidentifier note below).
 - `ModsParser` — maps MODS XML (via `loc_mods`) to `ItemData`
 - `Scraper` — fetches items from GitHub YAML or CSRC JSON
-- `PubsExport` — singleton; caches CSRC pubs-export zip with thread-safe daily updates
+- `PubsExport` — singleton; caches CSRC pubs-export zip with thread-safe daily updates. The cache file is `#datafile`, under `Relaton::Index.config.storage_dir` (default `Dir.home`; the `DATAFILE` constant is only that default).
+  - **A read-only file system must not stop a search (relaton-nist#57).** When the cache write fails, `#fetch_data` keeps the downloaded zip in `@buffer`, and `#unzip` reads it with `Zip::File.open_buffer`. In rubyzip 3, `open_buffer` returns the buffer, not the block value, so collect the rows in a local. The cache write goes to a temp file and is renamed into place (`#write_datafile`), so a failed write never leaves a truncated zip that later processes read as fresh. `HitCollection#search` also rescues the local-cache errors in `LOCAL_DATA_ERRORS` from `from_json` (`#from_json_or_empty`), logs a warning, and continues with `from_ga`. Do not widen that list to `SystemCallError`: `Errno::ECONNREFUSED` is one, and a CSRC outage would then answer "not found" from the index, which `Relaton::Db` can cache. Specs assert the warning with `output(...).to_stderr_from_any_process`. A `receive(:warn)` stub on `Util` is never hit: `Kernel#warn` is private, the stub stays private, and the explicit-receiver call goes to `method_missing`.
 
 ### Pubid-backed docidentifier
 

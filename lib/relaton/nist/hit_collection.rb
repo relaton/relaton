@@ -12,6 +12,12 @@ module Relaton
 
       GHNISTDATA = "https://raw.githubusercontent.com/relaton/relaton-data-nist/v2/"
 
+      # Errors of the local CSRC cache (read-only or full disk, a bad zip).
+      LOCAL_DATA_ERRORS = [
+        Errno::EROFS, Errno::EACCES, Errno::EPERM, Errno::ENOSPC,
+        Errno::ENOENT, Zip::Error
+      ].freeze
+
       attr_reader :reference
       attr_accessor :array
 
@@ -47,7 +53,7 @@ module Relaton
       # @return [Relaton::Nist::HitCollection] hits collection
       #
       def search
-        @array = from_json
+        @array = from_json_or_empty
         @array = from_ga unless @array.any?
         sort_hits!
       end
@@ -398,6 +404,24 @@ module Relaton
       def from_json
         Util.info "Fetching from csrc.nist.gov ...", key: @reference
         select_data.map { |h| Hit.new(hit_data(h), self) }
+      end
+
+      #
+      # The CSRC hits, or none when the local CSRC data cannot be used: a
+      # file-system error must not stop the search, because the
+      # relaton-data-nist index can still answer (relaton-nist#57). Network
+      # errors are not rescued: they still reach Bibliography.search, which
+      # raises Relaton::RequestError, so a CSRC outage is not cached as
+      # "not found".
+      #
+      # @return [Array<Relaton::Nist::Hit>] hits
+      #
+      def from_json_or_empty
+        from_json
+      rescue *LOCAL_DATA_ERRORS => e
+        Util.warn "CSRC pubs-export data is not available (#{e.message}); " \
+                  "searching the Relaton repository only", key: @reference
+        []
       end
 
       def pubs_export_id(json)

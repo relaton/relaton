@@ -311,7 +311,13 @@ Relaton::Nist::Item.from_yaml File.read("spec/fixtures/item.yaml")
 
 === Fetching data
 
-On a search, the CSRC data sources are fetched and stored in the user's cache.
+On a search, the CSRC data sources are fetched and stored in the user's cache,
+`~/.relaton/nist/pubs-export.zip`. The cache follows
+`Relaton::Index.config.storage_dir`, so one setting moves it together with the
+index cache. When the cache cannot be written (for example on a read-only file
+system such as AWS Lambda), the data stays in memory for the process. When the
+CSRC data cannot be used at all, the search continues with the
+`relaton-data-nist` index.
 
 This gem uses the https://github.com/usnistgov/NIST-Tech-Pubs/releases/download/May2024/allrecords-MODS.xml dataset as NIST-Tech-Pubs data source.
 
