@@ -228,19 +228,23 @@ installs the JSON middleware again, or the parameterized content-type split
 drifts, that spec fails under json 3 with one legible message. The Gemfile rides
 lutaml-hal and w3c_api from git until their next releases carry the change.
 
-**`parsanol` is capped below 1.3.110 in `relaton.gemspec`, not only in the
-`Gemfile`.** parsanol 1.3.110 (and 1.3.111) made the v2 named-tree dialect the
-default, and pubid then parses a digit run as a per-atom list
-(`"number" => "[{digit: \"2\"}, …]"`). The first fix pinned `1.3.109` in the
-`Gemfile` only — and a Gemfile pin does not reach a dependent bundle. The
-`relaton-data-*` crawlers bundle relaton and pubid from git with no lock, so on
-2026-10-27 they resolved 1.3.111 and published Pages indexes whose rows were
-parse trees (3gpp, iana, ieee, itu, itu-r, oiml at least): the crc32 shard key
-was wrong and no lookup matched (relaton-itu#64). **A constraint the data repos
-must obey belongs in the gemspec.** `spec/relaton/parsanol_dialect_spec.rb`
-guards it. Once pubid parses the v2 dialect, remove together: the gemspec cap,
-the `parsanol "1.3.109"` pins in `Gemfile` and `gems/relaton-cli/Gemfile`, and
-the guard's `1.3.110` example.
+**`parsanol` constraints live in `relaton.gemspec`, not only in the
+`Gemfile`.** A Gemfile pin does not reach a dependent bundle, and the
+`relaton-data-*` crawlers bundle relaton and pubid from git with no lock. On
+2026-10-27 a Gemfile-only pin let them resolve parsanol 1.3.111, whose v2
+named-tree dialect made pubid parse a digit run as a per-atom list, and they
+published Pages indexes whose rows were parse trees (3gpp, iana, ieee, itu,
+itu-r, oiml at least): the crc32 shard key was wrong and no lookup matched
+(relaton-itu#64). **A constraint the data repos must obey belongs in the
+gemspec.** The gemspec now reads `~> 1.3.124, < 1.3.127`. The floor is what
+pubid 2.0.4's artifacts need. The cap excludes 1.3.127: the bind-coverage check it
+added for parsanol-ruby#427 (BS 9113 raw-bound captures) looks for each capture's *name* among the bound keys
+instead of the binding's path leaf, so a capture bound under another name
+raises `Parsanol::PARG::BindError` — every `Pubid::Oiml.parse` (`doc_number` →
+`number`). That reddened all of `spec/oiml` and the OIML routing example in
+`spec/relaton/registry_spec.rb`; those specs are the guard (the former
+`spec/relaton/parsanol_dialect_spec.rb` was deleted in `38dd4b511`). Lift the
+cap once a parsanol release accepts the path leaf.
 
 **Stale-pubid-lock trap.** `Gemfile.lock` is gitignored, so the installed pubid
 is whatever a past `bundle install` froze. A lock left behind by an earlier
