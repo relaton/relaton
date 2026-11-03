@@ -94,8 +94,9 @@ describe Relaton::Nist::PubsExport do
   it "puts the cache file under the relaton-index storage dir" do
     storage_dir = Relaton::Index.config.storage_dir
     Relaton::Index.configure { |c| c.storage_dir = "/var/cache/relaton" }
-    expect(subject.datafile)
-      .to eq "/var/cache/relaton/.relaton/nist/pubs-export.zip"
+    # expand_path adds the drive letter on Windows
+    path = "/var/cache/relaton/.relaton/nist/pubs-export.zip"
+    expect(subject.datafile).to eq File.expand_path(path)
   ensure
     Relaton::Index.configure { |c| c.storage_dir = storage_dir }
   end

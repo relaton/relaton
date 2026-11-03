@@ -118,8 +118,10 @@ module Relaton
         end
       end
 
+      # The block form closes the entry stream. Without it the cache file
+      # stays open, and Windows then refuses to replace or delete it.
       def read_entry(zip_file)
-        Relaton::Json.parse_external zip_file.first.get_input_stream.read
+        Relaton::Json.parse_external zip_file.first.get_input_stream(&:read)
       end
     end
   end
