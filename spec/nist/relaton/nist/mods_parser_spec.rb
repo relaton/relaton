@@ -30,11 +30,13 @@ describe Relaton::Nist::ModsParser do
       expect(subject).to receive(:parse_relation).and_return "relation"
       expect(subject).to receive(:parse_place).and_return "place"
       expect(subject).to receive(:parse_series).and_return "series"
+      expect(subject).to receive(:parse_edition).and_return "edition"
       expect(Relaton::Nist::ItemData).to receive(:new).with(
         type: "standard", docidentifier: "docidentifier", title: "title",
         source: "source", abstract: "abstract", date: "date",
         contributor: "contributor", relation: "relation", place: "place",
-        series: "series", ext: an_instance_of(Relaton::Nist::Ext),
+        series: "series", edition: "edition",
+        ext: an_instance_of(Relaton::Nist::Ext),
       )
       subject.parse
     end
@@ -42,7 +44,7 @@ describe Relaton::Nist::ModsParser do
     it "stamps the ext flavor as nist" do
       %i[parse_docidentifier parse_title parse_source parse_abstract
          parse_date parse_doctype parse_contributor parse_relation
-         parse_place parse_series].each { |m| allow(subject).to receive(m) }
+         parse_place parse_series parse_edition].each { |m| allow(subject).to receive(m) }
       expect(subject.parse.ext.flavor).to eq "nist"
     end
 
@@ -76,6 +78,50 @@ describe Relaton::Nist::ModsParser do
       it_behaves_like "parse IDs from MODS", "nbs.tn.671", "NBS TN 671"
       it_behaves_like "parse IDs from MODS", "NBS.CIRC.supJun1925-Jun1926", "NBS CIRC 24e7sup2"
       it_behaves_like "parse IDs from MODS", "NIST.MONO.1-1b", "NIST MONO 1-1B"
+    end
+
+    # relaton-nist#56: a numbered edition in the DOI ("e2") is the item's
+    # edition. A year edition ("e1976") and a revision ("r2") are not.
+    context "parse_edition" do
+      shared_examples "edition from DOI" do |doi, number|
+        it doi do
+          doc.location[0].url[0].content = "https://doi.org/10.6028/#{doi}"
+          edition = subject.parse_edition
+          if number
+            expect(edition).to be_instance_of Relaton::Bib::Edition
+            expect(edition.number).to eq number
+            expect(edition.content).to eq number
+          else
+            expect(edition).to be_nil
+          end
+        end
+      end
+
+      it_behaves_like "edition from DOI", "NBS.CIRC.111e2", "2"
+      it_behaves_like "edition from DOI", "NBS.IR.76-1094e3", "3"
+      it_behaves_like "edition from DOI", "NBS.CIRC.11e2.1915", "2"
+      # A supplement takes its base document's edition: pubid reads this
+      # DOI (after replace_wrong_doi) as "NBS CIRC 24e7sup2".
+      it_behaves_like "edition from DOI", "NBS.CIRC.supJun1925-Jun1926", "7"
+      it_behaves_like "edition from DOI", "NBS.CIRC.1e0", "1"
+      it_behaves_like "edition from DOI", "NBS.SP.413e1976", nil
+      it_behaves_like "edition from DOI", "NIST.TN.1235r2", nil
+      it_behaves_like "edition from DOI", "NIST.IR.6229", nil
+
+      it "is nil for a DOI pubid cannot parse" do
+        allow(subject).to receive(:parse_doi).and_return "not-a-nist-id"
+        expect(subject.parse_edition).to be_nil
+      end
+
+      it "is nil without a DOI" do
+        allow(subject).to receive(:parse_doi).and_return nil
+        expect(subject.parse_edition).to be_nil
+      end
+
+      it "renders in the item XML" do
+        doc.location[0].url[0].content = "https://doi.org/10.6028/NBS.CIRC.111e2"
+        expect(subject.parse.to_xml).to include '<edition number="2">2</edition>'
+      end
     end
 
     context "replace_wrong_doi" do

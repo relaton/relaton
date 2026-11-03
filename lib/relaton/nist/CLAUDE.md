@@ -115,6 +115,15 @@ NIST-specific gotchas (why this isn't a straight copy of IEC/CCSDS):
   numbered editions/revisions (`e2`, `r5`). Dates that ride the `update`
   component (some NBS supplements) are left intact — `update` also encodes
   non-date update codes (`/Upd2`), so stripping it would corrupt identity.
+- **The item's `edition` comes from the DOI (relaton-nist#56).**
+  `ModsParser#parse_edition` sets `<edition number="N">N</edition>` only for a
+  numbered `e<N>` edition in the DOI (`NBS.CIRC.111e2` → 2, `11e2.1915` → 2):
+  250 of the 20,392 live MODS records. An `e<year>` edition is a date, and an
+  `r<N>` revision is not an edition, so both stay without one. The MODS
+  `<edition>` element is prose (`New version`, `Erratum`), never a number. The
+  issue's "edition 0 → 1" rule came from the old Crossref feed; it is kept for
+  a DOI `e0` (none in the live data). A DOI pubid cannot parse gives no
+  edition, not an error.
 - **No `(all parts)` marker in `content`.** `content` is live-derived from
   `@pubid`, so `to_all_parts!` freezes the already-stripped rendering into
   `@raw_content` before wrapping `@pubid` in pubid's `AllParts` — matching
