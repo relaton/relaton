@@ -101,8 +101,11 @@ Gem::Specification.new do |spec|
   # 2.0.4 carries the IHO series identity components (year/volume/issue,
   # pubid#635/#637) that the relaton-data-iho re-key (relaton#407) keys on;
   # a runtime older than the release rejects the components it does not
-  # implement.
-  spec.add_dependency "pubid", "~> 2.0.4"
+  # implement. 2.0.5 re-bakes every artifact at parsanol edition 2 — the
+  # IHO component-model wave (relaton#440) — and parsanol 1.3.129+
+  # rejects edition-1 artifacts, so the floor names 2.0.5 beside the
+  # parsanol floor.
+  spec.add_dependency "pubid", "~> 2.0.5"
 
   # JSON parse/generate across the flavor fetchers, the index and the db:
   # yeptris's strict RFC 8259 surface replaces the stdlib json gem's calls.

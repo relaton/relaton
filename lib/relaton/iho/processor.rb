@@ -26,9 +26,10 @@ module Relaton
       end
 
       # An IHO record prints `B-12` and keeps its edition in `edition`, so
-      # the edition goes on the key as the version (relaton#408).
+      # the edition goes on the key (relaton#408). The component model
+      # (relaton#440) renamed the pubid attribute `version` -> `edition`.
       def item_cache_key(pubid, item)
-        with_components pubid, version: item.edition&.content
+        with_components pubid, edition: item.edition&.content
       end
 
       # @param xml [String]

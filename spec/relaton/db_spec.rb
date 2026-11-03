@@ -181,7 +181,7 @@ RSpec.describe Relaton::Db do
 
       before do
         allow(Relaton::Iho::Bibliography).to receive(:get) do |ref, *|
-          iho_item(ref.version&.to_s || "3.0.0")
+          iho_item(ref.edition&.to_s || "3.0.0")
         end
       end
 

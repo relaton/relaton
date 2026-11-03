@@ -120,12 +120,19 @@ module Relaton
         MIN_ROWS = 2000
         MIN_SHARDS = 16
         # Id components a record's printed docid omits by design, so only the
-        # committed row carries them (see #refine). `year`/`issue` are the IHO
-        # series components (relaton#407): the data repo carries the
-        # year/volume/issue of a series record (P-5's year, the IHR's
-        # volume/issue) in the committed row even where the printed docid a
-        # crawler reads spells only `P-5`.
-        REFINABLE_KEYS = %w[version edition volume year issue].freeze
+        # committed row carries them (see #refine). The IHO component model
+        # (relaton#440): a series record's volume/issue (the IHR's
+        # `P-1 Vol. 30`, P-5's `Vol. 2020` — the yearbook year IS a volume),
+        # the edition, and the component-level editions/years a separately
+        # published supplement/part/annex/appendix carries. The base
+        # components themselves are never refinable: they are identity
+        # (the flavor matches subdivisions strictly).
+        REFINABLE_KEYS = %w[
+          edition volume issue year
+          supplement_edition supplement_year part_edition part_year
+          annex_edition annex_year appendix_edition appendix_year
+          volume_edition volume_year
+        ].freeze
         MAX_SHARDS = 65_536
 
         # Deliberately does NOT retain the pubid object: `add` extracts the only
