@@ -111,12 +111,12 @@ gem "simplecov"
   gem "webmock"
   gem "webrick"
 end
-# leptris 1.9.401: the line canon 0.3.122 requires (~> 1.9.401); its
+# leptris ~> 1.9.401: the line canon 0.3.122 requires; its
 # yeptris 0.6.56.1 companion no longer replaces Object#to_yaml on
 # require (verified 2026-11-03: Object keeps ownership, the `---`
 # header round-trips), which is what made the canon "< 0.3.52" pin
 # unnecessary. Keeps the preceding notes: the 1.9.386/398 line carried
 # the Ruby 4.0 memory-allocation fix (leptris#1755) and the moxml 0.5.174
 # binding floor.
-gem "leptris", "1.9.401"
+gem "leptris", "~> 1.9.401"
 
