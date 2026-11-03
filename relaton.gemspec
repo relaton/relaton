@@ -88,13 +88,16 @@ Gem::Specification.new do |spec|
   # and requires >= 1.3.114. A runtime older than the release rejects the
   # numeric edition it does not implement, so the floor names 1.3.114
   # for bundles that depend on relaton.
-  # 1.3.127 is excluded: the bind-coverage check it added for
-  # parsanol-ruby#427 (BS 9113 raw-bound captures) looks
-  # for the capture name among the bound keys, not the binding's path leaf,
-  # so every capture bound under another name raises BindError — all of
-  # Pubid::Oiml.parse ("doc_number" -> "number"). Lift the cap once a
-  # parsanol release accepts the path leaf; spec/oiml fails without it.
-  spec.add_dependency "parsanol", "~> 1.3.124", "< 1.3.127" # 1.3.124: the mode-alias removal; pubid 2.0.4 artifacts require it
+  # parsanol's bind-coverage check (added in 1.3.127 for
+  # parsanol-ruby#427, BS 9113 raw-bound captures) looks for the capture
+  # name among the bound keys, not the binding's path leaf, so every
+  # capture bound under another name raises BindError — all of
+  # Pubid::Oiml.parse ("doc_number" -> "number"). 1.3.127/1.3.128 shipped
+  # broken and fresh resolutions of the old `~> 1.3.124` floor picked
+  # them up (relaton#439); 1.3.129 carries the fix (parsanol-ruby#435)
+  # and drops artifact edition 1, so the floor names the fixed line and
+  # the interim cap is lifted.
+  spec.add_dependency "parsanol", "~> 1.3.129" # the mode-alias removal floor; pubid 2.0.4 artifacts require >= 1.3.124
   # 2.0.4 carries the IHO series identity components (year/volume/issue,
   # pubid#635/#637) that the relaton-data-iho re-key (relaton#407) keys on;
   # a runtime older than the release rejects the components it does not

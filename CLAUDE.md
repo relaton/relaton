@@ -236,15 +236,19 @@ named-tree dialect made pubid parse a digit run as a per-atom list, and they
 published Pages indexes whose rows were parse trees (3gpp, iana, ieee, itu,
 itu-r, oiml at least): the crc32 shard key was wrong and no lookup matched
 (relaton-itu#64). **A constraint the data repos must obey belongs in the
-gemspec.** The gemspec now reads `~> 1.3.124, < 1.3.127`. The floor is what
-pubid 2.0.4's artifacts need. The cap excludes 1.3.127: the bind-coverage check it
-added for parsanol-ruby#427 (BS 9113 raw-bound captures) looks for each capture's *name* among the bound keys
-instead of the binding's path leaf, so a capture bound under another name
-raises `Parsanol::PARG::BindError` — every `Pubid::Oiml.parse` (`doc_number` →
-`number`). That reddened all of `spec/oiml` and the OIML routing example in
-`spec/relaton/registry_spec.rb`; those specs are the guard (the former
-`spec/relaton/parsanol_dialect_spec.rb` was deleted in `38dd4b511`). Lift the
-cap once a parsanol release accepts the path leaf.
+gemspec.** The gemspec now reads `~> 1.3.129`. Two parsanol waves shaped it:
+1.3.127 added a bind-coverage check for parsanol-ruby#427 (BS 9113 raw-bound
+captures) that looks for each capture's *name* among the bound keys instead
+of the binding's path leaf, so a capture bound under another name raises
+`Parsanol::PARG::BindError` — every `Pubid::Oiml.parse` (`doc_number` →
+`number`) reddened all of `spec/oiml` and the OIML routing example in
+`spec/relaton/registry_spec.rb` (those specs are the guard; the former
+`spec/relaton/parsanol_dialect_spec.rb` was deleted in `38dd4b511`), and an
+interim `< 1.3.127` cap held the window. 1.3.129 fixed the binding
+resolution (parsanol-ruby#435) and dropped artifact edition 1, so the floor
+names the fixed line and the cap is lifted (relaton#439). Fresh resolutions
+of the old `~> 1.3.124` floor picked up the broken 1.3.127/1.3.128 — a
+floor must name the line the suite actually verifies.
 
 **Stale-pubid-lock trap.** `Gemfile.lock` is gitignored, so the installed pubid
 is whatever a past `bundle install` froze. A lock left behind by an earlier
