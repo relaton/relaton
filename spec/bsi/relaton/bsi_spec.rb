@@ -18,7 +18,7 @@ RSpec.describe Relaton::Bsi do
       bib = Relaton::Bsi::Bibliography.get("BS EN ISO 8848", nil, {})
       xml = bib.to_xml bibdata: true
       write_file file, xml
-      expect(xml).to be_equivalent_to read_xml(file)
+      expect(xml).to be_xml_equivalent_to read_xml(file)
       schema = Relaxng.new "../../grammar/relaton-bsi-compile.rng"
       errors = schema.validate file
       expect(errors).to eq []
@@ -31,7 +31,7 @@ RSpec.describe Relaton::Bsi do
       bib = Relaton::Bsi::Bibliography.get("BS EN ISO 8848", "2021", {})
       xml = bib.to_xml bibdata: true
       write_file file, xml
-      expect(xml).to be_equivalent_to read_xml(file)
+      expect(xml).to be_xml_equivalent_to read_xml(file)
     end
   end
 
@@ -83,7 +83,7 @@ RSpec.describe Relaton::Bsi do
       bib = Relaton::Bsi::Bibliography.get("BS EN ISO 8848:2021")
       xml = bib.to_xml bibdata: true
       write_file file, xml
-      expect(xml).to be_equivalent_to read_xml(file)
+      expect(xml).to be_xml_equivalent_to read_xml(file)
     end
   end
 

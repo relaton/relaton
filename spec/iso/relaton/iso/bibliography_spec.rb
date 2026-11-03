@@ -25,7 +25,7 @@ RSpec.describe Relaton::Iso::Bibliography do
       xml = hits[0].item.to_xml bibdata: true
       file_path = "fixtures/hit.xml"
       File.write file_path, xml, encoding: "UTF-8" unless File.exist? file_path
-      expect(xml).to be_equivalent_to File.read(file_path, encoding: "utf-8")
+      expect(xml).to be_xml_equivalent_to File.read(file_path, encoding: "utf-8")
         .sub %r{<fetched>[^<]+</fetched>}, "<fetched>#{Date.today}</fetched>"
     end
   end
@@ -112,7 +112,7 @@ RSpec.describe Relaton::Iso::Bibliography do
       it "generates correct output" do
         file = "fixtures/iso_19115_keep_year.xml"
         File.write file, xml, encoding: "UTF-8" unless File.exist? file
-        expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+        expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
           .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}(?=<)/, Date.today.to_s)
       end
 
@@ -147,7 +147,7 @@ RSpec.describe Relaton::Iso::Bibliography do
         it "generates correct xml data" do
           file = "fixtures/all_parts.xml"
           File.write file, xml, encoding: "UTF-8" unless File.exist? file
-          expect(xml).to be_equivalent_to File.read(file, encoding: "utf-8")
+          expect(xml).to be_xml_equivalent_to File.read(file, encoding: "utf-8")
             .gsub(%r{(?<=<fetched>)\d{4}-\d{2}-\d{2}}, Date.today.to_s)
         end
 
@@ -173,7 +173,7 @@ RSpec.describe Relaton::Iso::Bibliography do
           file = "fixtures/iso_19115_keep_year.xml"
           xml = described_class.get("ISO 19115-1").to_xml
           File.write file, xml, encoding: "UTF-8" unless File.exist? file
-          expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+          expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
             .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}(?=<)/, Date.today.to_s)
         end
       end
@@ -185,7 +185,7 @@ RSpec.describe Relaton::Iso::Bibliography do
             "ISO 19115-1:2014", nil, keep_year: false
           ).to_xml
           File.write file, xml, encoding: "UTF-8" unless File.exist? file
-          expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+          expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
             .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}(?=<)/, Date.today.to_s)
         end
       end
@@ -461,7 +461,7 @@ RSpec.describe Relaton::Iso::Bibliography do
     #       xml = result.to_xml
     #       file = "fixtures/iso_19115_en.xml"
     #       File.write file, xml, encoding: "UTF-8" unless File.exist? file
-    #       expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+    #       expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
     #         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
     #     end
     #   end
@@ -472,7 +472,7 @@ RSpec.describe Relaton::Iso::Bibliography do
     #         .to_xml
     #       file = "fixtures/iso_19115_fr.xml"
     #       File.write file, result, encoding: "UTF-8" unless File.exist? file
-    #       expect(result).to be_equivalent_to File.read(file, encoding: "UTF-8")
+    #       expect(result).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
     #         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
     #     end
     #   end

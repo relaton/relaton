@@ -18,7 +18,7 @@ describe Relaton::W3c::Bibliography do
     xml = doc.to_xml(bibdata: true)
     file = "fixtures/cr_json_ld11.xml"
     File.write(file, xml, encoding: "UTF-8") unless File.exist?(file)
-    expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+    expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
       .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
   end
 
@@ -33,7 +33,7 @@ describe Relaton::W3c::Bibliography do
     it "fetch", vcr: "rec_xml_names" do
       doc = described_class.get("W3C xml-names")
       xml = Relaton::W3c::Bibdata.to_xml(doc)
-      expect(xml).to be_equivalent_to File.read("fixtures/rec_xml_names.xml", encoding: "UTF-8")
+      expect(xml).to be_xml_equivalent_to File.read("fixtures/rec_xml_names.xml", encoding: "UTF-8")
         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
       schema = Relaxng.new "../../grammar/relaton-w3c-compile.rng"
       errors = schema.validate file_xml(xml)
@@ -63,7 +63,7 @@ describe Relaton::W3c::Bibliography do
     xml = doc.to_xml(bibdata: true)
     file = "fixtures/rec_xml_names.xml"
     File.write(file, xml, encoding: "UTF-8") unless File.exist?(file)
-    expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+    expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
       .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
   end
 

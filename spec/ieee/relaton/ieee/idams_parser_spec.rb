@@ -15,7 +15,7 @@ describe Relaton::Ieee::IdamsParser do
       it do
         expect(bibitem).to be_instance_of Relaton::Ieee::ItemData
         File.write output_file, xml, encoding: "UTF-8" unless File.exist? output_file
-        expect(xml).to be_equivalent_to File.read(output_file, encoding: "UTF-8")
+        expect(xml).to be_xml_equivalent_to File.read(output_file, encoding: "UTF-8")
           .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
       end
     end
@@ -75,7 +75,7 @@ describe Relaton::Ieee::IdamsParser do
 
       it do
         File.write output_file, xml, encoding: "UTF-8" unless File.exist? output_file
-        expect(xml).to be_equivalent_to File.read(output_file, encoding: "UTF-8")
+        expect(xml).to be_xml_equivalent_to File.read(output_file, encoding: "UTF-8")
       end
     end
   end

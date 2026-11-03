@@ -71,7 +71,7 @@ describe Relaton::W3c::Docidentifier do
 
     it "round-trips back to equivalent XML" do
       item = Relaton::W3c::Bibdata.from_xml(xml)
-      expect(Relaton::W3c::Bibdata.to_xml(item)).to be_equivalent_to xml
+      expect(Relaton::W3c::Bibdata.to_xml(item)).to be_xml_equivalent_to xml
     end
   end
 end

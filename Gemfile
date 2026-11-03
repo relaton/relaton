@@ -94,15 +94,12 @@ gem "pubid", "~> 2.0.4"
 gem "rake"
 
 group :development, :test do
-  # XML/YAML canonical comparison matchers for specs. Pinned below 0.3.52:
-  # that version adds a dependency on `yeptris`, and `lutaml-model` then picks
-  # yeptris as its YAML adapter. Its first model `to_yaml` requires
-  # `yeptris/psych`, which replaces `Object#to_yaml` for the whole process. The
-  # `---` header is then lost on Linux, and on Windows every `to_yaml` raises
-  # `NameError: uninitialized constant Yeptris::FFI::NODE_SCALAR`. Remove the
-  # pin when yeptris no longer replaces `Object#to_yaml`.
-  gem "canon", "< 0.3.52"
-  gem "equivalent-xml"
+  # XML/YAML canonical comparison matchers for specs. The former
+  # "< 0.3.52" pin is lifted: on the current line (canon 0.3.122 /
+  # leptris 1.9.401 / yeptris 0.6.56.1) requiring canon no longer loads
+  # yeptris, `Object#to_yaml` stays owned by Object, and the `---`
+  # header round-trips. Verified 2026-11-03.
+  gem "canon", "~> 0.3.122"
   gem "pry"            # bin/console
   gem "rspec"
   gem "rspec-command"  # relaton-cli acceptance specs
@@ -114,14 +111,12 @@ gem "simplecov"
   gem "webmock"
   gem "webrick"
 end
-# leptris 1.9.370.1: current line, carries the Ruby 4.0
-# memory-allocation fix (leptris#1755) — battery accompanies this bump.
-# (leptris#1742) — the battery re-run accompanies this bump.
-# moxml 0.5.174 deletes the accommodation paths for older leptris
-# bindings and raises unless the binding is >= 1.9.386.0 - with the old
-# 1.9.370.1 pin the leptris adapter loads unusable and every XML path
-# silently falls back to nokogiri (spec/bib namespace mapping goes red).
-# Keeps the preceding release's notes: 1.9.386.0 is the current line and
-# carries the Ruby 4.0 memory-allocation fix (leptris#1755).
-gem "leptris", "1.9.398.0"
+# leptris 1.9.401: the line canon 0.3.122 requires (~> 1.9.401); its
+# yeptris 0.6.56.1 companion no longer replaces Object#to_yaml on
+# require (verified 2026-11-03: Object keeps ownership, the `---`
+# header round-trips), which is what made the canon "< 0.3.52" pin
+# unnecessary. Keeps the preceding notes: the 1.9.386/398 line carried
+# the Ruby 4.0 memory-allocation fix (leptris#1755) and the moxml 0.5.174
+# binding floor.
+gem "leptris", "1.9.401"
 

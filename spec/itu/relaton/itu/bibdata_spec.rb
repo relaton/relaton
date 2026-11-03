@@ -4,7 +4,7 @@ describe Relaton::Itu::Bibdata do
   let(:item) { described_class.from_xml input_xml }
 
   it "round trip" do
-    expect(item.to_xml(bibdata: true)).to be_equivalent_to input_xml
+    expect(item.to_xml(bibdata: true)).to be_xml_equivalent_to input_xml
     schema = Relaxng.new "../../grammar/relaton-itu-compile.rng"
     errors = schema.validate file
     expect(errors).to eq []

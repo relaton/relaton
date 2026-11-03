@@ -37,7 +37,7 @@ RSpec.describe Relaton::Gb do
       file_path = "fixtures/gbt_20223_2006.xml"
       xml = hits.first.item.to_xml bibdata: true
       File.write file_path, xml unless File.exist? file_path
-      expect(xml).to be_equivalent_to File.open(file_path, "r:UTF-8", &:read)
+      expect(xml).to be_xml_equivalent_to File.open(file_path, "r:UTF-8", &:read)
         .sub(%r{<fetched>[^<]+</fetched>}, "<fetched>#{Date.today}</fetched>")
       schema = Relaxng.new "../../grammar/relaton-gb-compile.rng"
       errors = schema.validate file_path
@@ -54,7 +54,7 @@ RSpec.describe Relaton::Gb do
       file_path = "fixtures/jbt_13368_2018.xml"
       xml = hits.first.item.to_xml bibdata: true
       File.write file_path, xml unless File.exist? file_path
-      expect(xml).to be_equivalent_to File.open(file_path, "r:UTF-8", &:read)
+      expect(xml).to be_xml_equivalent_to File.open(file_path, "r:UTF-8", &:read)
         .sub(%r{<fetched>[^<]+</fetched>}, "<fetched>#{Date.today}</fetched>")
       schema = Relaxng.new "../../grammar/relaton-gb-compile.rng"
       errors = schema.validate file_path
@@ -71,7 +71,7 @@ RSpec.describe Relaton::Gb do
       file_path = "fixtures/tgzaepi_001_2018.xml"
       xml = hits.first.item.to_xml bibdata: true
       File.write file_path, xml unless File.exist? file_path
-      expect(xml).to be_equivalent_to File.open(file_path, "r:UTF-8", &:read)
+      expect(xml).to be_xml_equivalent_to File.open(file_path, "r:UTF-8", &:read)
         .sub(%r{<fetched>[^<]+</fetched>}, "<fetched>#{Date.today}</fetched>")
       schema = Relaxng.new "../../grammar/relaton-gb-compile.rng"
       errors = schema.validate file_path
@@ -85,7 +85,7 @@ RSpec.describe Relaton::Gb do
         file = "fixtures/gbt_5606_1_2004.xml"
         results = Relaton::Gb::Bibliography.get("GB/T 5606.1", 2004, {}).to_xml
         File.write file, results, encoding: "UTF-8" unless File.exist? file
-        expect(results).to be_equivalent_to File.read(file, encoding: "UTF-8")
+        expect(results).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
           .sub(/(?<=<fetched>)[^<]+/, Date.today.to_s)
       end.to output(include(
         "[relaton-gb] INFO: (GB/T 5606.1-2004) Fetching from openstd.samr.gov.cn ...",
@@ -97,7 +97,7 @@ RSpec.describe Relaton::Gb do
       file = "fixtures/gbt_5606_2004_all_parts.xml"
       results = Relaton::Gb::Bibliography.get("GB/T 5606", 2004, all_parts: true).to_xml
       File.write file, results, encoding: "UTF-8" unless File.exist? file
-      expect(results).to be_equivalent_to File.read(file, encoding: "UTF-8")
+      expect(results).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
         .gsub(/(?<=<fetched>)[^<]+/, Date.today.to_s)
     end
 
@@ -135,7 +135,7 @@ RSpec.describe Relaton::Gb do
       xml = File.open "fixtures/gbt_20223_2006.xml", "r:UTF-8", &:read
       item = Relaton::Gb::Item.from_xml xml
       expect(item).to be_instance_of Relaton::Gb::ItemData
-      expect(item.to_xml(bibdata: true)).to be_equivalent_to xml
+      expect(item.to_xml(bibdata: true)).to be_xml_equivalent_to xml
     end
 
     xit "warn if XML doesn't have bibitem or bibdata element" do

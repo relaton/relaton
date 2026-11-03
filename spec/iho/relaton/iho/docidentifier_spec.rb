@@ -95,7 +95,7 @@ describe Relaton::Iho::Docidentifier do
     it "round-trips back to equivalent XML" do
       item = Relaton::Iho::Bibdata.from_xml(xml)
       out = Relaton::Iho::Bibdata.to_xml(item)
-      expect(out).to be_equivalent_to xml
+      expect(out).to be_xml_equivalent_to xml
     end
 
     it "raises on non-parseable docidentifier in incoming XML" do

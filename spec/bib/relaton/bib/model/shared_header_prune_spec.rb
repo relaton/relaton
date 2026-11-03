@@ -53,7 +53,7 @@ RSpec.describe "Relaton::Bib shared-header attribute prunes" do
     XML
     bibdata = Relaton::Bib::Bibdata.from_xml(bibdata_xml)
     bibitem = Relaton::Bib::Bibitem.from_xml(bibitem_xml)
-    expect(Relaton::Bib::Bibdata.to_xml(bibdata)).to be_equivalent_to(bibdata_xml)
-    expect(Relaton::Bib::Bibitem.to_xml(bibitem)).to be_equivalent_to(bibitem_xml)
+    expect(Relaton::Bib::Bibdata.to_xml(bibdata)).to be_xml_equivalent_to(bibdata_xml)
+    expect(Relaton::Bib::Bibitem.to_xml(bibitem)).to be_xml_equivalent_to(bibitem_xml)
   end
 end

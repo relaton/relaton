@@ -4,7 +4,7 @@ RSpec.describe Relaton::Plateau::Bibitem do
   let(:item) { described_class.from_xml input_xml }
 
   it "round trip" do
-    expect(described_class.to_xml(item)).to be_equivalent_to input_xml
+    expect(described_class.to_xml(item)).to be_xml_equivalent_to input_xml
     schema = Relaxng.new "../../grammar/relaton-plateau-compile.rng"
     errors = schema.validate file
     expect(errors).to eq []

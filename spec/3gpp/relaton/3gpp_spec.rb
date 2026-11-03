@@ -45,7 +45,7 @@ RSpec.describe Relaton::ThreeGpp do
       ).to_stderr_from_any_process
       xml = bib.to_xml
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
-      expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+      expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
         .sub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
       schema = Relaxng.new "../../grammar/relaton-3gpp-compile.rng"
       errors = schema.validate file
@@ -56,7 +56,7 @@ RSpec.describe Relaton::ThreeGpp do
       file = "fixtures/bibdata.xml"
       xml = bib.to_xml bibdata: true
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
-      expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+      expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
         .sub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
       schema = Relaxng.new "../../grammar/relaton-3gpp-compile.rng"
       errors = schema.validate file
@@ -71,7 +71,7 @@ RSpec.describe Relaton::ThreeGpp do
       File.write file, hash.to_yaml, encoding: "UTF-8"
       yaml = YAML.load_file(file)
       yaml.delete("fetched")
-      expect(hash).to be_equivalent_to yaml
+      expect(hash).to be_xml_equivalent_to yaml
     end
   end
 

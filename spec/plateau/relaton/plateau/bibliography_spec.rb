@@ -10,7 +10,7 @@ RSpec.describe Relaton::Plateau::Bibliography do
       bib = described_class.get("PLATEAU Handbook #00 第1.0版")
       xml = bib.to_xml
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
-      expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+      expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
     end
 
@@ -29,7 +29,7 @@ RSpec.describe Relaton::Plateau::Bibliography do
       bib = described_class.get("PLATEAU Technical Report #00")
       xml = bib.to_xml
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
-      expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+      expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
     end
 

@@ -5,7 +5,7 @@ describe Relaton::Iso::Bibitem do
 
   context "round trip" do
     it "to XML" do
-      expect(described_class.to_xml(item)).to be_equivalent_to input_xml
+      expect(described_class.to_xml(item)).to be_xml_equivalent_to input_xml
       schema = Relaxng.new "../../grammar/relaton-iso-compile.rng"
       errors = schema.validate file
       expect(errors).to eq []

@@ -25,7 +25,7 @@ RSpec.describe Relaton::Doi do
         xml = resp.to_xml bibdata: true
         write_fixture file, xml
         expect(resp).to be_instance_of(Relaton::Nist::ItemData)
-        expect(xml).to be_equivalent_to read_fixture(file)
+        expect(xml).to be_xml_equivalent_to read_fixture(file)
       end.to output(
         include(
           "[relaton-doi] INFO: (doi:10.6028/nist.ir.8245) Fetching from search.crossref.org ...",
@@ -40,7 +40,7 @@ RSpec.describe Relaton::Doi do
       xml = resp.to_xml bibdata: true
       write_fixture file, xml
       expect(resp).to be_instance_of(Relaton::Ietf::ItemData)
-      expect(xml).to be_equivalent_to read_fixture(file)
+      expect(xml).to be_xml_equivalent_to read_fixture(file)
     end
 
     it "BIPM", vcr: "crossref_bipm" do
@@ -49,7 +49,7 @@ RSpec.describe Relaton::Doi do
       xml = resp.to_xml bibdata: true
       write_fixture file, xml
       expect(resp).to be_instance_of(Relaton::Bipm::ItemData)
-      expect(xml).to be_equivalent_to read_fixture(file)
+      expect(xml).to be_xml_equivalent_to read_fixture(file)
     end
 
     it "IEEE", vcr: "crossref_ieee" do
@@ -58,7 +58,7 @@ RSpec.describe Relaton::Doi do
       xml = resp.to_xml bibdata: true
       write_fixture file, xml
       expect(resp).to be_instance_of(Relaton::Ieee::ItemData)
-      expect(xml).to be_equivalent_to read_fixture(file)
+      expect(xml).to be_xml_equivalent_to read_fixture(file)
     end
 
     shared_examples "fetch document" do |type, doi|
@@ -67,7 +67,7 @@ RSpec.describe Relaton::Doi do
         resp = Relaton::Doi::Crossref.get "doi:#{doi}"
         xml = resp.to_xml bibdata: true
         write_fixture file, xml
-        expect(xml).to be_equivalent_to read_fixture(file)
+        expect(xml).to be_xml_equivalent_to read_fixture(file)
         # Downstream renderers reject a bibitem that Nokogiri cannot parse.
         # See metanorma-pdfa#99.
         expect(Nokogiri::XML(xml).errors).to be_empty

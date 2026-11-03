@@ -17,7 +17,7 @@ RSpec.describe Relaton::Cen do
       bib = Relaton::Cen::Bibliography.get "CEN ISO/TS 21003-7"
       xml = bib.to_xml bibdata: true
       write_file file, xml
-      expect(xml).to be_equivalent_to read_xml(file)
+      expect(xml).to be_xml_equivalent_to read_xml(file)
       schema = Relaxng.new "../../grammar/relaton-cen-compile.rng"
       errors = schema.validate file
       expect(errors).to eq []

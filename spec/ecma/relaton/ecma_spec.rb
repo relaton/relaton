@@ -17,12 +17,12 @@ RSpec.describe Relaton::Ecma do
           bibitem = bib.to_xml
           bibitem_file = "fixtures/bibitem.xml"
           write_file bibitem_file, bibitem
-          expect(bibitem).to be_equivalent_to read_file bibitem_file
+          expect(bibitem).to be_xml_equivalent_to read_file bibitem_file
 
           bibdata = bib.to_xml(bibdata: true)
           bibdata_file = "fixtures/bibdata.xml"
           write_file bibdata_file, bibdata
-          expect(bibdata).to be_equivalent_to read_file bibdata_file
+          expect(bibdata).to be_xml_equivalent_to read_file bibdata_file
           schema = Relaxng.new "../../grammar/relaton-ecma-compile.rng"
           errors = schema.validate bibdata_file
           expect(errors).to eq []
@@ -66,7 +66,7 @@ RSpec.describe Relaton::Ecma do
       xml = bib.to_xml(bibdata: true)
       file = "fixtures/ecma_tr_18.xml"
       write_file file, xml
-      expect(xml).to be_equivalent_to read_file file
+      expect(xml).to be_xml_equivalent_to read_file file
     end
   end
 
@@ -76,7 +76,7 @@ RSpec.describe Relaton::Ecma do
       xml = bib.to_xml(bibdata: true)
       file = "fixtures/ecma_mem_2021.xml"
       write_file file, xml
-      expect(xml).to be_equivalent_to read_file file
+      expect(xml).to be_xml_equivalent_to read_file file
     end
   end
 end
