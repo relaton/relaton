@@ -13,7 +13,7 @@ module Relaton
       }.freeze
 
       ATTRS = %i[type docidentifier title source abstract date contributor
-                  relation place series].freeze
+                  relation place series edition].freeze
 
       def initialize(doc, series, errors = {})
         @doc = doc
@@ -51,15 +51,39 @@ module Relaton
       def get_id_from_str(str)
         return if str.nil? || str.empty?
 
-        # DOIs arrive dotted ("NIST.HB.135e2022-upd1"); that MR-style form
-        # parses through a path that skips UpdateCodes date lookup and drops
-        # letter suffixes. Space the leading "PUB.SERIES." prefix so it parses
-        # like the canonical short form (only the separator dots are touched,
-        # not any inside the number). Then force :human rendering.
-        spaced = str.sub(/\A(NIST|NBS)\.([A-Z][A-Za-z]*)\./, '\1 \2 ')
-        ::Pubid::Nist::Identifier.parse(spaced).to_s(format: :human)
+        parse_pubid(str).to_s(format: :human)
       rescue ::Pubid::Errors::ParseError
         str.gsub(".", " ").sub(/^[\D]+/, &:upcase)
+      end
+
+      # DOIs arrive dotted ("NIST.HB.135e2022-upd1"); that MR-style form
+      # parses through a path that skips UpdateCodes date lookup and drops
+      # letter suffixes. Space the leading "PUB.SERIES." prefix so it parses
+      # like the canonical short form (only the separator dots are touched,
+      # not any inside the number).
+      def parse_pubid(str)
+        spaced = str.sub(/\A(NIST|NBS)\.([A-Z][A-Za-z]*)\./, '\1 \2 ')
+        ::Pubid::Nist::Identifier.parse(spaced)
+      end
+
+      # The edition number a DOI states ("NBS.CIRC.111e2" -> 2), relaton-nist#56.
+      # The MODS carries no edition number of its own (its <edition> is prose:
+      # "New version", "Erratum"), so the DOI is the only source. Only a
+      # numbered "e<N>" edition counts: an "e<year>" edition is a date, and an
+      # "r<N>" revision is not an edition. An edition 0 counts as 1 (the issue's
+      # second rule; no live DOI has one).
+      # @return [Bib::Edition, nil]
+      def parse_edition
+        doi = parse_doi
+        return if doi.nil? || doi.empty?
+
+        edition = parse_pubid(doi).edition
+        return unless edition&.type == "e" && edition.id.to_s.match?(/\A\d{1,3}\z/)
+
+        number = edition.id.to_i.zero? ? "1" : edition.id
+        Bib::Edition.new(number: number, content: number)
+      rescue ::Pubid::Errors::Error, ArgumentError
+        nil
       end
 
       # @return [String]
