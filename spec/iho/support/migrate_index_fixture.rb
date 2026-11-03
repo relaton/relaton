@@ -14,11 +14,15 @@
 #   cd spec/iho && bundle exec ruby support/migrate_index_fixture.rb
 # Delete this file once relaton-data-iho round 2 republishes and the
 # fixture is refreshed from the live index.
-require "yaml"
-require "zip"
-require "fileutils"
+# spec_helper requires every file in support/ eagerly, so guard the body
+# and invoke directly when needed:
+#   cd spec/iho && bundle exec ruby support/migrate_index_fixture.rb
+if $PROGRAM_NAME == __FILE__
+  require "yaml"
+  require "zip"
+  require "fileutils"
 
-ZIP = File.expand_path("../fixtures/index-v3.zip", __dir__)
+  ZIP = File.expand_path("../fixtures/index-v3.zip", __dir__)
 
 yaml = Zip::File.open(ZIP) { |z| z.first.get_input_stream.read }
 rows = YAML.unsafe_load(yaml)
@@ -44,9 +48,10 @@ migrated = rows.map do |row|
   row.merge(id: out)
 end
 
-Zip::OutputStream.open(ZIP + ".tmp") do |zio|
-  zio.put_next_entry("index-v3.yaml")
-  zio.write(YAML.dump(migrated))
+  Zip::OutputStream.open(ZIP + ".tmp") do |zio|
+    zio.put_next_entry("index-v3.yaml")
+    zio.write(YAML.dump(migrated))
+  end
+  FileUtils.mv(ZIP + ".tmp", ZIP)
+  puts "migrated #{migrated.size} rows (#{remapped} keys remapped) -> #{ZIP}"
 end
-FileUtils.mv(ZIP + ".tmp", ZIP)
-puts "migrated #{migrated.size} rows (#{remapped} keys remapped) -> #{ZIP}"
