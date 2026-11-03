@@ -12,7 +12,7 @@ describe Relaton::Bib::Converter::BibXml, "strict RFC XML v3 mode" do
     subject { v3_xml(item) }
 
     it "matches the expected RFC XML v3 reference" do
-      expect(subject).to be_equivalent_to File.read("fixtures/rfc_v3.xml", encoding: "UTF-8")
+      expect(subject).to be_xml_equivalent_to File.read("fixtures/rfc_v3.xml", encoding: "UTF-8")
     end
 
     it "renders authoritative identifiers as seriesInfo, not refcontent" do
@@ -35,7 +35,7 @@ describe Relaton::Bib::Converter::BibXml, "strict RFC XML v3 mode" do
     subject { v3_xml(item) }
 
     it "matches the expected RFC XML v3 reference" do
-      expect(subject).to be_equivalent_to File.read("fixtures/iso_v3.xml", encoding: "UTF-8")
+      expect(subject).to be_xml_equivalent_to File.read("fixtures/iso_v3.xml", encoding: "UTF-8")
     end
 
     it "renders authoritative identifiers as refcontent, not seriesInfo" do
@@ -635,7 +635,7 @@ describe Relaton::Bib::Converter::BibXml, "strict RFC XML v3 mode" do
     end
 
     it "round-trips to an equivalent reference" do
-      expect(subject).to be_equivalent_to input
+      expect(subject).to be_xml_equivalent_to input
     end
   end
 end

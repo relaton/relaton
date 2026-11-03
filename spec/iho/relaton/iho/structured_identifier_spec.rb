@@ -94,7 +94,7 @@ describe Relaton::Iho::StructuredIdentifier do
     end
 
     it "round-trips and validates against the IHO RNG" do
-      expect(Relaton::Iho::Bibdata.to_xml(bib)).to be_equivalent_to input_xml
+      expect(Relaton::Iho::Bibdata.to_xml(bib)).to be_xml_equivalent_to input_xml
       schema = Relaxng.new("../../grammar/relaton-iho-compile.rng")
       expect(schema.validate(file)).to eq []
     end

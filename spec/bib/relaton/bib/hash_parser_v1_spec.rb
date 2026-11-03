@@ -12,7 +12,7 @@ describe Relaton::Bib::HashParserV1 do
     xml_file = "fixtures/from_old_yaml.xml"
     File.write xml_file, xml, encoding: "UTF-8" unless File.exist? xml_file
     expected_xml = File.read(xml_file, encoding: "UTF-8")
-    expect(xml).to be_equivalent_to expected_xml
+    expect(xml).to be_xml_equivalent_to expected_xml
   end
 
   it "parses hash to bib item" do

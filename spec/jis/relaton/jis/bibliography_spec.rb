@@ -27,7 +27,7 @@ describe Relaton::Jis::Bibliography do
       bib = described_class.get "JIS X 0208"
       xml = bib.to_xml bibdata: true
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
-      expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+      expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
       # TODO: re-enable schema validation once upstream subdivision serialization is fixed
       # schema = Relaxng.new "../../grammar/relaton-jis-compile.rng"
@@ -87,7 +87,7 @@ describe Relaton::Jis::Bibliography do
         bib = described_class.get "JIS B 0060 (all parts)"
         xml = bib.to_xml bibdata: true
         File.write file, xml, encoding: "UTF-8" unless File.exist? file
-        expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+        expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
           .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
       end
 

@@ -21,7 +21,7 @@ Lutaml::Model::Config.configure do |config|
   config.xml_adapter_type = :nokogiri
 end
 require "rspec/matchers"
-require "equivalent-xml"
+require "canon/rspec_matchers"
 require_relative "relaxng_validator" # RelaxNG on leptris (was the Java Jing gem)
 require "net/http" # used by some fetcher specs (e.g. gb)
 require "yaml"

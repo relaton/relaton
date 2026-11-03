@@ -33,7 +33,7 @@ RSpec.describe Relaton::Itu do
       file = "fixtures/itu_t_h_264.xml"
       result = Relaton::Itu::Bibliography.get("ITU-T H.264 (08/2021)").to_xml
       File.write file, result, encoding: "UTF-8" unless File.exist? file
-      expect(result).to be_equivalent_to File.read(file, encoding: "UTF-8")
+      expect(result).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
     end
   end
@@ -125,7 +125,7 @@ RSpec.describe Relaton::Itu do
       xml = result.to_xml
       file = "fixtures/itu_g_imp_712.xml"
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
-      expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+      expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
         .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
     end
   end
@@ -176,7 +176,7 @@ RSpec.describe Relaton::Itu do
       file_path = "fixtures/hit.xml"
       xml = hits.first.item.to_xml bibdata: true
       File.write file_path, xml unless File.exist? file_path
-      expect(xml).to be_equivalent_to File.read(file_path).sub(
+      expect(xml).to be_xml_equivalent_to File.read(file_path).sub(
         /(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s
       )
       # TODO: uncomment when grammars are updated for the new model
@@ -194,7 +194,7 @@ RSpec.describe Relaton::Itu do
         xml = bib.to_xml(bibdata: true)
           .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
         File.write file, xml, encoding: "UTF-8" unless File.exist? file
-        expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+        expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
           .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
       end
     end

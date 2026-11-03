@@ -40,7 +40,7 @@ RSpec.describe Relaton::Iho do
         result = Relaton::Iho::Bibliography.get "IHO B-11"
         xml = result.to_xml bibdata: true
         File.write file, xml, encoding: "UTF-8" unless File.exist? file
-        expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+        expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
           .sub(/(?<=<fetched>).*(?=<\/fetched>)/, Date.today.to_s)
         schema = Relaxng.new "../../grammar/relaton-iho-compile.rng"
         errors = schema.validate file
@@ -267,7 +267,7 @@ RSpec.describe Relaton::Iho do
       xml = item.to_xml bibdata: true
       file = "fixtures/iho.xml"
       File.write file, xml, encoding: "UTF-8" unless File.exist? file
-      expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+      expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
     end
   end
 

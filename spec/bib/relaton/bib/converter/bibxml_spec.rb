@@ -3,28 +3,28 @@ describe Relaton::Bib::Converter::BibXml do
     let(:input) { File.read "fixtures/rfc.xml", encoding: "utf-8" }
     let(:item) { described_class.to_item(input) }
     subject { described_class.from_item(item).to_xml }
-    it { is_expected.to be_equivalent_to input }
+    it { is_expected.to be_xml_equivalent_to input }
   end
 
   context "Referencegroup XML roundtrip" do
     let(:input) { File.read "fixtures/bcp.xml", encoding: "utf-8" }
     let(:item) { described_class.to_item(input) }
     subject { described_class.from_item(item).to_xml }
-    it { is_expected.to be_equivalent_to input }
+    it { is_expected.to be_xml_equivalent_to input }
   end
 
   context "YAML to Reference XML" do
     let(:item) { Relaton::Bib::Item.from_yaml File.read("fixtures/rfc.yml") }
     let(:file) { "fixtures/rfc.xml" }
     subject { described_class.from_item(item).to_xml }
-    it { is_expected.to be_equivalent_to File.read(file, encoding: "UTF-8") }
+    it { is_expected.to be_xml_equivalent_to File.read(file, encoding: "UTF-8") }
   end
 
   context "YAML to Referencegroup XML" do
     let(:item) { Relaton::Bib::Item.from_yaml File.read("fixtures/bcp.yml") }
     let(:file) { "fixtures/bcp.xml" }
     subject { described_class.from_item(item).to_xml }
-    it { is_expected.to be_equivalent_to File.read(file, encoding: "UTF-8") }
+    it { is_expected.to be_xml_equivalent_to File.read(file, encoding: "UTF-8") }
   end
 
   context "IEEE BibXML" do
@@ -707,7 +707,7 @@ describe Relaton::Bib::Converter::BibXml do
     let(:expected) { File.read("fixtures/rfc.xml", encoding: "UTF-8") }
 
     it "uses the converter" do
-      expect(item.to_rfcxml).to be_equivalent_to expected
+      expect(item.to_rfcxml).to be_xml_equivalent_to expected
     end
   end
 end

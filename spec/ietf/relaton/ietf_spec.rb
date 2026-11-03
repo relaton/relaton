@@ -26,7 +26,7 @@ RSpec.describe Relaton::Ietf do
       file = "fixtures/bib_item.xml"
       xml = item.to_xml(bibdata: true)
       File.write file, xml, encoding: "utf-8" unless File.exist? file
-      expect(xml).to be_equivalent_to File.read(file, encoding: "utf-8")
+      expect(xml).to be_xml_equivalent_to File.read(file, encoding: "utf-8")
         .sub(%r{(?<=<fetched>)\d{4}-\d{2}-\d{2}}, Date.today.to_s)
       schema = Relaxng.new "../../grammar/relaton-ietf-compile.rng"
       errors = schema.validate file
@@ -40,7 +40,7 @@ RSpec.describe Relaton::Ietf do
     file = "fixtures/i_d_bib_item.xml"
     xml = item.to_xml(bibdata: true)
     File.write file, xml unless File.exist? file
-    expect(xml).to be_equivalent_to File.read(file)
+    expect(xml).to be_xml_equivalent_to File.read(file)
       .sub(%r{(?<=<fetched>)\d{4}-\d{2}-\d{2}}, Date.today.to_s)
     schema = Relaxng.new "../../grammar/relaton-ietf-compile.rng"
     errors = schema.validate file
@@ -83,7 +83,7 @@ RSpec.describe Relaton::Ietf do
     file = "fixtures/bcp_47.xml"
     xml = item.to_xml(bibdata: true)
     File.write file, xml unless File.exist? file
-    expect(xml).to be_equivalent_to File.read(file)
+    expect(xml).to be_xml_equivalent_to File.read(file)
       .sub(%r{(?<=<fetched>)\d{4}-\d{2}-\d{2}}, Date.today.to_s)
     schema = Relaxng.new "../../grammar/relaton-ietf-compile.rng"
     errors = schema.validate file
@@ -120,14 +120,14 @@ RSpec.describe Relaton::Ietf do
       xml = File.read "fixtures/bib_item.xml"
       item = Relaton::Ietf::Item.from_xml xml
       expect(item).to be_instance_of Relaton::Ietf::ItemData
-      expect(item.to_xml(bibdata: true)).to be_equivalent_to xml
+      expect(item.to_xml(bibdata: true)).to be_xml_equivalent_to xml
     end
 
     it "BCP" do
       xml = File.read "fixtures/bcp_47.xml"
       item = Relaton::Ietf::Item.from_xml xml
       expect(item).to be_instance_of Relaton::Ietf::ItemData
-      expect(item.to_xml(bibdata: true)).to be_equivalent_to xml
+      expect(item.to_xml(bibdata: true)).to be_xml_equivalent_to xml
     end
 
     # it "warn if XML doesn't have bibitem or bibdata element" do

@@ -71,7 +71,7 @@ describe Relaton::Bib::Converter::Bibtex do
     file = "fixtures/from_bibtex.xml"
     xml = items["mrx05"].to_xml
     File.write(file, xml, encoding: "utf-8") unless File.exist? file
-    expect(xml).to be_equivalent_to File.read(file, encoding: "utf-8")
+    expect(xml).to be_xml_equivalent_to File.read(file, encoding: "utf-8")
   end
 
   context "parse title" do

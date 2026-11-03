@@ -29,7 +29,7 @@ RSpec.describe Relaton::Omg::Bibliography do
       file = "fixtures/omg_ami4ccm_1_0.xml"
       xml = item.to_xml
       File.write file, xml, encoding: "utf-8" unless File.exist? file
-      expect(xml).to be_equivalent_to File.read(file, encoding: "utf-8").sub(
+      expect(xml).to be_xml_equivalent_to File.read(file, encoding: "utf-8").sub(
         %r{(?<=<fetched>)\d{4}-\d{2}-\d{2}}, Date.today.to_s
       )
       schema = Relaxng.new "../../grammar/relaton-omg-compile.rng"
@@ -48,7 +48,7 @@ RSpec.describe Relaton::Omg::Bibliography do
       file = "fixtures/omg_ami4ccm_last.xml"
       xml = item.to_xml
       File.write file, xml, encoding: "utf-8" unless File.exist? file
-      expect(xml).to be_equivalent_to File.read(file, encoding: "utf-8").sub(
+      expect(xml).to be_xml_equivalent_to File.read(file, encoding: "utf-8").sub(
         %r{(?<=<fetched>)\d{4}-\d{2}-\d{2}}, Date.today.to_s
       )
       schema = Relaxng.new "../../grammar/relaton-omg-compile.rng"
@@ -127,7 +127,7 @@ RSpec.describe Relaton::Omg::Bibliography do
   it "creates from YAML" do
     yaml = File.read "fixtures/omg_ami4ccm_1_0.yaml", encoding: "UTF-8"
     item = Relaton::Omg::Item.from_yaml yaml
-    expect(item.to_xml).to be_equivalent_to File.read(
+    expect(item.to_xml).to be_xml_equivalent_to File.read(
       "fixtures/omg_ami4ccm_1_0.xml", encoding: "UTF-8",
     )
   end

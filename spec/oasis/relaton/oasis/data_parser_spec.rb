@@ -25,7 +25,7 @@ describe Relaton::Oasis::DataParser do # rubocop:disable Metrics/BlockLength
     file = "fixtures/oasis_bibdata.xml"
     File.write file, xml, encoding: "UTF-8" unless File.exist? file
     expect(bib).to be_a Relaton::Oasis::ItemData
-    expect(xml).to be_equivalent_to File.read(file, encoding: "UTF-8")
+    expect(xml).to be_xml_equivalent_to File.read(file, encoding: "UTF-8")
       .gsub(
         /(?<=<fetched>)\d{4}-\d{2}-\d{2}(?=<\/fetched>)/,
         Date.today.to_s,
