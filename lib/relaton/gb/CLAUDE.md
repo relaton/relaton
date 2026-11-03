@@ -44,4 +44,4 @@ GB parses identifiers with `Pubid::Gb::Identifier`. It publishes no index, so it
 
 ## Testing
 
-RSpec with WebMock + VCR (cassettes in `spec/vcr_cassettes/`). Network is blocked via WebMock. SimpleCov and equivalent-xml are loaded via `spec/support/`. No index fixture — GB is scraped, not indexed; `spec/fixtures/` holds XML/YAML round-trip data.
+RSpec with WebMock + VCR (cassettes in `spec/vcr_cassettes/`). Network is blocked via WebMock. SimpleCov and canon are loaded via `spec/support/`. No index fixture — GB is scraped, not indexed; `spec/fixtures/` holds XML/YAML round-trip data.

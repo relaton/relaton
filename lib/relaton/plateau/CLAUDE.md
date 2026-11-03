@@ -114,7 +114,7 @@ RNG grammar files in `grammars/` define the XML schema. Tests validate fixtures 
 - **Index fixture:** `spec/fixtures/index-v2.zip` (pubid-backed, `_type: pubid:plateau:*` rows) is pre-loaded into the `Relaton::Index` pool in `before(:suite)` via a `Relaton::Index::Type` built with `::Pubid::Plateau::Identifier` (configured in `spec/support/webmock.rb`, mirroring NIST/CIE). Run `rake spec:update_index` to refresh from relaton-data-plateau.
 - RSpec with `expect` syntax (no monkey-patching)
 - VCR cassettes record HTTP interactions (in `spec/fixtures/vcr_cassettes/`)
-- `equivalent-xml` for XML comparison assertions
+- `canon` for XML comparison assertions
 - `jing` matcher for RNG schema validation
 - SimpleCov for code coverage
 

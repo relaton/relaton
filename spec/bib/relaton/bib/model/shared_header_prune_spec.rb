@@ -4,7 +4,7 @@
 # fork-less delete erased Bibdata's :id from Bibitem (and Bibitem's :ext
 # from Bibdata), so every from_xml raised "Attribute ... not found".
 require "relaton/bib"
-require "equivalent-xml/rspec_matchers"
+require "canon/rspec_matchers"
 
 RSpec.describe "Relaton::Bib shared-header attribute prunes" do
   it "keeps the pruned attribute on sibling classes" do
