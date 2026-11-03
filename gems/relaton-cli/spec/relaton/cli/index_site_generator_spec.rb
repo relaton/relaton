@@ -442,14 +442,14 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
         Pubid::Iho::Identifier.parse(ref).to_hash
       end
 
-      it "takes the committed id, so the row keeps its version" do
+      it "takes the committed id, so the row keeps its edition" do
         committed = iho_hash("IHO B-12 3.0.0")
         with_iho([{ id: committed, file: "data/b-12_3-0-0.yaml" }]) do
           expect(all_machine_records).not_to be_empty
           expect(all_machine_records.map { |r| r["id"] }).to all(eq(committed))
           rows = YAML.safe_load(File.read(File.join(@out, "index-v3.yaml")),
                                 permitted_classes: [Symbol])
-          expect(rows.map { |r| r[:id]["version"] }).to all(eq("3.0.0"))
+          expect(rows.map { |r| r[:id]["edition"] }).to all(eq("3.0.0"))
         end
       end
 
@@ -466,19 +466,21 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
         end
       end
 
-      # relaton#407: a series record (P-5, the Yearbook) is identified by its
-      # year, not an edition. Where the printed docid a crawler reads spells
-      # only `P-5`, the committed row is what carries the year, so `year` is
-      # a refinable key like `version` — the row keeps it and a consumer
-      # query resolves the year-bearing record.
-      it "takes the committed year of a series record" do
+      # relaton#407, reshaped by relaton#440: a series record (P-5, the
+      # Yearbook) is identified by its volume — the yearbook year IS a
+      # volume (`P-5 Vol. 2020`; the bare-year spelling parses as a legacy
+      # alias). Where the printed docid a crawler reads spells only `P-5`,
+      # the committed row is what carries the volume, so `volume` is a
+      # refinable key like `edition` — the row keeps it and a consumer
+      # query resolves the volume-bearing record.
+      it "takes the committed volume of a series record" do
         committed = iho_hash("IHO P-5 2024")
         with_iho([{ id: committed, file: "data/p-5_2024.yaml" }],
                  docid: "P-5", file: "data/p-5_2024.yaml", edition: nil) do
           expect(all_machine_records.map { |r| r["id"] }).to all(eq(committed))
           rows = YAML.safe_load(File.read(File.join(@out, "index-v3.yaml")),
                                 permitted_classes: [Symbol])
-          expect(rows.map { |r| r[:id]["year"] }).to all(eq("2024"))
+          expect(rows.map { |r| r[:id]["volume"] }).to all(eq("2024"))
         end
       end
     end

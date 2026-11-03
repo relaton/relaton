@@ -96,31 +96,37 @@ module Relaton
           )
         end
 
-        # The sort key for the latest record in a bucket (relaton#407). Each
-        # IHO identity carries exactly one trailing discriminator — a dotted
-        # `version` (an edition, `B-12 3.0.0`), a series `year` (`P-5 2024`)
-        # or a series `volume` with its `issue` (`P-1 Vol. 30 (2)`) — and the
-        # key orders by that component, numerically: version segments compare
-        # as integers (2.10.0 is later than 2.9.0), as do year, volume and
-        # issue. A row with no discriminator at all is the oldest. Rows in
-        # one bucket share the discriminator kind once the data is keyed;
-        # while kinds coexist the array compare is deterministic, and a
-        # year's bare [2024] beats a placeholder edition's [1, 0, 0].
+        # The sort key for the latest record in a bucket (relaton#407,
+        # reshaped by relaton#440's component model). Volume-locator series
+        # (P-1, P-5) carry a `volume` with an optional `issue` — the
+        # yearbook year IS a volume (`P-5 Vol. 2020`; the bare-year faces
+        # of the #48 re-key parse as legacy aliases), so the year locators
+        # fold into the volume ordering. Edition-keyed products carry a
+        # dotted `edition` (`B-12 3.0.0`), and a component published
+        # separately carries its own edition (`S-66 Suppl 1 2.0.0` →
+        # `supplement_edition`). Every component compares numerically
+        # segment by segment (2.10.0 after 2.9.0); a row with no
+        # discriminator at all is the oldest.
         def recency_key(id)
-          if id.year
-            [id.year.to_i]
-          elsif id.volume
+          if id.volume
             [id.volume.to_i, id.issue.to_i]
           else
-            id.version.to_s.split(".").map(&:to_i)
+            ed = id.edition || id.supplement_edition || id.part_edition ||
+              id.annex_edition || id.appendix_edition || id.volume_edition
+            ed.to_s.split(".").map(&:to_i)
           end
         end
 
-        # The components that make an IHO document the one it is beyond the
-        # series and subdivisions: the edition (`version`), or — for the
-        # series identified by year or volume instead (B-7, P-1, P-5, P-6;
-        # relaton#407) — the `year` or the `volume`/`issue` pair.
-        DISCRIMINATOR_KEYS = %i[version year volume issue].freeze
+        # The identity components beyond the series and subdivisions
+        # (relaton#440): the base `edition` — or the component-level
+        # edition when the component publishes separately — plus the
+        # volume/issue pair. The publication years (`year`, `*_year`) are
+        # metadata, not identity: a stated year pins the record, an
+        # omitted one wildcards it.
+        DISCRIMINATOR_KEYS = %i[
+          edition volume issue
+          supplement_edition part_edition annex_edition appendix_edition volume_edition
+        ].freeze
 
         # Both `row_id` and `query` are Pubid::Iho::Identifiers::* instances.
         # Class identity pins the series (S/P/M/B/C). Subdivision keys
@@ -132,21 +138,29 @@ module Relaton
         # so `IHO S-100` would answer with a part row.
         #
         # The discriminator keys stay nil-tolerant: an unqualified `IHO B-11`
-        # finds the latest edition, an unqualified `IHO P-5` the latest year,
-        # and `IHO P-1 Vol. 30` any issue of that volume — while a stated
-        # component must match exactly. The comparison runs through pubid's
-        # `#exclude` (the primitive `matches?` is built on), so the rules the
-        # flavor declares there ride along: excluding `:volume` nils the
-        # `issue` with it. `stem_keys` in the BIPM flavor is the same shape.
+        # finds the latest edition, an unqualified `IHO P-5` the latest
+        # volume (the yearbook year — relaton#440 folded the year
+        # locators in), and `IHO P-1 Vol. 30` any issue of that volume —
+        # while a stated component must match exactly. The comparison runs
+        # through pubid's `#exclude` (the primitive `matches?` is built
+        # on), so the rules the flavor declares there ride along: excluding
+        # `:volume` nils the `issue` with it, and excluding an appendix
+        # nils its subnumber — the scalar clusters are one unit. `stem_keys`
+        # in the BIPM flavor is the same shape.
         def pubid_match?(row_id, query)
           row_id.class == query.class &&
             row_id.exclude(*wildcards(query)) == query.exclude(*wildcards(query))
         end
 
         # The discriminators the query leaves unset: wildcards for the
-        # search, significant whenever the query states one.
+        # search, significant whenever the query states one — plus the
+        # publication years, which are stated-metadata: pinned when the
+        # query carries them, wildcarded when it does not.
         def wildcards(query)
-          DISCRIMINATOR_KEYS.select { |key| query.public_send(key).nil? }
+          keys = DISCRIMINATOR_KEYS + %i[
+            year supplement_year part_year annex_year appendix_year volume_year
+          ]
+          keys.select { |key| query.public_send(key).nil? }
         end
       end
     end
