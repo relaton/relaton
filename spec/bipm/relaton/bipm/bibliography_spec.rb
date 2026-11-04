@@ -123,6 +123,15 @@ RSpec.describe Relaton::Bipm::Bibliography do
             .gsub(/(?<=<fetched>)\d{4}-\d{2}-\d{2}/, Date.today.to_s)
         end
 
+        # The em-dash meeting form the metanorma-bipm fetch queue cites
+        # verbatim (pubid#657); pubid#658 parses it in and it must resolve to
+        # the same record as the plain word-order form above.
+        it "CGPM meeting em-dash form", vcr: "cgpm_meeting_1" do
+          result = Relaton::Bipm::Bibliography.get "CGPM -- Meeting 1 (1889)"
+          expect(result.docidentifier.first.content)
+            .to eq "CGPM 1st Meeting (1889)"
+        end
+
         xit "CGPM resolution", vcr: "cgpm_resolution_1889_00" do
           file = "fixtures/cgpm_resolution_1889_00.xml"
           result = Relaton::Bipm::Bibliography.get "CGPM Resolution (1889)"
@@ -367,10 +376,16 @@ RSpec.describe Relaton::Bipm::Bibliography do
     context "resolves every reference to the same record as the Id grammar did" do
       baseline = {
         "CCDS Recommendation 2 (2009)" => ["data/cctf/meeting/recommendation/2009-02.yaml"],
+        # The metanorma-bipm fetch-queue spellings pubid#657/#658 parse in
+        # (its suite fetches these forms verbatim); each must resolve to the
+        # same record as the canonical spelling of the same document below.
+        "BIPM DECN CIPM/101-1 (2012, EN)" => ["data/cipm/meeting/decision/2012-101-1.yaml"],
+        "BIPM DECN CIPM/101-1 (2012, FR)" => ["data/cipm/meeting/decision/2012-101-1.yaml"],
         "CCTF Meeting 14 (1999)" => ["data/cctf/meeting/14.yaml"],
         "CCTF REC 2 (2009, EN)" => ["data/cctf/meeting/recommendation/2009-02.yaml"],
         "CCTF Recommendation 2 (2009)" => ["data/cctf/meeting/recommendation/2009-02.yaml"],
         "CCTF Recommendation 2009-02" => ["data/cctf/meeting/recommendation/2009-02.yaml"],
+        "CGPM -- Meeting 1 (1889)" => ["data/cgpm/meeting/1.yaml"],
         "CGPM Meeting 1 (1889)" => ["data/cgpm/meeting/1.yaml"],
         "CGPM RES 1 (1889)" => [],
         "CGPM Resolution (1889)" => [],
