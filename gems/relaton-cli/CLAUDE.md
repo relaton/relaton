@@ -504,7 +504,7 @@ something to bolt onto the shard loader.
 - `spec/acceptance/` — End-to-end CLI integration tests using `rspec-command`
 - `spec/relaton/cli/` — Unit tests for command, converters, subcommands, DB
 - `spec/relaton/` — Unit tests for Bibcollection and Bibdata
-- `spec/support/` — Test setup: SimpleCov, WebMock, VCR, equivalent-xml matchers
+- `spec/support/` — Test setup: SimpleCov, WebMock, VCR, canon matchers
 - `spec/fixtures/` and `spec/vcr_cassettes/` — Test data and recorded HTTP responses
 
 Tests use VCR cassettes to replay HTTP interactions with standards registries. WebMock blocks real HTTP requests in tests.

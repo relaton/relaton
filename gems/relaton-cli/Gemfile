@@ -18,14 +18,14 @@ gem "pubid", "~> 2.0.5"
 # add openssl as an explicit gem to fix SSL verification issues in GHA.
 # gem "openssl"
 
-# `canon` comes in through `lutaml-model`. Keep it below 0.3.52, as the root
-# Gemfile does: from that version it installs `yeptris`, which replaces
-# `Object#to_yaml` and raises `NameError` on Windows. See the root Gemfile.
-gem "canon", "< 0.3.52"
+# canon rides the 0.3 line: on the current line (canon 0.3.122 /
+# leptris 1.9.401 / yeptris 0.6.56.1) requiring canon no longer loads
+# yeptris, `Object#to_yaml` stays owned by Object, and the `---` header
+# round-trips — the "< 0.3.52" cap's premise is gone (verified 2026-11-03).
+gem "canon", "~> 0.3"
 
 gem "byebug", "~> 11.0"
 gem "debug"
-gem "equivalent-xml", "~> 0.6"
 gem "fiddle"
 gem "pry"
 gem "rake"
@@ -37,8 +37,8 @@ gem "moxml", ">= 0.5.113" # lutaml/moxml#336: the formattedref add_child TypeErr
 gem "simplecov"
 gem "vcr"
 gem "webmock"
-# leptris 1.9.386.0: the floor moxml's adapter names (older bindings load
-# unusable and every XML path silently falls back to nokogiri), pinned to
-# match the relaton root bundle — the battery re-run accompanies this bump.
-gem "leptris", "1.9.391.0"
+# leptris rides the canon 0.3 line (~> 1.9.401): its yeptris companion no
+# longer replaces Object#to_yaml on require, and the 1.9.386+ floor keeps
+# moxml's adapter names loadable (older bindings fall back to nokogiri).
+gem "leptris", "~> 1.9.401"
 
