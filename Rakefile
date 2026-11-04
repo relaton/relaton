@@ -17,6 +17,9 @@ FLAVOR_SPECS = Dir["spec/*/"]
   .select { |d| !Dir.glob("#{d}**/*_spec.rb").empty? }
   .map { |d| File.basename(d) }
   .reject { |name| CORPUS_SPECS.include?(name) }
+  # spec/cli and spec/render ship their own spec_helpers and run through
+  # spec:cli / spec:render after the parallel flavor run, not through it.
+  .reject { |name| %w[cli render].include?(name) }
   .sort.freeze
 
 # Single-flavor runs stream live output (already scannable when debugging one).
