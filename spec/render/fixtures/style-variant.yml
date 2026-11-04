@@ -1,0 +1,18 @@
+# A style instance variant, exercising scheme-level localized strings
+# (per-style overrides of the language pack).
+name: variant
+scheme:
+  system: name-date
+  nameForm:
+    initials: true
+    givenNameFirst: false
+  locale:
+    and: "ainsi que"
+    noDate: "sans date"
+templates:
+  citation: "{{surname}}, {{date}}{{disambiguator}}"
+  reference: "{{creator}}. {{title}}. {{date}}."
+  name: "{{surname}} {{givenNames}}"
+perType:
+  - type: book
+    template: "{{creator}}. {{title}}. {{date}}."

@@ -1,0 +1,7 @@
+name: "probe"
+scheme:
+  system: name-date
+templates:
+  citation: "{{surname}}, {{date}}"
+  reference: "{{creator}}. {{title}}. {{date}}."
+  name: "{{surname}}, {{givenNames}}"
