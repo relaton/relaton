@@ -1,0 +1,28 @@
+{
+  "csl_version": "1.0.2",
+  "info": {
+    "title": "Imported Author-Date Sample",
+    "id": "http://example.org/styles/imported-author-date",
+    "author": [{ "name": "Sample Style Author" }]
+  },
+  "citation": {
+    "elements": [
+      { "text": { "variable": "author" } },
+      { "text": { "variable": "issued" } },
+      { "text": { "variable": "title" } }
+    ],
+    "initialize-with": ". ",
+    "name-as-sort-order": "all",
+    "delimiter": ", "
+  },
+  "bibliography": {
+    "elements": [
+      { "text": { "variable": "author" } },
+      { "text": { "variable": "title" } },
+      { "text": { "variable": "publisher" } },
+      { "text": { "variable": "issued" } },
+      { "text": { "variable": "DOI" } }
+    ],
+    "delimiter": ". "
+  }
+}

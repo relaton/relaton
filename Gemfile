@@ -111,6 +111,8 @@ group :development, :test do
   # yeptris, `Object#to_yaml` stays owned by Object, and the `---`
   # header round-trips. Verified 2026-11-03.
   gem "canon", "~> 0.3.122"
+  # The relaton-render corpus specs exercise the shared ISO 690 test suite.
+  gem "iso-690-test-suite", github: "relaton/iso-690-test-suite"
   gem "pry"            # bin/console
   gem "rspec"
   gem "rspec-command"  # relaton-cli acceptance specs

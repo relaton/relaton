@@ -150,27 +150,41 @@ namespace :spec do
     abort "spec:corpus failed" unless run_flavor_spec("corpus")
   end
 
-  # relaton-cli is the one separate gem (own Gemfile/lock, gem "relaton",
-  # path: "../.."), so run its suite in its OWN bundle — with_unbundled_env +
-  # cd, the same shape as build_all. bundle check || install first so it works
-  # on a fresh checkout; sh aborts on non-zero so a red cli suite fails the task.
-  desc "Run the relaton-cli gem's spec suite (its own bundle)"
+  # The relaton-cli and relaton-render suites moved into spec/cli and
+  # spec/render and ride the root bundle: both codebases ship inside the
+  # relaton gem (lib/relaton/cli, lib/relaton/render).
+  desc "Run the relaton CLI spec suite"
   task :cli do
-    Bundler.with_unbundled_env do
-      Dir.chdir("gems/relaton-cli") do
-        sh "bundle check || bundle install"
-        sh "bundle exec rake spec"
-      end
+    # Own spec_helper: the root .rspec pulls the flavor suites' helper,
+    # which the CLI suite does not use.
+    sh "bundle exec rspec --require ./spec/cli/spec_helper spec/cli"
+  end
+
+  desc "Run the relaton-render spec suite"
+  task :render do
+    sh "bundle exec rspec --require ./spec/render/spec_helper spec/render"
+  end
+
+  # Rebuild the relaton CLI's frontend bundle (Vite -> dist). The dist is
+  # committed so the gem build needs no Node; refresh it whenever
+  # lib/relaton/cli/frontend/src changes and commit the result.
+  front_dir = File.expand_path("lib/relaton/cli/frontend", __dir__)
+  desc "Build the relaton CLI frontend bundle into lib/relaton/cli/frontend/dist"
+  task :build_frontend do
+    Dir.chdir(front_dir) do
+      sh "npm ci"
+      sh "npm run build"
     end
   end
 
   # Everything: the parallel flavor run, then relaton-cli. Rake::Task[...] looks
   # up by full name from root, so "spec" is the top-level flavor task (not
   # spec:spec). Fails fast — the flavor task aborts on red before cli runs.
-  desc "Run every flavor suite (parallel) then the relaton-cli suite"
+  desc "Run every flavor suite (parallel) then the cli and render suites"
   task :all do
     Rake::Task["spec"].invoke
     Rake::Task["spec:cli"].invoke
+    Rake::Task["spec:render"].invoke
   end
 end
 
@@ -206,16 +220,9 @@ task :spec do
   abort unless results.all?(&:passed)
 end
 
-desc "Build the combined relaton gem + relaton-cli"
+desc "Build the relaton gem (ships lib/relaton/cli and its committed frontend dist)"
 task :build_all do
-  Rake::Task["build"].invoke # relaton (root gemspec)
-  Bundler.with_unbundled_env do
-    Dir.chdir("gems/relaton-cli") do
-      # Compile the frontend into frontend/dist so the gemspec can ship it.
-      sh "bundle exec rake build_frontend"
-      sh "gem build *.gemspec"
-    end
-  end
+  Rake::Task["build"].invoke
 end
 
 task default: :spec

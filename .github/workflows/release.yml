@@ -47,9 +47,62 @@ jobs:
     secrets:
       rubygems-api-key: ${{ secrets.RELATON_CI_RUBYGEMS_API_KEY }}
 
-  # Publishes relaton-cli at the version `release` just bumped to (or at the
-  # current version with next_version=skip). Needs Node: the gem ships the
-  # compiled frontend bundle (see gems/relaton-cli/CLAUDE.md).
+  # Publishes the relaton-cli compatibility shell (version is literal in its
+  # gemspec, independent of Relaton::VERSION; the already-published guard
+  # keeps later cuts from re-pushing it). No Node: the frontend dist ships
+  # inside the relaton gem now, committed under lib/relaton/cli/frontend/dist.
+  # Publishes the relaton-render compatibility shell (same shape as the
+  # relaton-cli shell: literal version, already-published guard).
+  release-render:
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    defaults:
+      run:
+        working-directory: gems/relaton-render
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: false
+
+      - name: Read relaton-render version
+        id: version
+        run: echo "value=$(ruby -e 'puts Gem::Specification.load("relaton-render.gemspec").version')" >> "$GITHUB_OUTPUT"
+
+      - name: Skip if already published
+        id: guard
+        env:
+          VERSION: ${{ steps.version.outputs.value }}
+        run: |
+          if curl -sf https://rubygems.org/api/v1/versions/relaton-render.json |
+            ruby -rjson -e 'exit JSON.parse($stdin.read).any? { |v| v["number"] == ENV["VERSION"] } ? 0 : 1'; then
+            echo "::notice::relaton-render $VERSION is already on rubygems.org; skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build gem
+        if: steps.guard.outputs.skip != 'true'
+        run: gem build relaton-render.gemspec
+
+      - name: Configure RubyGems credentials for Trusted Publishing
+        if: steps.guard.outputs.skip != 'true'
+        uses: rubygems/configure-rubygems-credentials@v2.1.0
+
+      - name: Push gem
+        if: steps.guard.outputs.skip != 'true'
+        run: |
+          gem push relaton-render-${{ steps.version.outputs.value }}.gem
+          gem exec rubygems-await relaton-render-${{ steps.version.outputs.value }}.gem
+        env:
+          rubygems-api-key: ${{ secrets.RELATON_CI_RUBYGEMS_API_KEY }}
+
   release-cli:
     needs: release
     runs-on: ubuntu-latest
@@ -71,10 +124,6 @@ jobs:
           ruby-version: '3.3'
           bundler-cache: false
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
       - name: Read relaton-cli version
         id: version
         run: echo "value=$(ruby -e 'puts Gem::Specification.load("relaton-cli.gemspec").version')" >> "$GITHUB_OUTPUT"
@@ -90,11 +139,9 @@ jobs:
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build frontend and gem
+      - name: Build gem
         if: steps.guard.outputs.skip != 'true'
-        run: |
-          (cd frontend && npm ci && npm run build)
-          gem build relaton-cli.gemspec
+        run: gem build relaton-cli.gemspec
 
       - name: Configure RubyGems credentials for Trusted Publishing
         if: steps.guard.outputs.skip != 'true'

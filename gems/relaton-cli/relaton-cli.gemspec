@@ -1,49 +1,25 @@
-# relaton-cli is released in lockstep with the combined `relaton` gem from this
-# repo. Derive the version (and the relaton dependency pin) from the single
-# source of truth — root lib/relaton/version.rb — so `gem bump` on that one file
-# re-stamps both gems. No separate version to hand-sync.
-root_version_file = File.expand_path("../../lib/relaton/version.rb", __dir__)
-relaton_version = File.read(root_version_file)[/VERSION\s*=\s*["']([^"']+)["']/, 1] or
-  raise "could not parse Relaton::VERSION from #{root_version_file}"
-
+# Compatibility shell for the retired standalone relaton-cli gem: the CLI
+# implementation was consolidated into the relaton gem (lib/relaton/cli),
+# which this release pulls as its single runtime dependency. Version is
+# literal and independent now — it only needs to sort above the last real
+# relaton-cli release (3.0.7) so existing bundles co-resolve cleanly.
 Gem::Specification.new do |spec|
   spec.name          = "relaton-cli"
-  spec.version       = relaton_version
+  spec.version       = "3.1.0"
   spec.authors       = ["Ribose Inc."]
   spec.email         = ["open.source@ribose.com"]
 
-  spec.summary       = "Relaton Command-line Interface"
-  spec.description   = "Relaton Command-line Interface"
+  spec.summary       = "Relaton Command-line Interface (superseded by the relaton gem)"
+  spec.description   = "Compatibility shell: the Relaton CLI now ships inside the relaton gem."
   spec.homepage      = "https://github.com/relaton/relaton"
   spec.license       = "BSD-2-Clause"
 
-  # Ship lib/, exe/, templates/ and the COMPILED frontend, but not the frontend
-  # sources/tooling. `frontend/dist` is gitignored (built by `rake build_frontend`
-  # at package/release time), so `git ls-files` won't list it — append it
-  # explicitly. Reject the tracked `frontend/` sources so they don't bloat the gem.
-  spec.files         = (`git ls-files -z`.split("\x0").reject do |f|
-    f.match(%r{^(test|spec|features|docs|frontend)/})
-  end + Dir.glob("frontend/dist/*")).uniq
-  spec.extra_rdoc_files = %w[docs/README.adoc LICENSE]
-  spec.bindir        = "exe"
-  spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
+  spec.files         = %w[lib/relaton-cli.rb LICENSE CHANGELOG.md]
   spec.require_paths = ["lib"]
-  spec.required_ruby_version = Gem::Requirement.new(">= 3.3.0")
+  spec.required_ruby_version = ">= 3.3.0"
 
-  spec.add_dependency "liquid", "~> 5"
-  # The CLI requires "pubid" directly to rescue Pubid::Errors::Error when a
-  # reference is unparseable (see command.rb / subcommand_collection.rb). It is
-  # already a runtime dep of `relaton`, but declare it here too so the require
-  # is self-supporting rather than dependent on relaton's transitive graph.
-  # Match the relaton gemspec floor (pessimistic, per house style): 2.0.4
-  # carries the IHO series identity components the data re-key keys on.
-  spec.add_dependency "pubid", "~> 2.0.4"
-  # relaton bundles every flavor plus Relaton::Bib, so depending on `relaton`
-  # alone is sufficient — relaton-bib is no longer published standalone.
-  spec.add_dependency "relaton", "= #{relaton_version}"
-  # Plain-text citation rendering (relaton-cli#94); the constraint mirrors
-  # the parent relaton gemspec's.
-  spec.add_dependency "relaton-render", ">= 3.0.0.pre.alpha.1", "< 4"
-  spec.add_dependency "thor"
-  spec.add_dependency "thor-hollaback"
+  # Generous on purpose: the shell must co-resolve with whatever modern
+  # relaton a bundle already carries — a tight floor here would leave the
+  # shell unresolvable until that exact relaton release exists.
+  spec.add_dependency "relaton", ">= 3.0.7", "< 5"
 end

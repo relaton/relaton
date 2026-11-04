@@ -1,0 +1,3 @@
+template:
+  book: "{{ creatornames }} ({{role}}) $$$ {{labels['punct']['open-title']}}{{ title }}{{labels['punct']['close-title']}} [{{medium}}] $$$ {{ edition | capitalize_first }}$$$ ({{ series }}$$$|) {% if place %}{{place}}{%else%}{{ labels['no_place']}}{%endif%}: {{publisher}}$$$ {{date}}$$$ {{ labels['updated'] | capitalize }}:_{{date_updated}}"
+

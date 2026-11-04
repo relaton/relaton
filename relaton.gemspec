@@ -28,6 +28,7 @@ Gem::Specification.new do |spec|
   spec.license       = "BSD-2-Clause"
 
   spec.bindir        = "bin"
+  spec.executables   = ["relaton"]
   spec.require_paths = ["lib"]
   spec.required_ruby_version = ">= 3.3.0"
 
@@ -76,6 +77,12 @@ Gem::Specification.new do |spec|
   # lossless keys, thread and process exclusion, DatabaseStore serialization,
   # CacheStore#each_key (lutaml/lutaml-store#17).
   spec.add_dependency "lutaml-store", "~> 0.3.2"
+  spec.add_dependency "htmlentities"
+  spec.add_dependency "twitter_cldr"
+  spec.add_dependency "liquid", "~> 5"
+  spec.add_dependency "thor"
+  spec.add_dependency "thor-hollaback"
+
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "mini_portile2", "~> 2.8.0"
   spec.add_dependency "niso-jats", "~> 0.3.4"
@@ -112,7 +119,6 @@ Gem::Specification.new do |spec|
   # The boundary parser needs the allow_duplicate_key: opt-out, which
   # 0.6.51.0 carries (yeptris-ruby#339, published 2026-10-30).
   spec.add_dependency "yeptris", "~> 0.6.51"
-  spec.add_dependency "relaton-render", "~> 3.0"
   spec.add_dependency "rfcxml", "~> 0.4.3"
   spec.add_dependency "rubyzip", "~> 3.7"
   # 0.3.3 is the floor, not a preference: it sets an identifying User-Agent
