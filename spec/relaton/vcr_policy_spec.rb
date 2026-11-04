@@ -6,7 +6,7 @@
 # `re_record_interval` that rewrites cassettes on CI.
 RSpec.describe "VCR cassette policy" do
   root = File.expand_path("../..", __dir__)
-  files = Dir[File.join(root, "{spec,gems/relaton-cli/spec}/**/*.rb")] -
+  files = Dir[File.join(root, "spec/**/*.rb")] -
     [File.expand_path(__FILE__)]
   rel = ->(path) { path.delete_prefix("#{root}/") }
 
@@ -18,7 +18,7 @@ RSpec.describe "VCR cassette policy" do
   it "finds every suite's VCR config" do
     expect(configs.size).to be >= 31
     expect(configs.map(&rel)).to include(
-      "spec/relaton/support/umbrella.rb", "gems/relaton-cli/spec/support/vcr.rb"
+      "spec/relaton/support/umbrella.rb", "spec/cli/support/vcr.rb"
     )
   end
 
