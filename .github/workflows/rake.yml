@@ -20,18 +20,15 @@ permissions:
   contents: write
 
 jobs:
-  # Both gems — `relaton` at the repo root and `relaton-cli` under gems/ — run in
-  # ONE matrix via the shared relaton/support monorepo workflow. A single strategy
-  # (2 gems × ruby × os, Windows-first, max-parallel: 6) governs the whole run, so
-  # the scarce Windows runners are not split between two racing jobs: all Windows
-  # jobs sort to the front and start together. `include_root: true` adds the
-  # repo-root gem (working directory "."); its `bundle exec rake` runs the default
-  # `:spec` flavor suite. The workflow sets up Java for Jing/RelaxNG. Each gem
-  # resolves its own bundle (relaton-cli's Gemfile pins `relaton` at `../..`).
+# One gem — `relaton` at the repo root. relaton-cli and relaton-render are
+# compatibility shells (their code lives in the root gem at lib/relaton/cli
+# and lib/relaton/render), so the per-gem matrix under gems/ is gone: the
+# root job's `bundle exec rake` runs the default `:spec` flavor suite, and
+# `rake spec:all` chains the moved spec/cli and spec/render suites. The
+# shells are built and published by release.yml's release-cli /
   rake:
     uses: relaton/support/.github/workflows/rake-monorepo.yml@main
     with:
-      gem_directory: gems
       include_root: true
       root_gem_name: relaton
       skip-java-setup: true # RelaxNG validation is leptris; no Java in the test env
