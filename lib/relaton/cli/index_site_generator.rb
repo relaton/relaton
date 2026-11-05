@@ -288,8 +288,11 @@ module Relaton
             # "#{index}.zip" without knowing the flavor's INDEXFILE.
             "index" => @index_name,
             # What the index actually contains, not what was scanned: rows
-            # whose id could not be resolved at all are dropped.
-            "count" => indexed_rows.size,
+            # whose id could not be resolved at all are dropped, and an
+            # (id, file) pair a primary row already carries is collapsed
+            # (see #monolith_rows) — the count is what a consumer fetching
+            # "#{index}.zip" gets.
+            "count" => monolith_rows.size,
             "shards" => shard_count,
             "key" => key_strategy,
             "algorithm" => "crc32",
@@ -302,6 +305,31 @@ module Relaton
         # describe one document differently.
         def row_record(row)
           { "r" => row.rendered, "file" => row.file, "id" => row.id_hash }
+        end
+
+        # The rows the monolith carries: indexed_rows with redundant
+        # (id, file) pairs collapsed. A derived row whose (id, file) a
+        # primary row already carries is the same document in the same file
+        # under another spelling — the parse's canonical render beside the
+        # docid as written (the IHO faces where the record stores `P-5 2020`
+        # and pubid renders `P-5 Vol. 2020`; the 2026-11-04 relaton-data-iho
+        # deploy published 142 of those pairs, and the monolith consumer's
+        # key table rejected the flavor wholesale). The site keeps such rows
+        # — searching the canonical spelling should find the document — but
+        # the monolith that Relaton::Index consumers read is {id:, file:}
+        # only, so a second copy is a pure duplicate. First in
+        # indexed_rows' (key, rendered) order wins, so the collapse stays
+        # deterministic.
+        def monolith_rows
+          @monolith_rows ||= begin
+            seen = {}
+            indexed_rows.reject do |row|
+              seen_key = [row.id_hash, row.file]
+              dup = seen[seen_key]
+              seen[seen_key] = true
+              dup
+            end
+          end
         end
 
         # The rows actually written, in deterministic (key, rendered) order.
@@ -383,7 +411,7 @@ module Relaton
         def write_monolith(path)
           File.open(path, "w:utf-8") do |f|
             f << "---\n"
-            indexed_rows.each do |row|
+            monolith_rows.each do |row|
               f << "- :id:\n"
               yaml_nested(f, row.id_hash, "    ")
               f << "  :file: #{yaml_scalar(row.file)}\n"

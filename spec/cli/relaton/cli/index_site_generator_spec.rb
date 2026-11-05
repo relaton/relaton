@@ -217,13 +217,14 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
                                  { output: @out, generated: "2026-01-01", flavor: "iso" })
 
         rows = YAML.safe_load_file(File.join(@out, "index-v2.yaml"), permitted_classes: [Symbol])
-        # The printed primary keeps its own row, and the canonical render
-        # ("ISO/IEC DIR 1") is carried as a derived row of its own; the
-        # technical-core docidentifier renders to that same string and adds
-        # no third row.
-        expect(rows.length).to eq(2)
-        expect(rows.map { |r| r[:file] }).to all(eq("data/iso-dir-1.yaml"))
-        expect(rows.map { |r| r[:id]["number"] }).to all(eq("1"))
+        # The monolith carries each (id, file) pair once: the canonical
+        # render and the technical-core docid parse to the same id as the
+        # printed primary, and a hash-matching consumer resolves the file
+        # through either row. The alias spellings stay searchable on the
+        # site's shards — the MachineIndex specs pin that split.
+        expect(rows.length).to eq(1)
+        expect(rows.first[:file]).to eq("data/iso-dir-1.yaml")
+        expect(rows.first[:id]["number"]).to eq("1")
       end
     end
 
@@ -1042,6 +1043,25 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       def self.from_hash(hash) = FakeId.new(hash["number"], nil)
     end
 
+    # The parse's canonical render differs from the docid as written — the
+    # IHO component-model faces, where the record stores the scraped
+    # spelling (`P-5 2020`) and pubid renders the canonical one
+    # (`P-5 Vol. 2020`). Both hash identically, so the canonical alias row
+    # is the same (id, file) pair as the primary.
+    class DriftParser
+      FakeDriftId = Struct.new(:num, :rendered) do
+        def root = FakeRoot.new(num)
+        def to_hash = { "_type" => "fake", "number" => num.to_s }
+        def to_s = "canon #{rendered}"
+      end
+
+      def self.parse(rendered)
+        FakeDriftId.new(rendered[/\d+/], rendered)
+      end
+
+      def self.from_hash(hash) = FakeDriftId.new(hash["number"], nil)
+    end
+
     def build(parser, ids, committed: nil)
       described_class.new(pubid_class: parser, index_name: "index-v2",
                           committed: committed).tap do |mi|
@@ -1134,6 +1154,54 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
         expect(m["count"]).to eq(96)
         expect(m["index"]).to eq("index-v2")
         expect(m["key"]).to eq("root-number")
+      end
+    end
+
+    describe "a parse whose canonical render differs from the stored docid" do
+      # relaton-data-iho, 2026-11-04: every record whose scraped face
+      # (`P-5 2020`) pubid renders canonically (`P-5 Vol. 2020`) published
+      # its (id, file) pair twice — once as the primary row, once as the
+      # canonical-spelling alias — and the monolith consumer's key table
+      # rejected the whole flavor. The site keeps both spellings (each is
+      # a searchable row); the monolith carries the pair once.
+      let(:machine) { stub_const("#{described_class}::MIN_ROWS", 10); build(DriftParser, ["STD 7", "STD 8"]) }
+
+      it "keeps both spellings as site rows" do
+        expect(machine.indexed_rows.map(&:rendered))
+          .to contain_exactly("STD 7", "canon STD 7", "STD 8", "canon STD 8")
+      end
+
+      it "carries each (id, file) pair once in the monolith" do
+        expect(machine.monolith_rows.map(&:rendered)).to contain_exactly("STD 7", "STD 8")
+        Dir.mktmpdir("mono-") do |dir|
+          path = File.join(dir, "index-v3.yaml")
+          machine.write_monolith(path)
+          rows = YAML.safe_load(File.read(path), permitted_classes: [Symbol])
+          expect(rows.size).to eq(2)
+        end
+      end
+
+      it "counts the monolith rows in the manifest" do
+        expect(machine.manifest(generated: "2026-01-01")["count"]).to eq(2)
+      end
+    end
+
+    describe "a derived row that repoints a primary id at another file" do
+      # The relaton-iana case: a record-less registry's id aliases to the
+      # record-bearing document's file. Same id hash, DIFFERENT file — the
+      # alias is the only row that resolves that spelling to that file, so
+      # the monolith keeps it.
+      let(:machine) do
+        stub_const("#{described_class}::MIN_ROWS", 10)
+        described_class.new(pubid_class: DriftParser, index_name: "index-v2").tap do |mi|
+          mi.add("STD 7", "data/primary.yaml")
+          mi.add_alias_rows({ "_type" => "fake", "number" => "7" } => "data/alias.yaml")
+        end
+      end
+
+      it "survives the monolith collapse" do
+        expect(machine.monolith_rows.map(&:file))
+          .to contain_exactly("data/primary.yaml", "data/alias.yaml")
       end
     end
 
