@@ -12,25 +12,28 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
-# The delegated relaton/support rake-monorepo.yml runs with contents: write for
-# its tests-passed / release-readiness dispatch. A reusable workflow can't exceed
-# the caller's token scope, so grant it explicitly (also satisfies CodeQL
+# Least privilege per generic-rake's documented pattern: the cascade is off
+# (this repo's release is manual workflow_dispatch, not do-release), so nothing
+# here dispatches or pushes — contents: read covers it (also satisfies CodeQL
 # actions/missing-workflow-permissions).
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-# One gem — `relaton` at the repo root. The former relaton-cli and
-# relaton-render shells are gone: their code lives in the root gem at
-# lib/relaton/cli and lib/relaton/render (and consumers depend on
-# `relaton` alone). The root job's `bundle exec rake` runs the default
-# `:spec` flavor suite, and `rake spec:all` chains the spec/cli and
-# spec/render suites.
+  # One gem — `relaton` at the repo root, so the fleet-standard single-gem
+  # workflow replaces the monorepo matrix. relaton-cli and relaton-render
+  # consolidated into this gem (#462): gems/ holds only compatibility shells,
+  # built and published by release.yml, with no per-gem CI — no gems/ scan,
+  # no caller-side skip-list. The root `bundle exec rake` runs the default
+  # task, spec:all — the parallel flavor run, then the moved spec/cli and
+  # spec/render suites. skip-java-setup: RelaxNG validation is leptris; no
+  # Java in the test env.
   rake:
-    uses: relaton/support/.github/workflows/rake-monorepo.yml@main
+    uses: metanorma/ci/.github/workflows/generic-rake.yml@main
     with:
-      include_root: true
-      root_gem_name: relaton
-      skip-java-setup: true # RelaxNG validation is leptris; no Java in the test env
-    secrets:
-      pat_token: ${{ secrets.RELATON_CI_PAT_TOKEN }}
+      skip-java-setup: true
+      # The cascade (tests-passed / do-release repository_dispatch) needs a PAT;
+      # without one the PR-run GITHUB_TOKEN is rejected ("resource not
+      # accessible by integration") — this repo has never had a working
+      # dispatch flow (releases are manual workflow_dispatch), so skip it.
+      cascade: false
