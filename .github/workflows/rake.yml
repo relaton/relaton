@@ -20,18 +20,17 @@ permissions:
   contents: write
 
 jobs:
-# One gem — `relaton` at the repo root. relaton-cli and relaton-render are
-# compatibility shells (their code lives in the root gem at lib/relaton/cli
-# and lib/relaton/render), so the per-gem matrix under gems/ is gone: the
-# root job's `bundle exec rake` runs the default `:spec` flavor suite, and
-# `rake spec:all` chains the moved spec/cli and spec/render suites. The
-# shells are built and published by release.yml's release-cli /
+# One gem — `relaton` at the repo root. The former relaton-cli and
+# relaton-render shells are gone: their code lives in the root gem at
+# lib/relaton/cli and lib/relaton/render (and consumers depend on
+# `relaton` alone). The root job's `bundle exec rake` runs the default
+# `:spec` flavor suite, and `rake spec:all` chains the spec/cli and
+# spec/render suites.
   rake:
     uses: relaton/support/.github/workflows/rake-monorepo.yml@main
     with:
       include_root: true
       root_gem_name: relaton
-      skip_gems: relaton-cli,relaton-render
       skip-java-setup: true # RelaxNG validation is leptris; no Java in the test env
     secrets:
       pat_token: ${{ secrets.RELATON_CI_PAT_TOKEN }}
