@@ -12,26 +12,23 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
-# The delegated relaton/support rake-monorepo.yml runs with contents: write for
-# its tests-passed / release-readiness dispatch. A reusable workflow can't exceed
-# the caller's token scope, so grant it explicitly (also satisfies CodeQL
-# actions/missing-workflow-permissions).
+# The delegated metanorma/ci generic-rake.yml fires its tests-passed / do-release
+# cascade through pat_token; grant contents: write so the caller's token scope
+# covers it (also satisfies CodeQL actions/missing-workflow-permissions).
 permissions:
   contents: write
 
 jobs:
-# One gem — `relaton` at the repo root. relaton-cli and relaton-render are
-# compatibility shells (their code lives in the root gem at lib/relaton/cli
-# and lib/relaton/render), so the per-gem matrix under gems/ is gone: the
-# root job's `bundle exec rake` runs the default `:spec` flavor suite, and
-# `rake spec:all` chains the moved spec/cli and spec/render suites. The
-# shells are built and published by release.yml's release-cli /
+  # One gem — `relaton` at the repo root, so the fleet-standard single-gem
+  # workflow replaces the monorepo matrix. relaton-cli and relaton-render
+  # consolidated into this gem (#462): gems/ holds only compatibility shells,
+  # built and published by release.yml, with no per-gem CI. The root
+  # `bundle exec rake` runs the default task, spec:all — the parallel flavor
+  # run, then the moved spec/cli and spec/render suites. skip-java-setup:
+  # RelaxNG validation is leptris; no Java in the test env.
   rake:
-    uses: relaton/support/.github/workflows/rake-monorepo.yml@main
+    uses: metanorma/ci/.github/workflows/generic-rake.yml@main
     with:
-      include_root: true
-      root_gem_name: relaton
-      skip_gems: relaton-cli,relaton-render
-      skip-java-setup: true # RelaxNG validation is leptris; no Java in the test env
+      skip-java-setup: true
     secrets:
       pat_token: ${{ secrets.RELATON_CI_PAT_TOKEN }}
