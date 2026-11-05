@@ -40,16 +40,8 @@ module Relaton
 
     class << self
       def version
-        require "relaton/bib"
-        registry = Relaton::Db::Registry.instance
-        # One gem, one version: every line reports Relaton::VERSION.
-        puts "CLI => #{Relaton::VERSION}"
+        # One gem, one version.
         puts "relaton => #{Relaton::VERSION}"
-        puts "relaton-bib => #{Relaton::VERSION}"
-        registry.processors.each_key do |k|
-          name = k.to_s.sub("_", "-")
-          puts "#{name} => #{Relaton::VERSION}"
-        end
       end
 
       def start(arguments)
