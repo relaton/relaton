@@ -95,13 +95,17 @@ jobs:
         if: steps.guard.outputs.skip != 'true'
         uses: rubygems/configure-rubygems-credentials@v2.1.0
 
+      # The push authenticates via Trusted Publishing (the credentials
+      # action above). It requires relaton-render's Trusted Publisher to
+      # be REGISTERED on rubygems.org (repo relaton/relaton, workflow
+      # release.yml, job release-render) — cli's is registered; render's
+      # registration is pending, and until it lands the push fails with
+      # "You are not allowed to push this gem."
       - name: Push gem
         if: steps.guard.outputs.skip != 'true'
         run: |
           gem push relaton-render-${{ steps.version.outputs.value }}.gem
           gem exec rubygems-await relaton-render-${{ steps.version.outputs.value }}.gem
-        env:
-          rubygems-api-key: ${{ secrets.RELATON_CI_RUBYGEMS_API_KEY }}
 
   release-cli:
     needs: release
