@@ -34,6 +34,12 @@ module Relaton
         Relaton::Cli.version
       end
 
+      desc "types", "List the supported flavors (--type values of relaton fetch)"
+
+      def types
+        puts registered_types.sort.join(", ")
+      end
+
       desc "fetch CODE", "Fetch Relaton XML for Standard identifier CODE"
       option :type, aliases: :t,
                     desc: "Type of standard to get bibliographic entry for"
