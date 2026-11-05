@@ -1,7 +1,7 @@
 require "pubid"
-require "relaton/bib"
-require "relaton/index"
-require "relaton/version"
+require_relative "bib"
+require_relative "index"
+require_relative "version"
 
 # Relaton::Iala is the IALA (International Organization for Marine Aids
 # to Navigation) flavor of the unified relaton gem. Adds typed Ext fields

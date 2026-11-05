@@ -1,5 +1,5 @@
 require "yeptris"
-require "relaton/core"
+require_relative "../core"
 require_relative "../iec"
 require_relative "data_parser"
 

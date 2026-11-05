@@ -1,5 +1,5 @@
-require "relaton/bib"
-require "relaton/index"
+require_relative "bib"
+require_relative "index"
 require "pubid"
 require_relative "version"
 require_relative "oiml/util"

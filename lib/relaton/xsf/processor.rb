@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-require "relaton/core/processor"
+require_relative "../core/processor"
 
 module Relaton
   module Xsf

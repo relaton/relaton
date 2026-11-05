@@ -1,5 +1,5 @@
 require "addressable"
-require "relaton/bib"
+require_relative "bib"
 require_relative "version"
 require_relative "un/util"
 require_relative "un/item_data"

@@ -5,8 +5,8 @@
 # (The IANA/IHO/IALA/OGC/ECMA form; spec/relaton/lazy_loading_spec.rb guards
 # that this file is not itself loaded when a Db is built.)
 require "pubid"
-require "relaton/index"
-require "relaton/bib"
+require_relative "index"
+require_relative "bib"
 require_relative "version"
 require_relative "oasis/util"
 require_relative "oasis/item_data"

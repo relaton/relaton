@@ -4,7 +4,7 @@
 # autoloaded: referencing it (or any nested constant) the first time triggers
 # `require "relaton/<flavor>"`, loading that flavor's code on demand rather than
 # at `require "relaton"`. When adding a flavor, add an autoload line here.
-require "relaton/version"
+require_relative "relaton/version"
 require "moxml"
 
 # YAML through stdlib Psych. The former yeptris drop-in rebind
@@ -101,4 +101,4 @@ module Relaton
   end
 end
 
-require "relaton/db"
+require_relative "relaton/db"

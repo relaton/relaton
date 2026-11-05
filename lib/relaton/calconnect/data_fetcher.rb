@@ -2,8 +2,8 @@ require "yeptris"
 # frozen_string_literal:true
 
 require "mechanize"
-require "relaton/core"
-require "relaton/index"
+require_relative "../core"
+require_relative "../index"
 # The flavor top-level, for INDEXFILE and ::Pubid::Calconnect::Identifier.
 # `relaton-data-calconnect`'s crawler requires THIS file and nothing else, so
 # without it `#index` NameErrors on the very first document. (The ECMA form;

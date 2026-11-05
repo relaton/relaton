@@ -1,6 +1,6 @@
 require "yaml"
-require "relaton/cli/base_convertor"
-require "relaton/bib"
+require_relative "base_convertor"
+require_relative "../bib"
 
 module Relaton
   module Cli

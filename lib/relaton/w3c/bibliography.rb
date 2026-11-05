@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "net/http"
-require "relaton/bib/hash_parser_v1"
+require_relative "../bib/hash_parser_v1"
 
 module Relaton
   module W3c

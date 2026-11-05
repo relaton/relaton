@@ -1,8 +1,8 @@
 require "yeptris"
 require "date"
 require "mechanize"
-require "relaton/core"
-require "relaton/index"
+require_relative "../core"
+require_relative "../index"
 require_relative "../etsi"
 require_relative "data_parser"
 

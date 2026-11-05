@@ -18,6 +18,14 @@ SimpleCov.coverage_dir File.join(repo_root, "coverage")
 # CWD is spec/<flavor>/ — unique per flavor, so sequential runs merge, not clobber.
 SimpleCov.command_name "spec:#{File.basename(Dir.pwd)}"
 
+# SimpleCov's cross-process merge writes .history.json with an atomic rename
+# on every suite's exit; 44 parallel rspec processes rename over each other's
+# still-open file, and Windows answers EACCES where POSIX would just replace
+# — a suite "fails" with zero failing examples (seen on the 3.4 windows leg,
+# 2026-11-05). No consumer reads the Windows report, so Windows records its
+# per-suite resultsets without the history.
+SimpleCov.history_limit 0 if Gem.win_platform?
+
 SimpleCov.start do
   # Whole suite can exceed the 10-min default; keep early flavors in the merge.
   merge_timeout 3600

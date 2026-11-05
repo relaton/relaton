@@ -3,7 +3,7 @@
 require "net/http"
 require "mechanize"
 require "pubid"
-require "relaton/index"
+require_relative "index"
 require_relative "version"
 # require_relative "relaton_etsi/pubid"
 require_relative "etsi/bibitem"

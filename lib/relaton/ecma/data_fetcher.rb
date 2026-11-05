@@ -2,7 +2,7 @@
 
 require "English"
 require "mechanize"
-require "relaton/core"
+require_relative "../core"
 require_relative "../ecma"
 require_relative "parser_common"
 require_relative "page_fetcher"

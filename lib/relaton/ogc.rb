@@ -2,8 +2,8 @@
 # index code names. Processor#remove_index_file names no pubid class: the
 # delete never reads the index (see lib/relaton/index/CLAUDE.md).
 require "pubid"
-require "relaton/index"
-require "relaton/iso"
+require_relative "index"
+require_relative "iso"
 require_relative "version"
 require_relative "ogc/util"
 require_relative "ogc/item_data"

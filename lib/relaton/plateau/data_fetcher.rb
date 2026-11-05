@@ -1,6 +1,6 @@
 require "yeptris"
 require "json"
-require "relaton/core"
+require_relative "../core"
 require_relative "../plateau"
 require_relative "parser"
 require_relative "handbook_parser"

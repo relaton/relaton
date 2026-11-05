@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require "net/http"
-require "relaton/index"
-require "relaton/bib"
+require_relative "index"
+require_relative "bib"
 require_relative "version"
 require_relative "ietf/util"
 require_relative "ietf/item_data"

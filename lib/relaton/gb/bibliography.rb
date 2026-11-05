@@ -31,7 +31,7 @@ module Relaton
             TScraper.scrape_page ref
           else
             # Scrape sector standard.
-            require "relaton/gb/sec_scraper"
+require_relative "sec_scraper"
             SecScraper.scrape_page ref
           end
         end

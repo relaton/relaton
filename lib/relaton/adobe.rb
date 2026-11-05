@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "relaton/bib"
-require "relaton/index"
+require_relative "bib"
+require_relative "index"
 require "pubid"
-require "relaton/version"
+require_relative "version"
 
 # Relaton::Adobe is the Adobe (font tech notes, character collections,
 # PostScript Language, etc.) flavor of the unified relaton gem. Adds

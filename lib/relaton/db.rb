@@ -1,4 +1,4 @@
-require "relaton/bib"
+require_relative "bib"
 require "yaml"
 require "net/http"
 require "moxml"

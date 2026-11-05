@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "relaton/bib"
-require "relaton/index"
-require "relaton/version"
+require_relative "bib"
+require_relative "index"
+require_relative "version"
 require "pubid"
 
 # Relaton::Easc is the EASC (Евразийский экономический совет /

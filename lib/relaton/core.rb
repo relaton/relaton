@@ -1,4 +1,4 @@
-require "relaton/logger"
+require_relative "logger"
 
 module Relaton
   # Registered here as well as in the root entry: flavor files and their

@@ -2,8 +2,8 @@
 # `index_name_for`/`pubid_class_for` resolve `Relaton::<Flavor>::INDEXFILE`, so
 # without the umbrella every `--pubid-flavor` fails with "no relaton flavor".
 # Declaring autoloads is cheap: no flavor is loaded until it is referenced.
-require "relaton"
-require "relaton/db"
+require_relative "relaton"
+require_relative "relaton/db"
 
 module Relaton
   module Cli

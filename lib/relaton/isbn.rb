@@ -1,5 +1,5 @@
 require "net/http"
-require "relaton/bib"
+require_relative "bib"
 require_relative "version"
 require_relative "isbn/util"
 require_relative "isbn/isbn"

@@ -3,7 +3,7 @@
 # require "mechanize"
 # require "relaton/core"
 # require "relaton/bib"
-require "relaton/index"
+require_relative "index"
 require "pubid"
 require_relative "version"
 # require_relative "ccsds/processor"

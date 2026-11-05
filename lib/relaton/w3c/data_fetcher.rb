@@ -1,4 +1,4 @@
-require "relaton/core"
+require_relative "../core"
 require "w3c_api"
 require_relative "../w3c"
 require_relative "safe_realize"

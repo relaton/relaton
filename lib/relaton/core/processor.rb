@@ -69,7 +69,7 @@ module Relaton
         pubid_class&.parse(ref)
       rescue ArgumentError, ::Pubid::Errors::Error
         # relaton-bib carries the log facade; core specs load without it.
-        require "relaton/bib"
+require_relative "../bib"
         Relaton::Bib::Util.info "does not parse as this flavor's pubid; " \
                                 "passing the reference to the flavor as " \
                                 "written", "relaton-db", key: ref

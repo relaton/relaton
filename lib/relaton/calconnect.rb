@@ -3,8 +3,8 @@
 # (The ECMA/IANA/IHO/OGC form; spec/relaton/lazy_loading_spec.rb guards that
 # this file is not itself loaded when a Db is built.)
 require "pubid"
-require "relaton/index"
-require "relaton/core"
+require_relative "index"
+require_relative "core"
 require_relative "version"
 require_relative "calconnect/model/item"
 require_relative "calconnect/util"

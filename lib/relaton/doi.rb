@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "relaton/bipm"
-require "relaton/ietf"
-require "relaton/ieee"
-require "relaton/nist"
+require_relative "bipm"
+require_relative "ietf"
+require_relative "ieee"
+require_relative "nist"
 require_relative "version"
 require_relative "doi/util"
 require_relative "doi/parser"

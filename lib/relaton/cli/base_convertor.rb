@@ -1,7 +1,7 @@
 require "fileutils"
-require "relaton/bibdata"
-require "relaton/bibcollection"
-require "relaton/cli/xml_to_html_renderer"
+require_relative "../bibdata"
+require_relative "../bibcollection"
+require_relative "xml_to_html_renderer"
 
 module Relaton
   module Cli
