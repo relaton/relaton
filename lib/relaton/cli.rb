@@ -1,11 +1,18 @@
 require "fileutils"
 require "thor"
 require "thor/hollaback"
-require_relative "cli/version"
+require "relaton/version"
+require "relaton/bib"
 require_relative "cli/util"
 require_relative "cli/command"
 
 module Relaton
+  # The cli version is the gem version (single source of truth:
+  # lib/relaton/version.rb — a separate literal would drift on bump).
+  module Cli
+    VERSION = Relaton::VERSION
+  end
+
   def self.db(dir = nil)
     Cli.relaton dir
   end
