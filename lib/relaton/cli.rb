@@ -1,7 +1,6 @@
 require "fileutils"
 require "thor"
 require "thor/hollaback"
-require_relative "cli/version"
 require_relative "cli/util"
 require_relative "cli/command"
 
@@ -43,9 +42,8 @@ module Relaton
       def version
         require "relaton/bib"
         registry = Relaton::Db::Registry.instance
-        # Every flavor now ships inside the single `relaton` gem, so they all
-        # report Relaton::VERSION rather than a separate gem version.
-        puts "CLI => #{Relaton::Cli::VERSION}"
+        # One gem, one version: every line reports Relaton::VERSION.
+        puts "CLI => #{Relaton::VERSION}"
         puts "relaton => #{Relaton::VERSION}"
         puts "relaton-bib => #{Relaton::VERSION}"
         registry.processors.each_key do |k|

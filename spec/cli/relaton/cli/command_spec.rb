@@ -3,7 +3,7 @@ RSpec.describe Relaton::Cli::Command do
     expect do
       Relaton::Cli::Command.start ["version"]
     end.to output(%r{
-      CLI\s=>\s#{Relaton::Cli::VERSION}\n
+      CLI\s=>\s#{Relaton::VERSION}\n
       relaton\s=>\s[\w.]+\n
       relaton-bib\s=>\s[\w.]+\n
       relaton-gb\s=>\s[\w.]+\n
