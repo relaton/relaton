@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "relaton/render/iso690"
+require_relative "relaton/render/iso690"
 
 module Relaton
   module Render

@@ -2,10 +2,10 @@
 
 require "digest/md5"
 require "mechanize"
-require "relaton/core"
+require_relative "core"
 require "isoics"
 require "pubid"
-require "relaton/bib"
+require_relative "bib"
 require_relative "version"
 require_relative "cen/util"
 require_relative "cen/model/item"

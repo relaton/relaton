@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "relaton/bib"
-require "relaton/index"
+require_relative "bib"
+require_relative "index"
 require "pubid"
-require "relaton/version"
+require_relative "version"
 
 # Relaton::Gost is the GOST (Russian federal standards — Гостстандарт)
 # flavor of the unified relaton gem. Adds typed Ext fields (urn,

@@ -1,6 +1,6 @@
 require "net/http"
-require "relaton/core"
-require "relaton/json"
+require_relative "../core"
+require_relative "../json"
 require_relative "../sae"
 require_relative "../doi"
 

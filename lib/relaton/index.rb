@@ -3,7 +3,7 @@
 require "yaml"
 require "zip"
 require "open-uri"
-require "relaton/logger"
+require_relative "logger"
 
 require_relative "version"
 require_relative "core/request_error"

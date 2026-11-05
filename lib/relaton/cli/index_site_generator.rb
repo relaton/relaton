@@ -5,11 +5,11 @@ require "digest"
 require "pathname"
 require "fileutils"
 require "liquid"
-require "relaton/cli/frontend_assets"
-require "relaton/index"
+require_relative "frontend_assets"
+require_relative "../index"
 require "zip"
 require "pubid"
-require "relaton/cli/index_item_normalizer"
+require_relative "index_item_normalizer"
 
 module Relaton
   module Cli

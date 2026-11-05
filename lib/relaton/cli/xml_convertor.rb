@@ -1,5 +1,5 @@
 require "nokogiri"
-require "relaton/cli/base_convertor"
+require_relative "base_convertor"
 
 module Relaton
   module Cli

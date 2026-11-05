@@ -1,8 +1,8 @@
 require "digest/md5"
 require "pubid"
-require "relaton/bib"
-require "relaton/index"
-require "relaton/version"
+require_relative "bib"
+require_relative "index"
+require_relative "version"
 
 # Relaton::Sae is the SAE International flavor (relaton/relaton-sae#1).
 #

@@ -1,4 +1,4 @@
-require "relaton/core/processor"
+require_relative "../core/processor"
 
 module Relaton::Calconnect
   class Processor < Relaton::Core::Processor

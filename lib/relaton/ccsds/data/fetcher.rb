@@ -1,7 +1,7 @@
 require "yeptris"
 require "json"
 require "mechanize"
-require "relaton/index"
+require_relative "../../index"
 require "pubid"
 require_relative "../../ccsds"
 require_relative "parser"

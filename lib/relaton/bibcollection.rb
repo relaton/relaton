@@ -1,4 +1,4 @@
-require "relaton/element_finder"
+require_relative "element_finder"
 
 module Relaton
   class Bibcollection

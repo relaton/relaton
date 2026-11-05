@@ -2,13 +2,13 @@ require "date"
 require "tmpdir"
 require "shellwords"
 require "pubid"
-require "relaton/cli/relaton_file"
-require "relaton/cli/xml_convertor"
-require "relaton/cli/yaml_convertor"
-require "relaton/cli/data_fetcher"
-require "relaton/cli/index_site_generator"
-require "relaton/cli/subcommand_collection"
-require "relaton/cli/subcommand_db"
+require_relative "relaton_file"
+require_relative "xml_convertor"
+require_relative "yaml_convertor"
+require_relative "data_fetcher"
+require_relative "index_site_generator"
+require_relative "subcommand_collection"
+require_relative "subcommand_db"
 require "fcntl"
 
 module Relaton
@@ -236,8 +236,8 @@ module Relaton
                  elsif options[:format] == "citation"
                    # The paths that exist in every published relaton-render;
                    # the gem's conventional "relaton/render" entry is newer.
-                   require "relaton/render/general"
-                   require "relaton/render/iso690"
+require_relative "../render/general"
+require_relative "../render/iso690"
                    Relaton::Render::General
                      .new(style: options[:style] || "author-date")
                      .render(item, embedded: true)

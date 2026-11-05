@@ -5,9 +5,9 @@ require "fileutils"
 require "ferrum"
 require "moxml"
 require "pubid"
-require "relaton/index"
-require "relaton/bib"
-require "relaton/core/data_fetcher"
+require_relative "../index"
+require_relative "../bib"
+require_relative "../core/data_fetcher"
 require_relative "../cie"
 
 module Relaton

@@ -1,4 +1,4 @@
-require "relaton/core"
+require_relative "../core"
 
 module Relaton
   module Xsf

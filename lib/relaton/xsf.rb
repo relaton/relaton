@@ -5,8 +5,8 @@ require "mechanize"
 # index code names. Processor#remove_index_file names no pubid class: the
 # delete never reads the index (see lib/relaton/index/CLAUDE.md).
 require "pubid"
-require "relaton/index"
-require "relaton/bib"
+require_relative "index"
+require_relative "bib"
 require_relative "version"
 require_relative "xsf/util"
 require_relative "xsf/item_data"

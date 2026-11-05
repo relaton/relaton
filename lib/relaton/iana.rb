@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require "faraday"
-require "relaton/index"
+require_relative "index"
 require "pubid"
-require "relaton/bib"
+require_relative "bib"
 require_relative "version"
 require_relative "iana/util"
 require_relative "iana/item_data"

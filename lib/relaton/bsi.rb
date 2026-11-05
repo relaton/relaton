@@ -1,4 +1,4 @@
-require "relaton/iso"
+require_relative "iso"
 require_relative "version"
 require_relative "bsi/util"
 require_relative "bsi/item_data"

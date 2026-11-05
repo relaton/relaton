@@ -1,5 +1,5 @@
 require "moxml"
-require "relaton/bib"
+require_relative "bib"
 require_relative "version"
 require_relative "omg/util"
 require_relative "omg/ext"

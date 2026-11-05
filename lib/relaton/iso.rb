@@ -2,10 +2,10 @@
 
 require "net/http"
 require "pubid"
-require "relaton/index"
+require_relative "index"
 require "isoics"
-require "relaton/bib"
-require "relaton/core"
+require_relative "bib"
+require_relative "core"
 require_relative "version"
 require_relative "iso/util"
 require_relative "iso/item_data"

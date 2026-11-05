@@ -1,4 +1,4 @@
-require "relaton/bib/util"
+require_relative "../bib/util"
 
 module Relaton
   module Ccsds

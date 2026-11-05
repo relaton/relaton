@@ -1,6 +1,6 @@
 require "pubid"
-require "relaton/index"
-require "relaton/bib"
+require_relative "index"
+require_relative "bib"
 require_relative "version"
 require_relative "nist/util"
 require_relative "nist/item_data"

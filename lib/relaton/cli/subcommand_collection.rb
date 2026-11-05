@@ -1,5 +1,5 @@
 require "pubid"
-require "relaton/cli/full_text_search"
+require_relative "full_text_search"
 
 module Relaton
   module Cli

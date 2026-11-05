@@ -1,4 +1,4 @@
-require "relaton/core"
+require_relative "../core"
 require_relative "../iana"
 require_relative "parser"
 
