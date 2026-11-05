@@ -23,7 +23,7 @@ module Relaton
             label = @i18n.label(type)
             return "#{label} #{value}" unless label.include?("%")
 
-            label.sub("%", value)
+            label.gsub("%") { value }
           end
 
           def cjk?(label)
