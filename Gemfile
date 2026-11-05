@@ -96,7 +96,7 @@ gem "pubid", "~> 2.0.4"
 # 0.8.160-0.8.162 and vanishes on 0.8.163; main's CI (green 2026-11-03
 # 20:04Z) predates the 0.8.163 push (02:07Z). The cap holds the window
 # until lutaml-model ships the fix, then lifts.
-gem "lutaml-model", "< 0.8.163"
+gem "lutaml-model", ">= 0.8.164"
 
 
 # Default group (installed even when the release strips dev/test): the release
