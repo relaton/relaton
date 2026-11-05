@@ -151,6 +151,10 @@ RSpec.describe Relaton::Db::Registry do
       expect(Relaton::Db::Registry.instance.by_type("IALA")).to be_instance_of Relaton::Iala::Processor
     end
 
+    it "SAE" do
+      expect(Relaton::Db::Registry.instance.by_type("SAE")).to be_instance_of Relaton::Sae::Processor
+    end
+
     context "PLATEAU" do
       let(:processor) { Relaton::Db::Registry.instance.by_type("PLATEAU") }
       before { processor }
@@ -301,6 +305,9 @@ RSpec.describe Relaton::Db::Registry do
       "GOST R 34.12-2015" => :relaton_gost,
       "Adobe TN 5014" => :relaton_adobe,
       "IALA S1070" => :relaton_iala,
+      "SAE J3016" => :relaton_sae,
+      # SAE's native edition code: Pubid::Sae reads the month.
+      "SAE J3016_202104" => :relaton_sae,
       "draft-abarth-cake-01" => :relaton_ietf,
     }.each do |ref, short|
       it "routes #{ref.inspect} to #{short}" do

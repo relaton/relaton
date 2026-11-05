@@ -1,0 +1,54 @@
+---
+id: SAEJ1939DA_201702
+schema_version: v1.5.6
+fetched: '2026-11-05'
+type: standard
+title:
+- script: Latn
+  content: J1939 Digital Annex
+  type: main
+source:
+- type: DOI
+  content: https://doi.org/10.4271/j1939da_201702
+- type: src
+  content: https://saemobilus.sae.org/standards/j1939da_201702-j1939-digital-annex
+docidentifier:
+- content: SAE J1939DA_201702
+  type: SAE
+  primary: true
+- content: 10.4271/j1939da_201702
+  type: DOI
+date:
+- type: approved
+  at: '2017-02-09'
+contributor:
+- role:
+  - type: author
+  organization:
+    name:
+    - content: Truck and Bus Control and Communications Network Committee
+- role:
+  - type: publisher
+  organization:
+    name:
+    - content: SAE International
+- role:
+  - type: authorizer
+  organization:
+    name:
+    - content: SAE International
+    abbreviation:
+      content: SAE
+abstract:
+- language: en
+  script: Latn
+  content: |-
+    <p>&lt;p&gt;This document is intended to supplement the J1939 documents by offering the J1939 information in a form that can be sorted and search for easier use. The J1939 Digital Annex, introduced in August 2013, offers key J1939 technical data in an Electronic Spreadsheet that can be easily searched, sorted, and adapted to other formats. J1939DA contains all of the SPNs (parameters), PGNs (messages), and other J1939 data previously published in the SAE J1939 top level document. J1939DA also contains all of the SLOTs, Manufacturer ID Codes, NAME Functions, and Preferred Addresses previously published in the SAE J1939 top level and the J1939-71 document. J1939DA contains the complete technical details for all of the SPNs and PGNs previously published in the SAE J1939-71 document. It also includes the supporting descriptions and figures previously published in the SAE J1939-71 document. For other SPNs and PGNs which are published in a document other than SAE J1939-71, J1939DA lists only basic details along with a reference to the document that contains the complete technical details. J1939DA replaces, and expands upon, the J1939 Companion Spreadsheet (CS1939), which was last published through November 2012. The data fields included in J1939DA for PGNs are: PGN, Parameter Group Label, Acronym, EDP, DP, PF, PGN Length, PS, PGN Description, Multipacket, Transmission Rate, PGN Data Length, Default Priority, PGN Reference, PGN Document The data fields included in J1939DA for SPNs are: SPN, SPN Name, SPN Description, SPN Length, Resolution, Offset, Data Range, Operational Range, Units, SLOT Identifier, SPN Type, SPN Reference, SPN Document.&lt;/p&gt;
+    &lt;p&gt;The J1939 Digital Annex can be purchased separately or as part of &lt;a href="http://www.sae.org/standardsdev/groundvehicle/j1939.htm"&gt;the SAE J1939 Standards Collection on the Web&lt;/a&gt;.&lt;/p&gt;</p>
+place:
+- city: 400 Commonwealth Drive
+- city: Warrendale
+ext:
+  doctype:
+    content: standard
+  flavor: sae

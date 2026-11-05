@@ -731,7 +731,8 @@ module Relaton
       #
       def parse_relation # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
         rels = included_in_relation
-        @src["relation"].each_with_object(rels) do |(k, v), a|
+        # Crossref leaves the key out of some records (SAE standards).
+        (@src["relation"] || {}).each_with_object(rels) do |(k, v), a|
           type, desc = relation_type k
           Array(v).each do |r|
             rel_item = Crossref.get_by_id r["id"]

@@ -747,6 +747,19 @@ RSpec.describe Relaton::Db do
       expect(bib).to be_instance_of Relaton::Iala::ItemData
       expect(bib.docidentifier.first.content).to eq "IALA S1070 Ed 2.0"
     end
+
+    # Routing check for SAE; the flavor's retrieval belongs to spec/sae.
+    it "SAE" do
+      docid = Relaton::Bib::Docidentifier.new(
+        content: "SAE J3016_202104", type: "SAE", primary: true,
+      )
+      item = Relaton::Sae::ItemData.new docidentifier: [docid]
+      expect(Relaton::Sae::Bibliography).to receive(:get)
+        .with(pubid_of("SAE J3016:2021"), nil, {}).and_return item
+      bib = subject.fetch("SAE J3016:2021")
+      expect(bib).to be_instance_of Relaton::Sae::ItemData
+      expect(bib.docidentifier.first.content).to eq "SAE J3016_202104"
+    end
   end
 
   it "fetch std" do

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SAE International flavor. SAE adds no element to the shared model: its
+  records come from SAE's Crossref deposits and map onto biblio as they are.
+-->
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="biblio-standoc.rng"/>
+</grammar>

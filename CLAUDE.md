@@ -127,6 +127,16 @@ own parse and cache (`Db#copublisher_fetch`). Everything else falls back to the 
 `RequestError` (retried by `Db#net_retry`) and `UnknownReferenceError`
 (relaton-cli logs it and returns no document). See `lib/relaton/db/CLAUDE.md`.
 
+**SAE reads Crossref, not sae.org (relaton-sae#1).** sae.org answers a script
+with a CAPTCHA, so `Relaton::Sae::DataFetcher` (`fetch-data sae-crossref`)
+crawls SAE's Crossref deposits (prefix `10.4271`, type `standard`, one DOI per
+edition: `10.4271/j3016_202104`) through `Relaton::Doi::Parser` into the
+`relaton-data-sae` repo and a pubid `index-v2`. The primary docidentifier is
+SAE's own edition code as SAE prints it (`SAE J3016_202104`,
+`SAE AMS-QQ-A-250/4B`). The index needs pubid >= 2.0.9 (pubid#665: month,
+part, revision, amendment), and the gemspec floors it there. See
+`lib/relaton/sae/CLAUDE.md`.
+
 **Crawl politeness lives in `core`, bindings live in the flavor.** Two shared
 components under `lib/relaton/core/` carry the "don't get banned, don't burn the
 CI job" logic that more than one crawler needs: **`Pacer`** (one shared request
