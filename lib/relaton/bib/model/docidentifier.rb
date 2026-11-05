@@ -66,7 +66,7 @@ module Relaton
         "BSI" => :Bsi,
       }.freeze
 
-      FORMS = %i[external internal].freeze
+      FORMS = %i[external internal slug].freeze
 
       # The parsed identifier. A pubid-backed flavor subclass overrides it.
       def pubid; end
@@ -94,7 +94,22 @@ module Relaton
       def form_content(form)
         flavor = FORM_PUBID[type]
         id = flavor && (pubid || parse_form_pubid(flavor))
-        id ? id.to_s(with_publisher: form == :external) : content
+        return content unless id
+
+        return slug_form(id) if form == :slug
+
+        id.to_s(with_publisher: form == :external)
+      end
+
+      # The pubid-scheme slug (relaton#441): the URN in HTTP-path
+      # clothes, bijective with Pubid.from_slug. A flavor whose
+      # pubid-scheme schema has not landed yet degrades to the stored
+      # content, like a form pubid cannot parse.
+      def slug_form(id)
+        require "pubid"
+        ::Pubid.to_slug(id)
+      rescue ::Pubid::Errors::InvalidInputError, NameError
+        content
       end
 
       def parse_form_pubid(flavor)
