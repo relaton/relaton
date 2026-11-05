@@ -70,9 +70,9 @@ Gem::Specification.new do |spec|
   # 0.2.8 parses JSON bodies itself (yeptris) — the pin that dropped
   # json < 3 depends on it.
   spec.add_dependency "lutaml-hal", "~> 0.2.8"
-  # singular_tolerance (relaton#301) requires 0.8.113 (lutaml-model#971);
-  # 0.8.107-112 raise on the stricter collection validation instead.
-  spec.add_dependency "lutaml-model", "~> 0.8.113"
+  # singular_tolerance (relaton#301) fixed since 0.8.113 (lutaml-model#971);
+  # the fleet convention floors at the latest patch
+  spec.add_dependency "lutaml-model", "~> 0.8.164"
   # 0.3.2 fixes the FileSystem adapter defects the Db cache depends on:
   # lossless keys, thread and process exclusion, DatabaseStore serialization,
   # CacheStore#each_key (lutaml/lutaml-store#17).
