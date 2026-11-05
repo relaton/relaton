@@ -111,8 +111,10 @@ Gem::Specification.new do |spec|
   # implement. 2.0.5 re-bakes every artifact at parsanol edition 2 — the
   # IHO component-model wave (relaton#440) — and parsanol 1.3.129+
   # rejects edition-1 artifacts, so the floor names 2.0.5 beside the
-  # parsanol floor.
-  spec.add_dependency "pubid", "~> 2.0.5"
+  # parsanol floor. 2.0.9 reads the SAE codes of SAE's Crossref deposits
+  # (pubid#665: month, part, revision, amendment); the SAE index rows carry
+  # those components, so an older runtime cannot read relaton-data-sae.
+  spec.add_dependency "pubid", "~> 2.0.9"
 
   # JSON parse/generate across the flavor fetchers, the index and the db:
   # yeptris's strict RFC 8259 surface replaces the stdlib json gem's calls.

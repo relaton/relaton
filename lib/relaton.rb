@@ -50,6 +50,7 @@ module Relaton
   autoload :Oasis, "relaton/oasis"
   autoload :Oiml, "relaton/oiml"
   autoload :Omg, "relaton/omg"
+  autoload :Sae, "relaton/sae"
   autoload :Un, "relaton/un"
   autoload :W3c, "relaton/w3c"
   autoload :Xsf, "relaton/xsf"

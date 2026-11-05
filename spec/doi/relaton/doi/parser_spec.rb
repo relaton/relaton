@@ -755,4 +755,13 @@ RSpec.describe Relaton::Doi::Parser do
       end
     end
   end
+
+  describe "#parse_relation" do
+    # Crossref leaves `relation` out of some records (seen on SAE standards,
+    # prefix 10.4271); the parse must not fail on them.
+    it "returns no relation when the record has no relation key" do
+      parser = described_class.new("type" => "standard")
+      expect(parser.parse_relation).to eq []
+    end
+  end
 end
