@@ -228,4 +228,4 @@ task :build_all do
   Rake::Task["build"].invoke
 end
 
-task default: :spec
+task default: "spec:all"
