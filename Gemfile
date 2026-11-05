@@ -87,16 +87,14 @@ gem "pubid", "~> 2.0.4"
 # (pubid#617 re-bakes every artifact at 1.3.114 and floors the gemspec
 # there), so the pin moves with it.
 
-# lutaml-model 0.8.163 (2026-11-04) drops non-default attributes from
-# to_hash: Pubid::Ietf's `version` no longer serializes, so
-# "draft-ietf-quic-transport-34" round-trips as "draft-ietf-quic-transport"
-# and the IETF index contract spec (spec/ietf/.../pubid_contract_spec.rb)
-# goes red. Version-fixed against the same pubid 2.0.5/2.0.6 +
-# parsanol 1.3.129/1.3.133 stack: `version` survives to_hash on
-# 0.8.160-0.8.162 and vanishes on 0.8.163; main's CI (green 2026-11-03
-# 20:04Z) predates the 0.8.163 push (02:07Z). The cap holds the window
-# until lutaml-model ships the fix, then lifts.
-gem "lutaml-model", "< 0.8.163"
+# lutaml-model 0.8.163 (2026-11-04) dropped non-default attributes from
+# to_hash: Pubid::Ietf's `version` no longer serialized, so
+# "draft-ietf-quic-transport-34" round-tripped as "draft-ietf-quic-transport".
+# The floor now governs (gemspec `~> 0.8.164`, fleet convention: pessimistic
+# floor at the latest patch); 0.8.164 carries the hash-verbatim fix
+# (lutaml-model#1121) — relaton's IETF pubid contract spec is the judge.
+# (History: 0.8.160-0.8.162 serialized `version` correctly; the temporary
+# "< 0.8.163" cap is superseded by this floor.)
 
 
 # Default group (installed even when the release strips dev/test): the release
