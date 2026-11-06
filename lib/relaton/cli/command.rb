@@ -234,10 +234,12 @@ module Relaton
         result = if /yaml|yml/.match?(options[:format])
                    item.to_yaml
                  elsif options[:format] == "citation"
-                   # The paths that exist in every published relaton-render;
-                   # the gem's conventional "relaton/render" entry is newer.
-require_relative "../render/general"
-require_relative "../render/iso690"
+                   # Lazy: the render engine loads on the first citation
+                   # request; the yaml/bibtex paths never pay for it. The
+                   # facade file both entries resolve through (the
+                   # consolidated surface, lib/relaton/render.rb) already
+                   # requires iso690 — general is its autoload target.
+                   require_relative "../../relaton/render"
                    Relaton::Render::General
                      .new(style: options[:style] || "author-date")
                      .render(item, embedded: true)
