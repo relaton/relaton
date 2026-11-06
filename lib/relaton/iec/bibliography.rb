@@ -25,32 +25,30 @@ module Relaton
         end
 
         # @param ref [String, Pubid::Iec::Identifier] the IEC standard code to
-        #   look up (e.g. "IEC 8000"), or the parse that Relaton::Db routed
-        #   with (relaton#205); a pubid is never mutated
+        #   look up (e.g. "IEC 8000", "IEC 80000 (all parts)"), or the parse
+        #   that Relaton::Db routed with (relaton#205); a pubid is never mutated
         # @param year [String] the year the standard was published (optional)
-        # @param opts [Hash] options; restricted to :all_parts if all-parts
-        #   reference is required
+        # @param opts [Hash] options; `:all_parts` asks for all parts of a
+        #   reference that does not say so itself. The hash is not changed.
         # @return [Relaton::Iec::ItemData, nil]
-        def get(ref, year = nil, opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity,Metrics/MethodLength
+        def get(ref, year = nil, opts = {}) # rubocop:disable Metrics/AbcSize,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
           if ref.is_a?(String)
-            opts[:all_parts] ||= ref.match?(/\s\(all parts\)/)
-            text = ref.sub(/\s\(all parts\)/, "")
-            return iev if text.casecmp("IEV").zero?
+            return iev if ref.strip.casecmp?("IEV")
 
-            pubid = ::Pubid::Iec::Identifier.parse text.upcase
-          elsif ref.all_parts?
-            opts[:all_parts] = true
-            pubid = ref.identifiers.first
-          else
-            pubid = ref
+            ref = parse_ref ref
           end
+          # The pubid says whether all parts are asked for (relaton-iec#64):
+          # the option is folded into it, as Core::Processor#cache_key does.
+          ref = ref.to_all_parts if opts[:all_parts] && !ref.all_parts?
+          all_parts = ref.all_parts?
+          pubid = all_parts ? ref.identifiers.first : ref
           if year
             # Copy first: a caller's pubid is also its Db cache key.
             pubid = pubid.class.from_hash(pubid.to_hash)
             pubid.date = ::Pubid::Components::Date.new(year: year.to_s)
           end
 
-          ret = iecbib_get(pubid, opts)
+          ret = iecbib_get(pubid, all_parts, opts)
           return nil if ret.nil?
 
           ret = ret.to_most_recent_reference unless pubid.date&.year || opts[:keep_year] ||
@@ -98,17 +96,31 @@ module Relaton
           )
         end
 
-        # @param pubid [Pubid::Iec::Identifier]
+        # The reference as written, else upcased: pubid reads the other
+        # components only in upper case, and `(all parts)` only in lower
+        # case, so the upcase keeps that suffix as pubid spells it.
+        #
+        # @param ref [String]
+        # @return [Pubid::Iec::Identifier]
+        def parse_ref(ref)
+          ::Pubid::Iec::Identifier.parse ref
+        rescue ::Pubid::Errors::Error
+          ::Pubid::Iec::Identifier.parse ref.upcase.sub("(ALL PARTS)", "(all parts)")
+        end
+
+        # @param pubid [Pubid::Iec::Identifier] the document (the inner
+        #   identifier of an all-parts reference)
+        # @param all_parts [Boolean] all parts of the document are asked for
         # @param opts [Hash]
         # @return [Relaton::Iec::ItemData, nil]
-        def iecbib_get(pubid, opts) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+        def iecbib_get(pubid, all_parts, opts) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
           Util.info "Fetching from Relaton repository ...", key: pubid.to_s
           # pubid 2.x splits multi-level numbers ("61326-2-6") into part +
           # subpart, so all-parts matching must ignore subpart too.
-          exclude = opts[:all_parts] ? %i[year part subpart] : %i[year]
+          exclude = all_parts ? %i[year part subpart] : %i[year]
           result = search(pubid, exclude: exclude) || return
 
-          if opts[:all_parts]
+          if all_parts
             ret = result.to_all_parts(pubid.date&.year&.to_s, opts)
             Util.info "Found: `#{ret&.docidentifier&.first&.content}`", key: pubid.to_s if ret
             return ret
