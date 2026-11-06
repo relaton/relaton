@@ -163,7 +163,7 @@ RSpec.describe Relaton::ThreeGpp::Bibliography do
   context "an unrecognized reference" do
     # Mirrors ISO and ETSI: the parse error propagates so relaton-cli can
     # render "… is not a recognized standards identifier"
-    # (gems/relaton-cli/lib/relaton/cli/command.rb:324 and
+    # (lib/relaton/cli/command.rb and
     # subcommand_collection.rb:134 both rescue this exact class).
     it "raises Pubid::Errors::ParseError" do
       expect { described_class.search("3GPP 1234") }

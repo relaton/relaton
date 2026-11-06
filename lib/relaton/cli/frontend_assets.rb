@@ -1,9 +1,10 @@
 module Relaton
   module Cli
-    # Resolves the compiled frontend bundle (`app.iife.js` + `style.css`) that is
-    # built from `gems/relaton-cli/frontend/` at gem-build time and shipped inside
-    # the gem under `frontend/dist/`. Both the installed gem and a git checkout
-    # place `frontend/dist` at the gem root, so one relative path covers both.
+    # Resolves the compiled frontend bundle (`app.iife.js` + `style.css`) whose
+    # source lives at `lib/relaton/cli/frontend/` and whose built dist is
+    # committed inside the gem under `frontend/dist/`. Both the installed gem
+    # and a git checkout place `frontend/dist` at the gem root, so one relative
+    # path covers both.
     #
     # If the bundle is missing (a fresh checkout that hasn't run the frontend
     # build), raise a clear, actionable error rather than emitting a broken page.
@@ -47,8 +48,8 @@ module Relaton
           unless File.exist?(path)
             raise BuildMissingError,
                   "Frontend build missing (#{name} not found in #{dist_dir}). " \
-                  "Run `bundle exec rake build_frontend` in gems/relaton-cli " \
-                  "(or `cd frontend && npm install && npm run build`) first."
+                  "Run `bundle exec rake spec:build_frontend` at the repo root " \
+                  "(or `cd lib/relaton/cli/frontend && npm install && npm run build`) first."
           end
           File.read(path, encoding: "utf-8")
         end

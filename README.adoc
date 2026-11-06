@@ -6,8 +6,8 @@ image:https://github.com/relaton/relaton/actions/workflows/rake.yml/badge.svg["B
 Gem for importing and caching bibliographic references to technical standards.
 Every standards-body flavor ships inside this single gem; flavor code loads on
 demand via `autoload`, and the `Relaton::Db` API routes a reference to the right
-flavor by its prefix. The command-line interface,
-link:gems/relaton-cli/docs/README.adoc[`relaton-cli`], is a separate gem.
+flavor by its prefix. The command-line interface (the `relaton` executable) and
+the citation renderer ship inside this gem too.
 
 == Installation
 
@@ -482,10 +482,12 @@ lib/
     ├── db.rb, db/       # Relaton::Db: registry, cache, workers pool
     ├── core/ bib/ index/ logger/   # shared infrastructure
     ├── sdo/             # Relaton.organization: SDO org/logo store (non-flavor)
+    ├── cli/              # the CLI: commands, convertors, frontend/ (+ bin/relaton)
+    ├── render/           # the citation renderer (ISO 690 engine + styles)
     └── iso/ iec/ ietf/ … 3gpp/     # ~29 flavor plugins
 spec/<flavor>/           # each flavor's spec suite
+docs/                    # per-component architecture notes (docs/<name>.md)
 grammar/                 # shared RelaxNG test schemas (test-only, not shipped)
-gems/relaton-cli/        # the separate relaton-cli gem
 ----
 
 == Flavors
