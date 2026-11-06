@@ -933,7 +933,7 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       Dir.mktmpdir do |empty|
         Relaton::Cli::FrontendAssets.with_dist_dir(empty) do
           expect { described_class.generate(data_dir, output: @out, machine_index: false) }
-            .to raise_error(Relaton::Cli::FrontendAssets::BuildMissingError, /rake build_frontend/)
+            .to raise_error(Relaton::Cli::FrontendAssets::BuildMissingError, /rake spec:build_frontend/)
         end
       end
     end
