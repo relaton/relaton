@@ -59,6 +59,18 @@ describe Relaton::Sae::DataFetcher, :no_index_fixture do
     end
   end
 
+  # A daily crawl must leave an unchanged record byte for byte, or each run
+  # commits the whole corpus (hand-off
+  # relaton__relaton__sae-drop-fetched-from-crawl). The consumer sets
+  # `fetched` when it reads a document.
+  it "writes no fetch date, so a later crawl leaves the files unchanged" do
+    first = crawl { Dir["data/*.yaml"].to_h { |f| [f, File.read(f)] } }
+    allow(Date).to receive(:today).and_return(Date.today + 1)
+    second = crawl { Dir["data/*.yaml"].to_h { |f| [f, File.read(f)] } }
+    expect(first.values).to all(satisfy { |yaml| !yaml.match?(/^fetched:/) })
+    expect(second).to eq first
+  end
+
   # A record Crossref holds in addition to the fixture pages.
   def add_work(doi, approved, first: true)
     page = JSON.parse(pages[1])

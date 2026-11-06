@@ -153,10 +153,15 @@ module Relaton
       # The `Relaton::Doi::Parser` item, with SAE's edition code (as SAE
       # prints it) as its primary identifier and the DOI kept beside it.
       #
+      # `Doi::Parser` stamps today as `fetched`. A data file must not carry
+      # it: the daily crawl would then rewrite every file and commit the
+      # whole corpus. `Bibliography#fetch_doc` sets `fetched` on reading.
+      #
       # @return [Relaton::Sae::ItemData]
       #
       def to_item(work, code)
         bib = Relaton::Doi::Parser.parse work
+        bib.fetched = nil
         bib.id = code.native.delete(" /").gsub(/\W/, "")
         bib.docidentifier = [
           Bib::Docidentifier.new(type: "SAE", content: code.printed,
