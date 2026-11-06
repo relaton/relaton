@@ -84,7 +84,7 @@ RSpec.describe Relaton::Oiml::Bibliography do
   # delegates to the OIML side, so the row buckets correctly with no
   # `Relaton::Index` change; what needs care is matching, since a `stem`/
   # `year`/`language` read directly off the wrapper is a silent no-op (see
-  # `lib/relaton/oiml/CLAUDE.md`) — `stem`/`pubid_match?`/`best_row` route
+  # `docs/oiml.md`) — `stem`/`pubid_match?`/`best_row` route
   # through the OIML side explicitly instead.
   context "a dual-published identifier" do
     let(:rows) do

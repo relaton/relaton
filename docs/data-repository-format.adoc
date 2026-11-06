@@ -203,7 +203,7 @@ worth a rule rather than a footnote:
   `number`, giving ~43.5k buckets averaging 3.8 rows.
 * *IANA registries.* `Pubid::Iana::Identifiers::Registry` set no `number` at all,
   which would have bucketed all 3405 published rows together; `number` now holds
-  the top-level registry slug. See `lib/relaton/iana/CLAUDE.md`.
+  the top-level registry slug. See `docs/iana.md`.
 
 Neither identifier is a numbered standard, which is the shape to watch: when a
 flavor's ids are named rather than numbered, `number` has to be given the naming
@@ -427,18 +427,18 @@ compatibility — is why the whole-index artifact is still published.
 
 * *`relaton-data-sdo`* is **not** a document index. Its `index.yaml` is an
   `organizations:` map (org names + logo variants) consumed by `Relaton::Sdo`
-  (see `lib/relaton/sdo/CLAUDE.md`), not by `Relaton::Index`. It does not follow
+  (see `docs/sdo.md`), not by `Relaton::Index`. It does not follow
   this spec.
 * *IETF is mid-migration.* The indexes the gem reads are published under
   `relaton-data-rfcs`, `relaton-data-rfcsubseries` and `relaton-data-ids` (three
   `index-v1`, plain-string ids). `relaton-data-ietf` now holds the combined v3
   corpus for all three streams but **no `Relaton::Index` index yet** — relaton#109
   will add one pubid-backed index there, leaving the three type repos untouched.
-  See `lib/relaton/ietf/CLAUDE.md`. `relaton-data-misc` holds inputs only.
+  See `docs/ietf.md`. `relaton-data-misc` holds inputs only.
 
 == See also
 
 * `lib/relaton/index/README.adoc` — the `Relaton::Index` Ruby API.
-* `lib/relaton/index/CLAUDE.md` — index library architecture + the `INDEXFILE`
+* `docs/index.md` — index library architecture + the `INDEXFILE`
   convention.
 * Repo-root `CLAUDE.md` — "Adding a flavor".

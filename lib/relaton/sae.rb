@@ -10,7 +10,7 @@ require_relative "version"
 # deposits instead: every SAE standard edition has its own DOI
 # (`10.4271/j3016_202104`). `DataFetcher` crawls them into the
 # `relaton-data-sae` data repo with a pubid `index-v2`, and `Bibliography`
-# reads that index. See lib/relaton/sae/CLAUDE.md.
+# reads that index. See docs/sae.md.
 module Relaton
   module Sae
     INDEXFILE = "index-v2".freeze

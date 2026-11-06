@@ -16,7 +16,7 @@ module Relaton
       # status flags below are a separate axis and already permissive, so this
       # is what makes e.g. all three editions of `ETSI EN 319 142-1` retrievable
       # instead of one. It also makes the crawl about 2.4 times larger — see
-      # lib/relaton/etsi/CLAUDE.md before changing it back.
+      # docs/etsi.md before changing it back.
       SOURCEURL = "https://www.etsi.org/custom/standardssearch/data.php?format=json&includeScope=1&" \
         "page=%<page>s&search=&title=1&etsiNumber=1&content=1&version=1&onApproval=1&published=1&" \
         "withdrawn=1&historical=1&isCurrent=1&superseded=1&startDate=1988-01-15&endDate=%<date>s&" \
