@@ -119,7 +119,7 @@ does carry a revision.
 - **An unrecognized reference raises.** Like ISO, ETSI and 3GPP, the parse
   error propagates: relaton-cli rescues `Pubid::Errors::Error` and renders
   `"..." is not a recognized standards identifier`
-  (`gems/relaton-cli/lib/relaton/cli/command.rb:324`,
+  (`lib/relaton/cli/command.rb`,
   `subcommand_collection.rb:134`), and `Db#fetch` logs it through the
   `StandardError` arm at `lib/relaton/db.rb:122`. `Pubid::Errors::ParseError`
   includes the marker module `Pubid::Errors::Error`, which is what makes the

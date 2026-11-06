@@ -11,13 +11,17 @@ layer, and ~29 flavor plugins. Flavor code is **loaded lazily** via `autoload`,
 so `require "relaton"` and using `Relaton::Db` does not load every flavor at
 startup — each loads on first use.
 
-`relaton-cli` (the command-line interface) is the one **separate** gem; it lives
-in `gems/relaton-cli/` and depends on `relaton`.
+`relaton-cli` ships **inside this gem** (`lib/relaton/cli` — commands,
+convertors, the Liquid templates, the committed frontend dist, the `relaton`
+executable), as does the citation renderer (`lib/relaton/render`). There are
+no separate gems and no `gems/` directory.
 
 > History: this repo was previously a monorepo of ~35 separate gems under
-> `gems/`, assembled into one gem at build time. It has since been **collapsed
-> into a single gem** (one gemspec, one `lib/` tree, one `VERSION`). The
-> per-gem upstream repos are snapshots; this repo is canonical.
+> `gems/`, assembled into one gem at build time. It was then **collapsed into
+> a single gem** (one gemspec, one `lib/` tree, one `VERSION`), and the
+> `relaton-cli`/`relaton-render` compatibility shells were removed — consumers
+> depend on `relaton` alone. The per-gem upstream repos are snapshots; this
+> repo is canonical.
 
 ## Layout
 
@@ -25,20 +29,18 @@ in `gems/relaton-cli/` and depends on `relaton`.
 relaton.gemspec          # the one gemspec (union of all flavors' external deps)
 lib/
 ├── relaton.rb           # entry point: autoload per flavor, then require relaton/db
+├── relaton-render.rb    # render umbrella (shims lib/relaton/render.rb)
 └── relaton/
     ├── version.rb       # Relaton::VERSION — the single source of truth
     ├── db.rb, db/       # Relaton::Db API: registry, cache, workers pool
     ├── core/ bib/ index/ logger/   # shared infrastructure
+    ├── cli/             # the CLI (commands, convertors, frontend/) + bin/relaton
+    ├── render/          # the citation renderer (ISO 690 engine + styles)
     └── iso/ iec/ ietf/ … 3gpp/     # ~29 flavor plugins (Relaton::Iso, …)
 spec/<flavor>/           # each flavor's spec suite (self-contained; see Testing)
+docs/                    # per-component architecture notes (docs/<name>.md)
 grammar/                 # shared RelaxNG test schemas (test-only, not shipped)
-gems/relaton-cli/        # the separate relaton-cli gem — the ONLY thing under gems/
 ```
-
-`gems/` holds **only** `relaton-cli`. The old per-flavor `gems/relaton-<flavor>/`
-dirs from the monorepo era are gone; if any reappear (as untracked SimpleCov
-`coverage/`, `Gemfile.lock`, or `testcache/` leftovers) they're stale artifacts,
-not source, and are safe to `rm -rf`.
 
 ## Common commands
 
@@ -202,13 +204,12 @@ against live in one top-level `grammar/` (deduped from the old per-gem
 so `../../grammar` resolves to repo root). Co-located schemas keep the RelaxNG
 `<include href="...">` chains working. Test-only; not in the gemspec.
 
-**relaton-cli is separate.** `gems/relaton-cli/` is its own gem depending on
-`relaton`. Don't fold it in. Its `Gemfile` uses `gem "relaton", path: "../.."`,
-so a fresh `bundle install` resolves `relaton` from `../..` (the single combined
-gem). Its `Gemfile.lock` is **gitignored** (untracked), so a clean checkout has
-none and `bundle install` regenerates a correct one. A leftover local lock with
-`remote: ../relaton-<flavor>` entries is monorepo-era rot — delete it and
-`bundle install` (that's what a stale `spec:cli` bundle-install failure means).
+**relaton-cli ships here.** The CLI lives at `lib/relaton/cli` (with the
+`relaton` binstub at `bin/relaton`), `spec/cli` runs under the root bundle,
+and the frontend dist is committed at `lib/relaton/cli/frontend/dist`
+(`rake spec:build_frontend` refreshes it — see the frontend paragraph under
+Releasing). Don't reintroduce a separate gem or a `gems/` directory; a stray
+`gems/` path in docs or comments is monorepo-era rot.
 
 **JCGM flavor & the pubid pin.** `Relaton::Jcgm` (`lib/relaton/jcgm/`) is a
 pubid-backed flavor split out of BIPM (JCGM records moved to their own
@@ -307,12 +308,10 @@ and the report/parsing logic are the pure `SpecReporter` module in
 the gemspec globs only `lib/`), unit-tested by `spec/tasks/`. Per-flavor
 `rake spec:<flavor>` tasks still stream live output single-threaded (unchanged).
 
-The **relaton-cli** suite is not part of the flavor run (separate gem, separate
-bundle). `rake spec:cli` runs it from the repo root — it shells into
-`gems/relaton-cli` under `Bundler.with_unbundled_env` (the `build_all` pattern),
-does `bundle check || bundle install` (so it works on a fresh checkout), then
-runs relaton-cli's own `rake spec`. `rake spec:all` runs the parallel flavor
-suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
+The **relaton-cli and relaton-render** suites ride the root bundle like every
+other suite (`spec/cli`, `spec/render` — their code ships at `lib/relaton/cli`
+and `lib/relaton/render`). `rake spec:all` runs the parallel flavor suite and
+then `spec:cli` and `spec:render`; plain `rake spec` stays flavors-only.
 
 - Umbrella (`Relaton::Db`) specs are in `spec/relaton/` directly (flattened — a
   cache-dir named `relaton` would otherwise collide with a `relaton/` subdir).
@@ -328,10 +327,10 @@ suite and then `spec:cli`. Plain `rake spec` stays flavors-only.
   `UnhandledHTTPRequestError` even though nothing about routing had changed.
 - **Cassettes never auto-rerecord — re-recording is a deliberate act.** Every
   VCR config — each `spec/<flavor>/support/vcr.rb`, the umbrella suite's
-  `spec/relaton/support/umbrella.rb` and `gems/relaton-cli/spec/support/vcr.rb`
-  — sets `re_record_interval: nil`, and `spec/relaton/vcr_policy_spec.rb`
-  fails on any other value anywhere under `spec/` or `gems/relaton-cli/spec/`
-  (so a copied config for a new flavor cannot bring the interval back). CI
+  `spec/relaton/support/umbrella.rb`, and the cli suite's
+  `spec/cli/support/vcr.rb` — sets `re_record_interval: nil`, and
+  `spec/relaton/vcr_policy_spec.rb` fails on any other value anywhere under
+  `spec/` (so a copied config for a new flavor cannot bring the interval back). CI
   replays the committed cassettes hermetically, and a suite failure is a real
   regression or a real upstream move to reconcile — never ambient re-recording
   noise. (The former 7-day `re_record_interval` was removed fleet-wide in
@@ -484,7 +483,7 @@ Three standing categories, so nobody re-derives them:
 - **`js/*` alerts are spec fixtures, not our code.** All of them
   (`js/xss-through-dom`, `js/xss`, `js/functionality-from-untrusted-*`,
   `js/overly-large-range`) sit in `spec/*/fixtures/*.html` and
-  `gems/relaton-cli/spec/assets/` — recorded upstream pages, replayed by VCR.
+  `spec/cli/assets/` — recorded upstream pages, replayed by VCR.
   Editing one to quiet a scanner would corrupt a fixture; see the cassette rules
   under **Testing**.
 - **Workflow alerts on the `relaton-data-*` repos are not ours.** Those

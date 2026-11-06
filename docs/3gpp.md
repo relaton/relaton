@@ -89,7 +89,7 @@ never reads the index (see `docs/index.md`).
   check the installed pubid before the flavor.
 - **An unrecognized reference raises.** Like ISO and ETSI, the parse error
   propagates out of `search`, so relaton-cli renders `"…" is not a recognized
-  standards identifier` (`gems/relaton-cli/lib/relaton/cli/command.rb:324`,
+  standards identifier` (`lib/relaton/cli/command.rb`,
   `subcommand_collection.rb:134`) and API callers rescue it themselves. The
   parse happens **outside** the method-level rescue, whose list is transport
   errors only, so it is never relabelled as a `Relaton::RequestError`.

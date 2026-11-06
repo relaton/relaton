@@ -15,7 +15,7 @@ module Relaton
       # An unrecognized reference **raises**; like ISO, ETSI and 3GPP we let it
       # propagate. relaton-cli rescues `Pubid::Errors::Error` and renders
       # `"..." is not a recognized standards identifier`
-      # (`gems/relaton-cli/lib/relaton/cli/command.rb:324`,
+      # (`lib/relaton/cli/command.rb`,
       # `subcommand_collection.rb:134`), and `Db#fetch` logs it via the
       # `StandardError` arm at `lib/relaton/db.rb:122`. Rescuing here would
       # collapse "this identifier is malformed" into "no such document", and a
