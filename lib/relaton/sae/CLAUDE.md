@@ -37,7 +37,9 @@ therefore index-based, the ECMA/IALA shape:
   a partial crawl would publish a partial index). Each work goes through
   `Relaton::Doi::Parser`, then gets SAE's code as its **primary**
   docidentifier (type `SAE`), the DOI beside it, and `ext` doctype
-  `standard`, flavor `sae`.
+  `standard`, flavor `sae`. `fetched` is cleared: a data file carries no
+  fetch date, or every daily crawl would rewrite and commit all ~47,700
+  files. `Bibliography#fetch_doc` sets it when it reads a document.
 - **Consumer** — `Bibliography.get` reads the `relaton-data-sae` Pages index
   (`PAGES_URL`) and the document from `ENDPOINT` (raw GitHub).
 
