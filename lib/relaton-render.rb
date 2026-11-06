@@ -1,12 +1,6 @@
 # frozen_string_literal: true
 
-require_relative "relaton/render/iso690"
-
-module Relaton
-  module Render
-    # A bibliographic item whose style template resolves to nothing: the
-    # single-item API raises, the batch API skips
-    class Unrenderable < StandardError; end
-
-  end
-end
+# Compatibility umbrella: the standalone relaton-render gem's documented
+# require entry. The surface lives at lib/relaton/render.rb — one gem
+# ships both codebases, so both spellings resolve inside relaton.
+require_relative "relaton/render"
