@@ -51,6 +51,14 @@ RSpec.describe "Relaton::Core::Processor#cache_key" do
     end
   end
 
+  # relaton-iec#64: both spellings are one all-parts reference, so they share
+  # one key, and a miss for one cannot be a cached answer for the other.
+  it "gives one IEC key for (all parts) with and without a space" do
+    spaced = key(:relaton_iec, "IEC 80000 (all parts)")
+    expect(spaced).to be_all_parts
+    expect(key(:relaton_iec, "IEC 80000(all parts)").to_hash).to eq spaced.to_hash
+  end
+
   # The key of a fetched document adds what its printed docid omits by
   # design (relaton#408).
   context "item_cache_key" do

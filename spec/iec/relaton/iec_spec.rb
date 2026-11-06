@@ -134,6 +134,24 @@ RSpec.describe Relaton::Iec do
         expect(pubid.to_s).to eq "IEC 80000 (all parts)"
       end
 
+      it "by reference with no space (relaton-iec#64)", vcr: "iec_80000_all_parts" do
+        results = Relaton::Iec::Bibliography.get "IEC 80000(all parts)"
+        iec = results.docidentifier.detect { |d| d.type == "IEC" }
+        expect(iec.to_s).to eq "IEC 80000 (all parts)"
+      end
+
+      it "by a lower-case reference", vcr: "iec_80000_all_parts" do
+        results = Relaton::Iec::Bibliography.get "iec 80000 (all parts)"
+        iec = results.docidentifier.detect { |d| d.type == "IEC" }
+        expect(iec.to_s).to eq "IEC 80000 (all parts)"
+      end
+
+      it "does not change the caller's options", vcr: "iec_80000_all_parts" do
+        opts = {}
+        Relaton::Iec::Bibliography.get "IEC 80000 (all parts)", nil, opts
+        expect(opts).to eq({})
+      end
+
       it "by options", vcr: "iec_80000_all_parts" do
         results = Relaton::Iec::Bibliography.get("IEC 80000", nil, { all_parts: true })
         iec = results.docidentifier.detect { |d| d.type == "IEC" }
