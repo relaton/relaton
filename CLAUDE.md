@@ -74,10 +74,10 @@ point `Relaton.organization("ISO")` (delegates to `Sdo::Store.instance`, mirrori
 the `Relaton.prefix_flavor` idiom) returns an org with `name`/`name(lang)` and
 `logo_query`/`logo` over logo variants keyed by style/format/size. It has **no
 processor and no `Db::Registry` entry** — consistent with the scope note in
-`lib/relaton/db/CLAUDE.md` (org metadata stays out of the processors). It fetches
+`docs/db.md` (org metadata stays out of the processors). It fetches
 a single `index.yaml` manifest from the `relaton-data-sdo` data repo and caches it
 under `~/.relaton/sdo` (reusing `Relaton::Index::FileStorage`). See
-`lib/relaton/sdo/CLAUDE.md`.
+`docs/sdo.md`.
 
 **`Index::FileStorage#write` must be a binary write.** It caches raw `Net::HTTP`
 bodies, which are `ASCII-8BIT` strings; it uses `File.binwrite` (not
@@ -97,7 +97,7 @@ fallback** to the `index-vN.zip` — a transport failure raises
 indexed flavor's consumer now passes its `PAGES_URL` constant, except JIS, NIST
 and Plateau, which still read the zip until their Pages sites publish a
 manifest. (A flavor may still scrape when the index has no record, as OMG does,
-but never falls back to the zip.) See `lib/relaton/index/CLAUDE.md`.
+but never falls back to the zip.) See `docs/index.md`.
 
 **The `Db` cache is keyed by pubid (relaton#189 item 2, #204).** `Db::Cache`
 is an index on two lutaml-store `FileSystem` stores (`<dir>/v2/{rows,docs}`),
@@ -111,7 +111,7 @@ accepted:** relaton does not rewrite `I-D.…`, `BIPM Metrologia …`, a W3C URL
 published data carries canonical ids only). An old cache is moved
 to `<dir>-v1.bak`, never deleted. Pin `lutaml-store ~> 0.3.2`: 0.3.0's adapter
 had no thread/process exclusion (lutaml/lutaml-store#17). See
-`lib/relaton/db/CLAUDE.md`.
+`docs/db.md`.
 
 **Routing is parse-first (relaton#205).** `Registry#route` is the one routing
 rule for `Db`: a pubid parse routes by class ancestry only when it is the
@@ -125,7 +125,7 @@ own parse and cache (`Db#copublisher_fetch`). Everything else falls back to the 
 (`class_by_ref`), and a reference nothing recognizes raises
 `Relaton::UnknownReferenceError`. Error classes: `Relaton::Error` is the base of
 `RequestError` (retried by `Db#net_retry`) and `UnknownReferenceError`
-(relaton-cli logs it and returns no document). See `lib/relaton/db/CLAUDE.md`.
+(relaton-cli logs it and returns no document). See `docs/db.md`.
 
 **SAE reads Crossref, not sae.org (relaton-sae#1).** sae.org answers a script
 with a CAPTCHA, so `Relaton::Sae::DataFetcher` (`fetch-data sae-crossref`)
@@ -135,7 +135,7 @@ edition: `10.4271/j3016_202104`) through `Relaton::Doi::Parser` into the
 SAE's own edition code as SAE prints it (`SAE J3016_202104`,
 `SAE AMS-QQ-A-250/4B`). The index needs pubid >= 2.0.9 (pubid#665: month,
 part, revision, amendment), and the gemspec floors it there. See
-`lib/relaton/sae/CLAUDE.md`.
+`docs/sae.md`.
 
 **Crawl politeness lives in `core`, bindings live in the flavor.** Two shared
 components under `lib/relaton/core/` carry the "don't get banned, don't burn the
@@ -223,7 +223,7 @@ compact `to_hash`, BIPM/ETSI/CIE/ITU/IEEE/IANA/IETF/GOST index shapes,
 published `relaton-data-*` indexes.
 A pubid whose `to_hash` differs from the one that built an index makes
 `Relaton::Index` reject the whole index, so bump the pin in step with the data
-repos. See `lib/relaton/jcgm/CLAUDE.md`.
+repos. See `docs/jcgm.md`.
 
 **No `json` pin — the W3C stack parses with yeptris.** json 3.0.0 made the
 `JSON.parse` options keyword-only, and Faraday's JSON response middleware parses
@@ -458,13 +458,11 @@ release. It authenticates with `rubygems/configure-rubygems-credentials`, so
 `relaton-cli` needs its own Trusted Publisher on rubygems.org for
 `relaton/relaton` `release.yml`.
 
-**Node in the release env (relaton-cli frontend).** relaton-cli's `relaton index`
-command ships a compiled Vue+Tailwind bundle built from `gems/relaton-cli/frontend/`.
-`release-cli` sets up Node and runs `npm ci` + `npm run build` before `gem build`
-(`rake build_all` does the same through `rake build_frontend`). The built
-`frontend/dist/*` is gitignored and packaged explicitly by the gemspec. If Node
-is absent the gem builds without the bundle and `relaton index` raises
-`FrontendAssets::BuildMissingError`. See `gems/relaton-cli/CLAUDE.md`.
+**The CLI frontend bundle.** `relaton index` ships a compiled Vue+Tailwind
+bundle. Since the consolidation, its **dist is committed** at
+`lib/relaton/cli/frontend/dist` — the release path needs no Node; refresh
+`rake build:frontend` whenever `lib/relaton/cli/frontend/src` changes and
+commit the result.
 
 ## Security scanning (CodeQL)
 
@@ -511,24 +509,32 @@ regex back.
 
 ## Conventions to keep
 
-- **Per-flavor docs.** Each flavor keeps its own `lib/relaton/<flavor>/CLAUDE.md`
-  with that flavor's architecture notes (retrieval flow, key classes). These are
-  dev docs — excluded from the packaged gem via the gemspec `files` glob.
+- **One guidance doc.** This root `CLAUDE.md` is the repository's only
+  auto-loaded guidance. Per-component architecture notes live in
+  `docs/<name>.md` (one per flavor, plus `db`, `index`, `core`, `sdo`,
+  `bib`, `logger`) — referenced, never auto-loaded, excluded from the
+  packaged gem. The nested `lib/**/CLAUDE.md` files are gone: they were
+  monorepo relics (each documented a separate gem with its own pins),
+  they fragmented guidance into 42 independently-drifting scopes, and
+  their drift misled (the ietf one still named equivalent-xml's matcher
+  after the canon migration). Keep invariants here; keep architecture
+  walkthroughs in `docs/`.
 - **Adding a flavor:** drop `lib/relaton/<flavor>/…` (with a `processor.rb`; the
   flavor's `grammar_hash` should hash `Relaton::VERSION` — don't add a per-flavor
   `version.rb`), add an `autoload` line to
   `lib/relaton.rb`, make its `Bibliography.get` accept its own pubid as well as
   a String, without mutating it (`Relaton::Db` hands `get` the parse it routed
   and keyed the cache with — see "One parse per fetch" in
-  `lib/relaton/db/CLAUDE.md`), add the prefix to `Relaton::Db::Registry::SUPPORTED_GEMS`,
+  `docs/db.md`), add the prefix to `Relaton::Db::Registry::SUPPORTED_GEMS`,
   add its external deps to `relaton.gemspec`, put `<flavor>(-compile).rng` in
-  `grammar/`, add specs under `spec/<flavor>/`, and a `lib/relaton/<flavor>/CLAUDE.md`.
+  `grammar/`, add specs under `spec/<flavor>/`, and a `docs/<flavor>.md`
+  architecture note.
   For the `Db` cache key, the processor sets `@pubid_flavor` (or
   `@pubid_identifier`, which leaves `#prefixes` alone); it overrides
   `cache_pubid` only when `get` reads an unparseable reference as a miss.
   If the flavor's printed docid omits an edition the item keeps elsewhere
   (IHO, ECMA), it overrides `item_cache_key` to add it, or the `Db` cache
-  stores all editions in one file (relaton#408; `lib/relaton/db/CLAUDE.md`).
+  stores all editions in one file (relaton#408; `docs/db.md`).
 - **Index-file constant.** A flavor that publishes an index names it with a single
   `INDEXFILE = "index-vN"` constant (one word, **no extension**) in its top-level
   `lib/relaton/<flavor>.rb`; call sites append `.yaml`/`.zip` (`"#{INDEXFILE}.yaml"`,
@@ -538,13 +544,13 @@ regex back.
   built/read via `pubid_class: ::Pubid::Bipm::Identifier`); the legacy bespoke
   `index-v1` is no longer produced here — `relaton-data-bipm`'s crawler still
   emits it using the retained public `Relaton::Bipm::Id`. See
-  `lib/relaton/bipm/CLAUDE.md`. **IANA** followed the same shape: its `INDEXFILE`
+  `docs/bipm.md`. **IANA** followed the same shape: its `INDEXFILE`
   is now the pubid `index-v2` (`_type: pubid:iana:registry`, via
   `pubid_class: ::Pubid::Iana::Identifier`), and `relaton-data-iana`'s crawler
   derives the legacy `index-v1` from it. IANA ids carry no document number, so
   the bsearch key `number` holds the **top-level registry slug** — it was empty
   before pubid `feat/iana-index-number`, which would have bucketed all 3405 rows
-  together and silently degraded the search. See `lib/relaton/iana/CLAUDE.md`.
+  together and silently degraded the search. See `docs/iana.md`.
   **W3C** is the same shape again, and is the pilot for the 4 flavors that still
   parse ids by hand: its `INDEXFILE` is the pubid `index-v2`
   (`_type: pubid:w3c:*`, via `pubid_class: ::Pubid::W3c::Identifier`), the
@@ -555,14 +561,14 @@ regex back.
   (no alias) before an index-v2 was possible at all. The consumer narrows with
   the subset match `pubid === row[:id]` (see **Matching a reference**); a URL
   and a leading `TR-` are normalized in the flavor, since neither is an
-  identifier. See `lib/relaton/w3c/CLAUDE.md`.
+  identifier. See `docs/w3c.md`.
   **3GPP** is the same shape at the largest scale in the gem — 88,464 rows,
   3,767 number buckets, largest 979 — so it is where the "`pubid_class:` alone
   fixes nothing" rule bites hardest: `Type#search_candidates` narrows only for a
   non-`String` query, so the producer and the consumer both pass
   `pubid_class: ::Pubid::Tgpp::Identifier` **and** `Bibliography` passes a
   parsed pubid. (`remove_index_file` is not a `pubid_class:` site — the delete
-  never reads the index; see `lib/relaton/index/CLAUDE.md`.) The 3GPP-specific
+  never reads the index; see `docs/index.md`.) The 3GPP-specific
   trap: `Pubid::Tgpp#to_s` omits the `3GPP `
   publisher token by default (it renders the index id), so `Docidentifier`
   re-renders with `with_publisher: true` or every mutation strips the prefix.
@@ -571,7 +577,7 @@ regex back.
   deserialization as well as on parse, or `matches?` rejects every part-less
   row. Selection is by highest **version**, segments compared as
   integers — a deliberate change from an arbitrary string `min_by`, measured at
-  86% vs 2% against publication dates. See `lib/relaton/3gpp/CLAUDE.md`.
+  86% vs 2% against publication dates. See `docs/3gpp.md`.
   **ECMA** is the same shape: its `INDEXFILE` is the pubid `index-v2`
   (`_type: pubid:ecma:*`, via `pubid_class: ::Pubid::Ecma::Identifier`), and
   `relaton-data-ecma`'s crawler derives the legacy `index-v1` from it. What
@@ -585,7 +591,7 @@ regex back.
   `Docidentifier` at all. Selection is by highest **edition**, segments compared
   as integers, then lowest volume; a string compare made `"9"` beat `"17"` and
   returned the older document in 5 of 421 families. See
-  `lib/relaton/ecma/CLAUDE.md`.
+  `docs/ecma.md`.
   **CalConnect** is the same shape and the cheapest instance of it: its
   `INDEXFILE` is the pubid `index-v2` (`_type: pubid:calconnect:standard`, via
   `pubid_class: ::Pubid::Calconnect::Identifier`), and this gem no longer
@@ -609,7 +615,7 @@ regex back.
   that does **not** derive `index-v1` from the v2 rows — it rebuilds it from
   each document's own primary docidentifier, so its v1 never depends on pubid
   and this gem carries no v1 fixture and no v1 assertion. See
-  `lib/relaton/calconnect/CLAUDE.md`.
+  `docs/calconnect.md`.
   **OASIS** is the same shape, and is the worked example of splitting the
   migration **producer-first** when the data repo has not republished yet: the
   gem started writing the pubid `index-v2` (`_type: pubid:oasis:standard`, via
@@ -628,7 +634,7 @@ regex back.
   row — five records are a bare spec name with versioned siblings (`EDXL`,
   `OData`, `OSLC`, `SAML`, `WSS`), and without the exact rule three of them
   answered with a sibling. All 605 published ids resolve to their own record.
-  See `lib/relaton/oasis/CLAUDE.md`.
+  See `docs/oasis.md`.
   **JIS** was the last flavor that wrote both generations. Its `INDEXFILE` is
   now the pubid `index-v2` (via `pubid_class: ::Pubid::Jis::Identifier`), and
   `relaton-data-jis`'s crawler rebuilds `index-v1` from `data/`, as XSF does.
@@ -640,7 +646,7 @@ regex back.
   existed would delete `index-v1` from the published branch.
   The index schema
   and data-repo publishing/Pages contract are specified in
-  `docs/data-repository-format.adoc`; see also `lib/relaton/index/CLAUDE.md`.
+  `docs/data-repository-format.adoc`; see also `docs/index.md`.
 - **A flavor with no index migrates to pubid in the BSI shape.** `INDEXFILE` and
   `pubid_class:` are the *index* half of a pubid migration, and a flavor that
   scrapes has neither. **CEN** is the worked example: it crawls
@@ -660,10 +666,10 @@ regex back.
   the same decision for the selection, so CEN needs the idiom only where it
   appends the `year` argument. A base reference must never match its own
   amendment's record; `===` requires the same class, which enforces that.
-  See `lib/relaton/cen/CLAUDE.md`. **GB** is the same shape over three portal
+  See `docs/cen.md`. **GB** is the same shape over three portal
   scrapers, and it is the counter-example to CEN's `===`: it selects its hits
   with `matches?`, because pubid does not make a GB `part` strict (next
-  bullet). See `lib/relaton/gb/CLAUDE.md`.
+  bullet). See `docs/gb.md`.
 - **Matching a reference: `reference === row`, where a nil is a wildcard.**
   pubid's `Pubid::SubsetMatch` gives every identifier an **asymmetric** `===`:
   the reference is the receiver, and a component it leaves nil or empty matches
@@ -672,12 +678,12 @@ regex back.
   itself. It is also **`Index::Type#search`'s default** when the call passes no
   block, so OASIS, W3C, XSF, IALA, OGC, ECMA, 3GPP, CalConnect, GOST
   and Plateau just call `index.search(pubid)`; ETSI passes a block that strips
-  the row's parts for a part-less reference (see `lib/relaton/etsi/CLAUDE.md`
+  the row's parts for a part-less reference (see `docs/etsi.md`
   — `#to_all_parts` would drop the version and the date too). A caller that needs exact
   equality passes `exact: true` (`==`) and says why:
   `Relaton::Ccsds::HitCollection#rows`, `Relaton::Ietf::Scraper#fetch_doc`,
   a dated GOST or an edition-bearing Plateau reference, and an OIML Bulletin (see
-  `lib/relaton/index/CLAUDE.md`). JCGM and CEN (`search_filter`, over portal
+  `docs/index.md`). JCGM and CEN (`search_filter`, over portal
   hits) call `===` directly. CCSDS's
   crawler (`Data::Fetcher#search_relations`/`#search_translations`) did too, until
   pubid#408 made CCSDS `language` `subset_strict`. It now matches with
@@ -699,7 +705,7 @@ regex back.
     `suffix`: `CCSDS 101.0-B-4 === CCSDS 101.0-B-4-S` is still true, so
     `HitCollection#rows` keeps `exact: true`. It also missed OIML `language`
     and `subpart`, and OIML compares the `year_on_base` render flag, so OIML
-    keeps its own `pubid_match?` (see `lib/relaton/oiml/CLAUDE.md`).
+    keeps its own `pubid_match?` (see `docs/oiml.md`).
     **Before a site switches to `===`, measure `===` against the old match**
     over the flavor's index — the full data index where one is at hand, since
     a fixture subset can miss a whole class (the 11-row OIML fixture showed 0

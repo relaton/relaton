@@ -41,7 +41,7 @@ module Relaton
     # the rate is set by a shared `Relaton::Core::Pacer` — `delay:` is the
     # minimum gap between request *starts*, so ITU's own latency counts toward it
     # instead of being added on top. A `Relaton::Itu::Governor` gives the pool one
-    # shared cooldown for a WAF block. See `#get` and lib/relaton/itu/CLAUDE.md.
+    # shared cooldown for a WAF block. See `#get` and docs/itu.md.
     # The crawl is parallel **within** a series only: `DataFetcher#harvest_family`
     # rescues per series and `DataMergeR` writes per series, and the data repo's
     # collapse guard is calibrated on that granularity.

@@ -3,7 +3,7 @@
 require "mechanize"
 # pubid loads with the flavor, for the ::Pubid::Xsf::Identifier that the
 # index code names. Processor#remove_index_file names no pubid class: the
-# delete never reads the index (see lib/relaton/index/CLAUDE.md).
+# delete never reads the index (see docs/index.md).
 require "pubid"
 require_relative "index"
 require_relative "bib"

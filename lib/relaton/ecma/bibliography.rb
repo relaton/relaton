@@ -38,7 +38,7 @@ module Relaton
         # answer is worse than none. By the same trade-off, a reference must now
         # parse WHOLE: the old regex was unanchored at the end, so
         # `ECMA-6 (draft)` silently resolved to ECMA-6 and now does not. See
-        # lib/relaton/ecma/CLAUDE.md for the measured table.
+        # docs/ecma.md for the measured table.
         #
         # The rows are selected with pubid's subset match `pubid === row`, the
         # default of `Index::Type#search`. An `edition` or a `volume` that the

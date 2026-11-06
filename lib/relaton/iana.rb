@@ -25,7 +25,7 @@ module Relaton
     # The legacy string-keyed `index-v1` (whose `:id` was the bare
     # `registry[/sub-registry]` slug) is no longer produced or read here; it is
     # emitted by `relaton-data-iana`'s own `crawler.rb`, derived from `index-v2`,
-    # so released gem lines keep resolving. See lib/relaton/iana/CLAUDE.md.
+    # so released gem lines keep resolving. See docs/iana.md.
     INDEXFILE = "index-v2".freeze
     # The machine index on the data repo's Pages site (relaton#206) —
     # manifest + per-shard rows read by the consumer's index; the zip stays

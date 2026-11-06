@@ -125,7 +125,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rubyzip", "~> 3.7"
   # 0.3.3 is the floor, not a preference: it sets an identifying User-Agent
   # (a bare Faraday one trips Cloudflare's bot heuristics on api.w3.org) and
-  # makes its 403 retry actually fire. See lib/relaton/w3c/CLAUDE.md.
+  # makes its 403 retry actually fire. See docs/w3c.md.
   spec.add_dependency "w3c_api", "~> 0.3.3"
 
   spec.metadata["rubygems_mfa_required"] = "true"

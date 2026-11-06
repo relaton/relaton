@@ -43,7 +43,7 @@ module Relaton
       # parse — pubid normalizes Latin input to the canonical id
       # (metanorma/pubid #269) — so search accepts both forms. An unrecognized
       # reference raises; like ISO and 3GPP we let it propagate — relaton-cli
-      # rescues Pubid::Errors::Error. See lib/relaton/plateau/CLAUDE.md.
+      # rescues Pubid::Errors::Error. See docs/plateau.md.
       # Relaton::Db passes the reference already parsed (relaton#205).
       def pubid_ref
         @pubid_ref ||= ref.is_a?(String) ? ::Pubid::Plateau.parse(ref) : ref

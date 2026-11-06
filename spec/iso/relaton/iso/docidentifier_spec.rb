@@ -124,7 +124,7 @@ describe Relaton::Iso::Docidentifier do
     # is preserved on the wrapped identifier itself (see below). This is a
     # real, disclosed change from the pre-migration renderer, which kept a
     # supplement's own year (`ISO 19115-1/Amd 1:2018`); see the root
-    # `CLAUDE.md` all-parts hand-off.
+    # `docs/iso.md` all-parts hand-off.
     it "drops the amendment's own year from the rendering" do
       docid = described_class.new(
         content: "ISO 19115-1:2014/Amd 1:2018", type: type,
