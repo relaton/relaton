@@ -98,61 +98,85 @@ RSpec.describe Relaton::Iho do
       end
     end
 
-    # relaton#407: the series publications (B-7, P-1, P-5, P-6) are
-    # identified by a year or a volume (with an issue), not an edition —
-    # the trailing component of the identifier is the document's identity.
-    # The fixture index carries the re-keyed rows (the placeholder
-    # `1.0.0` editions are gone); the selected file is stubbed, so a
-    # wrong pick hits WebMock's net block.
-    context "series identified by year or volume" do
+    # relaton#440: the series publications are identified by a volume
+    # locator (the yearbook year IS a volume) or, for edition-keyed
+    # products like P-7, by their dotted edition. The bare-year faces of
+    # the #48 re-key parse as legacy aliases into the volume slot. The
+    # fixture index carries the round-2 rows (relaton-data-iho#52); the
+    # selected file is stubbed, so a wrong pick hits WebMock's net block.
+    context "series identified by volume or edition" do
       def stub_doc(file, docid)
         stub_request(:get, "#{Relaton::Iho::Bibliography::ENDPOINT}#{file}")
           .to_return(body: "---\ndocidentifier:\n- content: #{docid}\n  type: IHO\n  primary: true\n")
       end
 
-      it "resolves a year-identified series document" do
-        stub_doc "data/p-5_2024.yaml", "P-5 2024"
-        result = Relaton::Iho::Bibliography.get "IHO P-5 2024"
-        expect(result.docidentifier.first.content).to eq "P-5 2024"
+      it "resolves a volume-identified series document" do
+        stub_doc "data/p-5_vol-2020.yaml", "P-5 Vol. 2020"
+        result = Relaton::Iho::Bibliography.get "IHO P-5 Vol. 2020"
+        expect(result.docidentifier.first.content).to eq "P-5 Vol. 2020"
       end
 
-      it "resolves a year-identified B-series document" do
-        stub_doc "data/b-7_2020.yaml", "B-7 2020"
-        result = Relaton::Iho::Bibliography.get "IHO B-7 2020"
-        expect(result.docidentifier.first.content).to eq "B-7 2020"
+      # The bare-year face is a parse-only legacy alias: it binds into
+      # the volume and answers the volume's record (relaton#440 gate).
+      it "resolves a bare-year alias to its volume record" do
+        stub_doc "data/p-5_vol-2020.yaml", "P-5 Vol. 2020"
+        result = Relaton::Iho::Bibliography.get "IHO P-5 2020"
+        expect(result.docidentifier.first.content).to eq "P-5 Vol. 2020"
       end
 
-      it "resolves a year-identified series document by conference year" do
-        stub_doc "data/p-6_2023.yaml", "P-6 2023"
-        result = Relaton::Iho::Bibliography.get "IHO P-6 2023"
-        expect(result.docidentifier.first.content).to eq "P-6 2023"
+      it "resolves a volume-identified B-series document" do
+        stub_doc "data/b-7_vol-2003.yaml", "B-7 Vol. 2003"
+        result = Relaton::Iho::Bibliography.get "IHO B-7 Vol. 2003"
+        expect(result.docidentifier.first.content).to eq "B-7 Vol. 2003"
+      end
+
+      it "resolves a conference series document by its volume" do
+        stub_doc "data/p-6_vol-2023.yaml", "P-6 Vol. 2023"
+        result = Relaton::Iho::Bibliography.get "IHO P-6 Vol. 2023"
+        expect(result.docidentifier.first.content).to eq "P-6 Vol. 2023"
       end
 
       it "resolves a volume- and issue-identified series document" do
-        stub_doc "data/p-1_vol-30-2.yaml", "P-1 Vol. 30 (2)"
-        result = Relaton::Iho::Bibliography.get "IHO P-1 Vol. 30 (2)"
-        expect(result.docidentifier.first.content).to eq "P-1 Vol. 30 (2)"
+        stub_doc "data/p-1_vol-30-1.yaml", "P-1 Vol. 30 (1)"
+        result = Relaton::Iho::Bibliography.get "IHO P-1 Vol. 30 (1)"
+        expect(result.docidentifier.first.content).to eq "P-1 Vol. 30 (1)"
       end
 
       # The issue the query omits is a wildcard: any issue of the named
-      # volume answers.
+      # volume answers — including through the compact slash-chain face
+      # (relaton#440: `IHO P-1/30` resolves again).
       it "answers a volume-only query" do
-        stub_doc "data/p-1_vol-30-2.yaml", "P-1 Vol. 30 (2)"
+        stub_doc "data/p-1_vol-30-1.yaml", "P-1 Vol. 30 (1)"
         result = Relaton::Iho::Bibliography.get "IHO P-1 Vol. 30"
-        expect(result.docidentifier.first.content).to eq "P-1 Vol. 30 (2)"
+        expect(result.docidentifier.first.content).to eq "P-1 Vol. 30 (1)"
       end
 
-      # A query that names no component takes the latest of the series.
-      it "answers a bare series query with the latest year" do
-        stub_doc "data/p-5_2024.yaml", "P-5 2024"
+      it "answers the compact slash-chain volume face" do
+        stub_doc "data/p-1_vol-30-1.yaml", "P-1 Vol. 30 (1)"
+        result = Relaton::Iho::Bibliography.get "IHO P-1/30"
+        expect(result.docidentifier.first.content).to eq "P-1 Vol. 30 (1)"
+      end
+
+      # A query that names no component takes the latest of the series:
+      # the latest volume for a volume series (relaton#440 folded the
+      # year locators in), the newest edition for an edition-keyed
+      # product — not a year.
+      it "answers a bare series query with the latest volume" do
+        stub_doc "data/p-5_vol-2020.yaml", "P-5 Vol. 2020"
         result = Relaton::Iho::Bibliography.get "IHO P-5"
-        expect(result.docidentifier.first.content).to eq "P-5 2024"
+        expect(result.docidentifier.first.content).to eq "P-5 Vol. 2020"
+      end
+
+      it "answers a bare edition-keyed series query with the newest edition" do
+        stub_doc "data/p-7_1-0-9.yaml", "P-7"
+        result = Relaton::Iho::Bibliography.get "IHO P-7"
+        expect(result.docidentifier.first.content).to eq "P-7"
       end
 
       it "answers a bare series query with the latest volume and issue" do
-        stub_doc "data/p-1_vol-30-2.yaml", "P-1 Vol. 30 (2)"
+        stub_doc "data/p-1_vol-30-1.yaml", "P-1 Vol. 30 (1)"
         result = Relaton::Iho::Bibliography.get "IHO P-1"
-        expect(result.docidentifier.first.content).to eq "P-1 Vol. 30 (2)"
+        expect(result.docidentifier.first.content).to eq "P-1 Vol. 30 (1)"
       end
 
       # The placeholder edition is gone from the series: a `1.0.0`
