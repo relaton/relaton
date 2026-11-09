@@ -256,8 +256,11 @@ RSpec.describe Relaton::Db do
       expect(doc_files.size).to eq 1
     end
 
+    # Each distinct range owns its answer (metanorma#659): the flavor is
+    # asked once per range, but every range's row points at the same
+    # edition file.
     it "writes one file for queries that differ only by date range" do
-      expect(Relaton::Iso::Bibliography).to receive(:get).once
+      expect(Relaton::Iso::Bibliography).to receive(:get).exactly(3).times
         .and_return iso_item("ISO 19115-1:2014", published: "2014-04-01")
       %w[2010 2012 2014].each do |after|
         bib = db.fetch "ISO 19115-1", nil, publication_date_after: after
@@ -519,7 +522,28 @@ RSpec.describe Relaton::Db do
 
     after(:each) { db.clear }
 
-    it "returns base cached entry when date matches" do
+    # A bare seeded entry cannot answer a ranged query: whether a newer
+    # edition exists is knowable only from the flavor, so the range needs
+    # its own qualified entry (metanorma#659).
+    it "does not answer a ranged query from a bare seeded entry" do
+      item = db.send(
+        :check_bibliocache, "ISO 123", nil,
+        { publication_date_after: "2019-01-01",
+          fetch_db: true }, :relaton_iso
+      )
+      expect(item).to be_nil
+    end
+
+    it "answers a ranged query from its qualified entry over fetch_db" do
+      opts = { publication_date_after: "2019-01-01" }
+      key = db.send(:query_and_key, "ISO 123", nil, opts, :relaton_iso, nil)[1]
+      db.save_entry "#{key}@range:after=2019-01-01", <<~XML
+        <bibitem id="ISO123">
+          <fetched>#{Date.today}</fetched>
+          <title>Test</title>
+          <date type="published"><on>2019-06-15</on></date>
+        </bibitem>
+      XML
       item = db.send(
         :check_bibliocache, "ISO 123", nil,
         { publication_date_after: "2019-01-01",
@@ -1082,6 +1106,86 @@ RSpec.describe Relaton::Db do
       expect(Relaton::Iso::Bibliography).to receive(:get).and_return(nil)
       expect(Relaton::Iec::Bibliography).to receive(:get).and_return(iec_item)
       expect(subject.fetch_std("ISO/IEC 27001:2022")).to be_iec_item
+    end
+  end
+
+  context "#check_date_range cutoff determinism (metanorma#659)" do
+    def dated_item(docid, date)
+      Relaton::Bib::Bibitem.from_xml(
+        <<~XML
+          <bibitem id="#{docid.tr(' :', '--')}">
+            <title>Edition #{date}</title>
+            <docidentifier type="ISO" primary="true">#{docid}</docidentifier>
+            <date type="published"><on>#{date}-01-01</on></date>
+          </bibitem>
+        XML
+      )
+    end
+
+    def undated_item(published)
+      Relaton::Bib::Bibitem.from_xml(
+        <<~XML
+          <bibitem id="ISO-10303-1">
+            <title>Undated</title>
+            <docidentifier type="ISO" primary="true">ISO 10303-1</docidentifier>
+            <date type="published"><on>#{published}-01-01</on></date>
+          </bibitem>
+        XML
+      )
+    end
+
+    let(:db) { Relaton::Db.new "testcache", nil }
+    let(:fetches) { [] }
+
+    before do
+      allow(db).to receive(:net_retry) do |_code, _year, opts, *_rest|
+        fetches << opts
+        case
+        when opts[:publication_date_before].nil? then dated_item("ISO 10303-1:2024", "2024")
+        when opts[:publication_date_before] >= "2022" then dated_item("ISO 10303-1:2021", "2021")
+        else dated_item("ISO 10303-1:1994", "1994")
+        end
+      end
+    end
+
+    it "answers each cutoff from its own fetch, not from the cache pool " \
+       "earlier cutoffs populated" do
+      old = db.fetch("ISO 10303-1", nil, publication_date_before: "2015-01-01")
+      expect(old.docidentifier.first.content).to include("1994")
+
+      # A later cutoff must not be answered from the pool the earlier
+      # cutoff left behind: 2021 exists and is in range, so it must be
+      # fetched and served.
+      recent = db.fetch("ISO 10303-1", nil, publication_date_before: "2022-01-01")
+      expect(recent.docidentifier.first.content).to include("2021")
+    end
+
+    it "serves a repeated identical cutoff from its qualified cache entry " \
+       "without refetching" do
+      db.fetch("ISO 10303-1", nil, publication_date_before: "2015-01-01")
+      db.fetch("ISO 10303-1", nil, publication_date_before: "2015-01-01")
+      expect(fetches.size).to eq 1
+    end
+
+    it "never lets a ranged answer overwrite the unqualified query row" do
+      allow(db).to receive(:net_retry) do |_code, _year, opts, *_rest|
+        fetches << opts
+        if opts[:publication_date_before]
+          # Undated answer: item_key == query key, must not write the row.
+          undated_item("2021")
+        else
+          dated_item("ISO 10303-1:2024", "2024")
+        end
+      end
+
+      ranged = db.fetch("ISO 10303-1", nil, publication_date_before: "2015-01-01")
+      expect(ranged.docidentifier.first.content).not_to include(":")
+
+      # The unqualified query must fetch its own (latest) answer rather
+      # than serve the cutoff pick the ranged fetch produced.
+      latest = db.fetch("ISO 10303-1")
+      expect(latest.docidentifier.first.content).to include("2024")
+      expect(fetches.size).to eq 2
     end
   end
 end
