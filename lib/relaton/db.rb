@@ -553,18 +553,29 @@ module Relaton
     end
 
     #
-    # A publication date range selects among the cached editions of the
-    # reference, so it is not part of the key. On a miss the flavor is asked
-    # with the range, and its answer is cached under its own identifier only:
-    # the query row keeps pointing to the latest edition.
+    # A publication date range selects among editions of the reference. The
+    # answer must depend on the citing document's cutoff, never on the order
+    # in which parallel workers happen to populate the cache: the edition
+    # pool visible to any one worker is whatever earlier workers fetched for
+    # their own cutoffs, so answering from that pool is nondeterministic
+    # (metanorma#659). A ranged answer is therefore cached under a key that
+    # names the range and a hit on it is authoritative; the unqualified
+    # query row is never written by a ranged fetch, so it keeps pointing at
+    # the latest edition.
     #
-    def check_date_range(code, key, year, opts, stdclass, query = nil) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
-      caches = [@local_db, @db].compact
-      cached = caches.flat_map { |c| c.candidates(key) }.filter_map do |_, xml|
-        date = published_date(xml)
-        [date, xml] if date && pub_date_in_range?(xml, opts)
-      end.max_by(&:first)
-      return bib_retval(cached.last, stdclass) if cached && !opts[:no_cache]
+    def range_cache_key(key, opts)
+      bounds = [opts[:publication_date_before] && "before=#{opts[:publication_date_before]}",
+                opts[:publication_date_after] && "after=#{opts[:publication_date_after]}"]
+        .compact
+      bounds.empty? ? nil : "#{key}@range:#{bounds.join(',')}"
+    end
+
+    def check_date_range(code, key, year, opts, stdclass, query = nil)
+      qualified = range_cache_key(key, opts)
+      unless opts[:no_cache]
+        hit = [@local_db, @db].compact.filter_map { |c| c.read(qualified) }.first
+        return bib_retval(hit, stdclass) if hit
+      end
       return if opts[:fetch_db]
 
       processor = @registry[stdclass]
@@ -574,9 +585,15 @@ module Relaton
 
       entry = bib_entry bib
       item = item_key(bib, stdclass)
-      if item
-        @semaphore.synchronize do
-          [@local_db, @db].compact.each { |c| c.store item, entry }
+      @semaphore.synchronize do
+        [@local_db, @db].compact.each do |c|
+          # A ranged answer that carries no edition of its own is the
+          # undated form: storing it would overwrite the unqualified query
+          # row (whose contract is the latest edition), so only a genuinely
+          # dated answer may write its own row.
+          link = item if item && item != key
+          c.store item, entry if link
+          c.store qualified, entry, item_key: link if qualified
         end
       end
       bib_retval entry, stdclass
