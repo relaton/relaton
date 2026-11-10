@@ -5,6 +5,29 @@ module Relaton
 
       DOMAIN = "https://webstore.iec.ch"
 
+      # The Harmonized API serves published records with a status WORD;
+      # the harmonized stage system (ISO/IEC Directives Part 1) wants the
+      # numeric code (relaton#519). 60.60 is "International Standard
+      # published". The four end-of-life words all sit at 95.99
+      # "Withdrawal of International Standard": by the time the API
+      # serves REVISED/REPLACED/MERGED the newer record is already
+      # published and this edition is withdrawn - 90.92 ("to be
+      # revised") is a review-DECISION state that never persists into a
+      # bibliographic record, and ISO's own corpus records superseded
+      # editions at 95.99 with no stage-90 records at all
+      # (metanorma-iso#1067 wants IEC to match ISO's treatment). The
+      # original word rides along in ext.stagename, so the mapping is
+      # reversible at render time. An unmapped word raises: the table is
+      # the contract, and a new API word is a spec change to make
+      # deliberately, not silently.
+      HARMONIZED_STATUS = {
+        "PUBLISHED" => %w[60 60],
+        "REVISED" => %w[95 99],
+        "REPLACED" => %w[95 99],
+        "WITHDRAWN" => %w[95 99],
+        "MERGED" => %w[95 99],
+      }.freeze
+
       ATTRS = %i[
         type docidentifier language script title date contributor
         status edition abstract copyright source relation place ext
@@ -143,8 +166,15 @@ module Relaton
 
       def status
         result = begin
-          stage = Bib::Status::Stage.new content: @pub["status"]
-          Bib::Status.new stage: stage
+          code = HARMONIZED_STATUS.fetch(@pub["status"]) do
+            raise ArgumentError,
+                  "unknown Harmonized API status word: #{@pub["status"].inspect} - " \
+                  "extend DataParser::HARMONIZED_STATUS"
+          end
+          Bib::Status.new(
+            stage: Bib::Status::Stage.new(content: code[0]),
+            substage: Bib::Status::Stage.new(content: code[1]),
+          )
         end
         @errors[:status] &&= result.nil?
         result
@@ -353,9 +383,18 @@ module Relaton
           flavor: "iec",
           ics: ics,
           price_code: @pub.dig("priceInfo", "priceCode"),
+          stagename: stagename,
         )
         @errors[:ext] &&= result.nil?
         result
+      end
+
+      # The Harmonized API's status word, kept beside the numeric stage
+      # code it mapped to (relaton#519) - ext.stagename is where the IHO
+      # and ISO flavors keep the SDO's own stage vocabulary too.
+      def stagename
+        word = @pub["status"]
+        StageName.new(abbreviation: word, content: word) if word
       end
 
       #
