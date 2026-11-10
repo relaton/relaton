@@ -24,12 +24,41 @@ module Relaton
       end
 
       def slug_number
-        @slug_number ||= @entry["slug"]&.to_s&.split("_")&.first
+        @slug_number ||= mapped_docnumber&.[](/#(\S+)/, 1) ||
+          @entry["slug"]&.to_s&.split("_")&.first
       end
 
       def parse_docnumber
         @errors[:hb_docnumber] &&= @entry["slug"].nil? || @entry["slug"].to_s.empty?
-        ["Handbook ##{slug_number}", edition_label].reject { |s| s.to_s.empty? }.join(" ")
+        mapped_docnumber ||
+          ["Handbook ##{slug_number}", edition_label].reject { |s| s.to_s.empty? }.join(" ")
+      end
+
+      # Part label of a split edition, e.g. "（公共活用編）". Editions 1-3 of
+      # Handbook #11 were two documents each (relaton-plateau#13).
+      def part_label
+        @version["title"].to_s[/（[^（）]+活用編）/]
+      end
+
+      # The canonical docnumber of a split edition, mapped by pubid's
+      # update_codes ("Handbook #11 第1.0版（公共活用編）" -> "Handbook #04
+      # 第1.0版"), or nil for an edition that is not split.
+      def mapped_docnumber
+        return @mapped_docnumber if defined? @mapped_docnumber
+
+        @mapped_docnumber = if part_label
+                              slug = @entry["slug"]&.to_s&.split("_")&.first
+                              raw = "PLATEAU Handbook ##{slug} #{edition_label}#{part_label}"
+                              map_docnumber(raw)
+                            end
+      end
+
+      def map_docnumber(raw)
+        id = ::Pubid::Plateau.parse(raw).to_s
+        id.delete_prefix("PLATEAU ") unless id == raw
+      rescue ArgumentError, ::Pubid::Errors::Error => e
+        Util.warn "Cannot map split edition `#{raw}`: #{e.message}"
+        nil
       end
 
       def parse_abstract
