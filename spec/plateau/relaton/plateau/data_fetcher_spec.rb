@@ -213,6 +213,24 @@ RSpec.describe Relaton::Plateau::DataFetcher do
         .to_stderr_from_any_process
     end
 
+    # The data repo crawls incrementally: it keeps data/ and calls
+    # prune_unwritten, which deletes only what the run did not record.
+    it "records the file, so prune_unwritten deletes only stale files" do
+      Dir.mktmpdir do |dir|
+        fetcher = described_class.new dir, "yaml"
+        allow(fetcher.index).to receive(:add_or_update)
+        allow(fetcher).to receive(:serialize).and_return "---\n"
+        stale = File.join(dir, "plateau-handbook-11-10.yaml")
+        File.write stale, "---\n"
+        (1..10).each do |n|
+          docid = Relaton::Bib::Docidentifier.new content: format("PLATEAU Handbook #%02d 第1.0版", n)
+          fetcher.save_document Relaton::Plateau::ItemData.new(docidentifier: [docid])
+        end
+        expect(fetcher.prune_unwritten(min_ratio: 0.5)).to eq [stale]
+        expect(Dir.children(dir).size).to eq 10
+      end
+    end
+
     it "duplicate" do
       subject.instance_variable_set :@files, Set.new(["data/plateau-handbook-01-40.xml"])
       expect(File).not_to receive(:write)
