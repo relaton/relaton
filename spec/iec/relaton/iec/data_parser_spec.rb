@@ -27,7 +27,8 @@ describe Relaton::Iec::DataParser do
       expect(item.title.size).to eq 6
       expect(item.title[0].content).to eq "Title"
       expect(item.title[0].type).to eq "title-intro"
-      expect(item.status.stage.content).to eq "PUBLISHED"
+      expect(item.status.stage.content).to eq "60"
+      expect(item.status.substage.content).to eq "60"
       expect(item.edition.content).to eq "1"
       expect(item.date.size).to eq 4
       expect(item.date[0].at.to_s).to eq "2019-03-04"
@@ -45,6 +46,37 @@ describe Relaton::Iec::DataParser do
       expect(item.ext.flavor).to eq "iec"
       expect(item.ext.ics[0].code).to eq "01.040.35"
       expect(item.ext.price_code).to eq "PC"
+      # relaton#519: the Harmonized API's word survives beside the code.
+      expect(item.ext.stagename.abbreviation).to eq "PUBLISHED"
+    end
+
+    # relaton#519: the Harmonized API's status word maps to the numeric
+    # harmonized stage code (ISO/IEC Directives Part 1). 60.60 is
+    # "International Standard published"; the four end-of-life words all
+    # sit at 95.99 "Withdrawal of International Standard" - 90.92 ("to
+    # be revised") is a review-decision state that never persists into a
+    # bibliographic record, and ISO's corpus records superseded editions
+    # at 95.99 with no stage-90 records (metanorma-iso#1067 wants IEC to
+    # match ISO's treatment).
+    context "harmonized status words map to stage codes" do
+      {
+        "PUBLISHED" => %w[60 60],
+        "REVISED" => %w[95 99],
+        "REPLACED" => %w[95 99],
+        "WITHDRAWN" => %w[95 99],
+        "MERGED" => %w[95 99],
+      }.each do |word, (stage, substage)|
+        it "#{word} -> #{stage}.#{substage}" do
+          item = described_class.new({ "status" => word }).send :status
+          expect(item.stage.content).to eq stage
+          expect(item.substage.content).to eq substage
+        end
+      end
+
+      it "raises on a word outside the mapping - a new API word is a spec change" do
+        expect { described_class.new({ "status" => "CANCELLED" }).send :status }
+          .to raise_error(ArgumentError, /unknown Harmonized API status word: "CANCELLED"/)
+      end
     end
 
     it "#docid" do
