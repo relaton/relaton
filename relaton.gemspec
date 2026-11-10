@@ -84,6 +84,9 @@ Gem::Specification.new do |spec|
   spec.add_dependency "liquid", "~> 5"
   spec.add_dependency "thor"
   spec.add_dependency "thor-hollaback"
+  # Bundled gems required directly by lib code: uri (plateau/sdo/fetchers), singleton (sdo/db/registry) (metanorma/metanorma#669)
+  spec.add_dependency "uri"
+  spec.add_dependency "singleton"
 
   spec.add_dependency "mechanize", "~> 2.10"
   spec.add_dependency "mini_portile2", "~> 2.8.0"
