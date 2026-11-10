@@ -4,8 +4,7 @@ schema_version: v1.5.6
 type: standard
 title:
 - script: Latn
-  content: Taxonomy and Definitions for Terms Related to Driving Automation Systems
-    for On-Road Motor Vehicles
+  content: Taxonomy and Definitions for Terms Related to Driving Automation Systems for On-Road Motor Vehicles
   type: main
 source:
 - type: DOI
@@ -42,83 +41,38 @@ contributor:
 abstract:
 - language: en
   script: Latn
-  content: "<p>&lt;div class=\"section abstract\"&gt;\n\n\n&lt;div class=\"htmlview
-    paragraph\"&gt;This document describes [motor] &lt;i&gt;vehicle driving automation
-    system&lt;/i&gt;s that perform part or all of the &lt;i&gt;dynamic driving task&lt;/i&gt;
-    (&lt;i&gt;DDT&lt;/i&gt;) on a &lt;i&gt;sustained&lt;/i&gt; basis. It provides
-    a taxonomy with detailed definitions for six levels of &lt;i&gt;driving automation&lt;/i&gt;,
-    ranging from no &lt;i&gt;driving automation&lt;/i&gt; (Level 0) to full &lt;i&gt;driving
-    automation&lt;/i&gt; (Level 5), in the context of [motor] &lt;i&gt;vehicles&lt;/i&gt;
-    (hereafter also referred to as “&lt;i&gt;vehicle&lt;/i&gt;” or “&lt;i&gt;vehicles&lt;/i&gt;”)
-    and their &lt;i&gt;operation&lt;/i&gt; on roadways:&lt;/div&gt;\n&lt;ol class=\"list
-    nostyle\"&gt;\n&lt;li class=\"list-item\"&gt;\n&lt;span class=\"li-label\"&gt;Level
-    0:&lt;/span&gt;\n&lt;div class=\"htmlview paragraph\"&gt;No Driving Automation&lt;/div&gt;&lt;/li&gt;\n&lt;li
-    class=\"list-item\"&gt;\n&lt;span class=\"li-label\"&gt;Level 1:&lt;/span&gt;\n&lt;div
-    class=\"htmlview paragraph\"&gt;Driver Assistance&lt;/div&gt;&lt;/li&gt;\n&lt;li
-    class=\"list-item\"&gt;\n&lt;span class=\"li-label\"&gt;Level 2:&lt;/span&gt;\n&lt;div
-    class=\"htmlview paragraph\"&gt;Partial Driving Automation&lt;/div&gt;&lt;/li&gt;\n&lt;li
-    class=\"list-item\"&gt;\n&lt;span class=\"li-label\"&gt;Level 3:&lt;/span&gt;\n&lt;div
-    class=\"htmlview paragraph\"&gt;Conditional Driving Automation&lt;/div&gt;&lt;/li&gt;\n&lt;li
-    class=\"list-item\"&gt;\n&lt;span class=\"li-label\"&gt;Level 4:&lt;/span&gt;\n&lt;div
-    class=\"htmlview paragraph\"&gt;High Driving Automation&lt;/div&gt;&lt;/li&gt;\n&lt;li
-    class=\"list-item\"&gt;\n&lt;span class=\"li-label\"&gt;Level 5:&lt;/span&gt;\n&lt;div
-    class=\"htmlview paragraph\"&gt;Full Driving Automation&lt;/div&gt;&lt;/li&gt;&lt;/ol&gt;\n&lt;div
-    class=\"htmlview paragraph\"&gt;These level definitions, along with additional
-    supporting terms and definitions provided herein, can be used to describe the
-    full range of &lt;i&gt;driving automation features&lt;/i&gt; equipped on [motor]
-    &lt;i&gt;vehicles&lt;/i&gt; in a functionally consistent and coherent manner.
-    “On-road” refers to publicly accessible roadways (including parking areas and
-    private campuses that permit public access) that collectively serve all road &lt;i&gt;users&lt;/i&gt;,
-    including cyclists, pedestrians, and &lt;i&gt;users&lt;/i&gt; of &lt;i&gt;vehicles&lt;/i&gt;
-    with and without &lt;i&gt;driving automation features&lt;/i&gt;.&lt;/div&gt;\n&lt;div
-    class=\"htmlview paragraph\"&gt;The levels apply to the &lt;i&gt;driving automation
-    feature&lt;/i&gt;(s) that are engaged in any given instance of on-road &lt;i&gt;operation&lt;/i&gt;
-    of an equipped &lt;i&gt;vehicle&lt;/i&gt;. As such, although a given &lt;i&gt;vehicle&lt;/i&gt;
-    may be equipped with a &lt;i&gt;driving automation system&lt;/i&gt; that is capable
-    of delivering multiple &lt;i&gt;driving automation features&lt;/i&gt; that perform
-    at different levels, the level of &lt;i&gt;driving automation&lt;/i&gt; exhibited
-    in any given instance is determined by the &lt;i&gt;feature&lt;/i&gt;(s) that
-    are engaged.&lt;/div&gt;\n&lt;div class=\"htmlview paragraph\"&gt;This document
-    also refers to three primary actors in driving: the (human) &lt;i&gt;user&lt;/i&gt;,
-    the &lt;i&gt;driving automation system&lt;/i&gt;, and other &lt;i&gt;vehicle&lt;/i&gt;
-    systems and components. These other &lt;i&gt;vehicle&lt;/i&gt; systems and components
-    (or the &lt;i&gt;vehicle&lt;/i&gt; in general terms) do not include the &lt;i&gt;driving
-    automation system&lt;/i&gt; in this model, even though as a practical matter a
-    &lt;i&gt;driving automation system&lt;/i&gt; may actually share hardware and software
-    components with other &lt;i&gt;vehicle&lt;/i&gt; systems, such as a processing
-    module(s) or &lt;i&gt;operating&lt;/i&gt; code.&lt;/div&gt;\n&lt;div class=\"htmlview
-    paragraph\"&gt;The levels of &lt;i&gt;driving automation&lt;/i&gt; are defined
-    by reference to the specific role played by each of the three primary actors in
-    performance of the &lt;i&gt;DDT&lt;/i&gt; and/or &lt;i&gt;DDT fallback&lt;/i&gt;.
-    “Role” in this context refers to the expected role of a given primary actor, based
-    on the design of the &lt;i&gt;driving automation system&lt;/i&gt; in question
-    and not necessarily to the actual performance of a given primary actor. For example,
-    a &lt;i&gt;driver&lt;/i&gt; who fails to monitor the roadway during engagement
-    of a Level 1 adaptive cruise control (ACC) system still has the role of &lt;i&gt;driver&lt;/i&gt;,
-    even while s/he is neglecting it.&lt;/div&gt;\n&lt;div class=\"htmlview paragraph\"&gt;&lt;i&gt;Active
-    safety systems&lt;/i&gt;, such as electronic stability control (ESC) and automatic
-    emergency braking (AEB), and certain types of &lt;i&gt;driver&lt;/i&gt; assistance
-    systems, such as lane keeping assistance (LKA), are excluded from the scope of
-    this &lt;i&gt;driving automation&lt;/i&gt; taxonomy because they do not perform
-    part or all of the &lt;i&gt;DDT&lt;/i&gt; on a &lt;i&gt;sustained&lt;/i&gt; basis,
-    but rather provide momentary intervention during potentially hazardous situations.
-    Due to the momentary nature of the actions of &lt;i&gt;active safety systems&lt;/i&gt;,
-    their intervention does not change or eliminate the role of the &lt;i&gt;driver&lt;/i&gt;
-    in performing part or all of the &lt;i&gt;DDT&lt;/i&gt;, and thus are not considered
-    to be &lt;i&gt;driving automation&lt;/i&gt;, even though they perform automated
-    functions. In addition, systems that inform, alert, or warn the &lt;i&gt;driver&lt;/i&gt;
-    about hazards in the driving environment are also outside the scope of this &lt;i&gt;driving
-    automation&lt;/i&gt; taxonomy, as they neither automate part or all of the &lt;i&gt;DDT&lt;/i&gt;,
-    nor change the &lt;i&gt;driver&lt;/i&gt;’s role in performance of the &lt;i&gt;DDT&lt;/i&gt;
-    \n    (see &lt;span class=\"xref\"&gt;8.13&lt;/span&gt;).&lt;/div&gt;\n&lt;div
-    class=\"htmlview paragraph\"&gt;It should be noted, however, that crash avoidance
-    &lt;i&gt;features&lt;/i&gt;, including intervention-type &lt;i&gt;active safety
-    systems&lt;/i&gt;, may be included in &lt;i&gt;vehicles&lt;/i&gt; equipped with
-    &lt;i&gt;driving automation system&lt;/i&gt;s at any level. For &lt;i&gt;automated
-    driving system&lt;/i&gt; (&lt;i&gt;ADS&lt;/i&gt;) &lt;i&gt;features&lt;/i&gt;
-    (i.e., Levels 3 to 5) that perform the complete &lt;i&gt;DDT&lt;/i&gt;, crash
-    mitigation and avoidance capability is part of &lt;i&gt;ADS&lt;/i&gt; functionality
-    \n    (see also &lt;span class=\"xref\"&gt;8.13&lt;/span&gt;).&lt;/div&gt;&lt;/div&gt;</p>"
+  content: |-
+    <p>&lt;div class="section abstract"&gt;
+
+
+    &lt;div class="htmlview paragraph"&gt;This document describes [motor] &lt;i&gt;vehicle driving automation system&lt;/i&gt;s that perform part or all of the &lt;i&gt;dynamic driving task&lt;/i&gt; (&lt;i&gt;DDT&lt;/i&gt;) on a &lt;i&gt;sustained&lt;/i&gt; basis. It provides a taxonomy with detailed definitions for six levels of &lt;i&gt;driving automation&lt;/i&gt;, ranging from no &lt;i&gt;driving automation&lt;/i&gt; (Level 0) to full &lt;i&gt;driving automation&lt;/i&gt; (Level 5), in the context of [motor] &lt;i&gt;vehicles&lt;/i&gt; (hereafter also referred to as “&lt;i&gt;vehicle&lt;/i&gt;” or “&lt;i&gt;vehicles&lt;/i&gt;”) and their &lt;i&gt;operation&lt;/i&gt; on roadways:&lt;/div&gt;
+    &lt;ol class="list nostyle"&gt;
+    &lt;li class="list-item"&gt;
+    &lt;span class="li-label"&gt;Level 0:&lt;/span&gt;
+    &lt;div class="htmlview paragraph"&gt;No Driving Automation&lt;/div&gt;&lt;/li&gt;
+    &lt;li class="list-item"&gt;
+    &lt;span class="li-label"&gt;Level 1:&lt;/span&gt;
+    &lt;div class="htmlview paragraph"&gt;Driver Assistance&lt;/div&gt;&lt;/li&gt;
+    &lt;li class="list-item"&gt;
+    &lt;span class="li-label"&gt;Level 2:&lt;/span&gt;
+    &lt;div class="htmlview paragraph"&gt;Partial Driving Automation&lt;/div&gt;&lt;/li&gt;
+    &lt;li class="list-item"&gt;
+    &lt;span class="li-label"&gt;Level 3:&lt;/span&gt;
+    &lt;div class="htmlview paragraph"&gt;Conditional Driving Automation&lt;/div&gt;&lt;/li&gt;
+    &lt;li class="list-item"&gt;
+    &lt;span class="li-label"&gt;Level 4:&lt;/span&gt;
+    &lt;div class="htmlview paragraph"&gt;High Driving Automation&lt;/div&gt;&lt;/li&gt;
+    &lt;li class="list-item"&gt;
+    &lt;span class="li-label"&gt;Level 5:&lt;/span&gt;
+    &lt;div class="htmlview paragraph"&gt;Full Driving Automation&lt;/div&gt;&lt;/li&gt;&lt;/ol&gt;
+    &lt;div class="htmlview paragraph"&gt;These level definitions, along with additional supporting terms and definitions provided herein, can be used to describe the full range of &lt;i&gt;driving automation features&lt;/i&gt; equipped on [motor] &lt;i&gt;vehicles&lt;/i&gt; in a functionally consistent and coherent manner. “On-road” refers to publicly accessible roadways (including parking areas and private campuses that permit public access) that collectively serve all road &lt;i&gt;users&lt;/i&gt;, including cyclists, pedestrians, and &lt;i&gt;users&lt;/i&gt; of &lt;i&gt;vehicles&lt;/i&gt; with and without &lt;i&gt;driving automation features&lt;/i&gt;.&lt;/div&gt;
+    &lt;div class="htmlview paragraph"&gt;The levels apply to the &lt;i&gt;driving automation feature&lt;/i&gt;(s) that are engaged in any given instance of on-road &lt;i&gt;operation&lt;/i&gt; of an equipped &lt;i&gt;vehicle&lt;/i&gt;. As such, although a given &lt;i&gt;vehicle&lt;/i&gt; may be equipped with a &lt;i&gt;driving automation system&lt;/i&gt; that is capable of delivering multiple &lt;i&gt;driving automation features&lt;/i&gt; that perform at different levels, the level of &lt;i&gt;driving automation&lt;/i&gt; exhibited in any given instance is determined by the &lt;i&gt;feature&lt;/i&gt;(s) that are engaged.&lt;/div&gt;
+    &lt;div class="htmlview paragraph"&gt;This document also refers to three primary actors in driving: the (human) &lt;i&gt;user&lt;/i&gt;, the &lt;i&gt;driving automation system&lt;/i&gt;, and other &lt;i&gt;vehicle&lt;/i&gt; systems and components. These other &lt;i&gt;vehicle&lt;/i&gt; systems and components (or the &lt;i&gt;vehicle&lt;/i&gt; in general terms) do not include the &lt;i&gt;driving automation system&lt;/i&gt; in this model, even though as a practical matter a &lt;i&gt;driving automation system&lt;/i&gt; may actually share hardware and software components with other &lt;i&gt;vehicle&lt;/i&gt; systems, such as a processing module(s) or &lt;i&gt;operating&lt;/i&gt; code.&lt;/div&gt;
+    &lt;div class="htmlview paragraph"&gt;The levels of &lt;i&gt;driving automation&lt;/i&gt; are defined by reference to the specific role played by each of the three primary actors in performance of the &lt;i&gt;DDT&lt;/i&gt; and/or &lt;i&gt;DDT fallback&lt;/i&gt;. “Role” in this context refers to the expected role of a given primary actor, based on the design of the &lt;i&gt;driving automation system&lt;/i&gt; in question and not necessarily to the actual performance of a given primary actor. For example, a &lt;i&gt;driver&lt;/i&gt; who fails to monitor the roadway during engagement of a Level 1 adaptive cruise control (ACC) system still has the role of &lt;i&gt;driver&lt;/i&gt;, even while s/he is neglecting it.&lt;/div&gt;
+    &lt;div class="htmlview paragraph"&gt;&lt;i&gt;Active safety systems&lt;/i&gt;, such as electronic stability control (ESC) and automatic emergency braking (AEB), and certain types of &lt;i&gt;driver&lt;/i&gt; assistance systems, such as lane keeping assistance (LKA), are excluded from the scope of this &lt;i&gt;driving automation&lt;/i&gt; taxonomy because they do not perform part or all of the &lt;i&gt;DDT&lt;/i&gt; on a &lt;i&gt;sustained&lt;/i&gt; basis, but rather provide momentary intervention during potentially hazardous situations. Due to the momentary nature of the actions of &lt;i&gt;active safety systems&lt;/i&gt;, their intervention does not change or eliminate the role of the &lt;i&gt;driver&lt;/i&gt; in performing part or all of the &lt;i&gt;DDT&lt;/i&gt;, and thus are not considered to be &lt;i&gt;driving automation&lt;/i&gt;, even though they perform automated functions. In addition, systems that inform, alert, or warn the &lt;i&gt;driver&lt;/i&gt; about hazards in the driving environment are also outside the scope of this &lt;i&gt;driving automation&lt;/i&gt; taxonomy, as they neither automate part or all of the &lt;i&gt;DDT&lt;/i&gt;, nor change the &lt;i&gt;driver&lt;/i&gt;’s role in performance of the &lt;i&gt;DDT&lt;/i&gt; 
+        (see &lt;span class="xref"&gt;8.13&lt;/span&gt;).&lt;/div&gt;
+    &lt;div class="htmlview paragraph"&gt;It should be noted, however, that crash avoidance &lt;i&gt;features&lt;/i&gt;, including intervention-type &lt;i&gt;active safety systems&lt;/i&gt;, may be included in &lt;i&gt;vehicles&lt;/i&gt; equipped with &lt;i&gt;driving automation system&lt;/i&gt;s at any level. For &lt;i&gt;automated driving system&lt;/i&gt; (&lt;i&gt;ADS&lt;/i&gt;) &lt;i&gt;features&lt;/i&gt; (i.e., Levels 3 to 5) that perform the complete &lt;i&gt;DDT&lt;/i&gt;, crash mitigation and avoidance capability is part of &lt;i&gt;ADS&lt;/i&gt; functionality 
+        (see also &lt;span class="xref"&gt;8.13&lt;/span&gt;).&lt;/div&gt;&lt;/div&gt;</p>
 place:
 - city: 400 Commonwealth Drive
 - city: Warrendale
