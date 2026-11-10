@@ -279,4 +279,57 @@ RSpec.describe Relaton::Plateau::HandbookParser do
       end
     end
   end
+
+  # relaton-plateau#13: editions 1-3 of Handbook #11 are two documents each,
+  # which were Handbook #04 (public use) and #06 (private use). pubid maps
+  # them through its update_codes, when the parser keeps the variant suffix.
+  context "when Handbook #11 lists a split edition" do
+    let(:entry) do
+      {
+        "id" => "cG9zdDo5Mjk4",
+        "slug" => "11",
+        "handbook" => {
+          "title" => "3D都市モデルのユースケース開発マニュアル",
+          "description" => "ユースケース開発のための基本的考え方・事例紹介・技術導入手順等のマニュアル",
+          "thumbnail" => { "mediaItemUrl" => "/plateau/uploads/2024/04/plateau_doc_0011_ver04.jpg" },
+        },
+      }
+    end
+
+    context "when pubid cannot map the split edition" do
+      let(:version) { { "title" => "第1.0版（公共活用編）", "filesize" => "1" } }
+
+      it "keeps the Handbook #11 docnumber" do
+        expect(::Pubid::Plateau).to receive(:parse).and_raise(::Pubid::Errors::ParseError, "bad")
+        expect { expect(subject.send(:parse_docnumber)).to eq "Handbook #11 第1.0版" }
+          .to output(/Cannot map split edition/).to_stderr_from_any_process
+        expect(subject.send(:slug_number)).to eq "11"
+      end
+    end
+
+    {
+      "第1.0版（公共活用編）" => ["Handbook #04 第1.0版", "04", "1.0"],
+      "第3.0版（民間活用編）" => ["Handbook #06 第3.0版", "06", "3.0"],
+      "第4.0版" => ["Handbook #11 第4.0版", "11", "4.0"],
+    }.each do |title, (docnumber, number, edition)|
+      context title do
+        let(:version) do
+          { "title" => title, "date" => "2021.3.26", "filesize" => "1",
+            "pdf" => "https://www.mlit.go.jp/plateau/file/libraries/doc/plateau_doc_0004_ver01.pdf" }
+        end
+        let(:bibitem) { subject.parse }
+
+        it "maps the docidentifier" do
+          expect(bibitem.docnumber).to eq docnumber
+          expect(bibitem.docidentifier[0].content).to eq "PLATEAU #{docnumber}"
+        end
+
+        it "maps the structured identifier" do
+          strid = bibitem.ext.structuredidentifier[0]
+          expect(strid.docnumber).to eq number
+          expect(strid.edition).to eq edition
+        end
+      end
+    end
+  end
 end

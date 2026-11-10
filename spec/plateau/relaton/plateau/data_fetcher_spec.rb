@@ -145,6 +145,36 @@ RSpec.describe Relaton::Plateau::DataFetcher do
       end
     end
 
+    # relaton-plateau#13: the split editions 1-3 of Handbook #11 are
+    # saved as Handbook #04 and #06, and no edition is skipped.
+    it "splits Handbook #11 editions 1-3 into Handbook #04 and #06" do
+      versions = %w[第4.0版 第3.0版（公共活用編） 第3.0版（民間活用編） 第2.0版（公共活用編）
+                    第2.0版（民間活用編） 第1.0版（公共活用編） 第1.0版（民間活用編）].map do |title|
+        { "title" => title, "date" => "2021.3.26", "filesize" => "1", "pdf" => "https://example.com/x.pdf" }
+      end
+      handbook = {
+        "title" => "3D都市モデルのユースケース開発マニュアル", "description" => "Abstract",
+        "thumbnail" => { "mediaItemUrl" => "/plateau/uploads/plateau_doc_0011_ver04.jpg" },
+        "versions" => versions
+      }
+      data = { "pageProps" => { "handbooks" => { "nodes" => [{ "slug" => "11", "handbook" => handbook }] } } }
+      allow(subject).to receive(:fetch_json_data).and_return data
+      allow(subject).to receive(:serialize).and_return "<bibxml/>"
+      allow(subject.index).to receive(:save)
+      files = []
+      allow(File).to receive(:write) { |file, _| files << file }
+      ids = []
+      allow(subject.index).to receive(:add_or_update) { |pid, _| ids << pid.to_s }
+      expect { subject.extract_handbooks_data }.not_to output(/already exists/).to_stderr_from_any_process
+      expect(ids).to contain_exactly(
+        "PLATEAU Handbook #11 第4.0版",
+        "PLATEAU Handbook #04 第3.0版", "PLATEAU Handbook #06 第3.0版",
+        "PLATEAU Handbook #04 第2.0版", "PLATEAU Handbook #06 第2.0版",
+        "PLATEAU Handbook #04 第1.0版", "PLATEAU Handbook #06 第1.0版",
+      )
+      expect(files.uniq.size).to eq 7
+    end
+
     it "extract_technical_reports_data" do
       data = { "pageProps" => { "nodes" => [:entry] } }
       expect(subject).to receive(:fetch_json_data).with(

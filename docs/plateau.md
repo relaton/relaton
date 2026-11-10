@@ -73,6 +73,13 @@ accepts, which also matches the MLIT source:
 - Handbook: `PLATEAU Handbook #NN 第X.Y版` (Japanese edition label — the parser
   keeps the source `第X.Y版`; the Latinized `#edition` is retained only for the
   structured `Bib::Edition`/`ext` fields).
+- Split editions (relaton-plateau#13): the source lists Handbook #11
+  editions 1.0–3.0 twice, `第N.0版（公共活用編）` and `第N.0版（民間活用編）`.
+  These were Handbook #04 and #06. `HandbookParser` keeps the `（…活用編）`
+  label for the parse, and pubid's `update_codes` maps the id to
+  `#04 第N.0版` / `#06 第N.0版`. If the parse fails, the parser logs a
+  warning and keeps `#11 第N.0版`; the fetcher then skips the second variant
+  as a duplicate.
 - Technical Report: `PLATEAU Technical Report #NN` (**no edition** — pubid TRs
   carry none; the document still has a `1.0` `Bib::Edition`).
 - Sub-numbers use a hyphen (`#46-1`), not the source underscore (`#46_1`).
