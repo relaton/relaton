@@ -66,6 +66,54 @@ module Relaton
         "BSI" => :Bsi,
       }.freeze
 
+      # The :slug form's type → pubid flavor map (relaton#441): every
+      # docidentifier type whose pubid flavor has a landed pubid-scheme
+      # URN schema (pubid#656). Unlike FORM_PUBID — which gates only the
+      # SDO publisher forms and stays deliberately small — this table
+      # grows with the pubid URN coverage: the slug is the lossless
+      # pubid-scheme URN in path clothes, so there is no publisher-form
+      # policy in the decision, only "can this flavor emit a
+      # round-trippable slug". Every row was verified end-to-end at
+      # adoption: parse → Pubid.to_slug → Pubid.from_slug → equal hash.
+      # A type absent here degrades to the stored content.
+      SLUG_PUBID = {
+        "ISO" => :Iso,
+        "IEC" => :Iec,
+        "IEEE" => :Ieee,
+        "IHO" => :Iho,
+        "ITU-T" => :Itu,
+        "ITU-R" => :Itu,
+        "ITU" => :Itu,
+        "W3C" => :W3c,
+        "3GPP" => :Tgpp,
+        "OGC" => :Ogc,
+        "OASIS" => :Oasis,
+        "OMG" => :Omg,
+        "UN" => :Un,
+        "XEP" => :Xsf,
+        "EVS" => :Evs,
+        "CCSDS" => :Ccsds,
+        "CEN" => :CenCenelec,
+        "BIPM" => :Bipm,
+        "CalConnect" => :Calconnect,
+        "ECMA" => :Ecma,
+        "GB" => :Gb,
+        "IANA" => :Iana,
+        "NIST" => :Nist,
+        "BSI" => :Bsi,
+        "IETF" => :Ietf,
+        "Internet-Draft" => :Ietf,
+        "GOST" => :Gost,
+        "JCGM" => :Jcgm,
+        "OIML" => :Oiml,
+        "SAE" => :Sae,
+        "IALA" => :Iala,
+        "EASC" => :Easc,
+        "DOI" => :Doi,
+        "ISBN" => :Isbn,
+        "JIS" => :Jis,
+      }.freeze
+
       FORMS = %i[external internal slug].freeze
 
       # The parsed identifier. A pubid-backed flavor subclass overrides it.
@@ -88,12 +136,25 @@ module Relaton
 
       private
 
-      # pubid renders the form (`to_s(with_publisher:)`, pubid#620). A
-      # docidentifier with no parsed pubid (a plain `Bib::Docidentifier`) is
-      # parsed here; content that pubid cannot parse is returned unchanged.
+      # pubid renders the form (`to_s(with_publisher:)`, pubid#620); the
+      # :slug form renders through the flavor's pubid-scheme URN schema.
+      # A docidentifier with a parsed pubid (a flavor subclass) uses it;
+      # a plain `Bib::Docidentifier` is parsed through the form's flavor
+      # table — FORM_PUBID for the publisher forms, SLUG_PUBID for :slug
+      # (relaton#441). Content pubid cannot parse is returned unchanged.
       def form_content(form)
-        flavor = FORM_PUBID[type]
-        id = flavor && (pubid || parse_form_pubid(flavor))
+        flavor = form == :slug ? SLUG_PUBID[type] : FORM_PUBID[type]
+        # :slug takes a parsed pubid from anywhere — the slug is the
+        # pubid-scheme URN, publisher policy plays no part in it. The
+        # publisher forms keep the FORM_PUBID gate: a type outside the
+        # table answers its stored content (relaton#49), even when a
+        # subclass carries a parsed pubid.
+        id =
+          if form == :slug
+            pubid || (flavor && parse_form_pubid(flavor))
+          else
+            flavor && (pubid || parse_form_pubid(flavor))
+          end
         return content unless id
 
         return slug_form(id) if form == :slug
