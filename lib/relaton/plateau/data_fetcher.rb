@@ -125,6 +125,9 @@ module Relaton
           Util.warn "File #{file} already exists, skipping.", key: id
         else
           File.write(file, serialize(item))
+          # Recorded for #prune_unwritten: the data repo crawls into a kept
+          # data/, and an unrecorded write makes every prune skip.
+          record_written file
           @files << file
           pid = pubid id
           if pid
