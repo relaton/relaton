@@ -270,6 +270,25 @@ rendering failure, check `grep -n -A3 "pubid.git" Gemfile.lock` against the
 `ref:` in the `Gemfile` and run **`bundle update pubid`** (not
 `bundle install`). Only after that is a failure worth treating as a code bug.
 
+**WES lives in the JIS flavor (relaton-jis#18).** Webdesk sells the Japan
+Welding Engineering Society's WES standards next to JIS, so `Relaton::Jis`
+routes `WES` (`@defaultprefix`), crawls them and indexes them in the same
+`relaton-data-jis` `index-v2`. Two Webdesk facts shape `DataFetcher`. First,
+the server keeps **one open list in the session**: the list page
+`W11M0070/index` and its `getAddList` paging read whichever list was opened
+last, and `getAddList` ignores its `search_type`. So `LISTS` (the JIS search,
+then the JWES group list `W11S0260/getSearchAllListByLink?dantai_cd=JWES`)
+are read one after the other, and the 10-minute session refresh opens the
+*current* list again. Second, `relaton-data-jis` deletes `data/` before a
+crawl and pushes what it wrote, so a list that does not open **raises**
+`Relaton::Jis::Error` rather than letting the crawl publish a corpus without
+it. A WES page names no drafting body: the scraper makes JWES the author and
+publisher, and the docidentifier type `WES`. The JIS grammar requires a
+doctype and has no WES value, so a WES record takes the JIS value of its form.
+14 of the 104 live WES ids (`WES 1112(E):2022`, `WES TR …`, `WES TS …`) do not
+parse with pubid yet: the crawl writes them to `data/` but leaves them out of
+the index until pubid reads them.
+
 **Run the suites with a UTF-8 locale.** With `LANG` unset Ruby reads files as
 US-ASCII: `rake spec` then reports most suites as "no examples run" and aborts
 in `SpecReporter.failure_details` with `Encoding::CompatibilityError`. Use

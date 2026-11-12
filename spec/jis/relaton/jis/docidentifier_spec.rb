@@ -73,6 +73,36 @@ describe Relaton::Jis::Docidentifier do
     end
   end
 
+  # WES (relaton-jis#18): `WES` is the root of the identifier, not a
+  # publisher, so the mutators keep it and add no `JIS `.
+  context "with a WES identifier" do
+    subject { described_class.new content: "WES 7700-1:2019R", type: "WES", primary: true }
+
+    it "#remove_part!" do
+      subject.remove_part!
+      expect(subject.content).to eq "WES 7700:2019R"
+    end
+
+    it "#remove_date!" do
+      subject.remove_date!
+      expect(subject.content).to eq "WES 7700-1"
+    end
+
+    it "#to_all_parts!" do
+      subject.to_all_parts!
+      expect(subject.content).to eq "WES 7700 (all parts)"
+      expect(subject.pubid.all_parts?).to be true
+    end
+
+    it "#remove_date! on a WES amendment keeps its own year" do
+      subject = described_class.new(
+        content: "WES 0001:2021/AMENDMENT 1:2025", type: "WES", primary: true,
+      )
+      subject.remove_date!
+      expect(subject.content).to eq "WES 0001/AMD 1:2025"
+    end
+  end
+
   context "with a supplement" do
     subject { docid "JIS B 3700-101:1996/CORRIGENDUM 1:2002" }
 

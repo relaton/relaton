@@ -83,7 +83,8 @@ module Relaton
 
       def create_relation(hit)
         id = hit.pubid.to_s
-        docid = Docidentifier.new content: id, type: "JIS", primary: true
+        type = id.start_with?("WES ") ? "WES" : "JIS"
+        docid = Docidentifier.new content: id, type: type, primary: true
         bibitem = ItemData.new(
           formattedref: Bib::Formattedref.new(content: id),
           docidentifier: [docid],

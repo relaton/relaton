@@ -294,6 +294,11 @@ RSpec.describe Relaton::Db::Registry do
       "OASIS amqp-core" => :relaton_oasis,
       "doi:10.6028/NIST.IR.8245" => :relaton_doi,
       "JIS X 0208" => :relaton_jis,
+      # WES (Japan Welding Engineering Society) is in the JIS flavor
+      # (relaton-jis#18).
+      "WES 7700-1:2019" => :relaton_jis,
+      # pubid does not parse this form yet: the JIS prefix regex routes it.
+      "WES TR 2032:2024" => :relaton_jis,
       "XEP 0001" => :relaton_xsf,
       "CCSDS 230.2-G-1" => :relaton_ccsds,
       "ETSI EN 300 175-1" => :relaton_etsi,

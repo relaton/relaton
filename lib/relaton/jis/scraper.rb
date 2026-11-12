@@ -15,6 +15,12 @@ module Relaton
       DATETYPES = { "発行年月日" => "issued", "確認年月日" => "confirmed" }.freeze
       STATUSES = { "有効" => "valid", "廃止" => "withdrawn" }.freeze
 
+      # WES (Japan Welding Engineering Society) standards are sold on the same
+      # site and kept in the JIS flavor (relaton-jis#18). Their pages name no
+      # drafting body, so JWES is the author and publisher.
+      JWES_NAMES = { "ja" => "一般社団法人日本溶接協会",
+                     "en" => "Japan Welding Engineering Society" }.freeze
+
       def initialize(url, errors = {})
         @url = url
         @agent = Mechanize.new
@@ -70,13 +76,17 @@ module Relaton
         return [] if docid.nil? || docid.empty?
 
         [Docidentifier.new(
-          content: docid, type: "JIS", primary: true,
+          content: docid, type: id_type, primary: true,
         )]
       end
 
+      # The series letter and the number: `JIS X 0208:1997` -> `X0208`,
+      # `TR Z 0010:2008` -> `Z0010`. A WES id has no series letter:
+      # `WES TR 2032:2024` -> `2032`.
       def fetch_docnumber
-        docid = document_id
-        match = docid&.match(/^\w+\s(\w)\s?(\d+)/)
+        match = document_id&.match(
+          /^(?:JIS\s)?(?:WES\s)?(?:T[RS]\s)?(?:([A-Z])\s?)?(\d+)/,
+        )
         @errors[:docnumber] &&= match.nil?
         return unless match
 
@@ -85,6 +95,15 @@ module Relaton
 
       def document_id
         @document_id ||= @doc.at_xpath("./h2/text()[1]")&.text&.strip
+      end
+
+      def wes?
+        document_id.to_s.start_with? "WES "
+      end
+
+      # The docidentifier and structuredidentifier type.
+      def id_type
+        wes? ? "WES" : "JIS"
       end
 
       def fetch_date
@@ -141,8 +160,13 @@ module Relaton
         Bib::Status.new(stage: stage)
       end
 
+      # The JIS grammar requires a doctype and has no WES value, so a WES
+      # record takes the JIS value of its form (`WES TR`/`WES TS` match the
+      # TR/TS rules).
       def fetch_doctype # rubocop:disable Metrics/CyclomaticComplexity
         type = case document_id
+               when %r{^WES\s\d[^/]*/AMENDMENT} then "amendment"
+               when /^WES\s\d/ then "japanese-industrial-standard"
                when /JIS\s[A-Z]\s[\w-]+:\d{4}\/AMENDMENT/ then "amendment"
                when /JIS\s[A-Z]\s[\w-]+/ then "japanese-industrial-standard"
                when /TR[\s\/][\w-]+/ then "technical-report"
@@ -163,6 +187,8 @@ module Relaton
       end
 
       def fetch_contributor
+        return jwes_contributors if wes?
+
         authorizer = create_contrib(
           "一般財団法人　日本規格協会", "authorizer"
         )
@@ -173,6 +199,20 @@ module Relaton
         end
         @errors[:contributor] &&= result.empty?
         result
+      end
+
+      def jwes_contributors
+        tls = Bib::TypedLocalizedString
+        scripts = { "ja" => "Jpan", "en" => "Latn" }
+        %w[author publisher].map do |role|
+          name = JWES_NAMES.map do |lang, content|
+            tls.new content: content, language: lang, script: scripts[lang]
+          end
+          org = Bib::Organization.new name: name
+          Bib::Contributor.new(
+            organization: org, role: [Bib::Contributor::Role.new(type: role)],
+          )
+        end
       end
 
       def create_contrib(name, role)
@@ -215,7 +255,7 @@ module Relaton
       def fetch_structuredidentifier
         StructuredIdentifier.new(
           project_number: Iso::ProjectNumber.new(content: fetch_docnumber),
-          type: "JIS",
+          type: id_type,
         )
       end
 
