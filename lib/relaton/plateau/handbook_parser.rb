@@ -23,6 +23,13 @@ module Relaton
         @edition_label ||= @version["title"].to_s[/第[\d.]+版/].to_s
       end
 
+      # Volume label of the version title, as Pubid::Plateau renders it:
+      # "本編" (main volume) or "本編＋付録" (main volume and appendix). Handbook
+      # #00 edition 5.0 is published as both. ASCII "+" becomes "＋".
+      def volume_label
+        @version["title"].to_s[/第[\d.]+版[ 　]+(本編(?:[＋+]付録)?)/, 1]&.tr("+", "＋")
+      end
+
       def slug_number
         @slug_number ||= mapped_docnumber&.[](/#(\S+)/, 1) ||
           @entry["slug"]&.to_s&.split("_")&.first
@@ -31,7 +38,7 @@ module Relaton
       def parse_docnumber
         @errors[:hb_docnumber] &&= @entry["slug"].nil? || @entry["slug"].to_s.empty?
         mapped_docnumber ||
-          ["Handbook ##{slug_number}", edition_label].reject { |s| s.to_s.empty? }.join(" ")
+          ["Handbook ##{slug_number}", edition_label, volume_label].reject { |s| s.to_s.empty? }.join(" ")
       end
 
       # Part label of a split edition, e.g. "（公共活用編）". Editions 1-3 of

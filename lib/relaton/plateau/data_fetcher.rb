@@ -12,6 +12,10 @@ module Relaton
     class DataFetcher < Core::DataFetcher
       HANDBOOKS_URL = "https://www.mlit.go.jp/plateau/_next/data/1.3.0/libraries/handbooks.json".freeze
       TECHNICAL_REPORTS_URL = "https://www.mlit.go.jp/plateau/_next/data/1.3.0/libraries/technical-reports.json".freeze
+      # The Japanese volume label of a Handbook id gets an ASCII file-name
+      # suffix: #file_name strips non-word characters, so 本編 and 本編＋付録
+      # of one edition would otherwise share a file.
+      VOLUME_SUFFIX = { "本編＋付録" => "-with-appendix", "本編" => "-main" }.freeze
 
       def index
         @index ||= Relaton::Index.find_or_create(
@@ -155,12 +159,14 @@ module Relaton
       end
 
       def file_name(id)
-        name = id.gsub(/\s+/, "-").gsub(/[^\w-]+/, "").downcase
+        volume = id[/ (本編(?:＋付録)?)\z/, 1]
+        name = id.delete_suffix(" #{volume}").gsub(/\s+/, "-").gsub(/[^\w-]+/, "").downcase
         if id.match?(/民間活用編/)
           name += "-private"
         elsif id.match?(/公共活用編/)
           name += "-public"
         end
+        name += VOLUME_SUFFIX[volume] if volume
         File.join(@output, "#{name}.#{@ext}")
       end
 
