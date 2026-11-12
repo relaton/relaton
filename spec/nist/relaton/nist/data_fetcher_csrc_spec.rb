@@ -40,7 +40,7 @@ RSpec.describe "Relaton::Nist::DataFetcher#fetch_csrc (relaton#313)" do
   it "writes the draft-stage record with the id the runtime gives it" do
     fetcher.fetch_csrc fips197
     expect(files.size).to eq 1
-    expect(primary_ids).to eq ["NIST FIPS 197/Upd1 ipd"]
+    expect(primary_ids).to eq ["FIPS PUB 197/Upd1 ipd"]
     yaml = File.read(File.join(output, files.first), encoding: "UTF-8")
     expect(yaml).to include("Advanced Encryption Standard (AES)")
     expect(yaml).to include("https://csrc.nist.gov/pubs/fips/197/ipd")
@@ -108,7 +108,7 @@ RSpec.describe "Relaton::Nist::DataFetcher#fetch_csrc (relaton#313)" do
       .relation.first
     expect(rel.type).to eq "updates"
     # The /fips/197/final row is the 2023 update (DOI NIST.FIPS.197-upd1).
-    expect(rel.bibitem.docidentifier.map(&:content)).to eq ["NIST FIPS 197/Upd1"]
+    expect(rel.bibitem.docidentifier.map(&:content)).to eq ["FIPS PUB 197/Upd1"]
   end
 
   it "derives a related id from the entry when the feed lacks the related row" do

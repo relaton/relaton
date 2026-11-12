@@ -122,7 +122,7 @@ RSpec.describe Relaton::Db do
                                                type: "NIST")
       item = Relaton::Nist::ItemData.new docidentifier: [docid]
       expect(Relaton::Nist::Bibliography).to receive(:get).with(
-        pubid_of("NIST FIPS 140"), nil, {}
+        pubid_of("FIPS PUB 140"), nil, {}
       ).and_return item
       bib = @db.fetch "NIST FIPS 140"
       expect(bib).to be_instance_of Relaton::Nist::ItemData
