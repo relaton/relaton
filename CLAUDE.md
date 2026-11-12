@@ -675,10 +675,12 @@ regex back.
   any value, while identical classes are required. That replaces computing an
   `ignore:` list per flavor, because `===` reads the omission from the reference
   itself. It is also **`Index::Type#search`'s default** when the call passes no
-  block, so OASIS, W3C, XSF, IALA, OGC, ECMA, 3GPP, CalConnect, GOST
-  and Plateau just call `index.search(pubid)`; ETSI passes a block that strips
+  block, so OASIS, W3C, XSF, IALA, OGC, ECMA, 3GPP, CalConnect and GOST
+  just call `index.search(pubid)`; ETSI passes a block that strips
   the row's parts for a part-less reference (see `docs/etsi.md`
-  — `#to_all_parts` would drop the version and the date too). A caller that needs exact
+  — `#to_all_parts` would drop the version and the date too), and Plateau
+  one that strips the row's Handbook volume for an edition-less reference,
+  because pubid makes `volume` strict (see `docs/plateau.md`). A caller that needs exact
   equality passes `exact: true` (`==`) and says why:
   `Relaton::Ccsds::HitCollection#rows`, `Relaton::Ietf::Scraper#fetch_doc`,
   a dated GOST or an edition-bearing Plateau reference, and an OIML Bulletin (see

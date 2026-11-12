@@ -127,8 +127,8 @@ RSpec.describe Relaton::Plateau::DataFetcher do
         ).and_return data
         expect(Relaton::Plateau::HandbookParser).to receive(:new).with(
           version: version, entry: entry, doctype: "handbook", errors: {}
-        ).and_return double(parse: :bibitem)
-        expect(subject).to receive(:save_document).with(:bibitem)
+        ).and_return double(parse: item)
+        expect(subject).to receive(:save_document).with(item)
         subject.extract_handbooks_data
       end
 
@@ -139,8 +139,8 @@ RSpec.describe Relaton::Plateau::DataFetcher do
         ).and_return data
         expect(Relaton::Plateau::HandbookParser).to receive(:new).with(
           version: version, entry: entry, doctype: "annex", errors: {}
-        ).and_return double(parse: :bibitem)
-        expect(subject).to receive(:save_document).with(:bibitem)
+        ).and_return double(parse: item)
+        expect(subject).to receive(:save_document).with(item)
         subject.extract_handbooks_data
       end
     end
@@ -173,6 +173,40 @@ RSpec.describe Relaton::Plateau::DataFetcher do
         "PLATEAU Handbook #04 第1.0版", "PLATEAU Handbook #06 第1.0版",
       )
       expect(files.uniq.size).to eq 7
+    end
+
+    # Handbook #00 lists edition 5.0 twice: 本編 (main volume) and
+    # 本編＋付録 (main volume and appendix), two publications. Each version
+    # keeps the source's volume label in its id, and gets its own file.
+    it "saves each volume of an edition as its own record" do
+      pdf = "https://www.mlit.go.jp/plateau/file/libraries/doc/plateau_doc_%s.pdf"
+      versions = [
+        ["第6.0版　本編＋付録", "0000_ver06"], ["第5.0版　本編", "0000_ver05"],
+        ["第5.0版　本編＋付録", "00001_ver05"], ["第4.0版", "0000_ver04"]
+      ].map do |title, file|
+        { "title" => title, "date" => "2025.3.31", "filesize" => "1", "pdf" => format(pdf, file) }
+      end
+      handbook = {
+        "title" => "PLATEAU Guidebook", "description" => "Abstract",
+        "thumbnail" => { "mediaItemUrl" => "/plateau/uploads/plateau_doc_0000_ver06.jpg" },
+        "versions" => versions
+      }
+      data = { "pageProps" => { "handbooks" => { "nodes" => [{ "slug" => "00", "handbook" => handbook }] } } }
+      allow(subject).to receive(:fetch_json_data).and_return data
+      allow(subject).to receive(:serialize).and_return "<bibxml/>"
+      allow(subject.index).to receive(:save)
+      files = []
+      allow(File).to receive(:write) { |file, _| files << File.basename(file) }
+      rows = {}
+      allow(subject.index).to receive(:add_or_update) { |pid, file| rows[pid.to_s] = File.basename(file) }
+      expect { subject.extract_handbooks_data }.not_to output(/already exists/).to_stderr_from_any_process
+      expect(rows).to eq(
+        "PLATEAU Handbook #00 第6.0版 本編＋付録" => "plateau-handbook-00-60-with-appendix.xml",
+        "PLATEAU Handbook #00 第5.0版 本編" => "plateau-handbook-00-50-main.xml",
+        "PLATEAU Handbook #00 第5.0版 本編＋付録" => "plateau-handbook-00-50-with-appendix.xml",
+        "PLATEAU Handbook #00 第4.0版" => "plateau-handbook-00-40.xml",
+      )
+      expect(files).to eq rows.values
     end
 
     it "extract_technical_reports_data" do

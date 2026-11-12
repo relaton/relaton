@@ -9,16 +9,24 @@ module Relaton
       # legacy Latin form (`1.0`), stripped in #to_all_editions to derive the
       # edition-less family id from a relaton-bib docidentifier *string* (the
       # fetched document is not a pubid). Matching itself is done on pubid objects.
-      EDITION_SUFFIX = / (?:第[\d.]+版|\d+\.\d+)$/
+      # A Handbook volume label (`本編`, `本編＋付録`) follows the edition, and
+      # goes with it.
+      EDITION_SUFFIX = / (?:第[\d.]+版|\d+\.\d+)(?: 本編(?:＋付録)?)?$/
 
       # An edition-less reference selects every edition of the document with
       # pubid's subset match `pubid_ref === row`: the omitted edition matches
       # any value, and pubid declares `annex` strict for PLATEAU, so
       # `PLATEAU Handbook #03` does not reach `#03-1`. A reference with an
-      # edition selects that one row with `==`.
+      # edition selects that one row with `==`. pubid also declares `volume`
+      # strict, so the edition-less match compares each row without its
+      # volume (`本編`, `本編＋付録`): every edition includes every volume.
       def find
-        @array = index.search(pubid_ref, exact: !all_editions?)
-          .map { |row| Hit.new(row, self) }
+        rows = if all_editions?
+                 index.search(pubid_ref) { |row| pubid_ref === without_volume(row[:id]) }
+               else
+                 index.search(pubid_ref, exact: true)
+               end
+        @array = rows.map { |row| Hit.new(row, self) }
         self
       end
 
@@ -47,6 +55,13 @@ module Relaton
       # Relaton::Db passes the reference already parsed (relaton#205).
       def pubid_ref
         @pubid_ref ||= ref.is_a?(String) ? ::Pubid::Plateau.parse(ref) : ref
+      end
+
+      # The row's identifier as an edition-less reference sees it. `#exclude`
+      # returns a copy, so the cached index row is untouched. Only a Handbook
+      # has a volume.
+      def without_volume(id)
+        id.respond_to?(:volume) && id.volume ? id.exclude(:volume) : id
       end
 
       # A reference with no edition (`PLATEAU Handbook #00`, or any Technical

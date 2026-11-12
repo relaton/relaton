@@ -332,4 +332,44 @@ RSpec.describe Relaton::Plateau::HandbookParser do
       end
     end
   end
+
+  # Handbook #00 edition 5.0 is two publications on one date: 本編 (main
+  # volume) and 本編＋付録 (main volume and appendix). The id keeps the
+  # source's volume label, which pubid parses (pubid >= 2.0.21).
+  context "when the version title has a volume label" do
+    let(:entry) do
+      {
+        "id" => "cG9zdDo3MQ==", "slug" => "00",
+        "handbook" => {
+          "title" => "PLATEAU Guidebook", "description" => "Abstract",
+          "thumbnail" => { "mediaItemUrl" => "/plateau/uploads/2024/04/handbook_00_img--scaled.jpg" },
+        },
+      }
+    end
+
+    {
+      "第5.0版　本編" => ["Handbook #00 第5.0版 本編", "5.0"],
+      "第5.0版　本編＋付録" => ["Handbook #00 第5.0版 本編＋付録", "5.0"],
+      "第6.0版 本編+付録" => ["Handbook #00 第6.0版 本編＋付録", "6.0"],
+      "第4.0版" => ["Handbook #00 第4.0版", "4.0"],
+    }.each do |title, (docnumber, edition)|
+      context title do
+        let(:version) { { "title" => title, "date" => "2025.3.31", "filesize" => "1" } }
+        let(:bibitem) { subject.parse }
+
+        it "keeps the volume label in the docidentifier" do
+          id = bibitem.docidentifier[0].content
+          expect(bibitem.docnumber).to eq docnumber
+          expect(id).to eq "PLATEAU #{docnumber}"
+          expect(::Pubid::Plateau.parse(id).to_s).to eq id
+        end
+
+        it "keeps the edition and the number" do
+          strid = bibitem.ext.structuredidentifier[0]
+          expect(strid.docnumber).to eq "00"
+          expect(strid.edition).to eq edition
+        end
+      end
+    end
+  end
 end

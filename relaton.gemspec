@@ -119,7 +119,9 @@ Gem::Specification.new do |spec|
   # parsanol floor. 2.0.9 reads the SAE codes of SAE's Crossref deposits
   # (pubid#665: month, part, revision, amendment); the SAE index rows carry
   # those components, so an older runtime cannot read relaton-data-sae.
-  spec.add_dependency "pubid", "~> 2.0.9"
+  # 2.0.21 parses the PLATEAU Handbook volume label (本編 / 本編＋付録) that
+  # the Plateau Handbook #00 ids carry; an older runtime cannot parse them.
+  spec.add_dependency "pubid", "~> 2.0.21"
 
   # JSON parse/generate across the flavor fetchers, the index and the db:
   # yeptris's strict RFC 8259 surface replaces the stdlib json gem's calls.

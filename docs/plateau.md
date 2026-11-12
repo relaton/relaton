@@ -80,6 +80,19 @@ accepts, which also matches the MLIT source:
   `#04 第N.0版` / `#06 第N.0版`. If the parse fails, the parser logs a
   warning and keeps `#11 第N.0版`; the fetcher then skips the second variant
   as a duplicate.
+- Volume label: MLIT defines no document identifier (the source gives only
+  the slug and the version title), so the id keeps the version title's
+  volume label as the source writes it. Handbook #00 lists `第5.0版　本編`
+  (main volume), `第5.0版　本編＋付録` (main volume and appendix) and
+  `第6.0版　本編＋付録`; their ids are `PLATEAU Handbook #00 第5.0版 本編`,
+  `… 第5.0版 本編＋付録` and `… 第6.0版 本編＋付録` (pubid >= 2.0.21 parses
+  them; `volume` is in `==`, so `#00 第5.0版` and `#00 第6.0版` no longer
+  resolve: a dated reference must name the volume).
+  `HandbookParser#volume_label` reads it, and normalizes ASCII `+` to `＋`.
+  The file name drops the Japanese text, so `DataFetcher::VOLUME_SUFFIX`
+  adds `-main` / `-with-appendix` (`plateau-handbook-00-50-main.yaml`).
+  `HitCollection::EDITION_SUFFIX` strips the label with the edition for the
+  family record.
 - Technical Report: `PLATEAU Technical Report #NN` (**no edition** — pubid TRs
   carry none; the document still has a `1.0` `Bib::Edition`).
 - Sub-numbers use a hyphen (`#46-1`), not the source underscore (`#46_1`).
@@ -97,8 +110,10 @@ non-200) and matches on **pubid objects**, mirroring the
 other pubid flavors: an exact edition uses `index.search(ref, exact: true)`
 (pubid `==` compares type + number + annex + edition); a family query
 (`ref.edition.nil?` — an edition-less handbook, or any Technical Report) uses
-the default subset match `ref === row`, where the omitted edition matches any
-value. pubid declares `annex` strict for PLATEAU (pubid#408), so
+the subset match `ref === row`, where the omitted edition matches any
+value. pubid declares `volume` strict too, so the family query passes a
+block that compares each row without its volume (`HitCollection#without_volume`):
+`PLATEAU Handbook #00` reaches `#00 第5.0版 本編` and `… 本編＋付録`. pubid declares `annex` strict for PLATEAU (pubid#408), so
 `PLATEAU Handbook #03` does not reach the annex `#03-1`;
 `hit_collection_spec.rb` pins that against the index fixture. This keeps the
 family-vs-exact decision and the match on the *same* parsed identifier (no raw
