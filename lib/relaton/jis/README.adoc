@@ -4,6 +4,8 @@ RelatonJis is a Ruby gem that implements the https://github.com/metanorma/metano
 
 You can use it to retrieve metadata of JIS Standards from https://webdesk.jsa.or.jp, and access such metadata through the `Relaton::Jis::ItemData` object.
 
+The flavor also retrieves WES standards of the Japan Welding Engineering Society (JWES), which webdesk.jsa.or.jp sells next to JIS: `Relaton::Jis::Bibliography.get "WES 7700-1:2019"`. A WES record has the docidentifier type `WES` and JWES as its author and publisher. Its doctype is the JIS value of its form (`japanese-industrial-standard`, `technical-report`, `technical-specification` or `amendment`), because the JIS grammar has no WES value.
+
 == Usage
 
 === Search for standards using keywords

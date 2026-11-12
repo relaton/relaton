@@ -9,6 +9,13 @@ module Relaton
     class DataFetcher < Core::DataFetcher
       URL = "https://webdesk.jsa.or.jp/books/"
 
+      # The Webdesk lists a crawl reads, in this order: the JIS search, then
+      # the JWES group list (WES standards, relaton-jis#18). Webdesk keeps the
+      # open list in the session, and the list page and its paging
+      # (`W11M0070`) read that list. So the lists are read one after the
+      # other, and a session refresh opens the current list again.
+      LISTS = %w[JIS JWES].freeze
+
       def initialize(output, format)
         super
         @queue = SizedQueue.new 10
@@ -78,24 +85,55 @@ module Relaton
         end
       end
 
+      # relaton-data-jis deletes data/ before a crawl and publishes what the
+      # crawl wrote. A list that does not open raises, so the crawl job fails
+      # and does not publish a corpus without that list.
       def fetch(_source = nil)
-        return unless initial_post
+        failed = begin
+          LISTS.find { |list| !fetch_list(list) }
+        ensure
+          end_threads_and_wait
+        end
+        raise Error, "Webdesk list #{failed} did not open" if failed
 
-        resp = agent.get "#{URL}W11M0070/index"
-        parse_page resp
         index.save
         report_errors
       end
 
+      # Queue every document of one list. False if the list does not open.
+      def fetch_list(list)
+        @list = list
+        @initial_time = nil
+        return false unless initial_post
+
+        parse_page agent.get("#{URL}W11M0070/index")
+        true
+      end
+
+      # Open the current list in the session, unless it was opened less than
+      # 10 minutes ago.
       def initial_post
         return true if @initial_time && Time.now - @initial_time < 600
 
+        status = @list == "JWES" ? open_group_list(@list) : open_jis_search
+        @initial_time = Time.now
+        status || Util.warn("No results found for #{@list}")
+      end
+
+      def open_jis_search
         body = { record: 0, dantai: "JIS", searchtype2: 1,
                  status_1: 1, status_2: 2 } # rubocop:disable Naming/VariableNumber
         resp = agent.post "#{URL}W11M0270/index", body
-        disp = Relaton::Json.parse_external resp.body
-        @initial_time = Time.now
-        disp["status"] || Util.warn("No results found for JIS")
+        Relaton::Json.parse_external(resp.body)["status"]
+      end
+
+      # A group list from the "domestic group publications" page. The link
+      # redirects to the list page, which states the count of documents.
+      def open_group_list(dantai)
+        page = agent.get "#{URL}W11S0260/getSearchAllListByLink" \
+                         "?dantai_cd=#{dantai}&display=KOKUNAI"
+        script = page.at_xpath('//script[contains(.,"var count =")]')
+        script&.text.to_s[/var count = (\d+);/, 1].to_i.positive?
       end
 
       def agent
@@ -111,7 +149,6 @@ module Relaton
 
           resp = get_next_page(offset)
         end
-        end_threads_and_wait
       end
 
       def parse_offset(resp) # rubocop:disable Metrics/AbcSize

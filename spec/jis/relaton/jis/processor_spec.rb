@@ -8,7 +8,7 @@ describe Relaton::Jis::Processor do
   it "initializes" do
     expect(processor.short).to eq :relaton_jis
     expect(processor.prefix).to eq "JIS"
-    expect(processor.defaultprefix).to eq %r{^(JIS|TR)\s}
+    expect(processor.defaultprefix).to eq %r{^(JIS|TR|WES)\s}
     expect(processor.idtype).to eq "JIS"
     expect(processor.datasets).to eq %w[jis-webdesk]
   end

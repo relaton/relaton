@@ -11,7 +11,7 @@ module Relaton
         @short = :relaton_jis
         @prefix = "JIS"
         @pubid_identifier = :Jis # Db cache key
-        @defaultprefix = %r{^(JIS|TR)\s}
+        @defaultprefix = %r{^(JIS|TR|WES)\s} # WES: relaton-jis#18
         @idtype = "JIS"
         @datasets = %w[jis-webdesk]
       end

@@ -88,37 +88,106 @@ describe Relaton::Jis::DataFetcher do # rubocop:disable Metrics/BlockLength
         HTML
       end
 
-      it "no results" do
+      let(:jwes_url) do
+        "https://webdesk.jsa.or.jp/books/W11S0260/getSearchAllListByLink" \
+          "?dantai_cd=JWES&display=KOKUNAI"
+      end
+      let(:jwes_page) do
+        Nokogiri::HTML("<script>var count = 104;</script>")
+      end
+      let(:index) { double("index") }
+
+      before do
+        allow(Relaton::Index).to receive(:find_or_create).and_return index
+      end
+
+      # relaton-data-jis deletes data/ before a crawl and publishes what the
+      # crawl wrote, so a list that does not open fails the whole crawl.
+      it "raises when the JIS search finds nothing" do
         resp_body = { "status" => false }.to_json
         expect(subject.agent).to receive(:post)
           .with(url1, body).and_return double(body: resp_body)
         expect(subject.agent).not_to receive(:get)
+        expect(index).not_to receive(:save)
+        expect { subject.fetch }.to raise_error(Relaton::Jis::Error, /JIS/)
+          .and output(/No results found for JIS/).to_stderr_from_any_process
+        expect(subject.instance_variable_get(:@threads)).to all(satisfy { |t| !t.alive? })
+      end
+
+      it "reads the JIS search, then the JWES list" do
+        resp_body = { "status" => true }.to_json
+        expect(subject.agent).to receive(:post)
+          .with(url1, body).ordered.and_return double(body: resp_body)
+        expect(subject.agent).to receive(:get).with(url2).ordered.and_return resp
+        expect(subject.agent).to receive(:get).with(jwes_url).ordered.and_return jwes_page
+        expect(subject.agent).to receive(:get).with(url2).ordered.and_return resp
+        expect(subject).to receive(:parse_page).with(resp).twice
+        expect(index).to receive(:save).once
         subject.fetch
       end
 
-      it "with results" do
+      it "raises when the JWES list is empty, after the JIS list" do
         resp_body = { "status" => true }.to_json
-        expect(subject.agent).to receive(:post)
+        allow(subject.agent).to receive(:post)
           .with(url1, body).and_return double(body: resp_body)
-        expect(subject.agent).to receive(:get)
-          .with(url2).and_return resp
-        expect(subject).to receive(:parse_page).with(resp)
-        index = double("index")
-        allow(Relaton::Index).to receive(:find_or_create).and_return index
-        expect(index).to receive(:save)
-        subject.fetch
+        expect(subject.agent).to receive(:get).with(url2).once.and_return resp
+        expect(subject.agent).to receive(:get).with(jwes_url)
+          .and_return Nokogiri::HTML("<script>var count = 0;</script>")
+        expect(subject).to receive(:parse_page).with(resp).once
+        expect(index).not_to receive(:save)
+        expect { subject.fetch }.to raise_error(Relaton::Jis::Error, /JWES/)
+          .and output(/No results found for JWES/).to_stderr_from_any_process
+      end
+
+      it "ends the threads when a list page raises" do
+        expect(subject).to receive(:initial_post).and_return true
+        expect(subject.agent).to receive(:get).with(url2).and_raise NoMethodError
+        expect(index).not_to receive(:save)
+        expect { subject.fetch }.to raise_error NoMethodError
+        expect(subject.instance_variable_get(:@threads)).to all(satisfy { |t| !t.alive? })
       end
 
       # relaton-data-jis rebuilds the legacy index-v1 from data/ in its own
       # crawler, so a crawl writes index-v2 and nothing else.
       it "opens and saves one index only" do
-        index = double("index")
         expect(Relaton::Index).to receive(:find_or_create).once.and_return index
         expect(index).to receive(:save).once
-        expect(subject).to receive(:initial_post).and_return true
-        expect(subject.agent).to receive(:get).with(url2).and_return resp
-        expect(subject).to receive(:parse_page).with(resp)
+        expect(subject).to receive(:initial_post).twice.and_return true
+        expect(subject.agent).to receive(:get).with(url2).twice.and_return resp
+        expect(subject).to receive(:parse_page).with(resp).twice
         subject.fetch
+      end
+    end
+
+    context "#initial_post" do
+      let(:jwes_url) do
+        "https://webdesk.jsa.or.jp/books/W11S0260/getSearchAllListByLink" \
+          "?dantai_cd=JWES&display=KOKUNAI"
+      end
+
+      it "opens the JWES list by its group link" do
+        subject.instance_variable_set :@list, "JWES"
+        expect(subject.agent).to receive(:get).with(jwes_url)
+          .and_return Nokogiri::HTML("<script>var count = 104;</script>")
+        expect(subject.initial_post).to be true
+      end
+
+      it "does not open a list again within 10 minutes" do
+        subject.instance_variable_set :@list, "JWES"
+        expect(subject.agent).to receive(:get).with(jwes_url).once
+          .and_return Nokogiri::HTML("<script>var count = 104;</script>")
+        2.times { subject.initial_post }
+      end
+
+      # The session holds one list: a refresh during the JWES list must not
+      # switch the session back to the JIS search.
+      it "opens the current list again after 10 minutes" do
+        subject.instance_variable_set :@list, "JWES"
+        subject.instance_variable_set :@initial_time, Time.now - 601
+        expect(subject.agent).not_to receive(:post)
+        expect(subject.agent).to receive(:get).with(jwes_url)
+          .and_return Nokogiri::HTML("<script>var count = 104;</script>")
+        expect(subject.initial_post).to be true
       end
     end
 
@@ -150,17 +219,20 @@ describe Relaton::Jis::DataFetcher do # rubocop:disable Metrics/BlockLength
       it "first page" do
         expect(subject).to receive(:get_next_page).with(50)
         subject.parse_page page1
+        subject.end_threads_and_wait # #fetch ends the threads once
       end
 
       it "next page" do
         subject.instance_variable_set :@count, 110
         expect(subject).to receive(:get_next_page).with(100)
         subject.parse_page page2
+        subject.end_threads_and_wait # #fetch ends the threads once
       end
 
       it "no more pages" do
         expect(subject).not_to receive(:get_next_page)
         subject.parse_page page2
+        subject.end_threads_and_wait # #fetch ends the threads once
       end
     end
 
