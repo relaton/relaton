@@ -101,7 +101,7 @@ RSpec.describe Relaton::Nist::HitCollection do
         "docidentifier" => "FIPS 140-2",
         "uri" => "https://csrc.nist.gov/pubs/fips/140-2/final",
         "iteration" => "final",
-      )).to eq "NIST FIPS 140-2"
+      )).to eq "FIPS PUB 140-2"
     end
 
     it "final iteration with /upd2/final URI => no stage, update set" do
@@ -110,7 +110,7 @@ RSpec.describe Relaton::Nist::HitCollection do
         "docidentifier" => "FIPS 140-2",
         "uri" => "https://csrc.nist.gov/pubs/fips/140-2/upd2/final",
         "iteration" => "final",
-      )).to eq "NIST FIPS 140-2/Upd2"
+      )).to eq "FIPS PUB 140-2/Upd2"
     end
 
     it "ipd iteration => ipd stage" do
@@ -155,7 +155,7 @@ RSpec.describe Relaton::Nist::HitCollection do
         "docidentifier" => "FIPS 140-2",
         "uri" => "https://csrc.nist.gov/pubs/fips/140-2/final",
         "iteration" => nil,
-      )).to eq "NIST FIPS 140-2"
+      )).to eq "FIPS PUB 140-2"
     end
   end
 end
@@ -167,13 +167,13 @@ RSpec.describe "Relaton::Nist::HitCollection stage-carrying references (relaton#
     codes = hits.map { |h| h.hit[:code] }
     # The published index has no stage-typed row for the fpd; the base
     # document of the family answers instead.
-    expect(codes).to include("NIST FIPS 197")
+    expect(codes).to include("FIPS PUB 197")
   end
 
   it "search_filter equalizes the stage on both sides of the equality" do
     filtered = Relaton::Nist::HitCollection.search("NIST FIPS 197 fpd").search_filter
     expect(filtered).not_to be_empty
-    expect(filtered.map { |h| h.hit[:code] }).to include("NIST FIPS 197")
+    expect(filtered.map { |h| h.hit[:code] }).to include("FIPS PUB 197")
   end
 end
 
@@ -192,12 +192,12 @@ RSpec.describe "Relaton::Nist exact stage match (relaton#314)" do
   it "keeps the exact stage-typed hit for a reference that names it" do
     hits = Relaton::Nist::HitCollection.search("NIST FIPS 197/Upd1 ipd")
     codes = hits.search_filter.array.map { |h| h.hit[:code] }
-    expect(codes).to eq ["NIST FIPS 197/Upd1 ipd"]
+    expect(codes).to eq ["FIPS PUB 197/Upd1 ipd"]
   end
 
   it "resolves the reference through Bibliography.get" do
     item = Relaton::Nist::Bibliography.get "NIST FIPS 197/Upd1 ipd"
-    expect(item.docidentifier.first.content).to eq "NIST FIPS 197/Upd1 ipd"
+    expect(item.docidentifier.first.content).to eq "FIPS PUB 197/Upd1 ipd"
   end
 end
 

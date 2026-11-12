@@ -251,10 +251,10 @@ RSpec.describe Relaton::Nist do
     it "a code with an year form json" do
       expect do
         result = Relaton::Nist::Bibliography.get "NIST FIPS 140-2", "2002"
-        expect(result.id).to eq "NISTFIPS1402Upd2"
+        expect(result.id).to eq "FIPSPUB1402Upd2"
       end.to output(
         match(/\[relaton-nist\] INFO: \(NIST FIPS 140-2\) Fetching from csrc\.nist\.gov \.\.\./)
-          .and(match(/\[relaton-nist\] INFO: \(NIST FIPS 140-2\) Found: `NIST FIPS 140-2\/Upd2`/)),
+          .and(match(/\[relaton-nist\] INFO: \(NIST FIPS 140-2\) Found: `FIPS PUB 140-2\/Upd2`/)),
       ).to_stderr_from_any_process
     end
 

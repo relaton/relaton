@@ -12,8 +12,8 @@ describe Relaton::Nist::Docidentifier do
       expect(build_docid("NBS CIRC 25sup").to_s(form: :internal)).to eq "CIRC 25sup"
     end
 
-    it "drops the prefix of a staged supplement in the internal form" do
-      expect(build_docid("NIST FIPS 197/Upd1 ipd").to_s(form: :internal)).to eq "FIPS 197/Upd1 ipd"
+    it "keeps the official FIPS PUB face in the internal form (no publisher lead to strip)" do
+      expect(build_docid("NIST FIPS 197/Upd1 ipd").to_s(form: :internal)).to eq "FIPS PUB 197/Upd1 ipd"
     end
 
     it "keeps the prefix in the default and the external form" do
