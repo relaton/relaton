@@ -121,7 +121,14 @@ Gem::Specification.new do |spec|
   # those components, so an older runtime cannot read relaton-data-sae.
   # 2.0.21 parses the PLATEAU Handbook volume label (本編 / 本編＋付録) that
   # the Plateau Handbook #00 ids carry; an older runtime cannot parse them.
-  spec.add_dependency "pubid", "~> 2.0.21"
+  # It also reads the SDOs' printed spellings a user cites: NIST
+  # "FIPS PUB <n>" and ECMA "ECMA-262 Edition 5.1" (pubid#697, #698;
+  # metanorma-pdfa#114). Older runtimes raise a parse error on them.
+  # 2.0.22 gives a bare "FIPS <n>" the NIST publisher (pubid#704), so it
+  # equals the "NIST FIPS <n>" rows NIST's search_filter compares with ==,
+  # and renders NIST FIPS in the official "FIPS PUB <n>" face (pubid#705).
+  # On 2.0.21 a bare FIPS citation answers "Not found".
+  spec.add_dependency "pubid", "~> 2.0.22"
 
   # JSON parse/generate across the flavor fetchers, the index and the db:
   # yeptris's strict RFC 8259 surface replaces the stdlib json gem's calls.

@@ -138,6 +138,13 @@ ambiguous match — and it is the first thing to check against a report that a
 reference "used to resolve and now does not". `ecma-6` (lowercase) parsed under
 neither.
 
+pubid >= 2.0.21 reads the human edition spellings as the ` ed<N>` token
+(pubid#698): `ECMA-262 Edition 5.1`, `ECMA-262 ed. 5.1` and `ECMA 262 5.1`
+all reach the `ed5.1` row (metanorma-pdfa#114). Before 2.0.21 they raised the
+parse error above. Old releases answered them with the **latest** edition,
+because the regex ignored the tail. A date (`ECMA-363 2006-06`) is still not
+an edition: it does not parse, and the caller writes `ECMA-363 ed3`.
+
 #### Ordering: latest edition, then lowest volume
 
 That is the order the bespoke `compare_edition_volume` + `min` implemented, kept

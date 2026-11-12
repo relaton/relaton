@@ -72,6 +72,29 @@ All data models inherit from `Lutaml::Model::Serializable` and use declarative a
 - `PubsExport` — singleton; caches CSRC pubs-export zip with thread-safe daily updates. The cache file is `#datafile`, under `Relaton::Index.config.storage_dir` (default `Dir.home`; the `DATAFILE` constant is only that default).
   - **A read-only file system must not stop a search (relaton-nist#57).** When the cache write fails, `#fetch_data` keeps the downloaded zip in `@buffer`, and `#unzip` reads it with `Zip::File.open_buffer`. In rubyzip 3, `open_buffer` returns the buffer, not the block value, so collect the rows in a local. The cache write goes to a temp file and is renamed into place (`#write_datafile`), so a failed write never leaves a truncated zip that later processes read as fresh. `HitCollection#search` also rescues the local-cache errors in `LOCAL_DATA_ERRORS` from `from_json` (`#from_json_or_empty`), logs a warning, and continues with `from_ga`. Do not widen that list to `SystemCallError`: `Errno::ECONNREFUSED` is one, and a CSRC outage would then answer "not found" from the index, which `Relaton::Db` can cache. Specs assert the warning with `output(...).to_stderr_from_any_process`. A `receive(:warn)` stub on `Util` is never hit: `Kernel#warn` is private, the stub stays private, and the explicit-receiver call goes to `method_missing`.
 
+### FIPS spellings a user cites (metanorma-pdfa#114)
+
+`HitCollection#search_filter` keeps a CSRC hit only when
+`hit_pubid.exclude(*parts) == query_pubid`, and every hit and index row is
+`NIST FIPS …`. So a FIPS reference is found only when pubid parses it to the
+same model, publisher included. With pubid >= 2.0.22 (the gemspec floor) all
+three spellings do:
+
+| Reference | Since | Why |
+|---|---|---|
+| `NIST FIPS 197` | always | canonical |
+| `FIPS PUB 197` | pubid 2.0.21 | NIST's printed form, an alias of `NIST FIPS 197` (pubid#697) |
+| `FIPS 197` | pubid 2.0.22 | pubid fills the series publisher `NIST` and keeps `publisher_was_parsed: false` (pubid#704) |
+
+On 2.0.21 a bare `FIPS 197` parses with `publisher: nil`, pubid's `==`
+compares the publisher, and the lookup answers "Not found". The fix belongs to
+pubid: don't add a `FIPS` → `NIST FIPS` string rewrite to
+`Bibliography.search`. Since pubid#705 every NIST FIPS identifier renders in
+the official face `FIPS PUB <n>`, so a spec that tells these spellings apart
+must compare the pubids with `==`; `pubid_of` compares only the printed form.
+`hit_collection_spec.rb` ("FIPS spellings") and `spec/relaton/relaton_spec.rb`
+cover the three spellings.
+
 ### Pubid-backed docidentifier
 
 `Relaton::Nist::Docidentifier` (`docidentifier.rb`, `< Bib::Docidentifier`,

@@ -39,6 +39,15 @@ RSpec.describe Relaton::Ecma do
       expect(bib.edition.content).to eq "5.1"
     end
 
+    # The document cover prints "ECMA-262 Edition 5.1"; pubid 2.0.21 reads
+    # the human edition spellings as " ed5.1" (pubid#698, metanorma-pdfa#114).
+    ["ECMA-262 Edition 5.1", "ECMA-262 ed. 5.1", "ECMA 262 5.1"].each do |ref|
+      it "finds the edition row for #{ref}" do
+        files = Relaton::Ecma::Bibliography.search(ref).map { |r| r[:file] }
+        expect(files).to eq ["data/ecma-262-5-1.yaml"]
+      end
+    end
+
     it "with specific edition and volume", vcr: { cassette_name: "ecma_269_ed3_vol2" } do
       bib = Relaton::Ecma::Bibliography.get "ECMA-269 ed3 vol2"
       expect(bib.docidentifier.first.content).to eq "ECMA-269"

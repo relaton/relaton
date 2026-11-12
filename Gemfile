@@ -82,6 +82,8 @@ gemspec
 # a runtime older than the release rejects the components it does not implement.
 # pubid 2.0.9 carries the SAE Crossref codes (pubid#665) the SAE index keys on.
 # pubid 2.0.21 parses the PLATEAU Handbook volume label (本編 / 本編＋付録).
+# It also reads the SDOs' printed spellings: NIST "FIPS PUB <n>" and the ECMA
+# "Edition 5.1" faces (pubid#697, #698; metanorma-pdfa#114).
 gem "pubid", "~> 2.0.22" # the ruled FIPS PUB render face (pubid#705): the pins in this PR require it; a cached 2.0.21 must not satisfy
 # parsanol 1.3.114 (ruby#361) carries the numeric capture editions —
 # the canonical edition 2 header and the integer envelope field — and
