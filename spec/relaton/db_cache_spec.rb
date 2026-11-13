@@ -229,7 +229,7 @@ RSpec.describe Relaton::Db::Cache do
     File.write "#{dir}/iso/iso_123.xml", xml.sub("ISO 19115-1:2014", "ISO 123")
     imported = described_class.new dir
     expect(imported[pubid("ISO 123")]).to include "ISO 123"
-    expect(File.exist?("#{dir}/v2/.v1-imported")).to be true
+    expect(Relaton::Db::Cache.new(dir).send(:v1_imported?)).to be true
 
     reopened = described_class.new dir
     expect(reopened[pubid("ISO 123")]).to include "ISO 123"
@@ -241,7 +241,8 @@ RSpec.describe Relaton::Db::Cache do
     described_class.new dir
     fresh = described_class.new dir
     fresh[pubid("ISO 123")] = xml.sub("ISO 19115-1:2014", "ISO 123 fresh")
-    File.delete "#{dir}/v2/.v1-imported" # force the import to run again
+    # force the import to run again
+    fresh.instance_variable_get(:@rows).delete described_class::V1_IMPORTED_KEY
     reread = described_class.new dir
     expect(reread[pubid("ISO 123")]).to include "fresh"
   end

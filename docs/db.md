@@ -298,7 +298,17 @@ failed 3 of 3. With the real lock they passed 20 of 20.
 An old file-per-key cache (anything in `<dir>` beside `v2/`) is **moved** to
 `<dir>-v1.bak` on open, never deleted — **once**: when the `.bak` exists the
 old entries stay where they are, because an older relaton sharing the
-directory writes the old layout again, and v2 ignores it.
+directory writes the old layout again, and v2 ignores it. The entries of the
+`.bak` are then imported once (relaton#240). The rows key `_v1_imported`
+records the import; a `<dir>/v2/.v1-imported` file, which relaton wrote
+before relaton#548, still counts, but no file is written now. `Cache#clear`
+never deletes the key, not even for a moment, so a cleared cache is not
+filled again from the `.bak`, by this or another process. (`Db.flush_caches`
+removes `<dir>` and keeps the `.bak`, so the next open imports again.) One
+known effect: a relaton from before relaton#548 that shares the directory
+reads only the file, so it imports once more — entries the cache already
+holds are kept — and writes the file, which this code then reads. Such a
+relaton also lists the key as a row in `Cache#rows`; `Db` does not call it.
 
 Keys: a parsed pubid; a wrapped string (`ISO(ISO 19115-1)`), which the cache
 parses through the prefix's processor — `load_entry`/`save_entry` still take
@@ -311,6 +321,52 @@ marker string. `Db` reads with `Cache#read` and tests `is_a?(NotFound)`; keep
 kept for compatibility: `Cache#[]` and `Db#load_entry` return
 `"not_found <date>"` (`NotFound#to_s`), and `Cache#[]=`/`#store` still accept
 that string, which `Cache#coerce` turns into a `NotFound` at the entrance.
+
+### lutaml-store audit (relaton#548)
+
+The cache has one storage layer, lutaml-store. The state of the six points
+of relaton#548, on lutaml-store 0.3.14:
+
+1. **Store-native reads and writes — holds.** Every row and document goes
+   through `@rows`/`@docs` (`Lutaml::Store::BasicStore`). The raw file calls
+   that remain touch no row or document: the one-shot v1 migration
+   (`archive_old_layout`, `import_old_layout`, `v1_imported?`, which reads the
+   legacy marker file), and three whole-directory operations — `initialize`
+   removes a stale *file* at the cache path, `Cache#mv` moves the directory
+   and opens the stores again, `Db.flush_caches` removes it. The v1 import
+   marker was the one exception (a `FileUtils.touch` beside the stores); it
+   is a rows key now. `Cache#clear` deletes the rows keys one by one and
+   keeps that key: a whole-store `clear` would remove it for a moment, and
+   a second process could import the `.bak` in that gap.
+2. **No key-derivation bypass — holds.** `Cache` makes store keys only: a
+   bucket `<flavor>/<root number>` and a document name
+   `<bucket>/<16 hex of the key's digest>`. The FileSystem adapter maps a key
+   to a path (percent-encoding, a two-character shard, a `~`-digest name over
+   200 bytes), and `Cache` never builds a path. That map is the same from
+   0.3.2 to 0.3.14, so two relaton versions share one cache directory.
+3. **Exclusion is lutaml-store's — holds.** `Cache` has no lock of its own.
+   It takes the adapter's lock through `@rows.adapter.transaction`
+   (`BasicStore` has no `transaction`), in the order rows, then docs.
+   `Cache#clear` cleared the two stores outside a transaction; it now runs in
+   one. `Db`'s `@semaphore` is not a store lock: it serializes, in one
+   process, the check-then-act sequences that span the two caches (see
+   **Style** below).
+4. **Pin currency — holds.** `~> 0.3.2` admits 0.3.14, the newest release,
+   and the full suite passes on it. The floor stays: no spec needs a later
+   release.
+5. **Cloud/local parity — not applicable yet.** `Db` never calls
+   `Relaton::Cloud`. Offline mode reads `Db::Cache` only, and `Cloud` keys on
+   a collection's manifest storage keys, not on pubid buckets. The API
+   resolver tier (relaton#535) is where the two meet: when it writes an API
+   answer into `Db::Cache`, it must add a spec that the row and the document
+   have the shape and the key of a flavor fetch.
+6. **Guard spec — `spec/relaton/lutaml_store_native_spec.rb`.** It runs the
+   cache's write paths (store with an item key, not-found, delete, expire, a
+   flavor drop, the v1 import, clear) and checks that every file under
+   `<dir>/v2/` is a store's `.lock`, an entry's data file (one per store key)
+   or its `.meta`. A source scan of `lib/relaton/db{,/*}.rb` fails on raw IO
+   outside the methods named in point 1, on any file-content write, and on a
+   `Mutex`, `Monitor` or `flock` in `cache.rb`.
 
 ### Offline resolution (relaton#536)
 

@@ -112,7 +112,11 @@ accepted:** relaton does not rewrite `I-D.…`, `BIPM Metrologia …`, a W3C URL
 `NIST … (IPD)` and the like any more, so `Db#fetch` raises for them (the
 published data carries canonical ids only). An old cache is moved
 to `<dir>-v1.bak`, never deleted. Pin `lutaml-store ~> 0.3.2`: 0.3.0's adapter
-had no thread/process exclusion (lutaml/lutaml-store#17). See
+had no thread/process exclusion (lutaml/lutaml-store#17). **lutaml-store is
+the only storage layer (relaton#548):** no file beside the stores (the v1
+import marker is the rows key `_v1_imported`), no path built from a key, and
+no lock of the cache's own. `spec/relaton/lutaml_store_native_spec.rb` guards
+it, with an allowlist of the methods that may do raw IO. See
 `docs/db.md`.
 
 **A stale cache row is served, not deleted, when the network fails
