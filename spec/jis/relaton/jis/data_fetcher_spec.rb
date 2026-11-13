@@ -48,6 +48,21 @@ describe Relaton::Jis::DataFetcher do # rubocop:disable Metrics/BlockLength
     end
   end
 
+  # The relaton-data-jis crawler runs `fetch(prune: true)`. A crawl that
+  # raises must stop before the prune deletes anything.
+  context ".fetch in prune mode" do
+    it "does not prune when the crawl raises" do
+      allow(FileUtils).to receive(:mkdir_p)
+      allow(described_class).to receive(:new).and_return subject
+      expect(subject).to receive(:fetch)
+        .and_raise Relaton::Jis::Error, "Webdesk list JIS stopped"
+      expect(subject).not_to receive(:prune_unwritten)
+      expect { described_class.fetch prune: true }
+        .to raise_error(Relaton::Jis::Error, /stopped/)
+        .and output.to_stdout
+    end
+  end
+
   context ".fetch" do
     before { expect(subject).to receive(:fetch) }
 
@@ -245,24 +260,27 @@ describe Relaton::Jis::DataFetcher do # rubocop:disable Metrics/BlockLength
         expect(subject.get_next_page(100)).to eq :next_page
       end
 
-      it "initial failed" do
+      # A list that stops part way must stop the crawl: in prune mode the
+      # unread documents would otherwise be deleted.
+      it "raises when the list does not open again" do
+        subject.instance_variable_set :@list, "JWES"
         expect(subject).to receive(:initial_post)
           .and_return false
         expect(subject.agent).not_to receive(:post)
-        expect(subject.get_next_page(100)).to be_nil
+        expect { subject.get_next_page(100) }
+          .to raise_error(Relaton::Jis::Error, /JWES.*offset 100/)
       end
 
-      it "post failed" do
+      it "raises after 5 failed tries" do
+        subject.instance_variable_set :@list, "JIS"
         allow(subject).to receive(:sleep)
         expect(subject).to receive(:initial_post)
           .and_return(true).exactly(5).times
         expect(subject.agent).to receive(:post)
           .with(next_url, next_body)
-          .and_raise(StandardError).exactly(5).times
-        expect do
-          expect(subject.get_next_page(100)).to be_nil
-        end.to output(/WARN: StandardError/)
-          .to_stderr_from_any_process
+          .and_raise(StandardError, "timeout").exactly(5).times
+        expect { subject.get_next_page(100) }
+          .to raise_error(Relaton::Jis::Error, /JIS.*offset 100.*timeout/)
       end
     end
 
@@ -287,6 +305,38 @@ describe Relaton::Jis::DataFetcher do # rubocop:disable Metrics/BlockLength
         expect { subject.fetch_doc "url" }
           .to output(/WARN: StandardError/)
           .to_stderr_from_any_process
+        expect(subject.instance_variable_get(:@failed_docs)).to eq ["url"]
+      end
+    end
+
+    # The crawler runs in prune mode: prune deletes the files a run did not
+    # write, so a run deletes nothing when a document did not fetch.
+    context "#prune_unwritten" do
+      let(:dir) { Dir.mktmpdir "relaton-jis-prune" }
+      let(:kept) { File.join dir, "jis-a-1301-1994.xml" }
+      let(:stale) { File.join dir, "jis-a-9999-1990.xml" }
+      subject { described_class.new dir, "bibxml" }
+
+      before do
+        allow(Relaton::Index).to receive(:find_or_create).and_return double("index", add_or_update: nil)
+        allow(subject).to receive(:serialize).and_return "serialized"
+        File.write stale, "old"
+        subject.save_doc bib, "url"
+      end
+
+      after { FileUtils.rm_rf dir }
+
+      it "deletes a file the run did not write" do
+        expect(subject.prune_unwritten(min_ratio: 0)).to eq [stale]
+        expect(File.exist?(kept)).to be true
+      end
+
+      it "deletes nothing after a document did not fetch" do
+        subject.instance_variable_get(:@failed_docs) << "url2"
+        expect { expect(subject.prune_unwritten(min_ratio: 0)).to eq [] }
+          .to output(/prune skipped: 1 document\(s\) did not fetch/)
+          .to_stderr_from_any_process
+        expect(File.exist?(stale)).to be true
       end
     end
 

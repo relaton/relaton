@@ -235,7 +235,8 @@ module Relaton
 
       def fetch_editorialgroup_contributor # rubocop:disable Metrics/MethodLength
         node = @doc.at_xpath("./table/tr[th[.='原案作成団体']]/td")
-        @errors[:editorialgroup] &&= node.nil?
+        # A WES page names no drafting body (see JWES_NAMES).
+        @errors[:editorialgroup] &&= node.nil? unless wes?
         return unless node
 
         subdivision = Bib::Subdivision.new(
