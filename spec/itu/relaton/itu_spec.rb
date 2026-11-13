@@ -55,7 +55,10 @@ RSpec.describe Relaton::Itu do
   it "gets Operational Bulletin" do
     VCR.use_cassette "operational_bulletin" do
       result = Relaton::Itu::Bibliography.get "ITU-T OB.1096 - 15.III.2016"
-      expect(result.docidentifier[0].content).to eq "ITU-T OB.1096 (2016)"
+      # the docid face is pubid's render (Scraper#canonical_id): an OB never
+      # carries a sector (pubid#696), so the TSB-spelled crawl renders
+      # "ITU OB No. 1096 (2016)"
+      expect(result.docidentifier[0].content).to eq "ITU OB No. 1096 (2016)"
     end
   end
 
