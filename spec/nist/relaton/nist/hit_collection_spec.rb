@@ -221,3 +221,17 @@ RSpec.describe "Relaton::Nist CSWP comes from CSRC (relaton-nist#104)" do
     )
   end
 end
+
+RSpec.describe "Relaton::Nist FIPS spellings (metanorma-pdfa#114)" do
+  # Every spelling a user cites reaches the one NIST FIPS record. pubid
+  # reads "FIPS PUB <n>" (pubid#697, 2.0.21; 2.0.11 raised at "PUB") and
+  # gives a bare "FIPS <n>" the NIST publisher (pubid#704, 2.0.22), so all
+  # three parse to the same identifier and search_filter's == keeps the hit.
+  # The record renders in the official face "FIPS PUB <n>" (pubid#705).
+  ["NIST FIPS 204", "FIPS PUB 204", "FIPS 204"].each do |ref|
+    it "resolves #{ref} to the FIPS 204 record" do
+      item = Relaton::Nist::Bibliography.get ref
+      expect(item&.docidentifier&.first&.content).to eq "FIPS PUB 204"
+    end
+  end
+end

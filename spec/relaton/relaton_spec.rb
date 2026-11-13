@@ -141,6 +141,26 @@ RSpec.describe Relaton::Db do
       expect(bib).to be_instance_of Relaton::Nist::ItemData
       expect(bib.docidentifier[0].content).to eq "NIST SP 800-38B"
     end
+
+    # NIST prints its FIPS as "FIPS PUB <n>", and users also cite a bare
+    # "FIPS <n>". pubid parses both to the NIST FIPS identifier (pubid#697,
+    # #704; metanorma-pdfa#114), so the flavor receives the same pubid as
+    # for "NIST FIPS 204". Compared by ==: all three print "FIPS PUB 204"
+    # (pubid#705), so pubid_of cannot tell them apart.
+    ["FIPS PUB 204", "FIPS 204"].each do |ref|
+      it "gets #{ref} as the NIST FIPS 204 pubid" do
+        require "relaton/nist"
+        docid = Relaton::Nist::Docidentifier.new(content: "NIST FIPS 204",
+                                                 type: "NIST")
+        item = Relaton::Nist::ItemData.new docidentifier: [docid]
+        canonical = Pubid::Nist::Identifier.parse("NIST FIPS 204")
+        expect(Relaton::Nist::Bibliography).to receive(:get).with(
+          satisfy { |pubid| pubid == canonical }, nil, {}
+        ).and_return item
+        bib = @db.fetch ref
+        expect(bib.docidentifier[0].content).to eq "NIST FIPS 204"
+      end
+    end
   end
 
   it "deals with a non-existant ISO reference" do
