@@ -296,14 +296,15 @@ module Relaton
         "T-SP-OB.#{ref.number}-#{ref.year}" if bulletin?
       end
 
-      # The docidentifier (year only, no month or day). A bulletin keeps its
-      # sector even when the reference is the sector-less `ITU OB No. 1096`.
+      # The docidentifier (year only, no month or day). A bulletin carries no
+      # sector even when the reference is the TSB spelling `ITU-T OB.1096`
+      # (pubid#696); `Scraper#bureau` still makes TSB its author.
       #
       # @return [String]
       def publication_code
         return "ITU-R RR (#{ref.year})" if radio_regulations?
 
-        "ITU-T OB.#{ref.number} (#{ref.year})"
+        "ITU OB No. #{ref.number} (#{ref.year})"
       end
 
       def radio_regulations?

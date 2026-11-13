@@ -141,30 +141,70 @@ module Relaton
       def fetch_publisher_contributors
         return [] unless hit.hit[:code]
 
-        abbrev = hit.hit[:code].sub(/-\w\s.*/, "")
-        case abbrev
-        when "ITU"
-          name = "International Telecommunication Union"
-          url = "www.itu.int"
-        end
-        org = Relaton::Bib::Organization.new(
-          name: [Relaton::Bib::TypedLocalizedString.new(content: name)],
-          abbreviation: Relaton::Bib::LocalizedString.new(content: abbrev),
-          uri: [Relaton::Bib::Uri.new(content: url)],
-        )
         role = Relaton::Bib::Contributor::Role.new(type: "publisher")
-        [Relaton::Bib::Contributor.new(organization: org, role: [role])]
+        [Relaton::Bib::Contributor.new(organization: publisher_org,
+                                       role: [role])]
+      end
+
+      # The publishing organization. Every ITU code names ITU, so a code pubid
+      # cannot parse is still ITU's.
+      #
+      # @return [Relaton::Bib::Organization]
+      def publisher_org
+        Relaton::Bib::Organization.new(
+          name: [Relaton::Bib::TypedLocalizedString.new(content: "International Telecommunication Union")],
+          abbreviation: Relaton::Bib::LocalizedString.new(
+            content: code_pubid&.publisher || "ITU",
+          ),
+          uri: [Relaton::Bib::Uri.new(content: "www.itu.int")],
+        )
+      end
+
+      # The pubid parse of the hit's (first) code. nil when the hit has no
+      # code, or when ITU spells it in a form pubid cannot identify.
+      #
+      # @return [Pubid::Itu::Identifiers::Base, nil]
+      def code_pubid
+        return @code_pubid if defined? @code_pubid
+
+        code = hit.hit[:code].to_s.split(" | ").first
+        @code_pubid = code && ::Pubid::Itu.parse(code)
+      rescue ::Pubid::Errors::ParseError
+        @code_pubid = nil
+      end
+
+      # The bureau letter (T, R or D) of the code: its sector, or the sector
+      # of the document a wrapper (an annex, an appendix) belongs to. An
+      # Operational Bulletin prints no sector (pubid#696), but TSB produces it.
+      #
+      # @return [String, nil]
+      def bureau
+        id = code_pubid
+        return "T" if id.is_a? ::Pubid::Itu::Identifiers::SpecialPublication
+
+        while id
+          return id.sector.sector if id.sector
+
+          id = wrapped(id)
+        end
+      end
+
+      # The document a wrapper identifier belongs to, or nil.
+      def wrapped(id)
+        base = id.base if id.respond_to?(:base)
+        base if base.is_a?(::Pubid::Identifier)
       end
 
       # @return [Relaton::Bib::Contributor, nil]
       def fetch_editorial_contributor
         wg_name = parser.fetch_workgroup
-        bureau = hit.hit[:code]&.match(/(?<=-)\w/)&.to_s
         return unless bureau
 
         org = Relaton::Bib::Organization.new(
           name: [Relaton::Bib::TypedLocalizedString.new(content: "International Telecommunication Union")],
-          abbreviation: Relaton::Bib::LocalizedString.new(content: "ITU-#{bureau.upcase}"),
+          abbreviation: Relaton::Bib::LocalizedString.new(
+            content: "ITU-#{bureau}",
+          ),
           subdivision: group_subdivision(wg_name),
         )
         role = Relaton::Bib::Contributor::Role.new(
@@ -193,18 +233,7 @@ module Relaton
 
       # @return [Array<Relaton::Bib::Copyright>]
       def fetch_copyright
-        abbreviation = hit.hit[:code].match(/^[^-]+/).to_s
-        case abbreviation
-        when "ITU"
-          name = "International Telecommunication Union"
-          url = "www.itu.int"
-        end
-        org = Relaton::Bib::Organization.new(
-          name: [Relaton::Bib::TypedLocalizedString.new(content: name)],
-          abbreviation: Relaton::Bib::LocalizedString.new(content: abbreviation),
-          uri: [Relaton::Bib::Uri.new(content: url)],
-        )
-        owner = Relaton::Bib::ContributionInfo.new(organization: org)
+        owner = Relaton::Bib::ContributionInfo.new(organization: publisher_org)
         year = parser.doc_date&.match(/\d{4}/)&.to_s
         [Relaton::Bib::Copyright.new(from: year, owner: [owner])]
       end
