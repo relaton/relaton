@@ -49,7 +49,7 @@ bundle install
 bundle exec rake spec              # run every flavor's spec suite
 bundle exec rake spec:iso          # run one flavor's suite
 bundle exec rake build             # build the relaton gem into pkg/
-bundle exec rake build_all         # build relaton + relaton-cli
+bundle exec rake build_all         # build relaton (+ the cli frontend)
 ```
 
 ## Architecture: what's non-obvious
@@ -203,10 +203,9 @@ Relaton::VERSION`) for cache invalidation; bumping `Relaton::VERSION` re-stamps
 them all. (`Relaton::Db::VERSION` in `lib/relaton/db/version.rb` is a separate,
 independently-set constant, not part of this scheme.) **relaton-cli follows the
 same source of truth:** its `Relaton::Cli::VERSION` is `Relaton::VERSION` (its
-`version.rb` requires and re-exports it), and its gemspec reads the root
-`version.rb` at build time to set `spec.version` and pin `relaton` **exactly**
-(`= Relaton::VERSION`). So the release's single `gem bump` of the root file
-re-stamps both gems in lockstep — nothing to hand-sync (see **Releasing**).
+`version.rb` requires and re-exports it, and `lib/relaton/cli` ships inside the
+one gem — the released `relaton-cli` rubygems artifact is the frozen
+compatibility shell (see **Releasing**), not this code.
 
 **Shared test grammars in `grammar/`.** The RelaxNG schemas specs validate XML
 against live in one top-level `grammar/` (deduped from the old per-gem
@@ -471,26 +470,29 @@ then `spec:cli` and `spec:render`; plain `rake spec` stays flavors-only.
 
 ## Releasing
 
-Both gems ship from `.github/workflows/release.yml` (manual **Actions → release
+One gem ships from `.github/workflows/release.yml` (manual **Actions → release
 → Run workflow**, or a `do-release` `repository_dispatch`). Its `release` job
 delegates to the shared `relaton/support` → `metanorma/ci` `rubygems-release.yml`:
 for a non-`skip` `next_version` that job runs `gem bump --version <next> --tag
---push` on the one root `lib/relaton/version.rb`, then publishes `relaton`.
-Its `release-cli` job then checks out the bumped branch tip and publishes
-`relaton-cli`. Because relaton-cli derives its version and its exact `relaton`
-pin from that same root file at build time (see **Single `VERSION`**), one bump
-+ one tag publishes both gems at the same version — no per-gem version bump.
+--push` on the one root `lib/relaton/version.rb`, then publishes `relaton` —
+the CLI (`lib/relaton/cli`) and renderer ship inside it; there is no second gem.
+
+**The `relaton-cli` rubygems artifact is a frozen compatibility shell.** The
+shell releases ended at `3.1.0` (the last one published before the collapse):
+it stays on rubygems.org — unpublishable by design — and keeps satisfying
+legacy `relaton-cli ~> 3.0` resolvers through its `relaton >= 3.0.7, < 5`
+dependency, which every current `relaton` release satisfies. `release.yml`
+carries no `release-cli` job and no shell release ever happens again; a stray
+"publishes relaton-cli in lockstep" claim is pre-collapse rot.
+
+**Version numbers are the owner's call.** `next_version` is typed at dispatch;
+do not infer one from semver theory (features may ride a patch line if that is
+what the owner wants).
 
 **The shared workflow ignores `release_command` on its OIDC path.** It runs
 `release_command` only when the `rubygems-api-key` secret is non-empty. This
 repo publishes through Trusted Publishing (OIDC), where the shared job runs
-`gem build *.gemspec` in the root and pushes `relaton` only. That is how
-`3.0.0.pre.alpha.2`–`.4` shipped `relaton` with no `relaton-cli`, while every
-run reported success. `release-cli` exists for that reason; it skips a version
-already on rubygems.org, so `next_version: skip` backfills a missing CLI
-release. It authenticates with `rubygems/configure-rubygems-credentials`, so
-`relaton-cli` needs its own Trusted Publisher on rubygems.org for
-`relaton/relaton` `release.yml`.
+`gem build *.gemspec` in the root and pushes `relaton` only.
 
 **The CLI frontend bundle.** `relaton index` ships a compiled Vue+Tailwind
 bundle. Since the consolidation, its **dist is committed** at
