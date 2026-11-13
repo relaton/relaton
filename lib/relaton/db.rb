@@ -65,21 +65,25 @@ module Relaton
     # @return [nil, RelatonBib::BibliographicItem, ...]
     # @raise [Relaton::UnknownReferenceError] no flavor recognizes the
     #   reference (see Registry#route)
+    # @raise [Relaton::NotInLocalStoreError] offline mode, and the local
+    #   store has no entry for the reference (relaton#536)
     ##
     def fetch(text, year = nil, opts = {}) # rubocop:disable Metrics/MethodLength
       reference = text.strip
-      stdclass, pubid = @registry.route(reference)
-      processor = @registry[stdclass]
-      ref = if processor.respond_to?(:urn_to_code)
-              processor.urn_to_code(reference)&.first
-            else reference
-            end
-      ref ||= reference
-      # The routed pubid is the parse of `reference`; a URN rewritten to a
-      # code is parsed again by the flavor.
-      pubid = nil unless ref == reference
-      result = combine_doc ref, year, opts, stdclass
-      result || fetch_routed(ref, year, opts, stdclass, pubid)
+      offline_answer(reference, opts) do |opts| # rubocop:disable Lint/ShadowingOuterLocalVariable
+        stdclass, pubid = @registry.route(reference)
+        processor = @registry[stdclass]
+        ref = if processor.respond_to?(:urn_to_code)
+                processor.urn_to_code(reference)&.first
+              else reference
+              end
+        ref ||= reference
+        # The routed pubid is the parse of `reference`; a URN rewritten to a
+        # code is parsed again by the flavor.
+        pubid = nil unless ref == reference
+        result = combine_doc ref, year, opts, stdclass
+        result || fetch_routed(ref, year, opts, stdclass, pubid)
+      end
     end
 
     # @see Relaton::Db#fetch
@@ -124,7 +128,7 @@ module Relaton
           threads = ENV["RELATON_FETCH_PARALLEL"]&.to_i || processor.threads
           wp = WorkersPool.new(threads) do |args|
             args[3].call fetch(*args[0..2])
-          rescue Relaton::RequestError => e
+          rescue Relaton::RequestError, Relaton::NotInLocalStoreError => e
             args[3].call e
           rescue StandardError => e
             # An unparseable reference ("ISO Standards Tag Set" in a
@@ -155,14 +159,19 @@ module Relaton
     # @raise [Relaton::UnknownReferenceError] no flavor is named and none
     #   recognizes the reference
     #
+    # @raise [Relaton::NotInLocalStoreError] offline mode, and the local
+    #   store has no entry for the reference (relaton#536)
+    #
     def fetch_std(code, year = nil, stdclass = nil, opts = {})
-      std = named_class(stdclass)
-      # A flavor the caller names is the one asked: no co-publisher.
-      return check_bibliocache(code, year, opts, std) if std
+      offline_answer(code, opts) do |opts| # rubocop:disable Lint/ShadowingOuterLocalVariable
+        std = named_class(stdclass)
+        # A flavor the caller names is the one asked: no co-publisher.
+        next check_bibliocache(code, year, opts, std) if std
 
-      std, pubid = @registry.route(code)
-      fetch_routed(code, year, opts, std, pubid) ||
-        fetch_equivalent(code, year, opts)
+        std, pubid = @registry.route(code)
+        fetch_routed(code, year, opts, std, pubid) ||
+          fetch_equivalent(code, year, opts)
+      end
     end
 
     # Cross-SDO equivalence as data: on a total miss, walk the equivalence
@@ -174,6 +183,9 @@ module Relaton
     #
     # @return [Relaton::Bib::ItemData, nil]
     def fetch_equivalent(code, year, opts)
+      # `relaton/db` alone does not declare the `Relaton::Equivalence`
+      # autoload (`relaton.rb` does), so a fetch_std miss NameErrored there.
+      require_relative "equivalence"
       Equivalence.related_for(code).each do |candidate|
         Util.info "Not found; trying equivalent `#{candidate}`", key: code
         std, pubid = @registry.route(candidate)
@@ -220,6 +232,24 @@ module Relaton
     end
 
     private
+
+    #
+    # Offline mode (Configuration#offline, relaton#536) answers every fetch
+    # from the local store only: the block runs with `fetch_db` set, so no
+    # path reaches a flavor's `get`, and a miss of the whole resolution
+    # (routed flavor, co-publishers, equivalents) raises. An explicit
+    # `fetch_db` keeps its nil answer.
+    #
+    # @yieldparam opts [Hash] the options to fetch with
+    # @raise [Relaton::NotInLocalStoreError]
+    #
+    def offline_answer(reference, opts)
+      return yield(opts) if opts[:fetch_db] || !Db.configuration.offline
+
+      yield(opts.merge(fetch_db: true)) or
+        raise NotInLocalStoreError.new(reference.to_s,
+                                       [@local_db, @db].compact.map(&:dir))
+    end
 
     # True when the error is a flavor's grammar refusing to read the
     # reference. Both are raised by the flavors' pubid/parslet parses; a
@@ -489,30 +519,48 @@ module Relaton
         return check_date_range(searchcode, id, year, opts, stdclass, query)
       end
 
-      @semaphore.synchronize { db.expire id, year }
-      if altdb
-        return bib_retval(altdb.read(id), stdclass) if opts[:fetch_db]
-
-        @semaphore.synchronize do
-          db.clone_entry id, altdb if altdb.valid_entry? id, year
-        end
-        new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id,
-                      query: query)
-        @semaphore.synchronize do
-          altdb.clone_entry(id, db) if !altdb.valid_entry?(id, year)
-        end
-      else
-        return bib_retval(db.read(id), stdclass) if opts[:fetch_db]
-
-        new_bib_entry(searchcode, year, opts, stdclass, db: db, id: id,
-                      query: query)
+      # The cache-only path reads, and never expires: a stale entry is
+      # still the local store's answer (relaton#536).
+      # A document in either cache answers over a not_found in the other.
+      if opts[:fetch_db]
+        entries = [db, altdb].compact.map { |c| c.read(id) }
+        return bib_retval(entries.find { |e| e.is_a?(String) }, stdclass)
       end
-      bib_retval(db.read(id), stdclass)
+
+      @semaphore.synchronize { replace_stale(db, altdb, id, year) } if altdb
+      # The entry new_bib_entry answers, not a second read of `db`: a stale
+      # document served from `altdb` has no row in `db`.
+      entry = new_bib_entry(searchcode, year, opts, stdclass,
+                            db: db, id: id, query: query, altdb: altdb)
+      @semaphore.synchronize { replace_stale(altdb, db, id, year) } if altdb
+      bib_retval(entry, stdclass)
     end
 
+    # Replace the stale (or missing) row of `id` in `cache` with the valid
+    # row `other` holds. A valid row of `cache` is kept (local over global).
+    def replace_stale(cache, other, id, year)
+      return if cache.valid_entry?(id, year)
+      return unless other.valid_entry?(id, year)
+
+      cache.expire id, year
+      cache.clone_entry id, other
+    end
+
+    #
+    # A stale entry (Cache#valid_entry? is false) is refetched, but it is
+    # not deleted first: Db#fetch_entry serves it when the refetch fails
+    # with a transport error, and replaces it when the refetch answers.
+    # With no row of its own, the stale document of the other cache
+    # (`altdb:`) is the fallback. `no_cache` asks for a fresh answer, so it
+    # has no fallback.
+    #
     def new_bib_entry(code, year, opts, stdclass, **args)
-      entry = @semaphore.synchronize { args[:db]&.read(args[:id]) }
-      if !entry || opts[:no_cache]
+      entry, valid = @semaphore.synchronize do
+        found = args[:db]&.read(args[:id])
+        [found, found && args[:db].valid_entry?(args[:id], year)]
+      end
+      if !entry || opts[:no_cache] || !valid
+        args = with_stale(args, entry) unless opts[:no_cache]
         return fetch_entry(code, year, opts, stdclass, **args)
       end
 
@@ -524,18 +572,47 @@ module Relaton
       entry
     end
 
-    def fetch_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize
+    # @return [Hash] args, with the `stale:` entry and the `stale_db:` cache
+    #   that holds it, when there is one
+    def with_stale(args, entry)
+      stale_db = args[:db]
+      unless entry
+        stale_db = args[:altdb]
+        entry = @semaphore.synchronize { stale_db&.read(args[:id]) }
+        return args unless entry.is_a?(String)
+      end
+      args.merge(stale: entry, stale_db: stale_db)
+    end
+
+    #
+    # @option args [String, Relaton::Db::NotFound, nil] :stale the stale
+    #   entry of the key: a transport failure answers a stale document with
+    #   a warning (relaton#536), and an answer replaces it
+    # @option args [Relaton::Db::Cache] :stale_db the cache that holds it
+    #
+    def fetch_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       processor = @registry[stdclass]
-      bib = net_retry(code, year, opts, processor, opts.fetch(:retries, 1),
-                      args[:query])
+      bib = begin
+        net_retry(code, year, opts, processor, opts.fetch(:retries, 1),
+                  args[:query])
+      rescue Relaton::RequestError => e
+        raise unless args[:stale].is_a?(String)
+
+        Util.warn "#{e.message}; using the cached entry fetched " \
+                  "#{args[:stale_db].fetched(args[:id])}", key: code
+        return args[:stale]
+      end
       entry = bib_entry bib
       return entry if args[:db].nil?
 
       # `no_cache` refreshes a cached entry, but a failed fetch does not
-      # replace a cached document with a not-found entry.
+      # replace a valid cached document with a not-found entry. A stale
+      # entry is replaced by any answer; its row goes first, so a dated
+      # query's subset row does not outlive the refetch.
       refresh = opts[:no_cache] && bib.respond_to?(:to_xml)
       @semaphore.synchronize do
-        if refresh || !args[:db].read(args[:id])
+        args[:db].expire args[:id], year if args[:stale]
+        if args[:stale] || refresh || !args[:db].read(args[:id])
           save_bib args[:db], args[:id], bib, entry, stdclass
         end
       end
