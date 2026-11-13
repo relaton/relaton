@@ -224,8 +224,8 @@ Releasing). Don't reintroduce a separate gem or a `gems/` directory; a stray
 **JCGM flavor & the pubid pin.** `Relaton::Jcgm` (`lib/relaton/jcgm/`) is a
 pubid-backed flavor split out of BIPM (JCGM records moved to their own
 `relaton-data-jcgm` repo, stored as `_type: pubid:jcgm:{guide,gum-guide,amendment,
-corrigendum,meeting}`). Both gemspecs floor `pubid` at `>= 2.0.1, < 2.1`:
-2.0.0 final ships the old emission-1 parse artifacts, which break under
+corrigendum,meeting}`). The gemspec first floored `pubid` at `>= 2.0.1, < 2.1`
+(it is `~> 2.0.25` now; the gemspec comment lists each raise): 2.0.0 final ships the old emission-1 parse artifacts, which break under
 parsanol >= 1.3.110, and 2.0.1 is the first final release without that
 defect (the Gemfiles pin the exact version the rawbib fixtures reconcile
 against). The floor was first `~> 2.0.0.pre.alpha.13` (JCGM meetings and the flattened
@@ -300,9 +300,10 @@ every crawl logged `prune skipped: 0/21612 written`, and withdrawn documents
 stayed in `data/`. A WES page names no drafting body: the scraper makes JWES
 the author and publisher (and skips the `editorialgroup` check), and the docidentifier type `WES`. The JIS grammar requires a
 doctype and has no WES value, so a WES record takes the JIS value of its form.
-14 of the 104 live WES ids (`WES 1112(E):2022`, `WES TR …`, `WES TS …`) do not
-parse with pubid yet: the crawl writes them to `data/` but leaves them out of
-the index until pubid reads them.
+pubid reads all 104 live WES ids from 2.0.25 (pubid#716), and the gemspec
+floors it there: on an older pubid, 14 of them (`WES 1112(E):2022`,
+`WES TR …`, `WES TS …`) do not parse, and the crawl writes them to `data/`
+but leaves them out of the index. `spec/jis` parses those 14 ids.
 
 **Run the suites with a UTF-8 locale.** With `LANG` unset Ruby reads files as
 US-ASCII: `rake spec` then reports most suites as "no examples run" and aborts

@@ -128,7 +128,10 @@ Gem::Specification.new do |spec|
   # equals the "NIST FIPS <n>" rows NIST's search_filter compares with ==,
   # and renders NIST FIPS in the official "FIPS PUB <n>" face (pubid#705).
   # On 2.0.21 a bare FIPS citation answers "Not found".
-  spec.add_dependency "pubid", "~> 2.0.22"
+  # 2.0.25 parses the WES English edition (`WES 1112(E):2022`), `WES TR`
+  # and `WES TS` (pubid#716, relaton-jis#18); an older runtime leaves 14
+  # of the 104 WES records out of the relaton-data-jis index.
+  spec.add_dependency "pubid", "~> 2.0.25"
 
   # JSON parse/generate across the flavor fetchers, the index and the db:
   # yeptris's strict RFC 8259 surface replaces the stdlib json gem's calls.
