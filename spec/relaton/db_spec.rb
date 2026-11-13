@@ -879,6 +879,31 @@ RSpec.describe Relaton::Db do
       expect(result).to be_nil
     end
 
+    # metanorma-standoc CI deadlock, 2026-11-13: pubid 2.0.23 made
+    # "NIST 123" parseable, the flavor `get` mock mismatched, and the
+    # RSpec::Mocks::MockExpectationError -- an Exception, not a
+    # StandardError -- killed the worker thread; the consumer then
+    # blocked forever on the missing completion.
+    it "delivers the completion when a non-StandardError escapes fetch" do
+      expect(subject).to receive(:fetch)
+        .and_raise RSpec::Mocks::MockExpectationError.new("mock mismatch")
+      subject.fetch_async("ISO REF") { |r| queue << r }
+      result = Timeout.timeout(5) { queue.pop }
+      expect(result).to be_nil
+    end
+
+    it "keeps the worker serving after a non-StandardError escape" do
+      expect(subject).to receive(:fetch).once.ordered
+        .and_raise RSpec::Mocks::MockExpectationError.new("mock mismatch")
+      expect(subject).to receive(:fetch).once.ordered.and_return(:ok)
+      subject.fetch_async("ISO REF") { |r| queue << [:first, r] }
+      subject.fetch_async("ISO REF") { |r| queue << [:second, r] }
+      Timeout.timeout(5) do
+        expect([queue.pop, queue.pop])
+          .to contain_exactly([:first, nil], [:second, :ok])
+      end
+    end
+
     it "use threads number from RELATON_FETCH_PARALLEL" do
       expect(ENV).to receive(:[]).with("RELATON_FETCH_PARALLEL").and_return(1)
       allow(ENV).to receive(:[]).and_call_original
