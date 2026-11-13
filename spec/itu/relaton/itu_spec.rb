@@ -59,6 +59,12 @@ RSpec.describe Relaton::Itu do
       # carries a sector (pubid#696), so the TSB-spelled crawl renders
       # "ITU OB No. 1096 (2016)"
       expect(result.docidentifier[0].content).to eq "ITU OB No. 1096 (2016)"
+      # the sector-less code still gives TSB as the author (Scraper#bureau)
+      orgs = result.contributor.to_h do |c|
+        [c.role.first.type, c.organization.abbreviation.content]
+      end
+      expect(orgs).to eq("publisher" => "ITU", "author" => "ITU-T")
+      expect(result.copyright.first.owner.first.organization.abbreviation.content).to eq "ITU"
     end
   end
 

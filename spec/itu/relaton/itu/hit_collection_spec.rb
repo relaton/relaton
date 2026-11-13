@@ -185,7 +185,7 @@ RSpec.describe Relaton::Itu::HitCollection do
 
         expect { collection.search }.to output(/Fetching/).to_stderr_from_any_process
         expect(collection.first.hit[:url]).to eq "https://www.itu.int/pub/T-SP-OB.1096-2016"
-        expect(collection.first.hit[:code]).to eq "ITU-T OB.1096 (2016)"
+        expect(collection.first.hit[:code]).to eq "ITU OB No. 1096 (2016)"
       end
 
       it "returns empty when the /pub page redirects to notfound" do
@@ -225,7 +225,7 @@ RSpec.describe Relaton::Itu::HitCollection do
 
         expect { collection.search }.to output(/Fetching/).to_stderr_from_any_process
         expect(collection.first.hit[:url]).to eq "https://www.itu.int/pub/T-SP-OB.1096-2016"
-        expect(collection.first.hit[:code]).to eq "ITU-T OB.1096 (2016)"
+        expect(collection.first.hit[:code]).to eq "ITU OB No. 1096 (2016)"
       end
 
       it "returns empty when the reference has no year" do

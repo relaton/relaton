@@ -50,6 +50,67 @@ RSpec.describe Relaton::Itu::Scraper do
     end
   end
 
+  # The publisher, the bureau and the copyright owner come from the pubid
+  # parse of the hit code, not from its spelling: an Operational Bulletin
+  # prints no sector (pubid#696), but TSB produces it.
+  describe "contributors" do
+    def scraper_for(code)
+      parser = double("Parser", fetch_workgroup: nil, doc_date: "2016-03-15")
+      described_class.new(double("Hit", hit: { code: code })).tap do |s|
+        allow(s).to receive(:parser).and_return(parser)
+      end
+    end
+
+    def publisher(scraper)
+      scraper.send(:fetch_publisher_contributors).map(&:organization).first
+    end
+
+    def author_abbreviation(scraper)
+      contrib = scraper.send(:fetch_editorial_contributor)
+      contrib && contrib.organization.abbreviation.content
+    end
+
+    it "makes ITU the publisher and ITU-T the author of an Operational Bulletin" do
+      scraper = scraper_for "ITU OB No. 1096 (2016)"
+
+      org = publisher(scraper)
+      expect(org.name.first.content).to eq "International Telecommunication Union"
+      expect(org.abbreviation.content).to eq "ITU"
+      expect(org.uri.first.content).to eq "www.itu.int"
+      expect(author_abbreviation(scraper)).to eq "ITU-T"
+
+      owner = scraper.send(:fetch_copyright).first.owner.first.organization
+      expect(owner.name.first.content).to eq "International Telecommunication Union"
+      expect(owner.abbreviation.content).to eq "ITU"
+    end
+
+    it "takes the bureau from the sector" do
+      expect(author_abbreviation(scraper_for("ITU-R RR (2020)"))).to eq "ITU-R"
+      expect(author_abbreviation(scraper_for("ITU-T Y.3500 (08/2014)"))).to eq "ITU-T"
+      expect(author_abbreviation(scraper_for("ITU-T Y.3500 | ISO/IEC 17788"))).to eq "ITU-T"
+    end
+
+    it "takes the bureau of the wrapped document for an annex" do
+      expect(author_abbreviation(scraper_for("ITU-T H.264 Annex A"))).to eq "ITU-T"
+    end
+
+    it "keeps ITU as publisher but adds no author for a code pubid cannot parse" do
+      scraper = scraper_for "ITU-T G 231 (10/1976)"
+
+      expect(publisher(scraper).abbreviation.content).to eq "ITU"
+      expect(author_abbreviation(scraper)).to be_nil
+    end
+
+    it "adds no publisher or author for a hit with no code" do
+      scraper = scraper_for nil
+
+      expect(scraper.send(:fetch_publisher_contributors)).to eq []
+      expect(author_abbreviation(scraper)).to be_nil
+      owner = scraper.send(:fetch_copyright).first.owner.first.organization
+      expect(owner.abbreviation.content).to eq "ITU"
+    end
+  end
+
   context "when server is unavailable" do
     it "raises RequestError" do
       agent = double "Mechanize agent"
