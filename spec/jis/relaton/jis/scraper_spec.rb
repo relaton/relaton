@@ -93,6 +93,15 @@ describe Relaton::Jis::Scraper do
         names = ["一般社団法人日本溶接協会", "Japan Welding Engineering Society"]
         expect(orgs).to eq [[["author"], names], [["publisher"], names]]
       end
+
+      # A WES page names no drafting body, so it must not count as a JIS
+      # page that lost its editorial group.
+      it "does not count against the editorialgroup check" do
+        errors = Hash.new(true)
+        subject.instance_variable_set :@errors, errors
+        item
+        expect(errors).not_to have_key :editorialgroup
+      end
     end
 
     context "#fetch_doctype" do

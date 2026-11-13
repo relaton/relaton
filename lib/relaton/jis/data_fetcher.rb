@@ -21,6 +21,8 @@ module Relaton
         @queue = SizedQueue.new 10
         @threads = create_thread_pool 5
         @mutex = Mutex.new
+        # URLs of the documents that did not fetch; see #prune_unwritten.
+        @failed_docs = []
       end
 
       def log_error(msg)
@@ -79,15 +81,17 @@ module Relaton
           else
             Util.warn "URL: #{url}"
             Util.warn "#{e.message}\n#{e.backtrace[0..6].join("\n")}"
+            @mutex.synchronize { @failed_docs << url }
           end
         else
           save_doc bib, url
         end
       end
 
-      # relaton-data-jis deletes data/ before a crawl and publishes what the
-      # crawl wrote. A list that does not open raises, so the crawl job fails
-      # and does not publish a corpus without that list.
+      # relaton-data-jis crawls with `prune: true`: it keeps data/, and after
+      # #fetch, #prune_unwritten deletes each file the run did not write. So a
+      # list that does not open, or stops part way (#get_next_page), raises:
+      # the crawl job fails before the prune and publishes nothing.
       def fetch(_source = nil)
         failed = begin
           LISTS.find { |list| !fetch_list(list) }
@@ -172,25 +176,44 @@ module Relaton
         @count.to_i
       end
 
+      # The next page of the current list. Raises when the page does not
+      # come, because a list that stops part way leaves its unread documents
+      # unwritten, and the prune would delete them.
       def get_next_page(offset) # rubocop:disable Metrics/MethodLength
         attempts = 0
         begin
-          if initial_post
-            url = "#{URL}W11M0070/getAddList"
-            agent.post url, search_type: "JIS", offset: offset
+          unless initial_post
+            raise Error, "Webdesk list #{@list} did not open again " \
+                         "at offset #{offset}"
           end
+
+          agent.post "#{URL}W11M0070/getAddList",
+                     search_type: "JIS", offset: offset
+        rescue Error
+          raise
         rescue StandardError => e
           attempts += 1
           if attempts < 5
             sleep 2
             retry
-          else
-            Util.warn "#{e.message}\n#{e.backtrace[0..6].join("\n")}"
           end
+          raise Error, "Webdesk list #{@list} stopped at offset " \
+                       "#{offset}: #{e.message}"
         end
       end
 
-      def save_doc(bib, url) # rubocop:disable Metrics/MethodLength
+      # Prune only after a complete crawl: a document that did not fetch was
+      # not written, and the prune would delete its file.
+      def prune_unwritten(min_ratio: 0.9)
+        unless @failed_docs.empty?
+          warn "prune skipped: #{@failed_docs.size} document(s) did not fetch"
+          return []
+        end
+
+        super
+      end
+
+      def save_doc(bib, url) # rubocop:disable Metrics/MethodLength,Metrics/AbcSize
         return unless bib
 
         id = bib.docidentifier.find(&:primary).content
@@ -212,6 +235,7 @@ module Relaton
           Util.warn "File #{output_file id} already exists; writing #{file} instead" if file != output_file(id)
           @files << file
           File.write file, serialize(bib), encoding: "UTF-8"
+          record_written file
           pid = pubid id
           index.add_or_update pid, file if pid
         end

@@ -279,11 +279,16 @@ the server keeps **one open list in the session**: the list page
 last, and `getAddList` ignores its `search_type`. So `LISTS` (the JIS search,
 then the JWES group list `W11S0260/getSearchAllListByLink?dantai_cd=JWES`)
 are read one after the other, and the 10-minute session refresh opens the
-*current* list again. Second, `relaton-data-jis` deletes `data/` before a
-crawl and pushes what it wrote, so a list that does not open **raises**
-`Relaton::Jis::Error` rather than letting the crawl publish a corpus without
-it. A WES page names no drafting body: the scraper makes JWES the author and
-publisher, and the docidentifier type `WES`. The JIS grammar requires a
+*current* list again. Second, `relaton-data-jis` crawls with
+`DataFetcher.fetch(prune: true)`: it keeps `data/`, and `prune_unwritten`
+then deletes each file the run did not write. So a list that does not open,
+or a page that does not come after 5 tries (`get_next_page`), **raises**
+`Relaton::Jis::Error` before the prune, and the job publishes nothing. A
+document that does not fetch after 5 tries makes `prune_unwritten` delete
+nothing for that run. `save_doc` must call `record_written`: before it did,
+every crawl logged `prune skipped: 0/21612 written`, and withdrawn documents
+stayed in `data/`. A WES page names no drafting body: the scraper makes JWES
+the author and publisher (and skips the `editorialgroup` check), and the docidentifier type `WES`. The JIS grammar requires a
 doctype and has no WES value, so a WES record takes the JIS value of its form.
 14 of the 104 live WES ids (`WES 1112(E):2022`, `WES TR …`, `WES TS …`) do not
 parse with pubid yet: the crawl writes them to `data/` but leaves them out of
