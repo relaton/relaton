@@ -141,6 +141,14 @@ module Relaton
               Util.error "`#{args[0]}` -- #{e.message}"
             end
             args[3].call nil
+          rescue Exception => e # rubocop:disable Lint/RescueException
+            # The completion callback is a contract: the consumer counts
+            # exactly one delivery per fetch, and a missing one blocks it
+            # forever (metanorma-standoc CI deadlock, 2026-11-13: an
+            # RSpec::Mocks::MockExpectationError -- an Exception, not a
+            # StandardError -- escaped the rescue above).
+            Util.error "`#{args[0]}` -- #{e.class}: #{e.message}"
+            args[3].call nil
           end
           @queues[stdclass] =
             { queue: SizedQueue.new(threads * 2), workers_pool: wp }
