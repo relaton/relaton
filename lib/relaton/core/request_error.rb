@@ -17,6 +17,24 @@ module Relaton
   # declare only when absent — both forms rescue as StandardError
   class RequestError < Error; end unless defined?(Relaton::RequestError)
 
+  # Offline mode (`Relaton::Db.configuration.offline`, RELATON_OFFLINE) and
+  # the local store has no entry for the reference (relaton#536). Not a
+  # RequestError: `Relaton::Db#net_retry` must not retry it, since no
+  # request was made.
+  class NotInLocalStoreError < Error
+    # @return [String] the reference the local store lacks
+    attr_reader :reference
+
+    # @param reference [String]
+    # @param dirs [Array<String>] the cache directories that were read
+    def initialize(reference, dirs = [])
+      @reference = reference
+      where = dirs.empty? ? "no cache directory" : dirs.join(", ")
+      super("`#{reference}` is not in the local store (#{where}); " \
+            "offline mode makes no network request")
+    end
+  end
+
   # `Relaton::Db` found no flavor for a reference: no flavor's pubid grammar
   # reads it exactly, and no flavor's prefix matches it. relaton-cli rescues
   # it, logs the message and returns no document.

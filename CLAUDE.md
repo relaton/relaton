@@ -115,6 +115,17 @@ to `<dir>-v1.bak`, never deleted. Pin `lutaml-store ~> 0.3.2`: 0.3.0's adapter
 had no thread/process exclusion (lutaml/lutaml-store#17). See
 `docs/db.md`.
 
+**A stale cache row is served, not deleted, when the network fails
+(relaton#536).** `Db` expires a row only **after** a refetch answers:
+`new_bib_entry` hands a stale entry to `fetch_entry` as `stale:`, and a
+`Relaton::RequestError` then answers the stale document with a warning. The
+cache-only path (`fetch_db`) never expires, and reads local, then global.
+Don't put an `expire` back in front of the read: it deletes the local
+store's only copy before the fetch that might fail. Offline mode
+(`Db.configuration.offline`, `RELATON_OFFLINE=1`) runs `fetch`/`fetch_std`
+cache-only and raises `Relaton::NotInLocalStoreError` on a miss; explicit
+`fetch_db` still answers nil. See `docs/db.md`.
+
 **Routing is parse-first (relaton#205).** `Registry#route` is the one routing
 rule for `Db`: a pubid parse routes by class ancestry only when it is the
 parsing flavor's own **exact** parse (it renders the reference back, and the

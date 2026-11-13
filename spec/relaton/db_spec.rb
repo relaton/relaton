@@ -31,6 +31,8 @@ RSpec.describe Relaton::Db do
       before do
         expect(db).to receive(:read).with("ISO(ISO 123)")
           .and_return Relaton::Db::NotFound.new(fetched: Date.today.to_s)
+        allow(db).to receive(:valid_entry?).with("ISO(ISO 123)", nil)
+          .and_return true
       end
 
       it "warn if cached entry is not_found" do

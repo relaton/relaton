@@ -256,6 +256,22 @@ passes no `year`, so its rows expire too). A `not_found` for a dated query
 used to stay for ever (`year || age < 60`), so a document published after
 the first miss was never fetched (#204).
 
+A stale row is a **refresh candidate, not garbage** (relaton#536).
+`Db#check_bibliocache` does not expire a row before it reads it:
+`Db#new_bib_entry` asks `valid_entry?`, and a stale entry goes to
+`fetch_entry` as `stale:`. When the refetch raises `Relaton::RequestError`
+(after `net_retry`), a stale **document** answers, with a warning that names
+its `fetched` date, and its row stays as it was. A stale `not_found`, or no
+entry, re-raises. With a local and a global cache, a stale global document
+is the fallback when the local cache has no row. `no_cache` asks for a fresh
+answer, so it has no fallback. When the refetch answers (a document or a miss), the stale
+row is expired first and the answer is saved, so a dated query's subset row
+does not outlive the refetch. A fetch that raises writes no row. With two
+caches, `Db#replace_stale` copies a valid row over a stale one, local first,
+then global after the fetch. The cache-only path (`fetch_db`, offline mode)
+never expires, and it reads both caches: a document in either one answers
+over a `not_found` in the other.
+
 Locking and atomic writes come from lutaml-store (≥ 0.3.2 — 0.3.0's
 FileSystem adapter was unsafe, lutaml/lutaml-store#17): an exclusive `flock`
 on `<root>/.lock` plus a per-root Monitor for `update`/`transaction`, and temp
@@ -295,6 +311,30 @@ marker string. `Db` reads with `Cache#read` and tests `is_a?(NotFound)`; keep
 kept for compatibility: `Cache#[]` and `Db#load_entry` return
 `"not_found <date>"` (`NotFound#to_s`), and `Cache#[]=`/`#store` still accept
 that string, which `Cache#coerce` turns into a `NotFound` at the entrance.
+
+### Offline resolution (relaton#536)
+
+`Relaton::Db.configuration.offline` (default: `RELATON_OFFLINE` is `1`,
+`true`, `yes` or `on`) answers every `fetch` and `fetch_std` from the local
+store only. `Db#offline_answer` runs the whole resolution (routed flavor,
+co-publishers, equivalents, combined references, date ranges) with
+`fetch_db: true`, so no path reaches a flavor's `get` or `fetch_api`. When
+the whole resolution answers nil, it raises `Relaton::NotInLocalStoreError`
+(`< Relaton::Error`, not a `RequestError`, so `net_retry` does not retry
+it), which names the reference and the cache directories. `fetch_async`
+passes the error to its block, as it does a `RequestError`. An explicit
+`fetch_db` keeps its nil answer, so `relaton db fetch` does not change.
+
+Two limits. A cached `not_found` also raises `NotInLocalStoreError`: the
+store has no document to answer with. A publication date range reads only
+its own range-qualified row (`check_date_range`), so offline it answers
+only a range that an online fetch already cached; an edition cached by an
+undated fetch does not answer it.
+
+The API resolver tier (relaton#535) goes after this one: its opt-out is this
+mode, and its "local cache" is `Db::Cache`. Whether `relaton collection`
+(`~/.relaton/collections`, plain YAML files) moves onto lutaml-store is a
+separate, open question.
 
 ### WorkersPool (lib/relaton/db/workers_pool.rb)
 
