@@ -280,6 +280,23 @@ describe Relaton::Etsi::DataFetcher do
       expect(hash["Scope"]).to eq "S"
     end
 
+    it "#normalize strips non-structural control characters" do
+      # ETS 300 961 ed.2 ships a literal NUL inside "sequences" upstream;
+      # left in, it surfaces as a raw \0 escape in the dataset and truncates
+      # the api.relaton.org D1 import stream (relaton-api-js#155).
+      record = {
+        "ETSI_DELIVERABLE" => "ETSI ETS 300 961 ed.2 (1998-05)",
+        "TITLE" => "Speech",
+        "wki_id" => "101", "EDSpathname" => "etsi_ets/300/961/",
+        "EDSPDFfilename" => "doc.pdf", "STATUS_CODE" => "12",
+        "ACTION_TYPE" => "PU", "Keywords" => "gsm",
+        "TB" => "SPS", "Scope" => "test seq\r\nuenc\0s are described"
+      }
+      hash = subject.send(:normalize, record)
+      expect(hash["Scope"]).to eq "test seq\r\nuencs are described"
+      expect(hash["title"]).to eq "Speech"
+    end
+
     it "#save indexes the parsed pubid object" do
       did = Relaton::Bib::Docidentifier.new type: "ETSI", content: "ETSI EN 300 175-1 V2.1.1 (2001-08)"
       bib = Relaton::Bib::ItemData.new docidentifier: [did]
