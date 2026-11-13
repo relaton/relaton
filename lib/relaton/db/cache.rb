@@ -25,6 +25,13 @@ module Relaton
     class Cache
       LAYOUT = "v2".freeze
       VERSIONS_KEY = "_versions".freeze
+      # The rows key that records the one-shot v1 import (relaton#240). It
+      # lives in the store, not in a marker file beside it (relaton#548).
+      V1_IMPORTED_KEY = "_v1_imported".freeze
+      # The legacy marker file of that import, read but no longer written.
+      V1_IMPORTED_FILE = ".v1-imported".freeze
+      # Rows keys that hold no bucket.
+      RESERVED_KEYS = [VERSIONS_KEY, V1_IMPORTED_KEY].freeze
       STRING_FLAVOR = "_key".freeze
       PUBID_FLAVOR = "_pubid".freeze
       # The legacy string form of a not-found entry (`not_found <date>`).
@@ -75,10 +82,15 @@ module Relaton
         @dir
       end
 
-      # Remove every row and document.
+      # Remove every row and document, under one rows transaction (lock
+      # order rows, then docs). The v1 import marker is never deleted, not
+      # even for a moment, so a cleared cache is not filled again from
+      # `<dir>-v1.bak` by this or another process.
       def clear
-        @rows.clear
-        @docs.clear
+        @rows.adapter.transaction do
+          @rows.each_key { |k| @rows.delete k unless k == V1_IMPORTED_KEY }
+          @docs.clear
+        end
         @versions = {}
       end
 
@@ -319,8 +331,7 @@ module Relaton
       # fetch, and redirects were dropped from the v2 model).
       def import_old_layout
         bak = "#{dir}-v1.bak"
-        marker = File.join(dir, LAYOUT, ".v1-imported")
-        return if File.exist?(marker) || !Dir.exist?(bak)
+        return if v1_imported? || !Dir.exist?(bak)
 
         imported = 0
         Dir.glob("#{bak}/**/*.xml").each do |f|
@@ -331,8 +342,15 @@ module Relaton
           self[key] = value
           imported += 1
         end
-        FileUtils.touch marker
+        @rows.set V1_IMPORTED_KEY, Date.today.to_s
         Util.info "cache #{dir}: imported #{imported} entries from #{bak}"
+      end
+
+      # An older relaton wrote the marker as a file; it still counts. `get`,
+      # not `exists?`: it takes the shared lock, so it waits for a write.
+      def v1_imported?
+        !@rows.get(V1_IMPORTED_KEY).nil? ||
+          File.exist?(File.join(dir, LAYOUT, V1_IMPORTED_FILE))
       end
 
       # The wrapped string key of an old-layout document: its own primary
@@ -433,7 +451,7 @@ module Relaton
 
       def each_row
         @rows.each_key do |bucket|
-          next if bucket == VERSIONS_KEY
+          next if RESERVED_KEYS.include? bucket
 
           read_bucket(bucket).each { |row| yield bucket, row }
         end
