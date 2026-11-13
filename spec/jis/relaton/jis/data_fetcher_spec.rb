@@ -206,6 +206,39 @@ describe Relaton::Jis::DataFetcher do # rubocop:disable Metrics/BlockLength
       end
     end
 
+    # The 14 live WES ids that pubid < 2.0.25 cannot parse (pubid#716). A
+    # crawl leaves an unparseable id out of index-v2, so these guard the
+    # gemspec's pubid floor.
+    context "#pubid of the WES (E), TR and TS forms" do
+      [
+        "WES 1112(E):2022", "WES 2801(E):1980", "WES 2805(E):2011",
+        "WES 2808(E):2017", "WES 2815(E):2014", "WES 3001(E):2012",
+        "WES 3003(E):1995", "WES 3003(E):1995/AMENDMENT 1:2025",
+        "WES 6206(E):1993", "WES 8103(E):2019", "WES 8107(E):2017",
+        "WES TR 2032:2024", "WES TS 2816(E):2015", "WES TS 2816:2015"
+      ].each do |id|
+        it id do
+          pid = subject.pubid id
+          expect(pid).to be_a Pubid::Jis::Identifier
+          expect(Pubid::Jis::Identifier.from_hash(pid.to_hash)).to eq pid
+        end
+      end
+
+      # Compare the rendered ids: Pubid::Jis::Identifier#== ignores the
+      # class (docs/jis.md), so == alone cannot tell WES TR from WES.
+      it "keeps an English edition and a TR apart from the plain form" do
+        {
+          "WES 1112(E):2022" => "WES 1112:2022",
+          "WES TR 2032:2024" => "WES 2032:2024",
+        }.each do |id, plain|
+          pid = subject.pubid id
+          expect(pid).not_to be_nil
+          expect(pid.to_s).to eq id
+          expect(pid.to_s).not_to eq subject.pubid(plain).to_s
+        end
+      end
+    end
+
     context "#index" do
       it "is the pubid index-v2" do
         index = double("index")
