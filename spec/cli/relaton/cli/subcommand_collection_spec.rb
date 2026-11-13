@@ -286,6 +286,21 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
         .to_stderr_from_any_process
     end
 
+    it "logs a transport failure" do
+      db = double "db"
+      expect(Relaton).to receive(:db).and_return db
+      expect(db).to receive(:fetch)
+        .and_raise Relaton::RequestError, "Could not access https://example"
+      expect(File).not_to receive(:write)
+      expect do
+        Relaton::Cli::Command.start [
+          "collection", "fetch", "ISO 2146", "-t", "ISO",
+          "-d", "spec/fixtures", "-c", "sample-collection.yaml"
+        ]
+      end.to output(/Could not access https:\/\/example/)
+        .to_stderr_from_any_process
+    end
+
     it "reports a friendly message for an identifier pubid cannot take" do
       db = double "db"
       expect(Relaton).to receive(:db).and_return db
