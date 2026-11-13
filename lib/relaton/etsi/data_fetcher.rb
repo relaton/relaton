@@ -166,15 +166,25 @@ module Relaton
 
       def normalize(record)
         {
-          "ETSI deliverable" => record["ETSI_DELIVERABLE"],
-          "title" => record["TITLE"],
+          "ETSI deliverable" => sanitize(record["ETSI_DELIVERABLE"]),
+          "title" => sanitize(record["TITLE"]),
           "Details link" => "https://webapp.etsi.org/workprogram/Report_WorkItem.asp?WKI_ID=#{record['wki_id']}",
           "PDF link" => "https://www.etsi.org/deliver/#{record['EDSpathname']}#{record['EDSPDFfilename']}",
           "Status" => derive_status(record),
-          "Keywords" => record["Keywords"].to_s,
-          "Technical body" => record["TB"],
-          "Scope" => record["Scope"],
+          "Keywords" => sanitize(record["Keywords"]).to_s,
+          "Technical body" => sanitize(record["TB"]),
+          "Scope" => sanitize(record["Scope"]),
         }
+      end
+
+      # The upstream ETSI metadata carries stray control characters — one
+      # 1998-era record ships a literal NUL inside "sequences", which the YAML
+      # dump surfaces as a raw \0 escape and which silently truncates the
+      # api.relaton.org D1 import stream (relaton-api-js#155,
+      # relaton-data-etsi#7). Non-structural C0 controls are dropped; \t, \n
+      # and \r stay — the Scope column is hard-wrapped upstream text.
+      def sanitize(value)
+        value&.gsub(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/, "")
       end
 
       def derive_status(record)
