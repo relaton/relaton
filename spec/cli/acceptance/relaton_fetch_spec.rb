@@ -221,6 +221,16 @@ RSpec.describe "Relaton Fetch" do
       Relaton::Cli::RelatonDb.instance.instance_variable_set :@db, nil
     end
 
+    it "reports a reference the offline local store lacks" do
+      expect(db).to receive(:fetch_std)
+        .and_raise Relaton::NotInLocalStoreError.new("ISO 2146", ["/c"])
+      expect(Relaton::Cli).to receive(:relaton).and_return(db)
+      command = Relaton::Cli::Command.new
+      expect(command.send(:fetch_document, "ISO 2146", type: "ISO"))
+        .to match(/`ISO 2146` is not in the local store/)
+      Relaton::Cli::RelatonDb.instance.instance_variable_set :@db, nil
+    end
+
     it "reports a friendly message for a malformed identifier" do
       expect(db).to receive(:fetch)
         .and_raise Pubid::Errors::ParseError.new("bad id")

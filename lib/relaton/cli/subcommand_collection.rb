@@ -131,7 +131,9 @@ module Relaton
           File.write colfile, coll.to_yaml, encoding: "UTF-8"
         else Util.info "No matching bibliographic entry found"
         end
-      rescue Relaton::UnknownReferenceError => e
+      rescue Relaton::UnknownReferenceError, Relaton::NotInLocalStoreError => e
+        # Offline mode with no stored entry (relaton#536) is logged like an
+        # unknown reference, and the collection is not written.
         Util.warn e.message
       rescue Pubid::Errors::Error
         Util.error %("#{code}" is not a recognized standards identifier)
