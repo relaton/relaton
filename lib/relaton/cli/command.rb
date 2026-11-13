@@ -371,7 +371,9 @@ module Relaton
       nil
     rescue Pubid::Errors::Error
       %("#{code}" is not a recognized standards identifier)
-    rescue Relaton::RequestError => e
+    rescue Relaton::RequestError, Relaton::NotInLocalStoreError => e
+      # A transport failure, or offline mode with no stored entry
+      # (relaton#536): print the reason instead of a backtrace.
       e.message
     end
 

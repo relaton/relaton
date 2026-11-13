@@ -324,6 +324,9 @@ the whole resolution answers nil, it raises `Relaton::NotInLocalStoreError`
 it), which names the reference and the cache directories. `fetch_async`
 passes the error to its block, as it does a `RequestError`. An explicit
 `fetch_db` keeps its nil answer, so `relaton db fetch` does not change.
+In the CLI, `relaton fetch` prints the error's message and `relaton
+collection fetch` logs it and writes no collection file, as each does for
+its other lookup errors.
 
 Two limits. A cached `not_found` also raises `NotInLocalStoreError`: the
 store has no document to answer with. A publication date range reads only
