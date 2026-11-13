@@ -2,6 +2,8 @@
 
 require "yeptris"
 
+require_relative "csl/from_csl"
+
 
 module Relaton
   module Bib
@@ -19,6 +21,16 @@ module Relaton
 
         def self.from_item(item)
           Renderer.new(item).to_s
+        end
+
+        # CSL-JSON string -> Hash{String=>ItemData}
+        def self.to_item(csl_str)
+          entries = ::Yeptris::JSON.load(csl_str)
+          entries.reduce({}) do |h, entry|
+            item = FromCsl.new(entry).transform
+            h[item.id.to_s] = item
+            h
+          end
         end
 
         class Renderer
@@ -97,7 +109,7 @@ module Relaton
           def published_year
             date = Array(@item.date).find { |d| %w[published issued].include?(d.type.to_s) } || @item.date.first
             value = date && (date.at || date.from || date.to)
-            value.to_s[/\d{4}/]
+            value.to_s[/\d{4}/] || ""
           end
 
           def source_uri
