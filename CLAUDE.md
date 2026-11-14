@@ -130,6 +130,16 @@ store's only copy before the fetch that might fail. Offline mode
 cache-only and raises `Relaton::NotInLocalStoreError` on a miss; explicit
 `fetch_db` still answers nil. See `docs/db.md`.
 
+**The api.relaton.org tier is opt-in and never authoritative (relaton#535).**
+With `Db.configuration.use_api`, `Db#fetch_doc` asks `Db::ApiResolver`
+(`GET /v3/documents/<cache key>`, Relaton YAML through the flavor's
+`from_yaml`) before the flavor's `get`. Every API outcome other than a
+readable 200 falls back to the flavor — a 404 is not a not-found — and a 200
+is kept only when the item's own cache key equals the query key: the API has
+no undated/all-parts logic (`ISO 19115-1` answers the 2014 record). Keep the
+hook in `fetch_doc`, so the cache write, the stale fallback and offline mode
+stay the ones a flavor fetch gets. See `docs/db.md`.
+
 **Routing is parse-first (relaton#205).** `Registry#route` is the one routing
 rule for `Db`: a pubid parse routes by class ancestry only when it is the
 parsing flavor's own **exact** parse (it renders the reference back, and the

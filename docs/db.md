@@ -128,8 +128,8 @@ to the flavor: `processor.get(query || code, year, opts)`. So
 `db.fetch("ISO 19115-1")` is one grammar parse, and `db_spec.rb` counts it.
 The year and `all_parts` still reach `get` as arguments; the pubid is unfolded.
 A nil query pubid (no pubid class, a policy miss such as `IEV`, a CCSDS
-format) sends the String and leaves the query uncached. `fetch_api` keeps the
-String for its URL. If `urn_to_code` rewrote the reference, the routed parse is
+format) sends the String and leaves the query uncached; the API tier asks
+nothing for such a query. If `urn_to_code` rewrote the reference, the routed parse is
 of another string, and `query_pubid` parses the code. IEC's `urn_to_code` acts
 on a `urn:` only: `Relaton::Iec.urn_to_code` splits on `:`, and it used to
 rewrite `IEC 60034-1:1969+AMD1:1977+AMD2:1979+AMD3:1980 CSV` into
@@ -357,8 +357,9 @@ of relaton#548, on lutaml-store 0.3.14:
 5. **Cloud/local parity — not applicable yet.** `Db` never calls
    `Relaton::Cloud`. Offline mode reads `Db::Cache` only, and `Cloud` keys on
    a collection's manifest storage keys, not on pubid buckets. The API
-   resolver tier (relaton#535) is where the two meet: when it writes an API
-   answer into `Db::Cache`, it must add a spec that the row and the document
+   resolver tier (relaton#535) is where the two meet: it writes an API
+   answer into `Db::Cache` through `save_bib`, and
+   `spec/relaton/api_resolver_spec.rb` checks that the rows and the document
    have the shape and the key of a flavor fetch.
 6. **Guard spec — `spec/relaton/lutaml_store_native_spec.rb`.** It runs the
    cache's write paths (store with an item key, not-found, delete, expire, a
@@ -374,7 +375,7 @@ of relaton#548, on lutaml-store 0.3.14:
 `true`, `yes` or `on`) answers every `fetch` and `fetch_std` from the local
 store only. `Db#offline_answer` runs the whole resolution (routed flavor,
 co-publishers, equivalents, combined references, date ranges) with
-`fetch_db: true`, so no path reaches a flavor's `get` or `fetch_api`. When
+`fetch_db: true`, so no path reaches a flavor's `get` or api.relaton.org. When
 the whole resolution answers nil, it raises `Relaton::NotInLocalStoreError`
 (`< Relaton::Error`, not a `RequestError`, so `net_retry` does not retry
 it), which names the reference and the cache directories. `fetch_async`
@@ -390,10 +391,43 @@ its own range-qualified row (`check_date_range`), so offline it answers
 only a range that an online fetch already cached; an edition cached by an
 undated fetch does not answer it.
 
-The API resolver tier (relaton#535) goes after this one: its opt-out is this
-mode, and its "local cache" is `Db::Cache`. Whether `relaton collection`
-(`~/.relaton/collections`, plain YAML files) moves onto lutaml-store is a
-separate, open question.
+Whether `relaton collection` (`~/.relaton/collections`, plain YAML files)
+moves onto lutaml-store is a separate, open question.
+
+### API resolver tier (relaton#535)
+
+With `Relaton::Db.configuration.use_api` (default **false**: opt-in until the
+API's coverage is verified per flavor), a fetch is **local cache →
+api.relaton.org → flavor**. The hook is `Db#fetch_doc`, which every network
+path passes (`fetch_entry`, date ranges, co-publishers, equivalents), so the
+cache write (`save_bib`), the stale-row fallback and `net_retry` are the
+ones a flavor fetch gets. Offline mode never reaches it, so offline mode is
+its opt-out too.
+
+`Db#api_answer` asks only for a query with a pubid cache key that is not
+all-parts and has no publication date range (the range is not in the key). `Db::ApiResolver` sends `GET <api_host>/v3/documents/<key>`, the
+key being the cache key's `to_s` as one percent-encoded path segment
+(`IETF RFC 8341` → `RFC%208341`, the form the API holds), with
+`Accept: application/yaml` (XML is mostly 406: the API ingest stores no
+XML), and reads the body with the flavor's `from_yaml`. The timeout is
+`api_timeout` (10 s).
+
+**The API is not authoritative.** A 404, any other status, a transport
+error (`ApiResolver::NET_ERRORS`, the `Index::ShardSource` list), a body the
+flavor cannot read or that is not an `ItemData`, and an identifier the flavor
+cannot key each log one line and fall back to the flavor; none raises and none caches
+a not-found. **An answer is kept only on identity:** its item cache key
+(`Db#item_key`) must equal the query key. The API has no undated, edition
+or all-parts logic — `ISO 19115-1` answers the 2014 record — so an undated
+query falls back to the flavor, whose rule for it is the one `Db` caches.
+
+Known cost: such a query still makes one API request, which the identity
+check discards, and so does an IHO or ECMA query written without its
+edition (`item_cache_key` adds the edition to the answer's key only).
+
+Not done: ETag / `If-None-Match` revalidation of a stale row (the cache row
+holds no ETag); a flavor whose pubid `to_s` is not the API's key (3GPP
+renders without `3GPP `) just falls back.
 
 ### WorkersPool (lib/relaton/db/workers_pool.rb)
 
