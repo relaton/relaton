@@ -1,23 +1,38 @@
 RSpec.describe Relaton::Cli::SubcommandCollection do
   let(:dir) { "spec/fixtures" }
 
+  # The collections live in a lutaml-store store under `<dir>/v2` (#549).
+  def stored(name, directory = dir)
+    Relaton::Cli::CollectionStore.new(directory).get(name)
+  end
+
+  def stored_ids(name, directory = dir)
+    # An imported collection nests in the collection it is imported into.
+    stored(name, directory).items_flattened.flatten
+      .map { |i| i.docidentifier.to_s }
+  end
+
+  # A fetched document: a hash item, as `Bibcollection#<<` takes it.
+  let(:doc) do
+    { "id" => "CCDIR10005", "docidentifier" =>
+      [{ "type" => "CC", "content" => "CC/DIR 10005", "primary" => true }] }
+  end
+
   context "create collection" do
     it do
       file = "collection.yaml"
       tmp = "tmp"
-      path = File.join tmp, file
       Relaton::Cli::Command.start(
         [
           "collection", "create", file, "-d", tmp, "--title", "Title",
           "--author", "Author", "--doctype", "ISO"
         ],
       )
-      expect(File.exist?(path)).to be true
-      yaml = YAML.load_file path
-      expect(yaml["root"]["title"]).to eq "Title"
-      expect(yaml["root"]["author"]).to eq "Author"
-      expect(yaml["root"]["doctype"]).to eq "ISO"
-      File.delete path
+      coll = stored file, tmp
+      expect(coll.title).to eq "Title"
+      expect(coll.author).to eq "Author"
+      expect(coll.doctype).to eq "ISO"
+      expect(File.exist?(File.join(tmp, file))).to be false
     end
 
     it "out error mesage" do
@@ -42,6 +57,15 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
         ["collection", "info", "sample-collection.yaml", "-d", dir],
       )
     end.to output(out).to_stdout
+  end
+
+  %w[info export].each do |command|
+    it "#{command} warns about a missing collection" do
+      expect do
+        Relaton::Cli::Command.start ["collection", command, "none.yaml", "-d", dir]
+      end.to output(/Collection `none.yaml` does not exist/)
+        .to_stderr_from_any_process
+    end
   end
 
   context "list" do
@@ -138,43 +162,47 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
   end
 
   context "fetch document" do
-    it "and store into collection" do
-      dir = "spec/fixtures"
-      coll = "sample-collection.yaml"
-      file = File.join dir, coll
-      # expect(File).to receive(:write).with(file, /CC\/DIR\s10005/, kind_of(Hash)).at_most :once
-      # expect(File).to receive(:write).and_call_original.at_most(5).times
-      # expect(File).to receive(:exist?).with(/etag\.txt/).and_return false
-      # expect(File).to receive(:exist?).with(/bibliography\.yml/).and_return false
-      # expect(File).to receive(:exist?).and_call_original.at_least :once
+    let(:coll) { "sample-collection.yaml" }
 
+    it "and store into collection" do
       db = double "db"
       expect(Relaton).to receive(:db).and_return db
-      expect(db).to receive(:fetch).with("CC/DIR 10005", nil).and_return :doc
-      expect(File).to receive(:file?).with(file).and_return true
-      expect(YAML).to receive(:load_file).with(file).and_return "root" => :coll
-      expect(Relaton::Bibcollection).to receive(:new).with(:coll).and_return []
-      expect(File).to receive(:write).with(file, "---\n- :doc\n", kind_of(Hash))
+      expect(db).to receive(:fetch).with("CC/DIR 10005", nil).and_return doc
 
-      # VCR.use_cassette "cc_dir_10005" do
       Relaton::Cli::Command.start [
         "collection", "fetch", "CC/DIR 10005", "-t", "CC", "-d", dir,
         "-c", coll
       ]
-      # end
+      expect(stored_ids(coll)).to include "CC 36000", "CC/DIR 10005"
+    end
+
+    it "and store the item class Db#fetch returns" do
+      item = Relaton::Bib::Item.from_xml File.read("spec/fixtures/bib_item.xml")
+      db = double "db"
+      expect(Relaton).to receive(:db).and_return db
+      expect(db).to receive(:fetch).and_return item
+
+      Relaton::Cli::Command.start [
+        "collection", "fetch", "ISO 55000", "-t", "ISO", "-d", dir, "-c", coll
+      ]
+      expect(stored_ids(coll)).to include "ISO 55000:2014"
+      expect(stored(coll).items.last.title.first.content)
+        .to eq "Geographic information"
+    end
+
+    it "and create the collection when it is missing" do
+      db = double "db"
+      expect(Relaton).to receive(:db).and_return db
+      expect(db).to receive(:fetch).and_return doc
+
+      Relaton::Cli::Command.start [
+        "collection", "fetch", "CC/DIR 10005", "-t", "CC", "-d", dir,
+        "-c", "new.yaml"
+      ]
+      expect(stored_ids("new.yaml")).to eq ["CC/DIR 10005"]
     end
 
     context "with publication date options" do
-      let(:dir) { "spec/fixtures" }
-      let(:coll) { "sample-collection.yaml" }
-      let(:file) { File.join dir, coll }
-
-      def stub_collection_write
-        expect(File).to receive(:file?).with(file).and_return true
-        expect(YAML).to receive(:load_file).with(file).and_return "root" => :coll
-        expect(Relaton::Bibcollection).to receive(:new).with(:coll).and_return []
-        expect(File).to receive(:write).with(file, "---\n- :doc\n", kind_of(Hash))
-      end
 
       it "forwards parsed Date for --publication-date-before" do
         db = double "db"
@@ -182,13 +210,13 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
         expect(db).to receive(:fetch).with(
           "CC/DIR 10005", nil,
           publication_date_before: Date.new(2020, 6, 1),
-        ).and_return :doc
-        stub_collection_write
+        ).and_return doc
 
         Relaton::Cli::Command.start [
           "collection", "fetch", "CC/DIR 10005", "-t", "CC", "-d", dir,
           "-c", coll, "--publication-date-before", "2020-06"
         ]
+        expect(stored_ids(coll)).to include "CC/DIR 10005"
       end
 
       it "forwards parsed Date for --publication-date-after" do
@@ -197,13 +225,13 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
         expect(db).to receive(:fetch).with(
           "CC/DIR 10005", nil,
           publication_date_after: Date.new(2019, 1, 1),
-        ).and_return :doc
-        stub_collection_write
+        ).and_return doc
 
         Relaton::Cli::Command.start [
           "collection", "fetch", "CC/DIR 10005", "-t", "CC", "-d", dir,
           "-c", coll, "--publication-date-after", "2019"
         ]
+        expect(stored_ids(coll)).to include "CC/DIR 10005"
       end
 
       it "forwards both date options as parsed Dates" do
@@ -213,14 +241,14 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
           "CC/DIR 10005", nil,
           publication_date_after: Date.new(2019, 1, 1),
           publication_date_before: Date.new(2020, 6, 15),
-        ).and_return :doc
-        stub_collection_write
+        ).and_return doc
 
         Relaton::Cli::Command.start [
           "collection", "fetch", "CC/DIR 10005", "-t", "CC", "-d", dir,
           "-c", coll, "--publication-date-after", "2019",
           "--publication-date-before", "2020-06-15"
         ]
+        expect(stored_ids(coll)).to include "CC/DIR 10005"
       end
 
       it "raises ArgumentError for invalid date format" do
@@ -276,7 +304,7 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
       expect(Relaton).to receive(:db).and_return db
       expect(db).to receive(:fetch)
         .and_raise Relaton::NotInLocalStoreError.new("ISO 2146", ["/c"])
-      expect(File).not_to receive(:write)
+      before = stored_ids "sample-collection.yaml"
       expect do
         Relaton::Cli::Command.start [
           "collection", "fetch", "ISO 2146", "-t", "ISO",
@@ -284,6 +312,7 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
         ]
       end.to output(/`ISO 2146` is not in the local store/)
         .to_stderr_from_any_process
+      expect(stored_ids("sample-collection.yaml")).to eq before
     end
 
     it "logs a transport failure" do
@@ -291,7 +320,7 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
       expect(Relaton).to receive(:db).and_return db
       expect(db).to receive(:fetch)
         .and_raise Relaton::RequestError, "Could not access https://example"
-      expect(File).not_to receive(:write)
+      before = stored_ids "sample-collection.yaml"
       expect do
         Relaton::Cli::Command.start [
           "collection", "fetch", "ISO 2146", "-t", "ISO",
@@ -299,6 +328,7 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
         ]
       end.to output(/Could not access https:\/\/example/)
         .to_stderr_from_any_process
+      expect(stored_ids("sample-collection.yaml")).to eq before
     end
 
     it "reports a friendly message for an identifier pubid cannot take" do
@@ -328,10 +358,7 @@ RSpec.describe Relaton::Cli::SubcommandCollection do
   end
 
   context "import" do
-    before(:example) do
-      file = File.join dir, coll
-      expect(File).to receive(:write).with file, /CC\s18001/, encoding: "UTF-8"
-    end
+    after(:example) { expect(stored_ids(coll)).to include "CC 18001" }
 
     shared_examples "import" do |source|
       it "XML" do

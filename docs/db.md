@@ -391,8 +391,19 @@ its own range-qualified row (`check_date_range`), so offline it answers
 only a range that an online fetch already cached; an edition cached by an
 undated fetch does not answer it.
 
-Whether `relaton collection` (`~/.relaton/collections`, plain YAML files)
-moves onto lutaml-store is tracked separately (relaton#549).
+`relaton collection`
+(`~/.relaton/collections`) keeps its collections on lutaml-store too
+(relaton#549): `Relaton::Cli::CollectionStore`, one `FileSystem` store under
+`<dir>/v2/` keyed by the collection name, with the same rules as this cache
+— no own lock, no path built from a key. `fetch` and `import` add an item in
+one `update` (an atomic read-modify-write under the store's lock), so two
+processes that add to one collection keep both items. Each value is the
+collection's YAML (`{"root" => …}`) with a top-level `updated` time, which
+`collection info` prints in place of the file's mtime. The flat files an
+older relaton wrote directly in `<dir>` are moved once: each one whose YAML
+has a `root` is imported (unless the store holds its name) and moved to
+`<dir>-v1.bak/`, never deleted; other files stay. The guard is
+`spec/cli/relaton/cli/collection_store_spec.rb`.
 
 ### API resolver tier (relaton#535)
 

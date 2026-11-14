@@ -119,6 +119,16 @@ no lock of the cache's own. `spec/relaton/lutaml_store_native_spec.rb` guards
 it, with an allowlist of the methods that may do raw IO. See
 `docs/db.md`.
 
+**`relaton collection` rides lutaml-store too (relaton#549).**
+`Relaton::Cli::CollectionStore` keeps the collections in one `FileSystem`
+store under `<dir>/v2/` (`~/.relaton/collections` or `--dir`), keyed by the
+collection name, under the same rules as the `Db` cache. `fetch`/`import`
+add an item through `update`, never a read and a separate write. The flat
+files an older relaton wrote are moved once to `<dir>-v1.bak/`. Don't put a
+`YAML.load_file`/`File.write` on a collection back in
+`subcommand_collection.rb`: `spec/cli/relaton/cli/collection_store_spec.rb`
+guards it with a raw-IO allowlist.
+
 **A stale cache row is served, not deleted, when the network fails
 (relaton#536).** `Db` expires a row only **after** a refetch answers:
 `new_bib_entry` hands a stale entry to `fetch_entry` as `stale:`, and a
