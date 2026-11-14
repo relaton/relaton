@@ -9,13 +9,13 @@ RSpec.describe Relaton::Db::ApiResolver do
   let(:db) { Relaton::Db.new "testcache", nil }
   let(:api) { "https://api.relaton.org/v3/documents" }
 
-  def item(klass, id, type)
+  def item(klass, id, type, fetched: Date.today)
     docid = Relaton::Bib::Docidentifier.new(content: id, type: type,
                                             primary: true)
-    klass.new(docidentifier: [docid], fetched: Date.today.to_s)
+    klass.new(docidentifier: [docid], fetched: fetched.to_s)
   end
 
-  def iso_item(id) = item(Relaton::Iso::ItemData, id, "ISO")
+  def iso_item(id, **) = item(Relaton::Iso::ItemData, id, "ISO", **)
 
   def stub_api(path, status: 200, body: "")
     stub_request(:get, "#{api}/#{path}")
@@ -157,6 +157,59 @@ RSpec.describe Relaton::Db::ApiResolver do
                        body: iso_item("ISO 19115-1:2014").to_yaml
     db.fetch "ISO 19115-1:2014"
     assert_requested request, times: 1
+  end
+
+  # The local store is the API tier's cache (relaton#536): what an online
+  # fetch through the API writes is what offline resolution reads.
+  context "the local store as the API tier's cache" do
+    let(:ref) { "ISO 19115-1:2014" }
+    let(:path) { "ISO%2019115-1%3A2014" }
+    let(:stale) { iso_item(ref, fetched: Date.today - 61) }
+
+    def docid(bib) = bib.docidentifier.first.content
+
+    def fetched_dates
+      Relaton::Db::Cache.new("testcache").rows.map { _1["fetched"] }.uniq
+    end
+
+    # Seed the cache, with the API off, with a flavor answer whose rows
+    # are 61 days old. Each example then stubs `get` again.
+    def seed_stale
+      Relaton::Db.configuration.use_api = false
+      allow(Relaton::Iso::Bibliography).to receive(:get).and_return stale
+      db.fetch ref
+      Relaton::Db.configuration.use_api = true
+    end
+
+    it "populates what offline resolution consumes" do
+      request = stub_api path, body: iso_item(ref).to_yaml
+      db.fetch ref
+      Relaton::Db.configure { |c| c.offline = true }
+      expect(Relaton::Iso::Bibliography).not_to receive(:get)
+      expect(docid(Relaton::Db.new("testcache", nil).fetch(ref))).to eq ref
+      assert_requested request, times: 1
+    end
+
+    it "serves a stale row when the API and the flavor both fail" do
+      seed_stale
+      request = stub_api path, status: 500
+      allow(Relaton::Iso::Bibliography).to receive(:get)
+        .and_raise Relaton::RequestError, "no network"
+      expect { expect(docid(db.fetch(ref))).to eq ref }
+        .to output(/WARN.*cached entry fetched #{Date.today - 61}/)
+        .to_stderr_from_any_process
+      expect(fetched_dates).to eq [(Date.today - 61).to_s]
+      assert_requested request, times: 1
+    end
+
+    it "replaces a stale row with the API answer" do
+      seed_stale
+      request = stub_api path, body: iso_item(ref).to_yaml
+      expect(Relaton::Iso::Bibliography).not_to receive(:get)
+      expect(docid(db.fetch(ref))).to eq ref
+      expect(fetched_dates).to eq [Date.today.to_s]
+      assert_requested request, times: 1
+    end
   end
 
   it "makes no request in offline mode" do

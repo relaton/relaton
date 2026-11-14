@@ -392,7 +392,7 @@ only a range that an online fetch already cached; an edition cached by an
 undated fetch does not answer it.
 
 Whether `relaton collection` (`~/.relaton/collections`, plain YAML files)
-moves onto lutaml-store is a separate, open question.
+moves onto lutaml-store is tracked separately (relaton#549).
 
 ### API resolver tier (relaton#535)
 
@@ -402,7 +402,11 @@ api.relaton.org → flavor**. The hook is `Db#fetch_doc`, which every network
 path passes (`fetch_entry`, date ranges, co-publishers, equivalents), so the
 cache write (`save_bib`), the stale-row fallback and `net_retry` are the
 ones a flavor fetch gets. Offline mode never reaches it, so offline mode is
-its opt-out too.
+its opt-out too. The local store is therefore the API tier's cache
+(relaton#536): an API answer writes the rows and document a flavor answer
+writes, offline mode reads them back with no request, and a stale row is
+replaced by an API answer or served when the API and the flavor both fail
+(`spec/relaton/api_resolver_spec.rb`).
 
 `Db#api_answer` asks only for a query with a pubid cache key that is not
 all-parts and has no publication date range (the range is not in the key). `Db::ApiResolver` sends `GET <api_host>/v3/documents/<key>`, the
