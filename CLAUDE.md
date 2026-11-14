@@ -141,7 +141,9 @@ cache-only and raises `Relaton::NotInLocalStoreError` on a miss; explicit
 `fetch_db` still answers nil. See `docs/db.md`.
 
 **The api.relaton.org tier is opt-in and never authoritative (relaton#535).**
-With `Db.configuration.use_api`, `Db#fetch_doc` asks `Db::ApiResolver`
+With `Db.configuration.use_api` (or `RELATON_USE_API`, or the CLI's `--api`;
+the specs delete `RELATON_USE_API`/`RELATON_API_HOST` at load, since a reset
+configuration reads them again), `Db#fetch_doc` asks `Db::ApiResolver`
 (`GET /v3/documents/<cache key>`, Relaton YAML through the flavor's
 `from_yaml`) before the flavor's `get`. Every API outcome other than a
 readable 200 falls back to the flavor — a 404 is not a not-found — and a 200

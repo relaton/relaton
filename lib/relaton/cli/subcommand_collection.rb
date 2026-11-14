@@ -1,4 +1,5 @@
 require "pubid"
+require_relative "util"
 require_relative "full_text_search"
 require_relative "collection_store"
 
@@ -107,8 +108,10 @@ module Relaton
                           desc: "Collection to store a document"
       option :dir, aliases: :d, desc: "Directory with collections. Default is " \
                                       "$HOME/.relaton/collections."
+      option :api, type: :boolean, desc: Relaton::Cli::API_OPTION_DESC
 
       def fetch(code) # rubocop:disable Metrics/AbcSize
+        api_was = apply_api_option options
         opts = {}
         if options[:"publication-date-before"]
           opts[:publication_date_before] = parse_date_option(options[:"publication-date-before"], "--publication-date-before")
@@ -129,6 +132,8 @@ module Relaton
         Util.warn e.message
       rescue Pubid::Errors::Error
         Util.error %("#{code}" is not a recognized standards identifier)
+      ensure
+        restore_api_option api_was
       end
 
       desc "import FILE", "Import document or collection from an XML file " \

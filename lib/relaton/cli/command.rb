@@ -2,6 +2,7 @@ require "date"
 require "tmpdir"
 require "shellwords"
 require "pubid"
+require_relative "util"
 require_relative "relaton_file"
 require_relative "xml_convertor"
 require_relative "yaml_convertor"
@@ -58,10 +59,14 @@ module Relaton
       option :"publication-date-after",
         desc: "Fetch only documents published after the specified date " \
           "(e.g. 2002, 2002-01, or 2002-01-01)"
+      option :api, type: :boolean, desc: Relaton::Cli::API_OPTION_DESC
 
       def fetch(code)
+        api_was = apply_api_option options
         io = IO.new($stdout.fcntl(::Fcntl::F_DUPFD), mode: "w:UTF-8")
         io.puts(fetch_document(code, options) || supported_type_message)
+      ensure
+        restore_api_option api_was
       end
 
       desc "Metanorma-XML-File / Directory Relaton-XML-Directory",
@@ -343,6 +348,26 @@ module Relaton
         "Invalid date range: --publication-date-after (#{date_after}) must be before --publication-date-before (#{date_before})."
     end
 
+    # `--api` / `--no-api` (relaton#535) sets the API tier for this command;
+    # no flag keeps the configuration (RELATON_USE_API, else off). Offline
+    # mode still makes no request. The command restores the value it
+    # returns (#restore_api_option), so a caller that runs the CLI in its
+    # own process keeps its configuration.
+    #
+    # @return [Boolean, nil] the configured value, to restore
+    def apply_api_option(options)
+      config = Relaton::Db.configuration
+      was = config.use_api
+      config.use_api = options[:api] unless options[:api].nil?
+      was
+    end
+
+    # @param was [Boolean, nil] what #apply_api_option returned; nil when
+    #   the command stopped before it
+    def restore_api_option(was)
+      Relaton::Db.configuration.use_api = was unless was.nil?
+    end
+
     # @param code [String]
     # @param options [Hash]
     # @option options [String] :type
@@ -351,7 +376,9 @@ module Relaton
     # @return [String, nil]
     def fetch_document(code, options) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity,Metrics/AbcSize,Metrics/MethodLength
       year = options[:year]&.to_s
+      # `api` is the CLI's switch (#apply_api_option), not a fetch option.
       dup_opts = options.dup.transform_keys { |k| k.to_s.gsub("-", "_").to_sym }
+      dup_opts.delete :api
       %i[publication_date_before publication_date_after].each do |key|
         dup_opts[key] = parse_date_option(dup_opts[key], key.to_s.tr("_", "-").prepend("--")) if dup_opts[key]
       end

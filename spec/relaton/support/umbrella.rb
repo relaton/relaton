@@ -33,6 +33,9 @@ rescue LoadError
   # flavor gem not present in this environment — skip it
 end
 
+# A spec that resets the configuration reads the environment again, so a
+# developer's RELATON_USE_API / RELATON_API_HOST would send it to the API.
+%w[RELATON_USE_API RELATON_API_HOST].each { ENV.delete _1 }
 Relaton::Db.configure do |config|
   config.use_api = false
 end
