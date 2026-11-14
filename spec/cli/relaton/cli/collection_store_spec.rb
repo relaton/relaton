@@ -1,4 +1,6 @@
 require "relaton/cli/collection_store"
+# `run_children`: `Process.spawn`, not `fork`, which Windows does not have.
+require_relative "../../../relaton/support/child_processes"
 
 # relaton#549: `relaton collection` keeps its collections in one lutaml-store
 # FileSystem store under `<dir>/v2/`, and moves the flat files an older
@@ -97,14 +99,13 @@ RSpec.describe Relaton::Cli::CollectionStore do
   it "moves each flat file once when processes open the store together" do
     FileUtils.mkdir_p dir
     5.times { |i| File.write File.join(dir, "c#{i}.yaml"), fixture }
-    pids = Array.new(6) do
-      fork do
-        $stderr.reopen File::NULL
-        described_class.new dir
-        exit! 0
-      end
-    end
-    pids.each { |pid| Process.wait pid }
+    script = <<~RUBY
+      require "relaton-cli"
+      start_barrier!
+      Relaton::Cli::CollectionStore.new #{File.expand_path(dir).inspect}
+    RUBY
+    statuses, logs = run_children Array.new(6) { script }
+    expect(statuses).to all(be_success), logs.join("\n")
     expect(store.names).to eq %w[c0.yaml c1.yaml c2.yaml c3.yaml c4.yaml]
     expect(Dir.children("#{dir}-v1.bak").sort).to eq store.names
     expect(Dir.children(dir)).to eq [described_class::LAYOUT]
@@ -149,19 +150,24 @@ RSpec.describe Relaton::Cli::CollectionStore do
 
   it "keeps the items of two processes that update one collection" do
     store.create "a.yaml", collection("A")
-    pids = ["CC 1", "CC 2"].map do |id|
-      fork do
-        described_class.new(dir).update("a.yaml") do |c|
+    scripts = ["CC 1", "CC 2"].map do |id|
+      item = { "id" => id.delete(" "), "docidentifier" =>
+               [{ "type" => "CC", "content" => id, "primary" => true }] }
+      <<~RUBY
+        require "relaton-cli"
+        store = Relaton::Cli::CollectionStore.new #{File.expand_path(dir).inspect}
+        start_barrier!
+        store.update("a.yaml") do |c|
           # Without the lock, both processes would read before either
           # writes, and the second write would drop the first item.
           sleep 0.3
-          c << collection("x", [id]).items.first
+          c << #{item.inspect}
           c
         end
-        exit! 0
-      end
+      RUBY
     end
-    pids.each { |pid| Process.wait pid }
+    statuses, logs = run_children scripts
+    expect(statuses).to all(be_success), logs.join("\n")
     expect(docids(store.get("a.yaml"))).to contain_exactly "CC 1", "CC 2"
   end
 
