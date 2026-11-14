@@ -16,7 +16,8 @@ module Relaton
     # give with certainty is nil, and `Db#fetch_doc` then asks the flavor:
     # a 404, any other status, a transport failure, and a body the flavor
     # cannot read. Nothing here raises, and nothing here touches the cache:
-    # `Db` stores the answer as it stores a flavor's.
+    # `Db` stores the answer as it stores a flavor's, with its ETag, and
+    # revalidates a stale row with that ETag.
     #
     module ApiResolver
       ACCEPT = "application/yaml".freeze
@@ -29,26 +30,44 @@ module Relaton
         Net::HTTPHeaderSyntaxError, Net::ProtocolError, Zlib::Error
       ].freeze
 
+      #
+      # What the API answered. `item` is the document of a 200, with its
+      # `etag`; `not_modified` is a 304 to a revalidation, whose `etag` is
+      # the one sent (the cached document is still the API's).
+      #
+      Answer = Data.define(:item, :etag, :not_modified) do
+        def initialize(item: nil, etag: nil, not_modified: false)
+          super
+        end
+      end
+
       module_function
 
       #
       # @param processor [Relaton::Core::Processor] the routed flavor
       # @param key [Pubid::Identifier] the query's cache key; the API is
       #   asked for its rendering
-      # @return [Relaton::Bib::ItemData, nil] nil: ask the flavor
+      # @param etag [String, nil] the ETag of a stale cached answer: sent as
+      #   `If-None-Match`, so an unchanged document answers 304 with no body.
+      #   The ETag is of the YAML representation, and the cache holds XML,
+      #   so it is the header value as received, never computed here.
+      # @return [Answer, nil] nil: ask the flavor
       #
-      def fetch(processor, key)
-        body = get(key.to_s) or return
+      def fetch(processor, key, etag: nil)
+        rsp = get(key.to_s, etag) or return
+        return Answer.new(etag: etag, not_modified: true) if rsp.code == "304"
 
-        read(processor, body, key)
+        item = read(processor, rsp.body, key) or return
+        Answer.new(item: item, etag: rsp["ETag"])
       end
 
-      # @return [String, nil] the body of a 200, else nil
-      def get(ref)
+      # @return [Net::HTTPResponse, nil] a 200, or a 304 to a revalidation;
+      #   else nil
+      def get(ref, etag = nil)
         host = Db.configuration.api_host.chomp("/")
         uri = URI("#{host}/v3/documents/#{escape(ref)}")
-        rsp = request(uri)
-        return rsp.body if rsp.code == "200"
+        rsp = request(uri, etag)
+        return rsp if rsp.code == "200" || (etag && rsp.code == "304")
 
         info "HTTP #{rsp.code}", ref
         nil
@@ -57,13 +76,15 @@ module Relaton
         nil
       end
 
-      def request(uri)
+      def request(uri, etag = nil)
         timeout = Db.configuration.api_timeout
+        headers = { "Accept" => ACCEPT,
+                    "User-Agent" => "relaton/#{Relaton::VERSION}" }
+        headers["If-None-Match"] = etag if etag
         Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https",
                                             open_timeout: timeout,
                                             read_timeout: timeout) do |http|
-          http.get(uri.request_uri, "Accept" => ACCEPT,
-                                    "User-Agent" => "relaton/#{Relaton::VERSION}")
+          http.get(uri.request_uri, headers)
         end
       end
 

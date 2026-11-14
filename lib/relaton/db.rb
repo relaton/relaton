@@ -289,8 +289,13 @@ module Relaton
     # The flavor's `get` receives the parsed pubid when there is one
     # (relaton#205), else the String. With `use_api`, api.relaton.org is
     # asked first (relaton#535), and the flavor answers whatever it does not.
-    def fetch_doc(code, year, opts, processor, query = nil)
-      api_answer(code, year, opts, processor, query) ||
+    #
+    # @param api [Hash] the API tier's state for one fetch: in,
+    #   `:stale_etag`/`:stale` (a stale row's ETag and its document, to
+    #   revalidate); out, `:etag` (the ETag of an API answer, nil for a
+    #   flavor answer), which Db#fetch_entry stores with the row
+    def fetch_doc(code, year, opts, processor, query = nil, api: {})
+      api_answer(code, year, opts, processor, query, api) ||
         processor.get(query || code, year, opts)
     end
 
@@ -303,20 +308,63 @@ module Relaton
     # (`ISO 19115-1` answers the 2014 record), and the flavor's rule for
     # such a query is the one `Db` caches.
     #
-    def api_answer(code, year, opts, processor, query)
+    # A stale row the API wrote is revalidated with its ETag. A 304 answers
+    # the cached document, fetched today: `Cache#store` reads the row's
+    # `fetched` from the document, so the document is stored again, not
+    # only its row. It needs no identity check: the row was written from an
+    # answer that passed one, for this key.
+    #
+    def api_answer(code, year, opts, processor, query, api) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/ParameterLists
+      api[:etag] = nil
       return unless Db.configuration.use_api
       return if opts[:all_parts] || date_range?(opts)
 
       key = query && processor.cache_key(code, year, opts, query)
       return unless key.is_a?(::Pubid::Identifier)
 
-      bib = ApiResolver.fetch(processor, key) or return
-      return bib if api_identity?(bib, key, processor)
+      answer = ApiResolver.fetch(processor, key, etag: api[:stale_etag])
+      return unless answer
+      return revalidated(processor, api, answer, key) if answer.not_modified
+
+      bib = answer.item
+      if api_identity?(bib, key, processor)
+        api[:etag] = answer.etag
+        return bib
+      end
 
       Util.info "api.relaton.org: answered another document " \
                 "(#{bib.docidentifier.first&.content}); asking the flavor",
                 key: key.to_s
       nil
+    end
+
+    # The stale document a 304 kept, fetched today, with its ETag. It is
+    # cached data: one that does not read back is a miss (the flavor
+    # answers), whatever the model raises for it.
+    def revalidated(processor, api, answer, key)
+      bib = processor.from_xml api[:stale]
+      bib.fetched = Date.today.to_s
+      api[:etag] = answer.etag
+      bib
+    rescue StandardError => e
+      Util.info "api.relaton.org: cached document unreadable " \
+                "(#{e.class}); asking the flavor", key: key.to_s
+      nil
+    end
+
+    # The API state Db#fetch_doc starts from: a stale document that the API
+    # answered carries the ETag to revalidate it with. Both come from one
+    # row of the stale cache (Cache#revalidation), read again here: the
+    # stale entry `with_stale` read is not used, since another worker may
+    # have replaced the row since, and its ETag would then confirm an older
+    # document.
+    def api_state(args)
+      return {} unless args[:stale].is_a?(String) && args[:stale_db]
+
+      xml, etag = @semaphore.synchronize do
+        args[:stale_db].revalidation(args[:id])
+      end
+      etag ? { stale_etag: etag, stale: xml } : {}
     end
 
     # The API's document is data: an identifier the flavor cannot key is a
@@ -620,9 +668,10 @@ module Relaton
     #
     def fetch_entry(code, year, opts, stdclass, **args) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
       processor = @registry[stdclass]
+      api = api_state args
       bib = begin
         net_retry(code, year, opts, processor, opts.fetch(:retries, 1),
-                  args[:query])
+                  args[:query], api: api)
       rescue Relaton::RequestError => e
         raise unless args[:stale].is_a?(String)
 
@@ -641,7 +690,8 @@ module Relaton
       @semaphore.synchronize do
         args[:db].expire args[:id], year if args[:stale]
         if args[:stale] || refresh || !args[:db].read(args[:id])
-          save_bib args[:db], args[:id], bib, entry, stdclass
+          save_bib args[:db], args[:id], bib, entry, stdclass,
+                   etag: api[:etag]
         end
       end
       entry
@@ -652,9 +702,11 @@ module Relaton
     # when the query key differs from it (an undated or incomplete query),
     # the query gets a row that points to the same document.
     #
-    def save_bib(db, key, bib, entry, stdclass)
+    # `etag` is the ETag of the API answer (Db#fetch_doc), nil for a flavor
+    # answer.
+    def save_bib(db, key, bib, entry, stdclass, etag: nil) # rubocop:disable Metrics/ParameterLists
       item = bib.respond_to?(:docidentifier) && item_key(bib, stdclass)
-      db.store key, entry, item_key: item || nil
+      db.store key, entry, item_key: item || nil, etag: etag
     end
 
     #
@@ -706,12 +758,13 @@ module Relaton
 
     # @param query [Pubid::Identifier, nil] what `get` receives in place of
     #   the String +code+ (Db#query_and_key)
-    def net_retry(code, year, opts, processor, retries, query = nil)
-      fetch_doc code, year, opts, processor, query
+    # @param api [Hash] the API tier's state (Db#fetch_doc)
+    def net_retry(code, year, opts, processor, retries, query = nil, api: {}) # rubocop:disable Metrics/ParameterLists
+      fetch_doc code, year, opts, processor, query, api: api
     rescue Relaton::RequestError => e
       raise e unless retries > 1
 
-      net_retry(code, year, opts, processor, retries - 1, query)
+      net_retry(code, year, opts, processor, retries - 1, query, api: api)
     end
 
     def bib_entry(bib)

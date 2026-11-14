@@ -440,9 +440,32 @@ Known cost: such a query still makes one API request, which the identity
 check discards, and so does an IHO or ECMA query written without its
 edition (`item_cache_key` adds the edition to the answer's key only).
 
-Not done: ETag / `If-None-Match` revalidation of a stale row (the cache row
-holds no ETag); a flavor whose pubid `to_s` is not the API's key (3GPP
-renders without `3GPP `) just falls back.
+**ETag revalidation.** An API answer's `ETag` header is kept on its rows
+(`CacheEntry#etag`, `Cache#store(..., etag:)`, `Cache#etag`; `clone_entry`
+copies it; a flavor answer and a row an older relaton wrote have none).
+When such a row is stale, `Db#fetch_entry` (`api_state`) reads the
+document and its ETag again from that one row (`Cache#revalidation`: the
+key's own row only, since a dated key's lookup can read a sibling that
+adds a language, and both in one lookup, so another worker's newer answer
+cannot pair a newer ETag with the older document), and sends the ETag as
+`If-None-Match`, through the `api:` state hash that
+`net_retry`/`fetch_doc`/`api_answer` thread (in: `:stale_etag`/`:stale`;
+out: `:etag`). A `304` answers the stale document with `fetched` set to
+today, and it is stored again in full, not only its row: `Cache#store`
+reads a row's `fetched` from the document's `<fetched>`, so a row-only
+touch would be undone by the next `clone_entry`. A `304` needs no identity
+check (the key's own row was written from one that passed); a cached
+document that does not read back asks the flavor. A `200` is a new answer
+(identity check, new ETag); any other outcome asks the flavor, whose
+answer stores no ETag, and a transport failure of both still serves the
+stale document. The header value is stored as received: it is the hash of
+the YAML representation, and the cache holds XML, so relaton cannot
+compute it. A stale row is one that `valid_row?` rejects: an undated key,
+and also a key whose year is in the reference string (`ISO 19115-1:2014`)
+rather than in the `year` argument.
+
+Not done: a flavor whose pubid `to_s` is not the API's key (3GPP renders
+without `3GPP `) just falls back.
 
 ### WorkersPool (lib/relaton/db/workers_pool.rb)
 
