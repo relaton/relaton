@@ -102,6 +102,56 @@ RSpec.describe Relaton::Db::Cache do
     end
   end
 
+  # The ETag of an API answer (relaton#535): a stale row revalidates with it.
+  context "an ETag" do
+    let(:key) { pubid("ISO 19115-1") }
+    let(:item) { pubid("ISO 19115-1:2014") }
+
+    it "is kept on the query row and the item row" do
+      cache.store key, xml, item_key: item, etag: '"abc"'
+      reopened = described_class.new dir
+      expect(reopened.etag(key)).to eq '"abc"'
+      expect(reopened.etag(item)).to eq '"abc"'
+      expect(reopened.rows.map { _1["etag"] }).to eq ['"abc"', '"abc"']
+    end
+
+    it "is nil for a row stored without one" do
+      cache.store key, xml, item_key: item
+      expect(cache.etag(key)).to be_nil
+      expect(cache.rows).to all(satisfy { !_1.key?("etag") })
+    end
+
+    it "is nil for a key the cache does not hold" do
+      expect(cache.etag(key)).to be_nil
+    end
+
+    it "is read with its document from one row, for revalidation" do
+      cache.store key, xml, item_key: item, etag: '"abc"'
+      expect(cache.revalidation(key)).to eq [xml, '"abc"']
+    end
+
+    it "is not read for revalidation from another key's row" do
+      # A dated key reads a row that adds a language (Cache#lookup); that
+      # row's ETag was issued for another URL.
+      fr = pubid("ISO 19115-1:2014(F)")
+      cache.store fr, xml, etag: '"fr"'
+      expect(cache.read(item)).to eq xml
+      expect(cache.revalidation(item)).to be_nil
+    end
+
+    it "is not read for revalidation from a row without one" do
+      cache.store key, xml, item_key: item
+      expect(cache.revalidation(key)).to be_nil
+    end
+
+    it "is copied with the row to another cache" do
+      cache.store key, xml, item_key: item, etag: '"abc"'
+      other = described_class.new "testcache2"
+      other.clone_entry key, cache
+      expect(other.etag(key)).to eq '"abc"'
+    end
+  end
+
   context "a query row and an item row" do
     it "share one document file" do
       cache.store pubid("ISO 19115-1"), xml, item_key: pubid("ISO 19115-1:2014")

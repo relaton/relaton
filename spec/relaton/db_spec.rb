@@ -119,16 +119,17 @@ RSpec.describe Relaton::Db do
       before do
         expect(subject).to receive(:net_retry).with(
           "ISO 123", nil, kind_of(Hash),
-          kind_of(Relaton::Iso::Processor), 1, nil
+          kind_of(Relaton::Iso::Processor), 1, nil, api: {}
         ).and_return bib
       end
 
       it "caches the document under the query and its own key" do
         expect(db_cache).to receive(:read).with(:key).and_return nil
-        expect(db_cache).to receive(:store) do |key, entry, item_key:|
+        expect(db_cache).to receive(:store) do |key, entry, item_key:, etag:|
           expect(key).to be :key
           expect(entry).to include "ISO 123:2020"
           expect(item_key.to_s).to eq "ISO 123:2020"
+          expect(etag).to be_nil # a flavor answer
         end
         entry = subject.send :fetch_entry, "ISO 123", nil, {}, :relaton_iso,
                              db: db_cache, id: :key

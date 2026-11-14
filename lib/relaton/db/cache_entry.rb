@@ -15,7 +15,9 @@ module Relaton
     # `to_hash`) or, for a processor with no pubid class, by a string (`key`).
     # `file` names the document in the doc store; several rows can share one
     # file (a query row and the row of the document it returned). A
-    # `not_found` row has no file.
+    # `not_found` row has no file. `etag` is the ETag of the api.relaton.org
+    # answer the document came from (relaton#535), for revalidation; a
+    # flavor answer, and a row an older relaton wrote, have none.
     class CacheEntry < Lutaml::Model::Serializable
       DOC = "doc".freeze
       NOT_FOUND = "not_found".freeze
@@ -25,6 +27,7 @@ module Relaton
       attribute :status, :string
       attribute :file, :string
       attribute :fetched, :string
+      attribute :etag, :string
 
       key_value do
         map "id", to: :id
@@ -32,6 +35,7 @@ module Relaton
         map "status", to: :status
         map "file", to: :file
         map "fetched", to: :fetched
+        map "etag", to: :etag
       end
 
       def not_found?

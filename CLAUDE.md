@@ -148,7 +148,10 @@ readable 200 falls back to the flavor — a 404 is not a not-found — and a 200
 is kept only when the item's own cache key equals the query key: the API has
 no undated/all-parts logic (`ISO 19115-1` answers the 2014 record). Keep the
 hook in `fetch_doc`, so the cache write, the stale fallback and offline mode
-stay the ones a flavor fetch gets. See `docs/db.md`.
+stay the ones a flavor fetch gets. An API answer's `ETag` is kept on its
+cache rows, and a stale row revalidates with `If-None-Match`; on a `304`
+the document is stored again with today's `fetched` (the row's `fetched`
+comes from the document, so never touch the row alone). See `docs/db.md`.
 
 **Routing is parse-first (relaton#205).** `Registry#route` is the one routing
 rule for `Db`: a pubid parse routes by class ancestry only when it is the

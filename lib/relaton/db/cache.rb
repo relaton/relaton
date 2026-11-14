@@ -130,9 +130,11 @@ module Relaton
       # @param value [String, Relaton::Db::NotFound, nil] document XML, a
       #   not-found entry (also as `not_found <date>`); nil deletes the row
       # @param item_key [Pubid::Identifier, String, nil] the document's key
+      # @param etag [String, nil] the ETag of the API answer the document
+      #   came from (relaton#535), kept on both rows; nil for a flavor answer
       # @return [String, Relaton::Db::NotFound, nil] value
       #
-      def store(key, value, item_key: nil) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+      def store(key, value, item_key: nil, etag: nil) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
         return delete(key) if value.nil?
 
         bucket, key = resolve key
@@ -149,9 +151,10 @@ module Relaton
         record_version item_bucket
         @rows.adapter.transaction do
           @docs.set file, value
-          upsert item_bucket, new_row(item_key, CacheEntry::DOC, file, fetched)
+          upsert item_bucket,
+                 new_row(item_key, CacheEntry::DOC, file, fetched, etag)
           unless canonical(key) == canonical(item_key)
-            upsert bucket, new_row(key, CacheEntry::DOC, file, fetched)
+            upsert bucket, new_row(key, CacheEntry::DOC, file, fetched, etag)
           end
         end
         value
@@ -195,13 +198,37 @@ module Relaton
 
         found = other.lookup(key) or return
         row_id, row = found
-        store row_id, other.read_entry(row)
+        store row_id, other.read_entry(row), etag: row["etag"]
       end
 
       # @param key [Pubid::Identifier, String]
       # @return [String, nil] the date the entry was fetched
       def fetched(key)
         lookup(key)&.last&.dig("fetched")
+      end
+
+      # @param key [Pubid::Identifier, String]
+      # @return [String, nil] the ETag of the API answer the entry came from
+      def etag(key)
+        lookup(key)&.last&.dig("etag")
+      end
+
+      #
+      # The document and the ETag to revalidate a key with, read from one
+      # row in one lookup, so the two belong to one answer. Only the key's
+      # own row counts: a dated key's lookup can also read a row that adds a
+      # language (`#lookup`), and that row's ETag was issued for another URL.
+      #
+      # @param key [Pubid::Identifier, String]
+      # @return [Array(String, String), nil] the document XML and its ETag
+      #
+      def revalidation(key)
+        row = lookup(key)&.last
+        own = canonical resolve(key).last
+        return unless row && row["etag"] && row_key(row) == own
+
+        xml = read_entry row
+        [xml, row["etag"]] if xml.is_a?(String)
       end
 
       # An undated entry expires after 60 days, a dated document never. A
@@ -528,8 +555,9 @@ module Relaton
         end
       end
 
-      def new_row(key, status, file, fetched)
-        row = CacheEntry.new(status: status, file: file, fetched: fetched)
+      def new_row(key, status, file, fetched, etag = nil)
+        row = CacheEntry.new(status: status, file: file, fetched: fetched,
+                             etag: etag)
         if key.is_a?(String) then row.key = key
         else row.id = canonical(key)
         end

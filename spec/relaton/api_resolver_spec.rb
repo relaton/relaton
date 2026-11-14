@@ -24,9 +24,10 @@ RSpec.describe Relaton::Db::ApiResolver do
                  headers: { "Content-Type" => "application/yaml" })
   end
 
+  # An API row also holds the answer's ETag; the rest is a flavor row.
   def rows(dir)
     Relaton::Db::Cache.new(dir).rows.map do |r|
-      r.to_h.except("fetched", :fetched)
+      r.to_h.except("fetched", "etag")
     end
   end
 
@@ -209,6 +210,159 @@ RSpec.describe Relaton::Db::ApiResolver do
       expect(docid(db.fetch(ref))).to eq ref
       expect(fetched_dates).to eq [Date.today.to_s]
       assert_requested request, times: 1
+    end
+  end
+
+  # A stale row the API wrote revalidates with its ETag: a 304 keeps the
+  # cached document for another TTL, with no body and no flavor call.
+  context "ETag revalidation" do
+    let(:ref) { "ISO 19115-1:2014" }
+    let(:url) { "#{api}/ISO%2019115-1%3A2014" }
+    let(:etag) { '"v1"' }
+
+    def docid(bib) = bib.docidentifier.first.content
+
+    def cache = Relaton::Db::Cache.new("testcache")
+
+    def fetched_dates = cache.rows.map { _1["fetched"] }.uniq
+
+    def etags = cache.rows.map { _1["etag"] }.uniq
+
+    def answer(status: 200, body: "", etag: nil)
+      headers = { "Content-Type" => "application/yaml" }
+      headers["ETag"] = etag if etag
+      { status: status, body: body, headers: headers }
+    end
+
+    # An API answer 61 days old, with its ETag.
+    def seed_api_stale
+      stub_request(:get, url).to_return(
+        answer(body: iso_item(ref, fetched: Date.today - 61).to_yaml,
+               etag: etag),
+      )
+      db.fetch ref
+      WebMock.reset!
+    end
+
+    def conditional
+      stub_request(:get, url)
+        .with(headers: { "Accept" => "application/yaml",
+                         "If-None-Match" => etag })
+    end
+
+    it "keeps the ETag of an API answer" do
+      stub_request(:get, url).to_return(
+        answer(body: iso_item(ref).to_yaml, etag: etag),
+      )
+      db.fetch ref
+      expect(etags).to eq [etag]
+    end
+
+    it "keeps no ETag for a flavor answer" do
+      stub_request(:get, url).to_return(answer(status: 404))
+      allow(Relaton::Iso::Bibliography).to receive(:get)
+        .and_return iso_item(ref)
+      db.fetch ref
+      expect(etags).to eq [nil]
+    end
+
+    it "keeps the cached document on a 304" do
+      seed_api_stale
+      request = conditional.to_return(answer(status: 304, etag: etag))
+      expect(Relaton::Iso::Bibliography).not_to receive(:get)
+      expect(docid(db.fetch(ref))).to eq ref
+      expect(fetched_dates).to eq [Date.today.to_s]
+      expect(etags).to eq [etag]
+      assert_requested request, times: 1
+      # valid again: the next fetch makes no request
+      db.fetch ref
+      assert_requested :get, url, times: 1
+    end
+
+    it "replaces the document and the ETag on a 200" do
+      seed_api_stale
+      request = conditional.to_return(
+        answer(body: iso_item(ref).to_yaml, etag: '"v2"'),
+      )
+      expect(Relaton::Iso::Bibliography).not_to receive(:get)
+      db.fetch ref
+      expect(fetched_dates).to eq [Date.today.to_s]
+      expect(etags).to eq ['"v2"']
+      assert_requested request, times: 1
+    end
+
+    it "asks the flavor when the revalidation fails" do
+      seed_api_stale
+      request = conditional.to_return(answer(status: 500))
+      allow(Relaton::Iso::Bibliography).to receive(:get)
+        .and_return iso_item(ref)
+      db.fetch ref
+      expect(Relaton::Iso::Bibliography).to have_received(:get)
+      expect(fetched_dates).to eq [Date.today.to_s]
+      expect(etags).to eq [nil]
+      assert_requested request, times: 1
+    end
+
+    it "keeps no ETag when the revalidation answers another document" do
+      seed_api_stale
+      request = conditional.to_return(
+        answer(body: iso_item("ISO 19115-1:2003").to_yaml, etag: '"v2"'),
+      )
+      allow(Relaton::Iso::Bibliography).to receive(:get)
+        .and_return iso_item(ref)
+      db.fetch ref
+      expect(Relaton::Iso::Bibliography).to have_received(:get)
+      expect(etags).to eq [nil]
+      assert_requested request, times: 1
+    end
+
+    it "asks the flavor when the stale document does not read back" do
+      seed_api_stale
+      conditional.to_return(answer(status: 304, etag: etag))
+      # The first read is the stale document's; later reads are the
+      # flavor answer's, as Db returns it.
+      calls = 0
+      processor = Relaton::Db::Registry.instance[:relaton_iso]
+      allow(processor).to receive(:from_xml).and_wrap_original do |m, xml|
+        calls += 1
+        raise ArgumentError, "bad xml" if calls == 1
+
+        m.call(xml)
+      end
+      allow(Relaton::Iso::Bibliography).to receive(:get)
+        .and_return iso_item(ref)
+      db.fetch ref
+      expect(Relaton::Iso::Bibliography).to have_received(:get)
+      expect(etags).to eq [nil]
+    end
+
+    it "sends no If-None-Match with no_cache" do
+      seed_api_stale
+      request = stub_request(:get, url).to_return(
+        answer(body: iso_item(ref).to_yaml, etag: '"v2"'),
+      )
+      db.fetch ref, nil, no_cache: true
+      assert_requested(:get, url, times: 1) do |req|
+        !req.headers.key?("If-None-Match")
+      end
+      assert_requested request, times: 1
+    end
+
+    it "sends no If-None-Match for a stale row with no ETag" do
+      Relaton::Db.configuration.use_api = false
+      allow(Relaton::Iso::Bibliography).to receive(:get)
+        .and_return iso_item(ref, fetched: Date.today - 61)
+      db.fetch ref
+      Relaton::Db.configuration.use_api = true
+      request = stub_request(:get, url).to_return(
+        answer(body: iso_item(ref).to_yaml, etag: etag),
+      )
+      db.fetch ref
+      assert_requested(:get, url, times: 1) do |req|
+        !req.headers.key?("If-None-Match")
+      end
+      assert_requested request, times: 1
+      expect(etags).to eq [etag]
     end
   end
 
