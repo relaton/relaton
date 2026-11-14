@@ -16,4 +16,21 @@ RSpec.describe Relaton::Bibcollection do
       expect(document).to be_nil
     end
   end
+
+  describe "#to_h" do
+    it "round-trips a nested collection" do
+      inner = described_class.new(
+        "title" => "Inner", "items" => [{
+          "id" => "CC18001", "docidentifier" =>
+          [{ "type" => "CC", "content" => "CC 18001", "primary" => true }]
+        }]
+      )
+      outer = described_class.new("title" => "Outer", "items" => [inner])
+      read = described_class.new YAML.safe_load(outer.to_yaml)["root"]
+      expect(read.items.first).to be_a described_class
+      expect(read.items.first.title).to eq "Inner"
+      expect(read.items.first.items.map { |i| i.docidentifier.to_s })
+        .to eq ["CC 18001"]
+    end
+  end
 end
