@@ -408,7 +408,10 @@ has a `root` is imported (unless the store holds its name) and moved to
 ### API resolver tier (relaton#535)
 
 With `Relaton::Db.configuration.use_api` (default **false**: opt-in until the
-API's coverage is verified per flavor), a fetch is **local cache →
+API's coverage is verified per flavor; `RELATON_USE_API` sets the default,
+as `RELATON_OFFLINE` does for `offline`, and `RELATON_API_HOST` the host; the
+CLI's `--api` / `--no-api` on `fetch` and `collection fetch` sets it for one
+run, and `relaton db fetch` is cache-only), a fetch is **local cache →
 api.relaton.org → flavor**. The hook is `Db#fetch_doc`, which every network
 path passes (`fetch_entry`, date ranges, co-publishers, equivalents), so the
 cache write (`save_bib`), the stale-row fallback and `net_retry` are the

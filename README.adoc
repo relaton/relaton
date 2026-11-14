@@ -66,9 +66,18 @@ e.g. `get("ISO 19115-1", "2014", all_parts: true)` is transformed into a referen
 
 === Configuration
 
-* `use_api` - `true` to ask api.relaton.org before the flavor's own fetch on a cache miss; the flavor still answers whatever the API does not. The default value is `false`.
-* `api_host` - URL of the API. The default value is https://api.relaton.org.
+* `use_api` - `true` to ask api.relaton.org before the flavor's own fetch on a cache miss; the flavor still answers whatever the API does not. The default value is the `RELATON_USE_API` environment variable (`1`, `true`, `yes` or `on` turn it on), else `false`.
+* `api_host` - URL of the API. The default value is the `RELATON_API_HOST` environment variable, else https://api.relaton.org.
 * `api_timeout` - open and read timeout of an API request, in seconds. The default value is `10`.
+* `offline` - `true` to answer every fetch from the local cache only, with no network request. The default value is the `RELATON_OFFLINE` environment variable, else `false`.
+
+The `relaton` command line turns the API on for one run with `--api` and off with `--no-api` (on `relaton fetch` and `relaton collection fetch`); with neither flag it follows `RELATON_USE_API`:
+
+[source,sh]
+----
+relaton fetch "IETF RFC 8341" --api
+RELATON_USE_API=1 relaton fetch "IETF RFC 8341"
+----
 
 [source,ruby]
 ----
