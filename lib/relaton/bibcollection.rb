@@ -82,7 +82,10 @@ module Relaton
     # @return [Relaton::Bibdata, Relaton::Bibcollection]
     def new_bib_item_class(item)
       if item.is_a?(Hash)
-        if item["items"]
+        # `#to_h` writes a nested collection as `{"root" => …}`.
+        if item["root"].is_a?(Hash)
+          ::Relaton::Bibcollection.new(item["root"])
+        elsif item["items"]
           ::Relaton::Bibcollection.new(item)
         else
           bibitem = ::Relaton::Cli::YAMLConvertor.convert_single_file item

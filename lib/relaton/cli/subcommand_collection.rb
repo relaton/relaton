@@ -1,5 +1,6 @@
 require "pubid"
 require_relative "full_text_search"
+require_relative "collection_store"
 
 module Relaton
   module Cli
@@ -15,15 +16,10 @@ module Relaton
       option :doctype, desc: "Documents type"
 
       def create(file)
-        dir = directory
-        file_path = File.join dir, file
         col = Relaton::Bibcollection.new options
-        if File.exist? file_path
-          Util.warn "Collection `#{file}` aready exist"
-        else
-          FileUtils.mkdir_p dir # unless Dir.exist? dir
-          File.write file_path, col.to_yaml, encoding: "UTF-8"
-        end
+        return if store.create file, col
+
+        Util.warn "Collection `#{file}` aready exist"
       end
 
       desc "info COLLECTION", "View collection information"
@@ -31,11 +27,12 @@ module Relaton
                                       "Default is $HOME/.relaton/collections."
 
       def info(file) # rubocop:disable Metrics/AbcSize
-        path = File.join directory, file
-        puts "Collection: #{File.basename path}"
-        puts "Last updated: #{File.mtime path}"
-        puts "File size: #{File.size path}"
-        col = Relaton::Bibcollection.new YAML.load_file(path)["root"]
+        col = store.get file
+        return Util.warn "Collection `#{file}` does not exist" unless col
+
+        puts "Collection: #{file}"
+        puts "Last updated: #{store.updated(file)&.localtime}"
+        puts "File size: #{store.size file}"
         puts "Number of items: #{col.items.size}"
         puts "Author: #{col.author}"
         puts "Title: #{col.title}"
@@ -47,12 +44,9 @@ module Relaton
       option :entries, aliases: :e, type: :boolean, desc: "Show entries"
 
       def list
-        Dir[File.join(directory, "*")].each do |f|
-          yml = read_yaml f
-          if yml && yml["root"]
-            puts File.basename f
-            puts_entries yml
-          end
+        store.names.each do |name|
+          puts name
+          puts_entries store.get(name)
         end
       end
 
@@ -90,7 +84,7 @@ module Relaton
           searcher = Relaton::FullTextSeatch.new(col[:collection])
           searcher.search text
           if searcher.any?
-            puts "Collection: #{File.basename(col[:file])}"
+            puts "Collection: #{col[:file]}"
             searcher.print_results
           end
         end
@@ -124,11 +118,7 @@ module Relaton
         end
         validate_date_range opts[:publication_date_after], opts[:publication_date_before]
         doc = Relaton.db.fetch(code, options[:year]&.to_s, **opts)
-        if doc
-          colfile = File.join directory, options[:collection]
-          coll = read_collection colfile
-          coll << doc
-          File.write colfile, coll.to_yaml, encoding: "UTF-8"
+        if doc then add_to_collection doc
         else Util.info "No matching bibliographic entry found"
         end
       rescue Relaton::UnknownReferenceError, Relaton::NotInLocalStoreError,
@@ -149,23 +139,19 @@ module Relaton
       option :dir, aliases: :d, desc: "Directory with collections. Default is " \
                                       "$HOME/.relaton/collections."
 
-      def import(file) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-        collfile = File.join directory, options[:collection]
-        coll = read_collection collfile
-        xml = Nokogiri::XML File.read(file, encoding: "UTF-8")
-        xml.remove_namespaces!
+      def import(file)
+        xml = read_xml file
         if xml.at "relaton-collection"
           imported = import_collection(xml)
-          if coll
+          store.update(options[:collection]) do |coll|
+            next imported unless coll # a new collection is the imported one
+
             coll << imported
-          else
-            coll = imported
+            coll
           end
         else
-          coll ||= Relaton::Bibcollection.new({})
-          coll << Relaton::Bibdata.from_xml(xml)
+          add_to_collection Relaton::Bibdata.from_xml(xml)
         end
-        File.write collfile, coll.to_yaml, encoding: "UTF-8"
       end
 
       desc "export COLLECTION", "Export collection into XML file"
@@ -173,7 +159,9 @@ module Relaton
                                       "$HOME/.relaton/collections."
 
       def export(file)
-        coll = read_collection File.join(directory, file)
+        coll = store.get file
+        return Util.warn "Collection `#{file}` does not exist" unless coll
+
         outfile = "#{file.sub(/\.\w+$/, '')}.xml"
         File.write outfile, coll.to_xml(bibdata: true), encoding: "UTF-8"
       end
@@ -201,44 +189,44 @@ module Relaton
         options.fetch :dir, File.join(Dir.home, ".relaton/collections")
       end
 
-      # @param file [String]
-      # @return [Hash, nil]
-      def read_yaml(file)
-        YAML.load_file file if File.file? file
-      rescue Psych::SyntaxError
-        Util.error "the file `#{file}` isn't a collection."
-        nil
+      # The collections, in a lutaml-store store under `<dir>/v2` (#549).
+      # @return [Relaton::Cli::CollectionStore]
+      def store
+        @store ||= CollectionStore.new directory
       end
 
-      # @param file [String]
-      # @return [Relaton::Bibcollection, nil]
-      def read_collection(file)
-        return unless File.file?(file)
+      # Adds an item to the `--collection` in one atomic read-modify-write,
+      # and creates the collection when it is missing.
+      def add_to_collection(item)
+        store.update(options[:collection]) do |coll|
+          coll ||= Relaton::Bibcollection.new({})
+          coll << item
+          coll
+        end
+      end
 
-        Relaton::Bibcollection.new YAML.load_file(file)["root"]
+      # The XML file `import` reads: user input, not a collection.
+      # @return [Nokogiri::XML::Document]
+      def read_xml(file)
+        xml = Nokogiri::XML File.read(file, encoding: "UTF-8")
+        xml.remove_namespaces!
+        xml
       end
 
       # @return [Array<Hash>]
       def collections
-        file = options.fetch :collection, "*"
-        Dir[File.join directory, file].reduce([]) do |m, f|
-          yml = read_yaml f
-          if yml && yml["root"]
-            m << { collection: Relaton::Bibcollection.new(yml["root"]),
-                   file: f }
-          end
-          m
+        store.names(options.fetch(:collection, "*")).filter_map do |name|
+          coll = store.get name
+          { collection: coll, file: name } if coll
         end
       end
 
-      # Puts document IDs for each item in tthe cokllection
-      # @param hash [Hash] Relaton collection
-      def puts_entries(hash)
+      # Puts document IDs for each item in the collection
+      # @param coll [Relaton::Bibcollection]
+      def puts_entries(coll)
         return unless options[:entries]
 
-        Relaton::Bibcollection.new(hash["root"]).items.each do |b|
-          puts "  #{b.docidentifier}"
-        end
+        coll.items.each { |b| puts "  #{b.docidentifier}" }
       end
 
       # @param item [Relaton::Bibdata]
