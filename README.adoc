@@ -66,15 +66,16 @@ e.g. `get("ISO 19115-1", "2014", all_parts: true)` is transformed into a referen
 
 === Configuration
 
-* `use_api` - `true` if it needs to use an online cache, `false` if not. The default value is `true`.
-* `api_host` - URL of an online cache. The default value is https://api.relaton.org.
+* `use_api` - `true` to ask api.relaton.org before the flavor's own fetch on a cache miss; the flavor still answers whatever the API does not. The default value is `false`.
+* `api_host` - URL of the API. The default value is https://api.relaton.org.
+* `api_timeout` - open and read timeout of an API request, in seconds. The default value is `10`.
 
 [source,ruby]
 ----
 require "relaton"
 => true
 
-Relaton.configure do |conf|
+Relaton::Db.configure do |conf|
   conf.use_api = true
   conf.api_host = "https://api.relaton.org"
 end

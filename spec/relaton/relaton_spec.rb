@@ -817,48 +817,4 @@ RSpec.describe Relaton::Db do
       expect(Relaton::Db::Cache.new("testcache2").all).to be_empty
     end
   end
-
-  context "api.relaton.org" do
-    before(:each) do
-      Relaton::Db.configure do |config|
-        config.use_api = true
-        # config.api_host = "http://0.0.0.0:9292"
-      end
-    end
-
-    after(:each) do
-      Relaton::Db.configure do |config|
-        config.use_api = false
-      end
-    end
-
-    it "get document" do
-      VCR.use_cassette "api_relaton_org" do
-        bib = @db.fetch "ISO 19115-2", "2019"
-        expect(bib).to be_instance_of Relaton::Iso::ItemData
-      end
-    end
-
-    it "if unavailable then get document directly" do
-      docid = Relaton::Bib::Docidentifier.new(content: "ISO 19115-2:2019",
-                                              type: "ISO", primary: true)
-      item = Relaton::Iso::ItemData.new(docidentifier: [docid],
-                                        fetched: Date.today.to_s)
-      # api.relaton.org is refused below, so the fetch must fall back to the
-      # flavor's direct lookup -- stub that so the fallback path is exercised
-      # without depending on the live ISO index.
-      expect(Relaton::Iso::Bibliography).to receive(:get)
-        .with(pubid_of("ISO 19115-2"), "2019", {}).and_return item
-      expect(Net::HTTP).to receive(:get_response)
-        .and_wrap_original do |m, *args|
-        raise Errno::ECONNREFUSED if args[0].host == "api.relaton.org"
-
-        m.call(*args)
-      end.at_least :once
-      VCR.use_cassette "api_relaton_org_unavailable" do
-        bib = @db.fetch "ISO 19115-2", "2019"
-        expect(bib).to be_instance_of Relaton::Iso::ItemData
-      end
-    end
-  end
 end

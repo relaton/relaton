@@ -287,26 +287,46 @@ module Relaton
     end
 
     # The flavor's `get` receives the parsed pubid when there is one
-    # (relaton#205), else the String. The API request sends the String the
-    # caller wrote.
+    # (relaton#205), else the String. With `use_api`, api.relaton.org is
+    # asked first (relaton#535), and the flavor answers whatever it does not.
     def fetch_doc(code, year, opts, processor, query = nil)
-      if Db.configuration.use_api
-        fetch_api(code, year, opts, processor, query)
-      else processor.get(query || code, year, opts)
-      end
+      api_answer(code, year, opts, processor, query) ||
+        processor.get(query || code, year, opts)
     end
 
-    def fetch_api(code, year, opts, processor, query = nil)
-      url = "#{Db.configuration.api_host}" \
-            "/api/v1/document?#{params(code, year, opts)}"
-      rsp = Net::HTTP.get_response URI(url)
-      processor.from_xml rsp.body if rsp.code == "200"
-    rescue Errno::ECONNREFUSED
-      processor.get(query || code, year, opts)
+    #
+    # The API's document for the query, or nil. The API is asked only for a
+    # query that has a pubid cache key, is not all-parts and has no
+    # publication date range: the API has no all-parts answer, and a range
+    # is not in the key. Its answer is kept only when the document's own
+    # cache key is the query's key: the API has no undated or edition logic
+    # (`ISO 19115-1` answers the 2014 record), and the flavor's rule for
+    # such a query is the one `Db` caches.
+    #
+    def api_answer(code, year, opts, processor, query)
+      return unless Db.configuration.use_api
+      return if opts[:all_parts] || date_range?(opts)
+
+      key = query && processor.cache_key(code, year, opts, query)
+      return unless key.is_a?(::Pubid::Identifier)
+
+      bib = ApiResolver.fetch(processor, key) or return
+      return bib if api_identity?(bib, key, processor)
+
+      Util.info "api.relaton.org: answered another document " \
+                "(#{bib.docidentifier.first&.content}); asking the flavor",
+                key: key.to_s
+      nil
     end
 
-    def params(code, year, opts)
-      opts.merge(code: code, year: year).map { |k, v| "#{k}=#{v}" }.join "&"
+    # The API's document is data: an identifier the flavor cannot key is a
+    # mismatch, whatever the key raises for it.
+    def api_identity?(bib, key, processor)
+      item_key(bib, @registry.processors.key(processor)) == key
+    rescue StandardError => e
+      Util.info "api.relaton.org: unkeyable answer (#{e.class}); " \
+                "asking the flavor", key: key.to_s
+      false
     end
 
     def search_xml(processor, xml, text, edition, year)
@@ -782,6 +802,7 @@ end
 
 require_relative "db/util"
 require_relative "db/config"
+require_relative "db/api_resolver"
 require_relative "db/workers_pool"
 require_relative "db/cache"
 require_relative "db/registry"
