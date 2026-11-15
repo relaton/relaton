@@ -94,22 +94,12 @@ Gem::Specification.new do |spec|
   spec.add_dependency "moxml", "~> 0.6.0"
   spec.add_dependency "leptris", "~> 1.9.391"
   spec.add_dependency "parallel", "~> 1.26"
-  # Numeric capture editions (ruby#361): 1.3.114 records the artifact
-  # edition as the integer 2 and carries the edition-2 whitespace-class
-  # glue fix, and pubid 2.0.0.pre.alpha.65 re-bakes every artifact at it
-  # and requires >= 1.3.114. A runtime older than the release rejects the
-  # numeric edition it does not implement, so the floor names 1.3.114
-  # for bundles that depend on relaton.
-  # parsanol's bind-coverage check (added in 1.3.127 for
-  # parsanol-ruby#427, BS 9113 raw-bound captures) looks for the capture
-  # name among the bound keys, not the binding's path leaf, so every
-  # capture bound under another name raises BindError — all of
-  # Pubid::Oiml.parse ("doc_number" -> "number"). 1.3.127/1.3.128 shipped
-  # broken and fresh resolutions of the old `~> 1.3.124` floor picked
-  # them up (relaton#439); 1.3.129 carries the fix (parsanol-ruby#435)
-  # and drops artifact edition 1, so the floor names the fixed line and
-  # the interim cap is lifted.
-  spec.add_dependency "parsanol", "~> 1.3.129" # the mode-alias removal floor; pubid 2.0.4 artifacts require >= 1.3.124
+  # parsanol is NOT a direct dependency: it is pubid's parser runtime,
+  # and pubid's own constraint governs the version. The direct floors this
+  # gemspec used to hand-sync (1.3.114/129) dragged relaton into every
+  # parsanol wave (relaton#439, #562) while relaton's lib/ never touches
+  # the parser - grep for Parsanol finds nothing. Bundles get parsanol
+  # transitively through pubid.
   # 2.0.4 carries the IHO series identity components (year/volume/issue,
   # pubid#635/#637) that the relaton-data-iho re-key (relaton#407) keys on;
   # a runtime older than the release rejects the components it does not

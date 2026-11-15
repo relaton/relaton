@@ -85,11 +85,9 @@ gemspec
 # It also reads the SDOs' printed spellings: NIST "FIPS PUB <n>" and the ECMA
 # "Edition 5.1" faces (pubid#697, #698; metanorma-pdfa#114).
 gem "pubid", "~> 2.0.25" # the WES (E)/TR/TS parse (pubid#716) the gemspec floors, after the 2.0.24 no-sector ITU OB face (pubid#696); a cached 2.0.24 must not satisfy
-# parsanol 1.3.114 (ruby#361) carries the numeric capture editions —
-# the canonical edition 2 header and the integer envelope field — and
-# the edition-2 whitespace-class glue fix; pubid rides it
-# (pubid#617 re-bakes every artifact at 1.3.114 and floors the gemspec
-# there), so the pin moves with it.
+# parsanol: pubid's parser runtime, resolved transitively through pubid -
+# no direct pin here (the direct floors dragged relaton into every
+# parsanol wave; see the gemspec note and relaton#562).
 
 # lutaml-model 0.8.163 (2026-11-04) dropped non-default attributes from
 # to_hash: Pubid::Ietf's `version` no longer serialized, so
