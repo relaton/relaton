@@ -13,7 +13,9 @@ name: corpus
 # the job timeout. The union of a flavor's slices is the whole corpus.
 on:
   schedule:
-    - cron: '0 3 * * *'
+    # Off-minute: GitHub load-sheds whole-minute-0 crons by hours (these runs
+    # landed at ~10:38 UTC instead of 03:00 — the contract.yml fix at #173).
+    - cron: '37 3 * * *'
   workflow_dispatch:
     inputs:
       flavor:
