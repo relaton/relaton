@@ -133,5 +133,14 @@ end
 # unnecessary. Keeps the preceding notes: the 1.9.386/398 line carried
 # the Ruby 4.0 memory-allocation fix (leptris#1755) and the moxml 0.5.174
 # binding floor.
+# 0.6.66 (published 2026-11-14 16:58, between CI's green 16:36 and red
+# 17:36 runs) carries a records-lane materializer regression: parse drops
+# a quoted source entry, appends a stray character to a <sup>-adjacent
+# title, and scan_by_tag crashes on nil (bipm data_outcomes_parser, all
+# six legs). 0.6.65 pairs cleanly with lutaml-model 0.8.175's emit (SAE's
+# reconciled fixture). The engine fixes ride yeptris main as r274/r275
+# but the repo builds gems per platform - no root gemspec, so a git
+# source cannot pin it. Ride 0.6.65 until a release carries the r274/
+# r275 fixes, then relax to ~> 0.6.66.
+gem "yeptris", "0.6.65.0"
 gem "leptris", "~> 1.9.401"
-
