@@ -109,7 +109,7 @@ Gem::Specification.new do |spec|
   # them up (relaton#439); 1.3.129 carries the fix (parsanol-ruby#435)
   # and drops artifact edition 1, so the floor names the fixed line and
   # the interim cap is lifted.
-  spec.add_dependency "parsanol", "~> 1.3.129" # the mode-alias removal floor; pubid 2.0.4 artifacts require >= 1.3.124
+  spec.add_dependency "parsanol", "~> 1.5.0" # parsanol-rs#519 graduates the engine to 1.5.0 and the runtime line to the engine-linked 1.5.x.y scheme (1.5.0.0 published); pubid rides the same graduation — 2.0.38 requires ~> 1.5.0 — so the 1.3.129 floor is unsatisfiable beside it
   # 2.0.4 carries the IHO series identity components (year/volume/issue,
   # pubid#635/#637) that the relaton-data-iho re-key (relaton#407) keys on;
   # a runtime older than the release rejects the components it does not
