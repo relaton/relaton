@@ -1,3 +1,5 @@
+require "tmpdir"
+
 RSpec.describe Relaton::Cli::XmlToHtmlRenderer do
 
   let(:document) do
@@ -93,11 +95,57 @@ RSpec.describe Relaton::Cli::XmlToHtmlRenderer do
 
   end
 
+  context "with an extra liquid context" do
+    let(:context_renderer) do
+      Relaton::Cli::XmlToHtmlRenderer.new(
+        liquid_dir: File.expand_path("../../assets/templates-context", __dir__),
+        stylesheet: "spec/assets/index-style.css",
+        context: context,
+      )
+    end
+    let(:html) { context_renderer.render(File.read("spec/assets/index.xml")) }
+
+    context "with extra keys" do
+      let(:context) { { "domain" => "https://example.test" } }
+
+      it "makes the extra keys available to the template" do
+        expect(html).to include("https://example.test")
+      end
+    end
+
+    context "with a key the renderer owns" do
+      let(:context) { { "title" => "HACKED TITLE" } }
+
+      it "does not let the context clobber the engine's document model" do
+        expect(html).not_to include("HACKED TITLE")
+        expect(html).to include("CalConnect Standards Registry")
+      end
+    end
+  end
+
   describe "#uri_for_extension" do
     it "replace file extension with the provided one" do
       expect(
         renderer.uri_for_extension("index.xml", "html"),
       ).to eq("index.html")
+    end
+  end
+end
+
+RSpec.describe Relaton::Cli::BaseConvertor do
+  describe ".load_context" do
+    it "loads a YAML context file" do
+      path = File.join(Dir.mktmpdir, "ctx.yaml")
+      File.write(path, "domain: https://yaml.test\nlimit: 5\n")
+      expect(described_class.load_context(path))
+        .to eq({ "domain" => "https://yaml.test", "limit" => 5 })
+    end
+
+    it "loads a JSON context file" do
+      path = File.join(Dir.mktmpdir, "ctx.json")
+      File.write(path, '{"domain": "https://json.test"}')
+      expect(described_class.load_context(path))
+        .to eq({ "domain" => "https://json.test" })
     end
   end
 end

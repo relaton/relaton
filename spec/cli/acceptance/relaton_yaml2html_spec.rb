@@ -7,7 +7,7 @@ RSpec.describe "Relaton yaml2html" do
       Relaton::Cli.start(command)
 
       expect(Relaton::Cli::YAMLConvertor).to have_received(:to_html)
-        .with("samplenew.yaml", "style.css", "templates")
+        .with("samplenew.yaml", "style.css", "templates", nil)
     end
   end
 end
