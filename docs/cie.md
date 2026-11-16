@@ -77,6 +77,39 @@ file, a `@seen[file] => catalogue-position` guard (`#superseded?`) keeps the
 runs for **every** distinct id *before* that gate, so each id is still indexed. `index.save`
 is called **once**, after the pool drains.
 
+### Translations (relaton-cie#13)
+
+The catalogue lists a translation as its own product: `CIE 232:2019(DE)` at
+`…/cie-232-2019-de?product_id=2247892`, next to `CIE 232:2019` at
+`…/cie-232-2019?product_id=2074145`. `#primary_code` drops the `(DE)`, so both
+hits have one primary id and one output file. Before the fix the later hit
+overwrote the other, and `relaton-data-cie` published the German title tagged
+`en`.
+
+`#translation_language` reads the language from the URL slug (`-de?product_id=`;
+English pages end in `-en` or have no slug), with a `(DE)` code suffix as the
+fallback (only as the last token of the code), and accepts only
+`TRANSLATION_LANGUAGES`. `#parse_page` builds a translation with its language
+and script (`SCRIPTS`, else `Latn`) on titles, abstract and item, and defers it
+to `@translations` — it is not written or indexed then. After the pool drains,
+`#fetch` calls `#merge_translations` before `index.save`, and it handles the
+translations in catalogue order.
+
+A translation is its own publication: it has its own ISBN, publication date and
+product page, but no CIE number of its own (`CIE 232:2019(DE)` has ISBN
+`9783902842886` and was published 2022-02-01; the English edition has
+`9783902842152` and 2019-06-01). So the English record that `#write_file` kept
+in `@items` keeps its own identity — its language, ISBN, date, abstract and
+`src` URI do not change. It takes only the translated titles, tagged with their
+language, and links the translation as a `hasTranslation` relation. The
+relation's bibitem holds the translation's docidentifiers (its ISBN), titles,
+date, edition, `src` URI, language and script. It has no abstract, because a
+translation's page shows only a placeholder text. Then the file is written
+again.
+
+A file with no English record writes its first translation as the record. A
+merge failure is logged per file and does not stop the index save.
+
 ## Development
 
 - `bundle install` — install dependencies
