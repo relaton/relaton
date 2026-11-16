@@ -1,10 +1,10 @@
 # The metanorma-jis CitationStyle instance, Japanese forms
 # (relaton-render 3.0.0.pre Iso690 engine): the ISO 690 order with the
 # Latin punctuation of the en language pack.
-name: "ISO 690 (JIS, ja)"
+name: "ISO 690 (metanorma-jis flavour, ja)"
 scheme:
   system: name-date
-  shortFromReference: true
+  shortFromReference: false
   homeDocidType: []
   nameForm:
     initials: true
@@ -21,6 +21,10 @@ scheme:
       "and": ""
       oxford_comma: ""
       series_no: ""
+rules:
+  component_part: jis_component_part
+  series: jis_series
+  extent: jis_extent
 templates:
   titleOpen: ""
   titleClose: ""
@@ -38,14 +42,17 @@ perType:
   - type: report
     fallbacks:
       date: "日付なし"
-    template: "{{creator}}。 {{title}}。 {{edition}}。 {{production}}。 {{authorizer}}。 {{location}}"
+    template: "{{creator}}。 {{title}}{{edition}}{{authorizer}}{{production}}。 {{location}}"
+    authorizer: "。 {{authorizer}}"
+    production: "、{{production}}"
     short: "{{creator}}。 <span class='stddocTitle'>{{title}}</span>。 {{edition}}。 {{production}}"
     title: "<span class='stddocTitle'>{{title}}</span>"
   - type: monograph
     noPlace: true
     fallbacks:
       date: "日付なし"
-    template: "{{creator}}{{role}}。 {{title}}。 {{edition}}。（{{series}}）。 {{production}}。 {{date}}。 {{size}}。 {{location}}"
+    template: "{{creator}}{{role}} {{title}}。 {{edition}}。（{{series}}）。 {{production}}。 {{date}}。 {{size}}。 {{location}}"
+    title: "_{{title}}_"
   - type: continuing
     template: "{{title}}。 {{date}}"
   - type: online

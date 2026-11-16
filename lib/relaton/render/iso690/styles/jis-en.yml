@@ -1,10 +1,10 @@
 # The metanorma-jis CitationStyle instance, English forms
 # (relaton-render 3.0.0.pre Iso690 engine): the ISO 690 order with the
 # Latin punctuation of the en language pack.
-name: "ISO 690 (JIS, en)"
+name: "ISO 690 (metanorma-jis flavour, en)"
 scheme:
   system: name-date
-  shortFromReference: true
+  shortFromReference: false
   homeDocidType: []
   nameForm:
     initials: true
@@ -19,9 +19,22 @@ scheme:
   locale:
     availableAt: "Available at:"
     labels:
-      "and": "&amp;"
       oxford_comma: ""
       series_no: ""
+      edition_1: "第1版"
+      edition_2: "第2版"
+      edition_3: "第3版"
+      edition_4: "第4版"
+      edition_5: "第5版"
+      edition_6: "第6版"
+      edition_7: "第7版"
+      edition_8: "第8版"
+      edition_9: "第9版"
+      edition_10: "第10版"
+rules:
+  component_part: jis_component_part
+  series: jis_series
+  extent: jis_extent
 templates:
   titleOpen: ""
   titleClose: ""
@@ -39,14 +52,17 @@ perType:
   - type: report
     fallbacks:
       date: "n.d"
-    template: "{{creator}}. {{title}}. {{edition}}. {{production}}. {{authorizer}}. {{location}}"
+    template: "{{creator}}. {{title}}{{authorizer}}{{production}}. {{location}}"
+    authorizer: ". {{authorizer}}"
+    production: ", {{production}}"
     short: "{{creator}}. <span class='stddocTitle'>{{title}}</span>. {{edition}}. {{production}}"
     title: "<span class='stddocTitle'>{{title}}</span>"
   - type: monograph
     noPlace: true
     fallbacks:
       date: "n.d"
-    template: "{{creator}}{{role}}. {{title}}. {{edition}}. ({{series}}). {{production}}. {{date}}. {{size}}. {{location}}"
+    template: "{{creator}}{{role}} {{title}}. {{edition}}. ({{series}}). {{production}}. {{date}}. {{size}}. {{location}}"
+    title: "_{{title}}_"
   - type: continuing
     template: "{{title}}. {{date}}"
   - type: online
