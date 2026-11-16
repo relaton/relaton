@@ -166,6 +166,10 @@ module Relaton
         Converter::Ris.from_item(self)
       end
 
+      def to_endnote
+        Converter::Endnote.from_item(self)
+      end
+
       def to_csl_json
         Converter::Csl.from_item(self)
       end
