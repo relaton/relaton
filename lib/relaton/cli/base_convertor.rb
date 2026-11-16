@@ -1,4 +1,6 @@
 require "fileutils"
+require "json"
+require "yaml"
 require_relative "../bibdata"
 require_relative "../bibcollection"
 require_relative "xml_to_html_renderer"
@@ -34,13 +36,26 @@ module Relaton
       # @param template [String] The liquid tempalte directory
       #
       # @return [String] HTML
-      def self.to_html(file, style = nil, template = nil)
+      def self.to_html(file, style = nil, template = nil, context = nil)
         new(
           file,
           style: style || File.join(File.dirname(__FILE__), "templates/index-style.css"),
           template: template || File.join(File.dirname(__FILE__), "templates/"),
-          extension: "html"
+          extension: "html",
+          context: context && load_context(context)
         ).to_html
+      end
+
+      # A YAML or JSON file whose contents merge into the Liquid template
+      # context (#455).
+      #
+      # @param file [String] path to the context file
+      # @return [Hash]
+      def self.load_context(file)
+        case File.extname(file)
+        when ".json" then JSON.parse(File.read(file, encoding: "utf-8"))
+        else YAML.safe_load(File.read(file, encoding: "utf-8"))
+        end
       end
 
       private
@@ -52,7 +67,8 @@ module Relaton
         Relaton::Cli::XmlToHtmlRenderer.render(
           xml_content(file),
           stylesheet: options[:style],
-          liquid_dir: options[:template]
+          liquid_dir: options[:template],
+          context: options[:context]
         )
       end
 

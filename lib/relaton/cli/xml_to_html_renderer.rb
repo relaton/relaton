@@ -3,9 +3,14 @@ require "liquid"
 
 module Relaton::Cli
   class XmlToHtmlRenderer
-    def initialize(liquid_dir: nil, stylesheet: nil)
+    def initialize(liquid_dir: nil, stylesheet: nil, context: nil)
       @liquid_dir = liquid_dir
       @stylesheet = read_file(stylesheet)
+      # Extra template data (#455). Merged under the renderer's own keys:
+      # a context entry can add to the Liquid document (a deployed site's
+      # domain for canonical-URL construction) but never clobber the
+      # engine's document model (title/css/date/author/documents).
+      @context = context || {}
       init_liquid_template_and_filesystem
     end
 
@@ -47,12 +52,14 @@ module Relaton::Cli
     def build_liquid_document(source)
       bibcollection = build_bibcollection(source)
       hash_to_liquid(
-        depth: 2,
-        css: stylesheet,
-        title: bibcollection.title,
-        date: DateTime.now.to_s,
-        author: bibcollection.author,
-        documents: document_items(bibcollection)
+        @context.merge(
+          depth: 2,
+          css: stylesheet,
+          title: bibcollection.title,
+          date: DateTime.now.to_s,
+          author: bibcollection.author,
+          documents: document_items(bibcollection)
+        )
       )
     end
 

@@ -139,9 +139,14 @@ module Relaton
                                               "rendering Relaton items and collection"
       option :overwrite, aliases: :f, type: :boolean, default: false,
                          desc: "Overwrite the existing file"
+      option :context, aliases: :c,
+                       desc: "YAML or JSON file whose contents merge into " \
+                             "the Liquid template context; the renderer's " \
+                             "own keys cannot be overridden"
 
       def xml2html(file, style = nil, template = nil)
-        Relaton::Cli::XMLConvertor.to_html(file, style, template)
+        Relaton::Cli::XMLConvertor.to_html(file, style, template,
+                                           options[:context])
       end
 
       desc "yaml2html RELATON-INDEX-YAML", "Concatenate Relaton Collection " \
@@ -152,9 +157,14 @@ module Relaton
                                               "rendering Relaton items and collection"
       option :overwrite, aliases: :f, type: :boolean, default: false,
                          desc: "Overwrite the existing file"
+      option :context, aliases: :c,
+                       desc: "YAML or JSON file whose contents merge into " \
+                             "the Liquid template context; the renderer's " \
+                             "own keys cannot be overridden"
 
       def yaml2html(file, style = nil, template = nil)
-        Relaton::Cli::YAMLConvertor.to_html(file, style, template)
+        Relaton::Cli::YAMLConvertor.to_html(file, style, template,
+                                            options[:context])
       end
 
       desc "index [DATA-DIR]",
