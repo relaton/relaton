@@ -33,8 +33,21 @@ RSpec.describe "citation render corpus (citation-testsuite)" do
 
   cases = load_cases
 
-  PACKS = { "iso690" => "author-date", "chicago" => "chicago", "apa" => "apa",
-            "mla" => "mla" }.freeze
+  # family -> pack + the language/script the family renders in. The base
+  # house styles render en/Latn; a locale style (jis-ja) pins its own so
+  # both executors produce the same string from the same record.
+  PACKS = {
+    "iso690" => { pack: "author-date", lang: "en", script: "Latn" },
+    "chicago" => { pack: "chicago", lang: "en", script: "Latn" },
+    "apa" => { pack: "apa", lang: "en", script: "Latn" },
+    "mla" => { pack: "mla", lang: "en", script: "Latn" },
+    "jis-en" => { pack: "jis-en", lang: "en", script: "Latn" },
+    "jis-ja" => { pack: "jis-ja", lang: "ja", script: "Jpan" },
+  }.freeze
+
+  # Every golden carries the house styles; a record may pin additional
+  # families (e.g. jis) for styles that exist in both engines.
+  BASE_FAMILIES = %w[apa chicago iso690 mla].freeze
 
   # The corpus's loose shapes to the v1 hash dialect: person names carry
   # bare given/surname strings, dates use the `at` key.
@@ -72,9 +85,10 @@ RSpec.describe "citation render corpus (citation-testsuite)" do
   end
 
 
-  it "has the three house-style families in every golden" do
+  it "has the house-style families in every golden" do
     cases.each do |name, _, golden|
-      expect(golden.keys.sort).to eq(%w[apa chicago iso690 mla])
+      expect(golden.keys).to include(*BASE_FAMILIES)
+      expect(golden.keys - BASE_FAMILIES - PACKS.keys).to be_empty
     end
   end
 
@@ -84,7 +98,9 @@ RSpec.describe "citation render corpus (citation-testsuite)" do
   DELTA_NOTES = {}.freeze
 
   cases.each do |name, record, golden|
-    PACKS.each do |family, pack|
+    golden.keys.sort.each do |family|
+      cfg = PACKS.fetch(family)
+      pack = cfg[:pack]
       group = "#{name} renders in #{family} (#{pack})"
       if (note = DELTA_NOTES["#{name}/#{family}"])
         xdescribe group do
@@ -96,8 +112,9 @@ RSpec.describe "citation render corpus (citation-testsuite)" do
         model = Relaton::Bib::Item.from_hash(
           Relaton::Bib::HashParserV1.hash_to_bib(adapt(record)),
         )
-        expect(Relaton::Render::Iso690::Renderer.render(model, style: pack))
-          .to eq(golden[family])
+        expect(Relaton::Render::Iso690::Renderer.render(
+          model, style: pack, lang: cfg[:lang], script: cfg[:script],
+        )).to eq(golden[family])
       end
     end
   end
