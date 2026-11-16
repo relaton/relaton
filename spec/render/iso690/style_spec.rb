@@ -64,7 +64,10 @@ RSpec.describe Relaton::Render::Iso690::Style do
     it "loads by registry name and carries the jis scheme" do
       style = described_class.load("jis-en")
       expect(style.family).to eq "iso690"
-      expect(style.scheme.short_from_reference).to be(true)
+      # the JIS-approved instance: short cites do not derive from the
+      # reference (metanorma-jis carries the approved presentation)
+      expect(style.scheme.short_from_reference).to be(false)
+      expect(style.rules).to include("component_part" => "jis_component_part")
       expect(style.per_type.map(&:type)).to include("report", "monograph")
     end
   end
