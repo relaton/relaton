@@ -1,5 +1,12 @@
 require "relaton/bipm/data_fetcher"
 
+# Every path in this suite is relative to the suite root (spec/bipm): the
+# rake harness runs it from there, but a standalone `rspec` from the repo
+# root resolves them against the wrong CWD — the fixture reads ENOENT and
+# `read_files` hands nils to `meeting_md`. Pin the CWD so both harnesses
+# behave identically.
+Dir.chdir(File.expand_path("../..", __dir__))
+
 describe Relaton::Bipm::DataOutcomesParser do
   context "class methods" do
     it "::parse" do
