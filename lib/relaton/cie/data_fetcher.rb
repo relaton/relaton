@@ -324,10 +324,25 @@ module Relaton
         [Bib::Uri.new(type: "src", content: url)]
       end
 
-      # @param doc [Mechanize::Page]
+      # An XPath test that the element's class attribute has the exact token.
+      def self.class_token(token)
+        "contains(concat(' ', normalize-space(@class), ' '), ' #{token} ')"
+      end
+
+      # The document description: the div whose class has the exact token
+      # `description`. A class substring match also takes the
+      # `available-format-description` divs of the "Document Delivery Options"
+      # popup, and wrote a format blurb as the abstract (relaton-cie#7).
+      ABSTRACT_XPATH = "//div[#{class_token 'description'}]".freeze
+      # The text of the description, without its "See more" toggle link.
+      ABSTRACT_TEXT_XPATH =
+        ".//text()[not(ancestor::a[#{class_token 'full-description__more'}]) " \
+        "and not(ancestor::script) and not(ancestor::style)]".freeze
+
+      # @param doc [Moxml::Document, Nokogiri::HTML::Document]
       # @return [Array<Relaton::Bib::LocalizedMarkedUpString>]
       def fetch_abstract(doc, lang = "en")
-        content = doc.at_xpath('//div[contains(@class,"description")]')&.text&.strip
+        content = abstract_text doc
         if content.nil? || content.empty?
           @errors[:abstract] &&= true
           return []
@@ -337,6 +352,15 @@ module Relaton
                                     script: script_for(lang))]
         @errors[:abstract] &&= result.empty?
         result
+      end
+
+      # @param doc [Moxml::Document, Nokogiri::HTML::Document]
+      # @return [String, nil]
+      def abstract_text(doc)
+        div = doc.at_xpath ABSTRACT_XPATH
+        return unless div
+
+        div.xpath(ABSTRACT_TEXT_XPATH).map(&:text).join.strip
       end
 
       # @param doc [Mechanize::Page]

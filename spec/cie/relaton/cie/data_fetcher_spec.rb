@@ -183,6 +183,8 @@ RSpec.describe Relaton::Cie::DataFetcher do
         expect(item.docidentifier.first).to be_instance_of Relaton::Bib::Docidentifier
         expect(item.title.first).to be_instance_of Relaton::Bib::Title
         expect(item.abstract.first).to be_instance_of Relaton::Bib::Abstract
+        expect(item.abstract.first.content).to start_with "This document specifies lighting requirements"
+        expect(item.abstract.first.content).not_to include "See more"
         expect(item.date.first).to be_instance_of Relaton::Bib::Date
         expect(item.edition).to be_instance_of Relaton::Bib::Edition
         expect(item.contributor.first).to be_instance_of Relaton::Bib::Contributor
@@ -307,6 +309,51 @@ RSpec.describe Relaton::Cie::DataFetcher do
         expect(abstract.first.content).to eq "Description"
         expect(abstract.first.language).to eq "en"
         expect(abstract.first.script).to eq "Latn"
+      end
+
+      # relaton-cie#7: the "Document Delivery Options" popup holds
+      # `available-format-description` divs, which a class substring match
+      # took for the abstract when the page had no real description first.
+      format_popup = <<~HTML
+        <div id="available-formats-popup" style="display: none">
+          <div class="available-format-container">
+            <div class="available-format-title">Secure PDF</div>
+            <div class="available-format-description">Also known as an SPDF enforces publisher restrictions.</div>
+          </div>
+        </div>
+      HTML
+
+      {
+        "Nokogiri" => ->(html) { Nokogiri::HTML html },
+        "Moxml" => ->(html) { Moxml.new.parse_html html },
+      }.each do |parser, parse|
+        context "with a #{parser} page" do
+          it "ignores the delivery-format descriptions" do
+            doc = parse.call "<html><body>#{format_popup}</body></html>"
+            expect(subject.fetch_abstract(doc)).to eq []
+          end
+
+          it "takes the real description when the format popup comes first" do
+            doc = parse.call <<~HTML
+              <html><body>#{format_popup}
+                <div class="description third-party-content">The real abstract.</div>
+              </body></html>
+            HTML
+            expect(subject.fetch_abstract(doc).first.content).to eq "The real abstract."
+          end
+
+          it "drops the \"See more\" link of the full description" do
+            doc = parse.call <<~HTML
+              <html><body>
+                <div class="description third-party-content full-description" id="full-description">
+                  <p>The real abstract.</p>
+                  <a href="#" class="full-description__more">See more</a>
+                </div>
+              </body></html>
+            HTML
+            expect(subject.fetch_abstract(doc).first.content).to eq "The real abstract."
+          end
+        end
       end
     end
 
