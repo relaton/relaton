@@ -87,6 +87,15 @@ module Relaton
       # Cloudflare; tune via RELATON_CIE_CONCURRENCY (see .concurrency).
       DEFAULT_CONCURRENCY = 5
 
+      # Languages a catalogue translation can carry (relaton-cie#13). A hit for
+      # one of them (`cie-232-2019-de?product_id=…`, `CIE 232:2019(DE)`) has the
+      # primary id of its English document, so it merges into that record.
+      TRANSLATION_LANGUAGES = %w[de fr es it ru ja zh pt ko].freeze
+
+      # ISO 15924 script of a translation language that is not Latin.
+      SCRIPTS = { "ru" => "Cyrl", "ja" => "Jpan", "zh" => "Hans",
+                  "ko" => "Kore" }.freeze
+
       # Per-worker pacing bounds (seconds). Each worker starts at BASE_GAP and
       # doubles its own gap up to MAX_GAP on trouble (see Pacing / #time_req).
       BASE_GAP = 1
@@ -99,7 +108,7 @@ module Relaton
         [(ENV["RELATON_CIE_CONCURRENCY"] || DEFAULT_CONCURRENCY).to_i, 1].max
       end
 
-      def initialize(output, format)
+      def initialize(output, format) # rubocop:disable Metrics/MethodLength
         super
         # Guards the shared bookkeeping (@files, @errors, @seen) and the index
         # mutation while workers fetch detail pages in parallel. The slow
@@ -109,6 +118,10 @@ module Relaton
         # duplicate primary id resolves to the same last-by-position winner the
         # serial crawl would pick, regardless of worker completion order.
         @seen = {}
+        # output file => the item #write_file last wrote there, and
+        # output file => [[pos, translation item], ...] for #merge_translations.
+        @items = {}
+        @translations = Hash.new { |h, k| h[k] = [] }
       end
 
       # Factory for a fresh stealth browser agent. The pool builds one per worker
@@ -243,14 +256,15 @@ module Relaton
 
       # @param doc [Mechanize::Page]
       # @return [Array<Relaton::Bib::Title>]
-      def fetch_title(doc)
+      def fetch_title(doc, lang = nil)
         t = doc.at_xpath("//hgroup/h2/text()|//hgroup/h1/text()")
         unless t && !t.text.strip.empty?
           @errors[:title] &&= true
           return []
         end
 
-        result = Bib::Title.from_string t.text.strip
+        script = script_for(lang) if lang
+        result = Bib::Title.from_string t.text.strip, lang, script
         @errors[:title] &&= result.empty?
         result
       end
@@ -312,14 +326,15 @@ module Relaton
 
       # @param doc [Mechanize::Page]
       # @return [Array<Relaton::Bib::LocalizedMarkedUpString>]
-      def fetch_abstract(doc)
+      def fetch_abstract(doc, lang = "en")
         content = doc.at_xpath('//div[contains(@class,"description")]')&.text&.strip
         if content.nil? || content.empty?
           @errors[:abstract] &&= true
           return []
         end
 
-        result = [Bib::Abstract.new(content: content, language: "en", script: "Latn")]
+        result = [Bib::Abstract.new(content: content, language: lang,
+                                    script: script_for(lang))]
         @errors[:abstract] &&= result.empty?
         result
       end
@@ -391,6 +406,7 @@ module Relaton
         # Only the last-by-position hit writes the shared file's content.
         return if superseded? file, pos
 
+        @items[file] = bib
         if @files.include? file
           Util.warn do
             "File #{file} exists. Docid: #{bib.docidentifier[0].content}\n" \
@@ -416,6 +432,86 @@ module Relaton
         false
       end
 
+      # The language of a translation hit, or nil for an English one. The
+      # listing URL's slug names it (`…-de?product_id=`; English pages end in
+      # `-en` or have no slug); a `(DE)` suffix in the code is the fallback.
+      #
+      # @param hit [Moxml::Element]
+      # @return [String, nil]
+      def translation_language(hit)
+        link = hit.at_xpath(".//h3/a")
+        code = link.text.strip.delete_suffix("\u25b9").strip
+        lang = link[:href].to_s[/-([a-z]{2})\?product_id=/, 1] ||
+          code[/\(([a-z]{2})\)\z/i, 1]&.downcase
+        lang if TRANSLATION_LANGUAGES.include?(lang)
+      end
+
+      # @param lang [String, nil]
+      # @return [String] the ISO 15924 script of the language
+      def script_for(lang) = SCRIPTS.fetch(lang, "Latn")
+
+      # Merge every deferred translation into the English record of its file
+      # (relaton-cie#13), in catalogue order so the output does not depend on
+      # worker completion order. A file with no English record keeps its first
+      # translation as the record, so no document is lost.
+      def merge_translations
+        @translations.each { |file, list| merge_file_translations file, list }
+      end
+
+      # One file's merge. A failure is logged and stops only this file, so the
+      # crawl still saves its index (#fetch calls index.save next).
+      def merge_file_translations(file, list)
+        sorted = list.sort_by(&:first).map(&:last)
+        base = translation_base file, sorted
+        return if sorted.empty?
+
+        sorted.each { |trans| merge_translation base, trans }
+        File.write file, serialize(base), encoding: "UTF-8"
+      rescue StandardError => e
+        Util.error { "Translations of #{file}: #{e.message}" }
+      end
+
+      # The English record of `file`, or else the first translation in
+      # `sorted`, which is then written as the record and taken off the list.
+      def translation_base(file, sorted)
+        @items[file] || sorted.shift.tap { |item| write_file item }
+      end
+
+      # A translation is its own publication (its own ISBN, date and product
+      # page), with no CIE number of its own. So the English record keeps its
+      # identity, takes the translated title, and links the translation as a
+      # `hasTranslation` relation that keeps the translation's own metadata.
+      #
+      # @param base [Relaton::Cie::ItemData] the record that stays
+      # @param trans [Relaton::Cie::ItemData] its translation
+      def merge_translation(base, trans)
+        base.title = merge_list(base.title, trans.title,
+                                :type, :content, :language)
+        rel = Bib::Relation.new(type: "hasTranslation",
+                                bibitem: translation_bibitem(trans))
+        base.relation = merge_relation(base.relation, rel)
+      end
+
+      # Add `rel`, unless a relation of its type already links its source.
+      def merge_relation(list, rel)
+        (list + [rel]).uniq { |r| [r.type, r.bibitem&.source&.map(&:content)] }
+      end
+
+      # The translation as a relation's bibitem. Its abstract is left out: the
+      # catalogue shows only a placeholder text on a translation's page.
+      def translation_bibitem(trans)
+        ItemData.new(
+          type: trans.type, docidentifier: trans.docidentifier,
+          title: trans.title, date: trans.date, edition: trans.edition,
+          source: trans.source, language: trans.language, script: trans.script
+        )
+      end
+
+      # Concatenate two element lists, without an element that repeats `keys`.
+      def merge_list(list, other, *keys)
+        (list + other).uniq { |e| keys.map { |k| e.send(k) } }
+      end
+
       def to_xml(bib) = bib.to_xml(bibdata: true)
       def to_yaml(bib) = bib.to_yaml
       def to_bibxml(bib) = bib.to_rfcxml
@@ -431,17 +527,18 @@ module Relaton
       # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       def parse_page(hit, pos = nil, worker_agent = agent, pacing = nil)
         url = hit.at_xpath('.//h3/a')[:href]
+        lang = translation_language hit
         doc = time_req(pacing) { worker_agent.get url }
         @mutex.synchronize do
           item = ItemData.new(
             type: "standard", source: fetch_source(url), docnumber: fetch_docnumber(hit),
-            docidentifier: fetch_docid(hit, doc), title: fetch_title(doc),
-            abstract: fetch_abstract(doc), date: fetch_date(doc),
-            edition: fetch_edition(doc), contributor: fetch_contributor(doc),
-            relation: fetch_relation(doc), language: "en", script: "Latn",
-            ext: fetch_ext
+            docidentifier: fetch_docid(hit, doc), title: fetch_title(doc, lang),
+            abstract: fetch_abstract(doc, lang || "en"),
+            date: fetch_date(doc), edition: fetch_edition(doc),
+            contributor: fetch_contributor(doc), relation: fetch_relation(doc),
+            language: lang || "en", script: script_for(lang), ext: fetch_ext
           )
-          write_file item, pos
+          lang ? defer_translation(item, pos) : write_file(item, pos)
         end
       rescue StandardError => e
         Util.error do
@@ -450,8 +547,16 @@ module Relaton
       end
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
+      # A translation has its English document's primary id: keep it for
+      # #merge_translations instead of letting it overwrite that record.
+      def defer_translation(item, pos)
+        file = output_file item.docidentifier[0].content
+        @translations[file] << [pos || 0, item]
+      end
+
       def fetch(_source = nil)
         process_hits collect_hits
+        merge_translations
         index.save
         report_errors
       ensure
