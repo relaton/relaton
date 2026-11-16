@@ -19,13 +19,6 @@ RSpec.describe Relaton::Core::Hit do
     end
   end
 
-  xit "to xml" do
-    item = double "bibitem"
-    expect(subject).to receive(:fetch).and_return item
-    expect(item).to receive(:to_xml).and_return "<bibitem/>"
-    expect(subject.to_xml).to match(/<bibitem schema-version="v\d+\.\d+\.\d+"\/>/)
-  end
-
   it "raise not implemented" do
     expect { subject.item }.to raise_error "Not implemented"
   end
