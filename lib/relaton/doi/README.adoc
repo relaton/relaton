@@ -3,10 +3,21 @@
 Relaton::Doi is a Ruby gem that implements the
 https://github.com/metanorma/metanorma-model-iso#iso-bibliographic-item[IsoBibliographicItem model].
 
-You can use it to retrieve metadata of Standards from https://crossref.org, and
-access such metadata through the `BibliographicItem` object.
+You can use it to retrieve metadata of Standards from https://crossref.org and
+https://datacite.org, and access such metadata through the `BibliographicItem` object.
 
-To collect metadata this gem makes a few requests to the CrossRef API. It may take a few seconds to get the metadata.
+`Relaton::Doi.get` first asks https://doi.org/ra/ which registration agency holds the
+DOI, then fetches the metadata from the Crossref API or the DataCite API. A DOI of
+another agency (mEDRA, JaLC, …) is not supported. It may take a few seconds to get the
+metadata.
+
+[source,ruby]
+----
+Relaton::Doi.get "doi:10.13140/RG.2.1.4576.8809"
+[relaton-doi] INFO: (doi:10.13140/RG.2.1.4576.8809) Fetching from api.datacite.org ...
+[relaton-doi] INFO: (doi:10.13140/RG.2.1.4576.8809) Found: `10.13140/rg.2.1.4576.8809`
+=> #<Relaton::Bib::ItemData:0x...
+----
 
 == Usage
 

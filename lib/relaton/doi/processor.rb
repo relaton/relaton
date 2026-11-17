@@ -19,7 +19,7 @@ module Relaton
       # @return [RelatonBib::BibliographicItem]
       def get(code, _date, _opts)
         require_relative "../doi"
-        Crossref.get(code)
+        Doi.get(code)
       end
 
       #

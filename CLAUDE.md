@@ -206,6 +206,15 @@ SAE's own edition code as SAE prints it (`SAE J3016_202104`,
 part, revision, amendment), and the gemspec floors it there. See
 `docs/sae.md`.
 
+**A DOI goes to its registration agency (relaton#577, relaton-doi#20).**
+`Relaton::Doi.get` (what `Processor#get` calls) asks `doi.org/ra/<doi>` which
+agency holds the DOI, then calls `Crossref.get` or `Datacite.get`
+(`api.datacite.org`, mapped by `DataciteParser` to a generic `Bib::ItemData`); a
+DOI with no agency, or another agency's, answers nil with a log line. The lookup
+must fail loud: `Doi::Http.get_json` answers nil only on a 404 and otherwise
+raises `Relaton::RequestError` after two retries — a silent fall-back to Crossref
+would cache a DataCite DOI as not found. See `docs/doi.md`.
+
 **Crawl politeness lives in `core`, bindings live in the flavor.** Two shared
 components under `lib/relaton/core/` carry the "don't get banned, don't burn the
 CI job" logic that more than one crawler needs: **`Pacer`** (one shared request

@@ -32,8 +32,8 @@ RSpec.describe Relaton::Doi::Processor do
   end
 
   describe "#get" do
-    it "delegates to Crossref.get" do
-      expect(Relaton::Doi::Crossref).to receive(:get)
+    it "delegates to Relaton::Doi.get, which picks the registration agency" do
+      expect(Relaton::Doi).to receive(:get)
         .with("doi:10.1234/foo").and_return(:item)
       expect(processor.get("doi:10.1234/foo", nil, {})).to be :item
     end

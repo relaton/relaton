@@ -31,20 +31,10 @@ module Relaton
       end
 
       #
-      # The DOI itself (`<prefix>/<suffix>`), as the Crossref API takes it.
-      #
-      # A parsed pubid gives it from its components. A String may carry a
-      # `doi:` scheme (in any case) or a `doi.org` URL: Relaton::Db keys every
-      # form Pubid::Doi reads as one DOI, so all of them must reach the same
-      # DOI here, or a miss on one form is cached for the others.
-      #
-      # @param [String, Pubid::Doi::Identifier] doi
-      # @return [String]
+      # @see Relaton::Doi.doi_of
       #
       def doi_of(doi)
-        return "#{doi.prefix}/#{doi.suffix}" unless doi.is_a?(String)
-
-        doi.sub(%r{\A(?:doi:|https?://(?:dx\.)?doi\.org/)}i, "")
+        Doi.doi_of(doi)
       end
 
       #

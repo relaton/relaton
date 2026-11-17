@@ -115,4 +115,83 @@ RSpec.describe Relaton::Doi do
     it_behaves_like "fetch document", "report", "10.3133/i747"
     it_behaves_like "fetch document", "standard", "10.31030/2640440"
   end
+
+  # relaton#577, relaton-doi#20: doi.org names the registration agency, and
+  # the DOI goes to that agency's API.
+  describe ".get" do
+    it "asks Crossref for a Crossref DOI" do
+      expect(Relaton::Doi::RegistrationAgency).to receive(:lookup)
+        .with("10.1109/5.771073").and_return("Crossref")
+      expect(Relaton::Doi::Crossref).to receive(:get).with("doi:10.1109/5.771073")
+        .and_return(:item)
+      expect(described_class.get("doi:10.1109/5.771073")).to be :item
+    end
+
+    it "asks DataCite for a DataCite DOI" do
+      expect(Relaton::Doi::RegistrationAgency).to receive(:lookup)
+        .with("10.13140/RG.2.1.4576.8809").and_return("DataCite")
+      expect(Relaton::Doi::Datacite).to receive(:get)
+        .with("doi:10.13140/RG.2.1.4576.8809").and_return(:item)
+      expect(described_class.get("doi:10.13140/RG.2.1.4576.8809")).to be :item
+    end
+
+    it "accepts a parsed pubid" do
+      require "pubid"
+      pubid = Pubid::Doi::Identifier.parse "doi:10.13140/RG.2.1.4576.8809"
+      expect(Relaton::Doi::RegistrationAgency).to receive(:lookup)
+        .with("10.13140/RG.2.1.4576.8809").and_return("DataCite")
+      expect(Relaton::Doi::Datacite).to receive(:get).with(pubid).and_return(:item)
+      expect(described_class.get(pubid)).to be :item
+    end
+
+    it "answers nil when DataCite has no record of a DataCite DOI" do
+      expect(Relaton::Doi::RegistrationAgency).to receive(:lookup).and_return("DataCite")
+      expect(Relaton::Doi::Http).to receive(:get_json)
+        .with("https://api.datacite.org/dois/10.5281%2Fzenodo.0", "DataCite").and_return(nil)
+      expect do
+        expect(described_class.get("doi:10.5281/zenodo.0")).to be_nil
+      end.to output(/Not found\./).to_stderr_from_any_process
+    end
+
+    it "answers nil, with a log line, for a DOI that does not exist" do
+      expect(Relaton::Doi::RegistrationAgency).to receive(:lookup).and_return(nil)
+      expect(Relaton::Doi::Crossref).not_to receive(:get)
+      expect do
+        expect(described_class.get("doi:10.1000/nope")).to be_nil
+      end.to output(/\(doi:10.1000\/nope\) Not found: doi.org has no registration agency/)
+        .to_stderr_from_any_process
+    end
+
+    it "answers nil, with a log line, for an agency relaton does not read" do
+      expect(Relaton::Doi::RegistrationAgency).to receive(:lookup).and_return("mEDRA")
+      expect do
+        expect(described_class.get("doi:10.1400/123")).to be_nil
+      end.to output(/registration agency mEDRA is not supported/)
+        .to_stderr_from_any_process
+    end
+
+    it "fetches the DOI of relaton-doi#20 from DataCite", vcr: "datacite_rg" do
+      file = "datacite_rg.xml"
+      resp = described_class.get "doi:10.13140/RG.2.1.4576.8809"
+      xml = resp.to_xml bibdata: true
+      write_fixture file, xml
+      expect(resp).to be_instance_of(Relaton::Bib::ItemData)
+      expect(xml).to be_xml_equivalent_to read_fixture(file)
+      expect(Nokogiri::XML(xml).errors).to be_empty
+    end
+
+    it "fetches a Zenodo DOI from DataCite", vcr: "datacite_zenodo" do
+      file = "datacite_zenodo.xml"
+      resp = described_class.get "doi:10.5281/zenodo.3242074"
+      xml = resp.to_xml bibdata: true
+      write_fixture file, xml
+      expect(xml).to be_xml_equivalent_to read_fixture(file)
+    end
+
+    it "fetches a Crossref DOI from Crossref", vcr: "registration_agency_crossref" do
+      resp = described_class.get "doi:10.1109/ieeestd.2014.6835311"
+      expect(resp).to be_instance_of(Relaton::Ieee::ItemData)
+      expect(resp.docidentifier.first.content).to eq "10.1109/ieeestd.2014.6835311"
+    end
+  end
 end

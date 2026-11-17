@@ -1,0 +1,140 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://doi.org/ra/10.13140%2FRG.2.1.4576.8809
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - doi.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 17 Nov 2026 05:42:43 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Origin
+      - accept-encoding
+      Permissions-Policy:
+      - interest-cohort=(),browsing-topics=()
+      Content-Encoding:
+      - gzip
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=ZmpJdTFzZS2GeuOzHp1xygd9Kyrni63xl%2BX%2FejQB9VSlGh%2BKUNpqcZzm9Iau4UDc4f13QOpKEc7qyeK4qHGaIG92V3rjol0mQqt3tT1ZFyuqOt%2B9pErph0M%3D"}]}'
+      Cf-Ray:
+      - a5bc69e9cbc29c64-IAD
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAA4vmUlCoBmIFBSUXf08lKwUlQwM9Q2NDEwP9IHc9Iz1DPRNTczM9CwsDSyUdiLogR5Ayl8SSROfMklQloGAtVywA0BSdrkgAAAA=
+  recorded_at: Tue, 17 Nov 2026 05:42:43 GMT
+- request:
+    method: get
+    uri: https://api.datacite.org/dois/10.13140%2FRG.2.1.4576.8809
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.datacite.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 17 Nov 2026 05:42:44 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Status:
+      - 200 OK
+      X-Anonymous-Consumer:
+      - 'true'
+      Cache-Control:
+      - no-cache
+      Vary:
+      - Accept,Accept-Encoding
+      Content-Encoding:
+      - gzip
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Xss-Protection:
+      - '0'
+      X-Request-Id:
+      - 3a6fdc90-5690-40b9-836e-bb929ecefdbd
+      X-Runtime:
+      - '0.016953'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      X-Powered-By:
+      - Phusion Passenger(R) 6.2.1
+      Server:
+      - nginx/1.28.3 + Phusion Passenger(R) 6.2.1
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Methods:
+      - GET, POST, PUT, PATCH, DELETE, OPTIONS
+      Access-Control-Allow-Headers:
+      - Accept,Access-Control-Allow-Origin,Access-Control-Expose-Headers,Access-Control-Allow-Methods,Access-Control-Allow-Headers,Authorization,Cache-Control,Content-Type,DNT,If-Modified-Since,Keep-Alive,Origin,User-Agent,X-Mx-ReqToken,X-Requested-With
+      Access-Control-Expose-Headers:
+      - Authorization
+      X-Lupoversion:
+      - 5.96.1
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        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
+  recorded_at: Tue, 17 Nov 2026 05:42:44 GMT
+recorded_with: VCR 6.4.1

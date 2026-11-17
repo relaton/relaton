@@ -1,0 +1,127 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://doi.org/ra/10.1109%2Fieeestd.2014.6835311
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - doi.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 17 Nov 2026 05:42:44 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Server:
+      - cloudflare
+      Vary:
+      - Origin
+      - accept-encoding
+      Permissions-Policy:
+      - interest-cohort=(),browsing-topics=()
+      Content-Encoding:
+      - gzip
+      Cf-Cache-Status:
+      - DYNAMIC
+      Nel:
+      - '{"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}'
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Report-To:
+      - '{"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=6YiSvpNvg9JbG%2Fqy2PvBV4aI7lZYC1BseuybAQydUuF5u294wMz6Fi81h5%2FpJg%2B2SL%2BdoT92yc7mJxbQUwzburSvNJSx1cJLKQM9CN1WudR4MtfCR2LURMg%3D"}]}'
+      Cf-Ray:
+      - a5bc69f0ca759c64-IAD
+      Alt-Svc:
+      - h3=":443"; ma=86400
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAA4vmUlCoBmIFBSUXf08lKwUlQwM9Q0MDS/3M1NTU4pIUPSMDQxM9MwtjU2NDQyUdiNIgR5BK56L84uKi1DQloGAtVywAAKFeN0sAAAA=
+  recorded_at: Tue, 17 Nov 2026 05:42:44 GMT
+- request:
+    method: get
+    uri: https://api.crossref.org/works/10.1109%2Fieeestd.2014.6835311
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip,deflate,identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Relaton::Doi (https://www.relaton.org/guides/doi/; mailto:open.source@ribose.com)
+      Accept-Language:
+      - en-us,en;q=0.5
+      Host:
+      - api.crossref.org
+      Connection:
+      - keep-alive
+      Keep-Alive:
+      - '300'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 17 Nov 2026 05:42:45 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '844'
+      Connection:
+      - keep-alive
+      Access-Control-Expose-Headers:
+      - Link
+      Access-Control-Allow-Headers:
+      - X-Requested-With, Accept, Accept-Encoding, Accept-Charset, Accept-Language,
+        Accept-Ranges, Cache-Control
+      Access-Control-Allow-Origin:
+      - "*"
+      Vary:
+      - Accept-Encoding
+      Content-Encoding:
+      - gzip
+      Server:
+      - Jetty(9.4.40.v20210413)
+      X-Rate-Limit-Limit:
+      - '10'
+      X-Rate-Limit-Interval:
+      - 1s
+      X-Concurrency-Limit:
+      - '3'
+      X-Api-Pool:
+      - polite-single
+      Permissions-Policy:
+      - interest-cohort=()
+      Strict-Transport-Security:
+      - max-age=31536000;
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAA/7WUwW7jNhCGX0XgoSfRJiVHsgQUxXabQ4piu627l8Y+0OLYZiORAkklEQy/e4eStVa32e2pgA7CkJwZ/v/HORPnhe8cKYl5IjFpwDlxBOr7FjD2Yuw8+gzWKaNxgS/Ygt1WSHkmSkt4BRl+pfBAW2E95n18TFiSxUXMd7t4XPGqCclDnLKCMv4Hz8qE4fcnpgyr2FTTkpLn63WSF1nCMraOya38vlO1pMmapTxL7zgjl5i03b5W7gSW1qYSftz4UTn8Fy+ij6MPP8fRp807LIHptRRWOro3sg8dazG0tDEH/yIsRN9Fm955aFx0r49KA1ilj9FmOhe9N02jvAeIzCHyJ4ge7u/vQ7TtPNhoYyoFvsdSorJG9w3mDjtCnxYOYEFXQCvTaU9KNut92hcT5fb6asPjmTyLugsNFvma5emaFzxbp0Gs0SeoofJYSFXkgirXqgLtxpOV0R60n3nnfEOFO+BpCbXoqdJUit4NjXz6/RfccfK+deV2uV1KoxbGHrdLzhb8LknS7bI1mL6nLCnwNv9j/jQf7jLll6YRSg90Xf8ew6o1zjXCPlGL0FhVjb4fRO0AtXYnYz0NKfAEkuGVr2E8+dOvD4FjLMtZsV0qAEwgFwnjqwVqe5dyftN3AoaEioAMv4k5X8VZzIt/c85XlGWUF4Fznpar/EvOVwhysVolOWMM2xZta83zV4ukcZLvduF6prNVKPE+yIBgDdzQz4RJuu8nyjgLJcfrD4x9pjk6mEDslfzfOlEr30fvnOuswCTRR2sqfObgCF6sxeTq9abcMAOa/UBukgUk31TbWIXPSNTzWK3004DoDYqBide2NsFNgSeOi2DMiIiC+jXfLgdzgmWjS2y7ZFe/Fq08/CCs7kI/399MnBC6mtlp10KlDgrkbPHG77OxQccQlighmoFATgPFqUbVwqJCtDpB9YQtDphKaI1TXwHjv+ffXblKSp69Of/yNM1GLlyFwmA4DJHJ+zNaovAFDGPsy+cVxBvlnOkoTdU1eOVJQb5dkkvI3u1n7oxPZxZQCMRb19NdXQ80Pmx+/BDg+ueM2s0mnpuNvG9Ogm89SYtDZTTjPDb9F86+0OLl8jeouawczgYAAA==
+  recorded_at: Tue, 17 Nov 2026 05:42:45 GMT
+recorded_with: VCR 6.4.1
