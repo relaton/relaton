@@ -44,6 +44,18 @@ module Relaton
         fold_year_on_root pubid, year
       end
 
+      # A committee document (`ISO/TC 184/SC 4 N3500`) prints no year: a
+      # dated fetch keeps its year only in the published date, so the year
+      # goes on the key. Otherwise the dated item overwrites the undated
+      # reference's cache file (relaton-iso#139, relaton#408). The undated
+      # form (`to_most_recent_reference`) has no date and keeps its own key.
+      def item_cache_key(pubid, item)
+        return pubid unless pubid.is_a?(::Pubid::Iso::Identifiers::TcDocument) && pubid.date.nil?
+
+        year = item.date&.find { |d| d.type == "published" }&.at.to_s[/\d{4}/]
+        year ? fold_year(pubid, year) : pubid
+      end
+
       # @param xml [String]
       # @return [RelatonIsoBib::IsoBibliographicItem]
       def from_xml(xml)
