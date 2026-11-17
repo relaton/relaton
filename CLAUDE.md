@@ -145,7 +145,16 @@ guards it. `RelatonFile` extract/concatenate (relaton#580) find the
 on; `element_xml` declares the namespaces again on the element, because
 Moxml's `to_xml` of a sub-element drops its ancestors' declarations, and a
 file Moxml cannot parse is skipped. `relaton_file_spec.rb` guards it.
-`Cli.parse_xml` (relaton#581) still uses Nokogiri.
+`Cli.parse_xml` (relaton#581) takes a String: Moxml finds the first
+`docidentifier` by local name to pick the processor, and lutaml-model gets
+a **namespace-free copy** of the tree (`without_namespaces`). Don't hand it
+the namespaced string: the mappings skip a prefixed element, and
+lutaml-model 0.8.175 raises on a `relation/bibitem` in a default namespace
+(it calls `mappings_for` on `Bib::ItemData`). Moxml cannot drop a namespace
+in place, so the copy is built node by node: an attribute in no namespace
+wins over a prefixed one of the same local name, and an undeclared entity
+reference (`&nbsp;`) stays as escaped text, as `XmlTree.escape` does.
+`parse_xml_spec.rb` guards it.
 
 **A stale cache row is served, not deleted, when the network fails
 (relaton#536).** `Db` expires a row only **after** a refetch answers:

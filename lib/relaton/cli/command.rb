@@ -243,9 +243,13 @@ module Relaton
              "also works). Default: author-date"
       option :output, aliases: :o, desc: "Output to the specified file"
 
-      def convert(file) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
-        xml = Nokogiri::XML(File.read(file, encoding: "UTF-8"))
-        item = Relaton::Cli.parse_xml xml
+      def convert(file) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+        item = Relaton::Cli.parse_xml File.read(file, encoding: "UTF-8")
+        unless item
+          Util.warn "#{file} is not a readable Relaton XML document"
+          return
+        end
+
         result = if /yaml|yml/.match?(options[:format])
                    item.to_yaml
                  elsif options[:format] == "citation"
