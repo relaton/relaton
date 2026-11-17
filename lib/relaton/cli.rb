@@ -1,4 +1,5 @@
 require "fileutils"
+require "nokogiri" # Cli.parse_xml, until relaton#581
 require "thor"
 require "thor/hollaback"
 require_relative "cli/util"
