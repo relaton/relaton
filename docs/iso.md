@@ -28,6 +28,8 @@ relaton-iso retrieves ISO standard bibliographic data. The core retrieval flow:
    File names come from `Core::DataFetcher#unique_output_file`, not the plain `output_file`: `output_file` is not injective (`ISO/DIS 15869.3` and `ISO/DIS 15869-3` both sanitize to `iso-dis-15869-3.yaml`), so a second distinct docid gets a digest-suffixed path. `rewrite_with_same_or_newer` (edition / substage-98) therefore only ever compares two records of the **same** docid.
 7. **DataParser** (`lib/relaton/iso/data_parser.rb`) — converts one Open Data record (`Hash`) into a `Relaton::Iso::ItemData`. Takes a `ref_index` (id → reference) for resolving `replaces`/`replacedBy` and a `tc_index` (reference → `{ "en"/"fr" => title }`) for resolving committee labels.
 
+**Committee documents (relaton-iso#139).** `ISO/TC 184/SC 4 N3500` parses as `Pubid::Iso::Identifiers::TcDocument`. These documents are not public, so no crawler finds them: relaton-data-iso keeps a hand-made set in `static/`, and their index rows carry **no year**. The year a citation gives (`…N3500:2020`) is the document's published date. So `Bibliography#filter_hits_by_year` lets an undated TC-document row through, `check_tc_document_year` checks the year against the fetched document (a document with no year answers no dated reference), and `hit_year` reads the document's date for a publication-date cutoff. `Processor#item_cache_key` puts the published year on a TC document's `Db` key, because the stored docid is undated: without it, a dated fetch overwrites the undated reference's cache file. A missing TC document logs that it must be encoded by hand, not the "(all parts)" tip.
+
 Key dependency: `pubid-iso` gem handles ISO publication identifier parsing and comparison.
 
 ## Testing

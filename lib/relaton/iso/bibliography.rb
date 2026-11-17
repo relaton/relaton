@@ -57,6 +57,7 @@ module Relaton
         else
           ret = hits.fetch_doc(date_filter ? opts : {})
         end
+        ret = check_tc_document_year(ret, query_pubid, missed_year_ids)
         return fetch_ref_err(query_pubid, missed_year_ids, tip_ids) unless ret
 
         response_pubid = ret.docidentifier.find(&:primary) # .sub(" (all parts)", "")
@@ -115,7 +116,7 @@ module Relaton
           if hit.pubid.date&.year.nil? && hit.hit[:year]
             hit.pubid.date = ::Pubid::Components::Date.new(year: hit.hit[:year].to_s)
           end
-          next true if check_year(year, hit)
+          next true if check_year(year, hit) || undated_tc_document?(hit)
 
           missed_year_ids << hit.pubid.to_s if hit.pubid.date&.year
           false
@@ -125,6 +126,45 @@ module Relaton
       end
 
       private
+
+      # An ISO/TC committee document ("ISO/TC 184/SC 4 N3500") is identified
+      # by its N-number alone: relaton-data-iso's curated `static/` rows carry
+      # no year, and the year a citation gives ("…N3500:2020") is the
+      # document's publication date (relaton-iso#139). Such a hit passes the
+      # year filter, and `check_tc_document_year` checks the year against the
+      # fetched document.
+      # @param hit [Relaton::Iso::Hit]
+      def undated_tc_document?(hit)
+        hit.pubid.is_a?(::Pubid::Iso::Identifiers::TcDocument) &&
+          hit.pubid.date&.year.nil? && hit.hit[:year].nil?
+      end
+
+      # @param item [Relaton::Iso::ItemData, nil] the fetched document
+      # @param query_pubid [Pubid::Iso::Identifier]
+      # @param missed_year_ids [Set<String>] gets the dated id that exists, for the tip
+      # @return [Relaton::Iso::ItemData, nil] nil when the document's year is
+      #   not the query's, or the document gives no year to check
+      def check_tc_document_year(item, query_pubid, missed_year_ids)
+        year = query_pubid.root.date&.year
+        return item unless item && year && query_pubid.is_a?(::Pubid::Iso::Identifiers::TcDocument)
+
+        doc_year = tc_document_year(item)
+        return item if doc_year == year.to_s
+
+        docid = item.docidentifier.find(&:primary) || item.docidentifier.first
+        missed_year_ids << "#{docid.to_s.sub(/:\d{4}\z/, '')}:#{doc_year}" if doc_year
+        nil
+      end
+
+      # The year of a committee document: from its docidentifier when that is
+      # dated, else from its published date.
+      # @param item [Relaton::Iso::ItemData]
+      # @return [String, nil]
+      def tc_document_year(item)
+        docid = item.docidentifier.find(&:primary) || item.docidentifier.first
+        docid.to_s[/:(\d{4})\z/, 1] ||
+          item.date&.find { |d| d.type == "published" }&.at.to_s[/\d{4}/]
+      end
 
       # Filter out relations and dates that fall outside the date range.
       # @param item [Relaton::Iso::ItemData]
@@ -225,6 +265,8 @@ module Relaton
       # @return [Integer]
       def hit_year(hit)
         yr = hit.pubid&.date&.year || hit.hit[:year] || hit.pubid&.root&.date&.year
+        # An undated committee-document row: the year is on the document.
+        yr ||= hit.item && tc_document_year(hit.item) if hit.pubid && undated_tc_document?(hit)
         yr.to_i
       end
 
@@ -310,7 +352,12 @@ module Relaton
         # still found nothing): its own `part` is always nil (never delegated),
         # so read the underlying document via `#root`, and skip suggesting
         # "(all parts)" to a caller who already asked for it.
-        if pubid.all_parts || pubid.root.part
+        if pubid.is_a?(::Pubid::Iso::Identifiers::TcDocument)
+          # relaton-iso#139: a committee document has no parts.
+          Util.info "TIP: ISO/TC committee documents are not public; relaton finds " \
+                    "only those in the curated `static/` set of relaton-data-iso. " \
+                    "Encode the reference in the bibliography by hand.", key: pubid.to_s
+        elsif pubid.all_parts || pubid.root.part
           Util.info "TIP: If it cannot be found, the document may no longer be published in parts.", key: pubid.to_s
         else
           Util.info "TIP: If you wish to cite all document parts for the reference, " \
