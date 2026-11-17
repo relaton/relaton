@@ -522,7 +522,7 @@ RSpec.describe Relaton::Db do
       content: "10.6028/nist.ir.8245", type: "DOI",
     )
     item = Relaton::Bib::ItemData.new docidentifier: [docid]
-    expect(Relaton::Doi::Crossref).to receive(:get)
+    expect(Relaton::Doi).to receive(:get)
       .with(pubid_of("doi:10.6028/nist.ir.8245")).and_return item
     bib = @db.fetch "doi:10.6028/nist.ir.8245"
     expect(bib).to be_instance_of Relaton::Bib::ItemData

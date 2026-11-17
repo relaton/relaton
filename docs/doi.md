@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-relaton-doi is a Ruby gem that fetches bibliographic metadata via DOI identifiers from the Crossref API and converts them into Relaton bibliographic objects. It detects DOI patterns to produce flavor-specific items (NIST, IETF, BIPM, IEEE) or generic `Bib::ItemData`.
+relaton-doi is a Ruby gem that fetches bibliographic metadata via DOI identifiers from the Crossref and DataCite APIs and converts them into Relaton bibliographic objects. It detects DOI patterns to produce flavor-specific items (NIST, IETF, BIPM, IEEE) or generic `Bib::ItemData`.
 
 ## Common Commands
 
@@ -20,10 +20,18 @@ rubocop -a                     # Lint with auto-correct
 
 **Namespace:** `Relaton::Doi` (migrated from legacy `RelatonDoi`).
 
-**Core flow:** `Crossref.get(doi)` → HTTP fetch from api.crossref.org → `Parser.parse(json_hash)` → flavor-specific `ItemData`
+**Core flow:** `Doi.get(doi)` → `RegistrationAgency.lookup` (doi.org) →
+`Crossref.get(doi)` → api.crossref.org → `Parser.parse(json_hash)` → flavor-specific `ItemData`, or
+`Datacite.get(doi)` → api.datacite.org → `DataciteParser.parse(attributes)` → `Bib::ItemData`.
+See **Registration agency** below.
 
 Key classes in `lib/relaton/doi/`:
 
+- **`Relaton::Doi.get`** (`lib/relaton/doi.rb`) — the entry point `Processor#get`
+  calls; it picks the agency. `Relaton::Doi.doi_of` reduces a DOI to its bare form
+  (`Crossref.doi_of` delegates to it).
+- **`RegistrationAgency`**, **`Datacite`**, **`DataciteParser`**, **`Http`** — see
+  **Registration agency** below.
 - **`Crossref`** — module with `get(doi)` and `get_by_id(id)`. `get` takes a
   String or a parsed `Pubid::Doi::Identifier`; `doi_of` reduces either to the
   bare `prefix/suffix` the API takes. It strips a `doi:` scheme in any case
@@ -32,6 +40,45 @@ Key classes in `lib/relaton/doi/`:
 - **`Parser`** — largest file (~827 lines). Converts Crossref JSON hashes to Relaton objects. Factory method `parse(src)` delegates to `create_bibitem` which picks the right ItemData class based on DOI pattern (`/nist/` → `Nist::ItemData`, `/rfc\d+/` → `Ietf::ItemData`, etc.). Contains ~30 `parse_*` helper methods for individual bibliographic fields.
 - **`Processor`** — `Relaton::Processor` subclass for the Relaton registry system. Entry point for `get`, `from_xml`, `hash_to_bib`.
 - **`Util`** — logging utility, extends `Relaton::Bib::Util` with `PROGNAME = "relaton-doi"`.
+
+## Registration agency (relaton#577, relaton-doi#20)
+
+Each DOI is registered with one agency, and only that agency's API holds its
+metadata. A DataCite DOI (ResearchGate `10.13140/…`, Zenodo `10.5281/…`, most
+data repositories) is a 404 at Crossref, so `relaton fetch
+"doi:10.13140/RG.2.1.4576.8809"` answered "not found" while doi.org resolved it.
+
+`Relaton::Doi.get` first asks `https://doi.org/ra/<doi>` (`RegistrationAgency.lookup`),
+which answers `[{"DOI": …, "RA": "Crossref"}]`, `"RA": "DataCite"`, another agency
+(mEDRA, JaLC, KISTI, …), or `"status": "DOI does not exist"` / `"Invalid DOI"`:
+
+- `Crossref` → `Crossref.get` (unchanged; SAE and other callers still use it directly).
+- `DataCite` → `Datacite.get` → `GET api.datacite.org/dois/<doi>` (public, no key).
+- no agency → log "Not found: doi.org has no registration agency …", nil.
+- another agency → log "… is not supported", nil.
+
+The lookup costs one request per uncached fetch. **It must fail loud:** `Http.get_json`
+(used by the lookup and by DataCite) answers nil only on a 404, retries twice with a
+1-second floor (`Retry-After` when sent), then raises `Relaton::RequestError`.
+A non-JSON 200 (a proxy error page), a TLS or a connection failure counts as a
+transport failure (`Http::NETWORK_ERRORS`). Never
+fall back to Crossref when doi.org does not answer — a DataCite DOI would then be
+cached as not found.
+
+`DataciteParser` maps DataCite Metadata Schema 4 to a generic `Bib::ItemData`:
+`types.resourceTypeGeneral` (then `types.bibtex`) → item type, default `misc`;
+titles (`Subtitle` → subtitle, `lang`); the DOI as the primary docidentifier
+(DataCite stores it lower-case); `Issued`/`Created`/`Updated` dates, else
+`publicationYear` as `issued` (a range `a/b` → `from`/`to`; a free-text date such
+as `Spring 2019` is skipped, never raised); creators → authors (`Personal`/`Organizational`, an
+untyped `Family, Given` is a person; ORCID from `nameIdentifiers`; an affiliation
+may be a String or a Hash; a creator with no name is skipped); contributors by
+`CONTRIBUTOR_ROLES` (Editor → editor, Distributor → distributor, Sponsor → enabler,
+RightsHolder → owner) — the other types are left out, since an author role would
+make a citation name a HostingInstitution as an author; the publisher
+(String or `{name:}`, minus DataCite's `(:unav)`-style placeholders); `Abstract`
+descriptions; `url` → `src` source; DOI `relatedIdentifiers` → relations
+(`RELATION_TYPES`, else `related` with the DataCite type as the description).
 
 ## Test Setup
 
