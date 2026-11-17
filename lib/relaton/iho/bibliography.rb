@@ -14,7 +14,7 @@ module Relaton
         # @return [RelatonIho::IhoBibliographicItem, nil] the IHO standard or nil if not found
         #
         def search(text, _year = nil, _opts = {}) # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
-          pubid = text.is_a?(String) ? ::Pubid::Iho::Identifier.parse(text) : text
+          pubid = text.is_a?(String) ? parse_reference(text) : text
           Util.info "Fetching from Relaton repository ...", key: pubid.to_s
           # Pass the pubid so Relaton::Index narrows candidates by number via
           # binary search before applying the block. Every row's `:id` is a
@@ -42,6 +42,48 @@ module Relaton
               Net::ProtocolError, Net::ReadTimeout, OpenSSL::SSL::SSLError,
               Errno::ETIMEDOUT => e
           raise Relaton::RequestError, "Could not access #{uri}: #{e.message}"
+        end
+
+        # The long-form edition qualifier of an S-4 section citation
+        # (relaton#531): "S-4 Part B, Section 400, Edition 4.9.0".
+        EDITION_QUALIFIER = /,?\s+Edition\s+(?<edition>\d+(?:\.\d+)*)\s*\z/
+
+        # Parse a reference string into a Pubid::Iho identifier. Pubid's
+        # grammar reads every IHO face except the trailing ", Edition N"
+        # qualifier of the long section form, so that qualifier is split
+        # off here and set on the edition slot the record is indexed under
+        # (see #edition_slot).
+        def parse_reference(text)
+          ::Pubid::Iho::Identifier.parse(text)
+        rescue ::Pubid::Errors::ParseError
+          match = EDITION_QUALIFIER.match(text)
+          raise unless match
+
+          pubid = ::Pubid::Iho::Identifier.parse(match.pre_match)
+          pubid.public_send(:"#{edition_slot(pubid)}=", match[:edition])
+          pubid
+        end
+
+        # The independently-publishable components whose records carry
+        # their own edition (mirrors the relaton-data-iho crawler).
+        COMPONENT_EDITION_SLOTS = {
+          part: :part_edition,
+          supplement: :supplement_edition,
+          annex: :annex_edition,
+          appendix: :appendix_edition,
+          volume: :volume_edition,
+        }.freeze
+
+        # The attribute an edition lands on. An S-4 section or spec
+        # citation rides its publication's edition ("IHO S-4 4.10.0
+        # B-400", pubid#691), so it takes the base edition even though it
+        # names a part; any other component published separately carries
+        # its own edition (relaton#440).
+        def edition_slot(pubid)
+          return :edition if pubid.respond_to?(:spec) && pubid.spec
+
+          COMPONENT_EDITION_SLOTS.find { |comp, _| pubid.public_send(comp) }&.last ||
+            :edition
         end
 
         # Populate ext.structuredidentifier from the parsed Pubid when the

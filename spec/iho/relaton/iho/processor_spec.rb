@@ -21,6 +21,17 @@ describe Relaton::Iho::Processor do
     end
   end
 
+  describe "#cache_pubid" do
+    it "keys an edition-qualified S-4 section like its dated citation" do
+      key = processor.cache_pubid("S-4 Part B, Section 400, Edition 4.9.0")
+      expect(key).to eq Pubid::Iho::Identifier.parse("IHO S-4 4.9.0 B-400")
+    end
+
+    it "answers nil for a reference no IHO parse reads" do
+      expect(processor.cache_pubid("IHO S63, Edition 1.0.0")).to be_nil
+    end
+  end
+
   describe "#get" do
     it "delegates to Bibliography.get" do
       expect(Relaton::Iho::Bibliography).to receive(:get).with("IHO B-11", "2020", {})
