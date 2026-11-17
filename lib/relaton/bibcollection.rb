@@ -1,20 +1,45 @@
-require_relative "element_finder"
-
 module Relaton
+  # A Relaton collection: a title, an author, a doctype and a list of items,
+  # where an item is a bibliographic item (`Relaton::Bibdata`) or a nested
+  # collection.
+  #
+  # The XML is read and written by the lutaml-model mapper
+  # `Relaton::CollectionXml` (relaton#459), as `Relaton::Bib::Item` maps
+  # `Relaton::Bib::ItemData`. The YAML (`#to_h`, `{"root" => …}`) is the
+  # format `Relaton::Cli::CollectionStore` keeps on disk, unchanged.
   class Bibcollection
-    extend Relaton::ElementFinder
-
     ATTRIBS = %i[title items doctype author].freeze
 
-    attr_accessor(*ATTRIBS)
+    attr_accessor :title, :doctype, :author
 
-    # @param options [Hash]
-    def initialize(options)
+    # Options of `#to_xml` that `CollectionXml` hands to the items.
+    attr_accessor :item_options
+
+    # @param options [Hash] the collection's attributes, with String or
+    #   Symbol keys; an item is a Hash, a bibliographic item, a
+    #   `Relaton::Bibdata` or a `Relaton::Bibcollection`
+    def initialize(options = {})
+      options ||= {}
       ATTRIBS.each do |k|
-        value = options[k] || options[k.to_s]
-        send("#{k}=", value)
+        send "#{k}=", options.key?(k) ? options[k] : options[k.to_s]
       end
-      reduce_items
+    end
+
+    # @param source [String, #to_xml] Relaton collection XML, or a parsed
+    #   document that answers `to_xml`
+    # @return [Relaton::Bibcollection]
+    def self.from_xml(source)
+      source = source.to_xml unless source.is_a?(String)
+      CollectionXml.from_xml source
+    end
+
+    def items
+      @items ||= []
+    end
+
+    # @param value [Array<Hash, Relaton::Bibdata, Relaton::Bibcollection>, nil]
+    def items=(value)
+      @items = (value || []).map { |item| new_bib_item_class item }
     end
 
     # arbitrary number, must sort after all bib items
@@ -28,59 +53,18 @@ module Relaton
       items << new_bib_item_class(item)
     end
 
-    # rubocop:disable Metrics/MethodLength
-
-    # @param source [Nokogiri::XML::Element]
-    def self.from_xml(source)
-      title = find_html("./relaton-collection/title", source)
-      author = find_html(
-        "./relaton-collection/contributor[role/@type='author']/organization/"\
-        "name", source
-      )
-
-      items = find_xpath("./relaton-collection/relation", source)&.map do |item|
-        bibdata = find("./bibdata|./bibitem", item)
-        klass = bibdata ? Bibdata : Bibcollection
-        klass.from_xml(bibdata || item)
-      end
-
-      new(title: title, author: author, items: items)
-    end
-
-    # rubocop:disable Metrics/AbcSize
-
-    # @param opts [Hash]
+    # @param opts [Hash] options for the items' `to_xml`
     # @return [String] XML
     def to_xml(opts = {})
-      items.sort_by! &:doc_number
-
-      collection_type = if doctype
-                          "type=\"#{doctype}\""
-                        else
-                          'xmlns="https://open.ribose.com/relaton-xml"'
-                        end
-
-      ret = "<relaton-collection #{collection_type}>"
-      ret += "<title>#{xml_escape(title)}</title>" if title
-      if author
-        ret += "<contributor><role type='author'/><organization><name>"\
-        "#{xml_escape(author)}</name></organization></contributor>"
-      end
-      unless items.empty?
-        items.each do |item|
-          ret += "<relation type='partOf'>"
-          ret += item.to_xml(opts)
-          ret += "</relation>\n"
-        end
-      end
-      ret += "</relaton-collection>\n"
+      items.sort_by!(&:doc_number)
+      self.item_options = opts.select { |k, _| k.is_a? Symbol }
+      CollectionXml.to_xml self
     end
-    # rubocop:enable Metrics/AbcSize
 
     # @param item [Hash, RelatonBib::BibliographicItem, Relatin::Bibdata,
     #   Relaton::Bibcollection]
     # @return [Relaton::Bibdata, Relaton::Bibcollection]
-    def new_bib_item_class(item)
+    def new_bib_item_class(item) # rubocop:disable Metrics/MethodLength
       if item.is_a?(Hash)
         # `#to_h` writes a nested collection as `{"root" => …}`.
         if item["root"].is_a?(Hash)
@@ -96,10 +80,9 @@ module Relaton
       else ::Relaton::Bibdata.new(item)
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def items_flattened
-      items.sort_by! &:doc_number
+      items.sort_by!(&:doc_number)
 
       items.reduce([]) do |acc, item|
         acc << if item.is_a? ::Relaton::Bibcollection
@@ -115,35 +98,14 @@ module Relaton
     end
 
     def to_h
-      items.sort_by! &:doc_number
+      items.sort_by!(&:doc_number)
 
-      a = ATTRIBS.reduce({}) do |acc, k|
-        acc[k.to_s] = send(k)
-        acc
-      end
-
+      a = ATTRIBS.each_with_object({}) { |k, acc| acc[k.to_s] = send(k) }
       a["items"] = a["items"].map(&:to_h)
 
       { "root" => a }
     end
-
-    private
-
-    def reduce_items
-      self.items = (items || []).reduce([]) do |acc, item|
-        acc << if item.is_a?(Bibcollection) || item.is_a?(Bibdata)
-                 item
-               else new_bib_item_class(item)
-               end
-      end
-    end
-
-    # Escape bare & in content for XML serialization, leaving already-encoded
-    # entity references (&amp;, &#123;, &#x1f;) and inline markup (<em> etc.)
-    # untouched. This prevents invalid XML when plain-text values (e.g. from
-    # YAML) contain literal ampersands.
-    def xml_escape(str)
-      str.gsub(/&(?![a-zA-Z][a-zA-Z0-9]*;|#[0-9]+;|#x[0-9a-fA-F]+;)/, "&amp;")
-    end
   end
 end
+
+require_relative "collection_xml"
