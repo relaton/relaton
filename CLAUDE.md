@@ -140,8 +140,12 @@ element by element into lutaml's data model instead: that loses foreign
 namespaces (MathML, `xlink:`, `xml:lang`) and comments. The fragment parser
 cannot read an HTML entity (`&nbsp;`), so `XmlTree.escape` escapes its `&`. Don't put Nokogiri XPath or string-joined XML back in
 `bibcollection.rb`/`collection_xml.rb`; `spec/cli/relaton/bibcollection_spec.rb`
-guards it. `Cli.parse_xml` (relaton#581) and `RelatonFile`
-extract/concatenate (relaton#580) still use Nokogiri.
+guards it. `RelatonFile` extract/concatenate (relaton#580) find the
+`bibdata`/`rfc` element with Moxml, by local name, and hand its XML string
+on; `element_xml` declares the namespaces again on the element, because
+Moxml's `to_xml` of a sub-element drops its ancestors' declarations, and a
+file Moxml cannot parse is skipped. `relaton_file_spec.rb` guards it.
+`Cli.parse_xml` (relaton#581) still uses Nokogiri.
 
 **A stale cache row is served, not deleted, when the network fails
 (relaton#536).** `Db` expires a row only **after** a refetch answers:

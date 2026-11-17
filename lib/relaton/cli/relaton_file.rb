@@ -1,4 +1,4 @@
-require "nokogiri"
+require "moxml"
 require "pathname"
 
 module Relaton
@@ -89,16 +89,6 @@ module Relaton
         )
       end
 
-      # Turn an XML string into a Nokogiri XML document.
-      #
-      # @param document [String] XML
-      # @param file [String, nil] path to file
-      # @return [Nokogiri::XML::Document]
-      def nokogiri_document(document, file = nil)
-        document ||= File.read(file, encoding: "utf-8")
-        Nokogiri.XML(document)
-      end
-
       def select_source_files
         if File.file?(source)
           [source]
@@ -112,30 +102,31 @@ module Relaton
           Bibcollection.from_xml(File.read(source, encoding: "utf-8"))
       end
 
-      def extract_and_write_to_files # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      def extract_and_write_to_files
         select_source_files.each do |file|
-          xml = nokogiri_document(nil, file)
-          xml.remove_namespaces!
+          xml = extract_bibdata_xml(File.read(file, encoding: "utf-8"), file)
+          bibdata = xml && Relaton::Bibdata.from_xml(xml)
+          next unless bibdata
 
-          if (bib = xml.at("//bibdata"))
-            bib = nokogiri_document(bib.to_xml)
-          elsif (rfc = xml.at("//rfc"))
-require_relative "../ietf"
-require_relative "../ietf/bibxml_parser"
-            ietf = Relaton::Ietf::BibXMLParser.parse_rfc rfc.to_xml
-            bib = nokogiri_document(ietf.to_xml(bibdata: true))
-          else
-            next
-          end
+          build_bibdata_relaton(bibdata, file)
+          write_to_file(bibdata.send(output_type), outdir, build_filename(file))
+        end
+      end
 
-          bib.remove_namespaces!
+      # The bibdata XML of the first `bibdata` element, or of the first `rfc`
+      # element, in any namespace.
+      #
+      # @param content [String] XML
+      # @param file [String] path to file
+      # @return [String, nil]
+      def extract_bibdata_xml(content, file)
+        doc = parse_xml_document(content, file)
+        return unless doc
 
-          bibdata = Relaton::Bibdata.from_xml(bib.root)
-          if bibdata
-            build_bibdata_relaton(bibdata, file)
-
-            write_to_file(bibdata.send(output_type), outdir, build_filename(file))
-          end
+        if (bib = find_element(doc, "bibdata"))
+          element_xml(bib)
+        elsif (rfc = find_element(doc, "rfc"))
+          rfc_bibdata_xml(element_xml(rfc))
         end
       end
 
@@ -143,21 +134,79 @@ require_relative "../ietf/bibxml_parser"
       #
       # @return [Array<Relaton::Bibdata>]
       def concatenate_files
-        xml_files = [convert_rxl_to_xml, convert_yamls_to_xml, convert_xml_to_xml]
+        xml_files = [convert_rxl_to_xml, convert_yamls_to_xml,
+                     convert_xml_to_xml]
 
         xml_files.flatten.reduce([]) do |mem, xml|
-          doc = nokogiri_document(xml[:content])
-          if (rfc = doc.at("/rfc"))
-require_relative "../ietf"
-require_relative "../ietf/bibxml_parser"
-            ietf = Relaton::Ietf::BibXMLParser.parse_rfc rfc.to_xml
-            d = nokogiri_document ietf.to_xml(bibdata: true)
-            mem << bibdata_instance(d, xml[:file])
-          elsif %w[bibitem bibdata].include? doc&.root&.name
-            mem << bibdata_instance(doc, xml[:file])
-          else mem
-          end
+          bib = concatenate_bibdata_xml(xml[:content], xml[:file])
+          bib ? mem << bibdata_instance(bib, xml[:file]) : mem
         end
+      end
+
+      # The bibdata XML of a document whose root is `rfc`, `bibitem` or
+      # `bibdata`, in any namespace.
+      #
+      # @param content [String] XML
+      # @param file [String] path to file
+      # @return [String, nil]
+      def concatenate_bibdata_xml(content, file)
+        root = parse_xml_document(content, file)&.root
+        case root&.name
+        when "rfc" then rfc_bibdata_xml(element_xml(root))
+        when "bibitem", "bibdata" then element_xml(root)
+        end
+      end
+
+      # Moxml does not recover a malformed document: warn
+      # and skip the file. An empty file is skipped without a warning.
+      #
+      # @param content [String] XML
+      # @param file [String] path to file
+      # @return [Moxml::Document, nil] nil when the content is not XML
+      def parse_xml_document(content, file)
+        Moxml.new.parse(content)
+      rescue Moxml::ParseError => e
+        unless content.to_s.strip.empty?
+          Util.warn "Skipping #{file}: not well-formed XML " \
+                    "(#{e.message.lines.first&.strip})"
+        end
+        nil
+      end
+
+      # The root element when it has the name, else the first descendant
+      # element with that local name, in any namespace.
+      #
+      # @param doc [Moxml::Document]
+      # @param name [String]
+      # @return [Moxml::Element, nil]
+      def find_element(doc, name)
+        return doc.root if doc.root&.name == name
+
+        doc.xpath("//*[local-name()='#{name}']").first
+      end
+
+      # Serialize an element as a self-contained document: a sub-element
+      # inherits its namespace declarations from an ancestor, and `to_xml`
+      # does not write them.
+      #
+      # @param element [Moxml::Element]
+      # @return [String]
+      def element_xml(element)
+        declared = element.namespace_definitions.map(&:prefix)
+        element.in_scope_namespaces.each do |ns|
+          next if declared.include?(ns.prefix)
+
+          element.add_namespace(ns.prefix, ns.uri)
+        end
+        element.to_xml
+      end
+
+      # @param rfc [String] RFC XML
+      # @return [String] bibdata XML
+      def rfc_bibdata_xml(rfc)
+        require_relative "../ietf"
+        require_relative "../ietf/bibxml_parser"
+        Relaton::Ietf::BibXMLParser.parse_rfc(rfc).to_xml(bibdata: true)
       end
 
       def concatenate_and_write_to_files
@@ -195,16 +244,15 @@ require_relative "../ietf/bibxml_parser"
         end
       end
 
-      # Create a bibdata instance from the XML document,
+      # Create a bibdata instance from the XML,
       # while also adding file paths of related artifacts
       # as URI elements to the bibdata instance.
       #
-      # @param document [Nokogiri::XML::Document]
+      # @param xml [String] bibdata XML
       # @param file [String] path to file
       # @return [Relaton::Bibdata]
-      def bibdata_instance(document, file)
-        document = clean_nokogiri_document(document)
-        bibdata = Relaton::Bibdata.from_xml document.root
+      def bibdata_instance(xml, file)
+        bibdata = Relaton::Bibdata.from_xml xml
         build_bibdata_relaton(bibdata, file) if bibdata
 
         bibdata
@@ -222,18 +270,6 @@ require_relative "../ietf/bibxml_parser"
           file = Pathname.new(file).sub_ext(".#{type}")
           bibdata.send("#{type}=", file.to_s) if File.file?(file)
         end
-      end
-
-      # Force a namespace otherwise Nokogiri won't parse.
-      # The reason is we use Bibcollection's from_xml, but that one
-      # has an xmlns. We don't want to change the code for bibdata
-      # hence this hack #bibdata_doc.root['xmlns'] = "xmlns"
-      #
-      # @param document [Nokogiri::XML::Document]
-      # @return [Nokogiri::XML::Document]
-      def clean_nokogiri_document(document)
-        document.remove_namespaces!
-        nokogiri_document(document.to_xml)
       end
 
       def convert_rxl_to_xml
