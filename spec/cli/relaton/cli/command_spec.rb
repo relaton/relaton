@@ -12,6 +12,17 @@ RSpec.describe Relaton::Cli::Command do
   end
 
   context "convert Relaton XML document" do
+    it "warns and writes nothing for a file that is not XML" do
+      Dir.mktmpdir do |dir|
+        file = File.join(dir, "bad.xml")
+        File.write file, "<bibdata><title>"
+        expect do
+          Relaton::Cli::Command.start ["convert", file, "-f", "yaml"]
+        end.to output(/not a readable Relaton XML document/).to_stderr_from_any_process
+        expect(Dir.children(dir)).to eq ["bad.xml"]
+      end
+    end
+
     it "to YAML" do
       file = "spec/fixtures/bib_item.xml"
       output = "spec/fixtures/bib_item.yaml"

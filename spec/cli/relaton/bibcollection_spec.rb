@@ -63,7 +63,7 @@ RSpec.describe Relaton::Bibcollection do
     end
 
     it "handle empty XML" do
-      document = Relaton::Bibdata.from_xml Nokogiri::XML("")
+      document = Relaton::Bibdata.from_xml ""
       expect(document).to be_nil
     end
   end
