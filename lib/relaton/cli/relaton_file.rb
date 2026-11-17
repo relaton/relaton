@@ -108,7 +108,8 @@ module Relaton
       end
 
       def relaton_collection
-        @relaton_collection ||= Bibcollection.from_xml(nokogiri_document(nil, source))
+        @relaton_collection ||=
+          Bibcollection.from_xml(File.read(source, encoding: "utf-8"))
       end
 
       def extract_and_write_to_files # rubocop:disable Metrics/AbcSize, Metrics/MethodLength

@@ -1,4 +1,4 @@
-require "nokogiri"
+require "moxml"
 require_relative "base_convertor"
 
 module Relaton
@@ -29,10 +29,11 @@ module Relaton
         "yaml"
       end
 
-      # @param content [Nokogiri::XML::Document]
-      # @return [Hash]
+      # @param content [String] Relaton XML: a bibliographic item or a
+      #   collection
+      # @return [Relaton::Bibdata, Relaton::Bibcollection, nil]
       def convert_content(content)
-        if %w[bibitem bibdata].include? content.root.name
+        if %w[bibitem bibdata].include? Moxml.new.parse(content).root&.name
           Bibdata.from_xml(content)
         else
           Bibcollection.from_xml(content)
@@ -40,7 +41,7 @@ module Relaton
       end
 
       def file_content
-        Nokogiri::XML(File.read(file, encoding: "utf-8"))
+        File.read(file, encoding: "utf-8")
       end
     end
   end

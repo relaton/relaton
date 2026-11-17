@@ -1,4 +1,3 @@
-require "nokogiri"
 require "liquid"
 
 module Relaton::Cli
@@ -112,7 +111,7 @@ module Relaton::Cli
     # @param source [String] Relaton XML
     # @return [Relaton::Bibcollection]
     def build_bibcollection(source)
-      Relaton::Bibcollection.from_xml(Nokogiri::XML(source))
+      Relaton::Bibcollection.from_xml(source)
     end
 
     # @param bibcollection [Relaton::Bibcollection]

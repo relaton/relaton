@@ -146,8 +146,8 @@ module Relaton
 
       def import(file)
         xml = read_xml file
-        if xml.at "relaton-collection"
-          imported = import_collection(xml)
+        if Moxml.new.parse(xml).root&.name == "relaton-collection"
+          imported = Relaton::Bibcollection.from_xml(xml)
           store.update(options[:collection]) do |coll|
             next imported unless coll # a new collection is the imported one
 
@@ -173,20 +173,10 @@ module Relaton
 
       private
 
-      # Parse a namespace-free collection XML document.
-      # Bibcollection.from_xml expects namespaced docs (via apply_namespace),
-      # so we use plain XPath on the namespace-stripped document instead.
-      def import_collection(xml)
-        title = xml.at("relaton-collection/title")&.text
-        author = xml.at_xpath(
-          "./relaton-collection/contributor[role/@type='author']"\
-          "/organization/name",
-        )&.text
-        items = xml.xpath("relaton-collection/relation").map do |rel|
-          el = rel.at("bibdata") || rel.at("bibitem")
-          Relaton::Bibdata.from_xml(el || rel)
-        end.compact
-        Relaton::Bibcollection.new(title: title, author: author, items: items)
+      # The XML file `import` reads: user input, not a collection.
+      # @return [String]
+      def read_xml(file)
+        File.read file, encoding: "UTF-8"
       end
 
       # @return [String]
@@ -208,14 +198,6 @@ module Relaton
           coll << item
           coll
         end
-      end
-
-      # The XML file `import` reads: user input, not a collection.
-      # @return [Nokogiri::XML::Document]
-      def read_xml(file)
-        xml = Nokogiri::XML File.read(file, encoding: "UTF-8")
-        xml.remove_namespaces!
-        xml
       end
 
       # @return [Array<Hash>]

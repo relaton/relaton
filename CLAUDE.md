@@ -127,7 +127,21 @@ add an item through `update`, never a read and a separate write. The flat
 files an older relaton wrote are moved once to `<dir>-v1.bak/`. Don't put a
 `YAML.load_file`/`File.write` on a collection back in
 `subcommand_collection.rb`: `spec/cli/relaton/cli/collection_store_spec.rb`
-guards it with a raw-IO allowlist.
+guards it with a raw-IO allowlist. **The collection model rides lutaml-model
+(relaton#459):** `Relaton::Bibcollection` is a plain data class, and
+`Relaton::CollectionXml` is its lutaml-model XML mapper (`model
+Bibcollection`, as `Bib::Item` maps `Bib::ItemData`). The model is not a
+`Serializable` itself: `Serializable` already defines `doctype` (the
+`<!DOCTYPE>`), and that clashes with the collection's own `doctype`. It reads a collection in any namespace and writes it in
+`https://open.ribose.com/relaton-xml`. An item has no type discriminator and
+a flavor's class, so `relation` uses custom `with:` methods that put each
+item's own `to_xml` into the tree as an `XmlRawFragment`. Don't copy an item
+element by element into lutaml's data model instead: that loses foreign
+namespaces (MathML, `xlink:`, `xml:lang`) and comments. The fragment parser
+cannot read an HTML entity (`&nbsp;`), so `XmlTree.escape` escapes its `&`. Don't put Nokogiri XPath or string-joined XML back in
+`bibcollection.rb`/`collection_xml.rb`; `spec/cli/relaton/bibcollection_spec.rb`
+guards it. `Cli.parse_xml` (relaton#581) and `RelatonFile`
+extract/concatenate (relaton#580) still use Nokogiri.
 
 **A stale cache row is served, not deleted, when the network fails
 (relaton#536).** `Db` expires a row only **after** a refetch answers:

@@ -61,10 +61,10 @@ module Relaton
         RelatonDb.instance.db dir
       end
 
-      # @param content [Nokogiri::XML::Document]
-      # @return [RelatonBib::BibliographicItem,
-      #   RelatonIsoBib::IsoBibliongraphicItem]
+      # @param doc [String, Nokogiri::XML::Document] a bibdata or bibitem
+      # @return [Relaton::Bib::ItemData, nil]
       def parse_xml(doc)
+        doc = Nokogiri::XML(doc) if doc.is_a?(String)
         doc.remove_namespaces! if doc.respond_to?(:remove_namespaces!)
         if (proc = Cli.processor(doc))
           proc.from_xml(doc.to_s)
