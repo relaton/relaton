@@ -25,6 +25,17 @@ module Relaton
         Bibliography.get(code, date, opts)
       end
 
+      # The long section form with an edition qualifier ("S-4 Part B,
+      # Section 400, Edition 4.9.0", relaton#531) is read by the flavor,
+      # not by pubid's grammar, so the Db cache key comes from the same
+      # parse `get` uses.
+      def cache_pubid(ref)
+        require_relative "../iho"
+        Bibliography.parse_reference(ref)
+      rescue ArgumentError, ::Pubid::Errors::Error
+        super
+      end
+
       # An IHO record prints `B-12` and keeps its edition in `edition`, so
       # the edition goes on the key (relaton#408). The component model
       # (relaton#440) renamed the pubid attribute `version` -> `edition`.

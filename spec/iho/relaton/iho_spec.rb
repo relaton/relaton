@@ -237,6 +237,108 @@ RSpec.describe Relaton::Iho do
       end
     end
 
+    # relaton#531: S-4 sections are first-class records, one per content
+    # state (relaton-data-iho#55). A section record is indexed under its
+    # publication's base edition ("IHO S-4 4.10.0 B-400", pubid#691); an
+    # unqualified citation answers with the newest state, an
+    # edition-qualified one with that state. Only the selected file is
+    # stubbed, so a wrong pick hits WebMock's net block.
+    context "S-4 section citations" do
+      def stub_section(file, edition, part: "B", section: "400")
+        stub_request(:get, "#{Relaton::Iho::Bibliography::ENDPOINT}#{file}")
+          .to_return(body: <<~YAML)
+            ---
+            id: S4Part#{part}Section#{section}
+            docidentifier:
+            - content: S-4 Part #{part}, Section #{section}
+              type: IHO
+              primary: true
+            edition:
+              content: #{edition}
+            relation:
+            - type: partOf
+              bibitem:
+                docidentifier:
+                - content: S-4 Part #{part}
+                  type: IHO
+                  primary: true
+                edition:
+                  content: #{edition}
+          YAML
+      end
+
+      before do
+        stub_index [
+          row("IHO S-4 Part B 4.9.0", "data/s-4partb_4-9-0.yaml"),
+          row("IHO S-4 4.9.0 B-400", "data/s-4partb-section400_4-9-0.yaml"),
+          row("IHO S-4 4.10.0 B-400", "data/s-4partb-section400_4-10-0.yaml"),
+          row("IHO S-4 4.10.0 B-300", "data/s-4partb-section300_4-10-0.yaml"),
+          row("IHO S-4 4.10.0 A-400", "data/s-4parta-section400_4-10-0.yaml"),
+        ]
+      end
+
+      it "resolves the long form to the current section state" do
+        stub_section "data/s-4partb-section400_4-10-0.yaml", "4.10.0"
+        result = Relaton::Iho::Bibliography.get "S-4 Part B, Section 400"
+        expect(result.docidentifier.first.content).to eq "S-4 Part B, Section 400"
+        expect(result.edition.content).to eq "4.10.0"
+      end
+
+      it "resolves the citation face to the same record" do
+        stub_section "data/s-4partb-section400_4-10-0.yaml", "4.10.0"
+        result = Relaton::Iho::Bibliography.get "IHO S-4 B-400"
+        expect(result.edition.content).to eq "4.10.0"
+      end
+
+      it "resolves an edition-qualified long form to that state" do
+        stub_section "data/s-4partb-section400_4-9-0.yaml", "4.9.0"
+        result = Relaton::Iho::Bibliography.get "S-4 Part B, Section 400, Edition 4.9.0"
+        expect(result.edition.content).to eq "4.9.0"
+      end
+
+      it "resolves a dated citation face to that state" do
+        stub_section "data/s-4partb-section400_4-9-0.yaml", "4.9.0"
+        result = Relaton::Iho::Bibliography.get "IHO S-4 4.9.0 B-400"
+        expect(result.edition.content).to eq "4.9.0"
+      end
+
+      it "keeps the part letter significant" do
+        stub_section "data/s-4parta-section400_4-10-0.yaml", "4.10.0", part: "A"
+        result = Relaton::Iho::Bibliography.get "S-4 Part A, Section 400"
+        expect(result.docidentifier.first.content).to eq "S-4 Part A, Section 400"
+      end
+
+      it "answers a part query with the part, not one of its sections" do
+        stub_request(:get, "#{Relaton::Iho::Bibliography::ENDPOINT}data/s-4partb_4-9-0.yaml")
+          .to_return(body: "---\ndocidentifier:\n- content: S-4 Part B\n  type: IHO\n  primary: true\n")
+        result = Relaton::Iho::Bibliography.get "IHO S-4 Part B"
+        expect(result.docidentifier.first.content).to eq "S-4 Part B"
+      end
+
+      it "answers an unknown section state with nil" do
+        expect(Relaton::Iho::Bibliography.get("S-4 Part B, Section 400, Edition 4.8.0")).to be_nil
+      end
+
+      it "binds the relation stub as an IHO item" do
+        stub_section "data/s-4partb-section400_4-10-0.yaml", "4.10.0"
+        rel = Relaton::Iho::Bibliography.get("S-4 Part B, Section 400").relation.first
+        expect(rel.type).to eq "partOf"
+        expect(rel.bibitem).to be_a Relaton::Iho::ItemData
+        expect(rel.bibitem.docidentifier.first.content).to eq "S-4 Part B"
+      end
+
+      it "fills the structured identifier from the citation" do
+        stub_section "data/s-4partb-section400_4-10-0.yaml", "4.10.0"
+        sid = Relaton::Iho::Bibliography.get("S-4 Part B, Section 400").ext.structuredidentifier.first
+        expect([sid.docnumber, sid.part]).to eq ["S-4", "B"]
+      end
+
+      it "still raises on an unparseable reference with an edition qualifier" do
+        expect { Relaton::Iho::Bibliography.get "IHO S63, Edition 1.0.0" }
+          .to raise_error(Pubid::Errors::ParseError)
+      end
+    end
+
     it "take doc with shorter code", vcr: "s_4" do
       result = Relaton::Iho::Bibliography.get "IHO S-4"
       expect(result.docidentifier.first.content).to eq "S-4"

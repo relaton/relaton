@@ -69,6 +69,20 @@ Relaton::Iho::Bibliography.get "IHO B-11"
 ...
 ----
 
+=== Get an S-4 section
+
+S-4 sections are records of their own, one per content state. A section
+reference without an edition returns the current state. Add the edition to
+get an earlier state.
+
+[source,ruby]
+----
+Relaton::Iho::Bibliography.get "S-4 Part B, Section 400"   # current state
+Relaton::Iho::Bibliography.get "IHO S-4 B-400"             # same record
+Relaton::Iho::Bibliography.get "S-4 Part B, Section 400, Edition 4.9.0"
+Relaton::Iho::Bibliography.get "IHO S-4 4.9.0 B-400"       # same record
+----
+
 === Typed links
 
 Each IHO document has `html`, `website`, or `pdf` type link.
