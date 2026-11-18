@@ -1,0 +1,59 @@
+= Relaton::Arxiv: retrieves arXiv e-prints from the arXiv API
+
+`Relaton::Arxiv` fetches the metadata of an https://arxiv.org[arXiv] e-print
+from the https://info.arxiv.org/help/api/[arXiv API] and answers a
+`Relaton::Bib::ItemData`.
+
+== Usage
+
+`Relaton::Arxiv::Bibliography.get` takes an arXiv id, with or without the
+`arXiv:` prefix (any case) and with or without a version. An id with no
+version answers the latest version.
+
+[source,ruby]
+----
+require "relaton/arxiv"
+
+item = Relaton::Arxiv::Bibliography.get "arXiv:1706.03762"
+[relaton-arxiv] INFO: (arXiv:1706.03762) Fetching from arXiv ...
+[relaton-arxiv] INFO: (arXiv:1706.03762) Found: `arXiv:1706.03762v7`
+
+item.docidentifier.map(&:content)
+=> ["arXiv:1706.03762v7", "10.48550/arXiv.1706.03762"]
+
+# an old-style id, a version
+Relaton::Arxiv::Bibliography.get "arxiv:hep-th/9901001v2"
+----
+
+Through `Relaton::Db`:
+
+[source,ruby]
+----
+require "relaton"
+
+Relaton::Db.new("cache", nil).fetch "arXiv:2301.00001"
+----
+
+== Identifiers
+
+Both arXiv id schemes are read (https://info.arxiv.org/help/arxiv_identifier_for_services.html):
+
+* new: `YYMM.NNNN` (0704 to 1412), `YYMM.NNNNN` (from 1501), as `2301.00001v1`;
+* old: `archive[.SC]/YYMMNNN`, as `hep-th/9901001`, `math.GT/0309136`.
+
+== Data model
+
+[cols="1,2"]
+|===
+| Atom element | `Bib::ItemData`
+
+| `id` | primary docidentifier `arXiv` (versioned), `version`; and a docidentifier `DOI` `10.48550/arXiv.<id>`
+| `title` | `title` (`main`)
+| `summary` | `abstract`
+| `published`, `updated` | `date`
+| `author` (`name`, `arxiv:affiliation`) | contributor, role `author`
+| `arxiv:primary_category`, `category` | `keyword` (the primary first)
+| `link` (`alternate`, `pdf`) | `source` (`src`, `pdf`)
+| `arxiv:journal_ref` | `note` (`journal-ref`); the type is then `article`, else `misc`
+| `arxiv:doi` | relation `hasManifestation` to the journal article
+|===
