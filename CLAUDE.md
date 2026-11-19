@@ -229,6 +229,15 @@ must fail loud: `Doi::Http.get_json` answers nil only on a 404 and otherwise
 raises `Relaton::RequestError` after two retries — a silent fall-back to Crossref
 would cache a DataCite DOI as not found. See `docs/doi.md`.
 
+**arXiv is a live-API flavor with no data repo (relaton#42).**
+`Relaton::Arxiv` reads `export.arxiv.org/api/query?id_list=<id>` (Atom) and
+keys on `Pubid::Arxiv` (pubid >= 2.0.44, which the gemspec floors).
+`Pubid.parse` routes `arXiv:` case-sensitively, so the prefix regex routes
+`arxiv:` and `Processor#cache_pubid` calls `Pubid::Arxiv.parse`. The year
+option is never folded into the key: an arXiv id's year and month are
+identity. A feed with no entry is a miss; any other failure raises
+`Relaton::RequestError`. See `docs/arxiv.md`.
+
 **Crawl politeness lives in `core`, bindings live in the flavor.** Two shared
 components under `lib/relaton/core/` carry the "don't get banned, don't burn the
 CI job" logic that more than one crawler needs: **`Pacer`** (one shared request

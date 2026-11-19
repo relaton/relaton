@@ -1,0 +1,97 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://export.arxiv.org/api/query?id_list=hep-th/9901001
+    body:
+      encoding: US-ASCII
+      base64_string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Host:
+      - export.arxiv.org
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1816'
+      Server:
+      - Google Frontend
+      Content-Type:
+      - application/atom+xml; charset=utf-8
+      Via:
+      - 1.1 google, 1.1 varnish, 1.1 varnish, 1.1 varnish
+      X-Cloud-Trace-Context:
+      - 12736e9c3a6adcbf5c8dc5cdd8e93bff
+      Accept-Ranges:
+      - bytes
+      Age:
+      - '0'
+      Date:
+      - Wed, 18 Nov 2026 22:44:14 GMT
+      X-Served-By:
+      - cache-lga-kjfk8660076-LGA, cache-lga-kjfk8660076-LGA, cache-lga-kjfk8660076-LGA,
+        cache-iad-kcgs7200154-IAD
+      X-Cache:
+      - MISS, MISS, MISS
+      X-Cache-Hits:
+      - 0, 0, 0
+      X-Timer:
+      - S1795041840.514027,VS0,VE15484
+      Strict-Transport-Security:
+      - max-age=300
+    body:
+      encoding: UTF-8
+      base64_string: |
+        PD94bWwgdmVyc2lvbj0nMS4wJyBlbmNvZGluZz0nVVRGLTgnPz4KPGZlZWQg
+        eG1sbnM6b3BlbnNlYXJjaD0iaHR0cDovL2E5LmNvbS8tL3NwZWMvb3BlbnNl
+        YXJjaC8xLjEvIiB4bWxuczphcnhpdj0iaHR0cDovL2FyeGl2Lm9yZy9zY2hl
+        bWFzL2F0b20iIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDA1L0F0b20i
+        PgogIDxpZD5odHRwczovL2FyeGl2Lm9yZy9hcGkvOFFLSkZ2bjl6NUw0MVlo
+        cndsdE1DUTJ2MG5rPC9pZD4KICA8dGl0bGU+YXJYaXYgUXVlcnk6IHNlYXJj
+        aF9xdWVyeT0mYW1wO2lkX2xpc3Q9aGVwLXRoLzk5MDEwMDEmYW1wO3N0YXJ0
+        PTAmYW1wO21heF9yZXN1bHRzPTEwPC90aXRsZT4KICA8dXBkYXRlZD4yMDI2
+        LTExLTE4VDIyOjQ0OjE0WjwvdXBkYXRlZD4KICA8bGluayBocmVmPSJodHRw
+        czovL2FyeGl2Lm9yZy9hcGkvcXVlcnk/c2VhcmNoX3F1ZXJ5PSZhbXA7c3Rh
+        cnQ9MCZhbXA7bWF4X3Jlc3VsdHM9MTAmYW1wO2lkX2xpc3Q9aGVwLXRoLzk5
+        MDEwMDEiIHR5cGU9ImFwcGxpY2F0aW9uL2F0b20reG1sIi8+CiAgPG9wZW5z
+        ZWFyY2g6aXRlbXNQZXJQYWdlPjEwPC9vcGVuc2VhcmNoOml0ZW1zUGVyUGFn
+        ZT4KICA8b3BlbnNlYXJjaDp0b3RhbFJlc3VsdHM+MTwvb3BlbnNlYXJjaDp0
+        b3RhbFJlc3VsdHM+CiAgPG9wZW5zZWFyY2g6c3RhcnRJbmRleD4wPC9vcGVu
+        c2VhcmNoOnN0YXJ0SW5kZXg+CiAgPGVudHJ5PgogICAgPGlkPmh0dHA6Ly9h
+        cnhpdi5vcmcvYWJzL2hlcC10aC85OTAxMDAxdjM8L2lkPgogICAgPHRpdGxl
+        PlN0cmluZyBKdW5jdGlvbnMgYW5kIFRoZWlyIER1YWxzIGluIEhldGVyb3Rp
+        YyBTdHJpbmcgVGhlb3J5PC90aXRsZT4KICAgIDx1cGRhdGVkPjE5OTktMDUt
+        MTBUMDQ6NDU6NTRaPC91cGRhdGVkPgogICAgPGxpbmsgaHJlZj0iaHR0cHM6
+        Ly9hcnhpdi5vcmcvYWJzL2hlcC10aC85OTAxMDAxdjMiIHJlbD0iYWx0ZXJu
+        YXRlIiB0eXBlPSJ0ZXh0L2h0bWwiLz4KICAgIDxsaW5rIGhyZWY9Imh0dHBz
+        Oi8vYXJ4aXYub3JnL3BkZi9oZXAtdGgvOTkwMTAwMXYzIiByZWw9InJlbGF0
+        ZWQiIHR5cGU9ImFwcGxpY2F0aW9uL3BkZiIgdGl0bGU9InBkZiIvPgogICAg
+        PHN1bW1hcnk+ICBXZSBleHBsaWNpdGx5IGdpdmUgdGhlIGNvcnJlc3BvbmRl
+        bmNlIGJldHdlZW4gc3BlY3RyYSBvZiBoZXRlcm90aWMgc3RyaW5nIHRoZW9y
+        eSBjb21wYWN0aWZpZWQgb24gJFReMiQgYW5kIHN0cmluZyBqdW5jdGlvbnMg
+        aW4gdHlwZSBJSUIgdGhlb3J5IGNvbXBhY3RpZmllZCBvbiAkU14yJC48L3N1
+        bW1hcnk+CiAgICA8Y2F0ZWdvcnkgdGVybT0iaGVwLXRoIiBzY2hlbWU9Imh0
+        dHA6Ly9hcnhpdi5vcmcvc2NoZW1hcy9hdG9tIi8+CiAgICA8cHVibGlzaGVk
+        PjE5OTktMDEtMDFUMDE6MDE6MTBaPC9wdWJsaXNoZWQ+CiAgICA8YXJ4aXY6
+        Y29tbWVudD4xMyBwYWdlcyArIDQgZXBzIGZpZ3VyZXMsIFBUUFRlWCwgdHlw
+        b2dyYXBoaWNhbCBlcnJvcnMgY29ycmVjdGVkPC9hcnhpdjpjb21tZW50Pgog
+        ICAgPGFyeGl2OnByaW1hcnlfY2F0ZWdvcnkgdGVybT0iaGVwLXRoIi8+CiAg
+        ICA8YXJ4aXY6am91cm5hbF9yZWY+UHJvZy5UaGVvci5QaHlzLjEwMToxMTU1
+        LTExNjQsMTk5OTwvYXJ4aXY6am91cm5hbF9yZWY+CiAgICA8YXV0aG9yPgog
+        ICAgICA8bmFtZT5Zb3N1a2UgSW1hbXVyYTwvbmFtZT4KICAgIDwvYXV0aG9y
+        PgogICAgPGFyeGl2OmRvaT4xMC4xMTQzL1BUUC4xMDEuMTE1NTwvYXJ4aXY6
+        ZG9pPgogICAgPGxpbmsgcmVsPSJyZWxhdGVkIiBocmVmPSJodHRwczovL2Rv
+        aS5vcmcvMTAuMTE0My9QVFAuMTAxLjExNTUiIHRpdGxlPSJkb2kiLz4KICA8
+        L2VudHJ5Pgo8L2ZlZWQ+Cg==
+  recorded_at: Wed, 18 Nov 2026 22:44:14 GMT
+recorded_with: VCR 6.4.1

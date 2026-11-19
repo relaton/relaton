@@ -131,8 +131,11 @@ Gem::Specification.new do |spec|
   # 2.0.25 parses the WES English edition (`WES 1112(E):2022`), `WES TR`
   # and `WES TS` (pubid#716, relaton-jis#18); an older runtime leaves 14
   # of the 104 WES records out of the relaton-data-jis index.
-  # 2.0.44 carries `Pubid::Eu` (pubid#752), the EU flavor's cache key and
-  # index rows (relaton#44).
+  # 2.0.44 carries Pubid::Arxiv (pubid#753, relaton#42), the identifier
+  # class the arXiv flavor keys its cache and routes with; an older
+  # runtime has no arXiv grammar, and the processor cannot load. It also
+  # carries `Pubid::Eu` (pubid#752), the EU flavor's cache key and index
+  # rows (relaton#44).
   spec.add_dependency "pubid", "~> 2.0.44"
 
   # JSON parse/generate across the flavor fetchers, the index and the db:

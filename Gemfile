@@ -84,7 +84,9 @@ gemspec
 # pubid 2.0.21 parses the PLATEAU Handbook volume label (本編 / 本編＋付録).
 # It also reads the SDOs' printed spellings: NIST "FIPS PUB <n>" and the ECMA
 # "Edition 5.1" faces (pubid#697, #698; metanorma-pdfa#114).
-gem "pubid", "~> 2.0.44" # Pubid::Eu (pubid#752, relaton#44); before it the WES (E)/TR/TS parse (pubid#716) the gemspec floors, after the 2.0.24 no-sector ITU OB face (pubid#696); a cached 2.0.24 must not satisfy
+# pubid 2.0.44 carries Pubid::Arxiv (pubid#753), the arXiv flavor's key (relaton#42),
+# and Pubid::Eu (pubid#752), the EU flavor's key (relaton#44).
+gem "pubid", "~> 2.0.44" # earlier: the WES (E)/TR/TS parse (pubid#716) the gemspec floors, after the 2.0.24 no-sector ITU OB face (pubid#696); a cached 2.0.24 must not satisfy
 # parsanol 1.3.114 (ruby#361) carries the numeric capture editions —
 # the canonical edition 2 header and the integer envelope field — and
 # the edition-2 whitespace-class glue fix; pubid rides it

@@ -143,6 +143,18 @@ RSpec.describe Relaton::Db::Registry do
       expect(Relaton::Db::Registry.instance.by_type("ISBN")).to be_instance_of Relaton::Isbn::Processor
     end
 
+    # A mixed-case prefix (`arXiv`, `Adobe`) matches in any case: the CLI
+    # upcases `--type`.
+    it "arXiv, in any case" do
+      %w[arXiv ARXIV arxiv].each do |type|
+        expect(Relaton::Db::Registry.instance.by_type(type)).to be_instance_of Relaton::Arxiv::Processor
+      end
+    end
+
+    it "Adobe, in any case" do
+      expect(Relaton::Db::Registry.instance.by_type("ADOBE")).to be_instance_of Relaton::Adobe::Processor
+    end
+
     it "JCGM" do
       expect(Relaton::Db::Registry.instance.by_type("JCGM")).to be_instance_of Relaton::Jcgm::Processor
     end
@@ -316,6 +328,11 @@ RSpec.describe Relaton::Db::Registry do
       # EU legal acts (relaton#44): Pubid::Eu reads the canonical form.
       "EU Regulation 1227/2011" => :relaton_eu,
       "EU Directive 2016/680" => :relaton_eu,
+      # arXiv (relaton#42): Pubid::Arxiv's exact parse, and the prefix
+      # regex for a lower-case prefix, which Pubid.parse does not route.
+      "arXiv:2301.00001" => :relaton_arxiv,
+      "arXiv:hep-th/9901001v2" => :relaton_arxiv,
+      "arxiv:2301.00001v1" => :relaton_arxiv,
       "draft-abarth-cake-01" => :relaton_ietf,
     }.each do |ref, short|
       it "routes #{ref.inspect} to #{short}" do
