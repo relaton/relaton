@@ -576,6 +576,19 @@ RSpec.describe Relaton::Db do
     expect(bib.docidentifier.first.content).to eq "ISBN 978-0-306-40615-7"
   end
 
+  it "get arXiv reference" do
+    require "relaton/arxiv"
+    docid = Relaton::Bib::Docidentifier.new(content: "arXiv:2301.00001v1",
+                                            type: "arXiv", primary: true)
+    item = Relaton::Bib::ItemData.new docidentifier: [docid]
+    expect(Relaton::Arxiv::Bibliography).to receive(:get).with(
+      pubid_of("arXiv:2301.00001v1"), nil, {}
+    ).and_return item
+    bib = @db.fetch "arXiv:2301.00001v1"
+    expect(bib).to be_instance_of Relaton::Bib::ItemData
+    expect(bib.docidentifier.first.content).to eq "arXiv:2301.00001v1"
+  end
+
   it "get PLATEAU reference" do
     require "relaton/plateau"
     docid = Relaton::Bib::Docidentifier.new(content: "PLATEAU Handbook #01",

@@ -13,7 +13,7 @@ module Relaton
         relaton/oasis relaton/doi relaton/jis relaton/xsf
         relaton/ccsds relaton/etsi relaton/isbn relaton/plateau
         relaton/oiml relaton/jcgm relaton/easc relaton/gost relaton/adobe
-        relaton/iala relaton/evs relaton/sae
+        relaton/iala relaton/evs relaton/sae relaton/arxiv
       ].freeze
 
       include Singleton
@@ -74,7 +74,11 @@ module Relaton
       # @param type [String]
       # @return [Relaton::Core::Processor]
       def by_type(type)
-        processors.values.detect { |v| v.prefix == type&.upcase }
+        # Case-insensitive: a prefix can be mixed case (`arXiv`, `Adobe`),
+        # and the CLI upcases `--type`.
+        return unless type
+
+        processors.values.detect { |v| v.prefix.casecmp?(type.to_s) }
       end
 
       def [](stdclass)
