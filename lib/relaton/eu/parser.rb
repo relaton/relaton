@@ -22,7 +22,10 @@ module Relaton
       CITATION = %r{\b(Regulation|Directive|Decision)\b[^\d]{0,40}?(\d+)/(\d+)}
 
       # The note that closes many titles; it is not part of the title.
-      EEA_NOTE = /\s*\(?\s*Text with EEA relevance\s*\)?\.?\s*\z/i
+      # It is matched after `#initialize` collapses each whitespace run in
+      # the title to one space, so ` ?` stands for any run (no `\s*`:
+      # CodeQL rb/polynomial-redos).
+      EEA_NOTE = / ?\(? ?Text with EEA relevance ?\)? ?\.?\z/i
 
       # A placeholder CELLAR uses for an unknown entry-into-force date.
       PLACEHOLDER_DATE = /\A1001-/

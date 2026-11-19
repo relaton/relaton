@@ -89,6 +89,19 @@ describe Relaton::Eu::Parser, :no_index_fixture do
                                   "on wholesale energy market integrity and transparency"
     end
 
+    # `EEA_NOTE` matches one space only: it relies on `#initialize`
+    # collapsing each whitespace run in the title.
+    ["  (Text with EEA relevance)", " ( Text with EEA relevance )  .",
+     "\n\tText with EEA relevance"].each do |note|
+      it "drops the EEA relevance note after whitespace #{note.inspect}" do
+        raw = row("32011R1227").merge(
+          "title" => { "value" => "Regulation (EU) No 1227/2011 on energy#{note}" },
+        )
+        title = described_class.parse(raw).title.first.content
+        expect(title).to eq "Regulation (EU) No 1227/2011 on energy"
+      end
+    end
+
     it "has the date of the document and the entry into force" do
       expect(item.date.map { |d| [d.type, d.at.to_s] }).to eq [
         %w[issued 2011-10-25], %w[implemented 2011-12-28]
