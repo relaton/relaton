@@ -1,0 +1,65 @@
+{
+  "head": {
+    "link": [],
+    "vars": [
+      "celex",
+      "eli",
+      "date",
+      "force",
+      "inforce",
+      "title",
+      "authors",
+      "repeals",
+      "amends"
+    ]
+  },
+  "results": {
+    "distinct": false,
+    "ordered": true,
+    "bindings": [
+      {
+        "celex": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "value": "32013D1082"
+        },
+        "eli": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#anyURI",
+          "value": "http://data.europa.eu/eli/dec/2013/1082/oj"
+        },
+        "date": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#date",
+          "value": "2013-10-22"
+        },
+        "force": {
+          "type": "literal",
+          "value": "2013-11-06"
+        },
+        "inforce": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "value": "0"
+        },
+        "title": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "value": "Decision No 1082/2013/EU of the European Parliament and of the Council of 22 October 2013 on serious cross-border threats to health and repealing Decision No 2119/98/EC  Text with EEA relevance"
+        },
+        "authors": {
+          "type": "literal",
+          "value": "http://publications.europa.eu/resource/authority/corporate-body/CONSIL|Council of the European Union\nhttp://publications.europa.eu/resource/authority/corporate-body/EP|European Parliament"
+        },
+        "repeals": {
+          "type": "literal",
+          "value": "31998D2119 32003D0534"
+        },
+        "amends": {
+          "type": "literal",
+          "value": "32003R1882 32007D0875 32009R0596"
+        }
+      }
+    ]
+  }
+}

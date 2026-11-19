@@ -1,0 +1,86 @@
+---
+id: EUDecision10822013
+schema_version: v1.5.6
+type: standard
+title:
+- language: en
+  script: Latn
+  content: Decision No 1082/2013/EU of the European Parliament and of the Council
+    of 22 October 2013 on serious cross-border threats to health and repealing Decision
+    No 2119/98/EC
+  type: main
+source:
+- type: src
+  content: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32013D1082
+docidentifier:
+- content: EU Decision 1082/2013
+  type: EU
+  primary: true
+- content: CELEX 32013D1082
+  type: CELEX
+- content: http://data.europa.eu/eli/dec/2013/1082/oj
+  type: ELI
+date:
+- type: issued
+  at: '2013-10-22'
+- type: implemented
+  at: '2013-11-06'
+contributor:
+- role:
+  - type: author
+  organization:
+    name:
+    - content: Council of the European Union
+    abbreviation:
+      content: CONSIL
+- role:
+  - type: author
+  organization:
+    name:
+    - content: European Parliament
+    abbreviation:
+      content: EP
+- role:
+  - type: publisher
+  organization:
+    name:
+    - content: Publications Office of the European Union
+    abbreviation:
+      content: OP
+language:
+- en
+script:
+- Latn
+status:
+  stage:
+    content: not-in-force
+relation:
+- type: obsoletes
+  bibitem:
+    docidentifier:
+    - content: CELEX 31998D2119
+      type: CELEX
+- type: obsoletes
+  bibitem:
+    docidentifier:
+    - content: CELEX 32003D0534
+      type: CELEX
+- type: updates
+  bibitem:
+    docidentifier:
+    - content: CELEX 32003R1882
+      type: CELEX
+- type: updates
+  bibitem:
+    docidentifier:
+    - content: CELEX 32007D0875
+      type: CELEX
+- type: updates
+  bibitem:
+    docidentifier:
+    - content: CELEX 32009R0596
+      type: CELEX
+ext:
+  doctype:
+    content: decision
+  flavor: eu

@@ -1,0 +1,58 @@
+---
+id: EUDecision2016245
+schema_version: v1.5.6
+type: standard
+title:
+- language: en
+  script: Latn
+  content: Decision (EU) 2016/245 of the European Central Bank of 9 February 2016
+    laying down the rules on procurement (recast) (ECB/2016/2)
+  type: main
+source:
+- type: src
+  content: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32016D0002
+docidentifier:
+- content: EU Decision 2016/245
+  type: EU
+  primary: true
+- content: CELEX 32016D0002
+  type: CELEX
+- content: http://data.europa.eu/eli/dec/2016/245/oj
+  type: ELI
+date:
+- type: issued
+  at: '2016-02-09'
+- type: implemented
+  at: '2016-04-15'
+contributor:
+- role:
+  - type: author
+  organization:
+    name:
+    - content: European Central Bank
+    abbreviation:
+      content: ECB
+- role:
+  - type: publisher
+  organization:
+    name:
+    - content: Publications Office of the European Union
+    abbreviation:
+      content: OP
+language:
+- en
+script:
+- Latn
+status:
+  stage:
+    content: in-force
+relation:
+- type: obsoletes
+  bibitem:
+    docidentifier:
+    - content: CELEX 32007D0005(01)
+      type: CELEX
+ext:
+  doctype:
+    content: decision
+  flavor: eu

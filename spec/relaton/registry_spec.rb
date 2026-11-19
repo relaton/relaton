@@ -313,6 +313,9 @@ RSpec.describe Relaton::Db::Registry do
       "SAE J3016" => :relaton_sae,
       # SAE's native edition code: Pubid::Sae reads the month.
       "SAE J3016_202104" => :relaton_sae,
+      # EU legal acts (relaton#44): Pubid::Eu reads the canonical form.
+      "EU Regulation 1227/2011" => :relaton_eu,
+      "EU Directive 2016/680" => :relaton_eu,
       "draft-abarth-cake-01" => :relaton_ietf,
     }.each do |ref, short|
       it "routes #{ref.inspect} to #{short}" do

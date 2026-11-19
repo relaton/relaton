@@ -35,6 +35,7 @@ module Relaton
   autoload :Ecma, "relaton/ecma"
   autoload :Etsi, "relaton/etsi"
   autoload :Easc, "relaton/easc"
+  autoload :Eu, "relaton/eu"
   autoload :Evs, "relaton/evs"
   autoload :Gost, "relaton/gost"
   autoload :Iana, "relaton/iana"

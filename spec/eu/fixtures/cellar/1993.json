@@ -1,0 +1,65 @@
+{
+  "head": {
+    "link": [],
+    "vars": [
+      "celex",
+      "eli",
+      "date",
+      "force",
+      "inforce",
+      "title",
+      "authors",
+      "repeals",
+      "amends"
+    ]
+  },
+  "results": {
+    "distinct": false,
+    "ordered": true,
+    "bindings": [
+      {
+        "celex": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "value": "31993L0042"
+        },
+        "eli": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#anyURI",
+          "value": "http://data.europa.eu/eli/dir/1993/42/oj"
+        },
+        "date": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#date",
+          "value": "1993-06-14"
+        },
+        "force": {
+          "type": "literal",
+          "value": "1993-06-29"
+        },
+        "inforce": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "value": "0"
+        },
+        "title": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "value": "Council Directive 93/42/EEC of 14 June 1993 concerning medical devices"
+        },
+        "authors": {
+          "type": "literal",
+          "value": "http://publications.europa.eu/resource/authority/corporate-body/CONSIL|Council of the European Union"
+        },
+        "repeals": {
+          "type": "literal",
+          "value": "31976L0764"
+        },
+        "amends": {
+          "type": "literal",
+          "value": "31984L0539 31990L0385"
+        }
+      }
+    ]
+  }
+}

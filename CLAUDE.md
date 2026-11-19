@@ -206,6 +206,20 @@ SAE's own edition code as SAE prints it (`SAE J3016_202104`,
 part, revision, amendment), and the gemspec floors it there. See
 `docs/sae.md`.
 
+**EU acts are keyed by ELI, never by CELEX (relaton#44).** `Relaton::Eu`
+(`EU Regulation 1227/2011`, `Pubid::Eu`, pubid >= 2.0.44) crawls the
+Publications Office CELLAR SPARQL endpoint (`fetch-data eu-cellar`) into
+`relaton-data-eu` with a pubid `index-v2`, the SAE shape. A CELEX sequence
+number is CELLAR's own and is not always the act number (ECB decision
+`2016/245` is CELEX `32016D0002`), so `Eu::Parser` takes the act from the
+ELI, drops an ELI subtype (`reg_impl`, `dec_del`, …) that pubid cannot read,
+and reads the print order from the title; don't derive the act from the
+CELEX or call `Pubid::Eu#to_celex` on a lookup path. In `Cellar::QUERY`,
+write a property with a hyphen as a full IRI: Virtuoso misreads
+`cdm:resource_legal_date_entry-into-force` and answers wrong dates. There is
+no EU grammar; items are plain `Bib::ItemData`, validated against
+`grammar/biblio-compile.rng`. See `docs/eu.md`.
+
 **A DOI goes to its registration agency (relaton#577, relaton-doi#20).**
 `Relaton::Doi.get` (what `Processor#get` calls) asks `doi.org/ra/<doi>` which
 agency holds the DOI, then calls `Crossref.get` or `Datacite.get`

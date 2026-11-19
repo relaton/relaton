@@ -1,0 +1,103 @@
+{
+  "head": {
+    "link": [],
+    "vars": [
+      "celex",
+      "eli",
+      "date",
+      "force",
+      "inforce",
+      "title",
+      "authors",
+      "repeals",
+      "amends"
+    ]
+  },
+  "results": {
+    "distinct": false,
+    "ordered": true,
+    "bindings": [
+      {
+        "celex": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "value": "32011D0812(01)"
+        },
+        "date": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#date",
+          "value": "2011-08-11"
+        },
+        "force": {
+          "type": "literal",
+          "value": "2011-09-01"
+        },
+        "inforce": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "value": "1"
+        },
+        "title": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "value": "Commission Decision of 11 August 2011 establishing the composition and the operational provisions of the Gas Coordination Group and repealing Commission Decision 2006/791/EC  Text with EEA relevance"
+        },
+        "authors": {
+          "type": "literal",
+          "value": "http://publications.europa.eu/resource/authority/corporate-body/COM|European Commission"
+        },
+        "repeals": {
+          "type": "literal",
+          "value": "32006D0791"
+        },
+        "amends": {
+          "type": "literal",
+          "value": ""
+        }
+      },
+      {
+        "celex": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "value": "32011R1227"
+        },
+        "eli": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#anyURI",
+          "value": "http://data.europa.eu/eli/reg/2011/1227/oj"
+        },
+        "date": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#date",
+          "value": "2011-10-25"
+        },
+        "force": {
+          "type": "literal",
+          "value": "1001-01-01 2011-12-28"
+        },
+        "inforce": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#boolean",
+          "value": "1"
+        },
+        "title": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "value": "Regulation (EU) No 1227/2011 of the European Parliament and of the Council of 25 October 2011 on wholesale energy market integrity and transparency  Text with EEA relevance"
+        },
+        "authors": {
+          "type": "literal",
+          "value": "http://publications.europa.eu/resource/authority/corporate-body/CONSIL|Council of the European Union\nhttp://publications.europa.eu/resource/authority/corporate-body/EP|European Parliament"
+        },
+        "repeals": {
+          "type": "literal",
+          "value": ""
+        },
+        "amends": {
+          "type": "literal",
+          "value": ""
+        }
+      }
+    ]
+  }
+}

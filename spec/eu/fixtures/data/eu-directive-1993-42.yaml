@@ -1,0 +1,67 @@
+---
+id: EUDirective199342
+schema_version: v1.5.6
+type: standard
+title:
+- language: en
+  script: Latn
+  content: Council Directive 93/42/EEC of 14 June 1993 concerning medical devices
+  type: main
+source:
+- type: src
+  content: https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:31993L0042
+docidentifier:
+- content: EU Directive 1993/42
+  type: EU
+  primary: true
+- content: CELEX 31993L0042
+  type: CELEX
+- content: http://data.europa.eu/eli/dir/1993/42/oj
+  type: ELI
+date:
+- type: issued
+  at: '1993-06-14'
+- type: implemented
+  at: '1993-06-29'
+contributor:
+- role:
+  - type: author
+  organization:
+    name:
+    - content: Council of the European Union
+    abbreviation:
+      content: CONSIL
+- role:
+  - type: publisher
+  organization:
+    name:
+    - content: Publications Office of the European Union
+    abbreviation:
+      content: OP
+language:
+- en
+script:
+- Latn
+status:
+  stage:
+    content: not-in-force
+relation:
+- type: obsoletes
+  bibitem:
+    docidentifier:
+    - content: CELEX 31976L0764
+      type: CELEX
+- type: updates
+  bibitem:
+    docidentifier:
+    - content: CELEX 31984L0539
+      type: CELEX
+- type: updates
+  bibitem:
+    docidentifier:
+    - content: CELEX 31990L0385
+      type: CELEX
+ext:
+  doctype:
+    content: directive
+  flavor: eu
