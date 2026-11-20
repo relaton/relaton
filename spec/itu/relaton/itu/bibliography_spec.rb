@@ -338,6 +338,16 @@ RSpec.describe Relaton::Itu::Bibliography do
         expect(result).to eq({ years: ["2019"] })
       end
 
+      # An ITU-R index hit carries no `:code`: HitCollection#request_document
+      # has already applied the stated year, so the hit stands for any year.
+      it "accepts a code-less ITU-R hit for a dated reference (relaton#402)" do
+        refid = ::Pubid::Itu.parse("ITU-R 43.HDB (2013)")
+        hit = double("Hit", hit: { url: "x" })
+        allow(hit).to receive(:item).and_return(item)
+
+        expect(described_class.send(:isobib_results_filter, [hit], refid)).to eq({ ret: item })
+      end
+
       it "returns {ret: item} when refid has no year" do
         refid = ::Pubid::Itu.parse("ITU-T A.1")
         hit = double("Hit", hit: { code: "ITU-T A.1 (2019)" })

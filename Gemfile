@@ -85,7 +85,8 @@ gemspec
 # It also reads the SDOs' printed spellings: NIST "FIPS PUB <n>" and the ECMA
 # "Edition 5.1" faces (pubid#697, #698; metanorma-pdfa#114).
 # pubid 2.0.44 carries Pubid::Arxiv (pubid#753), the arXiv flavor's key (relaton#42).
-gem "pubid", "~> 2.0.44" # earlier: the WES (E)/TR/TS parse (pubid#716) the gemspec floors, after the 2.0.24 no-sector ITU OB face (pubid#696); a cached 2.0.24 must not satisfy
+# pubid 2.0.46 types the ITU-R Resolution (pubid:itu:resolution, relaton#402).
+gem "pubid", "~> 2.0.46" # earlier: the WES (E)/TR/TS parse (pubid#716) the gemspec floors, after the 2.0.24 no-sector ITU OB face (pubid#696); a cached 2.0.24 must not satisfy
 # parsanol 1.3.114 (ruby#361) carries the numeric capture editions —
 # the canonical edition 2 header and the integer envelope field — and
 # the edition-2 whitespace-class glue fix; pubid rides it
