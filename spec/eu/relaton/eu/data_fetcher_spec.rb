@@ -126,6 +126,98 @@ describe Relaton::Eu::DataFetcher, :no_index_fixture do
     expect(File.exist?("data/eu-regulation-1227-2011.yaml")).to be false
   end
 
+  context "with the time of the last run" do
+    let(:full_run) { Time.utc(2026, 11, 1, 6, 30) }
+    let(:update_run) { Time.utc(2026, 11, 8, 6, 30) }
+
+    def run_at(time, source, **opts)
+      allow(Time).to receive(:now).and_return(time)
+      described_class.fetch(source, output: "data", format: "yaml", **opts)
+    end
+
+    def cellar_row(celex)
+      Dir[File.join(CellarStub::FIXTURES, "*.json")].lazy
+        .flat_map { |f| CellarStub.rows(File.basename(f, ".json")) }
+        .find { |b| b.dig("celex", "value") == celex }
+    end
+
+    def stub_modified(rows)
+      @since = []
+      stub_request(:get, /#{Regexp.escape Relaton::Eu::Cellar::URL}/o).to_return do |req|
+        CellarStub.response(req, modified: ->(since) { (@since << since) && rows })
+      end
+    end
+
+    it "writes the start time of a full crawl" do
+      run_at full_run, "eu-cellar"
+      expect(File.read(described_class::SINCE_FILE)).to eq "2026-11-01T06:30:00Z\n"
+    end
+
+    context "when only the changed works are read (eu-cellar-updates)" do
+      let(:changed) do
+        cellar_row("32011R1227").merge("inforce" => { "value" => "0" })
+      end
+
+      before { run_at full_run, "eu-cellar" }
+
+      it "asks for the works changed since one day before the last run" do
+        stub_modified [changed]
+        WebMock::RequestRegistry.instance.reset! # forget the full crawl
+        run_at update_run, "eu-cellar-updates"
+        expect(@since.uniq).to eq ["2026-10-31T06:30:00Z"]
+        expect(cellar_requests(/resource_legal_year/)).not_to have_been_made
+      end
+
+      it "rewrites a changed act and keeps every other act" do
+        stub_modified [changed]
+        run_at update_run, "eu-cellar-updates"
+        item = Relaton::Bib::Item.from_yaml File.read("data/eu-regulation-1227-2011.yaml")
+        expect(item.status.stage.content).to eq "not-in-force"
+        expect(Dir["data/*.yaml"].size).to eq 7
+        expect(index_rows.size).to eq 7
+      end
+
+      it "adds a new act to the index it read" do
+        File.delete "data/eu-regulation-2016-679.yaml"
+        File.write "#{Relaton::Eu::INDEXFILE}.yaml",
+                   index_rows.reject { |r| r[:file] == "data/eu-regulation-2016-679.yaml" }.to_yaml
+        stub_modified [cellar_row("32016R0679")]
+        run_at update_run, "eu-cellar-updates"
+        expect(index_rows.size).to eq 7
+        expect(index_rows.map { |r| r[:file] }).to include "data/eu-regulation-2016-679.yaml"
+      end
+
+      it "writes the start time of the update run" do
+        stub_modified []
+        run_at update_run, "eu-cellar-updates"
+        expect(File.read(described_class::SINCE_FILE)).to eq "2026-11-08T06:30:00Z\n"
+      end
+
+      it "raises when it reads fewer changed works than CELLAR counts" do
+        stub_request(:get, /#{Regexp.escape Relaton::Eu::Cellar::URL}/o).to_return do |req|
+          query = URI.decode_www_form(req.uri.query).to_h.fetch("query")
+          rows = query.include?("COUNT(DISTINCT") ? [changed, changed] : [changed]
+          CellarStub.response(req, modified: ->(_) { rows })
+        end
+        expect { run_at update_run, "eu-cellar-updates" }
+          .to raise_error Relaton::RequestError, /1 of 2 works changed since 2026-10-31T06:30:00Z/
+        expect(File.read(described_class::SINCE_FILE)).to eq "2026-11-01T06:30:00Z\n"
+      end
+
+      # A prune would delete every act the update run did not touch.
+      it "refuses to prune" do
+        expect { run_at update_run, "eu-cellar-updates", prune: true }
+          .to raise_error ArgumentError, /prune/
+        expect(Dir["data/*.yaml"].size).to eq 7
+      end
+    end
+
+    it "raises an update run with no time of a last run" do
+      expect { run_at update_run, "eu-cellar-updates" }
+        .to raise_error ArgumentError, /#{described_class::SINCE_FILE}.*eu-cellar/
+    end
+  end
+
   context "when CELLAR fails" do
     before { allow_any_instance_of(Relaton::Eu::Cellar).to receive(:sleep) }
 

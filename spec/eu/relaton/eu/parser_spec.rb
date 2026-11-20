@@ -53,6 +53,24 @@ describe Relaton::Eu::Parser, :no_index_fixture do
       expect(docid(item, "ELI")).to eq "http://data.europa.eu/eli/reg_impl/2016/1356/oj"
     end
 
+    # pubid >= 2.0.46 reads the ELI subtype (pubid#755); the act is the
+    # same as `EU Regulation 2016/1356`, and `#to_eli` gives the ELI back.
+    it "keeps the ELI subtype on the pubid" do
+      pubid = described_class.new(row("32016R1356")).pubid
+      expect(pubid.subtype).to eq "impl"
+      expect(pubid.to_eli).to eq "http://data.europa.eu/eli/reg_impl/2016/1356/oj"
+      expect(pubid).to eq Pubid::Eu.parse("EU Regulation 2016/1356")
+    end
+
+    it "reports an ELI subtype that pubid cannot read" do
+      parser = described_class.new(
+        row("32016R1356").merge("eli" => { "value" => "http://data.europa.eu/eli/reg_foo/2016/1356/oj" }),
+      )
+      expect(parser.parse).to be_nil
+      expect(parser.error).to start_with "CELEX 32016R1356: pubid cannot read ELI " \
+                                         "`http://data.europa.eu/eli/reg_foo/2016/1356/oj`"
+    end
+
     it "is a pubid the index can key" do
       pubid = described_class.new(row("32011R1227")).pubid
       expect(pubid).to be_a Pubid::Eu::Identifiers::Regulation

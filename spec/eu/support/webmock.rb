@@ -46,10 +46,15 @@ module CellarStub
     { "head" => { "vars" => [] }, "results" => { "bindings" => bindings } }.to_json
   end
 
+  # A query for the works changed since a time (`Cellar#each_modified_row`)
+  # names no year; it gets the rows of `modified`, which receives that time.
+  #
   # @param rows [Proc] year -> bindings, to serve other rows than the fixture
-  def self.response(request, rows: method(:rows))
+  # @param modified [Proc] since (String) -> bindings
+  def self.response(request, rows: method(:rows), modified: ->(_since) { [] })
     query = URI.decode_www_form(request.uri.query).to_h.fetch("query")
-    all = rows.call(query[/resource_legal_year "(\d{4})"/, 1])
+    since = query[/\?modified >= "([^"]+)"/, 1]
+    all = since ? modified.call(since) : rows.call(query[/resource_legal_year "(\d{4})"/, 1])
     bindings = if query.include?("COUNT(DISTINCT ?celex)")
                  [{ "n" => { "type" => "literal", "value" => all.size.to_s } }]
                else

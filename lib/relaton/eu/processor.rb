@@ -10,7 +10,7 @@ module Relaton
         @prefix = "EU"
         @defaultprefix = /^EU\s/
         @idtype = "EU"
-        @datasets = %w[eu-cellar]
+        @datasets = %w[eu-cellar eu-cellar-updates]
         # Db cache key and prefixes: `Pubid::Eu` (pubid 2.0.44, pubid#752).
         @pubid_flavor = :Eu
       end
@@ -24,7 +24,7 @@ module Relaton
         Bibliography.get(code, date, opts)
       end
 
-      # @param source [String] `eu-cellar`
+      # @param source [String] `eu-cellar` (full crawl) or `eu-cellar-updates`
       # @param opts [Hash] `output:`, `format:`
       def fetch_data(source, opts)
         require_relative "data_fetcher"

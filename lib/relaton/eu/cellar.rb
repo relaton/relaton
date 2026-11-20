@@ -7,8 +7,10 @@ module Relaton
     #
     # The EU Publications Office CELLAR SPARQL endpoint, for the crawler.
     #
-    # One page is one year of sector-3 regulations, directives and decisions
-    # (CELEX types R, L and D), one row a work, ordered by CELEX. A field with
+    # A page holds sector-3 regulations, directives and decisions (CELEX
+    # types R, L and D) of one scope, one row a work, ordered by CELEX: one
+    # year (`#each_row`), or the works CELLAR changed since a time
+    # (`#each_modified_row`, by `cmr:lastModificationDate`). A field with
     # many values (entry-into-force dates, authors, repealed and amended
     # acts) is one `GROUP_CONCAT` string.
     #
@@ -18,8 +20,8 @@ module Relaton
     #
     class Cellar
       URL = "https://publications.europa.eu/webapi/rdf/sparql".freeze
-      # Rows a request. A year has at most about 7,000 works, and a page of
-      # 1,000 answers in about two seconds.
+      # Rows a request. A year has at most about 5,200 works (1988), and a
+      # page of 1,000 answers in 4 s to more than 100 s (docs/eu.md).
       ROWS = 1000
       # One request at a time, one a second: the endpoint is public.
       GAP = 1
@@ -32,7 +34,12 @@ module Relaton
         Net::ReadTimeout, OpenSSL::SSL::SSLError
       ].freeze
 
-      # `%<year>s`, `%<limit>d` and `%<offset>d` are filled per page.
+      # The scope of a query: a triple pattern on `?w` that ends with ` ;`,
+      # and a FILTER (or nothing).
+      Scope = Struct.new(:pattern, :filter, :what, :works)
+
+      # `%<scope>s`, `%<filter>s`, `%<limit>d` and `%<offset>d` are filled per
+      # page.
       QUERY = <<~SPARQL.freeze
         PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
@@ -48,10 +55,11 @@ module Relaton
           (GROUP_CONCAT(DISTINCT ?amends_; separator=" ") AS ?amends)
         WHERE {
           ?w cdm:resource_legal_id_sector "3"^^xsd:string ;
-             cdm:resource_legal_year "%<year>s"^^xsd:gYear ;
+             %<scope>s
              cdm:resource_legal_type ?t ;
              cdm:resource_legal_id_celex ?celex .
           FILTER(?t IN ("R"^^xsd:string, "L"^^xsd:string, "D"^^xsd:string))
+          %<filter>s
           OPTIONAL { ?w cdm:resource_legal_eli ?eli_ }
           OPTIONAL { ?w cdm:work_date_document ?date_ }
           OPTIONAL { ?w <http://publications.europa.eu/ontology/cdm#resource_legal_date_entry-into-force> ?force_ }
@@ -69,37 +77,64 @@ module Relaton
         LIMIT %<limit>d OFFSET %<offset>d
       SPARQL
 
-      # The works of one year, for #each_row to check that it read them all.
+      # The works of one scope, for #each_scoped to check that it read them
+      # all.
       COUNT_QUERY = <<~SPARQL.freeze
         PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
         PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         SELECT (COUNT(DISTINCT ?celex) AS ?n) WHERE {
           ?w cdm:resource_legal_id_sector "3"^^xsd:string ;
-             cdm:resource_legal_year "%<year>s"^^xsd:gYear ;
+             %<scope>s
              cdm:resource_legal_type ?t ;
              cdm:resource_legal_id_celex ?celex .
           FILTER(?t IN ("R"^^xsd:string, "L"^^xsd:string, "D"^^xsd:string))
+          %<filter>s
         }
       SPARQL
 
+      # The CELLAR time a work last changed. The name is written as a full
+      # IRI, as every name outside the `cdm:` prefix is here.
+      MODIFIED = "<http://publications.europa.eu/ontology/cdm/cmr#lastModificationDate>".freeze
+
       #
-      # Each row of one year, page by page.
-      #
-      # A page shorter than ROWS ends the year. Virtuoso can answer a page
-      # short with HTTP 200 (a query timeout, a server row cap), so the year
-      # is checked against a COUNT of its works first: a year that read fewer
-      # rows raises `Relaton::RequestError` instead of publishing an index
-      # without them.
+      # Each row of one year, page by page (see #each_scoped).
       #
       # @param year [Integer]
       # @yieldparam binding [Hash{String=>Hash}] one SPARQL result row
       #
       def each_row(year, &block)
-        expected = count(year)
+        each_scoped year_scope(year), &block
+      end
+
+      #
+      # Each row of a work CELLAR changed at or after a time, page by page
+      # (see #each_scoped).
+      #
+      # @param since [Time]
+      # @yieldparam binding [Hash{String=>Hash}] one SPARQL result row
+      #
+      def each_modified_row(since, &block)
+        each_scoped modified_scope(since), &block
+      end
+
+      #
+      # Each row of one scope, page by page.
+      #
+      # A page shorter than ROWS ends the scope. Virtuoso can answer a page
+      # short with HTTP 200 (a query timeout, a server row cap), so the scope
+      # is checked against a COUNT of its works first: a scope that read
+      # fewer rows raises `Relaton::RequestError` instead of publishing an
+      # index without them.
+      #
+      # @param scope [Scope]
+      # @yieldparam binding [Hash{String=>Hash}] one SPARQL result row
+      #
+      def each_scoped(scope, &block)
+        expected = count(scope)
         read = 0
         offset = 0
         loop do
-          rows = page(year, offset)
+          rows = page(scope, offset)
           rows.each(&block)
           read += rows.size
           break if rows.size < ROWS
@@ -109,19 +144,36 @@ module Relaton
         return if read == expected
 
         raise Relaton::RequestError,
-              "CELLAR gave #{read} of #{expected} works for year #{year}"
+              "CELLAR gave #{read} of #{expected} works #{scope.works}"
       end
 
-      # @return [Integer] the works of one year
-      def count(year)
-        rows = request format(COUNT_QUERY, year: year), "year #{year} count"
+      # @param scope [Scope]
+      # @return [Integer] the works of one scope
+      def count(scope)
+        rows = request fill(COUNT_QUERY, scope), "#{scope.what} count"
         rows.dig(0, "n", "value").to_i
       end
 
+      # @param scope [Scope]
       # @return [Array<Hash>] the result bindings of one page
-      def page(year, offset)
-        query = format(QUERY, year: year, limit: ROWS, offset: offset)
-        request query, "year #{year} offset #{offset}"
+      def page(scope, offset)
+        query = fill(QUERY, scope, limit: ROWS, offset: offset)
+        request query, "#{scope.what} offset #{offset}"
+      end
+
+      # @return [Scope] the works of one year
+      def year_scope(year)
+        Scope.new(%(cdm:resource_legal_year "#{Integer(year)}"^^xsd:gYear ;), "",
+                  "year #{year}", "for year #{year}")
+      end
+
+      # @param since [Time]
+      # @return [Scope] the works changed at or after `since`
+      def modified_scope(since)
+        stamp = since.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
+        Scope.new("#{MODIFIED} ?modified ;",
+                  %(FILTER(?modified >= "#{stamp}"^^xsd:dateTime)),
+                  "changes since #{stamp}", "changed since #{stamp}")
       end
 
       #
@@ -154,6 +206,10 @@ module Relaton
       end
 
       private
+
+      def fill(query, scope, **page)
+        format(query, scope: scope.pattern, filter: scope.filter, **page)
+      end
 
       # Virtuoso sends `X-SQL-State` with a 200 when it cut the answer
       # short (an anytime query that hit its timeout).

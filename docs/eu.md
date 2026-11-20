@@ -2,7 +2,7 @@
 
 `Relaton::Eu` fetches EU legal acts: regulations, directives and decisions,
 cited as `EU Regulation 1227/2011`. The identifier is `Pubid::Eu` (pubid
-2.0.44, pubid#752). The data repo is `relaton-data-eu`; it does not exist
+2.0.44, pubid#752; ELI subtypes from 2.0.46, pubid#755). The data repo is `relaton-data-eu`; it does not exist
 yet, so the consumer is tested only against fixtures.
 
 ## Development
@@ -37,10 +37,12 @@ CELEX number is CELLAR's own sequence, and for many decisions it is not the
 act number: ECB decision `2016/245` is CELEX `32016D0002`. So
 `Pubid::Eu#to_celex` is not used, and the `CELEX` docidentifier is the
 work's own. The ELI type can carry a subtype (`reg_impl`, `reg_del`,
-`dec_impl`, `dir_del`, …). Implementing and delegated acts share the
-numbering of their type, and `Pubid::Eu` reads only `reg`/`dir`/`dec`, so
-`Parser::ELI` drops the subtype for the parse and the `ELI` docidentifier
-keeps it. A work with no ELI (about 1,400, nearly all decisions), a
+`dec_impl`, `dir_del`, `reg_financ`). Implementing and delegated acts
+share the numbering of their type. `Pubid::Eu` reads the subtype, so the
+ELI goes to pubid unchanged: `#subtype` is `"impl"`, `#to_eli` gives the
+ELI back, and the subtype is in the index row but not in `==` or the
+printed id (`EU Regulation 2016/1356`). A subtype pubid does not know is a
+crawl error in the GitHub report. A work with no ELI (about 1,400, nearly all decisions), a
 corrigendum ELI (`…/corrigendum/<date>/oj`), or another ELI type (`C`,
 `convention`, …) is skipped.
 
@@ -59,8 +61,36 @@ The Publications Office CELLAR SPARQL endpoint,
 `https://publications.europa.eu/webapi/rdf/sparql` (Virtuoso, no key).
 `Cellar` asks for one year at a time, 1,000 works a page ordered by CELEX,
 one request a second (`Core::Pacer`). A 429, a 5xx or a transport error is
-retried five times, then `Relaton::RequestError`. A 1,000-row page answers in
-about two seconds; a full crawl is about 215 pages.
+retried five times, then `Relaton::RequestError`.
+
+A full crawl is 75 years and 247 pages for about 213,400 works (2026-11).
+A 1,000-row page takes from 4 s to more than 100 s, depending on CELLAR's
+load and cache (8–11 s for 2016, 34–57 s for 1988 with a cold cache), so a
+full crawl takes from about 45 minutes to more than 2 hours. Four pages in
+parallel were not faster than four in sequence: CELLAR seems to queue
+heavy queries, so the crawler stays sequential.
+
+### Full crawl and update runs
+
+| Source | Reads | Index | Prune |
+|---|---|---|---|
+| `eu-cellar` | every year, 1952 to now | starts empty | yes (`prune: true`) |
+| `eu-cellar-updates` | works changed since the last run | the existing one | refused (`ArgumentError`) |
+
+An update run selects works by `cmr:lastModificationDate`
+(`<http://publications.europa.eu/ontology/cdm/cmr#lastModificationDate>`)
+from one day (`DataFetcher::OVERLAP`) before the start of the last
+finished run, which both sources write to `cellar-since.txt` in the working
+directory (the data repo must commit it). With no such file an update run
+raises. A filter on that time is fast: the last 7 days were 116–212 works
+in one page (2.5 s), the last 30 days 11,807 works (12 pages: CELLAR
+sometimes changes many works at once).
+
+An update run cannot see a work CELLAR deleted or one whose ELI changed
+(the old file stays), nor a change outside the work (an author body's new
+English label). So the full crawl still runs from time to time, for example
+monthly, with the update run between, for example daily or weekly. Both
+check the rows they read against a `COUNT` of the same scope.
 
 **Write a property name with a hyphen as a full IRI.** Virtuoso misreads
 `cdm:resource_legal_date_entry-into-force` as a prefixed name: it answers,
@@ -107,5 +137,7 @@ The SAE shape (`docs/sae.md`):
 
 - `relaton/support` — Cimas config for `relaton-data-eu`; the repository
   itself is created by its owner.
-- `pubid` — the ELI subtypes, joint families (`(EU, Euratom)`), two-digit
-  years and author words in a title are not parsed (see the hand-off).
+- `pubid` — joint families (`(EU, Euratom)`), two-digit years and author
+  words in a title are not parsed (pubid's "Known gaps"); the parser reads
+  only the number pair of a title. `Pubid::Eu#to_celex` is right only when
+  CELLAR numbered the work with the act number, so relaton does not use it.

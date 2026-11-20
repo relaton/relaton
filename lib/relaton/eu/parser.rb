@@ -11,10 +11,11 @@ module Relaton
       # A work of an act this flavor covers, in its original version. The
       # ELI type segment can carry a subtype (`reg_impl`, `dec_del`, …):
       # implementing and delegated acts are numbered with their act type,
-      # and `Pubid::Eu` reads only the bare type, so the subtype is dropped
-      # for the parse. A corrigendum (`…/corrigendum/<date>/oj`), and every
-      # other ELI type (`C`, `convention`, …), does not match.
-      ELI = %r{\Ahttp://data\.europa\.eu/eli/(reg|dir|dec)(?:_[a-z]+)?/(\d{4})/(\d+)/oj\z}
+      # and `Pubid::Eu` reads the subtype (pubid >= 2.0.46), so the ELI goes
+      # to pubid unchanged; a subtype pubid does not know is a crawl error.
+      # A corrigendum (`…/corrigendum/<date>/oj`), and every other ELI type
+      # (`C`, `convention`, …), does not match.
+      ELI = %r{\Ahttp://data\.europa\.eu/eli/(?:reg|dir|dec)(?:_[a-z]+)?/\d{4}/\d+/oj\z}
 
       # The act citation in an Official Journal title:
       # `Regulation (EU) No 1227/2011`, `Directive 93/42/EEC`,
@@ -86,9 +87,9 @@ module Relaton
       private
 
       def parse_eli
-        m = ELI.match(@row["eli"]) or return
-        id = ::Pubid::Eu.parse("http://data.europa.eu/eli/#{m[1]}/#{m[2]}/#{m[3]}/oj")
-        keep_title_order id
+        return unless ELI.match? @row["eli"]
+
+        keep_title_order ::Pubid::Eu.parse(@row["eli"])
       rescue ::Pubid::Errors::Error, ArgumentError => e
         @error = "CELEX #{@row['celex']}: pubid cannot read ELI " \
                  "`#{@row['eli']}` (#{e.message})"

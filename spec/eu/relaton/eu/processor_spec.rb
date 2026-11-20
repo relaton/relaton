@@ -15,7 +15,7 @@ describe Relaton::Eu::Processor do
   end
 
   it "has the eu-cellar dataset" do
-    expect(processor.datasets).to eq %w[eu-cellar]
+    expect(processor.datasets).to eq %w[eu-cellar eu-cellar-updates]
   end
 
   it "hands get to the Bibliography" do

@@ -21,6 +21,11 @@ describe Relaton::Eu::Bibliography do
     expect(code("EU Regulation 2016/679")).to eq "EU Regulation 2016/679"
   end
 
+  # Its index row carries `subtype: impl`; the reference names no subtype.
+  it "returns an implementing regulation" do
+    expect(code("EU Regulation 2016/1356")).to eq "EU Regulation 2016/1356"
+  end
+
   it "returns a directive" do
     expect(code("EU Directive 2016/680")).to eq "EU Directive 2016/680"
   end

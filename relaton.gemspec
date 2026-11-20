@@ -135,8 +135,10 @@ Gem::Specification.new do |spec|
   # class the arXiv flavor keys its cache and routes with; an older
   # runtime has no arXiv grammar, and the processor cannot load. It also
   # carries `Pubid::Eu` (pubid#752), the EU flavor's cache key and index
-  # rows (relaton#44).
-  spec.add_dependency "pubid", "~> 2.0.44"
+  # rows (relaton#44). 2.0.46 parses the ELI subtypes CELLAR gives
+  # (`reg_impl`, `dec_del`, `reg_financ`; pubid#755); on an older runtime
+  # every implementing and delegated act is a crawl error.
+  spec.add_dependency "pubid", "~> 2.0.46"
 
   # JSON parse/generate across the flavor fetchers, the index and the db:
   # yeptris's strict RFC 8259 surface replaces the stdlib json gem's calls.
