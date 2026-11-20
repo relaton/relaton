@@ -303,6 +303,97 @@ RSpec.describe Relaton::Itu::HitCollection do
         expect { col.search }.to output(/Fetching from Relaton repository/).to_stderr_from_any_process
         expect(col.first.hit[:url]).to include("itu-r-p-530-19.yaml")
       end
+
+      # Handbooks are keyed per edition by year and carry no part
+      # (relaton#402): the year selects and ranks the edition.
+      # A Resolution is its own pubid type (relaton#402): it routes to the
+      # index like any ITU-R document, and it ranks by its revision part.
+      it "picks the latest revision of a Resolution" do
+        stub_index [
+          row("Resolution ITU-R 1-8", "data/resolution-itu-r-1-8.yaml"),
+          row("Resolution ITU-R 1-9", "data/resolution-itu-r-1-9.yaml"),
+          row("Resolution ITU-R 1-10", "data/resolution-itu-r-1-10.yaml"),
+        ]
+        item = double("Item", fetched: nil, "fetched=": nil)
+        resp = double("Response", code: "200", body: "---\ntitle: test")
+        allow_any_instance_of(Mechanize).to receive(:get).and_return(resp)
+        allow(Relaton::Itu::Item).to receive(:from_yaml).and_return(item)
+
+        col = described_class.new(::Pubid::Itu.parse("Resolution ITU-R 1"))
+        expect { col.search }.to output(/Fetching from Relaton repository/).to_stderr_from_any_process
+        expect(col.first.hit[:url]).to include("resolution-itu-r-1-10.yaml")
+      end
+
+      context "with handbook editions" do
+        let(:handbook_rows) do
+          [
+            row("ITU-R 43.HDB (2002)", "data/itu-r-43-hdb-2002.yaml"),
+            row("ITU-R 43.HDB (2026)", "data/itu-r-43-hdb-2026.yaml"),
+            row("ITU-R 43.HDB (2013)", "data/itu-r-43-hdb-2013.yaml"),
+          ]
+        end
+
+        before do
+          stub_index handbook_rows
+          item = double("Item", fetched: nil, "fetched=": nil)
+          resp = double("Response", code: "200", body: "---\ntitle: test")
+          allow_any_instance_of(Mechanize).to receive(:get).and_return(resp)
+          allow(Relaton::Itu::Item).to receive(:from_yaml).and_return(item)
+        end
+
+        def search(ref)
+          col = described_class.new(::Pubid::Itu.parse(ref))
+          expect { col.search }.to output(/Fetching from Relaton repository/).to_stderr_from_any_process
+          col
+        end
+
+        it "picks the newest edition for an undated reference" do
+          expect(search("ITU-R 43.HDB").first.hit[:url]).to include("itu-r-43-hdb-2026.yaml")
+        end
+
+        it "picks the edition of the stated year" do
+          expect(search("ITU-R 43.HDB (2013)").first.hit[:url]).to include("itu-r-43-hdb-2013.yaml")
+        end
+
+        it "finds nothing for a year no edition has" do
+          expect(search("ITU-R 43.HDB (1999)")).to be_empty
+        end
+
+        it "does not answer a dated reference with an undated row" do
+          handbook_rows << row("ITU-R 43.HDB", "data/itu-r-43-hdb.yaml")
+          expect(search("ITU-R 43.HDB (1999)")).to be_empty
+        end
+      end
+
+      # A year with no edition part cannot pick an undated recommendation row:
+      # it must not answer the newest edition (relaton#402).
+      it "finds nothing for a dated reference with no part over undated rows" do
+        stub_index [
+          row("ITU-R P.838-3", "data/itu-r-p-838-3.yaml"),
+          row("ITU-R P.838-2", "data/itu-r-p-838-2.yaml"),
+        ]
+
+        col = described_class.new(::Pubid::Itu.parse("ITU-R P.838 (1999)"))
+        expect { col.search }.to output(/Fetching from Relaton repository/).to_stderr_from_any_process
+        expect(col).to be_empty
+      end
+
+      # An ITU-R recommendation row is undated; its edition part identifies
+      # it, so a dated reference still finds it (relaton#402).
+      it "finds an undated row for a dated reference" do
+        stub_index [
+          row("ITU-R P.838-3", "data/itu-r-p-838-3.yaml"),
+          row("ITU-R P.838-2", "data/itu-r-p-838-2.yaml"),
+        ]
+        item = double("Item", fetched: nil, "fetched=": nil)
+        resp = double("Response", code: "200", body: "---\ntitle: test")
+        allow_any_instance_of(Mechanize).to receive(:get).and_return(resp)
+        allow(Relaton::Itu::Item).to receive(:from_yaml).and_return(item)
+
+        col = described_class.new(::Pubid::Itu.parse("ITU-R P.838-3 (03/2005)"))
+        expect { col.search }.to output(/Fetching from Relaton repository/).to_stderr_from_any_process
+        expect(col.first.hit[:url]).to include("itu-r-p-838-3.yaml")
+      end
     end
   end
 

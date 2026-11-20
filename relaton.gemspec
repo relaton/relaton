@@ -131,7 +131,11 @@ Gem::Specification.new do |spec|
   # 2.0.25 parses the WES English edition (`WES 1112(E):2022`), `WES TR`
   # and `WES TS` (pubid#716, relaton-jis#18); an older runtime leaves 14
   # of the 104 WES records out of the relaton-data-jis index.
-  spec.add_dependency "pubid", "~> 2.0.25"
+  # 2.0.46 types the ITU-R Resolution (`Resolution ITU-R 1-9`,
+  # `pubid:itu:resolution`, relaton#402) that `Relaton::Itu::DataParserR`
+  # writes; an older runtime cannot parse it, so the relaton-data-itu crawl
+  # would leave every Resolution out of the index.
+  spec.add_dependency "pubid", "~> 2.0.46"
 
   # JSON parse/generate across the flavor fetchers, the index and the db:
   # yeptris's strict RFC 8259 surface replaces the stdlib json gem's calls.

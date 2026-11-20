@@ -62,7 +62,7 @@ module Relaton
       #   R-REC  the displayed code    "BO.1130-5 (02/2026)" -> ITU-R BO.1130-5
       #   R-REP  the same, prefixed    "BO.1227-2 (1998)"    -> Report ITU-R BO.1227-2
       #   R-QUE  the same, + a colon   "202-2/1"             -> ITU-R 202-2/1:
-      #   R-RES  the **page id**       R-RES-R.1-9-2023      -> ITU-R R.1-9
+      #   R-RES  the **page id**       R-RES-R.1-9-2023      -> Resolution ITU-R 1-9
       #   R-HDB  the **page id**       R-HDB-43-2013         -> ITU-R 43.HDB (2013)
       #
       # Three of those need saying out loud. A **Report** is prefixed because
@@ -70,8 +70,13 @@ module Relaton
       # alone names two different documents (pubid #327 types the prefixed form
       # `pubid:itu:report`, and `output_file` sends it to `report-itu-r-*.yaml`
       # instead of colliding). A **Resolution** cannot use its displayed code at
-      # all: the page renders "Res.1-9 (2023)" while the published record is
-      # `ITU-R R.1-9`, which only the id carries. A **Handbook** likewise: the
+      # all: the page renders "Res.1-9 (2023)", and only the id carries the
+      # number. It is prefixed like a Report, in the form ITU cites
+      # (`Resolution ITU-R 1-9`), which pubid 2.0.46 types
+      # `pubid:itu:resolution` (relaton#402); the `ITU-R R.1-9` the dataset
+      # carried before read as a Recommendation of series R, and
+      # `output_file` now sends a Resolution to `resolution-itu-r-*.yaml`.
+      # A **Handbook** likewise: the
       # index lists its *title* and the leaf shows only a year — see
       # #handbook_docid.
       #
@@ -92,7 +97,7 @@ module Relaton
         # space. Same result, no ambiguity.
         code = row[:code].to_s.tr(" ", " ").sub(/\(.*\z/m, "").strip
         # The two id-derived families, before `code` gets a say.
-        return "ITU-R #{resolution_number row}" if row[:family] == "R-RES"
+        return resolution_docid(row) if row[:family] == "R-RES"
         return handbook_docid(row) if row[:family] == "R-HDB"
         return nil if code.empty?
 
@@ -125,13 +130,18 @@ module Relaton
         m[:year] ? "ITU-R #{m[:number]}.HDB (#{m[:year]})" : "ITU-R #{m[:number]}.HDB"
       end
 
-      # "R-RES-R.1-9-2023" -> "R.1-9"
+      # "R-RES-R.1-9-2023" -> "Resolution ITU-R 1-9".
+      #
+      # The year is dropped: the revision part names the edition, as a
+      # Report's does. The `R.` of the page id is the sector, which the
+      # `ITU-R` prefix already states.
       #
       # @param row [Hash]
       # @return [String, nil]
-      def resolution_number(row)
-        n = row[:id].to_s.sub(/\AR-RES-/, "").sub(/-(?:19|20)\d{2}\z/, "")
-        n.empty? ? nil : n
+      def resolution_docid(row)
+        n = row[:id].to_s.delete_prefix("R-RES-").delete_prefix("R.")
+          .sub(/-(?:19|20)\d{2}\z/, "")
+        n.empty? ? nil : "Resolution ITU-R #{n}"
       end
 
       # @param row [Hash]
