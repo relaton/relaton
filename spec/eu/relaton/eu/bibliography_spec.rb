@@ -26,6 +26,14 @@ describe Relaton::Eu::Bibliography do
     expect(code("EU Regulation 2016/1356")).to eq "EU Regulation 2016/1356"
   end
 
+  # An act with no English version. Its pair reads as a later act's
+  # <year>/<number>, so pubid prints `No` to mark <number>/<year>: without
+  # it, `EU Regulation 2015/1968` is regulation 1968 of 2015.
+  it "returns a 1968 regulation by its No form only" do
+    expect(code("EU Regulation No 2015/1968")).to eq "EU Regulation No 2015/1968"
+    expect(code("EU Regulation 2015/1968")).to be_nil
+  end
+
   it "returns a directive" do
     expect(code("EU Directive 2016/680")).to eq "EU Directive 2016/680"
   end

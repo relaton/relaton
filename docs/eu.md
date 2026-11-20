@@ -50,10 +50,14 @@ corrigendum ELI (`…/corrigendum/<date>/oj`), or another ELI type (`C`,
 `<year>/<number>`. Before 2015 a regulation prints `No <number>/<year>`, and
 a decision or a directive can print either order (`Decision No 1082/2013/EU`,
 `Decision 2010/87/EU`). `Parser#keep_title_order` reads the first citation of
-the act's own type in its English title whose pair names this act (a
-two-digit year included: `Directive 93/42/EEC`) and sets `number_first` when
-that order differs from pubid's default. `number_first` is in the index row,
-and pubid ignores it for equality.
+the act's own type in its English title (or, for an act with no English
+version, its French title: `Règlement (CEE) n 2015/68`) whose pair names this
+act (a two-digit year included: `Directive 93/42/EEC`) and sets
+`number_first` when that order differs from pubid's default. `number_first`
+is in the index row, and pubid ignores it for equality. pubid prints `No`
+where the pair also reads as a later act's `<year>/<number>`: regulation 2015
+of 1968 is `EU Regulation No 2015/1968`, and `EU Regulation 2015/1968` is
+regulation 1968 of 2015.
 
 ## Where the data comes from
 
@@ -65,8 +69,10 @@ retried five times, then `Relaton::RequestError`.
 
 A full crawl is 75 years and 247 pages for about 213,400 works (2026-11).
 A 1,000-row page takes from 4 s to more than 100 s, depending on CELLAR's
-load and cache (8–11 s for 2016, 34–57 s for 1988 with a cold cache), so a
-full crawl takes from about 45 minutes to more than 2 hours. Four pages in
+load and cache (8–11 s for 2016, 34–57 s for 1988 with a cold cache,
+measured with the English title only). The titles in every language make a
+page about two times slower, so a full crawl takes from about 1.5 hours to
+more than 4 hours. Four pages in
 parallel were not faster than four in sequence: CELLAR seems to queue
 heavy queries, so the crawler stays sequential.
 
@@ -109,7 +115,25 @@ and the same form for `resource_legal_in-force`.
 | `cdm:work_created_by_agent` + its `skos:prefLabel` (en) | contributors, role `author`, abbreviation the corporate-body code (`EP`, `CONSIL`, `COM`, `ECB`); the Publications Office (`OP`) is the publisher |
 | `cdm:resource_legal_repeals_resource_legal` | relation `obsoletes`, the target by CELEX |
 | `cdm:resource_legal_amends_resource_legal` | relation `updates`, the target by CELEX |
-| `cdm:expression_title` of the English expression | `title` (no-break spaces made plain, the `Text with EEA relevance` note dropped) |
+| `cdm:expression_title` of each language expression (`cdm:expression_uses_language`) | one `title` type `main` per language, English, French, German first, then by CELLAR code; no-break spaces made plain, the EEA relevance note dropped; `language` and `script` list the titles' languages and scripts |
+
+**Titles in every language.** `Cellar::QUERY` joins `<code>|<title>` per
+language with `Cellar::TITLE_SEP` (`~|~`). That separator must be ASCII:
+Virtuoso turns a non-ASCII character of the query text into `?`, while the
+titles it returns stay UTF-8. `Parser::LANGUAGES` maps CELLAR's codes (`ENG`,
+`BUL`, …) to ISO 639-1 and a script (`Cyrl` for Bulgarian, `Grek` for Greek,
+`Latn` for the rest). A recent act has 23 or 24 titles (Irish is rare); an
+act before 1973 has the original languages only (German, French, Italian,
+Dutch), so its first title is French, as on EUR-Lex. About 15,400 crawled
+acts have no English title (2026-11). All titles make a page answer about 7
+times larger and about two times slower (2016: 3.2 s to 7.6 s), and add up to
+about 6 KB to a document.
+
+**The EEA relevance note** (`Parser::EEA_TEXTS`) is dropped in each language,
+in the current form and in the older forms seen five times or more in a
+ten-year sample (1994-2024). Rare typing errors, and the longer note that
+also names the EU-Switzerland agreement, stay in the title: in five sampled
+years, 75 notes stayed, none more than twice.
 
 A relation names its target by CELEX, because the row has no act identifier
 for it. The item is a plain `Bib::ItemData` with `type: standard` and `ext`

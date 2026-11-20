@@ -39,6 +39,16 @@ describe Relaton::Eu::Parser, :no_index_fixture do
       expect(docid(parse("32013D1082"), "EU")).to eq "EU Decision 1082/2013"
     end
 
+    # An act with no English version (most acts before 1973) is read from
+    # its French title, as EUR-Lex shows it.
+    it "keeps the order from the French title when there is no English one" do
+      titles = row("32013D1082").dig("titles", "value").split(Relaton::Eu::Cellar::TITLE_SEP)
+      french_only = row("32013D1082").merge(
+        "titles" => { "value" => titles.grep_v(/\AENG\|/).join(Relaton::Eu::Cellar::TITLE_SEP) },
+      )
+      expect(described_class.new(french_only).pubid.to_s).to eq "EU Decision 1082/2013"
+    end
+
     # The CELEX number is CELLAR's sequence, not the act number: ECB
     # decision 2016/245 is CELEX 32016D0002.
     it "comes from the ELI, not from the CELEX number" do
@@ -99,12 +109,67 @@ describe Relaton::Eu::Parser, :no_index_fixture do
       ]
     end
 
-    it "has the English title without the EEA relevance note" do
+    it "has the English title first, without the EEA relevance note" do
       title = item.title.first
-      expect(title.language).to eq "en"
+      expect([title.type, title.language, title.script]).to eq %w[main en Latn]
       expect(title.content).to eq "Regulation (EU) No 1227/2011 of the European " \
                                   "Parliament and of the Council of 25 October 2011 " \
                                   "on wholesale energy market integrity and transparency"
+    end
+
+    # English, French and German first (EUR-Lex falls back to French), then
+    # the others in the order of CELLAR's language codes.
+    it "has a title in every language of the work" do
+      expect(item.title.map(&:language)).to eq %w[
+        en fr de bg cs da el et fi ga hr hu it lv lt mt nl pl pt ro sk sl es sv
+      ]
+      expect(item.language).to eq item.title.map(&:language)
+    end
+
+    it "gives each title the script of its language" do
+      scripts = item.title.to_h { |t| [t.language, t.script] }
+      expect(scripts.values_at("bg", "el", "fr")).to eq %w[Cyrl Grek Latn]
+      expect(item.script).to eq %w[Latn Cyrl Grek]
+    end
+
+    it "drops the EEA relevance note in every language" do
+      titles = parse("32016R0679").title
+      expect(titles.size).to eq 24
+      ends = titles.map { |t| t.content[-45..] }
+      expect(ends.grep(/EEA|EWR|EEE|ЕИП|ΕΟΧ|EØS|EHP|EMPs|ETA:n|LEE|EGP|EGT|SEE|EEZ|ŻEE|EER|EOG|EES/))
+        .to be_empty
+      expect(titles.find { |t| t.language == "fr" }.content)
+        .to end_with "(règlement général sur la protection des données)"
+    end
+
+    # Forms seen on CELLAR besides the current one (a sample of ten years):
+    # a full stop inside the brackets, and older wordings.
+    {
+      "en" => "Text with EEA relevance.", "es" => "Texto pertinente a los fines del EEE",
+      "hu" => "EGT vonatkozású szöveg", "da" => "Tekst af betydning for EØS",
+      "fi" => "ETA: n kannalta merkityksellinen", "mt" => "Test b’relevanza għaż-ŻEE",
+      "ga" => "Téacs atá ábhartha maidir le LEE", "de" => "Text von Bedeutung für den EWR."
+    }.each do |lang, note|
+      it "drops the #{lang} EEA note (#{note})" do
+        code = Relaton::Eu::Parser::LANGUAGES.key([lang, "Latn"])
+        raw = row("32011R1227").merge(
+          "titles" => { "value" => "#{code}|Act 1227/2011 on energy(#{note})" },
+        )
+        expect(described_class.parse(raw).title.first.content).to eq "Act 1227/2011 on energy"
+      end
+    end
+
+    it "keeps a note that also names the EU-Switzerland agreement" do
+      note = "(Text with relevance for the EEA and for the EU/Switzerland Agreement)"
+      raw = row("32011R1227").merge("titles" => { "value" => "ENG|Act 1227/2011 #{note}" })
+      expect(described_class.parse(raw).title.first.content).to end_with note
+    end
+
+    it "keeps the titles of an act that has no English version" do
+      item = parse "31968R2015"
+      expect(item.title.map(&:language)).to eq %w[fr de it nl]
+      expect(item.title.first.content).to start_with "Règlement (CEE) n 2015/68 de la Commission"
+      expect(item.language).to eq %w[fr de it nl]
     end
 
     # `EEA_NOTE` matches one space only: it relies on `#initialize`
@@ -113,7 +178,7 @@ describe Relaton::Eu::Parser, :no_index_fixture do
      "\n\tText with EEA relevance"].each do |note|
       it "drops the EEA relevance note after whitespace #{note.inspect}" do
         raw = row("32011R1227").merge(
-          "title" => { "value" => "Regulation (EU) No 1227/2011 on energy#{note}" },
+          "titles" => { "value" => "ENG|Regulation (EU) No 1227/2011 on energy#{note}" },
         )
         title = described_class.parse(raw).title.first.content
         expect(title).to eq "Regulation (EU) No 1227/2011 on energy"

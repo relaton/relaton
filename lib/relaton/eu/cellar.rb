@@ -38,6 +38,12 @@ module Relaton
       # and a FILTER (or nothing).
       Scope = Struct.new(:pattern, :filter, :what, :works)
 
+      # Joins the `<language>|<title>` pairs of `?titles` (one per language
+      # expression, the language as CELLAR's authority code: `ENG`, `BUL`, …).
+      # It must be ASCII: Virtuoso turns a non-ASCII character of the query
+      # text into `?` (the titles it returns are UTF-8 as stored).
+      TITLE_SEP = "~|~".freeze
+
       # `%<scope>s`, `%<filter>s`, `%<limit>d` and `%<offset>d` are filled per
       # page.
       QUERY = <<~SPARQL.freeze
@@ -49,7 +55,7 @@ module Relaton
           (SAMPLE(?date_) AS ?date)
           (GROUP_CONCAT(DISTINCT STR(?force_); separator=" ") AS ?force)
           (SAMPLE(?inforce_) AS ?inforce)
-          (SAMPLE(?title_) AS ?title)
+          (GROUP_CONCAT(DISTINCT CONCAT(STRAFTER(STR(?tlang_), "language/"), "|", STR(?title_)); separator="#{TITLE_SEP}") AS ?titles)
           (GROUP_CONCAT(DISTINCT CONCAT(STR(?author_), "|", COALESCE(STR(?alabel), "")); separator="\\n") AS ?authors)
           (GROUP_CONCAT(DISTINCT ?repeals_; separator=" ") AS ?repeals)
           (GROUP_CONCAT(DISTINCT ?amends_; separator=" ") AS ?amends)
@@ -69,7 +75,7 @@ module Relaton
           OPTIONAL { ?w cdm:resource_legal_repeals_resource_legal/cdm:resource_legal_id_celex ?repeals_ }
           OPTIONAL { ?w cdm:resource_legal_amends_resource_legal/cdm:resource_legal_id_celex ?amends_ }
           OPTIONAL { ?e cdm:expression_belongs_to_work ?w ;
-                        cdm:expression_uses_language <http://publications.europa.eu/resource/authority/language/ENG> ;
+                        cdm:expression_uses_language ?tlang_ ;
                         cdm:expression_title ?title_ }
         }
         GROUP BY ?celex

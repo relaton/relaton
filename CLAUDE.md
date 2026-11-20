@@ -219,7 +219,9 @@ CELEX or call `Pubid::Eu#to_celex` on a lookup path. `eu-cellar-updates`
 reads only the works changed since `cellar-since.txt` (`cmr:lastModificationDate`,
 one day of overlap) into the existing index and refuses `prune: true`; it
 cannot see a deleted work, so the full `eu-cellar` crawl must still run. In `Cellar::QUERY`,
-write a property with a hyphen as a full IRI: Virtuoso misreads
+keep the query text ASCII (Virtuoso turns a non-ASCII character into `?`;
+the titles of every language are joined with the ASCII `Cellar::TITLE_SEP`),
+and write a property with a hyphen as a full IRI: Virtuoso misreads
 `cdm:resource_legal_date_entry-into-force` and answers wrong dates. There is
 no EU grammar; items are plain `Bib::ItemData`, validated against
 `grammar/biblio-compile.rng`. See `docs/eu.md`.

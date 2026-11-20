@@ -39,7 +39,7 @@ describe Relaton::Eu::DataFetcher, :no_index_fixture do
   it "reads a year page by page" do
     stub_const "Relaton::Eu::Cellar::ROWS", 2
     crawl
-    expect(index_rows.size).to eq 7
+    expect(index_rows.size).to eq 8
     expect(cellar_requests(/resource_legal_year "2016".*OFFSET (0|2|4)\b/m))
       .to have_been_made.times(3)
     expect(cellar_requests(/OFFSET 6\b/)).not_to have_been_made
@@ -51,7 +51,7 @@ describe Relaton::Eu::DataFetcher, :no_index_fixture do
       eu-decision-1082-2013.yaml eu-decision-2016-245.yaml
       eu-directive-1993-42.yaml eu-directive-2016-680.yaml
       eu-regulation-1227-2011.yaml eu-regulation-2016-1356.yaml
-      eu-regulation-2016-679.yaml
+      eu-regulation-2016-679.yaml eu-regulation-no-2015-1968.yaml
     ]
   end
 
@@ -64,7 +64,7 @@ describe Relaton::Eu::DataFetcher, :no_index_fixture do
   it "indexes each act under its pubid" do
     crawl
     rows = index_rows
-    expect(rows.size).to eq 7
+    expect(rows.size).to eq 8
     row = rows.find { |r| r[:file] == "data/eu-regulation-1227-2011.yaml" }
     expect(row[:id]).to eq("_type" => "pubid:eu:regulation", "number" => "1227",
                            "year" => "2011")
@@ -77,7 +77,7 @@ describe Relaton::Eu::DataFetcher, :no_index_fixture do
                                 "number_first" => true)
   end
 
-  # The ratio guard of `prune_unwritten` (90 %) is core's; with seven acts
+  # The ratio guard of `prune_unwritten` (90 %) is core's; with eight acts
   # one stale file is above it, so the ratio is lowered here. What this
   # checks is that the crawl records every file it writes.
   it "records each file it writes, so a prune deletes only a stale one" do
@@ -87,7 +87,7 @@ describe Relaton::Eu::DataFetcher, :no_index_fixture do
     fetcher.prune = true
     fetcher.fetch("eu-cellar")
     expect(fetcher.prune_unwritten(min_ratio: 0.5)).to eq ["data/eu-regulation-1-1999.yaml"]
-    expect(Dir["data/*.yaml"].size).to eq 7
+    expect(Dir["data/*.yaml"].size).to eq 8
   end
 
   it "starts from an empty index: a row of an earlier run does not stay" do
@@ -97,7 +97,7 @@ describe Relaton::Eu::DataFetcher, :no_index_fixture do
     ].to_yaml
     crawl
     expect(index_rows.map { |r| r[:file] }).not_to include "data/eu-regulation-1-1999.yaml"
-    expect(index_rows.size).to eq 7
+    expect(index_rows.size).to eq 8
   end
 
   # One act, two works whose titles print the pair in opposite orders: the
@@ -173,8 +173,8 @@ describe Relaton::Eu::DataFetcher, :no_index_fixture do
         run_at update_run, "eu-cellar-updates"
         item = Relaton::Bib::Item.from_yaml File.read("data/eu-regulation-1227-2011.yaml")
         expect(item.status.stage.content).to eq "not-in-force"
-        expect(Dir["data/*.yaml"].size).to eq 7
-        expect(index_rows.size).to eq 7
+        expect(Dir["data/*.yaml"].size).to eq 8
+        expect(index_rows.size).to eq 8
       end
 
       it "adds a new act to the index it read" do
@@ -183,7 +183,7 @@ describe Relaton::Eu::DataFetcher, :no_index_fixture do
                    index_rows.reject { |r| r[:file] == "data/eu-regulation-2016-679.yaml" }.to_yaml
         stub_modified [cellar_row("32016R0679")]
         run_at update_run, "eu-cellar-updates"
-        expect(index_rows.size).to eq 7
+        expect(index_rows.size).to eq 8
         expect(index_rows.map { |r| r[:file] }).to include "data/eu-regulation-2016-679.yaml"
       end
 
@@ -208,7 +208,7 @@ describe Relaton::Eu::DataFetcher, :no_index_fixture do
       it "refuses to prune" do
         expect { run_at update_run, "eu-cellar-updates", prune: true }
           .to raise_error ArgumentError, /prune/
-        expect(Dir["data/*.yaml"].size).to eq 7
+        expect(Dir["data/*.yaml"].size).to eq 8
       end
     end
 

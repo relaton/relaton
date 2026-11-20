@@ -17,16 +17,63 @@ module Relaton
       # (`C`, `convention`, …), does not match.
       ELI = %r{\Ahttp://data\.europa\.eu/eli/(?:reg|dir|dec)(?:_[a-z]+)?/\d{4}/\d+/oj\z}
 
-      # The act citation in an Official Journal title:
-      # `Regulation (EU) No 1227/2011`, `Directive 93/42/EEC`,
-      # `Decision (EU) 2016/245`. Only the pair of numbers is read.
-      CITATION = %r{\b(Regulation|Directive|Decision)\b[^\d]{0,40}?(\d+)/(\d+)}
+      # The act citation in an Official Journal title, in English or (for an
+      # act with no English version) French: `Regulation (EU) No 1227/2011`,
+      # `Directive 93/42/EEC`, `Decision (EU) 2016/245`,
+      # `Règlement (CEE) n 2015/68`. Only the pair of numbers is read.
+      CITATION = %r{\b(Regulation|Directive|Decision|Règlement|Décision)\b[^\d]{0,40}?(\d+)/(\d+)}
+
+      # The French act words of CITATION, by pubid's class name.
+      ACT_WORDS = { "Règlement" => "Regulation", "Décision" => "Decision" }.freeze
+
+      # CELLAR's language authority code (`…/language/ENG`) → the title's
+      # language (ISO 639-1) and script (ISO 15924). A code not here (a
+      # language of no EU act) gives no title.
+      LANGUAGES = {
+        "BUL" => %w[bg Cyrl], "CES" => %w[cs Latn], "DAN" => %w[da Latn],
+        "DEU" => %w[de Latn], "ELL" => %w[el Grek], "ENG" => %w[en Latn],
+        "EST" => %w[et Latn], "FIN" => %w[fi Latn], "FRA" => %w[fr Latn],
+        "GLE" => %w[ga Latn], "HRV" => %w[hr Latn], "HUN" => %w[hu Latn],
+        "ITA" => %w[it Latn], "LAV" => %w[lv Latn], "LIT" => %w[lt Latn],
+        "MLT" => %w[mt Latn], "NLD" => %w[nl Latn], "POL" => %w[pl Latn],
+        "POR" => %w[pt Latn], "RON" => %w[ro Latn], "SLK" => %w[sk Latn],
+        "SLV" => %w[sl Latn], "SPA" => %w[es Latn], "SWE" => %w[sv Latn]
+      }.freeze
+
+      # Titles go English, French, German first (EUR-Lex shows the French
+      # title of an act with no English version), then by CELLAR code.
+      FIRST_LANGUAGES = %w[ENG FRA DEU].freeze
+
+      # The EEA relevance note in each language (regex source), in the form
+      # the Official Journal prints now and in the older forms a sample of
+      # ten years (1994-2024) showed five times or more. Rarer typing
+      # errors, and the longer note that also names the EU-Switzerland
+      # agreement, stay in the title. An apostrophe may be typographic.
+      EEA_TEXTS = [
+        "Text with EEA relevance", "[ТтT]екст от значение за ЕИП",
+        "Text ?s významem pro EHP", "EØS- ?relevant tekst",
+        "Tekst af betydning for EØS", "Text (?:von|mit) Bedeutung für den EWR",
+        "Κείμενο που παρουσιάζει ενδιαφέρον για τον ΕΟΧ",
+        "EMPs kohaldatav tekst", "ETA: ?n kannalta merkityksellinen(?: teksti)?",
+        "Texte présentant de l['’] ?intérêt pour l['’] ?EEE",
+        "Téacs atá ábhartha maidir le(?:is an)? LEE", "Tekst značajan za EGP",
+        "EGT[- ]vonatkozású szöveg", "Testo rilevante ai fini del(?:lo)? SEE",
+        "Dokuments attiecas uz EEZ", "Tekstas svarbus EEE",
+        "Test b['’] ?r[ei]levanza għ(?:aż|all)-ŻEE", "Voor de EER relevante tekst",
+        "Tekst mający znaczenie dla EOG", "Texto relevante para efeitos do EEE",
+        "Text cu relevan[țţ][ăa] (?:pentru )?SEE",
+        "Text s (?:významom|platnosťou) pre EHP",
+        "Besedilo (?:velja za|se nanaša na) EGP",
+        "Texto pertinente a (?:efectos|los fines) del EEE",
+        "Text av betydelse för EES"
+      ].freeze
 
       # The note that closes many titles; it is not part of the title.
       # It is matched after `#initialize` collapses each whitespace run in
       # the title to one space, so ` ?` stands for any run (no `\s*`:
-      # CodeQL rb/polynomial-redos).
-      EEA_NOTE = / ?\(? ?Text with EEA relevance ?\)? ?\.?\z/i
+      # CodeQL rb/polynomial-redos). The full stop can be inside or after
+      # the brackets.
+      EEA_NOTE = / ?\(? ?(?:#{EEA_TEXTS.join('|')}) ?\.? ?\)? ?\.?\z/i
 
       # A placeholder CELLAR uses for an unknown entry-into-force date.
       PLACEHOLDER_DATE = /\A1001-/
@@ -48,7 +95,7 @@ module Relaton
                       .reject { |_, v| v.empty? }
         # The Official Journal writes a no-break space after `No`
         # (`No 1227/2011`); a title keeps plain spaces.
-        @row["title"] &&= @row["title"].gsub(/[[:space:]]+/, " ").strip
+        @titles = read_titles @row["titles"].to_s
       end
 
       # @return [Bib::ItemData, nil]
@@ -59,7 +106,8 @@ module Relaton
           id: pubid.to_s.gsub(/\W/, ""), type: "standard", title: title,
           docidentifier: docidentifier, date: date, contributor: contributor,
           status: status, relation: relation, source: source,
-          language: ["en"], script: ["Latn"], ext: ext
+          language: title.map(&:language), script: title.map(&:script).uniq,
+          ext: ext
         )
       end
 
@@ -115,8 +163,8 @@ module Relaton
         type = id.class.name.split("::").last
         year = id.year.to_s
         years = [year, year[2..]]
-        @row["title"].to_s.scan(CITATION) do |act, first, second|
-          next unless act == type
+        citing_title.scan(CITATION) do |act, first, second|
+          next unless ACT_WORDS.fetch(act, act) == type
 
           number_first = first == id.number && years.include?(second)
           year_first = years.include?(first) && second == id.number
@@ -133,11 +181,45 @@ module Relaton
         ]
       end
 
-      def title
-        text = @row["title"]&.sub(EEA_NOTE, "")
-        return [] if text.nil? || text.empty?
+      # The title the act order is read from: English, or French for an act
+      # with no English version.
+      def citing_title
+        @titles["ENG"] || @titles["FRA"] || ""
+      end
 
-        [Bib::Title.new(type: "main", content: text, language: "en", script: "Latn")]
+      #
+      # One title a language, in FIRST_LANGUAGES order then by CELLAR code,
+      # without the EEA relevance note.
+      #
+      # @return [Array<Bib::Title>]
+      #
+      def title
+        @title ||= @titles.sort_by { |code, _| [FIRST_LANGUAGES.index(code) || 3, code] }
+          .filter_map do |code, text|
+            content = text.sub(EEA_NOTE, "")
+            next if content.empty?
+
+            lang, script = LANGUAGES.fetch(code)
+            Bib::Title.new(type: "main", content: content, language: lang, script: script)
+          end
+      end
+
+      #
+      # `?titles` is `<code>|<title>` pairs joined by Cellar::TITLE_SEP. A
+      # language CELLAR has two titles for keeps the first; a code not in
+      # LANGUAGES is dropped. The Official Journal writes a no-break space
+      # after `No`; a title keeps plain spaces.
+      #
+      # @return [Hash{String=>String}] CELLAR language code => title
+      #
+      def read_titles(value)
+        value.split(Cellar::TITLE_SEP).each_with_object({}) do |pair, titles|
+          code, text = pair.split("|", 2)
+          next unless LANGUAGES.key?(code) && !titles.key?(code)
+
+          text = text.to_s.gsub(/[[:space:]]+/, " ").strip
+          titles[code] = text unless text.empty?
+        end
       end
 
       #
