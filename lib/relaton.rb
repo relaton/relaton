@@ -27,6 +27,7 @@ module Relaton
   autoload :Bib, "relaton/bib"
   autoload :ThreeGpp, "relaton/3gpp"
   autoload :Adobe, "relaton/adobe"
+  autoload :Arxiv, "relaton/arxiv"
   autoload :Bipm, "relaton/bipm"
   autoload :Calconnect, "relaton/calconnect"
   autoload :Ccsds, "relaton/ccsds"
