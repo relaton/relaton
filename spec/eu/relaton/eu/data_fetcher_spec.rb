@@ -231,6 +231,17 @@ describe Relaton::Eu::DataFetcher, :no_index_fixture do
       expect(File.exist?("data/eu-regulation-1227-2011.yaml")).to be true
     end
 
+    # CELLAR answered 502/504 for about a minute (relaton-data-eu run
+    # 44824721036); the waits cover some minutes before the crawl gives up.
+    it "waits longer after each failure" do
+      waits = []
+      allow_any_instance_of(Relaton::Eu::Cellar).to receive(:sleep) { |_, s| waits << s }
+      stub_request(:get, /#{Regexp.escape Relaton::Eu::Cellar::URL}/o)
+        .to_return(status: 504)
+      expect { crawl }.to raise_error Relaton::RequestError, /after 5 attempts/
+      expect(waits).to eq [15, 30, 60, 120]
+    end
+
     it "raises before it writes the index when a page keeps failing" do
       stub_request(:get, /#{Regexp.escape Relaton::Eu::Cellar::URL}/o)
         .to_return(status: 503)

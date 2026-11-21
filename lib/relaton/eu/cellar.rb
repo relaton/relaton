@@ -26,6 +26,9 @@ module Relaton
       # One request at a time, one a second: the endpoint is public.
       GAP = 1
       ATTEMPTS = 5
+      # The wait before retry n (0-based) doubles from this: 15, 30, 60,
+      # 120 s. CELLAR can answer 502/504 for a minute or more.
+      FIRST_WAIT = 15
       RETRY_CODES = %w[429 500 502 503 504].freeze
       NET_ERRORS = [
         SocketError, Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED,
@@ -205,7 +208,7 @@ module Relaton
 
           Util.warn "CELLAR #{failure || "HTTP #{resp.code}"}, " \
                     "retry #{n + 1} of #{ATTEMPTS - 1}"
-          sleep 2 * (n + 1)
+          sleep FIRST_WAIT * (2**n)
         end
         raise Relaton::RequestError,
               "CELLAR keeps failing for #{what} after #{ATTEMPTS} attempts"

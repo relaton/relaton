@@ -2,8 +2,11 @@
 
 `Relaton::Eu` fetches EU legal acts: regulations, directives and decisions,
 cited as `EU Regulation 1227/2011`. The identifier is `Pubid::Eu` (pubid
-2.0.44, pubid#752; ELI subtypes from 2.0.46, pubid#755). The data repo is `relaton-data-eu`; it does not exist
-yet, so the consumer is tested only against fixtures.
+2.0.44, pubid#752; ELI subtypes from 2.0.46, pubid#755). The data repo is `relaton-data-eu`. Its first full
+crawl (2026-11-20) wrote 184,513 index rows. Its Pages index
+(`index/manifest.json`) is published only when `Relaton::Eu` is on relaton
+`main` and relaton/support has the Pages config, so until then a lookup raises
+`Relaton::Index::Error` and the specs use fixtures only.
 
 ## Development
 
@@ -65,7 +68,9 @@ The Publications Office CELLAR SPARQL endpoint,
 `https://publications.europa.eu/webapi/rdf/sparql` (Virtuoso, no key).
 `Cellar` asks for one year at a time, 1,000 works a page ordered by CELEX,
 one request a second (`Core::Pacer`). A 429, a 5xx or a transport error is
-retried five times, then `Relaton::RequestError`.
+retried four times, after 15, 30, 60 and 120 s, then
+`Relaton::RequestError`. CELLAR can answer 502/504 for a minute or more: the
+first update run (2026-11-20) failed with the earlier 2–8 s waits.
 
 A full crawl is 75 years and 247 pages for about 213,400 works (2026-11).
 A 1,000-row page takes from 4 s to more than 100 s, depending on CELLAR's
@@ -159,8 +164,9 @@ The SAE shape (`docs/sae.md`):
 
 ## Pending work elsewhere
 
-- `relaton/support` — Cimas config for `relaton-data-eu`; the repository
-  itself is created by its owner.
+- `relaton/support` — Cimas config and the Pages config (`data-index/configs.yml`
+  row `eu`) for `relaton-data-eu`. The repository exists (2026-11-20); its
+  Deploy publishes the Pages index only after this PR merges into `main`.
 - `pubid` — joint families (`(EU, Euratom)`), two-digit years and author
   words in a title are not parsed (pubid's "Known gaps"); the parser reads
   only the number pair of a title. `Pubid::Eu#to_celex` is right only when
