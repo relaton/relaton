@@ -13,7 +13,7 @@ crawl (2026-11-20) wrote 184,513 index rows. Its Pages index
 - `bundle exec rake spec:eu` — this flavor's suite.
 - No VCR: the specs stub HTTP with WebMock. `spec/eu/fixtures/cellar/<year>.json`
   are real CELLAR answers of `Cellar::QUERY` for that year, narrowed with a
-  `VALUES` clause to nine works (the cases below). `fixtures/index-v2.yaml`
+  `VALUES` clause to eleven works (the cases below). `fixtures/index-v2.yaml`
   and `fixtures/data/` are the **output of `DataFetcher` over those
   answers**: regenerate both together by running the crawler over the page
   fixtures, never by hand.
@@ -160,7 +160,11 @@ The SAE shape (`docs/sae.md`):
 - **Consumer** — `Bibliography.get` does `index.search(pubid)` (`===`: the
   type and the year are compared, the legal family is a wildcard) and reads
   the document from `ENDPOINT`. A year argument that differs from the
-  reference's year finds nothing.
+  reference's year finds nothing. `===` ignores the print order, and
+  before 2015 two decisions can share a number and a year (Council Decision
+  No 252/2013/EU and Commission Implementing Decision 2013/252/EU: 5 such
+  pairs in the 2026-11 index). So when the search gives more than one row,
+  the row whose `number_first?` equals the query's wins.
 
 ## Pending work elsewhere
 

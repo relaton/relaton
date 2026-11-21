@@ -27,7 +27,7 @@ module Relaton
           pubid = parse_ref ref
           return not_found(ref) unless pubid && (year.nil? || year.to_s == pubid.year.to_s)
 
-          row = index.search(pubid).min_by { |r| r[:file] }
+          row = select_row index.search(pubid), pubid
           item = row && fetch_doc(row[:file])
           return not_found(ref) unless item
 
@@ -36,6 +36,20 @@ module Relaton
         end
 
         private
+
+        #
+        # Before 2015 a decision had two number series, so two acts can share
+        # a number and a year: Council Decision No 252/2013/EU and Commission
+        # Implementing Decision 2013/252/EU. `===` ignores the print order,
+        # so both rows match; the row printed in the query's order wins.
+        # `number_first?` is the order pubid prints: the stored flag is nil
+        # for the default order, and a caller can set the default explicitly.
+        # With no such row (a query in the other order), the first file.
+        #
+        def select_row(rows, pubid)
+          rows.find { |r| r[:id].number_first? == pubid.number_first? } ||
+            rows.min_by { |r| r[:file] }
+        end
 
         def not_found(ref)
           Util.info "Not found.", key: ref.to_s

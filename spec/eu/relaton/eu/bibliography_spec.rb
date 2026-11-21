@@ -47,6 +47,15 @@ describe Relaton::Eu::Bibliography do
     expect(code("EU Decision 1082/2013")).to eq "EU Decision 1082/2013"
   end
 
+  # Before 2015 a decision had two number series, so two acts can share a
+  # number and a year: Council Decision No 252/2013/EU and Commission
+  # Implementing Decision 2013/252/EU. pubid's `===` ignores the order, so
+  # the search gives both rows, and the print order chooses.
+  it "tells two decisions with one number and year apart by the order" do
+    expect(code("EU Decision 252/2013")).to eq "EU Decision 252/2013"
+    expect(code("EU Decision 2013/252")).to eq "EU Decision 2013/252"
+  end
+
   it "accepts the pubid that Relaton::Db hands over" do
     pubid = Pubid::Eu::Identifier.parse "EU Regulation 1227/2011"
     expect(code(pubid)).to eq "EU Regulation 1227/2011"
