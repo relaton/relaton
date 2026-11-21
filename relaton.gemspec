@@ -133,8 +133,12 @@ Gem::Specification.new do |spec|
   # of the 104 WES records out of the relaton-data-jis index.
   # 2.0.44 carries Pubid::Arxiv (pubid#753, relaton#42), the identifier
   # class the arXiv flavor keys its cache and routes with; an older
-  # runtime has no arXiv grammar, and the processor cannot load.
-  # 2.0.46 types the ITU-R Resolution (`Resolution ITU-R 1-9`,
+  # runtime has no arXiv grammar, and the processor cannot load. It also
+  # carries `Pubid::Eu` (pubid#752), the EU flavor's cache key and index
+  # rows (relaton#44). 2.0.46 parses the ELI subtypes CELLAR gives
+  # (`reg_impl`, `dec_del`, `reg_financ`; pubid#755); on an older runtime
+  # every implementing and delegated act is a crawl error.
+  # 2.0.46 also types the ITU-R Resolution (`Resolution ITU-R 1-9`,
   # `pubid:itu:resolution`, relaton#402) that `Relaton::Itu::DataParserR`
   # writes; an older runtime cannot parse it, so the relaton-data-itu crawl
   # would leave every Resolution out of the index.

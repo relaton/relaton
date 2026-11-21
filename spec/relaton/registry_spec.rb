@@ -325,6 +325,9 @@ RSpec.describe Relaton::Db::Registry do
       "SAE J3016" => :relaton_sae,
       # SAE's native edition code: Pubid::Sae reads the month.
       "SAE J3016_202104" => :relaton_sae,
+      # EU legal acts (relaton#44): Pubid::Eu reads the canonical form.
+      "EU Regulation 1227/2011" => :relaton_eu,
+      "EU Directive 2016/680" => :relaton_eu,
       # arXiv (relaton#42): Pubid::Arxiv's exact parse, and the prefix
       # regex for a lower-case prefix, which Pubid.parse does not route.
       "arXiv:2301.00001" => :relaton_arxiv,

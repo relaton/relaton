@@ -1,0 +1,59 @@
+{
+  "head": {
+    "link": [],
+    "vars": [
+      "celex",
+      "eli",
+      "date",
+      "force",
+      "inforce",
+      "titles",
+      "authors",
+      "repeals",
+      "amends"
+    ]
+  },
+  "results": {
+    "distinct": false,
+    "ordered": true,
+    "bindings": [
+      {
+        "celex": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#string",
+          "value": "31968R2015"
+        },
+        "eli": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#anyURI",
+          "value": "http://data.europa.eu/eli/reg/1968/2015/oj"
+        },
+        "date": {
+          "type": "literal",
+          "datatype": "http://www.w3.org/2001/XMLSchema#date",
+          "value": "1968-12-13"
+        },
+        "force": {
+          "type": "literal",
+          "value": ""
+        },
+        "titles": {
+          "type": "literal",
+          "value": "DEU|Verordnung (EWG) Nr. 2015/68 der Kommission vom 12. Dezember 1968 über die Festsetzung der Prämien, die den Abschöpfungen für Getreide und Malz hinzugefügt werden~|~FRA|Règlement (CEE) n 2015/68 de la Commission, du 12 décembre 1968, portant fixation des primes s'ajoutant aux prélèvements pour les céréales et le malt~|~ITA|Regolamento (CEE) n. 2015/68 della Commissione, del 12 dicembre 1968, che fissa i supplementi da aggiungere ai prelievi per i cereali e il malto~|~NLD|Verordening (EEG) nr. 2015/68 van de Commissie van 12 december 1968 houdende vaststelling van de premies die aan de heffingen toegevoegd worden voor granen en mout"
+        },
+        "authors": {
+          "type": "literal",
+          "value": "http://publications.europa.eu/resource/authority/corporate-body/COM|European Commission"
+        },
+        "repeals": {
+          "type": "literal",
+          "value": ""
+        },
+        "amends": {
+          "type": "literal",
+          "value": ""
+        }
+      }
+    ]
+  }
+}
