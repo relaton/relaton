@@ -160,11 +160,10 @@ module Relaton
         # Pass the reference as a pubid (not a String) so Relaton::Index can
         # narrow candidates by document number before the block; `index_match?`
         # then matches every edition when the reference omits the part and the
-        # exact edition when it names one. Rows are Pubid::Itu objects (not
-        # Comparable), so rank by the numeric edition in `code.parts` (`["3"]` → 3)
-        # to return the latest — index order isn't by edition.
+        # exact edition when it names one. The hit carries no `:code`, so the
+        # stated year is applied here (`#same_year?`), not in Bibliography.
         row = index.search(ref) { |i| index_match?(ref, i[:id]) }
-          .max_by { |i| i[:id].code&.parts&.last.to_i }
+          .select { |i| same_year? i[:id] }.max_by { |i| edition_rank i[:id] }
         return unless row
 
         url = "#{GH_ITU}#{row[:file]}"
@@ -174,6 +173,40 @@ module Relaton
         hit = Hit.new({ url: url, ref: ref }, self)
         hit.item = item
         @array = [hit]
+      end
+
+      # Rows are Pubid::Itu objects (not Comparable), so rank by the numeric
+      # edition in `code.parts` (`["3"]` → 3), then by year (a handbook edition
+      # has no part, only a year) — index order isn't by edition.
+      #
+      # @param id [::Pubid::Itu::Identifier] an index row's id
+      # @return [Array<Integer>]
+      def edition_rank(id)
+        [id.code&.parts&.last.to_i, id.year.to_i]
+      end
+
+      # Does an ITU-R index row have the year the reference states? A dated row
+      # (a handbook edition, `ITU-R 43.HDB (2013)`) must have that year. An
+      # undated row (a recommendation, `ITU-R P.838-3`) is named by its edition
+      # part, so it stands for any year when the reference names that part
+      # (`ITU-R P.838-3 (03/2005)`): its record holds the publication date, and
+      # a reference cites the approval date, which can differ in year. A
+      # reference with a year and no part (`ITU-R P.838 (1999)`) cannot pick an
+      # undated edition, so it answers not-found rather than the newest one.
+      #
+      # @param id [::Pubid::Itu::Identifier] an index row's id
+      # @return [Boolean]
+      def same_year?(id)
+        year = ref.year
+        return true if year.nil?
+        return ref_part? if id.year.nil?
+
+        id.year.to_s == year.to_s
+      end
+
+      # @return [Boolean] true when the reference names an edition part
+      def ref_part?
+        !ref.code&.parts.to_a.empty?
       end
 
       # Does an index row's id match the reference? When the reference omits the

@@ -88,6 +88,16 @@ context "fetch_docid" do
       expect(described_class.fetch_docid(row).first.content).to eq "Report ITU-R BT.2020-1"
     end
 
+    # pubid 2.0.46 types the form ITU cites, `Resolution ITU-R 1-9`
+    # (relaton#402); `ITU-R R.1-9` read as a Recommendation of series R.
+    it "marks a Resolution so pubid types it as one" do
+      row = { family: "R-RES", code: "Res.1-9 (2023)", id: "R-RES-R.1-9-2023" }
+      content = described_class.fetch_docid(row).first.content
+      expect(::Pubid::Itu.parse(content)).to be_a ::Pubid::Itu::Identifiers::Resolution
+      expect(Relaton::Itu::DataFetcher.new("data", "yaml").output_file(content))
+        .to eq "data/resolution-itu-r-1-9.yaml"
+    end
+
     it "gives a Report its own filename instead of colliding" do
       fetcher = Relaton::Itu::DataFetcher.new "data", "yaml"
       rec = described_class.fetch_docid(row.merge(code: "BT.2020-1 (06/2014)")).first.content
@@ -103,7 +113,9 @@ context "fetch_docid" do
   "a Question, which ends in a colon" =>
     [{ family: "R-QUE", code: "202-2/1", id: "R-QUE-SG01.202-2-2002" }, "ITU-R 202-2/1:"],
   "a Resolution, which comes from the id, not the code" =>
-    [{ family: "R-RES", code: "Res.1-9 (2023)", id: "R-RES-R.1-9-2023" }, "ITU-R R.1-9"],
+    [{ family: "R-RES", code: "Res.1-9 (2023)", id: "R-RES-R.1-9-2023" }, "Resolution ITU-R 1-9"],
+  "a Resolution with a two-digit revision" =>
+    [{ family: "R-RES", code: "Res.12-3 (2023)", id: "R-RES-R.12-3-2023" }, "Resolution ITU-R 12-3"],
   # The page displays "2014" for this edition; the id says 2013 and wins.
   "a Handbook, whose year comes from the id, not the code it contradicts" =>
     [{ family: "R-HDB", code: "2014", id: "R-HDB-43-2013" }, "ITU-R 43.HDB (2013)"],

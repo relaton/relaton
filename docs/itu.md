@@ -263,10 +263,11 @@ records.
   code; `R-REP` prefixes it (`Report ITU-R BT.2020-1`, see the collisions note);
   `R-QUE` appends a colon (`202-2/1` → `ITU-R 202-2/1:`); and `R-RES` and
   `R-HDB` cannot use their code at all — a Resolution page renders
-  `Res.1-9 (2023)` while the record is `ITU-R R.1-9`, and a Handbook shows its
-  *title* on the index and a bare year on the leaf, so both read the **page id**
-  (`R-RES-R.1-9-2023`, `R-HDB-43-2013`). The first four reproduce the published
-  filenames exactly, verified live; `R-HDB` deliberately does not (below).
+  `Res.1-9 (2023)` while the record is `Resolution ITU-R 1-9`, and a Handbook
+  shows its *title* on the index and a bare year on the leaf, so both read the
+  **page id** (`R-RES-R.1-9-2023`, `R-HDB-43-2013`). The first three reproduce
+  the published filenames exactly, verified live; `R-RES` and `R-HDB`
+  deliberately do not (below).
 - **`R-HDB` Handbooks are keyed per edition — `ITU-R 43.HDB (2013)`.** ITU
   publishes several editions per handbook (43 has 2002, 2013 and 2026) while the
   published dataset carries **one record per handbook number** (`ITU-R 01.HDB`,
@@ -570,10 +571,41 @@ The wiring mirrors NIST/ETSI/CIE:
   the requested year/version afterwards. There is **no local series guard**: pubid
   #320 fixed `Supplement#==` to compare sector+series (before it, `ITU-T A Suppl. 2`
   matched every series' `Suppl. 2` — 42 rows — and the flavor carried a
-  `same_document_family?` workaround). `#request_document`'s
-  `max_by { |i| i[:id].code&.parts&.last.to_i }` then returns the latest edition by
-  its numeric `code.parts` edition (pubid identifiers aren't Comparable, so a
-  numeric key is needed; the index isn't ordered by edition).
+  `same_document_family?` workaround).
+- **ITU-R selection is complete in `#request_document` (relaton#402).** Its hit
+  carries **no `:code`**, so `Bibliography#isobib_results_filter` cannot read a
+  year from it and accepts it for any year (`#year_selects?`); the stated year
+  is applied before that, in the collection. `#same_year?` keeps a row only
+  when its id has the reference's year **or has no year**: a handbook row is
+  one edition per year (`ITU-R 43.HDB (2013)`), and a recommendation, report,
+  question or resolution row is undated, named by its edition part — so an
+  undated row stands for a stated year only when the reference names that
+  part (`ITU-R P.838 (1999)` answers not-found, not the newest edition). Don't
+  check a dated recommendation reference against its record's `date`: the
+  dataset keeps the publication date and a reference cites the approval date,
+  which differ in year for 48 of 82 BO records (see `DataMergeR`).
+  `#edition_rank` (`[last part, year]`, integers — pubid identifiers aren't
+  Comparable and the index isn't ordered by edition) then takes the latest:
+  `ITU-R P.530` → `-19`, not `-9`; `ITU-R 43.HDB` → the 2026 edition. Before
+  this, a handbook had no part to rank, so `max_by` took the first row (2002),
+  and every dated ITU-R reference (`ITU-R 43.HDB (2013)`,
+  `ITU-R P.838-3 (03/2005)`) answered nil.
+- **Resolutions have their own identity — `Resolution ITU-R 1-9` (relaton#402).**
+  `DataParserR#resolution_docid` builds it from the page id
+  (`R-RES-R.1-9-2023`): the `R.` is the sector and the year is dropped, because
+  the revision part names the edition, as a Report's does. pubid 2.0.46 types it
+  `pubid:itu:resolution` (it also reads `ITU-R Res. 1-9`), and `output_file`
+  sends it to `data/resolution-itu-r-*.yaml`. Before, the docid was
+  `ITU-R R.1-9`, which pubid reads as a `Recommendation` of series `R`; it
+  resolved only because ITU-R has no `R` series of recommendations.
+
+  **Not finished until the dataset migrates**, as with Reports. The published
+  records still carry `ITU-R R.1-9` in `data/itu-r-r-*.yaml`, so
+  `Resolution ITU-R 1-9` resolves nothing until `relaton-data-itu` runs a full
+  crawl. The new filenames fall outside that repo's `DATA_R_GLOB`
+  (`data/{itu-r,report-itu-r}-*.yaml`): it must widen the glob, and refuse a
+  top-up over a pre-migration dataset, **before** this gem change reaches
+  `main`.
 - **Index/data gap — now ITU-R data quality only.** History: 979 unindexed → 755
   after two re-crawls → **47 after pubid #325**, which parses every ITU-T print
   form the dataset carries (`Technical Cor.`, Appendices, `bis`/`ter`, the

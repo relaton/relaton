@@ -138,6 +138,10 @@ Gem::Specification.new do |spec|
   # rows (relaton#44). 2.0.46 parses the ELI subtypes CELLAR gives
   # (`reg_impl`, `dec_del`, `reg_financ`; pubid#755); on an older runtime
   # every implementing and delegated act is a crawl error.
+  # 2.0.46 also types the ITU-R Resolution (`Resolution ITU-R 1-9`,
+  # `pubid:itu:resolution`, relaton#402) that `Relaton::Itu::DataParserR`
+  # writes; an older runtime cannot parse it, so the relaton-data-itu crawl
+  # would leave every Resolution out of the index.
   spec.add_dependency "pubid", "~> 2.0.46"
 
   # JSON parse/generate across the flavor fetchers, the index and the db:

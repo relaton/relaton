@@ -159,7 +159,7 @@ module Relaton
         year = edition_year(refid)
         result.each do |r|
           /\((?:\d{2}\/)?(?<pyear>\d{4})\)/ =~ r.hit[:code]
-          if !year || year == pyear
+          if year_selects?(r.hit, year, pyear)
             ret = r.item
             return { ret: ret } if ret
           end
@@ -169,6 +169,12 @@ module Relaton
           missed_years << pyear if pyear
         end
         { years: missed_years }
+      end
+
+      # Does a hit have the year? An ITU-R index hit has no `:code`:
+      # HitCollection#request_document has already applied the year.
+      def year_selects?(hit, year, pyear)
+        !year || year == pyear || !hit[:code]
       end
 
       def itubib_get1(refid)

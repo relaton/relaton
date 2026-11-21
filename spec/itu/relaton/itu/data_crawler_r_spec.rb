@@ -170,7 +170,7 @@ describe Relaton::Itu::DataCrawlerR do
 
   # Resolutions are flat — /pub/R-RES/en links all 75 documents with no grouping
   # level — and their docid comes from the page id, because the displayed code
-  # ("Res.1-9 (2023)") is not what the published record carries ("ITU-R R.1-9").
+  # ("Res.1-9 (2023)") is not the form ITU cites ("Resolution ITU-R 1-9").
   it "walks the flat Resolution family", :aggregate_failures,
      vcr: { cassette_name: "itu_r_res" } do
     expect(subject.series("R-RES")).to eq [nil] # no grouping level at all
@@ -184,11 +184,11 @@ describe Relaton::Itu::DataCrawlerR do
 
     items = subject.harvest nil, family: "R-RES", only: %w[R-RES-R.1]
     ids = items.map { |i| i.docidentifier.find(&:primary).content }
-    expect(ids.first(3)).to eq ["ITU-R R.1-9", "ITU-R R.1-8", "ITU-R R.1-7"]
+    expect(ids.first(3)).to eq ["Resolution ITU-R 1-9", "Resolution ITU-R 1-8", "Resolution ITU-R 1-7"]
     expect(items.map { |i| i.ext.doctype.content }).to all(eq("resolution"))
 
     fetcher = Relaton::Itu::DataFetcher.new "data", "yaml"
-    expect(fetcher.output_file(ids.first)).to eq "data/itu-r-r-1-9.yaml"
+    expect(fetcher.output_file(ids.first)).to eq "data/resolution-itu-r-1-9.yaml"
   end
 
   # Questions nest one level deeper: the family index lists study groups, and a
