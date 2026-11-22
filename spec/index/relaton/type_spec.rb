@@ -437,6 +437,29 @@ end
           .to eq [{ id: TestIdentifier.create(publisher: "ISO", number: 3), file: "f3" }]
       end
 
+      # The first add builds the raw lookup. It must read the rows once: a
+      # search of the rows for each id made it O(n²), and an update run on
+      # the 184,528-row relaton-data-eu index took 2800 s.
+      it "builds the raw lookup in one pass over a large index" do
+        rows = (1..2000).map { |n| { id: { publisher: "ISO", number: n }, file: "f#{n}" } }
+        File.write(path, rows.to_yaml)
+        raw = subject.send(:raw_index)[1]
+        expect(raw).not_to receive(:index)
+        subject.add_or_update TestIdentifier.create(publisher: "ISO", number: 1500), "new"
+        expect(raw.count { |r| r[:file] == "new" }).to eq 1
+        expect(raw.find { |r| r[:file] == "new" }[:id]).to eq("publisher" => "ISO", "number" => "1500")
+        expect(raw.size).to eq 2000
+      end
+
+      it "updates the first of two raw rows with one id" do
+        File.write(path, [{ id: { publisher: "ISO", number: 1 }, file: "a" },
+                          { id: { publisher: "ISO", number: 1 }, file: "b" }].to_yaml)
+        raw = subject.send(:raw_index)[1]
+        first = raw.first[:file]
+        subject.add_or_update id1, "c"
+        expect(raw.map { |r| r[:file] }).to eq ["c", (%w[a b] - [first]).first]
+      end
+
       it "saves the raw rows to yaml and a fresh type reads them back" do
         subject.add_or_update TestIdentifier.create(publisher: "ISO", number: 3), "f3"
         subject.save

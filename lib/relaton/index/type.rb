@@ -204,15 +204,14 @@ module Relaton
 
       # Position of a raw row by its id hash — the raw-side equivalent of
       # `id_lookup`, built once, so a crawl's add_or_update stays O(1) per row.
+      # One pass over the rows; of two rows with one id, the first wins. (A
+      # search of the rows for each id made the build O(n²): 2800 s on the
+      # 184,528-row relaton-data-eu index.)
       def raw_position(raw_hash)
-        @raw_lookup ||= raw_index[1].each_with_object({}) do |row, h|
-          h[row[:id]] = h.key?(row[:id]) ? h[row[:id]] : rows_index_of(h, row)
+        @raw_lookup ||= raw_index[1].each_with_index.with_object({}) do |(row, i), h|
+          h[row[:id]] = i unless h.key?(row[:id])
         end
         @raw_lookup[raw_hash]
-      end
-
-      def rows_index_of(lookup, row)
-        raw_index[1].index { |r| r[:id].equal?(row[:id]) || r[:id] == row[:id] }
       end
       # The pre-#242 add path, kept verbatim for seeded/materialized and
       # pubid-less indexes.
