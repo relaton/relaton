@@ -36,6 +36,12 @@ module Relaton
           @script = script
         end
 
+        # The engine's localized labels and punctuation, as resolved from
+        # the language pack, the caller's i18n hash, and the style's own
+        # locale (in rising precedence). General#terminate_reference reads
+        # the bibliography terminator here.
+        attr_reader :i18n
+
         def render(model, disambiguator: nil)
           kind = @style.kind_for(model.type)
           template = @style.template_for(kind, home: home_docid?(model))
