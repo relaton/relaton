@@ -81,6 +81,37 @@ RSpec.describe Relaton::Render::General do
       expect(renderings["f1"][:citation][:short]).to eq "FARRAR, 1971"
     end
 
+    # relaton#597: the bibliography terminator follows the caller i18n
+    # hash's punct.biblio-terminator (the 1.x render1 behaviour); a
+    # flavor declaring "" -- metanorma-iso since metanorma-jis#388 --
+    # takes no entry-final period. The lncs style's templates carry no
+    # trailing period of their own, so the terminator is the sole
+    # sentence stop on the entry.
+    it "suppresses the formattedref terminator on biblio-terminator ''" do
+      references = <<~X
+        <references>
+          <bibitem id="f1" type="book">
+            <title>Eric, or Little by Little</title>
+            <date type="published"><on>1971</on></date>
+            <contributor><role type="author"/>
+              <person><name><surname>Farrar</surname><forename>Frederic</forename></name></person>
+            </contributor>
+          </bibitem>
+        </references>
+      X
+      default = described_class.new(language: "en", script: "Latn",
+                                    style: "lncs").render_all(references)
+      expect(default["f1"][:formattedref])
+        .to eq "Farrar, F.: Eric, or Little by Little. (1971)."
+
+      suppressed = described_class
+        .new(language: "en", script: "Latn", style: "lncs",
+             i18nhash: { "punct" => { "biblio-terminator" => "" } })
+        .render_all(references)
+      expect(suppressed["f1"][:formattedref])
+        .to eq "Farrar, F.: Eric, or Little by Little. (1971)"
+    end
+
     it "returns nil for input without bibitems, as 1.x did" do
       expect(described_class.new(language: "en").render_all("<other/>")).to be_nil
     end

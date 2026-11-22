@@ -132,24 +132,37 @@ module Relaton
         suffixes
       end
 
-      # The bibliography terminator; flavors override to suppress it
+      # The bibliography terminator is the i18n `punct.biblio-terminator`
+      # declaration, defaulting to "." (the 1.x render1 behaviour,
+      # relaton#597): a flavor declaring "" in its isodoc i18n hash --
+      # metanorma-iso since metanorma-jis#388 -- suppresses the
+      # entry-final period. Flavors still override this method outright
       # (1.x use_terminator?), receiving the item it terminates. A
       # reference closing on a footnote closes the sentence before it:
       # the terminator lands ahead of the trailing fn.
       FOOTNOTE_CLOSE = "</fn>".freeze
 
-      def terminate_reference(ref, _item = nil)
-        return ref if ref.empty? || ref.rstrip.end_with?(".")
+      def terminate_reference(ref, item = nil)
+        final = biblio_terminator(item)
+        return ref if ref.empty? || ref.rstrip.end_with?(final)
 
         if (fn = ref.rindex("<fn"))
           head = ref[0...fn].rstrip
           return ref if head.empty?
 
-          sep = head.end_with?(".") ? "" : "."
+          sep = head.end_with?(final) ? "" : final
           return "#{head}#{sep}#{ref[fn..]}"
         end
 
-        "#{ref}."
+        "#{ref}#{final}"
+      end
+
+      # The terminator as the item's language renders it: each item takes
+      # the i18n of the renderer localizing it (the 1.x
+      # `@i18n.select(obj)` selection)
+      def biblio_terminator(item = nil)
+        renderer_for(Array(item&.language).first)
+          .i18n.punct_fetch("biblio-terminator", ".")
       end
 
       # The style-keyed capsule ("citation" => { author_date: "..." })

@@ -38,7 +38,12 @@ module Relaton
         end
 
         # Runtime label overrides (a caller's i18n hash): the pack's label
-        # names win as the key mapping; unknown keys are ignored.
+        # names win as the key mapping; unknown keys are ignored. The
+        # caller's `punct` subtree carries through (the 1.x behaviour,
+        # relaton#597): a flavor declares its bibliography punctuation --
+        # e.g. metanorma-iso's `punct: biblio-terminator: ""` suppressing
+        # the entry-final period -- in the same isodoc i18n hash that
+        # passes the labels.
         def overlay_hash!(hash)
           known = %w[
             edition series_no report_no available_from in and oxford_comma
@@ -48,6 +53,11 @@ module Relaton
           hash.each do |key, value|
             labels[key.to_s] = value if known.include?(key.to_s) && !value.nil?
           end
+          # callers symbolize the hash to varying depths (Relaton::Render
+          # General#deep_symbolize, metanorma-utils); the punct keys land
+          # stringified either way
+          sub = hash["punct"] || hash[:punct]
+          punct.merge!(sub.to_h { |k, v| [k.to_s, v] }) if sub.is_a?(Hash)
           self
         end
 
