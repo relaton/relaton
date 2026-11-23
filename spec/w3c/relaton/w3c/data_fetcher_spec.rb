@@ -235,7 +235,18 @@ RSpec.describe Relaton::W3c::DataFetcher do
 
         expect { subject.fetch }.to raise_error(
           described_class::CrawlIncompleteError,
-          /gave up after 5 consecutive backoffs \(123 rate-limited responses\)/,
+          /gave up after 5 consecutive backoffs \(123 rate-limited responses,/,
+        )
+      end
+
+      # The request rate the host saw is the first thing to check after a ban.
+      it "names the paced request count and the gap in the abort message" do
+        single_page_client
+        allow(Relaton::W3c::SafeRealize.governor).to receive(:exhausted?).and_return(true)
+        allow(Relaton::W3c::SafeRealize.pacer).to receive_messages(requests: 4321, gap: 0.12)
+
+        expect { subject.fetch }.to raise_error(
+          described_class::CrawlIncompleteError, /4321 requests paced at a 0\.12 s gap/
         )
       end
 
@@ -322,6 +333,15 @@ RSpec.describe Relaton::W3c::DataFetcher do
 
         expect(subject.send(:fetch_specifications_page, 2)).to eq page
         expect(calls).to eq 2
+      end
+
+      it "takes a pacer slot for each page request" do
+        pacer = Relaton::W3c::SafeRealize.pacer
+        allow(pacer).to receive(:wait).and_return(0.0)
+        allow(client).to receive(:specifications).with(embed: true, page: 2).and_return(page)
+
+        subject.send(:fetch_specifications_page, 2)
+        expect(pacer).to have_received(:wait).once
       end
 
       it "returns nil after exhausting retries" do

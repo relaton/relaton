@@ -261,4 +261,87 @@ RSpec.describe Relaton::W3c::SafeRealize do
       end
     end
   end
+
+  # The pool-wide request pacer (Relaton::Core::Pacer) keeps the crawl under
+  # api.w3.org's published 6000 requests / 10 min. Only a realize that goes to
+  # the network takes a slot.
+  describe "request pacing" do
+    let(:href) { "https://example.com/spec" }
+    let(:obj) { double(href: href) }
+    let(:pacer) { Relaton::Core::Pacer.new(gap: 0) }
+
+    before do
+      Relaton::W3c::SafeRealize.pacer = pacer
+      allow(pacer).to receive(:wait).and_return(0.0)
+      allow(obj).to receive(:realize).and_return(double("realized"))
+    end
+
+    it "takes a pacer slot for a network realize" do
+      handler.realize(obj)
+      expect(pacer).to have_received(:wait).once
+    end
+
+    # lutaml-hal falls through to a real GET when the page's `_embedded` has
+    # no exact href match, so an embedded realize is paced as well.
+    it "takes a slot for an embedded realize too" do
+      handler.realize(obj, parent_resource: double("page"))
+      expect(pacer).to have_received(:wait).once
+    end
+
+    it "takes no slot once the governor has given up" do
+      allow(governor).to receive(:exhausted?).and_return(true)
+      handler.realize(obj)
+      expect(pacer).not_to have_received(:wait)
+    end
+
+    it "takes a new slot for each throttled retry" do
+      allow(Relaton.logger_pool).to receive(:warn)
+      allow(obj).to receive(:realize).and_raise(Lutaml::Hal::TooManyRequestsError, "Status: 429")
+      handler.realize(obj)
+      expect(pacer).to have_received(:wait)
+        .exactly(Relaton::W3c::SafeRealize::THROTTLE_ATTEMPTS).times
+    end
+  end
+
+  describe ".gap" do
+    around do |ex|
+      orig = ENV["RELATON_W3C_GAP"]
+      ex.run
+      ENV["RELATON_W3C_GAP"] = orig
+      # `around` wraps the file's `after { reset! }`, which therefore ran with
+      # this example's gap. Reset again so the shared pacer does not keep it.
+      Relaton::W3c::SafeRealize.reset!
+    end
+
+    it "defaults to DEFAULT_GAP when unset or blank" do
+      ENV.delete("RELATON_W3C_GAP")
+      expect(described_class.gap).to eq described_class::DEFAULT_GAP
+      ENV["RELATON_W3C_GAP"] = " "
+      expect(described_class.gap).to eq described_class::DEFAULT_GAP
+    end
+
+    it "keeps the default under the published limit of 10 requests a second" do
+      expect(described_class::DEFAULT_GAP).to be > 0.1
+    end
+
+    it "reads RELATON_W3C_GAP, and 0 disables pacing" do
+      ENV["RELATON_W3C_GAP"] = "0.25"
+      expect(described_class.gap).to eq 0.25
+      ENV["RELATON_W3C_GAP"] = "0"
+      expect(described_class.gap).to eq 0.0
+    end
+
+    it "ignores an unreadable or negative value" do
+      %w[fast -1].each do |v|
+        ENV["RELATON_W3C_GAP"] = v
+        expect(described_class.gap).to eq described_class::DEFAULT_GAP
+      end
+    end
+
+    it "is applied to the shared pacer on reset!" do
+      ENV["RELATON_W3C_GAP"] = "0.3"
+      Relaton::W3c::SafeRealize.reset!
+      expect(Relaton::W3c::SafeRealize.pacer.gap).to eq 0.3
+    end
+  end
 end

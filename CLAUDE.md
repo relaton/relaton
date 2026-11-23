@@ -252,7 +252,11 @@ host's own latency counting *toward* the gap rather than being added to it) and
 **`Governor`** (one pool-wide rate-limit cooldown that escalates per round and
 latches a give-up, so a banned crawl fails fast). A flavor subclasses `Governor`
 and supplies only `THROTTLE_ERRORS`/`.throttle?` and `ENV_PREFIX`; see
-`Relaton::W3c::Governor` and `Relaton::Itu::Governor`. Do **not** confuse either
+`Relaton::W3c::Governor` and `Relaton::Itu::Governor`. A governor alone does not
+prevent a ban; it only reacts to one. When the host publishes a limit, pace
+under it: W3C (`SafeRealize.pacer`, `RELATON_W3C_GAP`, 0.12 s against
+api.w3.org's 6000 requests / 10 min) was banned on three of six days in
+2026-11 with only a worker-count limit and the governor. Do **not** confuse either
 with `Core::WorkersPool` (runtime search only, no per-worker resources) or with
 `Relaton::Cie::DataFetcher::Pacing`, whose gap is deliberately *per worker*.
 

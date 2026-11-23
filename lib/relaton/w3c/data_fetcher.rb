@@ -149,6 +149,7 @@ module Relaton
           index.save
         end
 
+        Util.info "Crawl done: #{pacing_summary}."
         report_errors
       end
 
@@ -167,8 +168,15 @@ module Relaton
         raise CrawlIncompleteError,
               "crawl is rate-limited: gave up after " \
               "#{rounds} consecutive backoffs " \
-              "(#{SafeRealize.governor.throttle_count} rate-limited responses); " \
-              "refusing to save a partial dataset"
+              "(#{SafeRealize.governor.throttle_count} rate-limited responses, " \
+              "#{pacing_summary}); refusing to save a partial dataset"
+      end
+
+      # How many requests went through the shared pacer, and at what gap: the
+      # rate api.w3.org saw, for the abort message and the run log.
+      def pacing_summary
+        pacer = SafeRealize.pacer
+        "#{pacer.requests} requests paced at a #{pacer.gap} s gap"
       end
 
       # The per-resource counterpart to guard_complete_pagination: pagination can
@@ -195,6 +203,7 @@ module Relaton
       # link so the worker can hand it back to realize as the parent_resource.
       #
       def enqueue_specs(queue)
+        SafeRealize.pacer.wait
         specs = client.specifications(embed: true)
         expected_pages = specs.pages
         last_page = nil
@@ -412,6 +421,7 @@ module Relaton
         attempt = 0
         begin
           SafeRealize.governor.wait
+          SafeRealize.pacer.wait
           page = client.specifications(embed: true, page: number)
           SafeRealize.governor.succeeded!
           page
