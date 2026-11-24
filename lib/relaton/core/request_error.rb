@@ -49,6 +49,13 @@ module Relaton
     end
   end
 
+  # `relaton index` could not build machine-index rows for some documents:
+  # neither a pubid parse of the printed docid nor a committed-index row
+  # covers them, so those documents would be invisible to every fetch. The
+  # build fails (the 2026-11-23 adobe drop: 11 records lost from a published
+  # index with only a log warning) instead of publishing a partial index.
+  class IndexBuildError < Error; end
+
   module Core
     RequestError = Relaton::RequestError
   end

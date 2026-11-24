@@ -378,9 +378,19 @@ module Relaton
           end
         end
 
-        # Rows dropped by `indexed_rows` — reported so the loss is never silent.
+        # Documents no row could identify: `add` leaves id_hash nil when
+        # neither a pubid parse nor a committed-index row covers the file.
+        # (A derived alias pruned by `indexed_rows` because another document
+        # owns its spelling is NOT a skip — its id_hash is present and the
+        # primary row serves the file.)
         def skipped_count
-          count - indexed_rows.size
+          @rows.count { |row| row.id_hash.nil? }
+        end
+
+        # The files behind `skipped_count`.
+        def skipped_files
+          @rows.select { |row| row.id_hash.nil? }
+               .map(&:file).uniq.sort
         end
 
         # Rows bucketed by shard, in deterministic (key, rendered) order;
@@ -767,9 +777,13 @@ module Relaton
           ),
         )
         if machine.skipped_count.positive?
-          Util.warn "Machine index: skipped #{machine.skipped_count} of " \
-                    "#{machine.count} document(s) whose id could not be parsed " \
-                    "(a structured index cannot carry them)."
+          raise Relaton::IndexBuildError,
+                "Machine index build: #{machine.skipped_count} of " \
+                "#{machine.count} document(s) could not be indexed — neither " \
+                "a pubid parse of the printed docid nor a committed-index row " \
+                "covers them, so no fetch could ever find them: " \
+                "#{machine.skipped_files.join(', ')}. Fix the records' " \
+                "docidentifier or the flavor grammar, then rebuild."
         end
         machine.shard_count
       end
