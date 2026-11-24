@@ -283,10 +283,17 @@ on `type`, not on a flavor class:** a relation's nested item is a plain
 `Bib::ItemData`, and a BIPM `Docidentifier` subclass was tried and dropped —
 the BIPM parsers build `Bib::Docidentifier`, and lutaml's YAML serializer
 rejects a parent-class value in a subclass-typed collection
-(`IncorrectModelError`). `with_publisher:` is on pubid `main` only, so the
-`Gemfile`s ride pubid's `main` branch from git (pubid#620 merged after the
-`v2.0.1` tag; a local lock keeps its revision until `bundle update pubid`); return
-to a released pin with the next pubid release.
+(`IncorrectModelError`). (`with_publisher:` is in every pubid release the gemspec allows.)
+
+**The `Gemfile` rides pubid from git (relaton#601).** The Adobe dotted
+publication version (`Adobe Publication pdf-reference-1.7`, pubid#770) is on
+pubid `main` only, and the published Adobe index keys 11 rows on it, so the
+`Gemfile` pins pubid's git commit; a local lock keeps an older pubid until
+`bundle update pubid`. The gemspec floor (`~> 2.0.46`) does not carry it: a
+released relaton answers "not found" for those rows. At the next pubid
+release, return the `Gemfile` to a rubygems pin and floor `relaton.gemspec`
+there. `spec/adobe/relaton/adobe/corpus_spec.rb` (the PDF Association
+acceptance list) is the guard. See `docs/adobe.md`.
 
 **Single `VERSION`.** `lib/relaton/version.rb` defines `Relaton::VERSION` — the
 one version constant. There are **no** per-flavor `version.rb` files or
