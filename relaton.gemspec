@@ -78,7 +78,9 @@ Gem::Specification.new do |spec|
   # 0.3.2 fixes the FileSystem adapter defects the Db cache depends on:
   # lossless keys, thread and process exclusion, DatabaseStore serialization,
   # CacheStore#each_key (lutaml/lutaml-store#17).
-  spec.add_dependency "lutaml-store", "~> 0.3.2"
+  # 0.3.11 excludes 0.3.10, which shipped unresolved merge-conflict markers
+  # in yaml_backend.rb and fails at require (lutaml/lutaml-store#31).
+  spec.add_dependency "lutaml-store", "~> 0.3.11"
   spec.add_dependency "htmlentities"
   spec.add_dependency "twitter_cldr"
   spec.add_dependency "liquid", "~> 5"
@@ -142,7 +144,12 @@ Gem::Specification.new do |spec|
   # `pubid:itu:resolution`, relaton#402) that `Relaton::Itu::DataParserR`
   # writes; an older runtime cannot parse it, so the relaton-data-itu crawl
   # would leave every Resolution out of the index.
-  spec.add_dependency "pubid", "~> 2.0.46"
+  # 2.0.49 types the Wmo flavor (the four series heads + the widening
+  # round, pubid#763) and 2.0.50 the dotted publication versions
+  # (Adobe Publication pdf-reference-1.7, tiff-6.0 - pubid#770): the
+  # Adobe flavor's canonical spellings do not parse on an older runtime,
+  # so the dataset's versioned records stay unfindable.
+  spec.add_dependency "pubid", "~> 2.0.50"
 
   # JSON parse/generate across the flavor fetchers, the index and the db:
   # yeptris's strict RFC 8259 surface replaces the stdlib json gem's calls.
