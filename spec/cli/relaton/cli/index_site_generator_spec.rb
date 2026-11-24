@@ -46,19 +46,22 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
   end
 
   def with_pubid_corpus(count, opts = {})
+    ids = opts.delete(:ids) || (1..count).map do |i|
+      "ISO #{1000 + i}#{i.positive? && i % 3 == 1 ? "-1:2014" : ""}"
+    end
     Dir.mktmpdir("pubid-corpus-") do |repo|
       FileUtils.mkdir_p(File.join(repo, "data"))
-      (1..count).each do |i|
+      ids.each_with_index do |id, i|
         content = <<~YAML
           ---
           docidentifier:
-          - content: ISO #{1000 + i}#{i.positive? && i % 3 == 1 ? "-1:2014" : ""}
+          - content: #{id}
             primary: true
           title:
-          - content: Standard #{i}
+          - content: Standard #{i + 1}
             type: main
         YAML
-        File.write(File.join(repo, "data", format("iso-%03d.yaml", i)), content)
+        File.write(File.join(repo, "data", format("iso-%03d.yaml", i + 1)), content)
       end
       yield described_class.generate(
         File.join(repo, "data"),
@@ -145,7 +148,10 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     end
 
     it "maps a pubid flavor whose relaton namespace differs (3gpp -> ThreeGpp)" do
-      with_pubid_corpus(3, flavor: "3gpp") do
+      # The build hard-fails on a document the flavor's grammar cannot read,
+      # so the corpus carries ids the 3GPP flavor parses.
+      with_pubid_corpus(3, flavor: "3gpp",
+                        ids: ["3GPP TS 21.101", "3GPP TS 21.102", "3GPP TS 21.103"]) do
         expect(manifest["index"]).to eq(Relaton::ThreeGpp::INDEXFILE)
       end
     end
@@ -400,21 +406,23 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
       # A legacy index published under the same name carries plain strings. One
       # of those in a row would break both the monolith (yaml_nested walks a
       # Hash) and the consumer (FileIO#deserialize_id calls from_hash).
-      it "ignores a committed row whose id is a plain string" do
-        expect(Relaton.logger_pool).to receive(:warn).with(/skipped 1 of 2/, "relaton-cli")
-        with_unparseable([{ id: "CC/A 0001:2000", file: "data/n-01.yaml" }]) do
-          expect(all_machine_records.map { |r| r["r"] }).to eq(["ISO 9999"])
-        end
+      it "fails the build when the only committed row is a plain string" do
+        expect do
+          with_unparseable([{ id: "CC/A 0001:2000", file: "data/n-01.yaml" }]) { nil }
+        end.to raise_error(Relaton::IndexBuildError, /data\/n-01\.yaml/)
       end
 
-      it "is dropped and reported when the committed index has no row for it" do
-        # Util.warn reaches the logger through Bib::Util#method_missing, so the
-        # pool is the only interceptable point.
-        expect(Relaton.logger_pool).to receive(:warn).with(/skipped 1 of 2/, "relaton-cli")
-        with_unparseable(nil) do
-          expect(all_machine_records.map { |r| r["r"] }).to eq(["ISO 9999"])
-          expect(manifest["count"]).to eq(1)
-        end
+      it "fails the build when the committed index has no row for it" do
+        # A document neither the parser nor the committed index can identify
+        # would be invisible to every fetch (the 2026-11-23 adobe drop: 11
+        # records silently missing from a published index). The build fails
+        # and names the files instead of publishing a partial index.
+        expect do
+          with_unparseable(nil) { nil }
+        end.to raise_error(
+          Relaton::IndexBuildError,
+          /1 of 2 document\(s\) could not be indexed.*data\/n-01\.yaml/m,
+        )
       end
     end
 
