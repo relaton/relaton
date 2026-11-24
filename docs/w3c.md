@@ -63,7 +63,8 @@ The entry module is defined in `lib/relaton/w3c.rb` and exposes `grammar_hash`.
 
 `DataFetcher` is tunable via environment variables (read by class methods, so they apply to the whole crawl):
 
-- **`RELATON_W3C_FETCH_CONCURRENCY`** (default `4`) — number of `fetch_spec` worker threads. Kept conservative so the version-history requests don't burst fast enough to trip the W3C API rate limiter (429s); raise it for a faster run, lower it for debugging or if 429 skips appear.
+- **`RELATON_W3C_GAP`** (default `0.12`, `SafeRealize::DEFAULT_GAP`) — minimum seconds between request starts across the whole worker pool (`Core::Pacer`). This sets the request rate: about 8.3 req/s, 5000 per 10 minutes, under the published limit of 6000. `0` disables pacing (the specs set it through `spec/w3c/support/pacer.rb`); an unreadable or negative value falls back to the default. Read again on each `SafeRealize.reset!`.
+- **`RELATON_W3C_FETCH_CONCURRENCY`** (default `4`) — number of `fetch_spec` worker threads. With the pacer in place the workers only hide latency; they no longer set the rate. Lower it for debugging.
 - **`RELATON_W3C_FETCH_VERSIONS`** (default enabled) — set to `false`/`0`/`no`/`off` for a faster, shallower crawl that emits only the top-level specifications and skips each spec's version-history fan-out (version_history, predecessor/successor versions — the bulk of the API requests). Leave it set (the default) for a complete dataset.
 - **`RELATON_W3C_THROTTLE_BASE`** / **`_MAX`** / **`_GIVEUP`** (defaults `60` / `900` / `5` — see `Governor`) — first cooldown, cooldown ceiling, and how many consecutive throttle rounds without a success end the crawl. Non-positive values are ignored. These three are read by the governor on construction **and on each `SafeRealize.reset!`** (i.e. at the start of every `fetch`), so like the others they can be set any time before the crawl rather than before the flavor is autoloaded.
 - **`RELATON_W3C_MAX_THROTTLED`** (default `25`) — how many resources may be lost to rate limiting before `fetch` refuses to save the index. `0` is accepted and means "tolerate none".
@@ -102,6 +103,22 @@ gem's job** (`Governor`), because upstream has no notion of the crawl as a whole
   `DEFAULT_MAX_RETRY_AFTER` instead — the first turns a polite server hint into
   an immediate give-up, and either imposes a crawl-shaped number on every
   consumer of those gems.
+
+**The pacer keeps the crawl under the published limit; the governor reacts
+when it is over anyway.** `api.w3.org/doc` publishes the limit: **6000 requests
+per IP every 10 minutes** (10 req/s on average). Before the pacer the crawl was
+held only by its worker count, so its rate followed the host's latency and cache
+hits. On 2026-11-19, -20 and -22 that went over the limit, and each crawl was
+banned 9–20 minutes in (relaton-data-w3c run 45067048102:
+`gave up after 5 consecutive backoffs (14 rate-limited responses)`). Now one
+`Core::Pacer` (`SafeRealize.pacer`) is shared by every worker: each `realize`
+and each specifications page fetch takes a slot, at most one per
+`RELATON_W3C_GAP` seconds. An embedded `realize` (with `parent_resource:`) takes
+a slot too: lutaml-hal serves it from the page only on an exact href match in
+`_embedded`, and otherwise makes a real GET. That costs one gap per
+specification, ~3 minutes a run. lutaml-hal's own inner retries do not pass the
+pacer, which is why the default gap leaves ~17 % headroom. The abort message and
+the final `Crawl done:` log line name the paced request count and the gap.
 
 **`Governor` (`governor.rb`) is the important piece.** `api.w3.org` is behind
 Cloudflare, whose rate limiting is **bimodal**: a run either never trips it or

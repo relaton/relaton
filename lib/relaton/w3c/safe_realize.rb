@@ -1,4 +1,5 @@
 require "concurrent/map"
+require_relative "../core/pacer"
 require_relative "governor"
 
 module Relaton
@@ -24,6 +25,16 @@ module Relaton
       # href monopolise a worker.
       THROTTLE_ATTEMPTS = 3
 
+      # Minimum seconds between request starts across the whole worker pool.
+      # api.w3.org publishes its limit as 6000 requests per IP every 10 minutes
+      # (https://api.w3.org/doc), i.e. 10 req/s on average. Before the pacer the
+      # crawl was held only by its worker count, so its rate followed the host's
+      # latency, and on 2026-11-19, -20 and -22 it went over that budget and was
+      # banned (relaton-data-w3c run 45067048102). 0.12 s is ~8.3 req/s, 5000
+      # per 10 minutes: the headroom covers lutaml-hal's inner retries, which
+      # do not pass through here. RELATON_W3C_GAP overrides it; 0 disables it.
+      DEFAULT_GAP = 0.12
+
       # Hrefs that failed terminally — one map shared by every includer
       # (DataFetcher and DataParser) since a broken resource is broken for the
       # whole crawl. Initialized eagerly (at load, single-threaded) so the
@@ -42,16 +53,31 @@ module Relaton
 
       class << self
         attr_reader :skipped, :throttled
-        attr_accessor :governor
+        attr_accessor :governor, :pacer
 
-        # Start a crawl (or a spec example) from a clean slate. The governor is
-        # reset in place, so a reference taken before the reset stays live.
+        # Start a crawl (or a spec example) from a clean slate. The governor and
+        # the pacer are reset in place, so a reference taken before the reset
+        # stays live. The gap is read again, like the governor's env knobs.
         def reset!
           @skipped.clear
           @throttled.clear
           @governor.reset!
+          @pacer.gap = gap
+          @pacer.reset!
+        end
+
+        # @return [Float] RELATON_W3C_GAP, or DEFAULT_GAP when it is unset,
+        #   unreadable or negative. "0" is accepted and disables pacing.
+        def gap
+          value = ENV["RELATON_W3C_GAP"].to_s.strip
+          value.match?(/\A\d+(\.\d+)?\z/) ? value.to_f : DEFAULT_GAP
         end
       end
+
+      # Shared by every worker: the pool between them starts at most one
+      # request per gap (see Core::Pacer). Built after `class << self`, which
+      # defines `gap`.
+      @pacer = Core::Pacer.new(gap: gap)
 
       # @param parent_resource [Object, nil] the index/page the link came from.
       #   When the page was fetched with `embed: true`, its inlined `_embedded`
@@ -78,6 +104,12 @@ module Relaton
         begin
           attempt += 1
           SafeRealize.governor.wait
+          # Every realize takes a slot, an embedded one too. lutaml-hal serves
+          # it from the page only when the page's `_embedded` holds an exact
+          # href match; otherwise it falls through to a real GET, and an
+          # unpaced fall-through on every spec is the rate that got the crawl
+          # banned. The cost is one gap per specification, ~3 minutes a run.
+          SafeRealize.pacer.wait
           realized = obj.realize(parent_resource: parent_resource)
           # Only a realize that actually went to the network says anything about
           # the limiter. With a parent_resource, lutaml-hal serves the object
