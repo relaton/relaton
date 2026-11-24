@@ -83,16 +83,54 @@ The `Processor` registers `short = :relaton_adobe`, `prefix = "Adobe"`,
 `defaultprefix = /^(?:Adobe|ATN)/` so both `Adobe Technical Note #5014` and
 `ATN5014` route here.
 
-## Status / follow-ups
+## Sources and canonical citation forms (relaton#601)
 
-- `Pubid::Adobe` (identifier flavor: `TechNote` + `Publication`, prefixes
-  `["Adobe", "ATN"]`) is on pubid `main`, the version this repo pins, and is now
-  wired into both `Docidentifier` and `Bibliography`.
-- `relaton-data-adobe` (dataset) is not yet published; retrieval is wired and
-  unit-tested offline (webmock + a stubbed pubid-class index), but a live
-  end-to-end fetch waits on the data repo. When it lands, confirm rows serialize
-  as `_type: pubid:adobe:{tech-note,publication}` (the `ADOBE_TYPE_MAP` pubid
-  deserializes via `pubid_class`).
+`relaton-data-adobe` combines three Adobe source trees (52 records,
+2026-11-23), for the Adobe documents that PDF Association work cites
+(metanorma-pdfa#114, relaton-data-adobe#9):
+
+- `adobe-type-tools/font-tech-notes` — the font tech notes (`ATN<NNNN>`), the
+  Type 1 spec (`t1-spec`), the glyph lists and the CMap collections.
+- `adobe/dc-acrobat-sdk-docs` `docs/pdfstandards/` — the PDF Reference
+  editions 1.0–1.7 (there is no 1.1 edition in the tree).
+- `pdfa.org/norm-refs/` — the PDF Association's mirror of the 5xxx Acrobat
+  tech notes (5001, 5044, 5116, 5411, 5620, 5660), plus TIFF 6.0, XFA 3.3,
+  PLRM 3.0 and the signature build dictionary 1.4.
+
+The flavor needs no code per source. A citing document writes one of two
+canonical forms:
+
+- `Adobe TN <n>` (also `Adobe Technical Note #<n>`, `ATN<n>`);
+- `Adobe Publication <slug>[-<version>]` — e.g.
+  `Adobe Publication pdf-reference-1.7`, `Adobe Publication tiff-6.0`. A
+  versionless `Adobe Publication pdf-reference` does **not** match an edition:
+  `pubid_match?` is exact identity.
+
+A bare slug (`pdf-reference-1.7`) is not claimable: `@defaultprefix` claims
+only `Adobe`/`ATN`, as every flavor claims an explicit token.
+
+**The dotted version needs pubid#770**, which is on pubid `main` and in no
+release (2.0.49 raises `Pubid::Errors::ParseError` on
+`Adobe Publication pdf-reference-1.7`). The `Gemfile` rides pubid from git at
+that commit. At the next pubid release, return to a rubygems pin and floor
+`relaton.gemspec` there, or a released relaton answers "not found" for every
+dotted-version publication.
+
+`spec/adobe/relaton/adobe/corpus_spec.rb` is the acceptance list: each cited
+document routes to this flavor and resolves to its own row in
+`spec/adobe/fixtures/index-v2.yaml` (the live index, copied wholesale). The
+cited documents with no record (PDF 1.1, PDF32000_2008, the Adobe Supplement to
+the ISO 32000) are `pending`; when a record lands, move its entry and refresh
+the fixture.
+
+**A record's primary docidentifier is its canonical id.** Until
+relaton-data-adobe#12 (2026-11-24) a publication record carried its title
+there (`Adobe Publication PDF Reference: Adobe Portable Document Format,
+Version 1.7`). The lookup still worked (the index is built from the record
+`id`), but `Docidentifier#pubid` was nil, `Db#item_key` gave the document no
+cache row of its own, and an api.relaton.org answer was always discarded (its
+key did not equal the query key). `item_spec.rb` pins the canonical form on
+the `pdf-reference-1.7` fixture.
 
 ## Testing
 
@@ -101,4 +139,7 @@ The `Processor` registers `short = :relaton_adobe`, `prefix = "Adobe"`,
   `CLAUDE.md` Testing section). `xml_spec.rb` covers schema validation;
   `docidentifier_spec.rb` covers pubid parsing + the mutation hooks;
   `bibliography_spec.rb` covers the offline retrieval path (tech-note narrowing,
-  publication scan, ATN-alias identity, graceful miss).
+  publication scan, ATN-alias identity, versioned editions, graceful miss);
+  `item_spec.rb` and `xml_spec.rb` load two published records
+  (`spec/adobe/fixtures/`); `corpus_spec.rb` is the PDF Association
+  acceptance list.

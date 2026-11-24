@@ -49,4 +49,11 @@ RSpec.describe "Relaton::Adobe XML schema" do
     )
     expect(validate(item)).to eq []
   end
+
+  %w[pdf-reference-1.7 atn5620].each do |name|
+    it "validates the published #{name} record against the grammar" do
+      item = Relaton::Adobe::Item.from_yaml File.read("fixtures/#{name}.yaml", encoding: "UTF-8")
+      expect(validate(item)).to eq []
+    end
+  end
 end

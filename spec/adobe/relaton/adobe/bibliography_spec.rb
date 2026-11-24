@@ -79,6 +79,30 @@ RSpec.describe Relaton::Adobe::Bibliography do
     end
   end
 
+  context "versioned publications (dotted version, pubid#770)" do
+    before do
+      stub_index([row("Adobe Publication pdf-reference-1.6", "data/pdf-reference-1.6.yaml"),
+                  row("Adobe Publication pdf-reference-1.7", "data/pdf-reference-1.7.yaml")])
+      stub_request(:get, "#{described_class::ENDPOINT}data/pdf-reference-1.7.yaml")
+        .to_return(status: 200,
+                   body: File.read("fixtures/pdf-reference-1.7.yaml", encoding: "UTF-8"))
+    end
+
+    it "resolves one edition and not its sibling" do
+      item = described_class.get("Adobe Publication pdf-reference-1.7")
+      expect(item.ext.urn).to eq "urn:adobe:publication:pdf-reference:v1.7"
+      expect(search_args.last).to be_nil
+      expect(a_request(:get, "#{described_class::ENDPOINT}data/pdf-reference-1.6.yaml"))
+        .not_to have_been_made
+    end
+
+    it "does not answer a versionless reference with a versioned edition" do
+      expect(described_class.get("Adobe Publication pdf-reference")).to be_nil
+      expect(search_args).to eq [nil] # it parsed and scanned; no silent parse miss
+      expect(a_request(:get, /relaton-data-adobe/)).not_to have_been_made
+    end
+  end
+
   context "errors and soft misses" do
     it "raises RequestError on a non-200 response" do
       stub_index([row("Adobe Technical Note #5014", "data/5014.yaml")])
