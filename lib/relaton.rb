@@ -56,6 +56,7 @@ module Relaton
   autoload :Un, "relaton/un"
   autoload :W3c, "relaton/w3c"
   autoload :Xsf, "relaton/xsf"
+  autoload :Wmo, "relaton/wmo"
   autoload :Bsi, "relaton/bsi"
   autoload :Gb, "relaton/gb"
   autoload :Iec, "relaton/iec"
