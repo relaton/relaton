@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="biblio-standoc.rng">
+    <define name="DocumentType">
+      <choice>
+        <value>technical-regulations</value>
+        <value>technical-document</value>
+        <value>technical-report</value>
+        <value>report</value>
+        <value>specification</value>
+      </choice>
+    </define>
+  </include>
+  <define name="BibDataExtensionType" combine="interleave">
+    <optional>
+      <ref name="urn">
+        <a:documentation>URN identifying the WMO document</a:documentation>
+      </ref>
+    </optional>
+    <optional>
+      <ref name="webpage">
+        <a:documentation>Canonical web location of the document</a:documentation>
+      </ref>
+    </optional>
+  </define>
+  <define name="urn">
+    <element name="urn">
+      <text/>
+    </element>
+  </define>
+  <define name="webpage">
+    <element name="webpage">
+      <text/>
+    </element>
+  </define>
+</grammar>
