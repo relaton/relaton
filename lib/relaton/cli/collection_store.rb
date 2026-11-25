@@ -163,7 +163,22 @@ module Relaton
         target = File.join bak, File.basename(path)
         n = 0
         target = File.join(bak, "#{File.basename path}.#{n += 1}") while File.exist? target
-        FileUtils.mv path, target
+        # A concurrent migration opener can hold the file (Windows denies
+        # the rename with EACCES) or move it first (ENOENT here): either
+        # way the other process won the move, and "moved exactly once"
+        # is already satisfied — the loser re-checks instead of failing.
+        begin
+          FileUtils.mv path, target
+        rescue Errno::EACCES, Errno::ENOENT
+          # A concurrent migration opener either holds the file (Windows
+          # denies the rename with EACCES) or moved it first (ENOENT
+          # here): either way the other process won the move and
+          # "moved exactly once" is already satisfied — the loser
+          # confirms the move happened instead of failing.
+          raise if File.exist?(path) ||
+                   !(File.exist?(target) ||
+                     Dir.glob(File.join(bak, "#{File.basename path}.*")).any?)
+        end
         target
       end
     end
