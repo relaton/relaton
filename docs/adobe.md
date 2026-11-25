@@ -109,12 +109,12 @@ canonical forms:
 A bare slug (`pdf-reference-1.7`) is not claimable: `@defaultprefix` claims
 only `Adobe`/`ATN`, as every flavor claims an explicit token.
 
-**The dotted version needs pubid#770**, which is on pubid `main` and in no
-release (2.0.49 raises `Pubid::Errors::ParseError` on
-`Adobe Publication pdf-reference-1.7`). The `Gemfile` rides pubid from git at
-that commit. At the next pubid release, return to a rubygems pin and floor
-`relaton.gemspec` there, or a released relaton answers "not found" for every
-dotted-version publication.
+**The dotted version needs pubid >= 2.0.50** (pubid#770). pubid 2.0.49
+raises `Pubid::Errors::ParseError` on `Adobe Publication pdf-reference-1.7`,
+so on an older runtime every dotted-version publication (11 of the 52 index
+rows) answers "not found". `relaton.gemspec` and the `Gemfile` floor pubid at
+`~> 2.0.50`. A local `Gemfile.lock` with an older pubid reddens this suite:
+run `bundle update pubid`.
 
 `spec/adobe/relaton/adobe/corpus_spec.rb` is the acceptance list: each cited
 document routes to this flavor and resolves to its own row in
