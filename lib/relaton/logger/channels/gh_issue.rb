@@ -40,6 +40,10 @@ module Relaton
         # fresh issue every time would pile up duplicates of the same standing
         # report; when an open issue with this title already exists, add the run's
         # log as a comment on it instead.
+        #
+        # @return [Boolean, nil] true when GitHub took the issue or the
+        #   comment, false when it refused it, nil when nothing was sent
+        #   (an empty log or no GITHUB_TOKEN)
         def create_issue
           return if @log.empty? || ENV["GITHUB_TOKEN"].nil?
 
@@ -55,8 +59,10 @@ module Relaton
         def report_response(responce, success_message, success_code)
           if responce.code.to_i == success_code
             puts success_message
+            true
           else
             puts "Failed to report issue: #{responce.code} #{responce.message}\n#{responce.body}"
+            false
           end
         end
 
