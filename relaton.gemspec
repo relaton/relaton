@@ -149,7 +149,12 @@ Gem::Specification.new do |spec|
   # (Adobe Publication pdf-reference-1.7, tiff-6.0 - pubid#770): the
   # Adobe flavor's canonical spellings do not parse on an older runtime,
   # so the dataset's versioned records stay unfindable.
-  spec.add_dependency "pubid", "~> 2.0.50"
+  # 2.0.52 types the IHO S-158 checks_for model (number=158,
+  # checks_for=NNN - relaton#612) and the adopted IHO MRN guidance URNs
+  # (urn:mrn:iho:pub:spec:...): the rebuilt relaton-data-iho index rows
+  # deserialize only on a runtime carrying the model, so an older one
+  # rejects the whole index.
+  spec.add_dependency "pubid", "~> 2.0.52"
 
   # JSON parse/generate across the flavor fetchers, the index and the db:
   # yeptris's strict RFC 8259 surface replaces the stdlib json gem's calls.
