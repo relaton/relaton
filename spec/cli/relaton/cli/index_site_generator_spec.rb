@@ -377,6 +377,17 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
     # metadata. Five shipping corpora disagree on a handful of rows (ieee 69,
     # itu-r 47, iec 42, itu 3, nist 3), so the committed row is the authority.
     describe "a docid the pubid parser rejects" do
+      # GitHub Actions sets GITHUB_REPOSITORY for this suite too: clear both,
+      # so an example reports an issue only where it sets them itself.
+      around do |example|
+        saved = ENV.to_h.slice("GITHUB_REPOSITORY", "GITHUB_TOKEN")
+        ENV.delete("GITHUB_REPOSITORY")
+        ENV.delete("GITHUB_TOKEN")
+        example.run
+      ensure
+        %w[GITHUB_REPOSITORY GITHUB_TOKEN].each { |k| ENV[k] = saved[k] }
+      end
+
       def with_unparseable(committed_rows)
         stub_const("Relaton::Cli::IndexSiteGenerator::MachineIndex::MIN_ROWS", 1)
         Dir.mktmpdir("nofam-") do |repo|
@@ -423,6 +434,56 @@ RSpec.describe Relaton::Cli::IndexSiteGenerator do
           Relaton::IndexBuildError,
           /1 of 2 document\(s\) could not be indexed.*data\/n-01\.yaml/m,
         )
+      end
+
+      # In CI the build reports the documents as a GitHub issue, as the ISO
+      # crawler reports its unparseable ids, and publishes the rest: a
+      # tracked issue is not a silent drop. The 2026-11-25 relaton-data-ieee
+      # deploy failed on 19 old-crawl ids and left Pages three days stale.
+      context "when the build can report a GitHub issue" do
+        around do |example|
+          saved = ENV.to_h.slice("GITHUB_REPOSITORY", "GITHUB_TOKEN")
+          ENV["GITHUB_REPOSITORY"] = "relaton/relaton-data-test"
+          ENV["GITHUB_TOKEN"] = "token"
+          example.run
+        ensure
+          %w[GITHUB_REPOSITORY GITHUB_TOKEN].each { |k| ENV[k] = saved[k] }
+        end
+
+        let(:issues_url) { "https://api.github.com/repos/relaton/relaton-data-test/issues" }
+
+        before do
+          stub_request(:get, %r{\Ahttps://api\.github\.com/search/issues})
+            .to_return(status: 200, body: { items: [] }.to_json)
+        end
+
+        it "reports the documents and publishes the index" do
+          post = stub_request(:post, issues_url).with do |req|
+            body = JSON.parse(req.body)
+            body["title"] == "Documents missing from the machine index" &&
+              body["body"].include?(
+                "Unparseable primary id `not a standards identifier` " \
+                "was not indexed (data/n-01.yaml)",
+              )
+          end.to_return(status: 201)
+
+          expect do
+            with_unparseable(nil) do
+              expect(manifest).to be_a(Hash)
+              expect(all_machine_records.map { |r| r["r"] }).to eq(["ISO 9999"])
+            end
+          end.to output(/Issue created!/).to_stdout
+          expect(post).to have_been_requested
+        end
+
+        it "fails the build when GitHub refuses the issue" do
+          stub_request(:post, issues_url).to_return(status: 403, body: "no")
+          expect do
+            expect do
+              with_unparseable(nil) { nil }
+            end.to raise_error(Relaton::IndexBuildError, /data\/n-01\.yaml/)
+          end.to output(/Failed to report issue: 403/).to_stdout
+        end
       end
     end
 

@@ -101,6 +101,18 @@ and Plateau, which still read the zip until their Pages sites publish a
 manifest. (A flavor may still scrape when the index has no record, as OMG does,
 but never falls back to the zip.) See `docs/index.md`.
 
+**`relaton index` never drops a document silently.** A document whose
+primary docid pubid cannot parse, with no committed-index row, cannot be
+in the machine index. `IndexSiteGenerator#report_unindexed` lists those
+documents in a GitHub issue in the data repo (`Documents missing from the
+machine index`, through `Logger::Channels::GhIssue`, as the ISO crawler
+reports its unparseable ids), and the build publishes the rest. It raises
+`Relaton::IndexBuildError` only when it cannot report: no
+`GITHUB_REPOSITORY`/`GITHUB_TOKEN`, or GitHub refuses (so a local run
+fails). The relaton-data-ieee deploy failed on 19 old-crawl ids when the
+raise was unconditional. relaton/support's `data-deploy.yml` must give
+the index step `issues: write` and `GITHUB_TOKEN`.
+
 **The `Db` cache is keyed by pubid (relaton#189 item 2, #204).** `Db::Cache`
 is an index on two lutaml-store `FileSystem` stores (`<dir>/v2/{rows,docs}`),
 bucketed by `<flavor>/<root number>`, with no string-derived file names and no

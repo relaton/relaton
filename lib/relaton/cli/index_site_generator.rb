@@ -10,6 +10,7 @@ require_relative "../index"
 require "zip"
 require "pubid"
 require_relative "index_item_normalizer"
+require_relative "../logger/channels/gh_issue"
 
 module Relaton
   module Cli
@@ -391,6 +392,13 @@ module Relaton
         def skipped_files
           @rows.select { |row| row.id_hash.nil? }
                .map(&:file).uniq.sort
+        end
+
+        # The rendered docid and the file of each row behind
+        # `skipped_count`, ordered by file.
+        def skipped_rows
+          @rows.select { |row| row.id_hash.nil? }
+               .map { |row| [row.rendered, row.file] }.uniq.sort_by(&:last)
         end
 
         # Rows bucketed by shard, in deterministic (key, rendered) order;
@@ -776,7 +784,7 @@ module Relaton
             machine.manifest(generated: @generated).merge(artifact),
           ),
         )
-        if machine.skipped_count.positive?
+        if machine.skipped_count.positive? && !report_unindexed(machine)
           raise Relaton::IndexBuildError,
                 "Machine index build: #{machine.skipped_count} of " \
                 "#{machine.count} document(s) could not be indexed — neither " \
@@ -786,6 +794,27 @@ module Relaton
                 "docidentifier or the flavor grammar, then rebuild."
         end
         machine.shard_count
+      end
+
+      UNINDEXED_ISSUE_TITLE = "Documents missing from the machine index"
+
+      # Report the documents no row could identify as a GitHub issue in the
+      # data repo, as the ISO crawler reports its unparseable ids, so the
+      # build can publish the rest. A tracked issue is not a silent drop;
+      # the build raises only when it cannot report (no GITHUB_REPOSITORY
+      # or GITHUB_TOKEN, or GitHub refuses the issue). Answers true when
+      # GitHub took the report.
+      def report_unindexed(machine)
+        Util.warn "Machine index: #{machine.skipped_count} of " \
+                  "#{machine.count} document(s) could not be indexed"
+        repo = ENV.fetch("GITHUB_REPOSITORY", nil)
+        return false if repo.to_s.empty? || ENV["GITHUB_TOKEN"].to_s.empty?
+
+        issue = Relaton::Logger::Channels::GhIssue.new(repo, UNINDEXED_ISSUE_TITLE)
+        machine.skipped_rows.each do |rendered, file|
+          issue.write "Unparseable primary id `#{rendered}` was not indexed (#{file})"
+        end
+        issue.create_issue == true
       end
 
       # Zip sibling of a monolith — the form `Relaton::Index url:`
