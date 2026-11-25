@@ -10,7 +10,7 @@ require "relaton" # Relaton::Db::Registry, for the routing check
 # Adobe flavor and resolve to its own record in the published index.
 #
 # The index is `spec/adobe/fixtures/index-v2.yaml`, the live
-# relaton-data-adobe `index-v2.yaml` copied wholesale (52 rows, 2026-11-24; unchanged since 2026-11-23).
+# relaton-data-adobe `index-v2.yaml` copied wholesale (52 rows, 2026-11-24; unchanged on 2026-11-25).
 # It is read through `Relaton::Index::Type` with the runtime `pubid_class:`,
 # so a row's `:id` is a `Pubid::Adobe` identifier, as at runtime. The record
 # fetch is stubbed: the example asserts the file the lookup asks for.

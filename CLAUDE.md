@@ -289,15 +289,14 @@ the BIPM parsers build `Bib::Docidentifier`, and lutaml's YAML serializer
 rejects a parent-class value in a subclass-typed collection
 (`IncorrectModelError`). (`with_publisher:` is in every pubid release the gemspec allows.)
 
-**The `Gemfile` rides pubid from git (relaton#601).** The Adobe dotted
-publication version (`Adobe Publication pdf-reference-1.7`, pubid#770) is on
-pubid `main` only, and the published Adobe index keys 11 rows on it, so the
-`Gemfile` pins pubid's git commit; a local lock keeps an older pubid until
-`bundle update pubid`. The gemspec floor (`~> 2.0.46`) does not carry it: a
-released relaton answers "not found" for those rows. At the next pubid
-release, return the `Gemfile` to a rubygems pin and floor `relaton.gemspec`
-there. `spec/adobe/relaton/adobe/corpus_spec.rb` (the PDF Association
-acceptance list) is the guard. See `docs/adobe.md`.
+**The Adobe dotted version floors pubid at 2.0.50 (relaton#601).** The
+published Adobe index keys 11 rows on the dotted publication version
+(`Adobe Publication pdf-reference-1.7`, pubid#770), which pubid parses from
+2.0.50. On an older runtime those rows answer "not found", so
+`relaton.gemspec` and the `Gemfile` both floor pubid at `~> 2.0.50`; a local
+lock keeps an older pubid until `bundle update pubid`.
+`spec/adobe/relaton/adobe/corpus_spec.rb` (the PDF Association acceptance
+list) is the guard. See `docs/adobe.md`.
 
 **Single `VERSION`.** `lib/relaton/version.rb` defines `Relaton::VERSION` — the
 one version constant. There are **no** per-flavor `version.rb` files or
@@ -381,9 +380,9 @@ is whatever a past `bundle install` froze. A lock left behind by an earlier
 session (for example one still locked to the old `git: …/pubid.git` source)
 keeps reproducing *old* pubid rendering, producing spec failures that don't
 reproduce on CI (which resolves fresh). Before diagnosing any pubid-shaped
-rendering failure, check `grep -n -A3 "pubid.git" Gemfile.lock` against the
-`ref:` in the `Gemfile` and run **`bundle update pubid`** (not
-`bundle install`). Only after that is a failure worth treating as a code bug.
+rendering failure, check the locked pubid (`grep -n "^    pubid (" Gemfile.lock`)
+against the `Gemfile` pin (a lock with a `pubid.git` source is stale too) and
+run **`bundle update pubid`** (not `bundle install`). Only after that is a failure worth treating as a code bug.
 
 **WES lives in the JIS flavor (relaton-jis#18).** Webdesk sells the Japan
 Welding Engineering Society's WES standards next to JIS, so `Relaton::Jis`

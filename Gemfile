@@ -88,9 +88,9 @@ gemspec
 # and Pubid::Eu (pubid#752), the EU flavor's key (relaton#44); 2.0.46 parses
 # the EU ELI subtypes (`reg_impl`, …; pubid#755).
 # pubid 2.0.46 types the ITU-R Resolution (pubid:itu:resolution, relaton#402).
-# pubid main carries the Adobe dotted version face (pubid#770: `Adobe
-# Publication pdf-reference-1.7`, `tiff-6.0`, `xfa-3.3`), which no release
-# has yet; the relaton-data-adobe index already keys 11 rows on it
+# pubid 2.0.50 carries the Adobe dotted version face (pubid#770: `Adobe
+# Publication pdf-reference-1.7`, `tiff-6.0`, `xfa-3.3`); the
+# relaton-data-adobe index keys 11 rows on it.
 gem "pubid", "~> 2.0.50" # was "~> 2.0.46", then a git ref at the dotted-versions fix: 2.0.49 types the Wmo flavor (pubid#763), 2.0.50 the dotted publication versions (pubid#770); earlier: the WES (E)/TR/TS parse (pubid#716), after the 2.0.24 no-sector ITU OB face (pubid#696); a cached 2.0.24 must not satisfy
 # parsanol 1.3.114 (ruby#361) carries the numeric capture editions —
 # the canonical edition 2 header and the integer envelope field — and
