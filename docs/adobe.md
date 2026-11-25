@@ -85,9 +85,9 @@ The `Processor` registers `short = :relaton_adobe`, `prefix = "Adobe"`,
 
 ## Sources and canonical citation forms (relaton#601)
 
-`relaton-data-adobe` combines three Adobe source trees (52 records,
-2026-11-23), for the Adobe documents that PDF Association work cites
-(metanorma-pdfa#114, relaton-data-adobe#9):
+`relaton-data-adobe` combines three Adobe source trees and two curated
+records (54 records, 2026-11-25), for the Adobe documents that PDF
+Association work cites (metanorma-pdfa#114, relaton-data-adobe#9):
 
 - `adobe-type-tools/font-tech-notes` — the font tech notes (`ATN<NNNN>`), the
   Type 1 spec (`t1-spec`), the glyph lists and the CMap collections.
@@ -96,6 +96,10 @@ The `Processor` registers `short = :relaton_adobe`, `prefix = "Adobe"`,
 - `pdfa.org/norm-refs/` — the PDF Association's mirror of the 5xxx Acrobat
   tech notes (5001, 5044, 5116, 5411, 5620, 5660), plus TIFF 6.0, XFA 3.3,
   PLRM 3.0 and the signature build dictionary 1.4.
+- Curated, with no Adobe-hosted copy (relaton-data-adobe#13): PDF Reference
+  1.1 (`pdf-reference-1.1`) and the Adobe Supplement to the ISO 32000,
+  BaseVersion 1.7, ExtensionLevel 5 (`adobe-supplement-iso32000-5`; the
+  version is the ExtensionLevel, the one edition spec-ea-pdf cites).
 
 The flavor needs no code per source. A citing document writes one of two
 canonical forms:
@@ -119,20 +123,17 @@ as the version, so `adobe-supplement-iso-32000` is slug
 
 **The dotted version needs pubid >= 2.0.50** (pubid#770). pubid 2.0.49
 raises `Pubid::Errors::ParseError` on `Adobe Publication pdf-reference-1.7`,
-so on an older runtime every dotted-version publication (11 of the 52 index
+so on an older runtime every dotted-version publication (12 of the 54 index
 rows) answers "not found". `relaton.gemspec` and the `Gemfile` floor pubid at
 `~> 2.0.50`. A local `Gemfile.lock` with an older pubid reddens this suite:
 run `bundle update pubid`.
 
 `spec/adobe/relaton/adobe/corpus_spec.rb` is the acceptance list: each cited
 document routes to this flavor and resolves to its own row in
-`spec/adobe/fixtures/index-v2.yaml` (the live index, copied wholesale). Two
-cited documents have no record: PDF 1.1 and the Adobe Supplement to the
-ISO 32000. Neither has an Adobe-hosted copy to crawl (the supplement's
-adobe.com URL redirects to the SDK docs landing page), so each needs a
-curated `NormRefs` entry in relaton-data-adobe. They are `pending`; when a
-record lands, move its entry and refresh the fixture. PDF32000_2008 is not an
-Adobe record: it is Adobe's courtesy copy of ISO 32000-1:2008, which
+`spec/adobe/fixtures/index-v2.yaml` (the live index, copied wholesale). Every
+cited Adobe document resolves (14 tech notes, 18 publications); when the
+dataset adds a cited record, add its entry and refresh the fixture.
+PDF32000_2008 is not an Adobe record: it is Adobe's courtesy copy of ISO 32000-1:2008, which
 relaton-data-adobe excludes on purpose, and the corpus spec checks that
 `ISO 32000-1:2008` routes to the ISO flavor.
 

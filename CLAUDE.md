@@ -290,7 +290,7 @@ rejects a parent-class value in a subclass-typed collection
 (`IncorrectModelError`). (`with_publisher:` is in every pubid release the gemspec allows.)
 
 **The Adobe dotted version floors pubid at 2.0.50 (relaton#601).** The
-published Adobe index keys 11 rows on the dotted publication version
+published Adobe index keys 12 rows on the dotted publication version
 (`Adobe Publication pdf-reference-1.7`, pubid#770), which pubid parses from
 2.0.50. On an older runtime those rows answer "not found", so
 `relaton.gemspec` and the `Gemfile` both floor pubid at `~> 2.0.50`; a local
