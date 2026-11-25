@@ -151,10 +151,11 @@ Gem::Specification.new do |spec|
   # so the dataset's versioned records stay unfindable.
   # 2.0.52 types the IHO S-158 checks_for model (number=158,
   # checks_for=NNN - relaton#612) and the adopted IHO MRN guidance URNs
-  # (urn:mrn:iho:pub:spec:...): the rebuilt relaton-data-iho index rows
-  # deserialize only on a runtime carrying the model, so an older one
-  # rejects the whole index.
-  spec.add_dependency "pubid", "~> 2.0.52"
+  # (urn:mrn:iho:pub:spec:...); 2.0.55 renames the member facet to the
+  # generic wire key product (relaton#619): the rebuilt relaton-data-iho
+  # index rows deserialize only on a runtime carrying the current model,
+  # so an older one rejects the whole index.
+  spec.add_dependency "pubid", "~> 2.0.55"
 
   # JSON parse/generate across the flavor fetchers, the index and the db:
   # yeptris's strict RFC 8259 surface replaces the stdlib json gem's calls.
