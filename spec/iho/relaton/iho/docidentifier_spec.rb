@@ -122,3 +122,23 @@ describe Relaton::Iho::Docidentifier do
     end
   end
 end
+
+RSpec.describe Relaton::Iho::Docidentifier, "URN-typed docidentifiers" do
+  # metanorma-iho emits urn:mrn:iho:pub:spec:... docidentifiers for S-4
+  # update-unit relations and S-158:1xx primaries; content= must not run
+  # the Pubid parse on them (the grammar reads printed faces only).
+  it "keeps the URN content without a pubid, by value shape and by type" do
+    # by shape: type may not be assigned yet when content= fires
+    d = described_class.new(content: "urn:mrn:iho:pub:spec:s158-102:1.0.0")
+    expect(d.content).to eq("urn:mrn:iho:pub:spec:s158-102:1.0.0")
+    expect(d.pubid).to be_nil
+    d2 = described_class.new(content: "urn:mrn:iho:pub:spec:s158:1.0.0",
+                             type: "URN")
+    expect(d2.pubid).to be_nil
+  end
+
+  it "still pubid-parses the printed-face types" do
+    d = described_class.new(content: "S-158:102", type: "IHO")
+    expect(d.pubid).not_to be_nil
+  end
+end

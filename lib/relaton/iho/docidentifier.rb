@@ -12,6 +12,14 @@ module Relaton
 
       def content=(value)
         super
+        # URN-typed docidentifiers carry the MRN form
+        # (urn:mrn:iho:pub:spec:...), not a Pubid-parseable face — the
+        # parse would raise on every bibdata read (metanorma-iho#573,
+        # #603 emit these for S-4 update units and S-158:1xx primaries).
+        # Detected from the value: type may not be assigned yet when the
+        # setter fires during initialize.
+        return if value.to_s.start_with?("urn:")
+
         @pubid = ::Pubid::Iho::Identifier.parse(value) if value
       end
 
