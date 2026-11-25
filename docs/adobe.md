@@ -107,7 +107,15 @@ canonical forms:
   `pubid_match?` is exact identity.
 
 A bare slug (`pdf-reference-1.7`) is not claimable: `@defaultprefix` claims
-only `Adobe`/`ATN`, as every flavor claims an explicit token.
+only `Adobe`/`ATN`, as every flavor claims an explicit token. A title form
+(`Adobe PDF Reference 1.7`, `Adobe Supplement to the ISO 32000`) routes here
+by its `Adobe` prefix, but pubid does not parse it, so it is a graceful miss.
+That is the contract (relaton#601, 2026-11-23): there is no alias table in
+pubid or in this flavor.
+
+A slug segment must not be all digits: pubid reads a trailing digit segment
+as the version, so `adobe-supplement-iso-32000` is slug
+`adobe-supplement-iso`, version `32000`.
 
 **The dotted version needs pubid >= 2.0.50** (pubid#770). pubid 2.0.49
 raises `Pubid::Errors::ParseError` on `Adobe Publication pdf-reference-1.7`,
@@ -118,10 +126,15 @@ run `bundle update pubid`.
 
 `spec/adobe/relaton/adobe/corpus_spec.rb` is the acceptance list: each cited
 document routes to this flavor and resolves to its own row in
-`spec/adobe/fixtures/index-v2.yaml` (the live index, copied wholesale). The
-cited documents with no record (PDF 1.1, PDF32000_2008, the Adobe Supplement to
-the ISO 32000) are `pending`; when a record lands, move its entry and refresh
-the fixture.
+`spec/adobe/fixtures/index-v2.yaml` (the live index, copied wholesale). Two
+cited documents have no record: PDF 1.1 and the Adobe Supplement to the
+ISO 32000. Neither has an Adobe-hosted copy to crawl (the supplement's
+adobe.com URL redirects to the SDK docs landing page), so each needs a
+curated `NormRefs` entry in relaton-data-adobe. They are `pending`; when a
+record lands, move its entry and refresh the fixture. PDF32000_2008 is not an
+Adobe record: it is Adobe's courtesy copy of ISO 32000-1:2008, which
+relaton-data-adobe excludes on purpose, and the corpus spec checks that
+`ISO 32000-1:2008` routes to the ISO flavor.
 
 **A record's primary docidentifier is its canonical id.** Until
 relaton-data-adobe#12 (2026-11-24) a publication record carried its title
