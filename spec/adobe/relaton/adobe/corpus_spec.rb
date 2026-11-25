@@ -50,16 +50,27 @@ RSpec.describe "Adobe PDF Association citation corpus" do
     "Adobe Publication adobe-gb1-5" => "adobe-gb1-5"
   }.freeze
 
-  # Cited, but relaton-data-adobe has no record yet. The slugs are
-  # placeholders: when a record lands, move it to cited_publications under its
-  # real slug (the pending example flips only if the guess was right).
+  # Cited, but relaton-data-adobe has no record yet: neither document has an
+  # Adobe-hosted copy to crawl, so each needs a curated NormRefs entry. The
+  # slugs are placeholders: when a record lands, move it to
+  # cited_publications under its real slug (the pending example flips only
+  # if the guess was right). A slug segment must not be all digits:
+  # `adobe-supplement-iso-32000` parses as slug `adobe-supplement-iso`,
+  # version `32000`.
   pending = {
     "Adobe Publication pdf-reference-1.1" =>
       "PDF 1.1 has no edition in adobe/dc-acrobat-sdk-docs pdfstandards/",
-    "Adobe Publication pdf32000-2008" =>
-      "the Adobe-published ISO 32000-1 (PDF32000_2008.pdf) is not crawled",
-    "Adobe Publication adobe-supplement-iso-32000" =>
-      "the Adobe Supplement to the ISO 32000 is not crawled",
+    "Adobe Publication adobe-supplement-iso32000" =>
+      "the Adobe Supplement to the ISO 32000 has no Adobe-hosted copy " \
+      "(the adobe.com URL redirects to the SDK docs landing page)"
+  }.freeze
+
+  # Cited by the PDF Association, but not Adobe records. PDF32000_2008.pdf
+  # in adobe/dc-acrobat-sdk-docs is Adobe's courtesy copy of ISO 32000-1:2008,
+  # an ISO document; relaton-data-adobe excludes it on purpose
+  # (Sources::PdfStandards::EXCLUDED). A citing document cites the ISO id.
+  cited_elsewhere = {
+    "ISO 32000-1:2008" => :relaton_iso
   }.freeze
 
   # Read from a temporary copy: `Index::FileIO` writes a `.ms` sidecar next
@@ -109,6 +120,12 @@ RSpec.describe "Adobe PDF Association citation corpus" do
 
       expect(Relaton::Adobe::Bibliography.get(ref)).to be_a Relaton::Adobe::ItemData
       expect(a_request(:get, "#{endpoint}data/#{file}.yaml")).to have_been_made.once
+    end
+  end
+
+  cited_elsewhere.each do |ref, flavor|
+    it "routes #{ref} to #{flavor}, not to the Adobe flavor" do
+      expect(registry.route(ref).first).to eq flavor
     end
   end
 
