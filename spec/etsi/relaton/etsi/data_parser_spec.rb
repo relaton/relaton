@@ -99,7 +99,7 @@ describe Relaton::Etsi::DataParser do
       it "has correct keyword" do
         expect(subject.keyword).to be_instance_of Array
         expect(subject.keyword.first).to be_instance_of Relaton::Bib::Keyword
-        expect(subject.keyword.map { |k| k.vocab.content }).to eq ["electronic signature", "e-mail", "registered electronic mail"]
+        expect(subject.keyword.map { |k| k.vocab.first.content }).to eq ["electronic signature", "e-mail", "registered electronic mail"]
       end
 
       it "has committee contributor for technical body" do
@@ -257,7 +257,7 @@ describe Relaton::Etsi::DataParser do
     it "#keyword" do
       expect(row).to receive(:[]).with("Keywords")
         .and_return("Keyword 1,Keyword 2").twice
-      expect(subject.keyword.map { |k| k.vocab.content }).to eq ["Keyword 1", "Keyword 2"]
+      expect(subject.keyword.map { |k| k.vocab.first.content }).to eq ["Keyword 1", "Keyword 2"]
     end
 
     it "#committee_contributor" do

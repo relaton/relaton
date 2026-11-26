@@ -293,8 +293,8 @@ module Relaton
 
           def create_keyword
             @item.keyword.inject([]) do |a, k|
-              if k.vocab
-                a + [Rfcxml::V3::Keyword.new(content: k.vocab.content)]
+              unless Array(k.vocab).empty?
+                a + Array(k.vocab).map { |v| Rfcxml::V3::Keyword.new(content: v.content) }
               else
                 a + k.taxon.map { |t| Rfcxml::V3::Keyword.new(content: t.content) }
               end

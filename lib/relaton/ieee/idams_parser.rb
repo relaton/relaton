@@ -249,7 +249,7 @@ module Relaton
       #
       def parse_keyword
         result = @doc.keyword.map do |kw|
-          Bib::Keyword.new(vocab: Bib::LocalizedString.new(content: CGI.unescapeHTML(kw), language: "en", script: "Latn"))
+          Bib::Keyword.new(vocab: [Bib::LocalizedString.new(content: CGI.unescapeHTML(kw), language: "en", script: "Latn")])
         end
         @errors[:keyword] &&= result.empty?
         result

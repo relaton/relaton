@@ -593,8 +593,8 @@ module Relaton
           end
 
           def render_keyword(kw, prefix, count)
-            if kw.vocab
-              render_localized_string(kw.vocab, prefix, count)
+            if Array(kw.vocab).any?
+              array(kw.vocab).map { |v| render_localized_string(v, prefix, count) }.join
             else
               array(kw.taxon).map { |t| render_localized_string(t, prefix, count) }.join
             end

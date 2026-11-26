@@ -102,7 +102,7 @@ describe Relaton::Bib::Converter::Csl do
   it "maps language and keywords" do
     item = items["ISO 8601-1:2019"]
     expect(item.language).to eq ["en"]
-    expect(item.keyword.map { |k| k.vocab.content }).to eq ["time", "date formats"]
+    expect(item.keyword.map { |k| k.vocab.first.content }).to eq ["time", "date formats"]
   end
 
   it "maps volume and page extents" do

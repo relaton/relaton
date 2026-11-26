@@ -290,7 +290,7 @@ module Relaton
         def fetch_keywords(doc)
           doc["keywords"].map do |kw|
             text = kw.is_a?(String) ? kw : kw.text
-            Bib::Keyword.new(vocab: Bib::LocalizedString.new(content: text))
+            Bib::Keyword.new(vocab: [Bib::LocalizedString.new(content: text)])
           end
         end
 

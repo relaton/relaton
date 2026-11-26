@@ -339,7 +339,7 @@ module Relaton
         def build_rfc_keyword
           (keywords&.kw || []).map do |kw|
             vocab = Bib::LocalizedString.new(content: kw)
-            Bib::Keyword.new(vocab: vocab)
+            Bib::Keyword.new(vocab: [vocab])
           end
         end
 

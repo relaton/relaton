@@ -176,7 +176,7 @@ module Relaton
 
       def fetch_keyword
         @doc.xpath('//dt[.="Categories:"]/following-sibling::dd/ul/li/a/em').map do |kw|
-          Bib::Keyword.new(vocab: Bib::LocalizedString.new(content: kw.text))
+          Bib::Keyword.new(vocab: [Bib::LocalizedString.new(content: kw.text)])
         end
       end
 

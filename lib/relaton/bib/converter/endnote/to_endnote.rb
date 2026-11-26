@@ -20,7 +20,7 @@ module Relaton
             add_field(lines, "%I", publisher_name)
             add_journal(lines)
             add_series(lines)
-            Array(@item.keyword).each { |k| add_field(lines, "%K", k.vocab.content.to_s) }
+            Array(@item.keyword).each { |k| Array(k.vocab).each { |v| add_field(lines, "%K", v.content.to_s) } }
             add_field(lines, "%U", source_uri)
             lines.join("\n") + "\n"
           end
