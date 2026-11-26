@@ -124,9 +124,9 @@ as the version, so `adobe-supplement-iso-32000` is slug
 **The dotted version needs pubid >= 2.0.50** (pubid#770). pubid 2.0.49
 raises `Pubid::Errors::ParseError` on `Adobe Publication pdf-reference-1.7`,
 so on an older runtime every dotted-version publication (12 of the 54 index
-rows) answers "not found". `relaton.gemspec` and the `Gemfile` floor pubid at
-`~> 2.0.50`. A local `Gemfile.lock` with an older pubid reddens this suite:
-run `bundle update pubid`.
+rows) answers "not found". The `relaton.gemspec` and `Gemfile` pin
+(`~> 2.0.55` since relaton#619) keeps this floor. A local `Gemfile.lock`
+with an older pubid reddens this suite: run `bundle update pubid`.
 
 `spec/adobe/relaton/adobe/corpus_spec.rb` is the acceptance list: each cited
 document routes to this flavor and resolves to its own row in

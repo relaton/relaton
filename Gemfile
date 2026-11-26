@@ -91,7 +91,7 @@ gemspec
 # pubid 2.0.50 carries the Adobe dotted version face (pubid#770: `Adobe
 # Publication pdf-reference-1.7`, `tiff-6.0`, `xfa-3.3`); the
 # relaton-data-adobe index keys 12 rows on it.
-gem "pubid", "~> 2.0.50" # was "~> 2.0.46", then a git ref at the dotted-versions fix: 2.0.49 types the Wmo flavor (pubid#763), 2.0.50 the dotted publication versions (pubid#770); earlier: the WES (E)/TR/TS parse (pubid#716), after the 2.0.24 no-sector ITU OB face (pubid#696); a cached 2.0.24 must not satisfy
+gem "pubid", "~> 2.0.55" # was "~> 2.0.46", then a git ref at the dotted-versions fix: 2.0.49 types the Wmo flavor (pubid#763), 2.0.50 the dotted publication versions (pubid#770); earlier: the WES (E)/TR/TS parse (pubid#716), after the 2.0.24 no-sector ITU OB face (pubid#696); a cached 2.0.24 must not satisfy
 # parsanol 1.3.114 (ruby#361) carries the numeric capture editions —
 # the canonical edition 2 header and the integer envelope field — and
 # the edition-2 whitespace-class glue fix; pubid rides it

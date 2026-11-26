@@ -101,6 +101,18 @@ and Plateau, which still read the zip until their Pages sites publish a
 manifest. (A flavor may still scrape when the index has no record, as OMG does,
 but never falls back to the zip.) See `docs/index.md`.
 
+**`relaton index` never drops a document silently.** A document whose
+primary docid pubid cannot parse, with no committed-index row, cannot be
+in the machine index. `IndexSiteGenerator#report_unindexed` lists those
+documents in a GitHub issue in the data repo (`Documents missing from the
+machine index`, through `Logger::Channels::GhIssue`, as the ISO crawler
+reports its unparseable ids), and the build publishes the rest. It raises
+`Relaton::IndexBuildError` only when it cannot report: no
+`GITHUB_REPOSITORY`/`GITHUB_TOKEN`, or GitHub refuses (so a local run
+fails). The relaton-data-ieee deploy failed on 19 old-crawl ids when the
+raise was unconditional. relaton/support's `data-deploy.yml` must give
+the index step `issues: write` and `GITHUB_TOKEN`.
+
 **The `Db` cache is keyed by pubid (relaton#189 item 2, #204).** `Db::Cache`
 is an index on two lutaml-store `FileSystem` stores (`<dir>/v2/{rows,docs}`),
 bucketed by `<flavor>/<root number>`, with no string-derived file names and no
@@ -292,8 +304,9 @@ rejects a parent-class value in a subclass-typed collection
 **The Adobe dotted version floors pubid at 2.0.50 (relaton#601).** The
 published Adobe index keys 12 rows on the dotted publication version
 (`Adobe Publication pdf-reference-1.7`, pubid#770), which pubid parses from
-2.0.50. On an older runtime those rows answer "not found", so
-`relaton.gemspec` and the `Gemfile` both floor pubid at `~> 2.0.50`; a local
+2.0.50. On an older runtime those rows answer "not found". The
+`relaton.gemspec` and `Gemfile` pin (`~> 2.0.55` since relaton#619) keeps
+this floor; a local
 lock keeps an older pubid until `bundle update pubid`.
 `spec/adobe/relaton/adobe/corpus_spec.rb` (the PDF Association acceptance
 list) is the guard. See `docs/adobe.md`.

@@ -28,7 +28,7 @@ describe Relaton::Logger::Channels::GhIssue do
     it "no GITHUB_TOKEN" do
       subject.write "string"
       expect(subject).not_to receive(:post_issue)
-      subject.create_issue
+      expect(subject.create_issue).to be_falsey
     end
 
     context do
@@ -43,6 +43,21 @@ describe Relaton::Logger::Channels::GhIssue do
         it "success" do
           expect(subject).to receive(:post_issue).and_return double(code: "201")
           expect { subject.create_issue }.to output("Issue created!\n").to_stdout
+        end
+
+        it "answers true when the issue is created" do
+          expect(subject).to receive(:post_issue).and_return double(code: "201")
+          result = nil
+          expect { result = subject.create_issue }.to output.to_stdout
+          expect(result).to be true
+        end
+
+        it "answers false when GitHub refuses the issue" do
+          expect(subject).to receive(:post_issue)
+            .and_return double(code: "403", message: "Forbidden", body: "body")
+          result = nil
+          expect { result = subject.create_issue }.to output.to_stdout
+          expect(result).to be false
         end
 
         it "failed" do
