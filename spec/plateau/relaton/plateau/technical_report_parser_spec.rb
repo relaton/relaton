@@ -111,7 +111,7 @@ RSpec.describe Relaton::Plateau::TechnicalReportParser do
     expect(keyword).to be_instance_of Array
     expect(keyword.size).to eq 4
     expect(keyword[0]).to be_instance_of Relaton::Bib::Keyword
-    expect(keyword[0].vocab.content).to eq "Unreal Engine"
+    expect(keyword[0].vocab.first.content).to eq "Unreal Engine"
   end
 
   it "parse_ext" do

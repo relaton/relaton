@@ -44,7 +44,7 @@ describe Relaton::Arxiv::Parser do
     end
 
     it "has the categories as keywords, the primary first" do
-      expect(item.keyword.map { |k| k.vocab.content }).to eq ["hep-th"]
+      expect(item.keyword.map { |k| k.vocab.first.content }).to eq ["hep-th"]
     end
 
     it "has the abstract page and the PDF" do
@@ -97,7 +97,7 @@ describe Relaton::Arxiv::Parser do
     it "has every author and the categories in order" do
       expect(item.contributor.size).to eq 8
       expect(item.contributor.first.person.name.completename.content).to eq "Ashish Vaswani"
-      expect(item.keyword.map { |k| k.vocab.content }).to eq %w[cs.CL cs.LG]
+      expect(item.keyword.map { |k| k.vocab.first.content }).to eq %w[cs.CL cs.LG]
     end
   end
 

@@ -372,10 +372,10 @@ classification:
     primary: true
 keyword:
   - vocab:
-      content: geographic
-      language: en
-      script: Latn
-      locale: en-US
+      - content: geographic
+        language: en
+        locale: en-US
+        script: Latn
     taxon:
       - content: geography
         language: en
@@ -391,9 +391,9 @@ keyword:
         code: "1234"
         term: Test term
 validity:
-  begins: "1994-01-01T00:00:00+00:00"
-  ends: "1994-12-31T00:00:00+00:00"
-  revision: "1994-12-31T00:00:00+00:00"
+  begins: "1994-01-01"
+  ends: "1994-12-31"
+  revision: "1994-12-31"
 depiction:
 - scope: local
   image:

@@ -138,7 +138,7 @@ module Relaton
         primary = children("primary_category").first&.[]("term")
         terms = children("category").map { |c| c["term"] }
         ([primary] + terms).compact.uniq.map do |term|
-          Bib::Keyword.new(vocab: Bib::LocalizedString.new(content: term))
+          Bib::Keyword.new(vocab: [Bib::LocalizedString.new(content: term)])
         end
       end
 

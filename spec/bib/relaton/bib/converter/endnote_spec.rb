@@ -23,7 +23,7 @@ describe Relaton::Bib::Converter::Endnote do
       expect(item.date.first.type).to eq "published"
       expect(item.date.first.at.to_s).to eq "2024"
       expect(item.edition.content).to eq "2"
-      expect(item.keyword.map { |k| k.vocab.content }).to eq %w[testing bibliography]
+      expect(item.keyword.map { |k| k.vocab.first.content }).to eq %w[testing bibliography]
       expect(item.source.first.content).to eq "https://example.org/test"
 
       authors = item.contributor.select { |c| c.role.first.type == "author" }

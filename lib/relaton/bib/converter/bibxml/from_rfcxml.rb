@@ -346,7 +346,7 @@ module Relaton
             (@reference.front.keyword || []).map do |kw|
               vocab = LocalizedString.new(content: kw.content, language: "en",
                                           script: "Latn")
-              Keyword.new(vocab: vocab)
+              Keyword.new(vocab: [vocab])
             end
           end
 

@@ -105,7 +105,7 @@ module Relaton
           end
 
           def fetch_keyword
-            @tags["K"].map { |v| Keyword.new(vocab: LocalizedString.new(content: v)) }
+            @tags["K"].map { |v| Keyword.new(vocab: [LocalizedString.new(content: v)]) }
           end
 
           def fetch_source

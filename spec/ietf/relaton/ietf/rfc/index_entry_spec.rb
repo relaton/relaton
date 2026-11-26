@@ -301,7 +301,7 @@ RSpec.describe Relaton::Ietf::Rfc::Entry do
       expect(bibitem.script).to eq ["Latn"]
       expect(bibitem.abstract.first.content).to include("Example abstract")
       expect(bibitem.series).not_to be_empty
-      expect(bibitem.keyword.first.vocab.content).to eq "test"
+      expect(bibitem.keyword.first.vocab.first.content).to eq "test"
       expect(bibitem.ext).not_to be_nil
       expect(bibitem.ext.stream).to eq "Legacy"
       expect(bibitem.status.stage.content).to eq "UNKNOWN"
@@ -463,8 +463,8 @@ RSpec.describe Relaton::Ietf::Rfc::Entry do
 
     it "creates correct keywords" do
       expect(item.keyword.size).to eq 2
-      expect(item.keyword[0].vocab.content).to eq "IPv6"
-      expect(item.keyword[1].vocab.content).to eq "SLAAC"
+      expect(item.keyword[0].vocab.first.content).to eq "IPv6"
+      expect(item.keyword[1].vocab.first.content).to eq "SLAAC"
     end
 
     it "creates correct abstract" do

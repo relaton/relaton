@@ -1,10 +1,11 @@
+require_relative "type/plain_date"
+
 module Relaton
   module Bib
     class Validity < Lutaml::Model::Serializable
-      attribute :begins, :date_time
-      attribute :ends, :date_time
-      attribute :revision, :date_time
-
+      attribute :begins, PlainDate
+      attribute :ends, PlainDate
+      attribute :revision, PlainDate
       xml do
         root "validity"
         map_element "validityBegins", to: :begins

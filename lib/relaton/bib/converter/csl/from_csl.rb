@@ -173,7 +173,7 @@ module Relaton
           # @return [Array<Relaton::Bib::Keyword>]
           def fetch_keyword
             Array(@entry["keyword"]).map do |kw|
-              Keyword.new(vocab: LocalizedString.new(content: kw))
+              Keyword.new(vocab: [LocalizedString.new(content: kw)])
             end
           end
 

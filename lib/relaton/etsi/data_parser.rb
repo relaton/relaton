@@ -170,7 +170,7 @@ module Relaton
         end
 
         result = @row["Keywords"].split(",").map do |kw|
-          Bib::Keyword.new(vocab: Bib::LocalizedString.new(content: kw.strip, language: "en", script: "Latn"))
+          Bib::Keyword.new(vocab: [Bib::LocalizedString.new(content: kw.strip, language: "en", script: "Latn")])
         end
         @errors[:keyword] &&= result.empty?
         result

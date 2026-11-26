@@ -74,7 +74,7 @@ module Relaton
 
       def keyword_hash_to_bib(ret)
         ret[:keyword] = array(ret[:keyword]).map do |keyword|
-          Bib::Keyword.new vocab: localizedstring(keyword)
+          Bib::Keyword.new vocab: [localizedstring(keyword)]
         end
       end
 
