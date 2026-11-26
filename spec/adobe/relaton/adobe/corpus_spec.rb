@@ -10,7 +10,7 @@ require "relaton" # Relaton::Db::Registry, for the routing check
 # Adobe flavor and resolve to its own record in the published index.
 #
 # The index is `spec/adobe/fixtures/index-v2.yaml`, the live
-# relaton-data-adobe `index-v2.yaml` copied wholesale (52 rows, 2026-11-24; unchanged on 2026-11-25).
+# relaton-data-adobe `index-v2.yaml` copied wholesale (54 rows, 2026-11-25).
 # It is read through `Relaton::Index::Type` with the runtime `pubid_class:`,
 # so a row's `:id` is a `Pubid::Adobe` identifier, as at runtime. The record
 # fetch is stubbed: the example asserts the file the lookup asks for.
@@ -26,10 +26,13 @@ RSpec.describe "Adobe PDF Association citation corpus" do
     "Adobe TN 5660" => "atn5660", "Adobe TN 5902" => "atn5902"
   }.freeze
 
-  # The 17 Adobe documents ISO 32000-2 cites (relaton-data-adobe#9), minus
-  # PDF 1.1, which has no record (see pending).
+  # The 17 Adobe documents ISO 32000-2 cites (relaton-data-adobe#9), and the
+  # Adobe Supplement to the ISO 32000 that the PDF Association's extension-level
+  # specification (spec-ea-pdf) cites. PDF 1.1 and the supplement are curated
+  # records: neither has an Adobe-hosted copy (relaton-data-adobe#13).
   cited_publications = {
     "Adobe Publication pdf-reference-1.0" => "pdf-reference-1.0",
+    "Adobe Publication pdf-reference-1.1" => "pdf-reference-1.1",
     "Adobe Publication pdf-reference-1.2" => "pdf-reference-1.2",
     "Adobe Publication pdf-reference-1.3" => "pdf-reference-1.3",
     "Adobe Publication pdf-reference-1.4" => "pdf-reference-1.4",
@@ -47,22 +50,10 @@ RSpec.describe "Adobe PDF Association citation corpus" do
     "Adobe Publication t1-spec" => "t1-spec",
     "Adobe Publication xfa-3.3" => "xfa-3.3",
     "Adobe Publication adobe-japan1-7" => "adobe-japan1-7",
-    "Adobe Publication adobe-gb1-5" => "adobe-gb1-5"
-  }.freeze
-
-  # Cited, but relaton-data-adobe has no record yet: neither document has an
-  # Adobe-hosted copy to crawl, so each needs a curated NormRefs entry. The
-  # slugs are placeholders: when a record lands, move it to
-  # cited_publications under its real slug (the pending example flips only
-  # if the guess was right). A slug segment must not be all digits:
-  # `adobe-supplement-iso-32000` parses as slug `adobe-supplement-iso`,
-  # version `32000`.
-  pending = {
-    "Adobe Publication pdf-reference-1.1" =>
-      "PDF 1.1 has no edition in adobe/dc-acrobat-sdk-docs pdfstandards/",
-    "Adobe Publication adobe-supplement-iso32000" =>
-      "the Adobe Supplement to the ISO 32000 has no Adobe-hosted copy " \
-      "(the adobe.com URL redirects to the SDK docs landing page)"
+    "Adobe Publication adobe-gb1-5" => "adobe-gb1-5",
+    # BaseVersion 1.7, ExtensionLevel 5: the version is the ExtensionLevel.
+    "Adobe Publication adobe-supplement-iso32000-5" =>
+      "adobe-supplement-iso32000-5"
   }.freeze
 
   # Cited by the PDF Association, but not Adobe records. PDF32000_2008.pdf
@@ -108,7 +99,7 @@ RSpec.describe "Adobe PDF Association citation corpus" do
   it "covers the whole published index except the uncited records" do
     cited = (cited_tech_notes.values + cited_publications.values).map { |f| "data/#{f}.yaml" }
     uncited = self.class.index_type.index.map { |r| r[:file] } - cited
-    expect(cited.size).to eq 30
+    expect(cited.size).to eq 32
     expect(uncited.size).to eq 22
     expect(uncited).to all(match(%r{\Adata/(atn\d{4}|acrobat-dc-font-policies)\.yaml\z}))
   end
@@ -126,13 +117,6 @@ RSpec.describe "Adobe PDF Association citation corpus" do
   cited_elsewhere.each do |ref, flavor|
     it "routes #{ref} to #{flavor}, not to the Adobe flavor" do
       expect(registry.route(ref).first).to eq flavor
-    end
-  end
-
-  pending.each do |ref, reason|
-    it "resolves #{ref}" do
-      pending reason
-      expect(Relaton::Adobe::Bibliography.get(ref)).not_to be_nil
     end
   end
 end
