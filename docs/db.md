@@ -129,7 +129,16 @@ to the flavor: `processor.get(query || code, year, opts)`. So
 The year and `all_parts` still reach `get` as arguments; the pubid is unfolded.
 A nil query pubid (no pubid class, a policy miss such as `IEV`, a CCSDS
 format) sends the String and leaves the query uncached; the API tier asks
-nothing for such a query. If `urn_to_code` rewrote the reference, the routed parse is
+nothing for such a query.
+
+**The parse is memoized (#633).** `Core::Processor#cache_pubid` keeps a
+bounded FIFO map of `[identifier class, reference]` → parse (misses
+included, mutex-guarded, `MEMO_LIMIT` 2000): one compile re-reads the same
+reference many times, and the plateau v5 campaign measured the parslet
+MatchData/string churn of a parse per cache access. Memoized instances are
+shared — the key path only folds year/all-parts on copies — and a flavor
+that overrides `#cache_pubid` (IHO, ISBN, WMO, NIST, Adobe) keeps its own
+unmemoized behaviour. If `urn_to_code` rewrote the reference, the routed parse is
 of another string, and `query_pubid` parses the code. IEC's `urn_to_code` acts
 on a `urn:` only: `Relaton::Iec.urn_to_code` splits on `:`, and it used to
 rewrite `IEC 60034-1:1969+AMD1:1977+AMD2:1979+AMD3:1980 CSV` into
