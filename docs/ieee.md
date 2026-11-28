@@ -179,6 +179,31 @@ id from silently halving the crawl (see the `data_fetcher.rb` history):
   `relaton-data-ieee` audit, all of which are `Renderer`s. A flagged record is
   treated like any other unparseable id: `docnumber` is nil and
   `DataFetcher#parse_entry` skips it with the `PubID parse error` warning.
+- **A skipped record is a crawl error unless something explains it
+  (relaton-data-ieee#10, #11).** `RawbibIdParser.unexpected_miss?` is true for
+  a record whose `stdnumber` has a digit, that is not in `NOT_A_DESIGNATION`,
+  and that `#parse` gives no id (a fabricated id is a `Renderer`, so the guard
+  above does not count). `DataFetcher#report_missing_id` then puts one String
+  per normtitle into `@errors`, and `report_errors` sends it to the crawl's
+  GitHub issue ("Error fetching documents"). A category `stdnumber` ("White
+  Paper", "NESC HBK") explains the miss, as `#no_standard_number?` does. On the
+  2026-11 corpus (13,200 unique records) nothing is unexpected, so a report
+  always means a new failure. `NOT_A_DESIGNATION` holds the 5 free-text
+  `stdnumber`s (`1512 Guide`, `PR 1533-1998`, a SMPTE amendment, …): a stripped
+  title names another document (`IEEE 1512`), so they get no id until #11
+  decides how they are identified. The issue opens only when the crawl step has
+  `GITHUB_TOKEN` and the caller grants `issues: write`.
+- **`RawbibIdParser.normalize` repairs vendor spellings before pubid reads
+  the normtitle** (`IEEE St802…`, `…REVD2.2` → `-REV/D2.2` so the revision
+  stays in the id, `_FDIS_D3.1`, a glued draft with a letter after a dotted
+  number (`PC37.10.1D5BA`), an empty `/D,` that takes the draft of
+  `stdnumber`, the Spanish NESC Handbook). Each rule is narrow: measure it
+  over the corpus, because a rule that also matches an id pubid already parses
+  changes that record's file name (`IEEE P605D10` and `IEEE P802.1D5`, where
+  802.1D is the standard, are the examples the glued-draft rule must not
+  touch). A three-part draft with a month (`/D0.07.01, March 2013`) renders
+  badly in pubid, so `IEEE P1901.2_vD0.07.01` has an explicit `when` with no
+  month.
 
 ## Testing
 

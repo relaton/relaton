@@ -647,12 +647,33 @@ module Relaton
         bib = IdamsParser.new(doc, self, local_errors).parse
         if bib.docnumber.nil?
           Util.warn "PubID parse error. Normtitle: `#{doc.normtitle}`, file: `#{file}`"
+          report_missing_id(doc.normtitle, info&.stdnumber, file)
           return nil
         end
         [idx, file, doc, bib, local_errors]
       rescue StandardError => e
         Util.error "File: #{file}\n#{e.message}\n#{e.backtrace}"
         nil
+      end
+
+      #
+      # A numbered record that gets no id, with nothing to explain it
+      # (`RawbibIdParser.unexpected_miss?`), is a new parse failure, so the
+      # record is skipped but not silently: `report_errors` sends the String
+      # to the crawl's GitHub issue. The key is the normtitle, because the
+      # rawbib dataset repeats a record in many files. A forked worker hands
+      # @errors to the parent with its state (`merge_errors`).
+      #
+      # @param [String, nil] normtitle
+      # @param [String, nil] stdnumber
+      # @param [String] file
+      #
+      def report_missing_id(normtitle, stdnumber, file)
+        key = :"no_id #{normtitle}"
+        # @errors defaults to true, so `||=` would never assign.
+        return if @errors.key?(key) || !RawbibIdParser.unexpected_miss?(normtitle, stdnumber)
+
+        @errors[key] = "No IEEE id for normtitle `#{normtitle}`, stdnumber `#{stdnumber}` (#{file})"
       end
 
       #

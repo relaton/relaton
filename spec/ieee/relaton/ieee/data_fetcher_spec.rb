@@ -178,6 +178,60 @@ RSpec.describe Relaton::Ieee::DataFetcher do
       ).to_stderr_from_any_process
     end
 
+    # A numbered record that gets no id, with nothing to explain it, is a new
+    # parse failure: it goes to the crawl's GitHub issue. A known miss
+    # (`RawbibIdParser::NOT_A_DESIGNATION`) does not.
+    context "record that gets no id" do
+      def record(normtitle, stdnumber)
+        <<~XML
+          <publication>
+            <normtitle><![CDATA[#{normtitle}]]></normtitle>
+            <publicationinfo>
+              <stdnumber>#{stdnumber}</stdnumber>
+              <publicationsubtype>Standard Docs</publicationsubtype>
+              <standard_id>1</standard_id>
+            </publicationinfo>
+          </publication>
+        XML
+      end
+
+      def parse_quietly(file)
+        dp = double "dp", parse: double("bib", docnumber: nil)
+        allow(Relaton::Ieee::IdamsParser).to receive(:new).and_return dp
+        expect do
+          expect(df.send(:parse_entry, 0, file)).to be_nil
+        end.to output(/WARN: PubID parse error/).to_stderr_from_any_process
+      end
+
+      it "records an error for a numbered record that gets no id" do
+        allow(File).to receive(:read).with("new.xml", encoding: "UTF-8")
+          .and_return record("IEEE 9999 Unknown", "9999 Unknown")
+        allow(Relaton::Ieee::RawbibIdParser).to receive(:parse).and_return nil
+        parse_quietly "new.xml"
+        expect(df.instance_variable_get(:@errors).values).to include(
+          "No IEEE id for normtitle `IEEE 9999 Unknown`, stdnumber `9999 Unknown` (new.xml)",
+        )
+      end
+
+      it "records no error for a known miss" do
+        allow(File).to receive(:read).with("guide.xml", encoding: "UTF-8")
+          .and_return record("Guide for Implementing IEEE Std 1512: Using a Systems Engineering Process",
+                             "1512 Guide")
+        parse_quietly "guide.xml"
+        expect(df.instance_variable_get(:@errors).values.grep(String)).to be_empty
+      end
+
+      it "reports the error through report_errors" do
+        allow(File).to receive(:read).with("new.xml", encoding: "UTF-8")
+          .and_return record("IEEE 9999 Unknown", "9999 Unknown")
+        allow(Relaton::Ieee::RawbibIdParser).to receive(:parse).and_return nil
+        parse_quietly "new.xml"
+        expect(df).to receive(:log_error).with(/No IEEE id for normtitle `IEEE 9999 Unknown`/)
+        allow(df).to receive(:log_error).with(/Failed to fetch/)
+        df.send(:report_errors)
+      end
+    end
+
     # A white paper or a research document has no standard number: IEEE gives
     # it no designation and cites it by title. Its `stdnumber` is a category,
     # and its `normtitle` is a title, so any id made from them is a fragment
@@ -211,12 +265,14 @@ RSpec.describe Relaton::Ieee::DataFetcher do
       end
 
       it "keeps a record of that type that has a number" do
-        std = xml.sub("White Paper", "ST 430-9:2008 Am1:2011")
+        # (The SMPTE amendment that this example used before has no IEEE
+        # designation, relaton-data-ieee#11.)
+        std = xml.sub("White Paper", "802.3bm-2015")
                  .sub("IEEE 802 Nendica Report: The Lossless Network for Data Centers",
-                      "Amendment 1:2011 to SMPTE ST 430-9:2008")
-        allow(File).to receive(:read).with("smpte.xml", encoding: "UTF-8").and_return std
-        entry = df.send(:extract_index_entry, 0, "smpte.xml")
-        expect(entry[2]).to eq "IEEE ST 430-9:2008 Am1:2011"
+                      "IEEE Std 802.3bm-2015")
+        allow(File).to receive(:read).with("numbered.xml", encoding: "UTF-8").and_return std
+        entry = df.send(:extract_index_entry, 0, "numbered.xml")
+        expect(entry[2]).to eq "IEEE Std 802.3bm-2015"
       end
 
       it "keeps a standard document with a category stdnumber" do

@@ -220,6 +220,118 @@ RSpec.describe Relaton::Ieee::RawbibIdParser do
     end
   end
 
+  # relaton-data-ieee#10: the old crawl stored primary ids that pubid cannot
+  # parse. Each example is the real rawbib record (normtitle, stdnumber). The
+  # result must be an id that pubid parses again.
+  context "junk ids of relaton-data-ieee#10" do
+    shared_examples "repairs the id" do |nt, sn, id|
+      it "gives `#{id}` for `#{sn}`" do
+        pid = described_class.parse(nt, sn)
+        expect(pid.to_s).to eq id
+        expect(described_class.pubid_parse(pid.to_s)).not_to be_nil
+      end
+    end
+
+    # The year capture was `(|d{4})`, so it took an empty year (`IEEE C63.19-`).
+    it_behaves_like "repairs the id",
+                    "C63.19-2011(Revision of ANSI C63.19-2007) - Redline", "C63.19-2011",
+                    "IEEE Std C63.19-2011 - Redline"
+    # An empty draft in normtitle takes the draft of stdnumber (was `/D--2019`).
+    it_behaves_like "repairs the id",
+                    "IEEE P11073-10415/D, February 2019", "P11073-10415/D6, Feb 2019",
+                    "IEEE P11073-10415/D6, Feb, 2019"
+    it_behaves_like "repairs the id",
+                    "IEEE St802.3de-2022 (Amendment to IEEE Std 802.3-2022 as amended by " \
+                    "IEEE Std 802.3dd-2022, IEEE Std 802.3cs-2022, IEEE Std 802.3db-2022, " \
+                    "and IEEE Std 802.3ck-2022)", "802.3de-2022",
+                    "IEEE Std 802.3de-2022"
+    it_behaves_like "repairs the id",
+                    "IEEE P802.1QREVD2.2, July 2014 (Incorporating IEEE 802.1Q-2011, " \
+                    "IEEE 802.1Qbe, IEEE 802.1Qbc, IEEE 802.1Qbb-2011, IEEE 802.1Qaz-2011, " \
+                    "IEEE 802.1Qbf-2011, IEEE 802.1Qbg-2012, IEEE 802.1aq-2012, and " \
+                    "IEEE 802.1Q-2011/Cor2-2012)", "P802.1Q-REV/D2.2, Jul 2014",
+                    "IEEE P802.1Q-Rev/D2.2-2014-07"
+    it_behaves_like "repairs the id",
+                    "IEEE PC37.10.1D5BA, October 2018", "PC37.10.1D5BA, Oct 2018",
+                    "IEEE Draft PC37.10.1/D5BA, Oct, 2018"
+    it_behaves_like "repairs the id",
+                    "IEC/IEEE P61886-1_FDIS_D3.1, November 2020", "P61886-1_FDIS_D3.1, Nov 2020",
+                    "IEC/IEEE Draft P61886-1/D3.1, Nov 2020"
+    # pubid renders a three-part draft with a month badly, so no month here.
+    it_behaves_like "repairs the id",
+                    "IEEE P1901.2_vD0.07.01, March 2013", "P1901.2_vD0.07.0, Mar 2013",
+                    "IEEE P1901.2/D0.07.01, 2013"
+    it_behaves_like "repairs the id",
+                    "NESC Handbook, Premier Edition – Spanish version - A Discussion of the " \
+                    "National Electrical Safety Code(R) + COMENTARIOS EN ESPAÑOL", "NESC HBK-2018",
+                    "IEEE Std 2018 NESC Handbook, Premier Edition"
+
+    it "does not rewrite a glued draft of a number with no dot" do
+      expect(described_class.parse("IEEE P605D10, October 2023", "P605D10, Oct 2023").to_s)
+        .to eq "IEEE P605D10, October 2023"
+    end
+
+    it "does not split a designation that ends in D (802.1D)" do
+      expect(described_class.parse("IEEE P802.1D5, May 2003", "P802.1D/D5, May 2003").to_s)
+        .to eq "IEEE P802.1D5, May 2003"
+    end
+
+    # relaton-data-ieee#11: free text with no IEEE designation. A stripped
+    # title would name another document (`IEEE 1512` is a different standard).
+    context "a record that is not a designation" do
+      {
+        "Guide for Implementing IEEE Std 1512: Using a Systems Engineering Process" => "1512 Guide",
+        "802.11ba Battery Life Improvement: IEEE Technology Report on Wake-Up Radio" =>
+          "802.11ba Battery Life Improvement",
+        "3006HistoricalData-2012 Historical Reliability Data for IEEE 3006 Standards" =>
+          "3006HistoricalData-2012",
+        "IEEE/NEMI PR 1533-1998" => "PR 1533-1998",
+        "Amendment 1:2011 to SMPTE ST 430-9:2008" => "ST 430-9:2008 Am1:2011",
+      }.each do |nt, sn|
+        it "gives no id for `#{sn}`" do
+          expect(described_class.parse(nt, sn)).to be_nil
+        end
+
+        it "is a known miss for `#{sn}`" do
+          expect(described_class.unexpected_miss?(nt, sn)).to be false
+        end
+      end
+    end
+  end
+
+  # A record that gets no id is a crawl error only when nothing explains it.
+  context "unexpected_miss?" do
+    it "is false for a record that gets an id" do
+      expect(described_class.unexpected_miss?("IEEE Std 802.3-2022", "802.3-2022")).to be false
+    end
+
+    it "is false for a stdnumber with no digit (a category)" do
+      expect(described_class.unexpected_miss?("Footwear Last Definitions", "White Paper")).to be false
+    end
+
+    it "is false for a title-fragment id that the guard drops" do
+      # A stdnumber with a digit, so the example reaches the guard path:
+      # `parse` gives a Renderer that IdamsParser drops, not nil.
+      nt = "WEB 3.0: The Evolution of Information-Centric Networks"
+      expect(described_class.parse(nt, "3.0")).to be_a Relaton::Ieee::RawbibIdParser::Renderer
+      expect(described_class.unexpected_miss?(nt, "3.0")).to be false
+    end
+
+    it "is true for a numbered record that gets no id" do
+      allow(described_class).to receive(:parse).and_return nil
+      expect(described_class.unexpected_miss?("IEEE 9999 Unknown", "9999 Unknown")).to be true
+    end
+  end
+
+  context "Renderer with an empty field" do
+    it "prints no empty draft or year" do
+      id = Relaton::Ieee::RawbibIdParser::Renderer.new(
+        publisher: "IEEE", number: "P11073", part: "10415", draft: "", year: "", month: "",
+      ).to_id
+      expect(id).to eq "IEEE P11073.10415"
+    end
+  end
+
   # A real standard with a title-like normtitle has its number in stdnumber.
   # The two-word fallback hid it; the id must come from stdnumber.
   context "standard with a title for normtitle" do

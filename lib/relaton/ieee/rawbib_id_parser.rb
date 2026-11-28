@@ -29,6 +29,9 @@ module Relaton
       # @return [::Pubid::Ieee::Identifier, nil]
       #
       def parse(normtitle, stdnumber)
+        return nil if NOT_A_DESIGNATION.include?(stdnumber.to_s)
+
+        normtitle = normalize(normtitle, stdnumber.to_s)
         # Bespoke canonical string is the faithfulness reference: for the ~6% of
         # normtitles pubid can't parse directly it's the recovery source, and for
         # the rest it guards against pubid parsing but silently dropping a digit.
@@ -38,6 +41,69 @@ module Relaton
           return pid if ref.nil? || faithful?(pid.to_s, ref)
         end
         rendered # neither pubid parse kept every digit — keep the bespoke id
+      end
+
+      # Records whose `stdnumber` is free text, not an IEEE designation
+      # (relaton-data-ieee#11). A stripped title would name another document
+      # (`IEEE 1512` is a different standard), so they get no id, and the
+      # crawler skips them without an error. Each is the record's stdnumber.
+      NOT_A_DESIGNATION = [
+        "1512 Guide",                        # a guide for implementing IEEE 1512
+        "802.11ba Battery Life Improvement", # a technology report
+        "3006HistoricalData-2012",           # reliability data for IEEE 3006
+        "PR 1533-1998",                      # IEEE/NEMI specification
+        "ST 430-9:2008 Am1:2011",            # a SMPTE amendment
+      ].freeze
+
+      #
+      # True when a record gets no id and nothing explains it, so the crawler
+      # must report it. A record is explained when it is in
+      # {NOT_A_DESIGNATION}, when its `stdnumber` has no digit (a category
+      # such as "White Paper": {#parse_fallback} gives it no id on purpose),
+      # or when {#parse} gives an id that the IdamsParser drops (the
+      # {#fabricated_title_id?} guard).
+      #
+      # @param [String, nil] normtitle
+      # @param [String, nil] stdnumber
+      #
+      # @return [Boolean]
+      #
+      def unexpected_miss?(normtitle, stdnumber)
+        return false if NOT_A_DESIGNATION.include?(stdnumber.to_s)
+        return false unless stdnumber.to_s.match?(/\d/)
+
+        parse(normtitle.to_s, stdnumber.to_s).nil?
+      end
+
+      #
+      # Repair vendor spellings that neither pubid nor {#parse_fallback} can
+      # read, before both see the normtitle (relaton-data-ieee#10). Each rule
+      # is narrow: an id that pubid already parses must not change.
+      #
+      # @param [String] normtitle
+      # @param [String] stdnumber
+      #
+      # @return [String]
+      #
+      def normalize(normtitle, stdnumber) # rubocop:disable Metrics/AbcSize
+        # The Spanish NESC Handbook has a title for normtitle; the year is in
+        # stdnumber (`NESC HBK-2018`).
+        if stdnumber =~ /\ANESC HBK-(\d{4})\z/ && normtitle.start_with?("NESC Handbook, Premier Edition")
+          return "#{Regexp.last_match(1)} NESC Handbook, Premier Edition"
+        end
+
+        nt = normtitle.sub(/\b(IEEE )St(?=\d)/, '\1Std ')   # IEEE St802.3de
+                      .sub(/(?<=\d)_FDIS_D(?=\d)/, "/D")     # P61886-1_FDIS_D3.1
+                      .sub(/(?<=[a-z\d])REVD(?=\d)/i, "-REV/D") # P802.1QREVD2.2 (keeps the revision)
+                      # PC37.10.1D5BA. A letter after the draft digits keeps
+                      # `P802.1D5` (802.1D is a real standard) as it is.
+                      .sub(/\A(IEEE PC?\d+(?:\.\d+)+)D(?=\d+[A-Z])/, '\1/D')
+        # An empty draft (`P11073-10415/D, February 2019`) takes the draft of
+        # stdnumber (`P11073-10415/D6, Feb 2019`).
+        if nt.include?("/D,") && (draft = stdnumber[%r{/D(\w[\w.]*)}, 1])
+          nt = nt.sub("/D,", "/D#{draft},")
+        end
+        nt
       end
 
       #
@@ -113,6 +179,9 @@ module Relaton
         # when /^(\d+HistoricalData)-(\d{4})/ then "IEEE #{$1}.#{$2}"
         # when /^(\d+)\.(\w+)\sBattery\sLife\sImprovement/ then "IEEE #{$1}-#{$2}"
         # when /^(\d+)\.(\w+)-(\d{4})\s\(Amendment/ then "IEEE #{$1}-#{$2}.#{$3}"
+        # No month: pubid renders a three-part draft with a month badly.
+        when "IEEE P1901.2_vD0.07.01, March 2013" # "IEEE P1901.2/D0.07.01-2013"
+          Renderer.new(publisher: "IEEE", number: "P1901", part: "2", draft: "0.07.01", year: "2013")
         when "A.I.E.E. No. 15 May-1928" then Renderer.new(publisher: "AIEE", number: "15", year: "1928", month: "05")
         # when "AIEE Nos 72 and 73 - 1932" then "AIEE 72_73.1932"
         when "IEEE Std P1073.1.3.4/D3.0" then Renderer.new(publisher: "IEEE", std: true, number: "P11073", part: "00101") # "IEEE Std P11073-00101"
@@ -527,7 +596,8 @@ module Relaton
         # number, part, year
         when /^(\d{2})\sIRE\s(\w+)[\s.](\w+)/ # "IRE #{$2}-#{$3}.#{yn $1}"
           Renderer.new(publisher: "IRE", number: $2, part: $3, year: yn($1))
-        when /^(\w+)\.(\w+)-(|d{4})/ then Renderer.new(publisher: "IEEE", number: $1, part: $2, year: $3)
+        when /^(\w+)\.(\w+)-(\d{4}).*?(\s-\sRedline)?\z/
+          Renderer.new(publisher: "IEEE", number: $1, part: $2, year: $3, redline: !$4.nil?)
 
         # number, year
         when /^(\w+)-(\d{4})\D/ then Renderer.new(publisher: "IEEE", number: $1, year: $2)
@@ -710,13 +780,19 @@ module Relaton
           end
 
           def edition_to_s = edition ? "/E-#{edition}" : ""
-          def draft_to_s   = draft ? "/D-#{draft}" : ""
+          def draft_to_s   = blank?(draft) ? "" : "/D-#{draft}"
           def rev_to_s     = rev ? "/R-#{rev}" : ""
           def corr_to_s    = corr ? "/Cor#{corr}" : ""
           def amd_to_s     = amd ? "/Amd #{amd}" : ""
-          def year_to_s    = year ? "-#{year}" : ""
-          def month_to_s   = month ? "-#{month}" : ""
+          def year_to_s    = blank?(year) ? "" : "-#{year}"
+          def month_to_s   = blank?(month) ? "" : "-#{month}"
           def redline_to_s = redline ? " Redline" : ""
+
+          private
+
+          # An empty capture must print nothing: `/D-` or a bare `-` gives an
+          # id that pubid cannot parse (relaton-data-ieee#10).
+          def blank?(value) = value.to_s.empty?
         end
 
         def initialize(pubid)

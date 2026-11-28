@@ -111,7 +111,13 @@ reports its unparseable ids), and the build publishes the rest. It raises
 `GITHUB_REPOSITORY`/`GITHUB_TOKEN`, or GitHub refuses (so a local run
 fails). The relaton-data-ieee deploy failed on 19 old-crawl ids when the
 raise was unconditional. relaton/support's `data-deploy.yml` must give
-the index step `issues: write` and `GITHUB_TOKEN`.
+the index step `issues: write` and `GITHUB_TOKEN`. The IEEE crawler has
+the same rule one step earlier: a record that gets no id at all is
+skipped, and `RawbibIdParser.unexpected_miss?` decides whether that is a
+crawl error (reported through `report_errors`) or a known miss
+(`NOT_A_DESIGNATION`, a category `stdnumber`). Add a record to
+`NOT_A_DESIGNATION` only with an issue that tracks it
+(relaton-data-ieee#11). See `docs/ieee.md`.
 
 **The `Db` cache is keyed by pubid (relaton#189 item 2, #204).** `Db::Cache`
 is an index on two lutaml-store `FileSystem` stores (`<dir>/v2/{rows,docs}`),
