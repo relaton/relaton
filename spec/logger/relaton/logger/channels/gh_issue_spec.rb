@@ -64,6 +64,15 @@ describe Relaton::Logger::Channels::GhIssue do
           expect(subject).to receive(:post_issue).and_return double(code: "400", message: "message", body: "body")
           expect { subject.create_issue }.to output("Failed to report issue: 400 message\nbody\n").to_stdout
         end
+
+        # A crawl must not lose its data because the report could not go out.
+        it "answers false when the request raises" do
+          expect(subject).to receive(:post).and_raise SocketError, "no network"
+          result = nil
+          expect { result = subject.create_issue }
+            .to output("Failed to report issue: SocketError: no network\n").to_stdout
+          expect(result).to be false
+        end
       end
 
       context "an open issue with this title exists" do
@@ -73,6 +82,14 @@ describe Relaton::Logger::Channels::GhIssue do
           expect(subject).not_to receive(:post_issue)
           expect(subject).to receive(:post_comment).with(42).and_return double(code: "201")
           expect { subject.create_issue }.to output("Issue 42 commented!\n").to_stdout
+        end
+
+        it "answers false when the comment request raises" do
+          expect(subject).to receive(:post).and_raise Net::OpenTimeout, "execution expired"
+          result = nil
+          expect { result = subject.create_issue }
+            .to output("Failed to report issue: Net::OpenTimeout: execution expired\n").to_stdout
+          expect(result).to be false
         end
       end
     end

@@ -41,9 +41,13 @@ module Relaton
         # report; when an open issue with this title already exists, add the run's
         # log as a comment on it instead.
         #
+        # A request that raises (timeout, DNS, TLS) is printed and answers
+        # false: a crawl calls this from `report_errors`, and an escaped error
+        # would fail the fetch step before its data is committed.
+        #
         # @return [Boolean, nil] true when GitHub took the issue or the
-        #   comment, false when it refused it, nil when nothing was sent
-        #   (an empty log or no GITHUB_TOKEN)
+        #   comment, false when it refused it or the request raised, nil when
+        #   nothing was sent (an empty log or no GITHUB_TOKEN)
         def create_issue
           return if @log.empty? || ENV["GITHUB_TOKEN"].nil?
 
@@ -52,6 +56,9 @@ module Relaton
           else
             report_response post_issue, "Issue created!", 201
           end
+        rescue StandardError => e
+          puts "Failed to report issue: #{e.class}: #{e.message}"
+          false
         end
 
         private
