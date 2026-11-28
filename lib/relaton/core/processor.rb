@@ -97,7 +97,12 @@ module Relaton
             hit = @pubid_memo[key]
             @pubid_memo.key?(key)
           end
-          return hit if present
+          # Copy on handout (relaton#636): the memo stores one parse per
+          # [class, reference], and callers may mutate the identifier
+          # they receive (validity, extent, typed_stage). Handing out
+          # the memoized instance let one caller's mutation poison
+          # every later hit of the same reference.
+          return hit.dup if present
 
           parsed =
             begin
@@ -114,7 +119,7 @@ require_relative "../bib"
             @pubid_memo.shift while @pubid_memo.size >= MEMO_LIMIT
             @pubid_memo[key] = parsed
           end
-          parsed
+          parsed&.dup
         end
       end
 
