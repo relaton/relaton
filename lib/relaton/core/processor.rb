@@ -63,17 +63,59 @@ module Relaton
       # receives the String and normalizes it itself, and the query is not
       # keyed - the same reading as a flavor's own miss.
       #
+      # The parse is memoized per identifier class (relaton#633): it is pure,
+      # and one compile re-reads the same reference many times, so the key
+      # path must not re-run a parslet parse per access (the plateau v5
+      # campaign measured the MatchData/string churn). The map is bounded
+      # FIFO, mutex-guarded (Db serves lookups from a workers pool), and
+      # caches misses too. Memoized instances are shared: the key path never
+      # mutates a parsed identifier (`fold_year` and `to_all_parts` copy),
+      # and an override of this method keeps its own behaviour.
+      #
       # @param ref [String]
       # @return [Pubid::Identifier, nil]
       def cache_pubid(ref)
-        pubid_class&.parse(ref)
-      rescue ArgumentError, ::Pubid::Errors::Error
-        # relaton-bib carries the log facade; core specs load without it.
+        klass = pubid_class
+        return nil unless klass
+
+        Core::Processor.cached_pubid(klass, ref)
+      end
+
+      # The bounded memo behind .cache_pubid: `[identifier class, reference]`
+      # → parsed identifier or nil. Insertion order is the eviction order;
+      # the limit covers a compile's reference working set with headroom.
+      MEMO_LIMIT = 2000
+
+      @pubid_memo = {}
+      @memo_mutex = Mutex.new
+
+      class << self
+        def cached_pubid(klass, ref)
+          key = [klass, ref]
+          hit = nil
+          present = @memo_mutex.synchronize do
+            hit = @pubid_memo[key]
+            @pubid_memo.key?(key)
+          end
+          return hit if present
+
+          parsed =
+            begin
+              klass.parse(ref)
+            rescue ArgumentError, ::Pubid::Errors::Error
+              # relaton-bib carries the log facade; core specs load without it.
 require_relative "../bib"
-        Relaton::Bib::Util.info "does not parse as this flavor's pubid; " \
-                                "passing the reference to the flavor as " \
-                                "written", "relaton-db", key: ref
-        nil
+              Relaton::Bib::Util.info "does not parse as this flavor's pubid; " \
+                                      "passing the reference to the flavor as " \
+                                      "written", "relaton-db", key: ref
+              nil
+            end
+          @memo_mutex.synchronize do
+            @pubid_memo.shift while @pubid_memo.size >= MEMO_LIMIT
+            @pubid_memo[key] = parsed
+          end
+          parsed
+        end
       end
 
       # The reference as `get` receives it and the cache keys it (relaton#205):

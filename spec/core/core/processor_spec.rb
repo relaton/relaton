@@ -142,5 +142,64 @@ RSpec.describe Relaton::Core::Processor do
         expect(copublishers("ISO 8601", :Iso)).to eq []
       end
     end
+
+    describe "parse memoization (relaton#633)" do
+      let(:memo_processor) { processor(pubid_flavor: :Iso) }
+
+      # Counts real parses through the real identifier class; `parse` is
+      # the class's own singleton method, so alias it aside and restore it
+      # afterwards (define-then-remove would lose the original).
+      def with_parse_counter
+        klass = Pubid::Iso::Identifier
+        sc = klass.singleton_class
+        sc.alias_method :parse_without_counter, :parse
+        calls = []
+        klass.define_singleton_method(:parse) do |ref|
+          calls << ref
+          klass.send(:parse_without_counter, ref)
+        end
+        yield calls
+      ensure
+        sc.alias_method :parse, :parse_without_counter
+        sc.send(:remove_method, :parse_without_counter)
+      end
+
+      it "answers the same instance for a repeated reference" do
+        first = memo_processor.cache_pubid("ISO 8601")
+        second = memo_processor.cache_pubid("ISO 8601")
+        expect(first).not_to be_nil
+        expect(second).to equal(first)
+      end
+
+      it "parses a reference once for repeated calls" do
+        with_parse_counter do |calls|
+          3.times { memo_processor.cache_pubid("ISO 8601-1") }
+          expect(calls.size).to eq 1
+        end
+      end
+
+      it "memoizes a miss without re-parsing it" do
+        with_parse_counter do |calls|
+          2.times { memo_processor.cache_pubid("NOT A STANDARD") }
+          expect(calls.size).to eq 1
+        end
+      end
+
+      it "keys the memo per identifier class" do
+        iso = processor(pubid_flavor: :Iso).cache_pubid("ISO 31000")
+        iec = processor(pubid_flavor: :Iec).cache_pubid("ISO 31000")
+        expect(iso).not_to equal(iec)
+      end
+
+      it "evicts the oldest entries once the memo is full" do
+        limit = described_class::MEMO_LIMIT
+        first = memo_processor.cache_pubid("ISO 1111")
+        (0...limit + 50).each { |i| memo_processor.cache_pubid("ISO 2#{i}") }
+        latest = memo_processor.cache_pubid("ISO 2#{limit + 49}")
+        reread = memo_processor.cache_pubid("ISO 1111")
+        expect(latest).not_to be_nil
+        expect(reread).not_to equal(first)
+      end
+    end
   end
 end
