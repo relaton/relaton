@@ -42,3 +42,15 @@ describe Relaton::Bib::PlainDate do
     end
   end
 end
+
+RSpec.describe "Relaton::Bib::PlainDate XML round-trip" do
+  it "Validity#to_xml preserves the datetime (lutaml table registration)" do
+    v = Relaton::Bib::Validity.new(begins: "2010-10-10T12:21:00Z")
+    expect(v.to_xml).to include("<validityBegins>2010-10-10T12:21:00Z</validityBegins>")
+  end
+
+  it "Validity#to_xml keeps date-only input as xs:date" do
+    v = Relaton::Bib::Validity.new(begins: "2018-04-15")
+    expect(v.to_xml).to include("<validityBegins>2018-04-15</validityBegins>")
+  end
+end

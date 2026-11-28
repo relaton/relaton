@@ -35,3 +35,16 @@ module Relaton
     end
   end
 end
+
+# lutaml's format-serializer table resolves Date-typed attributes by
+# walking the class hierarchy to the BASE Type::Date entry, whose static
+# serialize truncates ::DateTime to "YYYY-MM-DDZ" — a subclass's serialize
+# override is never consulted. Register this subclass explicitly so
+# Validity#to_xml honors the precision-preserving serialization above
+# (relaton#636).
+if defined?(Lutaml::Xml::Type::Serializers)
+  Lutaml::Model::Type::Value.register_format_type_serializer(
+    :xml, Relaton::Bib::PlainDate,
+    to: ->(inst) { Relaton::Bib::PlainDate.serialize(inst.value) }
+  )
+end
