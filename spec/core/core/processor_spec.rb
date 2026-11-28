@@ -164,11 +164,15 @@ RSpec.describe Relaton::Core::Processor do
         sc.send(:remove_method, :parse_without_counter)
       end
 
-      it "answers the same instance for a repeated reference" do
+      it "answers an equal but distinct instance for a repeated reference" do
+        # Copy-on-handout (relaton#636): the memo dedupes the parse work,
+        # but callers may mutate the identifier they receive, so each
+        # call gets its own instance and the memo stays pristine.
         first = memo_processor.cache_pubid("ISO 8601")
         second = memo_processor.cache_pubid("ISO 8601")
         expect(first).not_to be_nil
-        expect(second).to equal(first)
+        expect(second).to eq(first)
+        expect(second).not_to equal(first)
       end
 
       it "parses a reference once for repeated calls" do
@@ -200,6 +204,29 @@ RSpec.describe Relaton::Core::Processor do
         expect(latest).not_to be_nil
         expect(reread).not_to equal(first)
       end
+    end
+  end
+end
+
+RSpec.describe Relaton::Core::Processor do
+  describe ".cached_pubid copy-on-handout (relaton#636)" do
+    it "hands out distinct instances per call" do
+      klass = Relaton::Core::Processor.send(:pubid_class) rescue Pubid::Iso::Identifier
+      ref = "ISO 7301"
+      a = described_class.cached_pubid(klass, ref)
+      b = described_class.cached_pubid(klass, ref)
+      expect(a).not_to equal(a.object_id)
+      expect(b).not_to equal(b.object_id)
+      expect(a.object_id).not_to eq(b.object_id)
+    end
+
+    it "does not leak caller mutations into the memo" do
+      klass = Relaton::Core::Processor.send(:pubid_class) rescue Pubid::Iso::Identifier
+      ref = "ISO 7301"
+      a = described_class.cached_pubid(klass, ref)
+      a.instance_variable_set(:@relaton_test_mutation, :poisoned)
+      b = described_class.cached_pubid(klass, ref)
+      expect(b.instance_variable_get(:@relaton_test_mutation)).to be_nil
     end
   end
 end
